@@ -12,7 +12,7 @@
 	- Transition history rows are color-coded by destination state.
 -->
 <script lang="ts">
-import { Activity, GitFork, Sparkles, Trash } from "lucide-svelte";
+import { Activity, GitFork, Sparkles, Trash } from "@lucide/svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Callout } from "$lib/design/components/callout/index.js";

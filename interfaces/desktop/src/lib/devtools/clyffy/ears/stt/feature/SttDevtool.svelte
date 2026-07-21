@@ -13,7 +13,7 @@
 	drag-drop file transcription, streaming-ASR future note.
 -->
 <script lang="ts">
-import { Check, Ear, FileAudio, Mic, Play, PowerOff } from "lucide-svelte";
+import { Check, Ear, FileAudio, Mic, Play, PowerOff } from "@lucide/svelte";
 import { onMount } from "svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";

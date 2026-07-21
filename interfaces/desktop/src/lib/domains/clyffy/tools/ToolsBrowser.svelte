@@ -12,7 +12,7 @@
 	}
 -->
 <script lang="ts">
-import { Brain, Ear, Eye, MessageCircle, Search, Wrench } from "lucide-svelte";
+import { Brain, Ear, Eye, MessageCircle, Search, Wrench } from "@lucide/svelte";
 import { Text } from "$lib/design/components/text/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
 import { clyffyConnection } from "$lib/domains/clyffy/status/connection.state.svelte.js";

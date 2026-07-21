@@ -18,7 +18,7 @@
 	    AT users get the inference rationale.
 -->
 <script lang="ts">
-import { Download as DownloadIcon, Heart } from "lucide-svelte";
+import { Download as DownloadIcon, Heart } from "@lucide/svelte";
 import { cn } from "$lib/design/utils/cn.js";
 import type { HfSearchResultInfo } from "$lib/sys/generated/bindings.js";
 import { getSlotLabel } from "../../../util/slots.js";

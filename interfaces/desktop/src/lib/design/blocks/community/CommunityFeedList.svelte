@@ -18,7 +18,7 @@
 	wrapped in the appropriate heading level for the surrounding region.
 -->
 <script lang="ts">
-import { Megaphone, MessageSquare, Sparkles } from "lucide-svelte";
+import { Megaphone, MessageSquare, Sparkles } from "@lucide/svelte";
 import { Text } from "$lib/design/components/text/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { stack } from "$lib/design/utils/stack/index.js";

@@ -5,7 +5,7 @@
 	@description Presets + per-field sliders driven by param meta from Rust.
 -->
 <script lang="ts">
-import { Settings2 } from "lucide-svelte";
+import { Settings2 } from "@lucide/svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Callout } from "$lib/design/components/callout/index.js";

@@ -32,7 +32,7 @@
 	    one slot only
 -->
 <script lang="ts">
-import { BrainCircuit, ChevronRight, Ear, Eye, Mic, Sparkles } from "lucide-svelte";
+import { BrainCircuit, ChevronRight, Ear, Eye, Mic, Sparkles } from "@lucide/svelte";
 import { Button } from "$lib/design/components/button/index.js";
 import { Heading } from "$lib/design/components/heading/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";

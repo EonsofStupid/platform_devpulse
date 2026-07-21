@@ -35,7 +35,7 @@
 	  - Layman copy throughout, no "API" jargon in primary text
 -->
 <script lang="ts">
-import { Check, ExternalLink, KeyRound, Sparkles } from "lucide-svelte";
+import { Check, ExternalLink, KeyRound, Sparkles } from "@lucide/svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Heading } from "$lib/design/components/heading/index.js";

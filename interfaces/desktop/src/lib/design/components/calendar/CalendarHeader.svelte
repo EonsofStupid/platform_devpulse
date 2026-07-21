@@ -9,7 +9,7 @@
 	no hand-rolled keyboard handling.
 -->
 <script lang="ts">
-import { ChevronLeft, ChevronRight } from "lucide-svelte";
+import { ChevronLeft, ChevronRight } from "@lucide/svelte";
 import { cn } from "$lib/design/utils/cn.js";
 import { getCalendarContext } from "./context.js";
 import type { CalendarHeaderProps } from "./types.js";

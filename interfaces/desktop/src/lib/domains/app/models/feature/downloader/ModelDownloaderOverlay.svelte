@@ -40,7 +40,7 @@
 	    never paints layout twice.
 -->
 <script lang="ts">
-import { CheckCircle, X } from "lucide-svelte";
+import { CheckCircle, X } from "@lucide/svelte";
 import { onMount, tick } from "svelte";
 import { cn } from "$lib/design/utils/cn.js";
 import { downloadState } from "$lib/sys/activity-hud/download.state.svelte.js";

@@ -32,7 +32,7 @@
 	to `aria-valuetext="downloading"` for indeterminate sources.
 -->
 <script lang="ts">
-import { RefreshCcw, Sparkles } from "lucide-svelte";
+import { RefreshCcw, Sparkles } from "@lucide/svelte";
 import { Button } from "$lib/design/components/button/index.js";
 import { Heading } from "$lib/design/components/heading/index.js";
 import { InlineMessage } from "$lib/design/components/inline-message/index.js";
@@ -52,7 +52,7 @@ const lastCheckedAt = $derived(updatesState.lastCheckedAt);
 
 const downloadPercent = $derived.by(() => {
 	const p = updatesState.progress;
-	if (!p || !p.totalBytes || p.totalBytes <= 0) return null;
+	if (!p?.totalBytes || p.totalBytes <= 0) return null;
 	return Math.min(100, Math.round((p.downloadedBytes / p.totalBytes) * 100));
 });
 

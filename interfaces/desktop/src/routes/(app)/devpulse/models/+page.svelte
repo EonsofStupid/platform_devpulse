@@ -13,7 +13,7 @@ import {
 	Sparkles,
 	Square,
 	X,
-} from "lucide-svelte";
+} from "@lucide/svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Heading } from "$lib/design/components/heading/index.js";

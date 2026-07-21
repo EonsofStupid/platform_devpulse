@@ -18,7 +18,7 @@
 	Routes import ONLY this (via the domain index barrel).
 -->
 <script lang="ts">
-import { Compass, Database } from "lucide-svelte";
+import { Compass, Database } from "@lucide/svelte";
 import {
 	type ExtraTab,
 	type HealthBadge,

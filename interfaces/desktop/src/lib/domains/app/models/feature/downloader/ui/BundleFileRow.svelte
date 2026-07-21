@@ -15,7 +15,7 @@
 	Pure presentational — no state, no callbacks.
 -->
 <script lang="ts">
-import { Check, FileText } from "lucide-svelte";
+import { Check, FileText } from "@lucide/svelte";
 import { cn } from "$lib/design/utils/cn.js";
 import { formatBytes } from "../../../util/format.js";
 import type { BundleFileEntry } from "../util/downloader.types.js";

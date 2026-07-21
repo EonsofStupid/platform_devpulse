@@ -12,8 +12,8 @@
 	the UI never drifts from the backend SSOT.
 -->
 <script lang="ts">
+import { Check, ChevronDown, FolderOpen, Plus } from "@lucide/svelte";
 import { invoke } from "@tauri-apps/api/core";
-import { Check, ChevronDown, FolderOpen, Plus } from "lucide-svelte";
 import { onMount } from "svelte";
 import { commands } from "$lib/sys/generated/bindings.js";
 import { logError, logInfo } from "$lib/sys/logger.js";

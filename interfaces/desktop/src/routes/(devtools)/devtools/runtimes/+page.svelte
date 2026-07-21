@@ -19,7 +19,7 @@
 	user to the devtool that documents that runtime in detail.
 -->
 <script lang="ts">
-import { Cpu, ExternalLink, RefreshCw, ServerCog } from "lucide-svelte";
+import { Cpu, ExternalLink, RefreshCw, ServerCog } from "@lucide/svelte";
 import { onMount } from "svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";

@@ -7,7 +7,7 @@
 	`OllamaService` (engine adapter `OllamaAdapter`).
 -->
 <script lang="ts">
-import { Boxes, Download, Play, PowerOff, RefreshCw, Trash2 } from "lucide-svelte";
+import { Boxes, Download, Play, PowerOff, RefreshCw, Trash2 } from "@lucide/svelte";
 import { onMount } from "svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";

@@ -24,7 +24,7 @@
 	makes that constraint visible.
 -->
 <script lang="ts">
-import { Database, Globe, Network, RefreshCw, ServerCog, Terminal } from "lucide-svelte";
+import { Database, Globe, Network, RefreshCw, ServerCog, Terminal } from "@lucide/svelte";
 import { onMount } from "svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";

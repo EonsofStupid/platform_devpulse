@@ -36,7 +36,7 @@
 	save-button label, badge tone, and disabled state.
 -->
 <script lang="ts">
-import { Check, Pencil } from "lucide-svelte";
+import { Check, Pencil } from "@lucide/svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Heading } from "$lib/design/components/heading/index.js";

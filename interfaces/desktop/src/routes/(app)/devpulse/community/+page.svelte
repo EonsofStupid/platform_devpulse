@@ -15,7 +15,7 @@
 	`groups` tables when those land alongside the auth/contribution flow.
 -->
 <script lang="ts">
-import { RefreshCcw } from "lucide-svelte";
+import { RefreshCcw } from "@lucide/svelte";
 import { onMount } from "svelte";
 import { CommunityFeedList } from "$lib/design/blocks/community/index.js";
 import { Widget } from "$lib/design/blocks/widgets/index.js";

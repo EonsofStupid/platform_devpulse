@@ -10,7 +10,7 @@
 	— and shows the slot the install is targeting.
 -->
 <script lang="ts">
-import { Boxes, X } from "lucide-svelte";
+import { Boxes, X } from "@lucide/svelte";
 import { onMount } from "svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";

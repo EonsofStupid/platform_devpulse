@@ -4,7 +4,7 @@
   @domain devpulse
 -->
 <script lang="ts">
-import { Check, Pencil, X } from "lucide-svelte";
+import { Check, Pencil, X } from "@lucide/svelte";
 import { Widget } from "$lib/design/blocks/widgets/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";

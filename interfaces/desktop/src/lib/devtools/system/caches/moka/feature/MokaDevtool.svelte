@@ -7,8 +7,8 @@
 	surface — those would misrepresent Moka's TTL-driven behavior.
 -->
 <script lang="ts">
+import { Database, RefreshCw } from "@lucide/svelte";
 import { invoke } from "@tauri-apps/api/core";
-import { Database, RefreshCw } from "lucide-svelte";
 import { onMount } from "svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";

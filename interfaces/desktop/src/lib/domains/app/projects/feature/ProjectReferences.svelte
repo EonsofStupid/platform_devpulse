@@ -11,8 +11,8 @@
 	renders an empty-state directing the user to the switcher.
 -->
 <script lang="ts">
+import { FileText, Folder, FolderPlus, Layers, Trash2 } from "@lucide/svelte";
 import { invoke } from "@tauri-apps/api/core";
-import { FileText, Folder, FolderPlus, Layers, Trash2 } from "lucide-svelte";
 import { logError } from "$lib/sys/logger.js";
 import { projectsState, type ReferenceKind } from "../data-access/projects.state.svelte.js";
 

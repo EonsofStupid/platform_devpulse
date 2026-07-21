@@ -14,8 +14,8 @@
 }
 -->
 <script lang="ts">
+import { Bell, Menu, MessageCircle, Search } from "@lucide/svelte";
 import { invoke } from "@tauri-apps/api/core";
-import { Bell, Menu, MessageCircle, Search } from "lucide-svelte";
 import { Avatar } from "$lib/design/components/avatar/index.js";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";

@@ -27,7 +27,7 @@
 	interactive element. Fluid via cqi (container = .shell-root, S1.C).
 -->
 <script lang="ts">
-import { Check, Home, Radar, Server } from "lucide-svelte";
+import { Check, Home, Radar, Server } from "@lucide/svelte";
 import { onMount } from "svelte";
 import { ClyffyMascot } from "$lib/design/blocks/clyffy/index.js";
 import { Badge } from "$lib/design/components/badge/index.js";

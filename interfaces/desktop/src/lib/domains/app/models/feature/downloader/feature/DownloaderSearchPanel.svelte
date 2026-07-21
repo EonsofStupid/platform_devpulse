@@ -19,7 +19,7 @@
 	    so AT users hear state transitions.
 -->
 <script lang="ts">
-import { Search } from "lucide-svelte";
+import { Search } from "@lucide/svelte";
 import { cn } from "$lib/design/utils/cn.js";
 import type { DownloaderCopy, HfSearchResultInfo } from "$lib/sys/generated/bindings.js";
 import { modelDownloaderState } from "../data-access/downloader.state.svelte.js";

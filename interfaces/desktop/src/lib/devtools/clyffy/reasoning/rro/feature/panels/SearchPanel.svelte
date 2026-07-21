@@ -5,7 +5,7 @@
 	@description "Try It" — encode a query, search a collection, show results with quality feedback.
 -->
 <script lang="ts">
-import { Search } from "lucide-svelte";
+import { Search } from "@lucide/svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Card } from "$lib/design/components/card/index.js";

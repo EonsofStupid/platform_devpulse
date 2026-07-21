@@ -10,7 +10,7 @@
 	will hold when the corresponding backend command lands.
 -->
 <script lang="ts">
-import { Brain, GitBranch, Search, Zap } from "lucide-svelte";
+import { Brain, GitBranch, Search, Zap } from "@lucide/svelte";
 import { Text } from "$lib/design/components/text/index.js";
 import { type HealthBadge, ServiceDevtoolShell } from "$lib/devtools/index.js";
 

@@ -11,7 +11,7 @@
 	`[services.system.duckdb]` of `platform.toml`.
 -->
 <script lang="ts">
-import { BarChart3, Hammer, Play, RefreshCw, Table2, Terminal } from "lucide-svelte";
+import { BarChart3, Hammer, Play, RefreshCw, Table2, Terminal } from "@lucide/svelte";
 import { onMount } from "svelte";
 import { Button } from "$lib/design/components/button/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";

@@ -17,7 +17,7 @@
 
 	```svelte
 	<script lang="ts">
-import { Database } from "lucide-svelte";
+import { Database } from "@lucide/svelte";
 import { ServiceDevtoolShell } from "$lib/devtools/_shared/index.js";
 </script>
 
@@ -59,7 +59,7 @@ import { ServiceDevtoolShell } from "$lib/devtools/_shared/index.js";
 -->
 <script lang="ts">
 	import { type Snippet, untrack } from "svelte";
-	import { ArrowLeft, Check, Copy, Download } from "lucide-svelte";
+	import { ArrowLeft, Check, Copy, Download } from "@lucide/svelte";
 	import { KnowledgeTerm } from "$lib/design/blocks/knowledge/index.js";
 	import { BackgroundScene } from "$lib/design/components/background-scene/index.js";
 	import { Text } from "$lib/design/components/text/index.js";

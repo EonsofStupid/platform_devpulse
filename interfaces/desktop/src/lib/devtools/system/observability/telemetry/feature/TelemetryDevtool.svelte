@@ -14,7 +14,7 @@
 	Every number on this page is read live from Rust. No mocks. No placeholders.
 -->
 <script lang="ts">
-import { Activity, BarChart3, Folder, Gauge, RefreshCw, Zap } from "lucide-svelte";
+import { Activity, BarChart3, Folder, Gauge, RefreshCw, Zap } from "@lucide/svelte";
 import { onMount } from "svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";

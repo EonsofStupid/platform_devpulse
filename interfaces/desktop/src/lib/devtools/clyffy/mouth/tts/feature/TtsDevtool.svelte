@@ -32,7 +32,7 @@ import {
 	Upload,
 	UserCircle,
 	Volume2,
-} from "lucide-svelte";
+} from "@lucide/svelte";
 import { onMount } from "svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";

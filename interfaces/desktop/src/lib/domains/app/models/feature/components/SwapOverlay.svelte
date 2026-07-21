@@ -12,7 +12,7 @@
 	the user dismisses them.
 -->
 <script lang="ts">
-import { X } from "lucide-svelte";
+import { X } from "@lucide/svelte";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { installState } from "$lib/sys/activity-hud/install.state.svelte.js";

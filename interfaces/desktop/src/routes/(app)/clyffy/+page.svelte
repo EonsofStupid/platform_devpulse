@@ -11,7 +11,7 @@
 	persona, the one dashboard.
 -->
 <script lang="ts">
-import { BookOpenCheck, Brain, Database, Layers, Users } from "lucide-svelte";
+import { BookOpenCheck, Brain, Database, Layers, Users } from "@lucide/svelte";
 import { Widget } from "$lib/design/blocks/widgets/index.js";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { DynamicBackground } from "$lib/design/components/dynamic-background/index.js";

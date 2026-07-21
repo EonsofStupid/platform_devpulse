@@ -18,7 +18,7 @@
 	for `GrammarHandle::status()` and the AG-UI event tap).
 -->
 <script lang="ts">
-import { Shield } from "lucide-svelte";
+import { Shield } from "@lucide/svelte";
 import { Text } from "$lib/design/components/text/index.js";
 import { type HealthBadge, ScopedLogPanel, ServiceDevtoolShell } from "$lib/devtools/index.js";
 

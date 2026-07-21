@@ -11,7 +11,7 @@
 	the SSOT lives in `[services.system.libsql]` of `platform.toml`.
 -->
 <script lang="ts">
-import { Database, Hammer, Play, RefreshCw, Table2, Terminal } from "lucide-svelte";
+import { Database, Hammer, Play, RefreshCw, Table2, Terminal } from "@lucide/svelte";
 import { onMount } from "svelte";
 import { Button } from "$lib/design/components/button/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";

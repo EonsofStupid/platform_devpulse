@@ -63,7 +63,7 @@ import {
 	Sparkles,
 	Volume2,
 	Workflow,
-} from "lucide-svelte";
+} from "@lucide/svelte";
 
 import type {
 	BucketIcons,

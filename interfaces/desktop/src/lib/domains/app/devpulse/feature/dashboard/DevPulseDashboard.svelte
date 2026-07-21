@@ -5,7 +5,7 @@
   Matches DASHBOARD-REFERENCE-01.
 -->
 <script lang="ts">
-import { Activity, BarChart3, FolderGit2, Gauge, HeartPulse, TrendingUp } from "lucide-svelte";
+import { Activity, BarChart3, FolderGit2, Gauge, HeartPulse, TrendingUp } from "@lucide/svelte";
 import { untrack } from "svelte";
 import { Widget } from "$lib/design/blocks/widgets/index.js";
 import { Badge } from "$lib/design/components/badge/index.js";

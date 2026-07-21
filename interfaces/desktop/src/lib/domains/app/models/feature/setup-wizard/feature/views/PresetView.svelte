@@ -14,7 +14,7 @@
 	current wizard for this step).
 -->
 <script lang="ts">
-import { ChevronRight } from "lucide-svelte";
+import { ChevronRight } from "@lucide/svelte";
 import { Button } from "$lib/design/components/button/index.js";
 import { Heading } from "$lib/design/components/heading/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";

@@ -32,7 +32,7 @@ import {
 	Radio,
 	Sparkles,
 	Wrench,
-} from "lucide-svelte";
+} from "@lucide/svelte";
 import { page } from "$app/state";
 import { Button } from "$lib/design/components/button/index.js";
 import { Text } from "$lib/design/components/text/index.js";

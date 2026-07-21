@@ -10,8 +10,8 @@
   Rendered in a separate Tauri child window via open_chat_window.
 -->
 <script lang="ts">
+import { Brain, Cpu } from "@lucide/svelte";
 import { invoke } from "@tauri-apps/api/core";
-import { Brain, Cpu } from "lucide-svelte";
 import type { Snippet } from "svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";

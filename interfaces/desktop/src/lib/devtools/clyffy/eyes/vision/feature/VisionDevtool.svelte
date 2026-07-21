@@ -15,7 +15,7 @@
 	SO400M default). Slot id is `vision.embedder`.
 -->
 <script lang="ts">
-import { Check, Clipboard, Eye, FileImage, ImageOff, Play, PowerOff } from "lucide-svelte";
+import { Check, Clipboard, Eye, FileImage, ImageOff, Play, PowerOff } from "@lucide/svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Callout } from "$lib/design/components/callout/index.js";

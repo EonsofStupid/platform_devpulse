@@ -12,7 +12,7 @@
   terms first with the raw figures shown alongside.
 -->
 <script lang="ts">
-import { Activity, FolderOpen, Play, Power, RefreshCw, ServerCog, Terminal } from "lucide-svelte";
+import { Activity, FolderOpen, Play, Power, RefreshCw, ServerCog, Terminal } from "@lucide/svelte";
 import { onMount } from "svelte";
 import { Widget } from "$lib/design/blocks/widgets/index.js";
 import { Badge } from "$lib/design/components/badge/index.js";

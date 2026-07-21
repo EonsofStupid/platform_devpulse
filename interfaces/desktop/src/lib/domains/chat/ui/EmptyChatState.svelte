@@ -2,7 +2,7 @@
   @component EmptyChatState
 -->
 <script lang="ts">
-import { Sparkles } from "lucide-svelte";
+import { Sparkles } from "@lucide/svelte";
 import Text from "$lib/design/components/text/Text.svelte";
 import { cn } from "$lib/design/utils/cn.js";
 

@@ -18,7 +18,7 @@
 	cross-links here for deep dive.
 -->
 <script lang="ts">
-import { ArrowUpRight, Boxes, Database, RefreshCw } from "lucide-svelte";
+import { ArrowUpRight, Boxes, Database, RefreshCw } from "@lucide/svelte";
 import { onMount } from "svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";

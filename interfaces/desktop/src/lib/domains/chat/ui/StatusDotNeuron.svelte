@@ -2,7 +2,7 @@
   @component StatusDotNeuron — cortex graph node
 -->
 <script lang="ts">
-import { Brain, Database, FileText, Image, StickyNote } from "lucide-svelte";
+import { Brain, Database, FileText, Image, StickyNote } from "@lucide/svelte";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 

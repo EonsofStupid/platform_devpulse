@@ -5,7 +5,7 @@
 	@description rag.embedder slot status — Burn encoder health + tier display.
 -->
 <script lang="ts">
-import { Brain, Shapes } from "lucide-svelte";
+import { Brain, Shapes } from "@lucide/svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Card } from "$lib/design/components/card/index.js";
 import { Text } from "$lib/design/components/text/index.js";

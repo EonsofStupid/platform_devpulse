@@ -20,7 +20,7 @@
 	clamp()-based CSS custom properties).
 -->
 <script lang="ts">
-import { ExternalLink, FolderOpen, RefreshCw, Sparkles } from "lucide-svelte";
+import { ExternalLink, FolderOpen, RefreshCw, Sparkles } from "@lucide/svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { KeyValue } from "$lib/design/components/key-value/index.js";

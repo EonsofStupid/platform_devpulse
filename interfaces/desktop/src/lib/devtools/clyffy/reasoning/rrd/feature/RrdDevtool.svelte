@@ -14,7 +14,7 @@
 	pre-instantiation diagnostic surface.
 -->
 <script lang="ts">
-import { Activity, RotateCw, Trash2, Upload } from "lucide-svelte";
+import { Activity, RotateCw, Trash2, Upload } from "@lucide/svelte";
 import { onMount } from "svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";

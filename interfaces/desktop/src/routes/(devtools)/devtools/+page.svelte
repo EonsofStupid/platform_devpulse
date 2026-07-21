@@ -9,8 +9,8 @@
   is the priority over strict isolation.
 -->
 <script lang="ts">
+import { Activity, BrainCircuit, Cpu, ExternalLink, Grid3x3, Settings, X } from "@lucide/svelte";
 import { invoke } from "@tauri-apps/api/core";
-import { Activity, BrainCircuit, Cpu, ExternalLink, Grid3x3, Settings, X } from "lucide-svelte";
 import { untrack } from "svelte";
 import { Button } from "$lib/design/components/button/index.js";
 import { Section } from "$lib/design/components/section/index.js";

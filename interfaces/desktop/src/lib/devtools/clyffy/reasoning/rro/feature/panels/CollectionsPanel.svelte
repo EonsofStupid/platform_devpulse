@@ -5,7 +5,7 @@
 	@description Knowledge store CRUD + health.
 -->
 <script lang="ts">
-import { ArrowUpRight, Database, Plus, RefreshCw, Trash2 } from "lucide-svelte";
+import { ArrowUpRight, Database, Plus, RefreshCw, Trash2 } from "@lucide/svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Card } from "$lib/design/components/card/index.js";

@@ -20,7 +20,7 @@
 	    so AT users hear the confirmation when a token saves.
 -->
 <script lang="ts">
-import { Check, Key } from "lucide-svelte";
+import { Check, Key } from "@lucide/svelte";
 import { cn } from "$lib/design/utils/cn.js";
 import type { DownloaderCopy } from "$lib/sys/generated/bindings.js";
 import { modelDownloaderState } from "../data-access/downloader.state.svelte.js";

@@ -39,8 +39,8 @@
 	record.
 -->
 <script lang="ts">
+import { Activity, CheckCircle2, Cpu, Sparkles } from "@lucide/svelte";
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
-import { Activity, CheckCircle2, Cpu, Sparkles } from "lucide-svelte";
 import { onDestroy, onMount } from "svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";

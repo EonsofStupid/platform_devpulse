@@ -17,7 +17,7 @@
 	`lib/devtools/_shared/`, primitive in `lib/design/blocks/`.
 -->
 <script lang="ts">
-import { BrainCircuit, Ear, Eye, Sparkles, Volume2 } from "lucide-svelte";
+import { BrainCircuit, Ear, Eye, Sparkles, Volume2 } from "@lucide/svelte";
 import { onMount } from "svelte";
 import {
 	type SubsystemState,

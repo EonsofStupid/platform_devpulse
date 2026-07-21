@@ -19,7 +19,7 @@
 	}
 -->
 <script lang="ts">
-import { Minus, X } from "lucide-svelte";
+import { Minus, X } from "@lucide/svelte";
 import { Button } from "$lib/design/components/button/index.js";
 import Heading from "$lib/design/components/heading/Heading.svelte";
 import Text from "$lib/design/components/text/Text.svelte";

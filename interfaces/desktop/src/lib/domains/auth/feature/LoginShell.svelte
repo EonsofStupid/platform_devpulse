@@ -19,7 +19,7 @@
 	a `<Text role="alert">` so AT users hear failures immediately.
 -->
 <script lang="ts">
-import { Lock, Mail, Settings } from "lucide-svelte";
+import { Lock, Mail, Settings } from "@lucide/svelte";
 import { Button } from "$lib/design/components/button/index.js";
 import { Card } from "$lib/design/components/card/index.js";
 import { Heading } from "$lib/design/components/heading/index.js";

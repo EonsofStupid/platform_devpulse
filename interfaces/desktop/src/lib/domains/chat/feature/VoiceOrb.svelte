@@ -2,7 +2,7 @@
   @feature VoiceOrb — mic states (STT wiring deferred)
 -->
 <script lang="ts">
-import { Mic } from "lucide-svelte";
+import { Mic } from "@lucide/svelte";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 

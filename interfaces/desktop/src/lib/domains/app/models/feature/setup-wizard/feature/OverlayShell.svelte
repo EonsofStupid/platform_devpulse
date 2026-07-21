@@ -23,7 +23,7 @@
 	- `footer`   — Back / Skip / primary CTA. Required.
 -->
 <script lang="ts">
-import { X } from "lucide-svelte";
+import { X } from "@lucide/svelte";
 import type { Snippet } from "svelte";
 import { Button } from "$lib/design/components/button/index.js";
 import { Card } from "$lib/design/components/card/index.js";

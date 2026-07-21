@@ -27,7 +27,7 @@
 	from the connected endpoint's capability; they never install.
 -->
 <script lang="ts">
-import { BrainCircuit, ChevronRight, Ear, Eye, Mic, Sparkles } from "lucide-svelte";
+import { BrainCircuit, ChevronRight, Ear, Eye, Mic, Sparkles } from "@lucide/svelte";
 import { ClyffyMascot } from "$lib/design/blocks/clyffy/index.js";
 import { KnowledgeTermStrip } from "$lib/design/blocks/knowledge/index.js";
 import { Button } from "$lib/design/components/button/index.js";

@@ -39,7 +39,7 @@
  * ```
  */
 
-import type { HelpCircle } from "lucide-svelte";
+import type { HelpCircle } from "@lucide/svelte";
 
 /**
  * Top-tier dashboard category.

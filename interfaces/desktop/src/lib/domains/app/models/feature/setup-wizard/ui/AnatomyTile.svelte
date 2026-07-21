@@ -43,7 +43,7 @@
 	Apply fires. See [[feedback-dual-observability]].
 -->
 <script lang="ts">
-import { Check, Pencil } from "lucide-svelte";
+import { Check, Pencil } from "@lucide/svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Card } from "$lib/design/components/card/index.js";

@@ -38,7 +38,7 @@ import {
 	Square,
 	X,
 	Zap,
-} from "lucide-svelte";
+} from "@lucide/svelte";
 import { type Component, onMount } from "svelte";
 import { KnowledgeDeck } from "$lib/design/blocks/knowledge/index.js";
 import { Badge } from "$lib/design/components/badge/index.js";

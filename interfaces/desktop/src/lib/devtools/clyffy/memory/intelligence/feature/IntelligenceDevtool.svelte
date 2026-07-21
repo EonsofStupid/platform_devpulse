@@ -11,8 +11,8 @@
 	follow-up slice.
 -->
 <script lang="ts">
+import { BrainCircuit, Database, HardDrive, RefreshCw, Sparkles } from "@lucide/svelte";
 import { invoke } from "@tauri-apps/api/core";
-import { BrainCircuit, Database, HardDrive, RefreshCw, Sparkles } from "lucide-svelte";
 import { onMount } from "svelte";
 import { Button } from "$lib/design/components/button/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";

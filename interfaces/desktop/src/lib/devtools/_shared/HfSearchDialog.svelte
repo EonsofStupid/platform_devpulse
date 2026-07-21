@@ -23,7 +23,7 @@
 	  on the parent surface).
 -->
 <script lang="ts">
-import { Search, X } from "lucide-svelte";
+import { Search, X } from "@lucide/svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";

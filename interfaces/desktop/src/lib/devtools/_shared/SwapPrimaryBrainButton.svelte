@@ -32,7 +32,7 @@
 	carries the final outcome.
 -->
 <script lang="ts">
-import { BrainCog } from "lucide-svelte";
+import { BrainCog } from "@lucide/svelte";
 import { Button, type ButtonPreset } from "$lib/design/components/button/index.js";
 import { LoadingBlock } from "$lib/design/components/spinner/index.js";
 import { modelsState } from "$lib/domains/app/models/index.js";

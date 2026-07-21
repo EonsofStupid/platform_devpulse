@@ -1,5 +1,5 @@
 {
-	"$schema": "https://biomejs.dev/schemas/2.4.0/schema.json",
+	"$schema": "https://biomejs.dev/schemas/2.5.5/schema.json",
 	"plugins": [
 		"./gritql/no-raw-colors.grit",
 		"./gritql/no-raw-colors-bg.grit",
@@ -21,9 +21,6 @@
 				"noUnusedVariables": "error",
 				"noUnusedImports": "error"
 			},
-			"nursery": {
-				"noHexColors": "error"
-			},
 			"suspicious": {
 				"noExplicitAny": "error",
 				"noConsole": {
@@ -34,6 +31,7 @@
 				}
 			},
 			"style": {
+				"noHexColors": "error",
 				"useImportType": "error",
 				"useConst": "error",
 				"useFilenamingConvention": {
@@ -187,7 +185,7 @@
 			],
 			"linter": {
 				"rules": {
-					"nursery": {
+					"style": {
 						"noHexColors": "off"
 					}
 				}
@@ -201,6 +199,7 @@
 			"!**/.svelte-kit",
 			"!**/dist",
 			"!**/build",
+			"!**/src/stories",
 			"!**/*.generated.*",
 			"!**/src/lib/sys/generated",
 			"!**/src/lib/design/.cowlevel",

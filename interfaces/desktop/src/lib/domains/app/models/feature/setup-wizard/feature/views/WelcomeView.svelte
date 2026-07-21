@@ -12,7 +12,7 @@
 	Orchestrator devtool for users who already have GGUFs on disk.
 -->
 <script lang="ts">
-import { ChevronRight } from "lucide-svelte";
+import { ChevronRight } from "@lucide/svelte";
 import { Button } from "$lib/design/components/button/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";

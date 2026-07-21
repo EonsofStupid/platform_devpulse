@@ -5,7 +5,7 @@
   Accessible via devtools. Downloads survive wizard close.
 -->
 <script lang="ts">
-import { Download, X } from "lucide-svelte";
+import { Download, X } from "@lucide/svelte";
 import { onMount } from "svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";

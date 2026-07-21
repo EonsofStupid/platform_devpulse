@@ -19,7 +19,7 @@
 	}
 -->
 <script lang="ts">
-import { Mic, Send } from "lucide-svelte";
+import { Mic, Send } from "@lucide/svelte";
 import { Button } from "$lib/design/components/button/index.js";
 import { TextField } from "$lib/design/components/text-field/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";

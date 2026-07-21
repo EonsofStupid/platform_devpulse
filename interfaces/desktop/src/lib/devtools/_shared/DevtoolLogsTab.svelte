@@ -34,7 +34,7 @@
 	```
 -->
 <script lang="ts">
-import { ScrollText } from "lucide-svelte";
+import { ScrollText } from "@lucide/svelte";
 import { untrack } from "svelte";
 import { EmptyState } from "$lib/design/components/empty-state/index.js";
 import { Tabs, TabsList, TabsTrigger } from "$lib/design/components/tabs/index.js";

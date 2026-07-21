@@ -35,7 +35,7 @@
 	tells a dev where to look if the swap fails silently.
 -->
 <script lang="ts">
-import { CheckCircle2, FileWarning, RotateCw, Upload, X } from "lucide-svelte";
+import { CheckCircle2, FileWarning, RotateCw, Upload, X } from "@lucide/svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";

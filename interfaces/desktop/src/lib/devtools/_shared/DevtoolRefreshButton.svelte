@@ -14,7 +14,7 @@
 	```
 -->
 <script lang="ts">
-import { AlertTriangle, RefreshCw } from "lucide-svelte";
+import { AlertTriangle, RefreshCw } from "@lucide/svelte";
 import { Button } from "$lib/design/components/button/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import type { PolledQuery, TauriQuery } from "$lib/sys/runes/index.js";

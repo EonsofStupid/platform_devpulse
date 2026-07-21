@@ -41,8 +41,8 @@
 	```
 -->
 <script lang="ts">
+import { Download, FileArchive, X } from "@lucide/svelte";
 import { invoke } from "@tauri-apps/api/core";
-import { Download, FileArchive, X } from "lucide-svelte";
 import { Button, type ButtonPreset } from "$lib/design/components/button/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
