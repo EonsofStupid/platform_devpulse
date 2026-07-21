@@ -1,322 +1,337 @@
-# RENDERFORGE.md — the runtime styling resolver
+# RENDERFORGE.md — the runtime styling resolver + modern-CSS derivation layer
 
 > **Authority:** this file. Replaces all references to the non-existent
 > "RenderForge.md Law N" comments scattered through the renderforge/* sources.
 > See TRUTH.md for the architecture-wide ground truth.
+>
+> **2026-07 modernization (this revision):** the old model baked every visual
+> value into a token literal and let the resolver *echo* it through a `var()`
+> fallback chain. Modern CSS — `color-mix()`, relative color syntax
+> (`oklch(from …)`), typed custom properties (`@property`), container **style**
+> queries (`@container style(--density: …)`), `light-dark()`, and `@layer` — is
+> now Baseline and makes that bake-everything indirection obsolete. Effects
+> (blend, bevel, glow, density) are **derived**, not baked. This doc defines the
+> derivation contract. It is why the app can finally render its default look:
+> **a two-colour diagonal blend on a neumorphic surface**, computed from an
+> accent — never a flat `gradient: none`.
 
-`renderForge` is the runtime styling resolver. One pure function, called
-by every styled ColdLight component, that maps a `(kind, preset, state)`
-triple to a `(dataAttrs, cssVars)` pair the component spreads onto its
-DOM root.
-
-This document describes what the function actually does today, the
-properties it must preserve, the known bugs, and the contract it owes
-its callers.
+`renderForge` maps a `(kind, preset, state)` triple to a `(dataAttrs, cssVars)`
+pair a component spreads onto its DOM root. It is one pure function. It does
+**not** compute colour maths — that is the job of the derivation glue, in CSS,
+so the resolver stays runtime-agnostic (Svelte **and** React) and the browser
+does the interpolation.
 
 ---
 
-## 1. Public API
+## 0. The three layers (read this first)
+
+RenderForge is no longer "a resolver." It is three cooperating layers:
+
+| Layer | Where | Job |
+|---|---|---|
+| **1 · Resolver** | `renderforge/render.ts` (pure TS) | Emit **input** custom properties: which accent, which look, how deep. No colour maths. |
+| **2 · Registry** | `glue/registry.css` (`@property`) | **Type** the input axes (`<color>`, `<angle>`, `<length>`, `<percentage>`) so they inherit correctly and **animate**. |
+| **3 · Derivation glue** | `glue/render-base.css` (`@layer`) | **Compute** the visible effect — blend, bevel, glow, density — from the typed inputs using `color-mix()` + relative colour. |
+
+The old "20 static longhand vars, pass-through only" model is Layer 1's *legacy*
+output. It stays (a hand-authored `@defaults` axis must still be able to win),
+but it is now the **fallback floor**, not the mechanism. The mechanism is
+derivation in Layer 3.
+
+```
+resolver emits  --accent, --accent-2, --look, --bevel-depth …   (Layer 1)
+       ↓ typed + animatable via @property                        (Layer 2)
+glue derives    background-image: linear-gradient(… color-mix …) (Layer 3)
+                box-shadow:      … oklch(from var(--surface) …)
+```
+
+---
+
+## 1. Public API (unchanged)
 
 ```ts
 import { renderForge, cssVarString } from '$lib/design/renderforge';
 
-const m = $derived(renderForge({ kind: 'button', preset: 'primary', state: 'default' }));
-// m: { kind: 'button', dataAttrs: {...}, cssVars: {...} }
+const m = $derived(renderForge({ kind: 'card', preset: 'default', state: 'default' }));
+// m: { kind, dataAttrs: {...}, cssVars: {...} }
 ```
 
-**Inputs** — `StyleMacroInput`:
+`cssVarString(m.cssVars)` is the only sanctioned bridge from `cssVars` to the
+DOM. Components spread `m.dataAttrs` and set `style={cssVarString(m.cssVars)}`.
 
-```ts
-interface StyleMacroInput {
-  kind: KindName | `${KindName}/${string}` | (string & {});
-  preset?: PresetId | SemanticIntent | (string & {});  // default 'primary'
-  state?: RenderState;                                   // default 'default'
+---
+
+## 2. Layer 2 — the `@property` registry (NEW, load-bearing)
+
+Untyped custom properties are strings; the browser **cannot interpolate** them,
+so a gradient built from them can never animate and an invalid value silently
+poisons the whole declaration. Registering each visual input with `@property`
+gives it a type, a guaranteed `initial-value` (so the derivation never resolves
+to garbage), controlled inheritance, and — critically — **animatability**.
+
+`glue/registry.css` (emitted by the SD5 pipeline). Note: `@property`'s
+`initial-value` MUST be computationally independent — a concrete literal, never
+a `var()` or token ref. The SD5 build bakes each as the token's *resolved
+literal*. Palette **binding** is a separate `--accent: var(--accent-teal-main)`
+assignment on `:root`/zones (§3a, §5), never inside `@property`:
+
+```css
+/* Accent operator colours — the blend endpoints. Inherit so a surface can be
+   re-tinted by setting --accent on any ancestor. */
+@property --accent    { syntax: "<color>";      inherits: true; initial-value: oklch(0.63 0.08 173); } /* teal  */
+@property --accent-2  { syntax: "<color>";      inherits: true; initial-value: oklch(0.63 0.12 280); } /* purple */
+
+/* Blend geometry */
+@property --blend-angle { syntax: "<angle>";      inherits: true; initial-value: 135deg; }
+@property --blend-mid   { syntax: "<percentage>"; inherits: true; initial-value: 50%;   }
+
+/* Neumorphic surface */
+@property --surface      { syntax: "<color>";  inherits: true; initial-value: oklch(0.14 0.02 265); }
+@property --bevel-depth  { syntax: "<length>"; inherits: true; initial-value: 0.5rem; }
+@property --bevel-spread { syntax: "<length>"; inherits: true; initial-value: 1rem;   }
+
+/* Emission */
+@property --glow-strength { syntax: "<percentage>"; inherits: true; initial-value: 55%; }
+```
+
+Because these are typed, `transition: --accent 200ms, --blend-angle 400ms`
+crossfades the blend and rotates it — impossible with plain vars. That is the
+mechanism behind "living" surfaces, not a JS animation loop.
+
+---
+
+## 3. Layer 3 — derivation recipes (the default look, in real tokens)
+
+All recipes live in `glue/render-base.css` inside `@layer coldlight.glue`, keyed
+off the family markers the resolver emits (`[data-cl-surface]`, etc.) and gated
+by the **look** (`data-look` / preset family, §5).
+
+### 3a. Two-colour diagonal blend — the app-wide default
+
+The default surface is two accents meeting on a diagonal, blended through the
+middle. Derived — not a baked gradient token:
+
+```css
+[data-cl-surface] {
+  background-image: linear-gradient(
+    var(--blend-angle),
+    var(--accent),
+    color-mix(in oklch, var(--accent), var(--accent-2)) var(--blend-mid),
+    var(--accent-2)
+  );
 }
 ```
 
-**Output** — `ResolvedMacro`:
+`color-mix(in oklch, …)` gives the perceptually-even midpoint (mixing in sRGB
+muddies complementary pairs). Change `--accent`/`--accent-2` on any container and
+the blend follows — no new tokens. Endpoints resolve to the operator palette:
+`--accent: var(--accent-teal-main)`, `--accent-2: var(--accent-purple-main)`,
+etc. **Colours evolve, never replace** — the derivation *binds* the palette; it
+does not cycle its values.
 
-```ts
-interface ResolvedMacro {
-  kind: string;                              // echoed back
-  dataAttrs: StyleDataAttrs;                 // Tier 1 attrs (data-kind, data-cl-*)
-  cssVars: Record<string, string>;           // 20 longhand CSS custom properties
+### 3b. Neumorphic bevel — derived from the surface, not baked
+
+Raised (default) = light highlight from the top-left, dark shadow to the
+bottom-right, both derived from `--surface` via relative colour so they track
+whatever the surface is:
+
+```css
+[data-cl-surface] {
+  box-shadow:
+    calc(-1 * var(--bevel-depth)) calc(-1 * var(--bevel-depth)) var(--bevel-spread)
+      oklch(from var(--surface) calc(l + 0.06) c h),                              /* highlight */
+    var(--bevel-depth) var(--bevel-depth) var(--bevel-spread)
+      oklch(from var(--surface) calc(l - 0.07) c h),                              /* shadow    */
+    0 0 calc(2 * var(--bevel-spread))
+      color-mix(in oklch, var(--accent), transparent var(--glow-strength));       /* glow (3c) */
 }
 ```
 
-**Helper** — `cssVarString`:
+Pressed / inset state flips the offsets and adds `inset`:
 
-```ts
-const styleString = cssVarString(m.cssVars);
-// → '--background-color:var(...);--color:var(...);...'
+```css
+[data-cl-surface][data-state="pressed"] {
+  box-shadow:
+    inset var(--bevel-depth) var(--bevel-depth) var(--bevel-spread)
+      oklch(from var(--surface) calc(l - 0.07) c h),
+    inset calc(-1 * var(--bevel-depth)) calc(-1 * var(--bevel-depth)) var(--bevel-spread)
+      oklch(from var(--surface) calc(l + 0.06) c h);
+}
 ```
 
-`cssVarString` is the *only* sanctioned bridge from `m.cssVars` to the
-DOM. Components do not iterate the cssVars object themselves.
+### 3c. Accent glow — emission from one colour
+
+`color-mix(in oklch, var(--accent), transparent var(--glow-strength))` — the
+third `box-shadow` layer above, and reusable as a standalone `--glow` token.
+Relative colour can widen it: `oklch(from var(--accent) l c h / 0.4)`.
+
+### 3d. Density — container **style** queries, not media queries
+
+Density is a component concern, so it is a container style query on a custom
+property, not a global breakpoint:
+
+```css
+@container style(--density: compact) {
+  [data-cl-frame]  { border-radius: calc(var(--radius) * 0.6); }
+  [data-cl-layout] { gap: calc(var(--gap) * 0.6); }
+  [data-cl-surface]{ --bevel-depth: 0.375rem; }
+}
+@container style(--density: spacious) {
+  [data-cl-layout] { gap: calc(var(--gap) * 1.5); }
+}
+```
+
+Size-based density still uses size queries + `cqi`/`cqb` units (the shell already
+declares `container-type: inline-size` per zone). Set `--density` on a shell
+zone or the provider to retune every surface inside it. (Style queries: Chrome/
+Edge/Safari today; Firefox pending — the `initial-value` guarantees a sane
+default there.)
+
+### 3e. Theme — `light-dark()`, one token set
+
+```css
+:root { color-scheme: light dark; }
+[data-cl-surface] { --surface: light-dark(var(--surface-base-light), var(--surface-base-dark)); }
+```
+
+No duplicate light/dark token trees; the derivations (bevel, blend) recompute
+per scheme automatically because they read `--surface`/`--accent`.
 
 ---
 
-## 2. The five locked properties of `renderForge`
+## 4. `@layer` cascade order (NEW)
 
-These are the constraints that keep the resolver portable, predictable,
-and testable. Removing any of them is a TRUTH.md-level change, not a
-local refactor.
+Derivation must lose to nothing accidental and win over nothing authored. The
+barrel `design/index.css` establishes the order once:
 
-### P1 — Pure function
-
-Same input → same output, always. No DOM access. No Svelte runes. No React
-hooks. No global state. No `Date.now()`. No randomness. No closures over
-mutable state outside the function.
-
-**Why:** the resolver is the SSOT for both Svelte and React deployments.
-A pure function compiles unchanged into both runtimes. Any impurity
-fractures that.
-
-**Test:** the resolver's tests must pass in plain Node Vitest, with no
-browser mode and no jsdom. If they require a browser, the function isn't
-pure.
-
-### P2 — Two-tier var() chain (default state)
-
-```
-var(--style-{kind}-{rawPreset}-{axis},   ← per-kind layer (RAW preset name)
-    var(--preset-{resolved}-{axis},        ← shared preset (INTENT_MAP-resolved)
-        {fallback}))                        ← absolute fallback
+```css
+@layer reset, tokens, cl.registry, cl.glue, cl.presets, cl.components, utilities;
 ```
 
-The per-kind tier keys off the **raw** preset string, so `preset:"default"`
-resolves `--style-{kind}-default-*` — the component's emitted `@defaults`
-(`collect-element-seed-defs.mjs`). The shared tier keys off the resolved
-intent. A compound preset id that already carries the kind prefix
-(e.g. `"chat-bubble-user"`) misses the per-kind tier harmlessly and falls to
-the shared layer that serves it.
-
-**Why:** a component's documented `@defaults` reach the screen for its default
-preset, and StyleOS users can still fork a single (kind, preset, axis) tuple
-without forking the whole preset.
-
-### P3 — Four-tier var() chain (non-default state) — per-kind base outranks shared state
-
-```
-var(--style-{kind}-{rawPreset}-{state}-{axis},  ← per-kind state override
-    var(--style-{kind}-{rawPreset}-{axis},        ← per-kind default (base)
-        var(--preset-{resolved}-{state}-{axis},    ← shared preset state
-            var(--preset-{resolved}-{axis},         ← shared preset default
-                {fallback}))))
-```
-
-**Ordering (amended 2026-07-09):** the per-kind base sits ABOVE the shared
-preset's state (option b), reversing the earlier "shared-state-first" intent.
-Rationale — `@defaults` bases are hand-authored and routinely diverge from
-their resolved preset's design family; shared-state-first would bleed a
-foreign family's hover/active onto an authored base. A forked kind with no
-per-kind state holds its base until per-kind states are authored; un-forked
-kinds still get the shared preset's full state table via tiers 3–4.
-
-**Status:** implemented in `render.ts` 2026-07-09 (bug B1 resolved). The state
-branch is currently dead code — `RenderState` has no `'hover'`/`'focus'` and no
-call site passes a non-default state (bug B2); real hover is the
-`[data-cl-interactive]:hover` brightness filter in `render-base.css`. Authoring
-per-kind states + a hover activation path is a separate follow-on.
-
-### P4 — Canonical longhand CSS variable names
-
-The `cssVars` map keys are full CSS custom property names matching real
-CSS longhand properties (`--background-color`, not `--bg`; `--font-family`,
-not `--font`). They map 1:1 to the consumer rules in `render-base.css`.
-
-**Anti-pattern:** any shortened key like `-bg` is dead. Any test asserting
-`m.cssVars["-bg"]` is broken. (Bugs B4, B5, B6 below.)
-
-### P5 — Tier 1 attribute discipline
-
-`m.dataAttrs` carries only Tier 1 attributes (per TRUTH.md §3):
-`data-kind` and `data-cl-{family}`. The component itself authors `data-slot`,
-`data-state`, and any Tier 3 attributes; the resolver does not.
+- `tokens` — SD5 custom properties (palette, roles, spacing).
+- `cl.registry` — the `@property` block (§2).
+- `cl.glue` — the derivation recipes (§3).
+- `cl.presets` — per-preset input overrides (`--look`, `--accent`, `--bevel-depth`).
+- `cl.components` — colocated component tweaks.
+- `utilities` — Tailwind utilities win last for one-off overrides.
 
 ---
 
-## 3. Resolution chain — worked example
+## 5. The look model — default neumorphic, some stark
 
-Input:
+Every surface wears exactly one **look**, emitted by the resolver as
+`data-look` and selected by the preset family. The look decides *which*
+derivations apply; the accent decides *what colour*.
 
-```ts
-renderForge({ kind: 'button', preset: 'primary', state: 'disabled' })
+| Look | `data-look` | Blend (3a) | Bevel (3b) | Glow (3c) | Backdrop | Default for |
+|---|---|---|---|---|---|---|
+| **neuro** | `neuro` | yes | raised | yes | — | **app default** — dashboards, cards, shell |
+| **stark** | `stark` | no (flat `--surface`) | none | none | — | danger/warning, dense tables, code |
+| **glass** | `glass` | translucent blend | soft | yes | `backdrop-filter` | overlays, chat, HUD |
+| **flat** | `flat` | no | none | none | — | text-only, inputs |
+
+```css
+/* stark = kill the derivations, keep a solid surface */
+[data-cl-surface][data-look="stark"] {
+  background-image: none;
+  background-color: var(--surface);
+  box-shadow: none;
+}
 ```
 
-Step 1 — Resolve intent. `'primary'` is a `SemanticIntent` (per
-`visual/preset-id.ts`), so we look it up in `INTENT_MAP`:
-
-```
-'primary' → 'glass-deep'
-```
-
-Step 2 — Build the prefixes:
-
-```
-perKind = '--style-button-primary'    (RAW preset name)
-shared  = '--preset-glass-deep'       (INTENT_MAP-resolved)
-```
-
-Step 3 — For each axis, build the var() chain. For `--background-color`
-in the `disabled` state (all 4 tiers, per P3 — per-kind base outranks
-shared state):
-
-```
-var(--style-button-primary-disabled-background-color,
-    var(--style-button-primary-background-color,
-        var(--preset-glass-deep-disabled-background-color,
-            var(--preset-glass-deep-background-color,
-                transparent))))
-```
-
-Step 4 — Emit the `data-cl-{family}` markers as the UNION of two
-build-derived maps (derive-kind-families.mjs):
-
-- `KIND_FAMILIES[kind]` — from the per-kind `@defaults` layer
-  (`tokens/src/style-defaults.json`); missing kinds fall back to
-  `['surface', 'text', 'frame']`.
-- `PRESET_FAMILIES[resolvedPreset]` — from the shared preset layer
-  (`tokens/src/presets/*.tokens.json`, one file per family), keyed by FULL preset id. This is
-  what lets an axis the preset carries (e.g. glass-deep's
-  `backdrop-filter` → `overlay`) actually apply on any kind wearing it.
-
-```
-KIND_FAMILIES['button'] = ['frame', 'interactive', 'surface', 'text']
-PRESET_FAMILIES['glass-deep'] = ['overlay', 'surface', ...]
-→ dataAttrs (button + preset "primary" → glass-deep) = {
-    'data-kind': 'button',
-    'data-cl-frame': '',
-    'data-cl-interactive': '',
-    'data-cl-overlay': '',
-    'data-cl-surface': '',
-    'data-cl-text': '',
-  }
-```
-
-Step 5 — Return the sealed object. Component spreads `m.dataAttrs` and
-serializes `m.cssVars` via `cssVarString`. Browser resolves the var()
-chains against the CSS custom properties emitted by SD5 and applies the
-matching family rules from `render-base.css`.
+Intent → look → accent is resolved in `renderforge/intent.ts`: `default →
+neuro`, `danger/warning → stark`, `glass-* → glass`. This is the SSOT the
+[[project_coldlight_accent_palette]] and TRUTH.md §6 describe — now enforced by
+the derivation layer instead of hoped-for in baked tokens.
 
 ---
 
-## 4. The 20 runtime CSS custom properties
+## 6. The five locked invariants (preserved)
 
-The resolver pre-computes 20 longhand vars even though `render-base.css`
-consumes 16 today. The extras are forward-compatibility for axes that
-have authored values but no glue-CSS rule yet.
+### P1 — Pure resolver
+Same input → same output. No DOM, no runes, no `Date.now()`, no randomness. The
+resolver emits *input* vars; **all colour maths is in CSS**, so P1 holds even as
+derivation grows. Tests run in plain Node Vitest.
 
-| Var | Family | Glue rule? | Source axis |
-|---|---|---|---|
-| `--background-color` | surface | yes | backgroundColor |
-| `--background-alpha` | surface | no (forward) | backgroundColor |
-| `--box-shadow` | surface | yes | shadow |
-| `--border-color` | surface | yes | border |
-| `--gradient` | surface | yes (as `background-image`) | gradient |
-| `--background-image` | surface | no (forward) | gradient/backgroundImage |
-| `--border-width` | frame | yes | border |
-| `--border-style` | frame | yes | border |
-| `--border-radius` | frame | yes | borderRadius |
-| `--color` | text | yes | color |
-| `--font-family` | text | yes | typography |
-| `--font-size` | text | yes | typography |
-| `--font-weight` | text | yes | typography |
-| `--tracking` | text | yes (as `letter-spacing`) | typography |
-| `--leading` | text | yes (as `line-height`) | typography |
-| `--backdrop-filter` | overlay | yes | backgroundBlur |
-| `--opacity` | universal | yes (on `[data-kind]`) | opacity |
-| `--animation` | universal | yes (on `[data-kind]`) | animation |
-| `--transition-duration` | universal | yes (on `[data-kind]`) | transition |
-| `--transition-timing` | universal | yes (on `[data-kind]`) | transition |
+### P2 / P3 — the `var()` input chain is the fallback floor
+The two-tier (default) and four-tier (state) `var(--style-{kind}-…, var(--preset-…, fallback))`
+chains still resolve the input axes, so a hand-authored `@defaults` base still
+outranks a foreign preset. Derivation reads the *resolved* inputs; it never
+bypasses this chain.
+
+### P4 — canonical longhand var names
+Input axes use full CSS custom-property names. Derived outputs
+(`--accent`, `--surface`, `--bevel-depth`, `--blend-angle`, `--glow-strength`)
+are the registered set in §2. No shorthand keys (`-bg` is dead).
+
+### P5 — Tier-1 attribute discipline
+`m.dataAttrs` carries only `data-kind`, `data-cl-{family}`, and `data-look`. The
+component authors `data-state`, `data-slot`.
 
 ---
 
-## 5. Known bugs (Phase 2 fix targets)
+## 7. What this revision requires downstream (execution checklist)
+
+Spec-first: this doc lands before the code. The code changes it mandates:
+
+1. **`glue/registry.css`** — author the `@property` block (§2); the SD5 build
+   bakes each `initial-value` as the token's *resolved literal* (never a `var()`
+   — the spec requires computational independence). Palette binding is a
+   separate `--accent: var(…)` assignment on `:root`/zones, not in `@property`.
+2. **`glue/render-base.css`** — replace the pass-through `[data-cl-surface]`
+   rule with the derivation recipes (§3), wrapped in `@layer cl.glue`, gated by
+   `data-look`.
+3. **`renderforge/render.ts`** — emit the input axes (`--accent`, `--accent-2`,
+   `--look`, `--bevel-depth`, `--blend-mid`) and `data-look`; keep the 20 legacy
+   axes as the fallback floor. Stays pure.
+4. **`renderforge/intent.ts`** — map intent → `{ look, accent, accent-2 }`
+   instead of intent → baked preset name only.
+5. **Preset token files** (`tokens/src/presets/*.tokens.json`) — presets carry
+   `--look` + accent refs + depth, **not** baked `gradient`/`box-shadow` literals.
+   Delete `gradient: none`. `--background-alpha` axis retired (relative colour /
+   `color-mix` handle alpha inline).
+6. **`design/index.css`** — declare the `@layer` order (§4) and import
+   `registry.css` before `render-base.css`.
+7. Regenerate (`pnpm ds:tokens:build`), then verify **in a running window** that
+   a default Card renders the two-colour blend + bevel + glow, `data-look="stark"`
+   renders flat, and `--density: compact` tightens it.
+
+---
+
+## 8. Browser baseline (all production-ready, 2026)
+
+| Feature | Support | Fallback |
+|---|---|---|
+| `color-mix()` | ~89%+ (Baseline) | n/a — required |
+| relative colour `oklch(from …)` | ~87%+ | n/a — required |
+| `@property` | Baseline (universal) | `initial-value` guarantees a value |
+| `@container` size queries | ~96% | media-query floor |
+| `@container style()` | Chrome/Edge/Safari; Firefox pending | `initial-value` default |
+| `light-dark()` | Baseline | explicit `@media (prefers-color-scheme)` |
+
+Tauri ships a current Chromium/WebView2, so every feature here is available in
+the app runtime with no polyfill.
+
+---
+
+## 9. Known bugs (carried forward)
 
 | ID | Severity | File | Description | Fix |
 |---|---|---|---|---|
-| B1 | **RESOLVED (2026-07-09)** | `render.ts` | State branch was a 2-tier chain; now the 4-tier option-b chain (per-kind state → per-kind base → shared state → shared base), per P3. Dead code until B2 + a hover activation path land. | — |
-| B2 | **HIGH** | `types.ts` L17 | `RenderState = 'default' \| 'disabled' \| 'active'` — missing `'hover'` and `'focus'`. | Expand to `'default' \| 'hover' \| 'focus' \| 'active' \| 'disabled'`. Audit downstream callsites. |
-| B3 | MEDIUM | `render.ts` L106 | `'--border-style': "solid"` hardcoded; bypasses var chain. | Replace with `v('border-style', 'solid')`. |
-| B4 | **HIGH** | `resolve.test.ts` | Multiple assertions of `m.cssVars["-bg"]`. Resolver emits `--background-color`. All `-bg` assertions fail. | Delete and rewrite as `render.test.ts` from scratch (per Phase 2 plan). |
-| B5 | **HIGH** | `components/chat-frame/ChatFrame.test.ts` L107–L112 | `expect(style).toContain("-bg")`. Same root cause as B4. | Replace with `expect(style).toContain('--background-color')`. |
-| B6 | **HIGH** | `components/chat-footer/ChatFooter.test.ts` L57–L63 | Same as B5. | Same fix. |
-| B7 | **RESOLVED (2026-07-10)** | `generated/kind-families.ts` | Was: `overlay` never granted, so `--backdrop-filter` never applied. Architectural call made: derive-kind-families.mjs now derives `KIND_FAMILIES` from the per-kind `@defaults` layer (style-defaults.json — 80+ real kinds, was 3) AND emits `PRESET_FAMILIES` keyed by full preset id; `render.ts` unions kind ∪ resolved-preset families (Step 4). Blur is live wherever a glass preset or a `backdrop-filter` `@defaults` axis is worn. | — |
-| B8 | LOW | Multiple | Code comments reference "Per RenderForge.md Law 1/5/6" and "Per MACRO-LAW.md Law 5" — neither doc exists. | Replace with citations to TRUTH.md / RENDERFORGE.md / MACRO-LAW.md as appropriate. |
+| B2 | HIGH | `types.ts` | `RenderState` missing `'hover'`/`'focus'`/`'pressed'`. | Expand; the bevel pressed-state (§3b) needs `'pressed'`. |
+| B3 | MEDIUM | `render.ts` | `--border-style` hardcoded `"solid"`; bypasses chain. | `v('border-style','solid')`. |
+| B4–B6 | HIGH | `*.test.ts` | Legacy `-bg` assertions. | Rewrite against `--background-color` + the §2 registry. |
+| B8 | LOW | multiple | Comments cite non-existent "Law N" docs. | Cite this file / TRUTH.md. |
 
 ---
 
-## 6. The pass-through quirk in `intent-map.ts`
+## 10. Cross-references
 
-`resolvePresetId` (in `visual/intent-map.ts:38`) has this check:
-
-```ts
-if (preset.includes("-") && !["primary", "secondary"].includes(preset)) {
-  return preset as PresetId;
-}
-```
-
-It exempts `'primary'` and `'secondary'` from the "contains a hyphen →
-treat as PresetId" pass-through, since neither contains a hyphen anyway.
-This is structurally fragile — the special-case list is incomplete and
-appears to be guarding against a class of inputs that doesn't exist.
-
-**Better shape (suggested for Phase 2 follow-up):**
-
-```ts
-if (SEMANTIC_INTENTS.includes(preset as SemanticIntent)) {
-  return INTENT_MAP[preset as SemanticIntent];
-}
-return preset as PresetId; // or fallback
-```
-
-This makes the intent-vs-preset decision based on the closed set of
-semantic names, not on hyphen-counting. Logged for Phase 2 cleanup;
-not blocking.
-
----
-
-## 7. Performance notes
-
-- The resolver is called once per component instance per render via `$derived`.
-- It allocates a new `Record<string, string>` of 20 entries each call.
-- `cssVarString` does a single-pass concat. No intermediate arrays.
-- For 65 primitive kinds × ~10 instances per typical screen × ~20 vars,
-  the work per render is ~13,000 string concats. Negligible.
-
-The tradeoff: pre-computing all 20 vars when only ~6 might be needed for a
-text-only kind is intentional. CSS treats unset custom properties as no-ops,
-so emitting all 20 always doesn't hurt rendering. It does hurt the DOM size
-(each component carries an inline style with 20 declarations). If that
-becomes a problem, the optimization is to filter by kind family at the
-resolver — but that breaks P3 (forward compatibility).
-
----
-
-## 8. Testing contract
-
-Every renderForge test must:
-
-1. **Run in plain Node Vitest.** No browser mode. No jsdom. (Enforces P1.)
-2. **Assert canonical longhand keys only.** No `'-bg'`, no `'-fg'`. (Enforces P4.)
-3. **Cover both default and non-default state branches.** (Validates P3.)
-4. **Verify both var() chain tiers appear in the right order** for default
-   state (per-kind before shared) and all four reachable tiers for
-   non-default state (per-kind state before shared state before per-kind
-   default before shared default).
-5. **Verify `m.dataAttrs` contains only Tier 1 attributes.** No Tier 2
-   or Tier 3 attribute names should leak into the resolver output.
-6. **Include a purity check.** Mutate the resolver's output, then call again;
-   second call's output must be unaffected.
-
----
-
-## 9. Cross-references
-
-- TRUTH.md — architecture-wide ground truth, file paths, taxonomy
-- MACRO-LAW.md — the family-split CSS contract that consumes these vars
-- PARKING-LOT.md — deferred decisions, including B7's resolution path
-- `visual/axes.ts` — the 11 (or 12) DTCG axes
-- `visual/intent-map.ts` — the 14 semantic intent → preset mapping
-- `generated/render-base.css` — the consumer side of the var contract
+- TRUTH.md — architecture-wide ground truth, intent→look map (§6).
+- ADR-001-RENDER-FORGE.md — the architecture decision (update to reflect the
+  three-layer derivation model).
+- SEED-PRESETS.md — preset composition (accent + look, not baked literals).
+- `glue/registry.css` — the `@property` registry (§2).
+- `glue/render-base.css` — the derivation glue (§3).
+- `renderforge/render.ts` — the pure resolver (Layer 1).
+- `renderforge/intent.ts` — intent → look/accent resolution (§5).
