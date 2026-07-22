@@ -1088,7 +1088,6 @@ const config = {
 				cssFile('typography.css', pathFilter('font', 'fontFeatureSettings', 'fontVariationSettings', 'textSize', 'font-size', 'leading', 'tracking'), layers.primitives),
 				cssFile('motion.css', pathFilter('motion', 'duration', 'easing'), layers.primitives),
 				cssFile('gradient.css', pathFilter('gradient'), layers.primitives),
-				cssFile('layout.css', pathFilter('layout'), layers.primitives),
 			],
 		},
 
