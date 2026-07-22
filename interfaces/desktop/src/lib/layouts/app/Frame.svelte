@@ -55,7 +55,7 @@ const SLOTS = {
 	),
 	topbar: cn(
 		"[grid-area:topbar] flex items-center justify-between",
-		"h-[var(--layout-topbar-height)] px-4",
+		"h-topbar px-4",
 		"border-b border-[var(--border-soft)]",
 		// Shell chrome paints above the content zone — the zone's container
 		// seam creates a stacking context, and its absolute dropdown must
@@ -65,7 +65,7 @@ const SLOTS = {
 	),
 	sidebar: cn(
 		"[grid-area:sidebar] flex flex-col items-center relative",
-		"w-[var(--layout-sidebar-collapsed)] py-3 gap-2",
+		"w-sidebar-collapsed py-3 gap-2",
 		"border-r border-[var(--border-subtle)]",
 		"overflow-x-hidden overflow-y-auto scrollbar-thin",
 		"transition-[width,padding] duration-[var(--duration-md)] ease-[cubic-bezier(0.4,0,0.2,1)]",
@@ -74,7 +74,7 @@ const SLOTS = {
 	),
 	sidebarExpanded: cn(
 		"[grid-area:sidebar] flex flex-col relative",
-		"w-[var(--layout-sidebar-expanded)] py-3 px-2",
+		"w-sidebar-expanded py-3 px-2",
 		"border-r border-[var(--border-subtle)]",
 		"overflow-x-hidden overflow-y-auto scrollbar-thin",
 		"transition-[width,padding] duration-[var(--duration-md)] ease-[cubic-bezier(0.4,0,0.2,1)]",
@@ -87,13 +87,13 @@ const SLOTS = {
 	),
 	context: cn("[grid-area:context] w-0 overflow-hidden", "border-l border-[var(--border-subtle)]"),
 	contextExpanded: cn(
-		"[grid-area:context] w-[var(--layout-context-width)] overflow-y-auto scrollbar-thin",
+		"[grid-area:context] w-context overflow-y-auto scrollbar-thin",
 		"border-l border-[var(--border-subtle)]",
 		"[container-type:inline-size] [container-name:context]",
 	),
 	statusbar: cn(
 		"[grid-area:statusbar] flex items-center justify-between",
-		"h-[var(--layout-statusbar-height)] px-4 py-1",
+		"h-statusbar px-4 py-1",
 		"border-t border-[var(--border-soft)]",
 		"text-xs text-[var(--text-muted)]",
 		"overflow-x-auto scrollbar-thin",

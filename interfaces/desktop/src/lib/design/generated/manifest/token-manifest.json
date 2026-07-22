@@ -24197,12 +24197,12 @@
 		"extensions": {},
 		"tokens": [
 			{
-				"name": "layout-topbar-height",
+				"name": "layout-topbar",
 				"path": [
 					"layout",
-					"topbar-height"
+					"topbar"
 				],
-				"cssVar": "--layout-topbar-height",
+				"cssVar": "--layout-topbar",
 				"value": {
 					"value": 4.125,
 					"unit": "rem"
@@ -24239,12 +24239,12 @@
 				"extensions": null
 			},
 			{
-				"name": "layout-context-width",
+				"name": "layout-context",
 				"path": [
 					"layout",
-					"context-width"
+					"context"
 				],
-				"cssVar": "--layout-context-width",
+				"cssVar": "--layout-context",
 				"value": {
 					"value": 25,
 					"unit": "rem"
@@ -24253,12 +24253,12 @@
 				"extensions": null
 			},
 			{
-				"name": "layout-statusbar-height",
+				"name": "layout-statusbar",
 				"path": [
 					"layout",
-					"statusbar-height"
+					"statusbar"
 				],
-				"cssVar": "--layout-statusbar-height",
+				"cssVar": "--layout-statusbar",
 				"value": {
 					"value": 3.25,
 					"unit": "rem"

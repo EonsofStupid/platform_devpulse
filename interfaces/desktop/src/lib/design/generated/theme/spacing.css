@@ -40,4 +40,9 @@
   --spacing-96: clamp(6rem, 5.5000rem + 2.5000vw, 7.75rem);
   --spacing-112: clamp(7rem, 6.4286rem + 2.8571vw, 9rem);
   --spacing-128: clamp(8rem, 7.3571rem + 3.2143vw, 10.25rem);
+  --spacing-topbar: 4.125rem;
+  --spacing-sidebar-collapsed: 3.75rem;
+  --spacing-sidebar-expanded: 15rem;
+  --spacing-context: 25rem;
+  --spacing-statusbar: 3.25rem;
 }

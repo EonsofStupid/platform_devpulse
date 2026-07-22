@@ -3,7 +3,7 @@
 	"layout": {
 		"$type": "dimension",
 		"$description": "Shell layout dimensions.",
-		"topbar-height": {
+		"topbar": {
 			"$value": { "value": 4.125, "unit": "rem" },
 			"$description": "Main topbar row height. 66 px at base=16."
 		},
@@ -15,11 +15,11 @@
 			"$value": { "value": 15, "unit": "rem" },
 			"$description": "Sidebar width when expanded with labels. 240 px."
 		},
-		"context-width": {
+		"context": {
 			"$value": { "value": 25, "unit": "rem" },
 			"$description": "Right context panel width when open. 400 px."
 		},
-		"statusbar-height": {
+		"statusbar": {
 			"$value": { "value": 3.25, "unit": "rem" },
 			"$description": "Bottom statusbar row height. 52 px."
 		}

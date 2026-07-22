@@ -143,6 +143,7 @@ const tw4Remap = {
 		// and had zero consumers. Glow emits only as --glow-* in styles/.
 		textSize: 'text',
 		space: 'spacing',
+		layout: 'spacing',
 		zIndex: 'z',
 	},
 	nested: {
@@ -1178,7 +1179,7 @@ const config = {
 		'theme-blur': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('blur.css', pathFilter('blur'))] },
 		'theme-surface': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('surface.css', pathFilter('glass', 'matte', 'surface'))] },
 		'theme-radius': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('radius.css', pathFilter('radius'))] },
-		'theme-spacing': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('spacing.css', pathFilter('space', 'padding', 'size', 'breakpoint', 'zIndex'))] },
+		'theme-spacing': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('spacing.css', pathFilter('space', 'padding', 'size', 'breakpoint', 'zIndex', 'layout'))] },
 		'theme-typography': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('typography.css', pathFilter('font', 'fontFeatureSettings', 'fontVariationSettings', 'textSize', 'font-size'))] },
 		'theme-text-style': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('text-style.css', pathFilter('textStyle'))] },
 		'theme-text-composed': {
