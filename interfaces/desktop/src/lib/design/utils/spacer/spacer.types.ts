@@ -5,7 +5,7 @@
  * Returns Tailwind class strings — no inline styles.
  */
 
-import type { SpaceToken } from "$lib/design/types/spacing.js";
+import type { SpaceToken } from "$lib/design/generated/types/spacing.js";
 
 export interface UseSpacerProps {
 	/** Spacer size from the --space-{n} token scale. */

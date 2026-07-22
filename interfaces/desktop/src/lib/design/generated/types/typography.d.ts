@@ -46,10 +46,17 @@ export type FontSizeRecord = {
 	"5xl": string;
 };
 
-export const FontTokens = ["display", "sans", "mono"] as const;
+export const FontTokens = [
+	"display",
+	"sans",
+	"mono",
+] as const;
 export type FontToken = (typeof FontTokens)[number];
 
-export type FontCSSVar = "--font-display" | "--font-sans" | "--font-mono";
+export type FontCSSVar =
+	| "--font-display"
+	| "--font-sans"
+	| "--font-mono";
 
 export type FontRecord = {
 	display: string;
@@ -335,3 +342,4 @@ export type TextStyleRecord = {
 		};
 	};
 };
+

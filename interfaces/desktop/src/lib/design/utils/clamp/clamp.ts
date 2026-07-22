@@ -9,7 +9,7 @@
  * Size: --size-3xs (1rem) through --size-container-2xl (96rem)
  */
 
-import type { PaddingToken, SizeToken, SpaceToken } from "$lib/design/types/spacing.js";
+import type { PaddingToken, SizeToken, SpaceToken } from "$lib/design/generated/types/spacing.js";
 
 /** DTCG-typed CSS custom property for space tokens. */
 export type SpaceCSSProperty = `--space-${SpaceToken}`;

@@ -208,3 +208,4 @@ export type GradientRecord = {
 	"salmon-gold": string;
 	"gold-blend": string;
 };
+

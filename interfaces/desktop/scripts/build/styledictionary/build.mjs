@@ -45,7 +45,7 @@ function cssFilesWithDecls(dir) {
  * derived barrel would re-import an unlayered collision.
  */
 function pruneEmptyThemeFiles() {
-	const abs = `${OUT}/theme`;
+	const abs = `${OUT}/generated/theme`;
 	const removed = [];
 	for (const f of readdirSync(abs)) {
 		if (!f.endsWith('.css') || f === 'index.css') continue;
@@ -66,7 +66,7 @@ function pruneEmptyThemeFiles() {
 function deriveIndexCss() {
 	const tiers = ['primitives', 'semantic', 'components'];
 	const blocks = tiers.map((tier) => {
-		const imports = cssFilesWithDecls(`styles/${tier}`)
+		const imports = cssFilesWithDecls(`generated/styles/${tier}`)
 			.map((f) => `@import "./${tier}/${f}";`)
 			.join('\n');
 		return `/* ── ${tier} ──────────────────────────────────────── */\n${imports}`;
@@ -79,7 +79,7 @@ function deriveIndexCss() {
 }
 
 function deriveIndexTheme() {
-	const imports = cssFilesWithDecls('theme')
+	const imports = cssFilesWithDecls('generated/theme')
 		.map((f) => `@import "./${f}";`)
 		.join('\n');
 	return (
@@ -90,7 +90,7 @@ function deriveIndexTheme() {
 }
 
 function deriveIndexDts() {
-	const abs = `${OUT}/types`;
+	const abs = `${OUT}/generated/types`;
 	const exports = readdirSync(abs)
 		.filter((f) => f.endsWith('.d.ts') && f !== 'index.d.ts')
 		.filter((f) => /export/.test(readFileSync(`${abs}/${f}`, 'utf8')))
@@ -138,13 +138,13 @@ async function build() {
 	}
 
 	// Barrels are DERIVED from emitted files — never hand-listed (see helpers).
-	writeFileSync(`${OUT}/styles/index.css`, deriveIndexCss());
-	writeFileSync(`${OUT}/theme/index.css`, deriveIndexTheme());
-	writeFileSync(`${OUT}/types/index.d.ts`, deriveIndexDts());
+	writeFileSync(`${OUT}/generated/styles/index.css`, deriveIndexCss());
+	writeFileSync(`${OUT}/generated/theme/index.css`, deriveIndexTheme());
+	writeFileSync(`${OUT}/generated/types/index.d.ts`, deriveIndexDts());
 
 	// Format generated .d.ts files to pass biome checks
 	try {
-		execSync(`npx biome format --write ${OUT}/types/`, { stdio: 'pipe' });
+		execSync(`npx biome format --write ${OUT}/generated/types/`, { stdio: 'pipe' });
 	} catch {
 		// Non-fatal — formatting is a convenience, not a build requirement
 	}

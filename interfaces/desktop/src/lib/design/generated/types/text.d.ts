@@ -33,3 +33,4 @@ export type TextRecord = {
 	inverse: string;
 	link: string;
 };
+

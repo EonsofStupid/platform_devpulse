@@ -5,7 +5,7 @@
  * Returns Tailwind class string — no inline styles.
  */
 
-import type { SizeToken } from "$lib/design/types/spacing.js";
+import type { SizeToken } from "$lib/design/generated/types/spacing.js";
 
 /** Standard aspect ratios. */
 export type AspectRatioValue =

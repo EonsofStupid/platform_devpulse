@@ -91,11 +91,15 @@ export type BackdropGridSizeRecord = {
 	ember: string;
 };
 
-export const BackdropGridLineTokens = ["width"] as const;
+export const BackdropGridLineTokens = [
+	"width",
+] as const;
 export type BackdropGridLineToken = (typeof BackdropGridLineTokens)[number];
 
-export type BackdropGridLineCSSVar = "--backdrop-grid-line-width";
+export type BackdropGridLineCSSVar =
+	| "--backdrop-grid-line-width";
 
 export type BackdropGridLineRecord = {
 	width: string;
 };
+

@@ -5,7 +5,7 @@
  * Returns Tailwind class string via cn().
  */
 
-import type { SpaceToken, ZIndexToken } from "$lib/design/types/spacing.js";
+import type { SpaceToken, ZIndexToken } from "$lib/design/generated/types/spacing.js";
 
 export interface UseStickyProps {
 	/** Offset from top when stuck. DTCG SpaceToken. Default: "0". */

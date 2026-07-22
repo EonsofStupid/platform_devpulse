@@ -5,7 +5,7 @@
  * Returns Tailwind class string + ARIA attributes (separator requires ARIA per spec).
  */
 
-import type { SpaceToken } from "$lib/design/types/spacing.js";
+import type { SpaceToken } from "$lib/design/generated/types/spacing.js";
 
 /** Divider orientation. */
 export type DividerOrientation = "horizontal" | "vertical";

@@ -46,10 +46,17 @@ export type GlassRecord = {
 	coral: string;
 };
 
-export const MatteTokens = ["dark", "medium", "light"] as const;
+export const MatteTokens = [
+	"dark",
+	"medium",
+	"light",
+] as const;
 export type MatteToken = (typeof MatteTokens)[number];
 
-export type MatteCSSVar = "--matte-dark" | "--matte-medium" | "--matte-light";
+export type MatteCSSVar =
+	| "--matte-dark"
+	| "--matte-medium"
+	| "--matte-light";
 
 export type MatteRecord = {
 	dark: string;
@@ -206,3 +213,4 @@ export type SurfaceRecord = {
 		border: string;
 	};
 };
+

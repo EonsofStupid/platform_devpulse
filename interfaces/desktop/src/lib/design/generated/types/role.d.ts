@@ -49,10 +49,19 @@ export type PrimaryRecord = {
 	"deep-fg": string;
 };
 
-export const CtaTokens = ["main", "glow", "fill", "fg"] as const;
+export const CtaTokens = [
+	"main",
+	"glow",
+	"fill",
+	"fg",
+] as const;
 export type CtaToken = (typeof CtaTokens)[number];
 
-export type CtaCSSVar = "--cta-main" | "--cta-glow" | "--cta-fill" | "--cta-fg";
+export type CtaCSSVar =
+	| "--cta-main"
+	| "--cta-glow"
+	| "--cta-fill"
+	| "--cta-fg";
 
 export type CtaRecord = {
 	main: string;
@@ -61,7 +70,12 @@ export type CtaRecord = {
 	fg: string;
 };
 
-export const SecondaryTokens = ["main", "glow", "fill", "fg"] as const;
+export const SecondaryTokens = [
+	"main",
+	"glow",
+	"fill",
+	"fg",
+] as const;
 export type SecondaryToken = (typeof SecondaryTokens)[number];
 
 export type SecondaryCSSVar =
@@ -77,10 +91,19 @@ export type SecondaryRecord = {
 	fg: string;
 };
 
-export const DangerTokens = ["main", "glow", "fill", "fg"] as const;
+export const DangerTokens = [
+	"main",
+	"glow",
+	"fill",
+	"fg",
+] as const;
 export type DangerToken = (typeof DangerTokens)[number];
 
-export type DangerCSSVar = "--danger-main" | "--danger-glow" | "--danger-fill" | "--danger-fg";
+export type DangerCSSVar =
+	| "--danger-main"
+	| "--danger-glow"
+	| "--danger-fill"
+	| "--danger-fg";
 
 export type DangerRecord = {
 	main: string;
@@ -89,10 +112,19 @@ export type DangerRecord = {
 	fg: string;
 };
 
-export const SuccessTokens = ["main", "glow", "fill", "fg"] as const;
+export const SuccessTokens = [
+	"main",
+	"glow",
+	"fill",
+	"fg",
+] as const;
 export type SuccessToken = (typeof SuccessTokens)[number];
 
-export type SuccessCSSVar = "--success-main" | "--success-glow" | "--success-fill" | "--success-fg";
+export type SuccessCSSVar =
+	| "--success-main"
+	| "--success-glow"
+	| "--success-fill"
+	| "--success-fg";
 
 export type SuccessRecord = {
 	main: string;
@@ -101,10 +133,19 @@ export type SuccessRecord = {
 	fg: string;
 };
 
-export const WarningTokens = ["main", "glow", "fill", "fg"] as const;
+export const WarningTokens = [
+	"main",
+	"glow",
+	"fill",
+	"fg",
+] as const;
 export type WarningToken = (typeof WarningTokens)[number];
 
-export type WarningCSSVar = "--warning-main" | "--warning-glow" | "--warning-fill" | "--warning-fg";
+export type WarningCSSVar =
+	| "--warning-main"
+	| "--warning-glow"
+	| "--warning-fill"
+	| "--warning-fg";
 
 export type WarningRecord = {
 	main: string;
@@ -113,10 +154,19 @@ export type WarningRecord = {
 	fg: string;
 };
 
-export const InfoTokens = ["main", "glow", "fill", "fg"] as const;
+export const InfoTokens = [
+	"main",
+	"glow",
+	"fill",
+	"fg",
+] as const;
 export type InfoToken = (typeof InfoTokens)[number];
 
-export type InfoCSSVar = "--info-main" | "--info-glow" | "--info-fill" | "--info-fg";
+export type InfoCSSVar =
+	| "--info-main"
+	| "--info-glow"
+	| "--info-fill"
+	| "--info-fg";
 
 export type InfoRecord = {
 	main: string;
@@ -125,13 +175,21 @@ export type InfoRecord = {
 	fg: string;
 };
 
-export const MutedTokens = ["main", "bg", "fg"] as const;
+export const MutedTokens = [
+	"main",
+	"bg",
+	"fg",
+] as const;
 export type MutedToken = (typeof MutedTokens)[number];
 
-export type MutedCSSVar = "--muted-main" | "--muted-bg" | "--muted-fg";
+export type MutedCSSVar =
+	| "--muted-main"
+	| "--muted-bg"
+	| "--muted-fg";
 
 export type MutedRecord = {
 	main: string;
 	bg: string;
 	fg: string;
 };
+

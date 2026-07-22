@@ -1069,7 +1069,7 @@ const config = {
 		// ── CSS: Primitives ───────────────────────────────────────
 		'css-primitives': {
 			transforms: CSS_TRANSFORMS,
-			buildPath: `${paths.design}/styles/${layers.primitives}/`,
+			buildPath: `${paths.design}/generated/styles/${layers.primitives}/`,
 			files: [
 				cssFile('color.css', pathFilter('color'), layers.primitives),
 				cssFile('shadow.css', pathFilter('shadow', 'depth'), layers.primitives),
@@ -1094,7 +1094,7 @@ const config = {
 		// ── CSS: Semantic ─────────────────────────────────────────
 		'css-semantic': {
 			transforms: CSS_TRANSFORMS,
-			buildPath: `${paths.design}/styles/${layers.semantic}/`,
+			buildPath: `${paths.design}/generated/styles/${layers.semantic}/`,
 			files: [
 				cssFile('elevation.css', pathFilter('elevation'), layers.semantic),
 				cssFile('surface.css', pathFilter('surface'), layers.semantic),
@@ -1124,7 +1124,7 @@ const config = {
 		// monochrome-teal audit finding F2).
 		'css-components': {
 			transforms: CSS_TRANSFORMS,
-			buildPath: `${paths.design}/styles/${layers.components}/`,
+			buildPath: `${paths.design}/generated/styles/${layers.components}/`,
 			files: [
 				cssFile('components.generated.css', isComponent, layers.components),
 			],
@@ -1147,7 +1147,7 @@ const config = {
 		// ── CSS: SVG Presets ──────────────────────────────────────
 		'css-svg-presets': {
 			transforms: CSS_TRANSFORMS,
-			buildPath: `${paths.design}/svg/presets/`,
+			buildPath: `${paths.design}/generated/svg/presets/`,
 			files: [
 				{
 					destination: 'svg-presets.generated.css',
@@ -1162,7 +1162,7 @@ const config = {
 		// Color: brand hues + brand-accent hues + achromatics for Tailwind @theme.
 		'theme-color': {
 			transforms: CSS_TRANSFORMS,
-			buildPath: `${paths.design}/theme/`,
+			buildPath: `${paths.design}/generated/theme/`,
 			files: [themeFile('color.css', (token) => {
 				if (token.path[0] !== 'color') return false;
 				const THEME_HUES = new Set([...brandHues, ...brandAccentHues, ...achromatics]);
@@ -1172,41 +1172,41 @@ const config = {
 				return THEME_HUES.has(token.path[1]);
 			})],
 		},
-		'theme-shadow': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('shadow.css', pathFilter('shadow', 'depth'))] },
-		'theme-elevation': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('elevation.css', pathFilter('elevation'))] },
-		'theme-bevel': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('bevel.css', pathFilter('bevel'))] },
-		'theme-blur': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('blur.css', pathFilter('blur'))] },
-		'theme-surface': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('surface.css', pathFilter('glass', 'matte', 'surface'))] },
-		'theme-radius': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('radius.css', pathFilter('radius'))] },
-		'theme-spacing': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('spacing.css', pathFilter('space', 'padding', 'size', 'breakpoint', 'zIndex'))] },
-		'theme-typography': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('typography.css', pathFilter('font', 'fontFeatureSettings', 'fontVariationSettings', 'textSize', 'font-size'))] },
-		'theme-text-style': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('text-style.css', pathFilter('textStyle'))] },
+		'theme-shadow': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('shadow.css', pathFilter('shadow', 'depth'))] },
+		'theme-elevation': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('elevation.css', pathFilter('elevation'))] },
+		'theme-bevel': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('bevel.css', pathFilter('bevel'))] },
+		'theme-blur': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('blur.css', pathFilter('blur'))] },
+		'theme-surface': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('surface.css', pathFilter('glass', 'matte', 'surface'))] },
+		'theme-radius': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('radius.css', pathFilter('radius'))] },
+		'theme-spacing': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('spacing.css', pathFilter('space', 'padding', 'size', 'breakpoint', 'zIndex'))] },
+		'theme-typography': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('typography.css', pathFilter('font', 'fontFeatureSettings', 'fontVariationSettings', 'textSize', 'font-size'))] },
+		'theme-text-style': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('text-style.css', pathFilter('textStyle'))] },
 		'theme-text-composed': {
 			transforms: CSS_TRANSFORMS,
-			buildPath: `${paths.design}/theme/`,
+			buildPath: `${paths.design}/generated/theme/`,
 			files: [{
 				destination: 'text-composed.css',
 				format: 'coldlight/tailwind-typography',
 				filter: pathFilter('textStyle'),
 			}],
 		},
-		'theme-motion': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('motion.css', pathFilter('motion', 'duration', 'easing'))] },
-		'theme-transition': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('transition.css', pathFilter('transition'))] },
-		'theme-border': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('border.css', pathFilter('border', 'borderPreset'))] },
-		'theme-interaction': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('interaction.css', pathFilter('interaction'))] },
-		'theme-overlay': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('overlay.css', pathFilter('overlay'))] },
-		'theme-scrollbar': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('scrollbar.css', pathFilter('scrollbar'))] },
-		'theme-backdrop': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('backdrop.css', pathFilter('backdrop-glow', 'backdrop-grid', 'backdrop-grid-size', 'backdrop-grid-line'))] },
-		'theme-gradient': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('gradient.css', pathFilter('gradient'))] },
-		'theme-text': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('text.css', pathFilter('text'))] },
-		'theme-signal': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('signal.css', pathFilter('signal'))] },
-		'theme-accent': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('accent.css', pathFilter('accent'))] },
-		'theme-role':   { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('role.css',   pathFilter('primary', 'secondary', 'danger', 'success', 'warning', 'info', 'muted', 'cta'))] },
+		'theme-motion': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('motion.css', pathFilter('motion', 'duration', 'easing'))] },
+		'theme-transition': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('transition.css', pathFilter('transition'))] },
+		'theme-border': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('border.css', pathFilter('border', 'borderPreset'))] },
+		'theme-interaction': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('interaction.css', pathFilter('interaction'))] },
+		'theme-overlay': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('overlay.css', pathFilter('overlay'))] },
+		'theme-scrollbar': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('scrollbar.css', pathFilter('scrollbar'))] },
+		'theme-backdrop': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('backdrop.css', pathFilter('backdrop-glow', 'backdrop-grid', 'backdrop-grid-size', 'backdrop-grid-line'))] },
+		'theme-gradient': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('gradient.css', pathFilter('gradient'))] },
+		'theme-text': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('text.css', pathFilter('text'))] },
+		'theme-signal': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('signal.css', pathFilter('signal'))] },
+		'theme-accent': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('accent.css', pathFilter('accent'))] },
+		'theme-role':   { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('role.css',   pathFilter('primary', 'secondary', 'danger', 'success', 'warning', 'info', 'muted', 'cta'))] },
 
 		// ── TypeScript Types ──────────────────────────────────────
 		'types-primitives': {
 			transforms: TYPE_TRANSFORMS,
-			buildPath: `${paths.design}/types/`,
+			buildPath: `${paths.design}/generated/types/`,
 			files: [
 				typesFile('color.d.ts', pathFilter('color')),
 				typesFile('shadow.d.ts', pathFilter('shadow', 'bevel', 'glow', 'glowSpread')),
@@ -1220,7 +1220,7 @@ const config = {
 		},
 		'types-semantic': {
 			transforms: TYPE_TRANSFORMS,
-			buildPath: `${paths.design}/types/`,
+			buildPath: `${paths.design}/generated/types/`,
 			files: [
 				typesFile('elevation.d.ts', pathFilter('elevation')),
 				typesFile('border.d.ts', pathFilter('border', 'borderPreset')),
@@ -1234,14 +1234,14 @@ const config = {
 		},
 		'types-components': {
 			transforms: TYPE_TRANSFORMS,
-			buildPath: `${paths.design}/types/`,
+			buildPath: `${paths.design}/generated/types/`,
 			files: [typesFile('component.d.ts', isComponent)],
 		},
 
 		// ── Manifest: VPB token metadata ─────────────────────────
 		manifest: {
 			transforms: TYPE_TRANSFORMS,
-			buildPath: `${paths.design}/manifest/`,
+			buildPath: `${paths.design}/generated/manifest/`,
 			files: [{
 				destination: 'token-manifest.json',
 				format: clFormats.manifest,

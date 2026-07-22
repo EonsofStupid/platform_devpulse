@@ -6,7 +6,7 @@
  * Returns Tailwind class strings — no inline styles.
  */
 
-import type { SpaceToken } from "$lib/design/types/spacing.js";
+import type { SpaceToken } from "$lib/design/generated/types/spacing.js";
 
 /** Container size presets mapped to --size-container-{size} tokens. */
 export type ContainerSize = "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "full";

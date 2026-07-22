@@ -4,7 +4,7 @@
  * DTCG-typed props. All spacing via SD5 --space-* custom properties.
  */
 
-import type { SpaceToken } from "$lib/design/types/spacing.js";
+import type { SpaceToken } from "$lib/design/generated/types/spacing.js";
 
 export interface StackProps {
 	/** Gap between children — SpaceToken key resolving to --space-{token}. */

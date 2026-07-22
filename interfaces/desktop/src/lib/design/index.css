@@ -11,10 +11,10 @@
  */
 
 /* 1. SD5-generated token CSS — 3-tier @layer (primitives, semantic, components) */
-@import "./styles/index.css";
+@import "./generated/styles/index.css";
 
 /* 2. SD5-generated Tailwind @theme registrations */
-@import "./theme/index.css";
+@import "./generated/theme/index.css";
 
 /* 3. Glue (hand-authored): typography utilities */
 @import "./glue/typography.css";
@@ -41,4 +41,4 @@
 @import "./svg/svg-accent-defaults.css";
 
 /* 11. SD5-generated SVG preset vars (emitted under svg/presets/) */
-@import "./svg/presets/svg-presets.generated.css";
+@import "./generated/svg/presets/svg-presets.generated.css";

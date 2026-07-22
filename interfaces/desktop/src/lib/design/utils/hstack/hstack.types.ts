@@ -5,7 +5,7 @@
  * Returns Tailwind class string.
  */
 
-import type { SpaceToken } from "$lib/design/types/spacing.js";
+import type { SpaceToken } from "$lib/design/generated/types/spacing.js";
 
 export interface HStackProps {
 	/** Gap between children. DTCG SpaceToken. */

@@ -34,7 +34,12 @@ export type BevelRecord = {
 	deep: string;
 };
 
-export const GlowSpreadTokens = ["sm", "md", "lg", "xl"] as const;
+export const GlowSpreadTokens = [
+	"sm",
+	"md",
+	"lg",
+	"xl",
+] as const;
 export type GlowSpreadToken = (typeof GlowSpreadTokens)[number];
 
 export type GlowSpreadCSSVar =
@@ -82,3 +87,4 @@ export type GlowRecord = {
 	cyber: string;
 	blue: string;
 };
+

@@ -4,7 +4,7 @@
  * DTCG-typed props. All spacing via SD5 --space-* custom properties.
  */
 
-import type { SpaceToken } from "$lib/design/types/spacing.js";
+import type { SpaceToken } from "$lib/design/generated/types/spacing.js";
 
 /** Flex direction values. */
 export type FlexDirection = "row" | "column" | "row-reverse" | "column-reverse";
