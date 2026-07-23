@@ -52,7 +52,7 @@ $effect(() => hardwareState.subscribe("statusbar"));
 $effect(() => clyffyConnection.subscribe());
 </script>
 
-<div class="statusbar-surface flex w-full items-center justify-between" aria-label="System status">
+<div class="flex w-full items-center justify-between" aria-label="System status">
 	{#if platformState.isBooting}
 		<!-- Boot progress mode — grouped subsystems with per-badge tooltips -->
 		<div class={hstack({ gap: "2", align: "center" })}>
@@ -166,14 +166,6 @@ $effect(() => clyffyConnection.subscribe());
 </div>
 
 <style>
-	.statusbar-surface {
-		background: var(--glass-deep);
-		backdrop-filter: blur(var(--blur-lg));
-		-webkit-backdrop-filter: blur(var(--blur-lg));
-		box-shadow: inset var(--bevel-subtle), var(--glow-dot-sm);
-		border-radius: 0;
-	}
-
 	.status-dot {
 		box-shadow: var(--glow-dot-sm);
 	}

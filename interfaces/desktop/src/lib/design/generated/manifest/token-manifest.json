@@ -44498,6 +44498,156 @@
 				"extensions": null
 			},
 			{
+				"name": "preset-shell-topbar-background-color",
+				"path": [
+					"preset",
+					"shell-topbar",
+					"background-color"
+				],
+				"cssVar": "--preset-shell-topbar-background-color",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.0906,
+						0.0149,
+						205.53
+					],
+					"alpha": 0.8,
+					"hex": "#000304"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-shell-topbar-box-shadow",
+				"path": [
+					"preset",
+					"shell-topbar",
+					"box-shadow"
+				],
+				"cssVar": "--preset-shell-topbar-box-shadow",
+				"value": "0 0.0625rem 0 0 var(--border-soft)",
+				"type": "shadow",
+				"extensions": null
+			},
+			{
+				"name": "preset-shell-topbar-opacity",
+				"path": [
+					"preset",
+					"shell-topbar",
+					"opacity"
+				],
+				"cssVar": "--preset-shell-topbar-opacity",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-shell-topbar-transition-duration",
+				"path": [
+					"preset",
+					"shell-topbar",
+					"transition-duration"
+				],
+				"cssVar": "--preset-shell-topbar-transition-duration",
+				"value": "200ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "preset-shell-topbar-transition-timing-function",
+				"path": [
+					"preset",
+					"shell-topbar",
+					"transition-timing-function"
+				],
+				"cssVar": "--preset-shell-topbar-transition-timing-function",
+				"value": "cubic-bezier(0.4, 0, 0.2, 1)",
+				"type": "cubicBezier",
+				"extensions": null
+			},
+			{
+				"name": "preset-shell-statusbar-background-color",
+				"path": [
+					"preset",
+					"shell-statusbar",
+					"background-color"
+				],
+				"cssVar": "--preset-shell-statusbar-background-color",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.0906,
+						0.0149,
+						205.53
+					],
+					"alpha": 0.8,
+					"hex": "#000304"
+				},
+				"type": "color",
+				"extensions": null
+			},
+			{
+				"name": "preset-shell-statusbar-backdrop-filter",
+				"path": [
+					"preset",
+					"shell-statusbar",
+					"backdrop-filter"
+				],
+				"cssVar": "--preset-shell-statusbar-backdrop-filter",
+				"value": "blur(1.5rem)",
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "preset-shell-statusbar-box-shadow",
+				"path": [
+					"preset",
+					"shell-statusbar",
+					"box-shadow"
+				],
+				"cssVar": "--preset-shell-statusbar-box-shadow",
+				"value": "0 -0.0625rem 0 0 var(--border-soft), inset var(--bevel-subtle), var(--glow-dot-sm)",
+				"type": "shadow",
+				"extensions": null
+			},
+			{
+				"name": "preset-shell-statusbar-opacity",
+				"path": [
+					"preset",
+					"shell-statusbar",
+					"opacity"
+				],
+				"cssVar": "--preset-shell-statusbar-opacity",
+				"value": "1",
+				"type": "number",
+				"extensions": null
+			},
+			{
+				"name": "preset-shell-statusbar-transition-duration",
+				"path": [
+					"preset",
+					"shell-statusbar",
+					"transition-duration"
+				],
+				"cssVar": "--preset-shell-statusbar-transition-duration",
+				"value": "200ms",
+				"type": "duration",
+				"extensions": null
+			},
+			{
+				"name": "preset-shell-statusbar-transition-timing-function",
+				"path": [
+					"preset",
+					"shell-statusbar",
+					"transition-timing-function"
+				],
+				"cssVar": "--preset-shell-statusbar-transition-timing-function",
+				"value": "cubic-bezier(0.4, 0, 0.2, 1)",
+				"type": "cubicBezier",
+				"extensions": null
+			},
+			{
 				"name": "preset-stark-elevated-background-color",
 				"path": [
 					"preset",

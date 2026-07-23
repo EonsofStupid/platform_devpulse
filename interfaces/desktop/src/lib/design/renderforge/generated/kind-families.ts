@@ -233,6 +233,8 @@ export const PRESET_FAMILIES: Record<string, CssFamily[]> = {
 	"retro-solid-active": ["surface"],
 	"retro-solid-disabled": ["surface"],
 	"retro-solid-hover": ["surface"],
+	"shell-statusbar": ["overlay", "surface"],
+	"shell-topbar": ["surface"],
 	"stark-deep": ["frame", "surface", "text"],
 	"stark-deep-active": ["surface"],
 	"stark-deep-disabled": ["surface", "text"],

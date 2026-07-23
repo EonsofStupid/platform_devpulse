@@ -4,20 +4,15 @@
 
   App shell frame — ColdLight 6-zone CSS Grid layout.
   Zones: topbar, sidebar (left), content, context (right), statusbar, overlay.
-  All layout structural. Visual via token var() refs.
-
-	@defaults {
-		"background-color": "oklch(0.0901 0.017 224.61 / 0.8)",
-		"border-radius": "0.75rem",
-		"box-shadow": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
-		"color": "oklch(0.9319 0.015 224)",
-		"border-color": "oklch(0.4234 0.081 173.37 / 0.22)",
-		"border-width": "0.0625rem"
-}
+  Layout is Tailwind (grid areas + named spacing utilities). The surface visual
+  of each zone is a ColdLight composite trait (traits/composite → renderForge),
+  spread onto the zone element — no scoped <style>, no inline var()/arbitrary.
 -->
 <script lang="ts">
 import type { Snippet } from "svelte";
 import { BackgroundScene } from "$lib/design/components/background-scene/index.js";
+import { cssVarString } from "$lib/design/renderforge/index.js";
+import { shellTrait } from "$lib/design/traits/composite/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { SetupWizardOverlay } from "$lib/domains/app/models/feature/setup-wizard/index.js";
 import { SwapOverlay } from "$lib/domains/app/models/index.js";
@@ -35,6 +30,12 @@ let { children }: Props = $props();
 
 const isSidebarExpanded = $derived(globalState.sidebar_mode === "expanded");
 const isContextExpanded = $derived(globalState.context_mode === "expanded");
+
+// Shell zone surfaces — golden composite traits resolved through ColdLight
+// (renderForge). Pure, no reactive deps → plain const. Layout stays Tailwind
+// (SLOTS below); only the surface visual comes from the trait.
+const topbarTrait = shellTrait("topbar");
+const statusbarTrait = shellTrait("statusbar");
 
 /** Structural layout classes per shell slot — no recipe import */
 /** Layout dimensions — reference: DASHBOARD-REFERENCE-01.png, refernece-dashboard3/4.png
@@ -56,7 +57,6 @@ const SLOTS = {
 	topbar: cn(
 		"[grid-area:topbar] flex items-center justify-between",
 		"h-topbar px-4",
-		"border-b border-[var(--border-soft)]",
 		// Shell chrome paints above the content zone — the zone's container
 		// seam creates a stacking context, and its absolute dropdown must
 		// not slip under content.
@@ -94,7 +94,6 @@ const SLOTS = {
 	statusbar: cn(
 		"[grid-area:statusbar] flex items-center justify-between",
 		"h-statusbar px-4 py-1",
-		"border-t border-[var(--border-soft)]",
 		"text-xs text-[var(--text-muted)]",
 		"overflow-x-auto scrollbar-thin",
 		"[container-type:inline-size] [container-name:statusbar]",
@@ -119,7 +118,7 @@ const SLOTS = {
 	     and wired via the imageSrc prop when authored. -->
 	<BackgroundScene variation="cosmic-galaxy" palette="cosmic" speed="slow" intensity="subtle" motion="on" />
 
-	<header data-kind="shell" data-slot="topbar" class={SLOTS.topbar}>
+	<header {...topbarTrait.dataAttrs} data-slot="topbar" class={SLOTS.topbar} style={cssVarString(topbarTrait.cssVars)}>
 		<TopBar />
 	</header>
 
@@ -138,7 +137,7 @@ const SLOTS = {
 	<aside data-kind="shell" data-slot="context" class={isContextExpanded ? SLOTS.contextExpanded : SLOTS.context} data-expanded={isContextExpanded ? "true" : undefined}>
 	</aside>
 
-	<footer data-kind="shell" data-slot="statusbar" class={SLOTS.statusbar}>
+	<footer {...statusbarTrait.dataAttrs} data-slot="statusbar" class={SLOTS.statusbar} style={cssVarString(statusbarTrait.cssVars)}>
 		<StatusBar />
 	</footer>
 

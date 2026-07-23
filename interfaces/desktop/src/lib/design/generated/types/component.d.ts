@@ -2748,6 +2748,17 @@ export const PresetTokens = [
 	"retro-muted-hover-opacity",
 	"retro-muted-disabled-color",
 	"retro-muted-disabled-opacity",
+	"shell-topbar-background-color",
+	"shell-topbar-box-shadow",
+	"shell-topbar-opacity",
+	"shell-topbar-transition-duration",
+	"shell-topbar-transition-timing-function",
+	"shell-statusbar-background-color",
+	"shell-statusbar-backdrop-filter",
+	"shell-statusbar-box-shadow",
+	"shell-statusbar-opacity",
+	"shell-statusbar-transition-duration",
+	"shell-statusbar-transition-timing-function",
 	"stark-elevated-background-color",
 	"stark-elevated-border-radius",
 	"stark-elevated-box-shadow",
@@ -4090,6 +4101,17 @@ export type PresetCSSVar =
 	| "--preset-retro-muted-hover-opacity"
 	| "--preset-retro-muted-disabled-color"
 	| "--preset-retro-muted-disabled-opacity"
+	| "--preset-shell-topbar-background-color"
+	| "--preset-shell-topbar-box-shadow"
+	| "--preset-shell-topbar-opacity"
+	| "--preset-shell-topbar-transition-duration"
+	| "--preset-shell-topbar-transition-timing-function"
+	| "--preset-shell-statusbar-background-color"
+	| "--preset-shell-statusbar-backdrop-filter"
+	| "--preset-shell-statusbar-box-shadow"
+	| "--preset-shell-statusbar-opacity"
+	| "--preset-shell-statusbar-transition-duration"
+	| "--preset-shell-statusbar-transition-timing-function"
 	| "--preset-stark-elevated-background-color"
 	| "--preset-stark-elevated-border-radius"
 	| "--preset-stark-elevated-box-shadow"
@@ -5713,6 +5735,21 @@ export type PresetRecord = {
 	"retro-muted-disabled": {
 		color: string;
 		opacity: string;
+	};
+	"shell-topbar": {
+		"background-color": string;
+		"box-shadow": string;
+		opacity: string;
+		"transition-duration": string;
+		"transition-timing-function": string;
+	};
+	"shell-statusbar": {
+		"background-color": string;
+		"backdrop-filter": string;
+		"box-shadow": string;
+		opacity: string;
+		"transition-duration": string;
+		"transition-timing-function": string;
 	};
 	"stark-elevated": {
 		"background-color": string;
