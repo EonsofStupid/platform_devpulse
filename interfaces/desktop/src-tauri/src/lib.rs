@@ -116,6 +116,7 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             commands::chat::pick_save_file,
             commands::chat::send_message,
             commands::chat::store_assistant_turn,
+            commands::chat::claude_code::claude_code_chat,
             commands::chat::history::load_recent,
             commands::chat::suggest::suggest_query,
             commands::chat::suggest::suggest_record,

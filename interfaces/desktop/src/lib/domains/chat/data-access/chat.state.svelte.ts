@@ -160,6 +160,63 @@ class ChatState {
 		}
 	}
 
+	/**
+	 * Send a message to the Claude Code CLI provider and append its answer.
+	 *
+	 * The first working provider path: no active project, no loaded local
+	 * brain, no persistence — just the operator's subscription-authed Claude
+	 * Code CLI answering live. v1 is non-streamed (the whole reply lands at
+	 * once); token streaming is the follow-up.
+	 */
+	async generateViaClaudeCode(content: string): Promise<void> {
+		const text = content.trim();
+		if (!text || this.sending || this.isGenerating) return;
+
+		this.error = null;
+		this.sending = true;
+
+		const askedAt = Date.now();
+		const sessionId = this.activeSessionId ?? "claude-code";
+		const userMsg: ChatMessage = {
+			id: `local-u-${askedAt}`,
+			sessionId,
+			role: "user",
+			content: text,
+			createdAt: askedAt,
+			tokenCount: null,
+			modelUsed: null,
+			latencyMs: null,
+		};
+		this.messages = [...this.messages, userMsg];
+
+		const startMs = performance.now();
+		try {
+			logInfo("chat", "generateViaClaudeCode: asking claude CLI");
+			const answer = await chatService.claudeCodeChat(text);
+			const latencyMs = Math.round(performance.now() - startMs);
+			const doneAt = Date.now();
+			const assistantMsg: ChatMessage = {
+				id: `local-a-${doneAt}`,
+				sessionId,
+				role: "assistant",
+				content: answer,
+				createdAt: doneAt,
+				tokenCount: null,
+				modelUsed: "claude-code",
+				latencyMs,
+			};
+			this.messages = [...this.messages, assistantMsg];
+			announce("Response complete");
+		} catch (e) {
+			const msg = e instanceof Error ? e.message : String(e);
+			this.error = msg;
+			logError("chat", `generateViaClaudeCode: failed — ${msg}`);
+			announce("Response failed", "assertive");
+		} finally {
+			this.sending = false;
+		}
+	}
+
 	setActiveSession(id: string | null): void {
 		this.activeSessionId = id;
 	}

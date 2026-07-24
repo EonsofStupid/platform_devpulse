@@ -1,5 +1,6 @@
 //! Chat commands — `turns` + `sessions` SSOT in user-scoped `LibSQL`.
 
+pub mod claude_code;
 pub mod history;
 pub mod interactions;
 pub mod sessions;

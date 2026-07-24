@@ -31,7 +31,7 @@ function handleAccept(s: Suggestion): void {
 function handleSend(content: string): void {
 	const trimmed = content.trim();
 	if (trimmed.length === 0) return;
-	void chatState.generateResponse(trimmed);
+	void chatState.generateViaClaudeCode(trimmed);
 	void suggestState.record(trimmed);
 	suggestState.clear();
 }

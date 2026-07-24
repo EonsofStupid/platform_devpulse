@@ -53,6 +53,25 @@ async storeAssistantTurn(sessionId: string, projectId: string, content: string, 
 }
 },
 /**
+ * Run one prompt through the local Claude Code CLI and return its answer.
+ * 
+ * The prompt is passed as a single argument (not shell-interpolated), so a
+ * multi-line chat message is preserved verbatim. Requires the `claude` CLI
+ * installed and authenticated on the operator's machine.
+ * 
+ * # Errors
+ * Returns a formatted message when the `claude` CLI can't be launched, exits
+ * non-zero, or emits output that isn't the expected JSON result object.
+ */
+async claudeCodeChat(prompt: string) : Promise<Result<string, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("claude_code_chat", { prompt }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Load recent turns for a project. When `session_id` is `None`, uses the latest session for the project.
  */
 async loadRecent(projectId: string, sessionId: string | null) : Promise<Result<ChatMessage[], string>> {

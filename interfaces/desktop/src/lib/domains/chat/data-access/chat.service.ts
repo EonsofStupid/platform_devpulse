@@ -50,6 +50,19 @@ export async function sendMessage(projectId: string, content: string): Promise<C
 	});
 }
 
+/**
+ * Ask the local Claude Code CLI one prompt and return its full answer.
+ * Subscription-authed by Claude Code itself; no project/session/brain
+ * required. The first working AI provider — backend spawns `claude -p`.
+ */
+export async function claudeCodeChat(prompt: string): Promise<string> {
+	return withAction("chat.claudeCode", "Asking Claude Code…", async () => {
+		logInfo("chat", "claude_code_chat");
+		const r = await commands.claudeCodeChat(prompt);
+		return ok(r);
+	});
+}
+
 export async function listSessions(): Promise<ChatSession[]> {
 	return withAction("chat.listSessions", "Listing chat sessions…", async () => {
 		const r = await commands.listSessions();
