@@ -2,17 +2,23 @@
   @file src/lib/layouts/app/Frame.svelte
   @module @devpulse/layouts/app/Frame
 
-  App shell frame — ColdLight 6-zone CSS Grid layout.
-  Zones: topbar, sidebar (left), content, context (right), statusbar, overlay.
-  Layout is Tailwind (grid areas + named spacing utilities). The surface visual
-  of each zone is a ColdLight composite trait (traits/composite → renderForge),
-  spread onto the zone element — no scoped <style>, no inline var()/arbitrary.
+  App shell frame — the composer. A 6-zone CSS Grid that places the zone
+  components (TopBar, Sidebar, StatusBar, …) and flows routes through content.
+  Frame is LAYOUT ONLY — each zone component owns its surface via a colocated
+  <style> that pulls from ColdLight style tokens (the generated ingredients).
+
+	@defaults {
+		"background-color": "oklch(0.0901 0.017 224.61 / 0.8)",
+		"border-radius": "0.75rem",
+		"box-shadow": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+		"color": "oklch(0.9319 0.015 224)",
+		"border-color": "oklch(0.4234 0.081 173.37 / 0.22)",
+		"border-width": "0.0625rem"
+}
 -->
 <script lang="ts">
 import type { Snippet } from "svelte";
 import { BackgroundScene } from "$lib/design/components/background-scene/index.js";
-import { cssVarString } from "$lib/design/renderforge/index.js";
-import { shellTrait } from "$lib/design/traits/composite/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { SetupWizardOverlay } from "$lib/domains/app/models/feature/setup-wizard/index.js";
 import { SwapOverlay } from "$lib/domains/app/models/index.js";
@@ -30,12 +36,6 @@ let { children }: Props = $props();
 
 const isSidebarExpanded = $derived(globalState.sidebar_mode === "expanded");
 const isContextExpanded = $derived(globalState.context_mode === "expanded");
-
-// Shell zone surfaces — golden composite traits resolved through ColdLight
-// (renderForge). Pure, no reactive deps → plain const. Layout stays Tailwind
-// (SLOTS below); only the surface visual comes from the trait.
-const topbarTrait = shellTrait("topbar");
-const statusbarTrait = shellTrait("statusbar");
 
 /** Structural layout classes per shell slot — no recipe import */
 /** Layout dimensions — reference: DASHBOARD-REFERENCE-01.png, refernece-dashboard3/4.png
@@ -55,8 +55,9 @@ const SLOTS = {
 		"[grid-template-areas:'topbar_topbar_topbar'_'sidebar_content_context'_'statusbar_statusbar_statusbar']",
 	),
 	topbar: cn(
-		"[grid-area:topbar] flex items-center justify-between",
-		"h-topbar px-4",
+		// Layout only — the TopBar component owns its surface + padding via a
+		// colocated <style> that pulls from ColdLight style tokens.
+		"[grid-area:topbar] h-topbar",
 		// Shell chrome paints above the content zone — the zone's container
 		// seam creates a stacking context, and its absolute dropdown must
 		// not slip under content.
@@ -64,20 +65,19 @@ const SLOTS = {
 		"[container-type:inline-size] [container-name:topbar]",
 	),
 	sidebar: cn(
-		"[grid-area:sidebar] flex flex-col items-center relative",
-		"w-sidebar-collapsed py-3 gap-2",
-		"border-r border-[var(--border-subtle)]",
+		// Layout only — the Sidebar component owns its surface, padding, and
+		// backdrop (colocated <style> pulling from ColdLight style tokens).
+		"[grid-area:sidebar] relative w-sidebar-collapsed",
 		"overflow-x-hidden overflow-y-auto scrollbar-thin",
-		"transition-[width,padding] duration-[var(--duration-md)] ease-[cubic-bezier(0.4,0,0.2,1)]",
+		"transition-[width] duration-[var(--duration-normal)] ease-[cubic-bezier(0.4,0,0.2,1)]",
 		"motion-reduce:transition-none",
 		"[container-type:inline-size] [container-name:sidebar]",
 	),
 	sidebarExpanded: cn(
-		"[grid-area:sidebar] flex flex-col relative",
-		"w-sidebar-expanded py-3 px-2",
-		"border-r border-[var(--border-subtle)]",
+		// Layout only — see `sidebar` above.
+		"[grid-area:sidebar] relative w-sidebar-expanded",
 		"overflow-x-hidden overflow-y-auto scrollbar-thin",
-		"transition-[width,padding] duration-[var(--duration-md)] ease-[cubic-bezier(0.4,0,0.2,1)]",
+		"transition-[width] duration-[var(--duration-normal)] ease-[cubic-bezier(0.4,0,0.2,1)]",
 		"motion-reduce:transition-none",
 		"[container-type:inline-size] [container-name:sidebar]",
 	),
@@ -92,8 +92,9 @@ const SLOTS = {
 		"[container-type:inline-size] [container-name:context]",
 	),
 	statusbar: cn(
-		"[grid-area:statusbar] flex items-center justify-between",
-		"h-statusbar px-4 py-1",
+		// Layout only — StatusBar owns its surface + padding (colocated <style>
+		// pulling from ColdLight style tokens).
+		"[grid-area:statusbar] h-statusbar",
 		"text-xs text-[var(--text-muted)]",
 		"overflow-x-auto scrollbar-thin",
 		"[container-type:inline-size] [container-name:statusbar]",
@@ -118,15 +119,11 @@ const SLOTS = {
 	     and wired via the imageSrc prop when authored. -->
 	<BackgroundScene variation="cosmic-galaxy" palette="cosmic" speed="slow" intensity="subtle" motion="on" />
 
-	<header {...topbarTrait.dataAttrs} data-slot="topbar" class={SLOTS.topbar} style={cssVarString(topbarTrait.cssVars)}>
+	<header data-kind="shell" data-slot="topbar" class={SLOTS.topbar}>
 		<TopBar />
 	</header>
 
 	<aside data-kind="shell" data-slot="sidebar" class={isSidebarExpanded ? SLOTS.sidebarExpanded : SLOTS.sidebar} data-expanded={isSidebarExpanded ? "true" : undefined}>
-		<!-- Sidebar-scoped cosmic backdrop at stronger intensity.
-		     Parent <aside> has position: relative + overflow-x-hidden so the
-		     animation stays clipped inside the rail/panel. -->
-		<BackgroundScene variation="cosmic-galaxy" palette="cosmic" speed="slow" intensity="strong" motion="on" />
 		<Sidebar />
 	</aside>
 
@@ -137,7 +134,7 @@ const SLOTS = {
 	<aside data-kind="shell" data-slot="context" class={isContextExpanded ? SLOTS.contextExpanded : SLOTS.context} data-expanded={isContextExpanded ? "true" : undefined}>
 	</aside>
 
-	<footer {...statusbarTrait.dataAttrs} data-slot="statusbar" class={SLOTS.statusbar} style={cssVarString(statusbarTrait.cssVars)}>
+	<footer data-kind="shell" data-slot="statusbar" class={SLOTS.statusbar}>
 		<StatusBar />
 	</footer>
 

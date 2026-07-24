@@ -34,6 +34,7 @@ import {
 	Wrench,
 } from "@lucide/svelte";
 import { page } from "$app/state";
+import { BackgroundScene } from "$lib/design/components/background-scene/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { box } from "$lib/design/utils/box/index.js";
@@ -89,7 +90,10 @@ const submenuRoutes = $derived(
 const isExpanded = $derived(globalState.sidebar_mode === "expanded");
 </script>
 
-<nav class="relative z-10 grid h-full grid-rows-[1fr_auto] gap-2" aria-label="Primary">
+<nav class={cn("sidebar relative z-10 grid h-full w-full grid-rows-[1fr_auto] gap-2 py-3", isExpanded ? "px-2" : "")} aria-label="Primary">
+	<!-- Sidebar-scoped cosmic backdrop — the zone owns its own backdrop; nav is
+	     position:relative so it stays clipped inside the rail/panel. -->
+	<BackgroundScene variation="cosmic-galaxy" palette="cosmic" speed="slow" intensity="strong" motion="on" />
 	<div class={`${stack({ gap: "1" })} pt-1`}>
 		{#each navHubs as hub (hub.id)}
 			<a href={hub.href} onclick={() => handleHubClick(hub)} class="contents">
@@ -191,3 +195,12 @@ const isExpanded = $derived(globalState.sidebar_mode === "expanded");
 		</div>
 	{/if}
 </nav>
+
+<style>
+	/* Sidebar zone surface — colocated with the component, pulling from a
+	   ColdLight style token (the generated ingredients). The rail's fill is the
+	   BackgroundScene above; the zone owns only its right hairline here. */
+	.sidebar {
+		border-right: 0.0625rem solid var(--border-subtle);
+	}
+</style>

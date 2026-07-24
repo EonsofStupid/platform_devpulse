@@ -49,7 +49,7 @@ function onKey(e: KeyboardEvent): void {
 }
 </script>
 
-<div class="flex w-full items-center justify-between gap-4" role="toolbar" tabindex="0" onkeydown={onKey} data-tauri-drag-region>
+<div class="topbar flex h-full w-full items-center justify-between gap-4 px-4" role="toolbar" tabindex="0" onkeydown={onKey} data-tauri-drag-region>
 	<!-- Left: hamburger + brand -->
 	<div class={hstack({ gap: "3", align: "center" })}>
 		<Button
@@ -136,3 +136,41 @@ function onKey(e: KeyboardEvent): void {
 		<Avatar size={32} alt="User avatar" fallback="DP" />
 	</div>
 </div>
+
+<style>
+	/* Topbar zone surface — colocated with the component, pulling from ColdLight
+	   style tokens (the generated ingredients). No raw literals, no arbitrary
+	   values: every value is a var() into an emitted token. */
+	.topbar {
+		/* Teal→purple blend — two accent ingredients merging across the bar,
+		   layered over the deep-glass base so text + icons keep contrast. Both
+		   stops are emitted accent tokens; the mix carries the operator palette
+		   into a surface, it does not redefine it. */
+		background:
+			linear-gradient(
+				100deg,
+				color-mix(in oklch, var(--accent-teal-main) 50%, transparent) 0%,
+				color-mix(in oklch, var(--accent-purple-main) 50%, transparent) 100%
+			),
+			var(--surface-overlay);
+		backdrop-filter: blur(var(--blur-lg));
+		-webkit-backdrop-filter: blur(var(--blur-lg));
+		border-bottom: 0.0625rem solid var(--border-soft);
+	}
+
+	/* Action-cluster icons.
+	   1. LAYOUT FIX — the fixed-width icon buttons carry horizontal padding that
+	      eats their whole width, leaving a 0px content box; a shrinkable SVG
+	      (flex: 0 1 auto) then collapses to width 0 and never paints. Pin them
+	      non-shrinking (matching the project-switcher chevron that already
+	      survives on flex: 0 0 auto) so they keep their intrinsic size.
+	   2. CONTRAST — riding on the teal→purple blend, the muted default stroke
+	      drops out; lift to primary text with a soft accent glow so the
+	      search / notifications / chat cluster reads clearly.
+	   `:global` because the lucide SVGs render in their own component scope. */
+	.topbar :global(button svg) {
+		flex-shrink: 0;
+		color: var(--text-primary);
+		filter: drop-shadow(0 0 0.125rem var(--accent-teal-glow));
+	}
+</style>

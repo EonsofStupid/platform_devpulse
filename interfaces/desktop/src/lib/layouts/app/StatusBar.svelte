@@ -52,7 +52,7 @@ $effect(() => hardwareState.subscribe("statusbar"));
 $effect(() => clyffyConnection.subscribe());
 </script>
 
-<div class="flex w-full items-center justify-between" aria-label="System status">
+<div class="statusbar-surface flex h-full w-full items-center justify-between px-4 py-1" aria-label="System status">
 	{#if platformState.isBooting}
 		<!-- Boot progress mode — grouped subsystems with per-badge tooltips -->
 		<div class={hstack({ gap: "2", align: "center" })}>
@@ -166,6 +166,17 @@ $effect(() => clyffyConnection.subscribe());
 </div>
 
 <style>
+	/* Statusbar zone surface — colocated, pulling from ColdLight style tokens
+	   (the generated ingredients). Deep glass via the semantic --surface-overlay
+	   role, inset bevel + dot glow, hairline top edge. No raw literals. */
+	.statusbar-surface {
+		background: var(--surface-overlay);
+		backdrop-filter: blur(var(--blur-lg));
+		-webkit-backdrop-filter: blur(var(--blur-lg));
+		box-shadow: inset var(--bevel-subtle), var(--glow-dot-sm);
+		border-top: 0.0625rem solid var(--border-soft);
+	}
+
 	.status-dot {
 		box-shadow: var(--glow-dot-sm);
 	}
