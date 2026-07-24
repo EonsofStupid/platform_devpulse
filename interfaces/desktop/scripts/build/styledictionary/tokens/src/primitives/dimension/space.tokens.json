@@ -10,721 +10,215 @@
 		},
 		"1": {
 			"$value": {
-				"value": 0.0625,
+				"value": 0.25,
 				"unit": "rem"
 			},
-			"$description": "space 1 — min 1px, max 1px."
+			"$description": "space 1 — min 4px, max 4px."
 		},
 		"2": {
-			"$value": {
-				"value": 0.125,
-				"unit": "rem"
-			},
-			"$description": "space 2 — min 2px, max 2px."
-		},
-		"3": {
-			"$value": {
-				"value": 0.1875,
-				"unit": "rem"
-			},
-			"$description": "space 3 — min 3px, max 3px."
-		},
-		"4": {
-			"$value": {
-				"value": 0.3125,
-				"unit": "rem"
-			},
-			"$description": "space 4 — min 4px, max 5px."
-		},
-		"5": {
-			"$value": {
-				"value": 0.375,
-				"unit": "rem"
-			},
-			"$description": "space 5 — min 5px, max 6px."
-		},
-		"6": {
-			"$value": {
-				"value": 0.4375,
-				"unit": "rem"
-			},
-			"$description": "space 6 — min 6px, max 7px."
-		},
-		"7": {
 			"$value": {
 				"value": 0.5,
 				"unit": "rem"
 			},
-			"$description": "space 7 — min 7px, max 8px."
+			"$description": "space 2 — min 8px, max 8px."
 		},
-		"8": {
-			"$value": {
-				"value": 0.625,
-				"unit": "rem"
-			},
-			"$description": "space 8 — min 8px, max 10px.",
-			"$extensions": {
-				"com.devpulse.coldlight": {
-					"fluid": {
-						"min": {
-							"value": 0.5,
-							"unit": "rem"
-						},
-						"max": {
-							"value": 0.625,
-							"unit": "rem"
-						},
-						"minViewport": {
-							"value": 20,
-							"unit": "rem"
-						},
-						"maxViewport": {
-							"value": 90,
-							"unit": "rem"
-						}
-					}
-				}
-			}
-		},
-		"9": {
-			"$value": {
-				"value": 0.6875,
-				"unit": "rem"
-			},
-			"$description": "space 9 — min 9px, max 11px.",
-			"$extensions": {
-				"com.devpulse.coldlight": {
-					"fluid": {
-						"min": {
-							"value": 0.5625,
-							"unit": "rem"
-						},
-						"max": {
-							"value": 0.6875,
-							"unit": "rem"
-						},
-						"minViewport": {
-							"value": 20,
-							"unit": "rem"
-						},
-						"maxViewport": {
-							"value": 90,
-							"unit": "rem"
-						}
-					}
-				}
-			}
-		},
-		"10": {
+		"3": {
 			"$value": {
 				"value": 0.75,
 				"unit": "rem"
 			},
-			"$description": "space 10 — min 10px, max 12px.",
-			"$extensions": {
-				"com.devpulse.coldlight": {
-					"fluid": {
-						"min": {
-							"value": 0.625,
-							"unit": "rem"
-						},
-						"max": {
-							"value": 0.75,
-							"unit": "rem"
-						},
-						"minViewport": {
-							"value": 20,
-							"unit": "rem"
-						},
-						"maxViewport": {
-							"value": 90,
-							"unit": "rem"
-						}
-					}
-				}
-			}
+			"$description": "space 3 — min 12px, max 12px."
 		},
-		"11": {
-			"$value": {
-				"value": 0.8125,
-				"unit": "rem"
-			},
-			"$description": "space 11 — min 11px, max 13px.",
-			"$extensions": {
-				"com.devpulse.coldlight": {
-					"fluid": {
-						"min": {
-							"value": 0.6875,
-							"unit": "rem"
-						},
-						"max": {
-							"value": 0.8125,
-							"unit": "rem"
-						},
-						"minViewport": {
-							"value": 20,
-							"unit": "rem"
-						},
-						"maxViewport": {
-							"value": 90,
-							"unit": "rem"
-						}
-					}
-				}
-			}
-		},
-		"12": {
-			"$value": {
-				"value": 0.875,
-				"unit": "rem"
-			},
-			"$description": "space 12 — min 12px, max 14px.",
-			"$extensions": {
-				"com.devpulse.coldlight": {
-					"fluid": {
-						"min": {
-							"value": 0.75,
-							"unit": "rem"
-						},
-						"max": {
-							"value": 0.875,
-							"unit": "rem"
-						},
-						"minViewport": {
-							"value": 20,
-							"unit": "rem"
-						},
-						"maxViewport": {
-							"value": 90,
-							"unit": "rem"
-						}
-					}
-				}
-			}
-		},
-		"14": {
+		"4": {
 			"$value": {
 				"value": 1,
 				"unit": "rem"
 			},
-			"$description": "space 14 — min 14px, max 16px.",
-			"$extensions": {
-				"com.devpulse.coldlight": {
-					"fluid": {
-						"min": {
-							"value": 0.875,
-							"unit": "rem"
-						},
-						"max": {
-							"value": 1,
-							"unit": "rem"
-						},
-						"minViewport": {
-							"value": 20,
-							"unit": "rem"
-						},
-						"maxViewport": {
-							"value": 90,
-							"unit": "rem"
-						}
-					}
-				}
-			}
+			"$description": "space 4 — min 16px, max 16px."
 		},
-		"16": {
+		"5": {
 			"$value": {
 				"value": 1.25,
 				"unit": "rem"
 			},
-			"$description": "space 16 — min 16px, max 20px.",
-			"$extensions": {
-				"com.devpulse.coldlight": {
-					"fluid": {
-						"min": {
-							"value": 1,
-							"unit": "rem"
-						},
-						"max": {
-							"value": 1.25,
-							"unit": "rem"
-						},
-						"minViewport": {
-							"value": 20,
-							"unit": "rem"
-						},
-						"maxViewport": {
-							"value": 90,
-							"unit": "rem"
-						}
-					}
-				}
-			}
+			"$description": "space 5 — min 20px, max 20px."
 		},
-		"18": {
+		"6": {
 			"$value": {
-				"value": 1.375,
+				"value": 1.5,
 				"unit": "rem"
 			},
-			"$description": "space 18 — min 18px, max 22px.",
-			"$extensions": {
-				"com.devpulse.coldlight": {
-					"fluid": {
-						"min": {
-							"value": 1.125,
-							"unit": "rem"
-						},
-						"max": {
-							"value": 1.375,
-							"unit": "rem"
-						},
-						"minViewport": {
-							"value": 20,
-							"unit": "rem"
-						},
-						"maxViewport": {
-							"value": 90,
-							"unit": "rem"
-						}
-					}
-				}
-			}
+			"$description": "space 6 — min 24px, max 24px."
 		},
-		"20": {
+		"7": {
 			"$value": {
-				"value": 1.625,
+				"value": 1.75,
 				"unit": "rem"
 			},
-			"$description": "space 20 — min 20px, max 26px.",
-			"$extensions": {
-				"com.devpulse.coldlight": {
-					"fluid": {
-						"min": {
-							"value": 1.25,
-							"unit": "rem"
-						},
-						"max": {
-							"value": 1.625,
-							"unit": "rem"
-						},
-						"minViewport": {
-							"value": 20,
-							"unit": "rem"
-						},
-						"maxViewport": {
-							"value": 90,
-							"unit": "rem"
-						}
-					}
-				}
-			}
+			"$description": "space 7 — min 28px, max 28px."
 		},
-		"24": {
+		"8": {
 			"$value": {
 				"value": 2,
 				"unit": "rem"
 			},
-			"$description": "space 24 — min 24px, max 32px.",
-			"$extensions": {
-				"com.devpulse.coldlight": {
-					"fluid": {
-						"min": {
-							"value": 1.5,
-							"unit": "rem"
-						},
-						"max": {
-							"value": 2,
-							"unit": "rem"
-						},
-						"minViewport": {
-							"value": 20,
-							"unit": "rem"
-						},
-						"maxViewport": {
-							"value": 90,
-							"unit": "rem"
-						}
-					}
-				}
-			}
+			"$description": "space 8 — min 32px, max 32px."
 		},
-		"28": {
+		"9": {
 			"$value": {
 				"value": 2.25,
 				"unit": "rem"
 			},
-			"$description": "space 28 — min 28px, max 36px.",
-			"$extensions": {
-				"com.devpulse.coldlight": {
-					"fluid": {
-						"min": {
-							"value": 1.75,
-							"unit": "rem"
-						},
-						"max": {
-							"value": 2.25,
-							"unit": "rem"
-						},
-						"minViewport": {
-							"value": 20,
-							"unit": "rem"
-						},
-						"maxViewport": {
-							"value": 90,
-							"unit": "rem"
-						}
-					}
-				}
-			}
+			"$description": "space 9 — min 36px, max 36px."
 		},
-		"32": {
+		"10": {
+			"$value": {
+				"value": 2.5,
+				"unit": "rem"
+			},
+			"$description": "space 10 — min 40px, max 40px."
+		},
+		"11": {
 			"$value": {
 				"value": 2.75,
 				"unit": "rem"
 			},
-			"$description": "space 32 — min 32px, max 44px.",
-			"$extensions": {
-				"com.devpulse.coldlight": {
-					"fluid": {
-						"min": {
-							"value": 2,
-							"unit": "rem"
-						},
-						"max": {
-							"value": 2.75,
-							"unit": "rem"
-						},
-						"minViewport": {
-							"value": 20,
-							"unit": "rem"
-						},
-						"maxViewport": {
-							"value": 90,
-							"unit": "rem"
-						}
-					}
-				}
-			}
+			"$description": "space 11 — min 44px, max 44px."
 		},
-		"36": {
+		"12": {
 			"$value": {
 				"value": 3,
 				"unit": "rem"
 			},
-			"$description": "space 36 — min 36px, max 48px.",
-			"$extensions": {
-				"com.devpulse.coldlight": {
-					"fluid": {
-						"min": {
-							"value": 2.25,
-							"unit": "rem"
-						},
-						"max": {
-							"value": 3,
-							"unit": "rem"
-						},
-						"minViewport": {
-							"value": 20,
-							"unit": "rem"
-						},
-						"maxViewport": {
-							"value": 90,
-							"unit": "rem"
-						}
-					}
-				}
-			}
+			"$description": "space 12 — min 48px, max 48px."
 		},
-		"40": {
+		"14": {
 			"$value": {
 				"value": 3.5,
 				"unit": "rem"
 			},
-			"$description": "space 40 — min 40px, max 56px.",
-			"$extensions": {
-				"com.devpulse.coldlight": {
-					"fluid": {
-						"min": {
-							"value": 2.5,
-							"unit": "rem"
-						},
-						"max": {
-							"value": 3.5,
-							"unit": "rem"
-						},
-						"minViewport": {
-							"value": 20,
-							"unit": "rem"
-						},
-						"maxViewport": {
-							"value": 90,
-							"unit": "rem"
-						}
-					}
-				}
-			}
+			"$description": "space 14 — min 56px, max 56px."
 		},
-		"44": {
-			"$value": {
-				"value": 3.75,
-				"unit": "rem"
-			},
-			"$description": "space 44 — min 44px, max 60px.",
-			"$extensions": {
-				"com.devpulse.coldlight": {
-					"fluid": {
-						"min": {
-							"value": 2.75,
-							"unit": "rem"
-						},
-						"max": {
-							"value": 3.75,
-							"unit": "rem"
-						},
-						"minViewport": {
-							"value": 20,
-							"unit": "rem"
-						},
-						"maxViewport": {
-							"value": 90,
-							"unit": "rem"
-						}
-					}
-				}
-			}
-		},
-		"48": {
+		"16": {
 			"$value": {
 				"value": 4,
 				"unit": "rem"
 			},
-			"$description": "space 48 — min 48px, max 64px.",
-			"$extensions": {
-				"com.devpulse.coldlight": {
-					"fluid": {
-						"min": {
-							"value": 3,
-							"unit": "rem"
-						},
-						"max": {
-							"value": 4,
-							"unit": "rem"
-						},
-						"minViewport": {
-							"value": 20,
-							"unit": "rem"
-						},
-						"maxViewport": {
-							"value": 90,
-							"unit": "rem"
-						}
-					}
-				}
-			}
+			"$description": "space 16 — min 64px, max 64px."
 		},
-		"56": {
+		"18": {
 			"$value": {
-				"value": 4.75,
+				"value": 4.5,
 				"unit": "rem"
 			},
-			"$description": "space 56 — min 56px, max 76px.",
-			"$extensions": {
-				"com.devpulse.coldlight": {
-					"fluid": {
-						"min": {
-							"value": 3.5,
-							"unit": "rem"
-						},
-						"max": {
-							"value": 4.75,
-							"unit": "rem"
-						},
-						"minViewport": {
-							"value": 20,
-							"unit": "rem"
-						},
-						"maxViewport": {
-							"value": 90,
-							"unit": "rem"
-						}
-					}
-				}
-			}
+			"$description": "space 18 — min 72px, max 72px."
 		},
-		"64": {
+		"20": {
 			"$value": {
-				"value": 5.5,
+				"value": 5,
 				"unit": "rem"
 			},
-			"$description": "space 64 — min 64px, max 88px.",
-			"$extensions": {
-				"com.devpulse.coldlight": {
-					"fluid": {
-						"min": {
-							"value": 4,
-							"unit": "rem"
-						},
-						"max": {
-							"value": 5.5,
-							"unit": "rem"
-						},
-						"minViewport": {
-							"value": 20,
-							"unit": "rem"
-						},
-						"maxViewport": {
-							"value": 90,
-							"unit": "rem"
-						}
-					}
-				}
-			}
+			"$description": "space 20 — min 80px, max 80px."
 		},
-		"72": {
+		"24": {
 			"$value": {
-				"value": 6.25,
+				"value": 6,
 				"unit": "rem"
 			},
-			"$description": "space 72 — min 72px, max 100px.",
-			"$extensions": {
-				"com.devpulse.coldlight": {
-					"fluid": {
-						"min": {
-							"value": 4.5,
-							"unit": "rem"
-						},
-						"max": {
-							"value": 6.25,
-							"unit": "rem"
-						},
-						"minViewport": {
-							"value": 20,
-							"unit": "rem"
-						},
-						"maxViewport": {
-							"value": 90,
-							"unit": "rem"
-						}
-					}
-				}
-			}
+			"$description": "space 24 — min 96px, max 96px."
 		},
-		"80": {
+		"28": {
 			"$value": {
 				"value": 7,
 				"unit": "rem"
 			},
-			"$description": "space 80 — min 80px, max 112px.",
-			"$extensions": {
-				"com.devpulse.coldlight": {
-					"fluid": {
-						"min": {
-							"value": 5,
-							"unit": "rem"
-						},
-						"max": {
-							"value": 7,
-							"unit": "rem"
-						},
-						"minViewport": {
-							"value": 20,
-							"unit": "rem"
-						},
-						"maxViewport": {
-							"value": 90,
-							"unit": "rem"
-						}
-					}
-				}
-			}
+			"$description": "space 28 — min 112px, max 112px."
 		},
-		"96": {
+		"32": {
 			"$value": {
-				"value": 7.75,
+				"value": 8,
 				"unit": "rem"
 			},
-			"$description": "space 96 — min 96px, max 124px.",
-			"$extensions": {
-				"com.devpulse.coldlight": {
-					"fluid": {
-						"min": {
-							"value": 6,
-							"unit": "rem"
-						},
-						"max": {
-							"value": 7.75,
-							"unit": "rem"
-						},
-						"minViewport": {
-							"value": 20,
-							"unit": "rem"
-						},
-						"maxViewport": {
-							"value": 90,
-							"unit": "rem"
-						}
-					}
-				}
-			}
+			"$description": "space 32 — min 128px, max 128px."
 		},
-		"112": {
+		"36": {
 			"$value": {
 				"value": 9,
 				"unit": "rem"
 			},
-			"$description": "space 112 — min 112px, max 144px.",
-			"$extensions": {
-				"com.devpulse.coldlight": {
-					"fluid": {
-						"min": {
-							"value": 7,
-							"unit": "rem"
-						},
-						"max": {
-							"value": 9,
-							"unit": "rem"
-						},
-						"minViewport": {
-							"value": 20,
-							"unit": "rem"
-						},
-						"maxViewport": {
-							"value": 90,
-							"unit": "rem"
-						}
-					}
-				}
-			}
+			"$description": "space 36 — min 144px, max 144px."
+		},
+		"40": {
+			"$value": {
+				"value": 10,
+				"unit": "rem"
+			},
+			"$description": "space 40 — min 160px, max 160px."
+		},
+		"44": {
+			"$value": {
+				"value": 11,
+				"unit": "rem"
+			},
+			"$description": "space 44 — min 176px, max 176px."
+		},
+		"48": {
+			"$value": {
+				"value": 12,
+				"unit": "rem"
+			},
+			"$description": "space 48 — min 192px, max 192px."
+		},
+		"56": {
+			"$value": {
+				"value": 14,
+				"unit": "rem"
+			},
+			"$description": "space 56 — min 224px, max 224px."
+		},
+		"64": {
+			"$value": {
+				"value": 16,
+				"unit": "rem"
+			},
+			"$description": "space 64 — min 256px, max 256px."
+		},
+		"72": {
+			"$value": {
+				"value": 18,
+				"unit": "rem"
+			},
+			"$description": "space 72 — min 288px, max 288px."
+		},
+		"80": {
+			"$value": {
+				"value": 20,
+				"unit": "rem"
+			},
+			"$description": "space 80 — min 320px, max 320px."
+		},
+		"96": {
+			"$value": {
+				"value": 24,
+				"unit": "rem"
+			},
+			"$description": "space 96 — min 384px, max 384px."
+		},
+		"112": {
+			"$value": {
+				"value": 28,
+				"unit": "rem"
+			},
+			"$description": "space 112 — min 448px, max 448px."
 		},
 		"128": {
 			"$value": {
-				"value": 10.25,
+				"value": 32,
 				"unit": "rem"
 			},
-			"$description": "space 128 — min 128px, max 164px.",
-			"$extensions": {
-				"com.devpulse.coldlight": {
-					"fluid": {
-						"min": {
-							"value": 8,
-							"unit": "rem"
-						},
-						"max": {
-							"value": 10.25,
-							"unit": "rem"
-						},
-						"minViewport": {
-							"value": 20,
-							"unit": "rem"
-						},
-						"maxViewport": {
-							"value": 90,
-							"unit": "rem"
-						}
-					}
-				}
-			}
+			"$description": "space 128 — min 512px, max 512px."
 		},
 		"$type": "dimension",
-		"$description": "Fluid space scale — 32 steps from 0 to 128 px."
+		"$description": "Canonical Tailwind spacing scale — space-N = N × 0.25rem (static). Fills the --spacing-N slots every h-/w-/p-/m-/gap- utility reads."
 	}
 }
