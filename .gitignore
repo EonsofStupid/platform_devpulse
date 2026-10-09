@@ -53,10 +53,12 @@ pnpm-lock.yaml
 .claude/settings.local.json
 .claude/worktrees/
 .claude/dumps/
-deps/
+deps/*
 # Vendored forks tracked as submodules — see .gitmodules.
 !deps/moshi/
 !deps/llama-cpp-rs/
+# RRO placeholder — becomes a submodule when the new RRO repo exists.
+!deps/rro/
 
 # llama-cpp-prebuilt — extracted static libs are fetched via
 # `cargo xtask fetch-llama-cpp` from github.com/EonsofStupid/llama-cpp-prebuilt

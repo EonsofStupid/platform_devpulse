@@ -7,7 +7,8 @@ members = [
     "systems/devpulse-engine",
     "systems/devpulse-media",
     "systems/devpulse-persona-mcp",
-    "systems/devpulse-gb10-client",
+    # systems/devpulse-gb10-client: NOT a member — path-deps the sibling
+    # clyffyos repo (clyffyos-wire), which is not on disk. No dependents.
     # systems/infra/devpulse-telemetry{,-macros} extracted to
     # github.com/EonsofStupid/devpulse-telemetry (2026-06-28). Sources still on
     # disk under systems/infra/ until the Phase 5 cut; workspace no longer
@@ -44,12 +45,14 @@ specta-typescript = "0.0.9"
 # turso (Limbo) replaces libsql (operator decision 2026-07-01) — pure-Rust, native
 # vector search, turso::sync for the DevPulse↔Clyffy bridge. libsql fully removed.
 turso = "0.4.3"
-duckdb = { version = "1.10502", features = ["bundled"] }
+duckdb = { version = "1.10506", features = ["bundled"] }
 surrealdb = { version = "3.0", default-features = false, features = ["kv-surrealkv"] }
 moka = { version = "0.12", features = ["future"] }
 # fjall deferred — SurrealKV covers persistent KV; re-add if perf demands it
 wal = { git = "https://github.com/EonsofStupid/wal", branch = "rro-alpha" }
-rro = { git = "https://github.com/EonsofStupid/rro", branch = "alpha" }
+# PLACEHOLDER — RRO is being rebuilt from scratch in its own repo; it lands as
+# a submodule at deps/rro/. Keep the `rro` feature off until then.
+rro = { path = "deps/rro" }
 
 # Constrained decoding (kernel — optional feature on `devpulse-clyffy`)
 llguidance = "1.7"

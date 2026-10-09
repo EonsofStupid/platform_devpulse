@@ -10,9 +10,8 @@
 			"binaries/cublas64_12.dll",
 			"binaries/cublasLt64_12.dll",
 			"binaries/cudart64_12.dll",
-			"binaries/libomp140.x86_64.dll",
-			"resources/devforge/win32-x64/"
+			"binaries/libomp140.x86_64.dll"
 		],
-		"externalBin": ["binaries/llama-server", "binaries/surreal"]
+		"externalBin": ["binaries/llama-server"]
 	}
 }
