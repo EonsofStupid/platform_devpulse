@@ -1026,12 +1026,23 @@ impl BuildConfig {
 
         for (name, dep_opt) in deps {
             if let Some(dep) = dep_opt {
-                let resolved = workspace_root.join(&dep.path);
-                let resolved_str = resolved.to_string_lossy();
-
-                for env_key in &dep.env {
-                    std::env::set_var(env_key, &*resolved_str);
-                    println!("  [env] {env_key} = {resolved_str} (from [build.deps.{name}])");
+                match Self::resolve_dep_path(workspace_root, &dep.path) {
+                    Some(resolved) => {
+                        let resolved_str = resolved.to_string_lossy();
+                        for env_key in &dep.env {
+                            std::env::set_var(env_key, &*resolved_str);
+                            println!(
+                                "  [env] {env_key} = {resolved_str} (from [build.deps.{name}])"
+                            );
+                        }
+                    }
+                    None => {
+                        println!(
+                            "  [warn] [build.deps.{name}].path = {} not on disk and not on PATH; \
+                             not exporting {:?}",
+                            dep.path, dep.env
+                        );
+                    }
                 }
 
                 for (key, value) in &dep.extras {
@@ -1081,6 +1092,21 @@ impl BuildConfig {
         self.select_generator(workspace_root);
         Self::purge_stale_cmake_dirs(workspace_root);
         Self::export_prebuilt_llama_cpp(workspace_root);
+    }
+
+    /// Resolve a `[build.deps.*].path` to a real file.
+    ///
+    /// Order: the configured path (relative to the workspace root, or
+    /// absolute) if it exists, then the tool's binary name on `PATH`.
+    /// Returns `None` when neither resolves, so callers never export an
+    /// env var pointing at a file that is not there.
+    fn resolve_dep_path(workspace_root: &Path, configured: &str) -> Option<PathBuf> {
+        let candidate = workspace_root.join(configured);
+        if candidate.is_file() {
+            return Some(candidate);
+        }
+        let tool = Path::new(configured).file_stem()?;
+        which::which(tool).ok()
     }
 
     /// Auto-export `LLAMA_CPP_PREBUILT_LIB_DIR` when the matching prebuilt

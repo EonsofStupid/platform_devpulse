@@ -7,8 +7,10 @@ time_to_live_secs = 300
 time_to_idle_secs = 60
 
 [services.system.vector]
-enabled = true
-critical = true
+# OFF until the from-scratch RRO lands at deps/rro (the `rro` cargo
+# feature is off; boot treats enabled-but-not-compiled as fatal).
+enabled = false
+critical = false
 kind = "rro"
 path = "system/rro/storage"
 

@@ -1,0 +1,6 @@
+[package]
+name = "rro"
+version = "0.0.0"
+edition = "2021"
+publish = false
+description = "PLACEHOLDER — slot for RRO (Reason Ready Objects). The real crate is being built from scratch in its own repo and replaces this directory as a submodule."

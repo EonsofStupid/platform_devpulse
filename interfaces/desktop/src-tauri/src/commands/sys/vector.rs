@@ -5,12 +5,21 @@
 //!
 //! Mirrors the telemetry.rs pattern: `Arc<RwLock<RetrievalConfig>>`
 //! on `VectorService`, get/set via Tauri commands.
+//!
+//! The vector store is behind the `rro` feature. With it off (the default
+//! until the from-scratch RRO lands at `deps/rro`), every command stays
+//! registered with the same signature and returns [`RRO_UNAVAILABLE`], so
+//! the generated TS bindings and frontend callers do not change.
 
 use crate::state::PlatformState;
 use devpulse_engine::platform::{retrieval_param_meta, RetrievalConfig, RetrievalParamMeta};
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use tauri::State;
+
+/// Error returned by every vector command when the `rro` feature is off.
+#[cfg(not(feature = "rro"))]
+const RRO_UNAVAILABLE: &str = "Vector store unavailable — RRO not installed";
 
 // ═══════════════════════════════════════════════════════════════
 // Config commands
@@ -23,13 +32,21 @@ use tauri::State;
 #[tauri::command]
 #[specta::specta]
 pub async fn get_vector_config(state: State<'_, PlatformState>) -> Result<RetrievalConfig, String> {
-    // P0: lock-free atomic load.
-    match state.platform.load_full() {
-        Some(platform) => match platform.vector() {
-            Some(v) => Ok(v.retrieval_config_snapshot().await),
-            None => Err("Vector store not available".to_string()),
-        },
-        None => Err("Platform is still booting".to_string()),
+    #[cfg(feature = "rro")]
+    {
+        // P0: lock-free atomic load.
+        match state.platform.load_full() {
+            Some(platform) => match platform.vector() {
+                Some(v) => Ok(v.retrieval_config_snapshot().await),
+                None => Err("Vector store not available".to_string()),
+            },
+            None => Err("Platform is still booting".to_string()),
+        }
+    }
+    #[cfg(not(feature = "rro"))]
+    {
+        let _ = state;
+        Err(RRO_UNAVAILABLE.to_string())
     }
 }
 
@@ -45,16 +62,24 @@ pub async fn set_vector_config(
     state: State<'_, PlatformState>,
     config: RetrievalConfig,
 ) -> Result<(), String> {
-    // P0: lock-free atomic load.
-    match state.platform.load_full() {
-        Some(platform) => match platform.vector() {
-            Some(v) => {
-                v.update_retrieval_config(config).await;
-                Ok(())
-            }
-            None => Err("Vector store not available".to_string()),
-        },
-        None => Err("Platform is still booting".to_string()),
+    #[cfg(feature = "rro")]
+    {
+        // P0: lock-free atomic load.
+        match state.platform.load_full() {
+            Some(platform) => match platform.vector() {
+                Some(v) => {
+                    v.update_retrieval_config(config).await;
+                    Ok(())
+                }
+                None => Err("Vector store not available".to_string()),
+            },
+            None => Err("Platform is still booting".to_string()),
+        }
+    }
+    #[cfg(not(feature = "rro"))]
+    {
+        let _ = (state, config);
+        Err(RRO_UNAVAILABLE.to_string())
     }
 }
 
@@ -89,42 +114,50 @@ pub struct VectorHealthReport {
 pub async fn get_vector_health(
     state: State<'_, PlatformState>,
 ) -> Result<VectorHealthReport, String> {
-    // P0: lock-free atomic load.
-    let platform = state
-        .platform
-        .load_full()
-        .ok_or_else(|| "Platform is still booting".to_string())?;
-    let vector_svc = platform
-        .vector()
-        .ok_or_else(|| "Vector store not available".to_string())?;
+    #[cfg(feature = "rro")]
+    {
+        // P0: lock-free atomic load.
+        let platform = state
+            .platform
+            .load_full()
+            .ok_or_else(|| "Platform is still booting".to_string())?;
+        let vector_svc = platform
+            .vector()
+            .ok_or_else(|| "Vector store not available".to_string())?;
 
-    let adapter = vector_svc.adapter();
+        let adapter = vector_svc.adapter();
 
-    let names = adapter
-        .list_collections()
-        .await
-        .map_err(|e| format!("List collections failed: {e:#}"))?;
-
-    let mut collections = Vec::with_capacity(names.len());
-    for name in names {
-        let count = adapter
-            .count_points(&name)
+        let names = adapter
+            .list_collections()
             .await
-            .map(|c| c as u64)
-            .unwrap_or(0);
-        collections.push(CollectionInfo {
-            name,
-            point_count: count,
-        });
+            .map_err(|e| format!("List collections failed: {e:#}"))?;
+
+        let mut collections = Vec::with_capacity(names.len());
+        for name in names {
+            let count = adapter
+                .count_points(&name)
+                .await
+                .map(|c| c as u64)
+                .unwrap_or(0);
+            collections.push(CollectionInfo {
+                name,
+                point_count: count,
+            });
+        }
+
+        // Read storage path from config (boot_config is stored on Platform).
+        let storage_path = platform.config().data_dir.clone();
+
+        Ok(VectorHealthReport {
+            storage_path,
+            collections,
+        })
     }
-
-    // Read storage path from config (boot_config is stored on Platform).
-    let storage_path = platform.config().data_dir.clone();
-
-    Ok(VectorHealthReport {
-        storage_path,
-        collections,
-    })
+    #[cfg(not(feature = "rro"))]
+    {
+        let _ = state;
+        Err(RRO_UNAVAILABLE.to_string())
+    }
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -159,28 +192,36 @@ pub async fn vector_test_search(
     vector: Vec<f32>,
     limit: u32,
 ) -> Result<Vec<VectorSearchResult>, String> {
-    // P0: lock-free atomic load.
-    let platform = state
-        .platform
-        .load_full()
-        .ok_or_else(|| "Platform is still booting".to_string())?;
-    let vector_svc = platform
-        .vector()
-        .ok_or_else(|| "Vector store not available".to_string())?;
+    #[cfg(feature = "rro")]
+    {
+        // P0: lock-free atomic load.
+        let platform = state
+            .platform
+            .load_full()
+            .ok_or_else(|| "Platform is still booting".to_string())?;
+        let vector_svc = platform
+            .vector()
+            .ok_or_else(|| "Vector store not available".to_string())?;
 
-    let matches = vector_svc
-        .search(&collection, &vector, limit as usize, None)
-        .await
-        .map_err(|e| format!("Vector search failed: {e:#}"))?;
+        let matches = vector_svc
+            .search(&collection, &vector, limit as usize, None)
+            .await
+            .map_err(|e| format!("Vector search failed: {e:#}"))?;
 
-    Ok(matches
-        .into_iter()
-        .map(|m| VectorSearchResult {
-            id: m.id,
-            score: m.score,
-            payload_json: serde_json::to_string(&m.payload).unwrap_or_default(),
-        })
-        .collect())
+        Ok(matches
+            .into_iter()
+            .map(|m| VectorSearchResult {
+                id: m.id,
+                score: m.score,
+                payload_json: serde_json::to_string(&m.payload).unwrap_or_default(),
+            })
+            .collect())
+    }
+    #[cfg(not(feature = "rro"))]
+    {
+        let _ = (state, collection, vector, limit);
+        Err(RRO_UNAVAILABLE.to_string())
+    }
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -202,19 +243,27 @@ pub async fn create_vector_collection(
     name: String,
     dimension: u32,
 ) -> Result<(), String> {
-    // P0: lock-free atomic load.
-    let platform = state
-        .platform
-        .load_full()
-        .ok_or_else(|| "Platform is still booting".to_string())?;
-    let vector_svc = platform
-        .vector()
-        .ok_or_else(|| "Vector store not available".to_string())?;
+    #[cfg(feature = "rro")]
+    {
+        // P0: lock-free atomic load.
+        let platform = state
+            .platform
+            .load_full()
+            .ok_or_else(|| "Platform is still booting".to_string())?;
+        let vector_svc = platform
+            .vector()
+            .ok_or_else(|| "Vector store not available".to_string())?;
 
-    vector_svc
-        .create_collection(&name, dimension)
-        .await
-        .map_err(|e| format!("Create collection failed: {e:#}"))
+        vector_svc
+            .create_collection(&name, dimension)
+            .await
+            .map_err(|e| format!("Create collection failed: {e:#}"))
+    }
+    #[cfg(not(feature = "rro"))]
+    {
+        let _ = (state, name, dimension);
+        Err(RRO_UNAVAILABLE.to_string())
+    }
 }
 
 /// Delete a vector collection and all its points.
@@ -228,19 +277,27 @@ pub async fn delete_vector_collection(
     state: State<'_, PlatformState>,
     name: String,
 ) -> Result<(), String> {
-    // P0: lock-free atomic load.
-    let platform = state
-        .platform
-        .load_full()
-        .ok_or_else(|| "Platform is still booting".to_string())?;
-    let vector_svc = platform
-        .vector()
-        .ok_or_else(|| "Vector store not available".to_string())?;
+    #[cfg(feature = "rro")]
+    {
+        // P0: lock-free atomic load.
+        let platform = state
+            .platform
+            .load_full()
+            .ok_or_else(|| "Platform is still booting".to_string())?;
+        let vector_svc = platform
+            .vector()
+            .ok_or_else(|| "Vector store not available".to_string())?;
 
-    vector_svc
-        .delete_collection(&name)
-        .await
-        .map_err(|e| format!("Delete collection failed: {e:#}"))
+        vector_svc
+            .delete_collection(&name)
+            .await
+            .map_err(|e| format!("Delete collection failed: {e:#}"))
+    }
+    #[cfg(not(feature = "rro"))]
+    {
+        let _ = (state, name);
+        Err(RRO_UNAVAILABLE.to_string())
+    }
 }
 
 // ═══════════════════════════════════════════════════════════════

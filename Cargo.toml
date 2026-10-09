@@ -37,12 +37,14 @@ specta-typescript = "0.0.9"
 
 # Platform Data (The "Muscle")
 libsql = "0.9"
-duckdb = { version = "1.10502", features = ["bundled"] }
+duckdb = { version = "1.10506", features = ["bundled"] }
 surrealdb = { version = "3.0", default-features = false, features = ["kv-surrealkv"] }
 moka = { version = "0.12", features = ["future"] }
 # fjall deferred — SurrealKV covers persistent KV; re-add if perf demands it
 wal = { git = "https://github.com/EonsofStupid/wal", branch = "rro-alpha" }
-rro = { git = "https://github.com/EonsofStupid/rro", branch = "alpha" }
+# PLACEHOLDER — RRO is being rebuilt from scratch in its own repo; it lands as
+# a submodule at deps/rro/. Keep the `rro` feature off until then.
+rro = { path = "deps/rro" }
 
 # Constrained decoding (kernel — optional feature on `devpulse-clyffy`)
 llguidance = "1.7"

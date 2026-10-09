@@ -48,19 +48,3 @@ PYO3_USE_ABI3_FORWARD_COMPATIBILITY = "1"
 # `warn` keeps real errors visible (cache write failures, server crashes)
 # without the per-invocation noise.
 SCCACHE_LOG = "warn"
-# llama-cpp-sys-2 fast-path enable. With this set, plain `cargo check
-# -p devpulse_desktop_backend` (i.e. NOT through xtask's apply_env)
-# can still resolve the prebuilt static libs + headers without
-# panicking in `wrapper.h` bindgen. xtask's apply_env normally sets
-# this from `[build.deps.llama_cpp_prebuilt]` SSOT in
-# platform.default.toml; mirroring the same path here means the stop-
-# hook's standalone cargo check doesn't fail just because xtask
-# wasn't the entry point. Target = win32-x64-vulkan (the one we
-# actually fetch on this Windows dev box). If the prebuilt isn't
-# present, build.rs reports a clean "fast path requested but headers
-# absent" error instead of the cryptic bindgen panic.
-#
-# Linux CI explicitly unsets this in `.github/workflows/ci.yml`
-# before `cargo clippy` (no Linux prebuilt tree is fetched in CI;
-# build.rs falls back to a from-source llama.cpp build).
-LLAMA_CPP_PREBUILT_LIB_DIR = { value = "deps/llama-cpp-prebuilt/win32-x64-vulkan", relative = true }

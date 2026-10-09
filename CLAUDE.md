@@ -38,7 +38,7 @@ Pre-release — aggressive reauthoring, no shims.
 - `deps/` — vendored external forks (ort, kokoros, etc.)
 
 ## Top 5 Hard Rules
-1. **No Python. No Docker. No external services.** Full Rust + TS + Svelte.
+1. **No Docker.**
 2. **No `unwrap()` in production Rust.** Use `?` or explicit handling.
 3. **Kernel vocabulary stays in `kernel/`.** IP boundary is CI-enforced.
 4. **Pre-release mode.** Reauthor aggressively. No shims. No backcompat.

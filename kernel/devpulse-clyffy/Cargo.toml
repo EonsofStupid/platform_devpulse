@@ -36,7 +36,6 @@ model-loader = [
     "model-loader/candle-backend",
     "model-loader/ort-backend",
     "model-loader/nvml",
-    "model-loader/llama-cpp-ffi",
 ]
 # ── GPU backend proxies for the consumed model-loader crate ──
 # Cargo features can only chain one level deep (`dep/feature`, not
