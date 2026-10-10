@@ -12,13 +12,25 @@
  * Output: src/lib/design/renderforge/generated/kind-families.ts
  */
 
-import { readFileSync, writeFileSync } from "node:fs";
-import { resolve, dirname } from "node:path";
+import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PRESETS_PATH = resolve(__dirname, "tokens/src/style-presets.json");
+const COMPONENTS_DIR = resolve(__dirname, "../../../src/lib/design/components");
 const OUTPUT_PATH = resolve(__dirname, "../../../src/lib/design/renderforge/generated/kind-families.ts");
+
+/**
+ * Families fixed by a component's declared category (`export const CATEGORY`
+ * in `components/<kind>/schema.ts`). A declaration wins over families
+ * inferred from preset names. Typography components carry ONLY the text
+ * family — text never takes a surface or frame (Material 3 keeps type roles
+ * separate from surface roles).
+ */
+const CATEGORY_FAMILIES = {
+	typography: ["text"],
+};
 
 /**
  * CSS variable → family mapping.
@@ -104,6 +116,16 @@ for (const [presetName, preset] of Object.entries(style)) {
 	}
 }
 
+// Declared categories override preset inference.
+for (const entry of readdirSync(COMPONENTS_DIR, { withFileTypes: true })) {
+	if (!entry.isDirectory() || entry.name.startsWith("_")) continue;
+	const schemaPath = join(COMPONENTS_DIR, entry.name, "schema.ts");
+	if (!existsSync(schemaPath)) continue;
+	const match = readFileSync(schemaPath, "utf-8").match(/export const CATEGORY\s*=\s*"([^"]+)"/);
+	const declared = match && CATEGORY_FAMILIES[match[1]];
+	if (declared) kindFamilies.set(entry.name, new Set(declared));
+}
+
 // Add interactive family to known interactive kinds
 for (const kind of INTERACTIVE_KINDS) {
 	if (kindFamilies.has(kind)) {
@@ -138,4 +160,4 @@ lines.push("};");
 lines.push("");
 
 writeFileSync(OUTPUT_PATH, lines.join("\n"));
-console.log(`[derive-kind-families] ${allKinds.length} kinds → ${OUTPUT_PATH.split("src/")[1]}`);
+console.log(`[derive-kind-families] ${allKinds.length} kinds → ${relative(process.cwd(), OUTPUT_PATH)}`);

@@ -37,6 +37,7 @@ export const KIND_FAMILIES: Record<string, CssFamily[]> = {
 	"glass-minimal": ["surface", "text"],
 	"glass-muted": ["surface", "text"],
 	"glass-solid": ["surface"],
+	heading: ["text"],
 	neuro: ["frame", "surface", "text"],
 	"neuro-deep": ["surface", "text"],
 	"neuro-elevated": ["surface", "text"],
@@ -58,4 +59,5 @@ export const KIND_FAMILIES: Record<string, CssFamily[]> = {
 	"stark-minimal": ["surface", "text"],
 	"stark-muted": ["surface", "text"],
 	"stark-solid": ["surface", "text"],
+	text: ["text"],
 };
