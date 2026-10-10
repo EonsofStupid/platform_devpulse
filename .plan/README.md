@@ -43,7 +43,7 @@ Planned (these IDs are reserved for them):
 
 | Plan | Name |
 | --- | --- |
-| Layman first-launch wizard (spec §3) | `0001-desktop-models--rebuild-layman-first-launch.md` |
+| Onboarding as an engine-owned workflow (07 spec) | `0001-engine--rebuild-onboarding-workflow.md` |
 | User-managed AI endpoints | `0002-kernel-clyffy--add-endpoint-registry.md` |
 | ColdLight / Tailwind boundary gate | `0003-repo--enforce-coldlight-boundary.md` |
 | Codebase indexing for Clyffy | `0005-kernel-clyffy--index-project-codebase.md` |
@@ -70,7 +70,7 @@ name. Add a row here only when the folder exists.
 | `desktop-devtools` | `interfaces/desktop/src/lib/devtools/` |
 | `desktop-layouts` | `interfaces/desktop/src/lib/layouts/` |
 | `desktop-sys` | `interfaces/desktop/src/lib/sys/` |
-| `desktop-<domain>` | `interfaces/desktop/src/lib/domains/<domain>/` or `domains/app/<domain>/` — e.g. `desktop-models`, `desktop-chat`, `desktop-clyffy`, `desktop-projects` |
+| `desktop-<domain>` | `interfaces/desktop/src/lib/domains/<domain>/` or `domains/app/<domain>/` — e.g. `desktop-models`, `desktop-chat`, `desktop-clyffy`, `desktop-projects`, `desktop-onboarding` (planned, 0001) |
 | `xtask` | `xtask/` |
 | `config` | `config/` |
 | `deps` | `deps/` |
