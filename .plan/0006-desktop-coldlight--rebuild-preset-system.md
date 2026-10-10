@@ -167,29 +167,33 @@ computed-style assertions on the running app.
 2. **Scope attributes — decided 2026-10-10:** `data-surface`,
    `data-typography`, `data-accent`, `data-density`.
 
-### Type role mapping (pending owner approval of values)
+### Type role mapping — extends what exists
 
-Existing `textStyle.*` values are kept where they map; roles with no existing
-source take the Material 3 baseline (line heights as unitless ratios).
+Rule: every value comes from an existing token — an existing `textStyle.*`
+unchanged, a step on ColdLight's own fluid `font-size` primitive scale, or an
+existing size combined with its group's existing weight / line height /
+tracking. Nothing is imported. All 10 existing styles keep their exact values.
+Sizes descend monotonically through the table.
 
-| M3 role | Source | Size | Weight | Line height | Tracking | Family |
+| Role | Built from (all existing) | Size | Weight | Line height | Tracking | Family |
 | --- | --- | --- | --- | --- | --- | --- |
-| display-large | M3 baseline | 57px (3.5625rem) | 400 | 1.12 | -0.0044em | display |
-| display-medium | M3 baseline | 45px (2.8125rem) | 400 | 1.16 | 0 | display |
-| display-small | `stat` | 1.5rem | 700 | 1.1 | 0.02em | display |
-| headline-large | `display-lg` | 2rem | 700 | 1.1 | 0.02em | display |
-| headline-medium | M3 baseline | 28px (1.75rem) | 400 | 1.29 | 0 | display |
-| headline-small | `display-sm` | 1.5rem | 600 | 1.2 | 0.01em | display |
-| title-large | `heading-lg` | 1.25rem | 600 | 1.3 | -0.01em | sans |
-| title-medium | `heading-sm` | 1rem | 600 | 1.4 | -0.005em | sans |
-| title-small | M3 baseline | 14px (0.875rem) | 500 | 1.43 | 0.0071em | sans |
-| body-large | M3 baseline | 16px (1rem) | 400 | 1.5 | 0.03125em | sans |
-| body-medium | `body` | 0.875rem | 400 | 1.5 | 0 | sans |
-| body-small | `body-sm` | 0.8125rem | 400 | 1.45 | 0 | sans |
-| label-large | M3 baseline | 14px (0.875rem) | 500 | 1.43 | 0.0071em | sans |
-| label-medium | `caption` | 0.75rem | 500 | 1.4 | 0.01em | sans |
-| label-small | `overline` | 0.6875rem | 600 | 1.3 | 0.08em | sans |
-| code *(ColdLight extension — M3 has no code role)* | `code` | 0.8125rem | 400 | 1.6 | 0 | mono |
+| display-large | `font-size.4xl` + `display-lg` conventions | 4.7348rem (fluid) | 700 | 1.1 | 0.02em | display |
+| display-medium | `font-size.3xl` + `display-lg` conventions | 3.552rem (fluid) | 700 | 1.1 | 0.02em | display |
+| display-small | `font-size.2xl` + `display-lg` conventions | 2.6647rem (fluid) | 700 | 1.1 | 0.02em | display |
+| headline-large | `display-lg` unchanged | 2rem | 700 | 1.1 | 0.02em | display |
+| headline-medium | `display-sm` unchanged | 1.5rem | 600 | 1.2 | 0.01em | display |
+| headline-small | `heading-lg` unchanged | 1.25rem | 600 | 1.3 | -0.01em | sans |
+| title-large | `heading-sm` unchanged | 1rem | 600 | 1.4 | -0.005em | sans |
+| title-medium | `body` size + `heading-sm` conventions | 0.875rem | 600 | 1.4 | -0.005em | sans |
+| title-small | `body-sm` size + `heading-sm` conventions | 0.8125rem | 600 | 1.4 | -0.005em | sans |
+| body-large | `heading-sm` size + `body` conventions | 1rem | 400 | 1.5 | 0 | sans |
+| body-medium | `body` unchanged | 0.875rem | 400 | 1.5 | 0 | sans |
+| body-small | `body-sm` unchanged | 0.8125rem | 400 | 1.45 | 0 | sans |
+| label-large | `body` size + `caption` conventions | 0.875rem | 500 | 1.4 | 0.01em | sans |
+| label-medium | `caption` unchanged | 0.75rem | 500 | 1.4 | 0.01em | sans |
+| label-small | `overline` unchanged | 0.6875rem | 600 | 1.3 | 0.08em | sans |
+| `code` *(ColdLight extension)* | `code` unchanged | 0.8125rem | 400 | 1.6 | 0 | mono |
+| `stat` *(ColdLight extension)* | `stat` unchanged | 1.5rem | 700 | 1.1 | 0.02em | display |
 
 ### Phase 1 split
 
@@ -198,9 +202,9 @@ source take the Material 3 baseline (line heights as unitless ratios).
   separate `-unit` / `-value` variables (`theme/text-style.css`); generate
   `[data-typography="<role>"]` rules.
 - **1b — components:** kind contract gains accepted concerns; `Text` defaults
-  to `data-typography="body-medium"`; `Heading` maps h1 → display-large,
-  h2 → headline-large, h3 → title-large, h4 → title-medium, h5 → title-small,
-  h6 → label-large; text kinds stop resolving surface presets.
+  to `data-typography="body-medium"`; `Heading`'s level/size → role mapping
+  is derived from what it renders today (measured live), so no heading
+  changes size; text kinds stop resolving surface presets.
 
 ## Verification
 
@@ -213,3 +217,6 @@ Recorded per phase in the log below.
 - 2026-10-10 — Decided: Material 3 type roles; scope attributes `data-surface`,
   `data-typography`, `data-accent`, `data-density`. Type role value mapping
   proposed; Phase 1 split into 1a (tokens + generator) and 1b (components).
+- 2026-10-10 — Corrected per owner: new roles extend existing ColdLight tokens
+  only (no imported Material 3 values); `stat` kept as an extension; Heading
+  role mapping measured from current rendering.
