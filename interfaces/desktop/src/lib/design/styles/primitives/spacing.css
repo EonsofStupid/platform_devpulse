@@ -40,35 +40,35 @@
   --size-container-xl: 80rem; /** size container-xl — min 1280px, max 1280px. */
   --size-container-2xl: 96rem; /** size container-2xl — min 1536px, max 1536px. */
   --space-0: 0rem; /** space 0 — min 0px, max 0px. */
-  --space-1: 0.0625rem; /** space 1 — min 1px, max 1px. */
-  --space-2: 0.125rem; /** space 2 — min 2px, max 2px. */
-  --space-3: 0.1875rem; /** space 3 — min 3px, max 3px. */
-  --space-4: 0.3125rem; /** space 4 — min 4px, max 5px. */
-  --space-5: 0.375rem; /** space 5 — min 5px, max 6px. */
-  --space-6: 0.4375rem; /** space 6 — min 6px, max 7px. */
-  --space-7: 0.5rem; /** space 7 — min 7px, max 8px. */
-  --space-8: clamp(0.5rem, 0.4643rem + 0.1786vw, 0.625rem); /** space 8 — min 8px, max 10px. */
-  --space-9: clamp(0.5625rem, 0.5268rem + 0.1786vw, 0.6875rem); /** space 9 — min 9px, max 11px. */
-  --space-10: clamp(0.625rem, 0.5893rem + 0.1786vw, 0.75rem); /** space 10 — min 10px, max 12px. */
-  --space-11: clamp(0.6875rem, 0.6518rem + 0.1786vw, 0.8125rem); /** space 11 — min 11px, max 13px. */
-  --space-12: clamp(0.75rem, 0.7143rem + 0.1786vw, 0.875rem); /** space 12 — min 12px, max 14px. */
-  --space-14: clamp(0.875rem, 0.8393rem + 0.1786vw, 1rem); /** space 14 — min 14px, max 16px. */
-  --space-16: clamp(1rem, 0.9286rem + 0.3571vw, 1.25rem); /** space 16 — min 16px, max 20px. */
-  --space-18: clamp(1.125rem, 1.0536rem + 0.3571vw, 1.375rem); /** space 18 — min 18px, max 22px. */
-  --space-20: clamp(1.25rem, 1.1429rem + 0.5357vw, 1.625rem); /** space 20 — min 20px, max 26px. */
-  --space-24: clamp(1.5rem, 1.3571rem + 0.7143vw, 2rem); /** space 24 — min 24px, max 32px. */
-  --space-28: clamp(1.75rem, 1.6071rem + 0.7143vw, 2.25rem); /** space 28 — min 28px, max 36px. */
-  --space-32: clamp(2rem, 1.7857rem + 1.0714vw, 2.75rem); /** space 32 — min 32px, max 44px. */
-  --space-36: clamp(2.25rem, 2.0357rem + 1.0714vw, 3rem); /** space 36 — min 36px, max 48px. */
-  --space-40: clamp(2.5rem, 2.2143rem + 1.4286vw, 3.5rem); /** space 40 — min 40px, max 56px. */
-  --space-44: clamp(2.75rem, 2.4643rem + 1.4286vw, 3.75rem); /** space 44 — min 44px, max 60px. */
-  --space-48: clamp(3rem, 2.7143rem + 1.4286vw, 4rem); /** space 48 — min 48px, max 64px. */
-  --space-56: clamp(3.5rem, 3.1429rem + 1.7857vw, 4.75rem); /** space 56 — min 56px, max 76px. */
-  --space-64: clamp(4rem, 3.5714rem + 2.1429vw, 5.5rem); /** space 64 — min 64px, max 88px. */
-  --space-72: clamp(4.5rem, 4.0000rem + 2.5000vw, 6.25rem); /** space 72 — min 72px, max 100px. */
-  --space-80: clamp(5rem, 4.4286rem + 2.8571vw, 7rem); /** space 80 — min 80px, max 112px. */
-  --space-96: clamp(6rem, 5.5000rem + 2.5000vw, 7.75rem); /** space 96 — min 96px, max 124px. */
-  --space-112: clamp(7rem, 6.4286rem + 2.8571vw, 9rem); /** space 112 — min 112px, max 144px. */
-  --space-128: clamp(8rem, 7.3571rem + 3.2143vw, 10.25rem); /** space 128 — min 128px, max 164px. */
+  --space-1: 0.25rem; /** space 1 — min 4px, max 4px. */
+  --space-2: 0.5rem; /** space 2 — min 8px, max 8px. */
+  --space-3: 0.75rem; /** space 3 — min 12px, max 12px. */
+  --space-4: 1rem; /** space 4 — min 16px, max 16px. */
+  --space-5: 1.25rem; /** space 5 — min 20px, max 20px. */
+  --space-6: 1.5rem; /** space 6 — min 24px, max 24px. */
+  --space-7: 1.75rem; /** space 7 — min 28px, max 28px. */
+  --space-8: 2rem; /** space 8 — min 32px, max 32px. */
+  --space-9: 2.25rem; /** space 9 — min 36px, max 36px. */
+  --space-10: 2.5rem; /** space 10 — min 40px, max 40px. */
+  --space-11: 2.75rem; /** space 11 — min 44px, max 44px. */
+  --space-12: 3rem; /** space 12 — min 48px, max 48px. */
+  --space-14: 3.5rem; /** space 14 — min 56px, max 56px. */
+  --space-16: 4rem; /** space 16 — min 64px, max 64px. */
+  --space-18: 4.5rem; /** space 18 — min 72px, max 72px. */
+  --space-20: 5rem; /** space 20 — min 80px, max 80px. */
+  --space-24: 6rem; /** space 24 — min 96px, max 96px. */
+  --space-28: 7rem; /** space 28 — min 112px, max 112px. */
+  --space-32: 8rem; /** space 32 — min 128px, max 128px. */
+  --space-36: 9rem; /** space 36 — min 144px, max 144px. */
+  --space-40: 10rem; /** space 40 — min 160px, max 160px. */
+  --space-44: 11rem; /** space 44 — min 176px, max 176px. */
+  --space-48: 12rem; /** space 48 — min 192px, max 192px. */
+  --space-56: 14rem; /** space 56 — min 224px, max 224px. */
+  --space-64: 16rem; /** space 64 — min 256px, max 256px. */
+  --space-72: 18rem; /** space 72 — min 288px, max 288px. */
+  --space-80: 20rem; /** space 80 — min 320px, max 320px. */
+  --space-96: 24rem; /** space 96 — min 384px, max 384px. */
+  --space-112: 28rem; /** space 112 — min 448px, max 448px. */
+  --space-128: 32rem; /** space 128 — min 512px, max 512px. */
   }
 }

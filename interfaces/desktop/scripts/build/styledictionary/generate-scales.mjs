@@ -203,39 +203,50 @@ const MESH_GRADIENTS = [
 	},
 ];
 
-/** Space scale — 32 fluid steps from 0 to 128 px. min/max pairs in px. */
+/**
+ * Space scale — CANONICAL Tailwind spacing: `space-N === N × 0.25rem` (N × 4px).
+ *
+ * These values fill Tailwind's `--spacing-N` slots, which EVERY numeric
+ * `h-`/`w-`/`p-`/`m-`/`gap-` utility reads as `N × 0.25rem`. Components across
+ * the app are authored against that convention (`h-6` = 24px, `p-4` = 16px,
+ * `gap-2` = 8px), so the scale MUST match it. A prior pixel-indexed fluid scale
+ * (`space-6` = 6–7px) starved every raw-Tailwind-spaced element to ~0.3×.
+ *
+ * Static (min == max ⇒ the emitter drops the clamp): the base spacing
+ * MULTIPLIER is predictable and viewport-independent. min/max pairs in px.
+ */
 const SPACE_ENTRIES = [
 	['0', 0, 0],
-	['1', 1, 1],
-	['2', 2, 2],
-	['3', 3, 3],
-	['4', 4, 5],
-	['5', 5, 6],
-	['6', 6, 7],
-	['7', 7, 8],
-	['8', 8, 10],
-	['9', 9, 11],
-	['10', 10, 12],
-	['11', 11, 13],
-	['12', 12, 14],
-	['14', 14, 16],
-	['16', 16, 20],
-	['18', 18, 22],
-	['20', 20, 26],
-	['24', 24, 32],
-	['28', 28, 36],
-	['32', 32, 44],
-	['36', 36, 48],
-	['40', 40, 56],
-	['44', 44, 60],
-	['48', 48, 64],
-	['56', 56, 76],
-	['64', 64, 88],
-	['72', 72, 100],
-	['80', 80, 112],
-	['96', 96, 124],
-	['112', 112, 144],
-	['128', 128, 164],
+	['1', 4, 4],
+	['2', 8, 8],
+	['3', 12, 12],
+	['4', 16, 16],
+	['5', 20, 20],
+	['6', 24, 24],
+	['7', 28, 28],
+	['8', 32, 32],
+	['9', 36, 36],
+	['10', 40, 40],
+	['11', 44, 44],
+	['12', 48, 48],
+	['14', 56, 56],
+	['16', 64, 64],
+	['18', 72, 72],
+	['20', 80, 80],
+	['24', 96, 96],
+	['28', 112, 112],
+	['32', 128, 128],
+	['36', 144, 144],
+	['40', 160, 160],
+	['44', 176, 176],
+	['48', 192, 192],
+	['56', 224, 224],
+	['64', 256, 256],
+	['72', 288, 288],
+	['80', 320, 320],
+	['96', 384, 384],
+	['112', 448, 448],
+	['128', 512, 512],
 ];
 
 /** Padding y/x pairs. */
@@ -1004,7 +1015,8 @@ MANIFEST.push(
 		build: () =>
 			buildFluidDimensionFile({
 				group: 'space',
-				description: 'Fluid space scale — 32 steps from 0 to 128 px.',
+				description:
+					'Canonical Tailwind spacing scale — space-N = N × 0.25rem (static). Fills the --spacing-N slots every h-/w-/p-/m-/gap- utility reads.',
 				entries: SPACE_ENTRIES,
 			}),
 		key: 'space',
