@@ -10,7 +10,7 @@
 
 	| Tier         | Where                          | Composition                  |
 	|--------------|--------------------------------|------------------------------|
-	| 1 (deepest)  | wizard backdrop                | `.shell-root` (layout only — backdrop glow lives in app.css `[data-layout="setup"]`) |
+	| 1 (deepest)  | wizard backdrop                | root `[data-layout="setup"]` element (layout only — backdrop glow lives in app.css) |
 	| 2            | card outer shell               | `<Card preset="glass">`      |
 	| 3            | card inner content panel       | `<Card preset="stark">`      |
 	| 4 (top)      | nested wells (consumer-owned)  | `<Card preset="matte">` in views |
@@ -48,9 +48,33 @@ interface Props {
 	children: Snippet;
 	/** Footer actions (Back / Skip / primary CTA). */
 	footer: Snippet;
+	/**
+	 * Card width. `form` (default) is a single-column step (40rem);
+	 * `wide` is for steps that lay content out in rows (e.g. the cortex
+	 * constellation) and needs room for its container query to switch
+	 * to the multi-column layout.
+	 */
+	width?: "form" | "wide";
 }
 
-let { label, step, totalSteps, title, mascot, backdrop, children, footer }: Props = $props();
+let {
+	label,
+	step,
+	totalSteps,
+	title,
+	mascot,
+	backdrop,
+	children,
+	footer,
+	width = "form",
+}: Props = $props();
+
+/** Layout only — Tailwind owns sizing; the glass preset owns the visuals. */
+const cardClass = $derived(
+	`shell-card relative m-auto flex w-full flex-col gap-4 p-6 ${
+		width === "wide" ? "max-w-6xl" : "min-w-[30rem] max-w-[40rem]"
+	}`,
+);
 </script>
 
 <!--
@@ -60,20 +84,25 @@ let { label, step, totalSteps, title, mascot, backdrop, children, footer }: Prop
 	attribute.
 -->
 <div
-	class="shell-root"
+	class="fixed inset-0 z-9000 flex overflow-y-auto p-6"
 	data-layout="setup"
 	role="dialog"
 	aria-modal="true"
 	aria-label={label}
 >
 	{#if backdrop}
-		<div class="shell-backdrop-video" aria-hidden="true">
+		<div
+			class="shell-backdrop-video pointer-events-none fixed inset-0 overflow-hidden [&_video]:size-full [&_video]:object-cover"
+			aria-hidden="true"
+		>
 			{@render backdrop()}
 		</div>
 	{/if}
 
-	<!-- Tier 2: card outer shell — ColdLight glass preset. -->
-	<Card preset="glass" class="shell-card">
+	<!-- Tier 2: card outer shell — ColdLight glass preset. `m-auto` inside
+	     the scrolling flex root centers the card when it fits and lets it
+	     scroll (instead of clipping top + bottom) when it is taller. -->
+	<Card preset="glass" class={cardClass}>
 		<header class="shell-head">
 			<div class="shell-head-left">
 				{#if mascot}
@@ -101,43 +130,10 @@ let { label, step, totalSteps, title, mascot, backdrop, children, footer }: Prop
 	/* Layout-only. Visual styling (border / shadow / background) lives
 	   in the Card preset chain (glass for outer, stark for body) and
 	   the `[data-layout="setup"]` backdrop in app.css. */
-	.shell-root {
-		position: fixed;
-		inset: 0;
-		z-index: 9000;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
-
 	/* MP4 / animated backdrop slot — sits below the card, above the
-	   layout backdrop. Layout-only positioning. */
+	   layout backdrop. Positioning is Tailwind; only the dimming here. */
 	.shell-backdrop-video {
-		position: absolute;
-		inset: 0;
-		pointer-events: none;
-		overflow: hidden;
 		opacity: 0.35;
-	}
-	.shell-backdrop-video :global(video) {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-	}
-
-	/* The Card primitive provides the visual chrome. Only set sizing /
-	   spacing concerns here that Card's preset doesn't own. `:global()`
-	   because the class is passed to a child component (`<Card>`); the
-	   class lands on Card's rendered root but Svelte's per-file scoper
-	   can't track classes across component boundaries. */
-	:global(.shell-card) {
-		position: relative;
-		display: flex;
-		flex-direction: column;
-		gap: 1rem;
-		padding: 1.5rem;
-		min-width: 30rem;
-		max-width: 40rem;
 	}
 
 	.shell-head {

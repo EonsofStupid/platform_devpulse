@@ -103,7 +103,7 @@ const allSaved = $derived(slotSaves.length > 0 && slotSaves.every((s) => s.state
 const anyUnsaved = $derived(slotSaves.some((s) => s.state !== "saved"));
 </script>
 
-<OverlayShell label="DevPulse setup — cortex" step={1} totalSteps={1} {title}>
+<OverlayShell label="DevPulse setup — cortex" step={1} totalSteps={1} {title} width="wide">
 	{#snippet mascot()}
 		<ClyffyMascot pose="pointing" size="lg" />
 	{/snippet}

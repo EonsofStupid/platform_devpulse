@@ -165,7 +165,7 @@ const ctaLabel = $derived(
 		<div class="surface-shimmer pointer-events-none absolute inset-0 z-0" aria-hidden="true"></div>
 	{/if}
 
-	<header class="relative z-1 flex flex-col items-start gap-3 @2xs:flex-row @2xs:gap-4">
+	<header class="relative z-1 flex flex-col items-start gap-3 @3xs:flex-row @3xs:gap-4">
 		<div class="icon-tile grid size-12 shrink-0 place-items-center">
 			<Icon size={28} class="anatomy-icon" />
 		</div>
