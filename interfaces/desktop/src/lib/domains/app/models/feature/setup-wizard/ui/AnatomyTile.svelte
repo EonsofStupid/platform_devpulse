@@ -152,27 +152,27 @@ const ctaLabel = $derived(
 </script>
 
 <section
-	class="anatomy-tile"
+	class="anatomy-tile @container relative isolate flex min-w-0 flex-col gap-4 overflow-hidden p-5"
 	data-state={state}
 	style={`--slot-accent: var(${accentVar});`}
 	role="region"
 	aria-labelledby={headingId}
 	aria-busy={state === "saving"}
 >
-	<div class="surface-crown" aria-hidden="true"></div>
-	<div class="surface-vignette" aria-hidden="true"></div>
+	<div class="surface-crown pointer-events-none absolute inset-0 z-0" aria-hidden="true"></div>
+	<div class="surface-vignette pointer-events-none absolute inset-0 z-0" aria-hidden="true"></div>
 	{#if state === "saving"}
-		<div class="surface-shimmer" aria-hidden="true"></div>
+		<div class="surface-shimmer pointer-events-none absolute inset-0 z-0" aria-hidden="true"></div>
 	{/if}
 
-	<header class="tile-head">
-		<div class="icon-tile">
+	<header class="relative z-1 flex flex-col items-start gap-3 @2xs:flex-row @2xs:gap-4">
+		<div class="icon-tile grid size-12 shrink-0 place-items-center">
 			<Icon size={28} class="anatomy-icon" />
 		</div>
-		<div class="head-text">
-			<div class="title-row">
+		<div class="flex min-w-0 flex-1 flex-col gap-1">
+			<div class="flex flex-wrap items-center justify-between gap-2">
 				<Heading level={3} size="md" id={headingId}>{purpose}</Heading>
-				<div class="badge-zone" aria-live="polite" aria-atomic="true">
+				<div class="min-w-0" aria-live="polite" aria-atomic="true">
 					<Badge variant={STATE_BADGE[state].tone} size="sm">
 						{STATE_BADGE[state].label}
 					</Badge>
@@ -182,21 +182,21 @@ const ctaLabel = $derived(
 		</div>
 	</header>
 
-	<section class="model-panel">
-		<div class="model-name-row">
+	<section class="model-panel relative z-1 flex flex-col gap-1.5 p-3">
+		<div class="flex flex-wrap items-center justify-between gap-2">
 			<Text size="base" weight="bold">{modelName}</Text>
 			{#if tierLabel}
 				<Badge variant="accent" size="sm">{tierLabel}</Badge>
 			{/if}
 		</div>
 		<Text size="sm" color="muted">{modelTagline}</Text>
-		<div class="model-meta">
+		<div class="mt-0.5">
 			<KeyValue label="On disk" value={sizeHint} size="sm" />
 		</div>
 	</section>
 
 	{#if state === "error" && errorText}
-		<div class="error-strip" role="alert">
+		<div class="error-strip relative z-1 flex flex-col gap-0.5 p-2.5" role="alert">
 			<Text size="xs" weight="semibold" class="error-text">
 				Couldn't save this slot
 			</Text>
@@ -204,8 +204,8 @@ const ctaLabel = $derived(
 		</div>
 	{/if}
 
-	<footer class="tile-foot">
-		<div class="foot-left">
+	<footer class="relative z-1 flex flex-wrap items-center justify-between gap-2">
+		<div class="flex flex-wrap items-center gap-2">
 			{#if onPickDifferent && state !== "saving"}
 				<Button preset="ghost" size="sm" onclick={onPickDifferent}>
 					<Pencil size={12} />
@@ -238,15 +238,7 @@ const ctaLabel = $derived(
 <style>
 	/* ── Tile shell — depth-stacked surface in three gradient layers ── */
 	.anatomy-tile {
-		position: relative;
-		display: flex;
-		flex-direction: column;
-		gap: clamp(0.75rem, 1.4vw, 1.125rem);
-		padding: clamp(1rem, 1.8vw, 1.5rem);
 		border-radius: clamp(0.75rem, 1.2vw, 1rem);
-		overflow: hidden;
-		isolation: isolate;
-		min-width: 0;
 
 		/* Base gradient — deep accent-saturated surface (18-26% mix
 		   into the deepest base), NOT the polite 5-8% wash. */
@@ -288,10 +280,6 @@ const ctaLabel = $derived(
 	/* Crown layer — radial glow at top-left mimics light catching the
 	   surface. Behind everything via z-index 0. */
 	.surface-crown {
-		position: absolute;
-		inset: 0;
-		z-index: 0;
-		pointer-events: none;
 		background: radial-gradient(
 			circle at 30% 0%,
 			color-mix(in oklch, var(--slot-accent) 28%, transparent) 0%,
@@ -302,10 +290,6 @@ const ctaLabel = $derived(
 
 	/* Vignette layer — bottom-right accent pool. */
 	.surface-vignette {
-		position: absolute;
-		inset: 0;
-		z-index: 0;
-		pointer-events: none;
 		background: radial-gradient(
 			ellipse at 100% 100%,
 			color-mix(in oklch, var(--slot-accent) 18%, transparent) 0%,
@@ -317,10 +301,6 @@ const ctaLabel = $derived(
 	/* Shimmer — only while saving. Sweeping highlight from left to
 	   right at 1.6s. Honors reduced-motion. */
 	.surface-shimmer {
-		position: absolute;
-		inset: 0;
-		z-index: 0;
-		pointer-events: none;
 		background: linear-gradient(
 			110deg,
 			transparent 35%,
@@ -351,28 +331,8 @@ const ctaLabel = $derived(
 		border-color: color-mix(in oklch, var(--accent-danger-main) 50%, var(--border-subtle));
 	}
 
-	/* All inner content sits above the gradient layers. */
-	.tile-head,
-	.model-panel,
-	.error-strip,
-	.tile-foot {
-		position: relative;
-		z-index: 1;
-	}
-
-	/* ── Header row — icon tile + title + state badge ── */
-	.tile-head {
-		display: flex;
-		gap: clamp(0.75rem, 1.4vw, 1rem);
-		align-items: flex-start;
-	}
-
+	/* ── Header icon tile ── */
 	.icon-tile {
-		display: grid;
-		place-items: center;
-		flex-shrink: 0;
-		width: clamp(2.75rem, 4vw, 3.25rem);
-		height: clamp(2.75rem, 4vw, 3.25rem);
 		border-radius: clamp(0.5rem, 1vw, 0.75rem);
 		background: color-mix(
 			in oklch,
@@ -391,32 +351,8 @@ const ctaLabel = $derived(
 		color: inherit;
 	}
 
-	.head-text {
-		display: flex;
-		flex-direction: column;
-		gap: 0.25rem;
-		min-width: 0;
-		flex: 1;
-	}
-
-	.title-row {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		flex-wrap: wrap;
-		justify-content: space-between;
-	}
-
-	.badge-zone {
-		min-width: 0;
-	}
-
 	/* ── Model panel — inner well, slight depth from accent ── */
 	.model-panel {
-		display: flex;
-		flex-direction: column;
-		gap: 0.375rem;
-		padding: clamp(0.625rem, 1.2vw, 0.875rem);
 		border-radius: clamp(0.5rem, 0.8vw, 0.625rem);
 		background: color-mix(
 			in oklch,
@@ -427,24 +363,8 @@ const ctaLabel = $derived(
 			color-mix(in oklch, var(--slot-accent) 20%, var(--border-subtle));
 	}
 
-	.model-name-row {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		flex-wrap: wrap;
-		justify-content: space-between;
-	}
-
-	.model-meta {
-		margin-top: 0.125rem;
-	}
-
 	/* ── Error strip ── */
 	.error-strip {
-		display: flex;
-		flex-direction: column;
-		gap: 0.125rem;
-		padding: clamp(0.5rem, 1vw, 0.75rem);
 		border-radius: 0.5rem;
 		background: color-mix(
 			in oklch,
@@ -457,22 +377,6 @@ const ctaLabel = $derived(
 
 	.anatomy-tile :global(.error-text) {
 		color: var(--accent-danger-main);
-	}
-
-	/* ── Footer row — about + Apply ── */
-	.tile-foot {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: 0.5rem;
-		flex-wrap: wrap;
-	}
-
-	.foot-left {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		flex-wrap: wrap;
 	}
 
 	.about-link {
