@@ -11,12 +11,12 @@ here.
 
 ## File name
 
-```
+```text
 NNNN-<boundary>--<task>.md
 ```
 
 | Part | Rule | Example |
-|---|---|---|
+| --- | --- | --- |
 | `NNNN` | Next free 4-digit number. Never reused, never renumbered. It is the plan's permanent ID ("plan 0004"). | `0004` |
 | `<boundary>` | One token from the **boundary registry** below. Never invented. | `desktop-clyffy` |
 | `--` | Double hyphen. The only place it appears, so the name splits cleanly into boundary and task. | |
@@ -26,7 +26,7 @@ All lowercase ASCII, words joined with single hyphens, `.md` extension.
 
 Machine check:
 
-```
+```text
 ^[0-9]{4}-[a-z0-9]+(-[a-z0-9]+)*--[a-z]+(-[a-z0-9]+){1,4}\.md$
 ```
 
@@ -35,14 +35,14 @@ plus: the boundary must appear in the registry and the verb in the verb list.
 ### Corrected example
 
 | | Name | Why |
-|---|---|---|
+| --- | --- | --- |
 | Before | `desktop-features-ui-agent-user-interactions.md` | No ID. No boundary/task split — where does the boundary end? `features` and `ui` are not boundaries (every desktop feature is UI). `agent` is vague. `user-interactions` is a category, not a task. |
 | After | `0004-desktop-clyffy--wire-contextual-nudges.md` | ID `0004`. Boundary `desktop-clyffy` = `interfaces/desktop/src/lib/domains/clyffy/`, the folder that owns the outcome. Task says exactly what changes. |
 
-More:
+Planned (these IDs are reserved for them):
 
 | Plan | Name |
-|---|---|
+| --- | --- |
 | Layman first-launch wizard (spec §3) | `0001-desktop-models--rebuild-layman-first-launch.md` |
 | User-managed AI endpoints | `0002-kernel-clyffy--add-endpoint-registry.md` |
 | ColdLight / Tailwind boundary gate | `0003-repo--enforce-coldlight-boundary.md` |
@@ -57,7 +57,7 @@ prefix is dropped (it is on everything). Desktop domains use their folder
 name. Add a row here only when the folder exists.
 
 | Token | Path |
-|---|---|
+| --- | --- |
 | `kernel-clyffy` | `kernel/devpulse-clyffy/` |
 | `kernel-model-loader` | `kernel/model-loader/` |
 | `kernel-rrd` | `kernel/rrd/` |
@@ -85,7 +85,7 @@ only when no single boundary owns it.
 ## Verb list
 
 | Verb | Use for |
-|---|---|
+| --- | --- |
 | `add` | New capability that did not exist |
 | `remove` | Delete a capability or dead code |
 | `rebuild` | Replace an existing implementation from scratch |
@@ -153,6 +153,6 @@ Dated entries: approvals, phase completions, deviations.
 
 ## References
 
-- MADR — numbered decision records: `NNNN-title-with-dashes.md` (https://adr.github.io/madr/)
-- Rust RFCs — `NNNN-feature-name.md`, status in the document (https://github.com/rust-lang/rfcs)
-- Kubernetes KEPs — scoped by owning group, numbered, status in metadata (https://github.com/kubernetes/enhancements/tree/master/keps)
+- [MADR](https://adr.github.io/madr/) — numbered decision records: `NNNN-title-with-dashes.md`
+- [Rust RFCs](https://github.com/rust-lang/rfcs) — `NNNN-feature-name.md`, status in the document
+- [Kubernetes KEPs](https://github.com/kubernetes/enhancements/tree/master/keps) — scoped by owning group, numbered, status in metadata
