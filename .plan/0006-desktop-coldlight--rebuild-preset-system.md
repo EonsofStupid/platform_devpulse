@@ -160,14 +160,47 @@ Every phase: `pnpm ds:tokens:build`, `svelte-check` 0 errors, biome clean,
 `coldlight-boundary` gate counts ≤ baseline, Playwright/CDP screenshots and
 computed-style assertions on the running app.
 
-## Decisions needed
+## Decisions
 
-1. **Type role names** — adopt Material 3's 15 roles (display / headline /
-   title / body / label × large / medium / small), or keep ColdLight's
-   existing set (`display-lg`, `display-sm`, `heading-lg`, `heading-sm`,
-   `body`, `body-sm`, `caption`, `overline`, `stat`, `code`) and map it?
-2. **Scope attribute names** — `data-surface`, `data-typography`,
-   `data-accent`, `data-density` (proposed), or another set.
+1. **Type roles — decided 2026-10-10:** Material 3 roles, display / headline /
+   title / body / label × large / medium / small.
+2. **Scope attributes — decided 2026-10-10:** `data-surface`,
+   `data-typography`, `data-accent`, `data-density`.
+
+### Type role mapping (pending owner approval of values)
+
+Existing `textStyle.*` values are kept where they map; roles with no existing
+source take the Material 3 baseline (line heights as unitless ratios).
+
+| M3 role | Source | Size | Weight | Line height | Tracking | Family |
+| --- | --- | --- | --- | --- | --- | --- |
+| display-large | M3 baseline | 57px (3.5625rem) | 400 | 1.12 | -0.0044em | display |
+| display-medium | M3 baseline | 45px (2.8125rem) | 400 | 1.16 | 0 | display |
+| display-small | `stat` | 1.5rem | 700 | 1.1 | 0.02em | display |
+| headline-large | `display-lg` | 2rem | 700 | 1.1 | 0.02em | display |
+| headline-medium | M3 baseline | 28px (1.75rem) | 400 | 1.29 | 0 | display |
+| headline-small | `display-sm` | 1.5rem | 600 | 1.2 | 0.01em | display |
+| title-large | `heading-lg` | 1.25rem | 600 | 1.3 | -0.01em | sans |
+| title-medium | `heading-sm` | 1rem | 600 | 1.4 | -0.005em | sans |
+| title-small | M3 baseline | 14px (0.875rem) | 500 | 1.43 | 0.0071em | sans |
+| body-large | M3 baseline | 16px (1rem) | 400 | 1.5 | 0.03125em | sans |
+| body-medium | `body` | 0.875rem | 400 | 1.5 | 0 | sans |
+| body-small | `body-sm` | 0.8125rem | 400 | 1.45 | 0 | sans |
+| label-large | M3 baseline | 14px (0.875rem) | 500 | 1.43 | 0.0071em | sans |
+| label-medium | `caption` | 0.75rem | 500 | 1.4 | 0.01em | sans |
+| label-small | `overline` | 0.6875rem | 600 | 1.3 | 0.08em | sans |
+| code *(ColdLight extension — M3 has no code role)* | `code` | 0.8125rem | 400 | 1.6 | 0 | mono |
+
+### Phase 1 split
+
+- **1a — tokens + generator:** the roles above as DTCG `typography` tokens
+  aliasing font primitives; fix the generator flattening DTCG dimensions into
+  separate `-unit` / `-value` variables (`theme/text-style.css`); generate
+  `[data-typography="<role>"]` rules.
+- **1b — components:** kind contract gains accepted concerns; `Text` defaults
+  to `data-typography="body-medium"`; `Heading` maps h1 → display-large,
+  h2 → headline-large, h3 → title-large, h4 → title-medium, h5 → title-small,
+  h6 → label-large; text kinds stop resolving surface presets.
 
 ## Verification
 
@@ -177,3 +210,6 @@ Recorded per phase in the log below.
 
 - 2026-10-10 — Draft. Items 3 (per-kind defaults) and 4 (scope inheritance)
   confirmed by owner, conditional on established-practice grounding (above).
+- 2026-10-10 — Decided: Material 3 type roles; scope attributes `data-surface`,
+  `data-typography`, `data-accent`, `data-density`. Type role value mapping
+  proposed; Phase 1 split into 1a (tokens + generator) and 1b (components).
