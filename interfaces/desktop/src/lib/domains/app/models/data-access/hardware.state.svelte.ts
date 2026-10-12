@@ -3,11 +3,13 @@
  * @module @devpulse/domains/app/models/data-access/hardware-state
  *
  * Singleton rune that exposes live GPU stats (name, util %, temp, VRAM).
- * **Ref-counted listener**: the underlying Tauri event subscription
- * attaches only when at least one component calls `subscribe(reason)`,
- * and detaches when the last subscriber drops. This honors the
- * 2026-04-20 no-auto-load directive: zero hardware polling unless a
- * mounted UI surface explicitly asked for it.
+ * Live values arrive as `hardware` signals from the engine's signal
+ * fabric (pushed every 2 s by Rust); the first subscriber also loads one
+ * snapshot so cards render before the next tick.
+ *
+ * **Ref-counted**: the fabric handler is registered only while at least
+ * one mounted component called `subscribe(reason)`, per the 2026-04-20
+ * no-auto-load directive.
  *
  * Typical use inside a component:
  *
@@ -19,19 +21,10 @@
  * The `$effect` cleanup auto-detaches when the component unmounts.
  */
 
-import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import { getHardwareMetrics } from "$lib/sys/bindings/models/index.js";
+import { signalFabric } from "$lib/sys/events/signal-fabric.js";
+import type { HardwareMetrics } from "$lib/sys/generated/bindings.js";
 import { logDebug } from "$lib/sys/logger.js";
-
-interface HardwarePayload {
-	gpu_name: string | null;
-	gpu_util_percent: number | null;
-	gpu_temp_c: number | null;
-	vram_used_mb: number | null;
-	vram_total_mb: number | null;
-	has_gpu: boolean;
-	error: string | null;
-}
 
 class HardwareState {
 	gpuName = $state<string | null>(null);
@@ -43,63 +36,64 @@ class HardwareState {
 	gpuError = $state<string | null>(null);
 
 	private refCount = 0;
-	private unlisten: UnlistenFn | null = null;
-	private attaching: Promise<void> | null = null;
+	private off: (() => void) | null = null;
+	private receivedLive = false;
 
 	/**
 	 * Subscribe to live hardware metrics. Returns a teardown fn that
 	 * MUST be called when the component unmounts (return it from
-	 * `$effect` / `onMount`). The first subscriber attaches the Tauri
-	 * listener and triggers an initial `getHardwareMetrics` fetch.
+	 * `$effect` / `onMount`).
 	 */
 	subscribe(reason: string): () => void {
 		this.refCount += 1;
 		if (this.refCount === 1) {
-			this.attaching = this.attach(reason);
+			this.attach(reason);
 		}
 		return () => {
 			this.refCount -= 1;
 			if (this.refCount === 0) {
-				void this.detach();
+				this.detach();
 			}
 		};
 	}
 
-	private async attach(reason: string): Promise<void> {
-		// One-shot fetch so cards render usable values before the
-		// next event tick.
-		const r = await getHardwareMetrics();
-		if (r.status === "ok") {
-			this.applyPayload(r.data as unknown as HardwarePayload);
-		} else {
-			this.gpuError = String(r.error);
-		}
-
-		this.unlisten = await listen<HardwarePayload>("model:hardware", (event) => {
-			this.applyPayload(event.payload);
+	private attach(reason: string): void {
+		// Live handler first so no tick is missed while the snapshot loads.
+		this.off = signalFabric.on("hardware", (metrics) => {
+			this.receivedLive = true;
+			this.apply(metrics);
 		});
-
+		void this.loadSnapshot();
 		logDebug("hardwareState", `attached (reason: ${reason}, refs: ${this.refCount})`);
 	}
 
-	private async detach(): Promise<void> {
-		if (this.attaching) await this.attaching;
-		if (this.unlisten) {
-			this.unlisten();
-			this.unlisten = null;
+	private async loadSnapshot(): Promise<void> {
+		const r = await getHardwareMetrics();
+		if (r.status !== "ok") {
+			this.gpuError = String(r.error);
+			return;
 		}
-		this.attaching = null;
+		// A live tick that landed first is newer than this snapshot.
+		if (!this.receivedLive) {
+			this.apply(r.data);
+		}
+	}
+
+	private detach(): void {
+		this.off?.();
+		this.off = null;
+		this.receivedLive = false;
 		logDebug("hardwareState", "detached (refs: 0)");
 	}
 
-	private applyPayload(p: HardwarePayload): void {
-		this.gpuName = p.gpu_name;
-		this.gpuUtilPercent = p.gpu_util_percent;
-		this.gpuTempC = p.gpu_temp_c;
-		this.vramUsedMb = p.vram_used_mb;
-		this.vramTotalMb = p.vram_total_mb;
-		this.hasGpu = p.has_gpu;
-		this.gpuError = p.error;
+	private apply(m: HardwareMetrics): void {
+		this.gpuName = m.gpu_name;
+		this.gpuUtilPercent = m.gpu_utilization_percent;
+		this.gpuTempC = m.gpu_temperature_c;
+		this.vramUsedMb = m.gpu_vram_used_mb;
+		this.vramTotalMb = m.gpu_vram_total_mb;
+		this.hasGpu = m.gpu_name !== null;
+		this.gpuError = m.gpu_error;
 	}
 }
 

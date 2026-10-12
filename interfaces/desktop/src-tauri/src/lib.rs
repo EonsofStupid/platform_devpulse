@@ -32,7 +32,7 @@ pub use crash_safety::install_early_panic_hook;
 use devpulse_engine::platform::{InitStatus, Platform};
 use devpulse_telemetry::boot::TelemetryGuard;
 use devpulse_telemetry::spawn_blocking;
-use events::{BootPhaseChanged, BootPhaseValue, HardwareMetricsUpdated};
+use events::{BootPhaseChanged, BootPhaseValue, SignalBroadcast};
 use state::{BootStateTracker, ModelsStatusSnapshot, PlatformState};
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -423,8 +423,8 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
         .events(collect_events![
             // Platform boot lifecycle — replaces `platform:boot-phase` string event.
             events::BootPhaseChanged,
-            // Periodic hardware push (2 s tick) — replaces `model:hardware`.
-            events::HardwareMetricsUpdated,
+            // Signal fabric bridge — every Broadcast-routed engine signal.
+            events::SignalBroadcast,
             // llama-server sidecar — replaces `llama:server-ready` / `llama:token`.
             events::LlamaServerReady,
             events::LlamaTokenStreamed,
@@ -729,6 +729,8 @@ pub fn run() {
             app.manage(std::sync::Mutex::new(telemetry_guard));
             app.manage(commands::llama::LlamaServerState::new());
             app.manage(commands::voice::PlaybackState::new());
+            // Engine signal router — the one typed signal path to the UI.
+            app.manage(devpulse_engine::Engine::boot());
 
             // DevForge REH now boots through the platform service pipeline
             // (boot/devforge.rs), NOT a parallel Tauri bootstrap. Removed
@@ -1158,6 +1160,11 @@ async fn boot_task(
                 tracing::info!("rrd event bridge: spawned");
             }
 
+            // ── Signal fabric bridge ─────────────────────────────
+            // Engine `SignalRouter` → `SignalBroadcast` → frontend fabric.
+            // Started before any producer so no early signal is lost.
+            spawn_signal_bridge(app.clone());
+
             // ── Hardware metrics push loop ───────────────────────
             // Rust-driven: no frontend polling. Browser throttling can't
             // affect this — Rust tokio runtime is never throttled.
@@ -1274,10 +1281,47 @@ async fn boot_task(
     }
 }
 
+/// Forward engine signals to the UI — the one bridge between the engine's
+/// `SignalRouter` and the frontend signal fabric.
+///
+/// Subscribes before `Engine::start` so the UI also receives the engine's
+/// ready signal. Only variants routed to `SinkKind::Broadcast` cross the
+/// IPC boundary. A lagged receiver logs the skipped count and keeps
+/// forwarding instead of ending the bridge.
+fn spawn_signal_bridge(app: tauri::AppHandle) {
+    use devpulse_engine::signals::SinkKind;
+    use tokio::sync::broadcast::error::RecvError;
+
+    let mut rx = {
+        let engine = app.state::<devpulse_engine::Engine>();
+        let rx = engine.router().subscribe();
+        engine.start();
+        rx
+    };
+
+    devpulse_telemetry::spawn(async move {
+        loop {
+            match rx.recv().await {
+                Ok(linked) => {
+                    let (signal, _producer_cx) = linked.into_parts();
+                    if signal.payload.sinks().contains(&SinkKind::Broadcast) {
+                        let _ = SignalBroadcast { signal }.emit(&app);
+                    }
+                }
+                Err(RecvError::Lagged(skipped)) => {
+                    tracing::warn!(skipped, "signal bridge: receiver lagged, signals skipped");
+                }
+                Err(RecvError::Closed) => break,
+            }
+        }
+        tracing::info!("signal bridge: router closed");
+    });
+}
+
 /// Rust-driven hardware metrics push — replaces frontend setInterval polling.
 ///
-/// Runs every 2s. Emits `"model:hardware"` Tauri events with fresh metrics.
-/// The frontend just listens — no timers, no browser throttling issues.
+/// Runs every 2s and emits a `SignalVariant::Hardware` signal into the
+/// engine router; the signal bridge carries it to the UI.
 fn spawn_hardware_push(app: tauri::AppHandle) {
     tauri::async_runtime::spawn(async move {
         let mut interval = tokio::time::interval(std::time::Duration::from_secs(2));
@@ -1298,8 +1342,13 @@ fn spawn_hardware_push(app: tauri::AppHandle) {
                 let Some(loader) = platform.model_loader() else {
                     continue;
                 };
+                use devpulse_engine::signals::{Signal, SignalSource, SignalVariant};
+
                 let metrics = loader.hardware_metrics().await;
-                let _ = HardwareMetricsUpdated { metrics }.emit(&app);
+                app.state::<devpulse_engine::Engine>().emit(Signal::new(
+                    SignalSource::System,
+                    SignalVariant::Hardware(metrics),
+                ));
             }
         }
     });

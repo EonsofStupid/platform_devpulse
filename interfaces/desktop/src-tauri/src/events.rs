@@ -32,7 +32,7 @@
 //! Rust type — used both for backend-side listeners and for the
 //! type contract that the frontend listener generation depends on.
 
-use devpulse_engine::platform::HardwareMetrics;
+use devpulse_engine::signals::Signal;
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use tauri_specta::Event;
@@ -73,19 +73,18 @@ pub enum BootPhaseValue {
     Failed,
 }
 
-// ── Hardware push (2s tick) ─────────────────────────────────────────
+// ── Signal fabric bridge ────────────────────────────────────────────
 
-/// Periodic hardware metrics push (CPU / RAM / GPU / VRAM). Replaces
-/// the stringly-typed `model:hardware` event.
+/// One engine signal forwarded to the UI.
 ///
-/// Emitted every 2s by the hardware push task in [`crate::lib`].
-/// Frontend `hardwareState` rune listens and updates VRAM bar, GPU
-/// utilization, etc.
+/// The desktop shell subscribes to the engine's `SignalRouter` once and
+/// re-emits every signal whose variant routes to `SinkKind::Broadcast`.
+/// The frontend signal fabric (`$lib/sys/events/signal-fabric.svelte.ts`)
+/// is the single listener and dispatches on `signal.payload.type`.
 #[derive(Debug, Clone, Serialize, Deserialize, Type, Event)]
-pub struct HardwareMetricsUpdated {
-    /// Full metrics snapshot. The frontend overwrites its rune state
-    /// from this struct directly — no diff merging.
-    pub metrics: HardwareMetrics,
+pub struct SignalBroadcast {
+    /// Provenance header + typed payload.
+    pub signal: Signal,
 }
 
 // ── llama-server sidecar lifecycle ──────────────────────────────────

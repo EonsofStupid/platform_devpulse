@@ -1,6 +1,12 @@
 //! `SignalVariant` - the master enum of all output payload types.
 //!
 //! This is what gets broadcast. Each variant carries a typed payload.
+//!
+//! # Wire shape
+//!
+//! Adjacently tagged — `{ "type": "<name>", "data": <payload> }` — so the
+//! frontend receives a discriminated union it can `switch` on. The tag is
+//! the same lowercase string [`SignalVariant::name`] returns.
 
 use serde::{Deserialize, Serialize};
 use specta::Type;
@@ -15,6 +21,7 @@ use super::payloads::{
 ///
 /// Each variant maps to specific sinks for routing.
 #[derive(Clone, Debug, Serialize, Deserialize, Type)]
+#[serde(tag = "type", content = "data", rename_all = "lowercase")]
 pub enum SignalVariant {
     /// Chat message (LLM response, user message)
     Chat(ChatPayload),
@@ -28,6 +35,9 @@ pub enum SignalVariant {
     System(SystemPayload),
     /// Governance event (lane routing, rate limits, council)
     Governance(GovernancePayload),
+    /// Hardware snapshot (CPU / RAM / GPU / VRAM) sampled on a fixed tick.
+    #[cfg(feature = "inference")]
+    Hardware(crate::platform::HardwareMetrics),
 }
 
 impl SignalVariant {
@@ -40,6 +50,8 @@ impl SignalVariant {
             SignalVariant::Inference(_) => &[SinkKind::Analytics, SinkKind::Cache],
             SignalVariant::System(_) => &[SinkKind::Broadcast],
             SignalVariant::Governance(_) => &[SinkKind::Broadcast, SinkKind::Analytics],
+            #[cfg(feature = "inference")]
+            SignalVariant::Hardware(_) => &[SinkKind::Broadcast],
         }
     }
 
@@ -52,6 +64,8 @@ impl SignalVariant {
             SignalVariant::Inference(_) => "inference",
             SignalVariant::System(_) => "system",
             SignalVariant::Governance(_) => "governance",
+            #[cfg(feature = "inference")]
+            SignalVariant::Hardware(_) => "hardware",
         }
     }
 }
