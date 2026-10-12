@@ -47,7 +47,7 @@ Planned (these IDs are reserved for them):
 | User-managed AI endpoints | `0002-kernel-clyffy--add-endpoint-registry.md` |
 | ColdLight / Tailwind boundary gate | `0003-repo--enforce-coldlight-boundary.md` |
 | Contextual guidance: tooltips, pop-ups, Knowledge Drops | `0004-engine--wire-contextual-guidance.md` |
-| Prebuilt AI runtimes instead of compiled-in engines | `0007-engine--replace-inprocess-inference-with-runtimes.md` |
+| Prebuilt AI runtimes instead of compiled-in engines | `0007-kernel-model-loader--replace-inprocess-inference-with-runtimes.md` |
 | Codebase indexing for Clyffy | `0005-kernel-clyffy--index-project-codebase.md` |
 
 ---
