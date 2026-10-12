@@ -1,4 +1,4 @@
-//! `LibSQL` devtool commands — health, table listing, raw SQL console.
+//! Turso devtool commands — health, table listing, raw SQL console.
 //!
 //! Two databases: system (platform.db) and user (user.db).
 //! Mirrors the graph.rs pattern: read platform state, access service, execute.
@@ -18,18 +18,18 @@ use devpulse_engine::platform::SqlAdapter;
 // Types
 // ═══════════════════════════════════════════════════════════════
 
-/// Which `LibSQL` database to target.
+/// Which Turso database to target.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
-pub enum LibSqlDatabase {
+pub enum TursoDatabase {
     /// System database — platform.db (sessions, projects, config).
     System,
     /// User database — user.db (turns, preferences, `api_keys`).
     User,
 }
 
-/// Health of a single `LibSQL` database.
+/// Health of a single Turso database.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
-pub struct LibSqlHealth {
+pub struct TursoHealth {
     /// Which database.
     pub database: String,
     /// Whether SELECT 1 succeeded.
@@ -44,14 +44,14 @@ pub struct LibSqlHealth {
 
 /// Combined health of both databases.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
-pub struct LibSqlHealthAll {
+pub struct TursoHealthAll {
     /// Per-database health.
-    pub databases: Vec<LibSqlHealth>,
+    pub databases: Vec<TursoHealth>,
 }
 
 /// A table in the database with its row count.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
-pub struct LibSqlTableInfo {
+pub struct TursoTableInfo {
     /// Table name.
     pub name: String,
     /// Number of rows.
@@ -60,7 +60,7 @@ pub struct LibSqlTableInfo {
 
 /// Result of a raw SQL query (JSON-serialized rows).
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
-pub struct LibSqlQueryResult {
+pub struct TursoQueryResult {
     /// Column names.
     pub columns: Vec<String>,
     /// Rows as JSON string (serialized array of arrays).
@@ -75,11 +75,11 @@ pub struct LibSqlQueryResult {
 // Commands
 // ═══════════════════════════════════════════════════════════════
 
-/// Ping both `LibSQL` databases — returns health for each.
+/// Ping both Turso databases — returns health for each.
 #[tauri::command]
 #[specta::specta]
-pub async fn libsql_health_all(state: State<'_, PlatformState>) -> Result<LibSqlHealthAll, String> {
-    tracing::info!("cmd libsql_health_all: entry");
+pub async fn turso_health_all(state: State<'_, PlatformState>) -> Result<TursoHealthAll, String> {
+    tracing::info!("cmd turso_health_all: entry");
     // P0: lock-free atomic load.
     let platform = state
         .platform
@@ -95,14 +95,14 @@ pub async fn libsql_health_all(state: State<'_, PlatformState>) -> Result<LibSql
             Some(svc) => {
                 let adapter = svc.adapter();
                 match adapter.query("SELECT 1", &[]).await {
-                    Ok(_) => databases.push(LibSqlHealth {
+                    Ok(_) => databases.push(TursoHealth {
                         database: "system".into(),
                         reachable: true,
                         latency_us: start.elapsed().as_micros() as u64,
                         error: None,
-                        path: platform.config().data_dir.clone() + "/system/libsql/platform.db",
+                        path: svc.path().display().to_string(),
                     }),
-                    Err(e) => databases.push(LibSqlHealth {
+                    Err(e) => databases.push(TursoHealth {
                         database: "system".into(),
                         reachable: false,
                         latency_us: 0,
@@ -111,7 +111,7 @@ pub async fn libsql_health_all(state: State<'_, PlatformState>) -> Result<LibSql
                     }),
                 }
             }
-            None => databases.push(LibSqlHealth {
+            None => databases.push(TursoHealth {
                 database: "system".into(),
                 reachable: false,
                 latency_us: 0,
@@ -128,14 +128,14 @@ pub async fn libsql_health_all(state: State<'_, PlatformState>) -> Result<LibSql
             Some(svc) => {
                 let adapter = svc.adapter();
                 match adapter.query("SELECT 1", &[]).await {
-                    Ok(_) => databases.push(LibSqlHealth {
+                    Ok(_) => databases.push(TursoHealth {
                         database: "user".into(),
                         reachable: true,
                         latency_us: start.elapsed().as_micros() as u64,
                         error: None,
-                        path: platform.config().data_dir.clone() + "/user/libsql/user.db",
+                        path: svc.path().display().to_string(),
                     }),
-                    Err(e) => databases.push(LibSqlHealth {
+                    Err(e) => databases.push(TursoHealth {
                         database: "user".into(),
                         reachable: false,
                         latency_us: 0,
@@ -144,7 +144,7 @@ pub async fn libsql_health_all(state: State<'_, PlatformState>) -> Result<LibSql
                     }),
                 }
             }
-            None => databases.push(LibSqlHealth {
+            None => databases.push(TursoHealth {
                 database: "user".into(),
                 reachable: false,
                 latency_us: 0,
@@ -154,17 +154,17 @@ pub async fn libsql_health_all(state: State<'_, PlatformState>) -> Result<LibSql
         }
     }
 
-    Ok(LibSqlHealthAll { databases })
+    Ok(TursoHealthAll { databases })
 }
 
-/// List tables and row counts for a `LibSQL` database.
+/// List tables and row counts for a Turso database.
 #[tauri::command]
 #[specta::specta]
-pub async fn libsql_list_tables(
+pub async fn turso_list_tables(
     state: State<'_, PlatformState>,
-    database: LibSqlDatabase,
-) -> Result<Vec<LibSqlTableInfo>, String> {
-    tracing::info!(?database, "cmd libsql_list_tables: entry");
+    database: TursoDatabase,
+) -> Result<Vec<TursoTableInfo>, String> {
+    tracing::info!(?database, "cmd turso_list_tables: entry");
     // P0: lock-free atomic load.
     let platform = state
         .platform
@@ -172,8 +172,8 @@ pub async fn libsql_list_tables(
         .ok_or("Platform is still booting")?;
 
     let svc = match &database {
-        LibSqlDatabase::System => platform.relational(),
-        LibSqlDatabase::User => platform.user_relational(),
+        TursoDatabase::System => platform.relational(),
+        TursoDatabase::User => platform.user_relational(),
     }
     .ok_or("Database service not available")?;
 
@@ -202,7 +202,7 @@ pub async fn libsql_list_tables(
                 .and_then(|n| u64::try_from(n).ok())
                 .unwrap_or(0);
 
-            tables.push(LibSqlTableInfo {
+            tables.push(TursoTableInfo {
                 name: name.to_string(),
                 row_count: count,
             });
@@ -212,15 +212,15 @@ pub async fn libsql_list_tables(
     Ok(tables)
 }
 
-/// Execute a raw SQL query against a `LibSQL` database — devtools console.
+/// Execute a raw SQL query against a Turso database — devtools console.
 #[tauri::command]
 #[specta::specta]
-pub async fn libsql_query(
+pub async fn turso_query(
     state: State<'_, PlatformState>,
-    database: LibSqlDatabase,
+    database: TursoDatabase,
     sql: String,
-) -> Result<LibSqlQueryResult, String> {
-    tracing::info!(?database, sql_len = sql.len(), "cmd libsql_query: entry");
+) -> Result<TursoQueryResult, String> {
+    tracing::info!(?database, sql_len = sql.len(), "cmd turso_query: entry");
     // P0: lock-free atomic load.
     let platform = state
         .platform
@@ -228,8 +228,8 @@ pub async fn libsql_query(
         .ok_or("Platform is still booting")?;
 
     let svc = match &database {
-        LibSqlDatabase::System => platform.relational(),
-        LibSqlDatabase::User => platform.user_relational(),
+        TursoDatabase::System => platform.relational(),
+        TursoDatabase::User => platform.user_relational(),
     }
     .ok_or("Database service not available")?;
 
@@ -272,7 +272,7 @@ pub async fn libsql_query(
             .collect();
 
         let row_count = json_rows.len() as u64;
-        Ok(LibSqlQueryResult {
+        Ok(TursoQueryResult {
             columns: Vec::new(),
             rows_json: serde_json::to_string(&json_rows).unwrap_or_default(),
             row_count,
@@ -284,7 +284,7 @@ pub async fn libsql_query(
             .await
             .map_err(|e| format!("Execute failed: {e:#}"))?;
 
-        Ok(LibSqlQueryResult {
+        Ok(TursoQueryResult {
             columns: Vec::new(),
             rows_json: "[]".to_string(),
             row_count: 0,

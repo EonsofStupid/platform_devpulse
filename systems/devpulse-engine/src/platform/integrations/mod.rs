@@ -1,7 +1,7 @@
 //! Model Loader integration — implements consumer traits for `DevPulse`.
 //!
 //! This is where the self-enclosed `model-loader` crate meets `DevPulse`:
-//! - `LibSqlConfig` implements `ConfigBackend` using the platform's `LibSQL`
+//! - `TursoConfig` implements `ConfigBackend` using the platform's Turso
 //! - `TauriEventBridge` implements `LoaderEventSink` using Tauri events
 //! - `narration` maps `LoaderEvent` to Clyffy messages
 //! - Slot definitions come from `platform.default.toml` (SSOT)

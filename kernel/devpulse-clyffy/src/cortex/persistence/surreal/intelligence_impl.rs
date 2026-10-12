@@ -8,7 +8,7 @@
 //! `serde_json::Value` round-trip for the primary record shape, no
 //! session-state mutation across cloned `Surreal<Db>` handles.
 //!
-//! Future connectors (`surreal_cloud`, `libsql`, ...) live in
+//! Future connectors (`surreal_cloud`, `turso`, ...) live in
 //! sibling modules under `cortex::persistence::*` and implement the
 //! same trait, so engine boot can choose a backend behind
 //! `Arc<dyn IntelligenceStore>` without rebuilding the kernel.

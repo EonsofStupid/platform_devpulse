@@ -135,7 +135,7 @@ class ModelsState {
 
 	/**
 	 * Bind a discovered local model to `slotId`. The kernel persists the
-	 * choice to its libSQL kv store, validates capability compatibility,
+	 * choice to its Turso kv store, validates capability compatibility,
 	 * and publishes a newer `models` state on success — `reload` above
 	 * refreshes the local slot/model views so the UI flips immediately.
 	 *
@@ -157,7 +157,7 @@ class ModelsState {
 
 	/**
 	 * Clear the persisted model assignment on `slotId`. Removes the
-	 * libSQL `slot.<id>.model` key so the next app launch does NOT
+	 * Turso `slot.<id>.model` key so the next app launch does NOT
 	 * re-attempt the load. Use case: a stuck assignment whose load
 	 * crashes the backend — clear it once, the slot stays empty across
 	 * restarts until the user assigns a new model.

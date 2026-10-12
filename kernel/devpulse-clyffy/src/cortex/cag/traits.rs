@@ -6,7 +6,7 @@
 //! Implementations will be backed by:
 //!   - Candle (Qwen3-Embedding, Qwen3-Reranker)
 //!   - RRO (hybrid search with RRF fusion)
-//!   - `LibSQL` (document hydration)
+//!   - Turso (document hydration)
 //!
 //! These traits define WHAT each stage must do.
 //! HOW is deferred to concrete implementations.
@@ -101,11 +101,11 @@ pub trait ContextAssembler: Send + Sync {
 /// Document hydration — resolves vector store point IDs to full content.
 ///
 /// The vector store holds embeddings + minimal payload (preview, metadata).
-/// Hydration fetches the full document content from `LibSQL` for prompt injection.
+/// Hydration fetches the full document content from Turso for prompt injection.
 #[allow(async_fn_in_trait)]
 pub trait Hydrator: Send + Sync {
     /// Hydrate scored chunks with full document content.
     /// Input: scored chunks with IDs from vector search.
-    /// Output: retrieved chunks with full content from `LibSQL`.
+    /// Output: retrieved chunks with full content from Turso.
     async fn hydrate(&self, chunks: Vec<ScoredChunk>) -> Result<Vec<RetrievedChunk>>;
 }

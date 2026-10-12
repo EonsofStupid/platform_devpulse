@@ -17,10 +17,10 @@
 
 use super::model_loader_log::FileEventSink;
 use super::{Service, ServiceRole, ServiceState};
-use crate::platform::integrations::config::{LibSqlConfig, MemoryConfig};
+use crate::platform::integrations::config::{MemoryConfig, TursoConfig};
 use crate::signals::{ModelsReadiness, Signal, SignalSource, SignalVariant};
 use anyhow::Result;
-use devpulse_clyffy::cortex::persistence::LibSqlAdapter;
+use devpulse_clyffy::cortex::persistence::TursoAdapter;
 pub use devpulse_clyffy::model_loader::registry::LoadError;
 pub use devpulse_clyffy::model_loader::wizard::analytics::emit_event as emit_analytics_event;
 pub use devpulse_clyffy::model_loader::AudioSamples;
@@ -79,17 +79,17 @@ impl ModelLoaderService {
         events: Option<Arc<dyn devpulse_clyffy::model_loader::LoaderEventSink>>,
         models_dir: std::path::PathBuf,
         subdirs: Vec<String>,
-        libsql_adapter: Option<Arc<LibSqlAdapter>>,
+        turso_adapter: Option<Arc<TursoAdapter>>,
         burn_encoder_adapter: Option<
             devpulse_clyffy::model_loader::backends::burn_adapter::BurnEncoderAdapterArc,
         >,
     ) -> Result<(Self, Vec<Slot>)> {
         let log_path = data_dir.join("logs").join("model-loader.log");
         let config: Box<dyn devpulse_clyffy::model_loader::ConfigBackend> = if let Some(adapter) =
-            libsql_adapter
+            turso_adapter
         {
-            tracing::info!("Model Loader using LibSQL persistence (assignments survive restarts)");
-            Box::new(LibSqlConfig::new(adapter))
+            tracing::info!("Model Loader using Turso persistence (assignments survive restarts)");
+            Box::new(TursoConfig::new(adapter))
         } else {
             tracing::warn!("Model Loader using MemoryConfig (assignments lost on restart)");
             Box::new(MemoryConfig::new())

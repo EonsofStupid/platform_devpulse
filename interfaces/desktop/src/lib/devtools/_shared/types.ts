@@ -53,7 +53,7 @@ export interface CapturePayload {
 /**
  * A per-service domain-specific tab appended after the five standard
  * tabs. Use for tooling that only makes sense for one service
- * (e.g. LibSQL's SQL Console, SurrealDB's namespace selector).
+ * (e.g. Turso's SQL Console, SurrealDB's namespace selector).
  */
 export interface ExtraTab {
 	/** Unique tab id. Prefix with the module id if collisions are possible. */

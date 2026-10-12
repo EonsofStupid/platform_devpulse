@@ -8,8 +8,8 @@ use std::path::PathBuf;
 /// Database store types available in the platform
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum StoreKind {
-    /// `LibSQL` - relational data, users, settings, projects.
-    LibSql,
+    /// Turso - relational data, users, settings, projects.
+    Turso,
     /// `DuckDB` - analytics, user + AI metrics.
     DuckDb,
     /// `SurrealDB` - reasoning system graph.
@@ -24,7 +24,7 @@ impl StoreKind {
     /// Get the subdirectory name for this store
     pub fn subdir(&self) -> &'static str {
         match self {
-            StoreKind::LibSql => "libsql",
+            StoreKind::Turso => "turso",
             StoreKind::DuckDb => "duckdb",
             StoreKind::Surreal => "surreal",
             StoreKind::Moka => "",
@@ -35,7 +35,7 @@ impl StoreKind {
     /// Get the default filename for this store
     pub fn default_filename(&self) -> &'static str {
         match self {
-            StoreKind::LibSql => "platform.db",
+            StoreKind::Turso => "platform.db",
             StoreKind::DuckDb => "analytics.duckdb",
             StoreKind::Surreal => "reasoning",
             StoreKind::Moka => "",
@@ -82,7 +82,7 @@ impl PersistenceConfig {
     /// Returns error if directory creation fails.
     pub fn ensure_dirs(&self) -> std::io::Result<()> {
         for kind in [
-            StoreKind::LibSql,
+            StoreKind::Turso,
             StoreKind::DuckDb,
             StoreKind::Surreal,
             StoreKind::Rro,

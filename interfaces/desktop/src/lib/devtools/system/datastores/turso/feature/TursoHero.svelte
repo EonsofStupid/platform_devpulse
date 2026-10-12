@@ -1,8 +1,8 @@
 <!--
-	@component LibsqlHero
-	@module @devpulse/devtools/system/datastores/libsql/feature
+	@component TursoHero
+	@module @devpulse/devtools/system/datastores/turso/feature
 
-	LibSQL's hero visualization — a relational grid that ripples
+	Turso's hero visualization — a relational grid that ripples
 	left-to-right. Eighteen cells in a 6×3 layout, each carrying a
 	phase offset so a horizontal wave reads across the grid every
 	four seconds. Reads as "rows + tables alive."

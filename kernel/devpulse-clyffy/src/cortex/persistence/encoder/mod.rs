@@ -2,7 +2,7 @@
 //!
 //! Cross-encoder for the RRO trifecta. Scores query-document pairs for
 //! relevance after the embedder's broad ANN search narrows the candidate
-//! set. Lives next to its sibling deps (libsql, duckdb, moka, embedder,
+//! set. Lives next to its sibling deps (turso, duckdb, moka, embedder,
 //! rro) so the layman entry [`crate::cortex::rro`] composes the trifecta
 //! by linking these folders, not by storing them inline.
 //!

@@ -15,8 +15,8 @@
 
 pub mod config;
 pub mod handle;
-pub mod system_libsql;
+pub mod system_turso;
 
 pub use config::GrammarConfig;
 pub use handle::{GrammarFailure, GrammarHandle, GrammarKind, GrammarSnapshot, GrammarStatus};
-pub use system_libsql::{sync_grammar_service_from_config, GRAMMAR_SERVICE_PRIMARY_ID};
+pub use system_turso::{sync_grammar_service_from_config, GRAMMAR_SERVICE_PRIMARY_ID};

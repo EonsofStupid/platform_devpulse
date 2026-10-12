@@ -10,7 +10,7 @@ pub enum SinkKind {
     Broadcast,
     /// Cache layer (moka, fast access)
     Cache,
-    /// Durable storage (libsql)
+    /// Durable storage (turso)
     Durable,
     /// Vector service (embedding search)
     Vector,

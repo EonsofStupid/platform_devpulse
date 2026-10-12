@@ -689,7 +689,7 @@ impl ModelLoaderService {
     ///
     /// # Errors
     /// Returns [`LoaderError::ConfigBackend`] if the underlying
-    /// `ConfigBackend::set` call fails (libsql write error or memory-config
+    /// `ConfigBackend::set` call fails (turso write error or memory-config
     /// invariant violation).
     pub async fn mark_setup_complete(&self) -> Result<(), LoaderError> {
         let mut cfg = self.config.write().await;

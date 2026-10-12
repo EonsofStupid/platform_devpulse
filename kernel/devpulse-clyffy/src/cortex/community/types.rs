@@ -51,7 +51,7 @@ impl FeedKind {
 }
 
 /// A single community feed item, both as fetched from the remote
-/// endpoint and as stored in libSQL.
+/// endpoint and as stored in Turso.
 ///
 /// `payload_json` is the JSON-encoded form of the kind-specific payload
 /// shape. Kept as `String` (not `serde_json::Value`) so the type is

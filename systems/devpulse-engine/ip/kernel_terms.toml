@@ -491,19 +491,19 @@ severity = "hard"
 # keys a HashMap on it) — splits reuse distinct adapter-role names.
 
 [[terms]]
-kernel = "LibSqlSystemAdapter"
+kernel = "TursoSystemAdapter"
 engine = "System relational"
 prod = "System Data Store"
-dev = "LibSQL (system)"
+dev = "Turso (system)"
 category = "stores"
 context = ["logs", "traces", "ui-text"]
 severity = "hard"
 
 [[terms]]
-kernel = "LibSqlUserAdapter"
+kernel = "TursoUserAdapter"
 engine = "User relational"
 prod = "User Data Store"
-dev = "LibSQL (user)"
+dev = "Turso (user)"
 category = "stores"
 context = ["logs", "traces", "ui-text"]
 severity = "hard"

@@ -1,4 +1,4 @@
-//! Relational service wrapper (`LibSQL`).
+//! Relational service wrapper (Turso).
 //!
 //! Three scoped schemas:
 //! - **System**: platform config, guardian state (git/file drift),
@@ -11,13 +11,15 @@
 
 use super::{Service, ServiceRole, ServiceState};
 use anyhow::Result;
-use devpulse_clyffy::cortex::persistence::LibSqlAdapter;
-use std::path::Path;
+use devpulse_clyffy::cortex::persistence::{TursoAdapter, TursoOptions};
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
-/// Relational store backed by `LibSQL`.
+/// Relational store backed by Turso.
 pub struct RelationalService {
-    adapter: Arc<LibSqlAdapter>,
+    adapter: Arc<TursoAdapter>,
+    /// The database file this service opened.
+    path: PathBuf,
     /// Scoped name for health checks (e.g., "System relational", "User relational").
     label: &'static str,
 }
@@ -27,17 +29,28 @@ impl RelationalService {
     ///
     /// # Errors
     /// Returns error if the database cannot be opened or schema initialization fails.
-    pub async fn boot(path: &Path, schema: &str, label: &'static str) -> Result<Self> {
-        let adapter = LibSqlAdapter::open_with_schema(path, schema).await?;
+    pub async fn boot(
+        path: &Path,
+        schema: &str,
+        label: &'static str,
+        options: TursoOptions,
+    ) -> Result<Self> {
+        let adapter = TursoAdapter::open_with_schema(path, schema, options).await?;
         Ok(Self {
             adapter: Arc::new(adapter),
+            path: path.to_path_buf(),
             label,
         })
     }
 
     /// Get the underlying adapter for typed access.
-    pub fn adapter(&self) -> &Arc<LibSqlAdapter> {
+    pub fn adapter(&self) -> &Arc<TursoAdapter> {
         &self.adapter
+    }
+
+    /// The database file this service opened.
+    pub fn path(&self) -> &Path {
+        &self.path
     }
 }
 
@@ -59,7 +72,7 @@ impl Service for RelationalService {
     }
 
     async fn shutdown(&self) -> Result<()> {
-        tracing::info!(service = self.label, "Shutting down LibSQL service");
+        tracing::info!(service = self.label, "Shutting down Turso service");
         self.adapter.close().await;
         Ok(())
     }
@@ -671,10 +684,10 @@ CREATE TABLE IF NOT EXISTS knowledge_config (
 -- ── Vision Pipeline Frames ─────────────────────────────────────
 
 -- One row per captured frame the pipeline lands. Composite sink
--- writes to disk + libSQL + DuckDB; this table is the libSQL half.
+-- writes to disk + Turso + DuckDB; this table is the Turso half.
 -- `sink_path` mirrors the disk-sink path for that frame so a query
 -- here can locate the on-disk PNG; empty when disk sink is configured
--- out. `embedding_csv` is a comma-separated f32 list (libSQL has BLOB
+-- out. `embedding_csv` is a comma-separated f32 list (Turso has BLOB
 -- support but the SqlAdapter trait carries `&[&str]` params, and CSV
 -- round-trips cleanly).
 CREATE TABLE IF NOT EXISTS vision_frames (

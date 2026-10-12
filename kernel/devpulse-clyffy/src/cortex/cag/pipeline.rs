@@ -135,7 +135,7 @@ where
     pub sparse_encoder: S,
     /// Cross-encoder reranker (Qwen3-Reranker via Candle).
     pub reranker: R,
-    /// Document hydrator (`LibSQL` full-content fetch).
+    /// Document hydrator (Turso full-content fetch).
     pub hydrator: H,
     /// Token-budgeted context assembler.
     pub assembler: A,

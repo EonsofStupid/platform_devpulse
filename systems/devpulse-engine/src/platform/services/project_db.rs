@@ -1,4 +1,4 @@
-//! Per-project relational store (`LibSQL`).
+//! Per-project relational store (Turso).
 //!
 //! Each managed project gets its own `project.db` at
 //! `{project_root}/.userdata/project.db`. Created on demand when a project
@@ -11,32 +11,30 @@
 
 use super::relational::PROJECT_SCHEMA;
 use anyhow::{Context, Result};
-use devpulse_clyffy::cortex::persistence::{LibSqlAdapter, SqlAdapter};
+use devpulse_clyffy::cortex::persistence::{SqlAdapter, TursoAdapter, TursoOptions};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
-/// Manages per-project `LibSQL` databases.
+/// Manages per-project Turso databases.
 ///
 /// Thread-safe: `Arc<ProjectDbManager>` is stored in the `Platform`.
 /// Interior mutability via `RwLock<HashMap>` for lazy connection creation.
 pub struct ProjectDbManager {
     /// Open project databases, keyed by project ID (UUID string).
-    dbs: RwLock<HashMap<String, Arc<LibSqlAdapter>>>,
-}
-
-impl Default for ProjectDbManager {
-    fn default() -> Self {
-        Self::new()
-    }
+    dbs: RwLock<HashMap<String, Arc<TursoAdapter>>>,
+    /// Connection options applied to every project database.
+    options: TursoOptions,
 }
 
 impl ProjectDbManager {
-    /// Create a new empty manager.
-    pub fn new() -> Self {
+    /// Create a new empty manager; `options` come from the user relational
+    /// service configuration.
+    pub fn new(options: TursoOptions) -> Self {
         Self {
             dbs: RwLock::new(HashMap::new()),
+            options,
         }
     }
 
@@ -55,7 +53,7 @@ impl ProjectDbManager {
         project_id: &str,
         project_root: &Path,
         project_name: &str,
-    ) -> Result<Arc<LibSqlAdapter>> {
+    ) -> Result<Arc<TursoAdapter>> {
         let db_path = Self::db_path(project_root);
 
         tracing::info!(
@@ -64,7 +62,7 @@ impl ProjectDbManager {
             "Initializing project database"
         );
 
-        let adapter = LibSqlAdapter::open_with_schema(&db_path, PROJECT_SCHEMA)
+        let adapter = TursoAdapter::open_with_schema(&db_path, PROJECT_SCHEMA, self.options)
             .await
             .with_context(|| {
                 format!(
@@ -110,7 +108,7 @@ impl ProjectDbManager {
     /// Get an already-opened project database by ID.
     ///
     /// Returns `None` if the project hasn't been initialized yet.
-    pub async fn get(&self, project_id: &str) -> Option<Arc<LibSqlAdapter>> {
+    pub async fn get(&self, project_id: &str) -> Option<Arc<TursoAdapter>> {
         self.dbs.read().await.get(project_id).cloned()
     }
 
@@ -125,14 +123,14 @@ impl ProjectDbManager {
         &self,
         project_id: &str,
         project_root: &Path,
-    ) -> Result<Arc<LibSqlAdapter>> {
+    ) -> Result<Arc<TursoAdapter>> {
         let db_path = Self::db_path(project_root);
 
         if !db_path.exists() {
             anyhow::bail!("Project database does not exist at {}", db_path.display());
         }
 
-        let adapter = LibSqlAdapter::open_with_schema(&db_path, PROJECT_SCHEMA)
+        let adapter = TursoAdapter::open_with_schema(&db_path, PROJECT_SCHEMA, self.options)
             .await
             .with_context(|| format!("Failed to open project database at {}", db_path.display()))?;
 

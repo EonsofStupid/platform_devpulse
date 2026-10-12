@@ -155,8 +155,8 @@
     "tool": "system",
     "category": "storage",
     "tier": "intermediate",
-    "payload": { "term": "libSQL", "definition": "DevPulse's source-of-truth relational store (SQLite-compatible). Holds chat sessions, turns, slot assignments, and user preferences — anything that's structured + needs ACID." },
-    "tags": ["storage", "libsql", "sql"],
+    "payload": { "term": "Turso", "definition": "DevPulse's source-of-truth relational store — a pure-Rust, SQLite-compatible database. Holds chat sessions, turns, slot assignments, and user preferences — anything that's structured + needs ACID." },
+    "tags": ["storage", "turso", "sql"],
     "added": "2026-05-17"
   },
   {

@@ -93,7 +93,7 @@
         { "id": "bootstrap", "label": "Bootstrap log + crash safety", "detail": "Pre-logger panic hook + stderr redirect." },
         { "id": "data-dir", "label": "Resolve data_dir + logs_dir" },
         { "id": "logging", "label": "Init tracing subscriber + JSONL sink" },
-        { "id": "services", "label": "Bring up Layer-1 services", "detail": "libSQL, DuckDB, SurrealKV, Moka, Vector store." },
+        { "id": "services", "label": "Bring up Layer-1 services", "detail": "Turso, DuckDB, SurrealKV, Moka, Vector store." },
         { "id": "models", "label": "Scan model registry + restore slot assignments" },
         { "id": "ready", "label": "Emit READY — UI may render" }
       ],

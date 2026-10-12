@@ -10,7 +10,7 @@
 //!
 //! ## What it touches
 //!
-//! 1. **libSQL** — `{project_root}/.userdata/project.db`
+//! 1. **Turso** — `{project_root}/.userdata/project.db`
 //!    (file index, RAG chunks, signals, drift log)
 //! 2. **`DuckDB`** — `{project_root}/.userdata/analytics.duckdb`
 //!    (per-project OLAP telemetry — model calls, indexing,
@@ -30,10 +30,10 @@
 //!
 //! ## Failure model
 //!
-//! Each store fails independently. If libSQL succeeds and Surreal
-//! fails, the libSQL adapter is left open (cached on the manager) and
+//! Each store fails independently. If Turso succeeds and Surreal
+//! fails, the Turso adapter is left open (cached on the manager) and
 //! the call returns an error describing which store broke. Callers
-//! deciding whether to retry should consult [`ProjectScope::libsql`]
+//! deciding whether to retry should consult [`ProjectScope::turso`]
 //! et al. to know which pieces did land.
 //!
 //! ## Why a free function, not a method on `Platform`
@@ -45,7 +45,7 @@
 
 use anyhow::{Context, Result};
 use devpulse_clyffy::cortex::persistence::{
-    DuckDbAdapter, LibSqlAdapter, ScopedGraphHandle, SurrealAdapter,
+    DuckDbAdapter, ScopedGraphHandle, SurrealAdapter, TursoAdapter,
 };
 use std::path::Path;
 use std::sync::Arc;
@@ -69,7 +69,7 @@ pub struct ProjectInitConfig {
     /// Project root directory. `.userdata/` is created beneath it.
     pub project_root: std::path::PathBuf,
     /// Human-readable name. Seeded into `project_meta` rows on both
-    /// libSQL and `SurrealDB`.
+    /// Turso and `SurrealDB`.
     pub project_name: String,
     /// Per-project vector collection tuning. Only consulted when the
     /// `rro` feature is enabled.
@@ -82,8 +82,8 @@ pub struct ProjectInitConfig {
 /// Returned from [`init_project_full`] so callers don't re-fetch
 /// from the managers right after init.
 pub struct ProjectScope {
-    /// Per-project libSQL adapter (project.db).
-    pub libsql: Arc<LibSqlAdapter>,
+    /// Per-project Turso adapter (project.db).
+    pub relational: Arc<TursoAdapter>,
     /// Per-project `DuckDB` adapter (analytics.duckdb).
     pub analytics: Arc<DuckDbAdapter>,
     /// Scoped `SurrealDB` handle (`projects` / `proj_<id>`).
@@ -98,7 +98,7 @@ pub struct ProjectScope {
 /// Construction is verbose — `Platform::init_project_full` forwards
 /// its own field refs in. Hand-construction is for tests.
 pub struct ProjectInitContext<'a> {
-    /// Per-project libSQL manager — owns the `<id> → adapter` map
+    /// Per-project Turso manager — owns the `<id> → adapter` map
     /// and lazy-loads `project.db` on first lookup.
     pub project_db: &'a Arc<ProjectDbManager>,
     /// Per-project `DuckDB` manager — owns the analytics adapter map.
@@ -130,7 +130,7 @@ pub struct ProjectInitContext<'a> {
 ///
 /// # Tracing
 ///
-/// Emits one INFO span per store (`project_init.libsql`,
+/// Emits one INFO span per store (`project_init.relational`,
 /// `project_init.analytics`, `project_init.graph`,
 /// `project_init.vector`) plus a wrapping INFO span
 /// `project_init.full` so the devtool log surface can replay the
@@ -152,13 +152,13 @@ pub async fn init_project_full(
     let project_name = config.project_name.as_str();
     let project_root: &Path = config.project_root.as_path();
 
-    // ── libSQL ────────────────────────────────────────────────────
-    let libsql = {
-        let _s = tracing::info_span!("project_init.libsql").entered();
+    // ── Turso ────────────────────────────────────────────────────
+    let relational = {
+        let _s = tracing::info_span!("project_init.relational").entered();
         cx.project_db
             .init_project(project_id, project_root, project_name)
             .await
-            .context("project init: libSQL")?
+            .context("project init: Turso")?
     };
 
     // ── DuckDB analytics ──────────────────────────────────────────
@@ -198,7 +198,7 @@ pub async fn init_project_full(
     tracing::info!("Per-project init complete");
 
     Ok(ProjectScope {
-        libsql,
+        relational,
         analytics,
         graph,
         #[cfg(feature = "rro")]

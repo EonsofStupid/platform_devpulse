@@ -34,7 +34,7 @@ pub struct ScopedLogEntry {
     /// Log level: `TRACE` / `DEBUG` / `INFO` / `WARN` / `ERROR`.
     pub level: String,
     /// Tracing target — e.g. `devtools.claude`, `mcp_stdio_server`,
-    /// `claude::mcp::tools::query_libsql`.
+    /// `claude::mcp::tools::query_database`.
     pub target: String,
     /// Human-readable message from the JSONL `fields.message` field.
     /// Empty string if the entry was a span event without a message.

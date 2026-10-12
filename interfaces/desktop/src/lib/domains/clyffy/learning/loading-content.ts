@@ -15,7 +15,7 @@
  *
  * Content lives as a static array so Vite tree-shakes unused kinds
  * automatically. Future kernel-backed version will stream these from
- * libSQL / SurrealDB so Clyffy can adapt based on what the user is
+ * Turso / SurrealDB so Clyffy can adapt based on what the user is
  * doing (contextual DYK: "Did you know the model you just loaded
  * was trained on...").
  *

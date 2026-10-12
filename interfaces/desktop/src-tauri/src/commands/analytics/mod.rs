@@ -4,7 +4,7 @@
 //! The event vocabulary is owned by `model_loader::wizard::analytics`
 //! so the same Rust enum drives both the frontend SDK (via specta
 //! codegen) and the backend emit sites. Today this module is the only
-//! ingestion endpoint; future enhancements (libSQL persistence,
+//! ingestion endpoint; future enhancements (Turso persistence,
 //! Supabase batch upload, devtool analytics inspector) hang off the
 //! same Tauri command — the surface stays stable.
 

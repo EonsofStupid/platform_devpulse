@@ -33,7 +33,7 @@
  *
  * # Why URLs mirror tier/bucket
  *
- * `/devtools/system/datastores/libsql` reads as a sentence — the
+ * `/devtools/system/datastores/turso` reads as a sentence — the
  * customer always knows where they are in the hierarchy. Renaming
  * a bucket is a registry edit + a folder rename, both deterministic.
  */
@@ -113,11 +113,11 @@ export const DEVTOOL_BUCKET_ICONS: BucketIcons = {
 export const DEVTOOL_REGISTRY: DevtoolMeta[] = [
 	// ── System / Datastores ──────────────────────────────────
 	{
-		id: "libsql",
+		id: "turso",
 		tier: "system",
 		bucket: "datastores",
-		route: "/devtools/system/datastores/libsql",
-		label: "LibSQL",
+		route: "/devtools/system/datastores/turso",
+		label: "Turso",
 		blurb: "Relational engine. System + user stores. WAL, schema, queries.",
 		icon: Database,
 	},
@@ -164,7 +164,7 @@ export const DEVTOOL_REGISTRY: DevtoolMeta[] = [
 		bucket: "datastores",
 		route: "/devtools/system/datastores/project-db",
 		label: "Project DB",
-		blurb: "Per-project LibSQL. Lazy-loaded, on-demand.",
+		blurb: "Per-project Turso. Lazy-loaded, on-demand.",
 		icon: FileText,
 	},
 

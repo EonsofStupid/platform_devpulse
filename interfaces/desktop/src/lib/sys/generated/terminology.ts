@@ -1,6 +1,6 @@
 /**
  * AUTO-GENERATED from kernel_terms.toml — DO NOT EDIT
- * Generated: 2026-10-12T12:35:01.023Z
+ * Generated: 2026-10-16T01:55:29.415Z
  * Source: systems/devpulse-engine/ip/kernel_terms.toml
  *
  * Regenerate: pnpm generate:terminology
@@ -355,14 +355,14 @@ export const TERMS: Record<string, Term> = {
 	"System relational": {
 		engine: "System relational",
 		prod: "System Data Store",
-		dev: "LibSQL (system)",
+		dev: "Turso (system)",
 		category: "stores",
 		context: ["logs","traces","ui-text"],
 	},
 	"User relational": {
 		engine: "User relational",
 		prod: "User Data Store",
-		dev: "LibSQL (user)",
+		dev: "Turso (user)",
 		category: "stores",
 		context: ["logs","traces","ui-text"],
 	},

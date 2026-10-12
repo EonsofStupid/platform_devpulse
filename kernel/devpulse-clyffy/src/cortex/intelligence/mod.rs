@@ -1,7 +1,7 @@
 //! Abstract intelligence layer — connector-agnostic memory + reasoning
 //! types, schema, routing, and the [`IntelligenceStore`] trait.
 //!
-//! This module knows NOTHING about SurrealDB, LibSQL, or any other
+//! This module knows NOTHING about SurrealDB, Turso, or any other
 //! backend. Connectors under `cortex::persistence::<backend>::*`
 //! implement [`IntelligenceStore`] against their own storage layer.
 //! The engine wires a chosen connector behind `Arc<dyn IntelligenceStore>`

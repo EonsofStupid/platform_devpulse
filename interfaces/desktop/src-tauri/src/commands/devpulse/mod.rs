@@ -1,6 +1,6 @@
 //! `DevPulse` dashboard commands — real data from services.
 //!
-//! Queries `LibSQL` (projects, sessions, messages) and `DuckDB` (`daily_stats`)
+//! Queries Turso (projects, sessions, messages) and `DuckDB` (`daily_stats`)
 //! to populate the `DevPulse` dashboard with live data.
 
 pub mod profile;
@@ -11,7 +11,7 @@ use serde::Serialize;
 use specta::Type;
 use tauri::State;
 
-/// A project row from `LibSQL` — maps 1:1 to the `projects` table.
+/// A project row from Turso — maps 1:1 to the `projects` table.
 #[derive(Debug, Serialize, Type)]
 pub struct ProjectRow {
     /// Application-generated string key, not a DB auto-increment.
@@ -54,7 +54,7 @@ pub struct CacheStats {
     pub max_capacity: u64,
 }
 
-/// Aggregate counts from `LibSQL` — cheap `COUNT(*)` queries, not row scans.
+/// Aggregate counts from Turso — cheap `COUNT(*)` queries, not row scans.
 #[derive(Debug, Serialize, Type)]
 pub struct MessageStats {
     /// All messages ever stored. Includes both user and assistant roles.
@@ -65,7 +65,7 @@ pub struct MessageStats {
 
 /// Single IPC response for the dashboard route. Assembles data from all services.
 ///
-/// `LibSQL` may be unavailable during early boot — fields fall back to empty/zero.
+/// Turso may be unavailable during early boot — fields fall back to empty/zero.
 #[derive(Debug, Serialize, Type)]
 pub struct DashboardPayload {
     /// Most recently accessed projects, hard-capped at 8. Sorted by `last_accessed DESC`.
@@ -76,7 +76,7 @@ pub struct DashboardPayload {
     pub daily_stats: Vec<DailyStatsRow>,
     /// Both fields zero if the Moka service hasn't initialized yet.
     pub cache_stats: CacheStats,
-    /// Both fields zero if `LibSQL` is unavailable.
+    /// Both fields zero if Turso is unavailable.
     pub message_stats: MessageStats,
     /// Wall-clock seconds since `Platform::new()`. Monotonic, never resets.
     pub uptime_secs: u64,
@@ -85,7 +85,7 @@ pub struct DashboardPayload {
 /// Fetch dashboard data from all services.
 ///
 /// Queries:
-/// - `LibSQL`: projects (recent 8), project count, message/session counts
+/// - Turso: projects (recent 8), project count, message/session counts
 /// - `DuckDB`: `daily_stats` (last 20 days)
 /// - Moka: cache stats (entry count / capacity)
 #[tauri::command]
@@ -98,7 +98,7 @@ pub async fn fetch_dashboard(state: State<'_, PlatformState>) -> Result<Dashboar
         .load_full()
         .ok_or("Platform is still booting")?;
 
-    // ── LibSQL queries ───────────────────────────────────────────────────
+    // ── Turso queries ───────────────────────────────────────────────────
     let (projects, project_count, message_stats) = if let Some(svc) = platform.user_relational() {
         let adapter = svc.adapter();
 

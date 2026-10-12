@@ -55,9 +55,9 @@ impl ServerHandler for DevPulseMcpServer {
 // Tool parameter structs (schemars-derived for MCP schema gen)
 // ═══════════════════════════════════════════════════════════════
 
-/// Parameters for `query_libsql` tool.
+/// Parameters for `query_database` tool.
 #[derive(Deserialize, schemars::JsonSchema, Default)]
-struct QueryLibsqlParams {
+struct QueryDatabaseParams {
     /// SQL query (SELECT or WITH only).
     sql: String,
     /// Database scope: "system" or "user".
@@ -107,14 +107,14 @@ impl DevPulseMcpServer {
         )]))
     }
 
-    /// Query `LibSQL` database (read-only). Returns JSON rows.
-    #[tool(description = "Execute a read-only SQL query against libSQL (SELECT/WITH only)")]
-    async fn query_libsql(
+    /// Query Turso database (read-only). Returns JSON rows.
+    #[tool(description = "Execute a read-only SQL query against Turso (SELECT/WITH only)")]
+    async fn query_database(
         &self,
-        Parameters(params): Parameters<QueryLibsqlParams>,
+        Parameters(params): Parameters<QueryDatabaseParams>,
     ) -> Result<CallToolResult, rmcp::ErrorData> {
         let scope = params.scope.as_deref().unwrap_or("user");
-        let result = tools::query_libsql::execute(&self.platform, &params.sql, scope).await;
+        let result = tools::query_database::execute(&self.platform, &params.sql, scope).await;
         let is_error = result.starts_with("ERROR:");
         if is_error {
             Ok(CallToolResult::error(vec![rmcp::model::Content::text(

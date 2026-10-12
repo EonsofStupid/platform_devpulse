@@ -1,7 +1,7 @@
-//! Boot-time + remote sync — upserts knowledge entries into libSQL.
+//! Boot-time + remote sync — upserts knowledge entries into Turso.
 //!
 //! Two callers:
-//! 1. [`sync_to_libsql`]   — embedded artifacts on every boot
+//! 1. [`sync_to_database`]   — embedded artifacts on every boot
 //! 2. [`sync_remote_entries`] — entries fetched from a remote manifest
 //!    by the desktop tier (HTTP lives there, kernel stays network-free)
 //!
@@ -15,7 +15,7 @@ use super::loader;
 use super::types::KnowledgeEntry;
 use crate::cortex::persistence::SqlAdapter;
 
-/// Sync embedded knowledge entries into libSQL.
+/// Sync embedded knowledge entries into Turso.
 ///
 /// Called during boot after user relational is ready. Delegates to
 /// [`sync_entries`] after loading the embedded manifest + data.
@@ -24,7 +24,7 @@ use crate::cortex::persistence::SqlAdapter;
 /// Returns an error if the embedded manifest cannot be parsed, the
 /// data files cannot be loaded, or the underlying upsert/version
 /// write fails.
-pub async fn sync_to_libsql(adapter: &dyn SqlAdapter) -> Result<usize, String> {
+pub async fn sync_to_database(adapter: &dyn SqlAdapter) -> Result<usize, String> {
     let manifest =
         loader::load_manifest().map_err(|e| format!("Knowledge manifest parse failed: {e}"))?;
     let entries = loader::load_all()?;

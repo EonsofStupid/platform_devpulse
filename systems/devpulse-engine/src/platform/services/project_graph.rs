@@ -176,7 +176,7 @@ DEFINE FIELD IF NOT EXISTS name ON project_meta TYPE string;
 DEFINE FIELD IF NOT EXISTS created_at ON project_meta TYPE datetime DEFAULT time::now();
 DEFINE INDEX IF NOT EXISTS project_meta_uuid ON project_meta FIELDS project_id UNIQUE;
 
--- Signal-routed key-value store (mirrors libsql kv_store shape).
+-- Signal-routed key-value store (mirrors turso kv_store shape).
 DEFINE TABLE IF NOT EXISTS kv SCHEMAFULL;
 DEFINE FIELD IF NOT EXISTS key ON kv TYPE string;
 DEFINE FIELD IF NOT EXISTS value ON kv TYPE bytes;

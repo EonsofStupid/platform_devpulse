@@ -1,35 +1,35 @@
 /**
- * @file LibSQL State Rune — reactive state for devtools.
- * @module @devpulse/domains/infra/libsql/data-access/libsql.state
+ * @file Turso State Rune — reactive state for devtools.
+ * @module @devpulse/domains/infra/turso/data-access/turso.state
  */
 
 import type {
-	LibSqlDatabase,
-	LibSqlHealthAll,
-	LibSqlQueryResult,
-	LibSqlTab,
-	LibSqlTableInfo,
-} from "../util/libsql.types.js";
-import { libsqlHealthAll, libsqlListTables, libsqlQuery } from "./libsql.svc.js";
+	TursoDatabase,
+	TursoHealthAll,
+	TursoQueryResult,
+	TursoTab,
+	TursoTableInfo,
+} from "../util/turso.types.js";
+import { tursoHealthAll, tursoListTables, tursoQuery } from "./turso.service.js";
 
-class LibSqlState {
+class TursoState {
 	// ── Tab + namespace ─────────────────────────────────────
-	activeTab = $state<LibSqlTab>("health");
-	activeDatabase = $state<LibSqlDatabase>("System");
+	activeTab = $state<TursoTab>("health");
+	activeDatabase = $state<TursoDatabase>("System");
 
 	// ── Health ──────────────────────────────────────────────
-	health = $state<LibSqlHealthAll | null>(null);
+	health = $state<TursoHealthAll | null>(null);
 	healthLoading = $state(false);
 	healthError = $state<string | null>(null);
 
 	// ── Tables ──────────────────────────────────────────────
-	tables = $state<LibSqlTableInfo[]>([]);
+	tables = $state<TursoTableInfo[]>([]);
 	tablesLoading = $state(false);
 	tablesError = $state<string | null>(null);
 
 	// ── Console ─────────────────────────────────────────────
 	queryInput = $state("");
-	queryResult = $state<LibSqlQueryResult | null>(null);
+	queryResult = $state<TursoQueryResult | null>(null);
 	queryLoading = $state(false);
 	queryError = $state<string | null>(null);
 	queryHistory = $state<string[]>([]);
@@ -40,11 +40,11 @@ class LibSqlState {
 	}
 
 	// ── Actions ─────────────────────────────────────────────
-	setTab(tab: LibSqlTab): void {
+	setTab(tab: TursoTab): void {
 		this.activeTab = tab;
 	}
 
-	setDatabase(db: LibSqlDatabase): void {
+	setDatabase(db: TursoDatabase): void {
 		this.activeDatabase = db;
 		this.tables = [];
 		this.queryResult = null;
@@ -54,7 +54,7 @@ class LibSqlState {
 		this.healthLoading = true;
 		this.healthError = null;
 		try {
-			this.health = await libsqlHealthAll();
+			this.health = await tursoHealthAll();
 		} catch (e) {
 			this.healthError = e instanceof Error ? e.message : String(e);
 		} finally {
@@ -66,7 +66,7 @@ class LibSqlState {
 		this.tablesLoading = true;
 		this.tablesError = null;
 		try {
-			this.tables = await libsqlListTables(this.activeDatabase);
+			this.tables = await tursoListTables(this.activeDatabase);
 		} catch (e) {
 			this.tablesError = e instanceof Error ? e.message : String(e);
 		} finally {
@@ -82,7 +82,7 @@ class LibSqlState {
 		this.queryError = null;
 		this.queryResult = null;
 		try {
-			this.queryResult = await libsqlQuery(this.activeDatabase, sql);
+			this.queryResult = await tursoQuery(this.activeDatabase, sql);
 			if (!this.queryHistory.includes(sql)) {
 				this.queryHistory = [sql, ...this.queryHistory.slice(0, 19)];
 			}
@@ -103,4 +103,4 @@ class LibSqlState {
 	}
 }
 
-export const libsqlState = new LibSqlState();
+export const tursoState = new TursoState();

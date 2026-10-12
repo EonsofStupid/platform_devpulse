@@ -26,7 +26,7 @@
 //! Wiring the backend emit sites into the existing scan / load / activate
 //! call sites is a follow-up slice — `emit_event` is the integration
 //! point. Today's shell records via `tracing::info!` only; future
-//! enhancement: persist to libSQL `analytics_events`, batch-upload to
+//! enhancement: persist to Turso `analytics_events`, batch-upload to
 //! Supabase via the signed-in user's RLS-scoped insert.
 
 use serde::{Deserialize, Serialize};

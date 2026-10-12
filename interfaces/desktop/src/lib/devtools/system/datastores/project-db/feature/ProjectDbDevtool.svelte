@@ -2,7 +2,7 @@
 	@file ProjectDbDevtool.svelte
 	@module @devpulse/devtools/system/datastores/project-db
 
-	Per-project LibSQL database manager. Wired against the real
+	Per-project Turso database manager. Wired against the real
 	`project_db_*` Tauri commands:
 	- init_project_db
 	- project_db_health
@@ -193,7 +193,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 
 <ServiceDevtoolShell
 	title="Project DB"
-	description="Per-project LibSQL instances · lazy-loaded"
+	description="Per-project Turso instances · lazy-loaded"
 	icon={FolderTree}
 	axis="stores"
 	accent="cyan"

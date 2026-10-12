@@ -756,3 +756,35 @@ queries proving what was written.
 
   Note: a dev DuckDB seeded before this change still holds the invented
   `daily_stats` rows; they are removable from the database devtool (T7).
+- 2026-10-12 — **A1 T1–T4 done: DevPulse runs on Turso.**
+  - `turso` 0.8.3, the current stable release, replaces `libsql`. It is set
+    `default-features = false`: the default `mimalloc` feature installs a
+    `#[global_allocator]` from inside the library and compiles C. `fts` stays on.
+  - The adapter is rewritten as `TursoAdapter` (no alias).
+  - **Live finding:** Turso runs one operation per connection ("concurrent use
+    forbidden" hit `list_projects` on the first boot). The adapter now holds the
+    pooled `Database` and opens a connection per operation; query paths hold
+    the connection until their rows are read. Each connection gets
+    `busy_timeout_ms` from the service config (default suggestion 5000).
+  - Regression test: 32 overlapping tasks through one adapter.
+  - The adapter reads every column of a row (`column_count()`); the old reader
+    probed up to 32 columns and silently truncated wider rows.
+  - **Build finding:** adding Turso bumped `cc` 1.2 → 1.8, and since 1.5
+    `sccache` mis-parses MSVC's separate `-Tp` argument (mozilla/sccache#2062,
+    still open). `cc` is held at `~1.4.7` in `xtask/Cargo.toml`, the floor Turso
+    needs, with the issue link to lift it.
+  - Every libSQL name is renamed across Rust, TS, config, the devtool and the
+    infra domain:
+    - types, commands, the `query_database` MCP tool, config `kind = "turso"`;
+    - DB paths `.userdata/{system,user}/turso/`, with the files moved intact,
+      WAL included;
+    - knowledge content, IP terms.
+  - The devtool's health now reports the path the service actually opened
+    (it was hardcoded).
+
+  Verified:
+  - clippy `-D warnings` clean; adapter tests 3/3; `pnpm check` 0 errors;
+  - live boot: both stores open at the new paths, the model loader reads its
+    persisted assignment through Turso (models=12 assigned=1, unchanged),
+    READY with only the known boot-race errors (`get_status` /
+    `get_assistant_config` called before READY — fixed in A6).

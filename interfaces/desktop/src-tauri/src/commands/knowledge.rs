@@ -162,7 +162,7 @@ pub enum KnowledgeSyncResult {
 }
 
 /// Pull the latest knowledge catalog from the configured Supabase
-/// Storage bucket and upsert into libSQL.
+/// Storage bucket and upsert into Turso.
 ///
 /// URL convention (public bucket, anon-keyed read):
 ///

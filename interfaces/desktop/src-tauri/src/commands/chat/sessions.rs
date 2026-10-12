@@ -1,4 +1,4 @@
-//! Session listing, deletion, history wipe, and export for chat (user `LibSQL` / `turns` SSOT).
+//! Session listing, deletion, history wipe, and export for chat (user Turso / `turns` SSOT).
 
 use crate::state::PlatformState;
 use devpulse_engine::platform::{SqlAdapter, SqlValue};

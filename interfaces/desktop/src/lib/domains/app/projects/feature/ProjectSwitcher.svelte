@@ -8,7 +8,7 @@
 
 	Single source of truth is the `projectsState` rune module; this
 	component reads `activeProject`, `projects`, and emits command
-	calls on click. Every mutation triggers a refresh from libSQL so
+	calls on click. Every mutation triggers a refresh from Turso so
 	the UI never drifts from the backend SSOT.
 -->
 <script lang="ts">

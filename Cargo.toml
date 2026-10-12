@@ -36,7 +36,12 @@ specta = { version = "=2.0.0-rc.22", features = ["derive", "function", "uuid"] }
 specta-typescript = "0.0.9"
 
 # Platform Data (The "Muscle")
-libsql = "0.9"
+# Turso — DevPulse's SSOT database (owner decision 2026-07-01). Pure Rust,
+# SQLite-file compatible, MVCC (`BEGIN CONCURRENT`), vector search.
+# `default-features = false`: the default `mimalloc` feature installs a
+# `#[global_allocator]` from inside the library (and compiles C). DevPulse keeps
+# its own process allocator; full-text search stays on.
+turso = { version = "0.8.3", default-features = false, features = ["fts"] }
 duckdb = { version = "1.10506", features = ["bundled"] }
 surrealdb = { version = "3.0", default-features = false, features = ["kv-surrealkv"] }
 moka = { version = "0.12", features = ["future"] }

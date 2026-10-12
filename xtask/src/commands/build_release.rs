@@ -13,7 +13,7 @@
 //!
 //! This is the dogfood build. When it runs, the owner has a portable
 //! app they can launch and actually use, and every subsequent sprint
-//! phase gains live ground truth (`SurrealDB` on :8822, libSQL
+//! phase gains live ground truth (`SurrealDB` on :8822, Turso
 //! `platform.db`, `DuckDB` `analytics.duckdb`) to verify against.
 //!
 //! # Differences vs `RunDev`

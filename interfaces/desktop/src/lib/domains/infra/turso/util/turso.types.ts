@@ -1,18 +1,18 @@
 /**
- * @file LibSQL Types — re-exported from specta bindings.
- * @module @devpulse/domains/infra/libsql/util/libsql.types
+ * @file Turso Types — re-exported from specta bindings.
+ * @module @devpulse/domains/infra/turso/util/turso.types
  */
 
 export type {
-	LibSqlDatabase,
-	LibSqlHealth,
-	LibSqlHealthAll,
-	LibSqlQueryResult,
-	LibSqlTableInfo,
+	TursoDatabase,
+	TursoHealth,
+	TursoHealthAll,
+	TursoQueryResult,
+	TursoTableInfo,
 } from "$lib/sys/generated/bindings.js";
 
 /** Devtool tab identifiers. */
-export type LibSqlTab = "health" | "tables" | "console";
+export type TursoTab = "health" | "tables" | "console";
 
 /** Database selector options. */
 export interface DatabaseOption {

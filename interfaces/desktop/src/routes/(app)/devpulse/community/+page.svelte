@@ -11,7 +11,7 @@
 	  corresponding tables ship — kept so the surface area is visible)
 
 	The friends/groups counts come from `devpulseState.data.community`
-	(static zeros today). They WILL be wired to libSQL `friends` /
+	(static zeros today). They WILL be wired to Turso `friends` /
 	`groups` tables when those land alongside the auth/contribution flow.
 -->
 <script lang="ts">

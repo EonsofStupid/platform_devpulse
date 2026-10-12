@@ -1,4 +1,4 @@
-//! Chat commands — `turns` + `sessions` SSOT in user-scoped `LibSQL`.
+//! Chat commands — `turns` + `sessions` SSOT in user-scoped Turso.
 
 pub mod history;
 pub mod interactions;

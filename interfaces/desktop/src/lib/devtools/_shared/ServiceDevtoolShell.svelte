@@ -22,13 +22,13 @@ import { ServiceDevtoolShell } from "$lib/devtools/_shared/index.js";
 </script>
 
 	<ServiceDevtoolShell
-		title="LibSQL"
+		title="Turso"
 		description="System + User relational store"
 		icon={Database}
 		axis="stores"
 		health={{ state: "up", label: "Running" }}
 		capture={(tabId) => tabId === "logs"
-			? { filename: "libsql-logs.txt", mime: "text/plain", content: logTail }
+			? { filename: "turso-logs.txt", mime: "text/plain", content: logTail }
 			: undefined}
 	>
 		{#snippet status()}<p>Latency: 2ms. Last check: just now.</p>{/snippet}
@@ -41,7 +41,7 @@ import { ServiceDevtoolShell } from "$lib/devtools/_shared/index.js";
 
 	# Extra tabs
 
-	A service with domain-specific tooling (e.g. LibSQL's SQL console,
+	A service with domain-specific tooling (e.g. Turso's SQL console,
 	SurrealDB's query browser) can pass `extraTabs` plus matching
 	snippet slots. The shell renders them after the five standard tabs.
 
@@ -74,7 +74,7 @@ import { ServiceDevtoolShell } from "$lib/devtools/_shared/index.js";
 	import type { CapturePayload, ExtraTab, HealthBadge, ServiceAxis } from "./types.js";
 
 	interface Props {
-		/** Display name in the header (e.g. "LibSQL"). */
+		/** Display name in the header (e.g. "Turso"). */
 		title: string;
 		/** One-line description under the title. */
 		description?: string;

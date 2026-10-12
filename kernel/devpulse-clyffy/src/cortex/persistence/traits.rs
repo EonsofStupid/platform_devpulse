@@ -114,7 +114,7 @@ pub trait TypedPersistence: PersistenceAdapter {
 // Blanket impl for all PersistenceAdapters
 impl<T: PersistenceAdapter> TypedPersistence for T {}
 
-/// SQL query interface for relational stores (`LibSQL`, `DuckDB`).
+/// SQL query interface for relational stores (Turso, `DuckDB`).
 ///
 /// Uses `#[async_trait]` so the trait is dyn-compatible — callers accept
 /// `&dyn SqlAdapter` rather than hard-coding the concrete adapter type.

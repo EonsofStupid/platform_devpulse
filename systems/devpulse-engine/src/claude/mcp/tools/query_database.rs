@@ -1,4 +1,4 @@
-//! MCP tool: `query_libsql` — read-only SQL against libSQL.
+//! MCP tool: `query_database` — read-only SQL against Turso.
 //!
 //! SELECT only — write operations rejected at the tool level.
 //! Scans full query for write keywords (CTE-safe, string-literal-safe).
@@ -7,7 +7,7 @@ use crate::platform::{Platform, SqlAdapter};
 
 use super::rows_to_json;
 
-/// Execute a read-only SQL query against libSQL.
+/// Execute a read-only SQL query against Turso.
 ///
 /// Security: blocks INSERT/UPDATE/DELETE/DROP/ALTER/CREATE and 9 other
 /// write keywords. Strips string literals before scanning to prevent
@@ -41,7 +41,7 @@ pub async fn execute(platform: &Platform, sql: &str, scope: &str) -> String {
 
     let adapter = match service {
         Some(svc) => svc.adapter().clone(),
-        None => return format!("ERROR: LibSQL {scope} service not available"),
+        None => return format!("ERROR: Turso {scope} service not available"),
     };
 
     let params: Vec<&str> = Vec::new();

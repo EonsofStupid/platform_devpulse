@@ -2,7 +2,7 @@
 //!
 //! # Architecture
 //! This file is the **orchestrator only**. Each service has its own boot file:
-//! - [`relational`] — `LibSQL` (system + user)
+//! - [`relational`] — Turso (system + user)
 //! - [`analytics`] — `DuckDB`
 //! - [`graph`] — `SurrealDB` (consolidated: system + user + global namespaces)
 //! - [`cache`] — Moka
@@ -15,14 +15,14 @@
 //!
 //! # Boot Sequence
 //!  1. **Preflight** — validate config, create directory hierarchy
-//!  2. **System relational** (`LibSQL`) — CRITICAL
+//!  2. **System relational** (Turso) — CRITICAL
 //!  3. **System analytics** (`DuckDB`) — CRITICAL
 //!  4. **Graph store** (`SurrealDB`) — CRITICAL ─┐
 //!     **Model Loader** — feature-gated ────────┘ PARALLEL (zero shared dependency)
 //!  5. **System cache** (Moka) — CRITICAL
-//!  6. **User relational** (`LibSQL`) — CRITICAL
+//!  6. **User relational** (Turso) — CRITICAL
 //!  7. **Vector store** (RRO) — feature-gated
-//!  9. **Grammar** — kernel persists `grammar_service` row to system `LibSQL`
+//!  9. **Grammar** — kernel persists `grammar_service` row to system Turso
 //! 10. **Validation** — verify all critical services (config-driven)
 //!
 //! `DevForge` (VS Code REH) is **not** a boot-time service. It's lazy-started
@@ -154,7 +154,7 @@ pub async fn execute(
 /// Inner boot pipeline — called by `execute()` under a timeout guard.
 ///
 /// Length: orchestrates ~6 sequential boot stages (preflight,
-/// telemetry, libsql, surreal, ollama, model-loader). Splitting into
+/// telemetry, turso, surreal, ollama, model-loader). Splitting into
 /// per-stage helpers fragments the linear flow and obscures the
 /// timeout boundary `execute()` wraps it in. Each stage already owns
 /// its own logic in a sibling module; this function is the conductor.
@@ -182,8 +182,8 @@ async fn execute_inner(
     on_event(InitEvent::ok("preflight", "Directories ready"));
     boot_log.ok("preflight", "directories ready");
 
-    // ── Stage 2: System relational (LibSQL) — CRITICAL ────────
-    let spin = boot_log.running("System relational", "connecting LibSQL...");
+    // ── Stage 2: System relational (Turso) — CRITICAL ────────
+    let spin = boot_log.running("System relational", "connecting Turso...");
     let system_relational = relational::boot(
         data_dir,
         &boot_config.services.system.relational,
@@ -269,8 +269,8 @@ async fn execute_inner(
     // ── Stage 5: System cache (Moka) ──────────────────────────
     let system_cache = cache::boot(&boot_config.services.system.cache, on_event, boot_log);
 
-    // ── Stage 6: User relational (LibSQL) ─────────────────────
-    let spin = boot_log.running("User relational", "connecting LibSQL...");
+    // ── Stage 6: User relational (Turso) ─────────────────────
+    let spin = boot_log.running("User relational", "connecting Turso...");
     let user_relational = relational::boot(
         data_dir,
         &boot_config.services.user.relational,
@@ -283,11 +283,12 @@ async fn execute_inner(
     .await;
 
     // ── Stage 6b: Knowledge library sync ──────────────────────
-    // Syncs embedded JSON artifacts into user libSQL. Fast path
+    // Syncs embedded JSON artifacts into user Turso. Fast path
     // skips if manifest version matches stored version.
     if let Some(ref user_svc) = user_relational {
         let _kspin = boot_log.running("Knowledge sync", "syncing knowledge library...");
-        match devpulse_clyffy::cortex::knowledge::sync_to_libsql(user_svc.adapter().as_ref()).await
+        match devpulse_clyffy::cortex::knowledge::sync_to_database(user_svc.adapter().as_ref())
+            .await
         {
             Ok(count) => {
                 if count > 0 {
@@ -347,7 +348,7 @@ async fn execute_inner(
 
     drop(spin);
 
-    // ── Stage 9: Grammar — system LibSQL row (kernel-owned contract) ───
+    // ── Stage 9: Grammar — system Turso row (kernel-owned contract) ───
     if let Some(svc) = &system_relational {
         on_event(InitEvent::running(
             "Grammar service",

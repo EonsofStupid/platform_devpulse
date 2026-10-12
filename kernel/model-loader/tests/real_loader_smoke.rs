@@ -200,7 +200,7 @@ async fn steps_2_through_6_real_disk() {
 
     // Build a real service pointing at the real directory. MemoryConfig
     // means assignments are held in RAM for the duration of the test —
-    // we don't persist anything to libSQL from here.
+    // we don't persist anything to Turso from here.
     let presets = load_default_presets(&models_dir).unwrap_or_default();
     let service = ModelLoaderService::new(
         Box::new(MemoryConfig::new()),

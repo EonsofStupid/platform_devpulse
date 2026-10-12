@@ -1,10 +1,10 @@
-//! Knowledge library — JSON-backed tips, facts, and glossary with libSQL runtime.
+//! Knowledge library — JSON-backed tips, facts, and glossary with Turso runtime.
 //!
 //! Two storage layers:
 //! - **JSON artifacts** (portable, version-controlled, ship with binary)
-//! - **libSQL** (runtime queries, seen-tracking, reactions, analytics)
+//! - **Turso** (runtime queries, seen-tracking, reactions, analytics)
 //!
-//! Boot flow: read JSON → compare manifest version → upsert to libSQL → ready.
+//! Boot flow: read JSON → compare manifest version → upsert to Turso → ready.
 //! Runtime: affinity-weighted selection, cooldown-gated, reaction-filtered.
 //!
 //! Inside kernel, anything can reference Clyffy. At the boundary (engine facade),
@@ -18,5 +18,5 @@ mod tests;
 pub mod types;
 
 pub use selector::{record_reaction, select_entry, SelectedEntry};
-pub use sync::{sync_remote_entries, sync_to_libsql};
+pub use sync::{sync_remote_entries, sync_to_database};
 pub use types::{EntryType, KnowledgeEntry, KnowledgeManifest, Reaction, SelectionParams, Tier};

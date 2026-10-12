@@ -5,7 +5,7 @@
 //! strict sense. The naming is historical (persistence = the SSOT for
 //! where-we-talk-to-something-external) and covers:
 //!
-//! - `LibSQL`: Relational data (users, settings, projects, messages).
+//! - `Turso`: Relational data (users, settings, projects, messages).
 //! - `DuckDB`: Analytics (user + AI metrics, telemetry).
 //! - `SurrealDB`: Graph store — WS client to the managed child process.
 //! - `Moka`: In-memory cache (hot data, TTL-based eviction).
@@ -32,11 +32,11 @@ pub mod duckdb;
 #[cfg(feature = "candle")]
 pub mod embedder;
 pub mod encoder;
-pub mod libsql;
 pub mod moka;
 #[cfg(feature = "rro")]
 pub mod rro;
 pub mod surreal;
+pub mod turso;
 #[cfg(feature = "candle")]
 pub mod whisper;
 
@@ -48,7 +48,6 @@ pub use config::{PersistenceConfig, StoreKind, SurrealNamespace};
 pub use duckdb::DuckDbAdapter;
 #[cfg(feature = "candle")]
 pub use embedder::CandleEmbedder;
-pub use libsql::LibSqlAdapter;
 pub use moka::{MokaAdapter, MokaCacheConfig};
 pub use ollama::{OllamaAdapter, OllamaConfig, OllamaModel};
 pub use port_alloc::{Disposition, PortAllocation};
@@ -59,12 +58,13 @@ pub use traits::{
     AnalyticsAdapter, CacheAdapter, GraphAdapter, PersistenceAdapter, SparseVector, SqlAdapter,
     SqlRow, SqlValue, TypedPersistence, VectorAdapter, VectorMatch,
 };
+pub use turso::{TursoAdapter, TursoOptions};
 #[cfg(feature = "candle")]
 pub use whisper::WhisperAdapter;
 
 // `PersistenceLayer` removed: it predated the engine-driven boot
 // pipeline and had zero callers anywhere in the workspace. Engine
 // boot constructs each adapter directly via its scoped constructor
-// (`LibSqlAdapter::open_with_schema`, `DuckDbAdapter::open_with_schema`,
+// (`TursoAdapter::open_with_schema`, `DuckDbAdapter::open_with_schema`,
 // `SurrealLifecycle::boot`). Test scaffolding lives in each
 // adapter's own `#[cfg(test)]` module.

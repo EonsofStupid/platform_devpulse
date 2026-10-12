@@ -15,8 +15,8 @@
  *
  * Keys here MUST match `DevtoolMeta.id` from
  * [`registry.ts`](../registry.ts). The id is the leaf
- * folder name in the route tree (`/devtools/system/datastores/libsql`
- * → id `libsql`). Renaming a devtool means updating both files.
+ * folder name in the route tree (`/devtools/system/datastores/turso`
+ * → id `turso`). Renaming a devtool means updating both files.
  *
  * # How a route page uses it
  *
@@ -102,7 +102,7 @@ export const DEFAULT_SERVICE_ACCENT: BrandAccent = "teal";
  */
 export const SERVICE_ACCENTS = {
 	// ── System / Datastores ──────────────────────────────────
-	libsql: "blue",
+	turso: "blue",
 	duckdb: "gold",
 	surrealdb: "violet",
 	qdrant: "cyber",
@@ -209,7 +209,7 @@ export const DEFAULT_SERVICE_BACKDROP: ServiceBackdrop = {
  */
 export const SERVICE_BACKDROPS = {
 	// ── Datastores (data at rest — contemplative void) ───────
-	libsql: { variation: "void-breathe", intensity: "subtle", speed: "slow" },
+	turso: { variation: "void-breathe", intensity: "subtle", speed: "slow" },
 	duckdb: { variation: "void-breathe", intensity: "normal", speed: "slow" },
 	surrealdb: { variation: "cosmic-galaxy", intensity: "subtle", speed: "slow" },
 	qdrant: { variation: "circuit-drift", intensity: "normal", speed: "normal" },

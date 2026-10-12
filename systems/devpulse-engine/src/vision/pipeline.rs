@@ -109,7 +109,7 @@ pub struct CapturedTickFrame {
 ///
 /// Returns the underlying sink-write error. Sinks should already swallow
 /// per-row failures and surface only fatal conditions (disk full,
-/// libSQL connection lost) — those propagate to the caller, which
+/// Turso connection lost) — those propagate to the caller, which
 /// typically logs and continues with the next tick.
 pub async fn process_frame(
     config: &PipelineConfig,

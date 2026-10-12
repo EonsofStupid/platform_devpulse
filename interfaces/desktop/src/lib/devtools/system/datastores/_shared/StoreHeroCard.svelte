@@ -2,7 +2,7 @@
 	@component StoreHeroCard
 	@module @devpulse/devtools/system/datastores/_shared
 
-	Large hero card that gives each datastore (DuckDB / libSQL /
+	Large hero card that gives each datastore (DuckDB / Turso /
 	SurrealDB / Qdrant) its own visual identity. Renders as the top
 	element in the Status snippet so the operator's first impression
 	is "this store is X, in Y health, with Z activity right now."
@@ -10,7 +10,7 @@
 	## Composition slots
 
 	- **Default slot** — drop a per-store hero visualization here
-	  (animated columns for DuckDB, ripple-grid for libSQL,
+	  (animated columns for DuckDB, ripple-grid for Turso,
 	  node-graph for SurrealDB). The card frames it with consistent
 	  padding + accent edge; the slot owns the unique character.
 	- **`syncChip`** — sync-status pill (synced / syncing / queued / paused).
@@ -21,7 +21,7 @@
 	`accentVar` drives the left-edge stripe, the icon tint, and the
 	subtle gradient on the background. Convention:
 	- `--accent-amber` — DuckDB (analytical / warm)
-	- `--accent-cyan` — libSQL (clean / relational)
+	- `--accent-cyan` — Turso (clean / relational)
 	- `--accent-purple` — SurrealDB (graph / vibrant)
 
 	The accent should match the store's devtool accent on
@@ -43,7 +43,7 @@ interface Props {
 	 */
 	// biome-ignore lint/suspicious/noExplicitAny: lucide-svelte class-based exports don't match Svelte 5 `Component<P>` function-form structurally.
 	icon: any;
-	/** Display name (e.g. "DuckDB", "libSQL", "SurrealDB"). */
+	/** Display name (e.g. "DuckDB", "Turso", "SurrealDB"). */
 	name: string;
 	/** One-line layman purpose ("Columnar analytics engine", "Relational
 	 *  rows for system + user state", "Graph + document multi-model"). */

@@ -1,4 +1,4 @@
-//! Per-project `LibSQL` commands — init, health, query, table listing.
+//! Per-project Turso commands — init, health, query, table listing.
 //!
 //! Project databases live at `{project_root}/.userdata/project.db`.
 //! Created on demand via `init_project_db`, not during boot.

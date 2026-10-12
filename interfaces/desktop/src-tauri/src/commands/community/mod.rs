@@ -6,7 +6,7 @@
 //!
 //! # Local-first contract
 //!
-//! - [`fetch_feed`] reads from the local libSQL cache only. Always
+//! - [`fetch_feed`] reads from the local Turso cache only. Always
 //!   responds in milliseconds regardless of network state.
 //! - [`sync_community_feed`] makes the remote call. Failures
 //!   (no Supabase creds, table missing, network down) report through

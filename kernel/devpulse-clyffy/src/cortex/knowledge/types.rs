@@ -34,7 +34,7 @@ pub enum EntryType {
 }
 
 impl EntryType {
-    /// String tag for libSQL storage.
+    /// String tag for Turso storage.
     #[must_use]
     pub fn as_str(&self) -> &'static str {
         match self {
@@ -94,7 +94,7 @@ impl Tier {
     }
 }
 
-/// A single knowledge entry as stored in JSON and libSQL.
+/// A single knowledge entry as stored in JSON and Turso.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct KnowledgeEntry {
     /// Unique ID (e.g., "dyk-001").

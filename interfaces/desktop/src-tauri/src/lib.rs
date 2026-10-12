@@ -169,11 +169,11 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             commands::sys::graph::graph_stats,
             commands::sys::graph::graph_query,
             commands::sys::graph::graph_kv_list,
-            // Relational store (LibSQL) devtools
-            commands::sys::relational::libsql_health_all,
-            commands::sys::relational::libsql_list_tables,
-            commands::sys::relational::libsql_query,
-            // Project store (per-project LibSQL) devtools
+            // Relational store (Turso) devtools
+            commands::sys::relational::turso_health_all,
+            commands::sys::relational::turso_list_tables,
+            commands::sys::relational::turso_query,
+            // Project store (per-project Turso) devtools
             commands::sys::project_db::init_project_db,
             commands::sys::project_db::project_db_health,
             commands::sys::project_db::project_db_list_tables,

@@ -18,7 +18,7 @@
 //! The orchestrator is stateless — it takes everything it needs as
 //! arguments. Spawning it as a tokio task from
 //! `commands::chat::send_message` keeps the chat write path responsive
-//! (the libsql `turns` insert returns immediately) while the embed +
+//! (the turso `turns` insert returns immediately) while the embed +
 //! storage work happens off the IPC critical path.
 //!
 //! ## Failure handling
@@ -26,7 +26,7 @@
 //! Each hop is fail-soft and traced. A failure in any hop is logged
 //! and an event-side error variant is emitted (TODO: add `IntelligencePipelineFailed`
 //! when the failure variants stabilize), but does NOT propagate — the
-//! chat turn already landed in libsql, and the memory pipeline is an
+//! chat turn already landed in turso, and the memory pipeline is an
 //! enrichment layer, not a blocking dependency.
 
 use std::sync::Arc;

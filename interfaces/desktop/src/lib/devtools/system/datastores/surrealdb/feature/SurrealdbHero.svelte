@@ -18,7 +18,7 @@
 
 	Pure SVG with CSS animations — no data binding, no real graph
 	layout algorithm. Same "identity, not data" rule as the
-	DuckdbHero and LibsqlHero. When real namespace graph data lands
+	DuckdbHero and TursoHero. When real namespace graph data lands
 	the nodes can take on the namespace names as labels.
 
 	Respects `prefers-reduced-motion`.

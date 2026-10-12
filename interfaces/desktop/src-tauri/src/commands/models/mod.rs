@@ -699,7 +699,7 @@ pub async fn unload_slot(
 
 /// Clear the persisted model assignment from a slot.
 ///
-/// Distinct from `unload_slot`: this removes the libSQL
+/// Distinct from `unload_slot`: this removes the Turso
 /// `slot.<id>.model` key so the next app launch does NOT re-attempt
 /// the load. The use case is a stuck assignment whose load crashes the
 /// backend on every relaunch — clear it once, the slot stays empty

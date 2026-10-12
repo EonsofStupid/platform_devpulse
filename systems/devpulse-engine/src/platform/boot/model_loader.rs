@@ -34,7 +34,7 @@ pub async fn boot(
     boot_log: &BootLog,
     signals: crate::Engine,
     event_sink: Option<std::sync::Arc<dyn devpulse_clyffy::model_loader::LoaderEventSink>>,
-    libsql_adapter: Option<std::sync::Arc<devpulse_clyffy::cortex::persistence::LibSqlAdapter>>,
+    turso_adapter: Option<std::sync::Arc<devpulse_clyffy::cortex::persistence::TursoAdapter>>,
 ) -> Option<Arc<ModelLoaderService>> {
     if !entry.enabled {
         on_event(InitEvent::skipped("Model Loader"));
@@ -80,7 +80,7 @@ pub async fn boot(
             event_sink,
             models_dir,
             subdirs,
-            libsql_adapter,
+            turso_adapter,
             burn_encoder_adapter,
         )
     })
@@ -125,7 +125,7 @@ pub async fn boot(
             //     per-file `ModelDiscovered` events so the wizard can show
             //     what's on disk. Pure filesystem read — no GPU, no RAM load.
             //   - `restore_assignments()` re-reads persisted slot→model-id
-            //     choices from libSQL. The slots are marked "assigned" but
+            //     choices from Turso. The slots are marked "assigned" but
             //     NOT "loaded" — inference stays cold until the user clicks
             //     Apply/Load in the UI.
             //

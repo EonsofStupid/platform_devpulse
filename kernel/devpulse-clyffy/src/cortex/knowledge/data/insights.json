@@ -35,7 +35,7 @@
     "tool": null,
     "category": "platform",
     "tier": "intermediate",
-    "payload": { "title": "Three databases, one purpose", "body": "LibSQL stores structured data (messages, settings). DuckDB stores analytics (how you use the app). The knowledge graph stores relationships (what connects to what). Each does one thing well." },
+    "payload": { "title": "Three databases, one purpose", "body": "Turso stores structured data (messages, settings). DuckDB stores analytics (how you use the app). The knowledge graph stores relationships (what connects to what). Each does one thing well." },
     "tags": ["platform", "databases", "architecture"],
     "added": "2026-04-19"
   },

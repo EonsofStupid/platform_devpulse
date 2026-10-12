@@ -13,7 +13,7 @@ pub mod governance;
 /// trait. Backends under `cortex::persistence::<backend>::*`
 /// implement the trait.
 pub mod intelligence;
-/// Knowledge library — JSON-backed tips, did-you-know, glossary with libSQL runtime.
+/// Knowledge library — JSON-backed tips, did-you-know, glossary with Turso runtime.
 pub mod knowledge;
 /// KV cache tier for attention optimization.
 pub mod kv_cache;

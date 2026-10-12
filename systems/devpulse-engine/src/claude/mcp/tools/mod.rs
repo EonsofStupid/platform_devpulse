@@ -6,7 +6,7 @@
 //! by rmcp.
 
 pub mod get_health;
-pub mod query_libsql;
+pub mod query_database;
 pub mod repo_get_file;
 pub mod repo_list_files;
 

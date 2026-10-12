@@ -40,7 +40,7 @@ use crate::platform::config::DataScope;
 /// `cargo xtask generate-ts-manifest` emits the TS source from this enum.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ServiceGroup {
-    /// Data stores: `LibSQL`, `DuckDB`, `Moka`.
+    /// Data stores: Turso, `DuckDB`, `Moka`.
     Stores,
     /// Graph services: `SurrealDB` namespaces + HTTP sidecar.
     Graph,

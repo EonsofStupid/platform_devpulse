@@ -102,7 +102,7 @@ impl Task for Dev {
         println!("  > pnpm tauri dev");
         let dev_bind = &platform_config.services.network.dev_server.bind;
         println!("  > Vite        → http://{dev_bind}:{dev_port}");
-        println!("  > Platform    → LibSQL + DuckDB + SurrealDB + Moka + RRO + Kokoros + Outlines");
+        println!("  > Platform    → Turso + DuckDB + SurrealDB + Moka + prepared context + Kokoros + Outlines");
         let graph_api = &platform_config.services.network.graph_api;
         println!(
             "  > SurrealDB   → http://{}:{} (HTTP server)",
@@ -228,7 +228,7 @@ fn run_backend_compile(
         anyhow::bail!(
             "Backend compilation failed — fix the Rust errors above.\n  \
              Scope: Tauri backend, Platform facade, all 4 embedded services\n  \
-             (LibSQL, DuckDB, SurrealDB, Moka)."
+             (Turso, DuckDB, SurrealDB, Moka)."
         );
     }
     let compile_secs = compile_start.elapsed().as_secs_f64();

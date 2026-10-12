@@ -6,7 +6,7 @@
   Status bar with progressive boot display.
   During boot: shows per-subsystem status with latencies and icons.
   After boot: shows connection status, uptime, version.
-  DEV_MODE: raw tech labels (LibSQL, SurrealDB, DuckDB, Moka).
+  DEV_MODE: raw tech labels (Turso, SurrealDB, DuckDB, Moka).
   PROD: friendly labels (Data Store, Cortex, Analytics Engine, Memory Cache).
 
   Per-subsystem details — tech name, category, Clyffy narration — live

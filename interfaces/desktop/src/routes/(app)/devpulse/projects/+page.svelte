@@ -4,7 +4,7 @@
   @domain devpulse
 
   Projects route — one active project at a time, with reference
-  directories linked to it. Reads from `projectsState` (libSQL SSOT
+  directories linked to it. Reads from `projectsState` (Turso SSOT
   via tauri-specta bindings), not the legacy mock `devpulseState`.
 -->
 <script lang="ts">

@@ -7,28 +7,28 @@
 //!
 //! # Storage model
 //!
-//! Every mutation writes **libSQL first** (the authoritative SSOT) then
-//! mirrors the change to **`SurrealDB`** (the graph view). libSQL is the
-//! transactional source — if the libSQL write fails, the mutation
+//! Every mutation writes **Turso first** (the authoritative SSOT) then
+//! mirrors the change to **`SurrealDB`** (the graph view). Turso is the
+//! transactional source — if the Turso write fails, the mutation
 //! fails. The `SurrealDB` mirror is best-effort at the command layer —
 //! any failure there is logged and surfaced as a warning, but does not
-//! roll back the libSQL write. This keeps the app responsive when the
+//! roll back the Turso write. This keeps the app responsive when the
 //! graph store is degraded, with reconciliation handled out-of-band
-//! (the forthcoming graph-reconciler worker walks libSQL and repaves
+//! (the forthcoming graph-reconciler worker walks Turso and repaves
 //! any missing graph nodes — not in scope for this command module).
 //!
-//! Active-project state is stored in the user `LibSQL` `kv_store` under
+//! Active-project state is stored in the user Turso `kv_store` under
 //! `active_project_id`. No schema migration required — `kv_store` is the
 //! catch-all for singleton user state.
 //!
 //! # Tables touched
 //!
-//! * libSQL user DB:
+//! * Turso user DB:
 //!   * `projects` — 1 row per project
 //!   * `project_references` — N rows per project (read-only dirs)
 //!   * `kv_store` — `active_project_id` singleton
 //! * `SurrealDB` user namespace:
-//!   * `project` nodes (mirror of libSQL projects)
+//!   * `project` nodes (mirror of Turso projects)
 //!   * `project_reference` nodes (mirror of reference dirs)
 //!   * `references` edges (project → `project_reference`)
 //!   * `active_project` node (singleton with id=`"singleton"`)
@@ -52,7 +52,7 @@ use uuid::Uuid;
 
 use devpulse_engine::platform::{Platform, SqlAdapter};
 
-/// Active-project singleton key in the user `LibSQL` `kv_store`.
+/// Active-project singleton key in the user Turso `kv_store`.
 const KV_ACTIVE_PROJECT: &str = "active_project_id";
 
 /// `SurrealDB` tables — kept as constants so any schema evolution is
@@ -163,7 +163,7 @@ pub struct AddReferenceInput {
 // Commands
 // ═══════════════════════════════════════════════════════════════════════
 
-/// Create a new project row in user `LibSQL`.
+/// Create a new project row in user Turso.
 ///
 /// Duplicate `root_path` values are rejected at the SQL level — the
 /// `projects` table schema declares `root_path TEXT NOT NULL UNIQUE`,
@@ -231,8 +231,8 @@ pub async fn create_project(
     tracing::info!(project_id = %id, name = %name, root_path = %root_path, "project created");
 
     // Read the row back so the frontend has the real DEFAULTs (active,
-    // created_at) instead of us guessing. `adapter` is `&Arc<LibSqlAdapter>`
-    // so we deref once to get `&LibSqlAdapter` which coerces to
+    // created_at) instead of us guessing. `adapter` is `&Arc<TursoAdapter>`
+    // so we deref once to get `&TursoAdapter` which coerces to
     // `&dyn SqlAdapter` at the call site.
     let project = read_one_project(adapter.as_ref(), &id)
         .await
@@ -525,11 +525,11 @@ fn row_to_reference(row: Vec<devpulse_engine::platform::SqlValue>) -> Option<Pro
 // SurrealDB mirrors — best-effort, warn on failure, never fatal
 // ═══════════════════════════════════════════════════════════════════════
 //
-// libSQL is authoritative. SurrealDB is the secondary graph view — it
+// Turso is authoritative. SurrealDB is the secondary graph view — it
 // exists so future commands (semantic search, reference traversal,
 // related-project suggestions) have an indexed, queryable graph
 // without rehydrating from relational rows. If the graph write fails
-// we log a warning; the forthcoming graph-reconciler walks libSQL
+// we log a warning; the forthcoming graph-reconciler walks Turso
 // periodically and repaves any missing nodes.
 
 async fn mirror_project_to_graph(platform: &Platform, project: &Project) {

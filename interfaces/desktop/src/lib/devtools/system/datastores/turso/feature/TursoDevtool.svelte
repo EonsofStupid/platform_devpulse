@@ -1,14 +1,14 @@
 <!--
-	@file LibsqlDevtool.svelte
-	@module @devpulse/devtools/system/datastores/libsql
+	@file TursoDevtool.svelte
+	@module @devpulse/devtools/system/datastores/turso
 
-	LibSQL devtool — relational store (system + user databases). Wraps
+	Turso devtool — relational store (system + user databases). Wraps
 	`ServiceDevtoolShell` with the standard 5 tabs (Status / Config /
 	Logs / Actions / Debug) plus extras (Tables browser, SQL console).
 
-	LibSQL is in-process (no managed sidecar), so Actions verbs are
+	Turso is in-process (no managed sidecar), so Actions verbs are
 	limited to refresh + maintenance operations. Config is read-only —
-	the SSOT lives in `[services.system.libsql]` of `platform.toml`.
+	the SSOT lives in `[services.system.turso]` of `platform.toml`.
 -->
 <script lang="ts">
 import { Database, Hammer, Play, RefreshCw, Table2, Terminal } from "lucide-svelte";
@@ -18,9 +18,9 @@ import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { type ExtraTab, type HealthBadge, ServiceDevtoolShell } from "$lib/devtools/index.js";
 import { EmptyStatePoster, StoreHeroCard } from "$lib/devtools/system/datastores/_shared/index.js";
-import { DATABASE_OPTIONS, libsqlState } from "$lib/domains/infra/libsql/index.js";
+import { DATABASE_OPTIONS, tursoState } from "$lib/domains/infra/turso/index.js";
 import { commands, type ScopedLogEntry } from "$lib/sys/generated/bindings.js";
-import LibsqlHero from "./LibsqlHero.svelte";
+import TursoHero from "./TursoHero.svelte";
 
 // ── Scoped log state ─────────────────────────────────────
 let logEntries = $state<ScopedLogEntry[]>([]);
@@ -31,7 +31,7 @@ async function loadLogs(): Promise<void> {
 	logLoading = true;
 	logError = null;
 	try {
-		const r = await commands.queryScopedLog("devtools.libsql", 100);
+		const r = await commands.queryScopedLog("devtools.turso", 100);
 		if (r.status === "error") throw new Error(r.error);
 		logEntries = r.data;
 	} catch (e) {
@@ -51,9 +51,9 @@ async function runSanityProbe(): Promise<void> {
 	try {
 		// SELECT 1 against the current database — confirms the connection
 		// is alive and the SQL surface answers.
-		libsqlState.queryInput = "SELECT 1 AS probe;";
-		await libsqlState.executeQuery();
-		probeLastResult = libsqlState.queryError ? `error: ${libsqlState.queryError}` : "ok";
+		tursoState.queryInput = "SELECT 1 AS probe;";
+		await tursoState.executeQuery();
+		probeLastResult = tursoState.queryError ? `error: ${tursoState.queryError}` : "ok";
 	} catch (e) {
 		probeLastResult = `error: ${e instanceof Error ? e.message : String(e)}`;
 	} finally {
@@ -67,79 +67,79 @@ const extraTabs: ExtraTab[] = [
 ];
 
 onMount(() => {
-	if (!libsqlState.health && !libsqlState.healthLoading) {
-		libsqlState.loadHealth();
+	if (!tursoState.health && !tursoState.healthLoading) {
+		tursoState.loadHealth();
 	}
 });
 
-// Hero-state derivation. libSQL is multi-database, so "up" means every
+// Hero-state derivation. Turso is multi-database, so "up" means every
 // database is reachable; "degraded" means some-but-not-all are; "down"
 // means none. Latency on the hero is the average across reachable DBs
 // so a single slow DB doesn't dominate the readout — per-DB breakdown
 // still lives in the grid below for diagnosis.
 type StoreHealth = "up" | "starting" | "degraded" | "down" | "unknown";
 const heroState = $derived<StoreHealth>(
-	libsqlState.healthLoading
+	tursoState.healthLoading
 		? "starting"
-		: libsqlState.healthError
+		: tursoState.healthError
 			? "down"
-			: libsqlState.health
-				? libsqlState.health.databases.length === 0
+			: tursoState.health
+				? tursoState.health.databases.length === 0
 					? "unknown"
-					: libsqlState.reachableCount === libsqlState.health.databases.length
+					: tursoState.reachableCount === tursoState.health.databases.length
 						? "up"
-						: libsqlState.reachableCount > 0
+						: tursoState.reachableCount > 0
 							? "degraded"
 							: "down"
 				: "unknown",
 );
 const heroLatencyMs = $derived(
 	(() => {
-		const reachable = libsqlState.health?.databases.filter((d) => d.reachable) ?? [];
+		const reachable = tursoState.health?.databases.filter((d) => d.reachable) ?? [];
 		if (reachable.length === 0) return null;
 		const totalUs = reachable.reduce((sum, d) => sum + (d.latency_us ?? 0), 0);
 		return totalUs / reachable.length / 1000;
 	})(),
 );
 const heroHealthLabel = $derived(
-	libsqlState.healthLoading
+	tursoState.healthLoading
 		? "Probing…"
-		: libsqlState.healthError
+		: tursoState.healthError
 			? "Unreachable"
-			: libsqlState.health
-				? libsqlState.reachableCount === libsqlState.health.databases.length
-					? `${libsqlState.reachableCount} reachable`
-					: libsqlState.reachableCount > 0
-						? `${libsqlState.reachableCount}/${libsqlState.health.databases.length} reachable`
+			: tursoState.health
+				? tursoState.reachableCount === tursoState.health.databases.length
+					? `${tursoState.reachableCount} reachable`
+					: tursoState.reachableCount > 0
+						? `${tursoState.reachableCount}/${tursoState.health.databases.length} reachable`
 						: "All down"
 				: "Not probed yet",
 );
 let activityTick = $state(0);
 $effect(() => {
-	if (libsqlState.health) {
+	if (tursoState.health) {
 		activityTick = activityTick + 1;
 	}
 });
 
 const badge = $derived<HealthBadge>(
-	libsqlState.healthLoading
+	tursoState.healthLoading
 		? { state: "starting", label: "Checking…" }
-		: libsqlState.healthError
+		: tursoState.healthError
 			? { state: "down", label: "Unreachable" }
-			: libsqlState.health
-				? libsqlState.reachableCount === libsqlState.health.databases.length
-					? { state: "up", label: `${libsqlState.reachableCount} databases reachable` }
-					: libsqlState.reachableCount > 0
+			: tursoState.health
+				? tursoState.reachableCount === tursoState.health.databases.length
+					? { state: "up", label: `${tursoState.reachableCount} databases reachable` }
+					: tursoState.reachableCount > 0
 						? {
 								state: "degraded",
-								label: `${libsqlState.reachableCount}/${libsqlState.health.databases.length} reachable`,
+								label: `${tursoState.reachableCount}/${tursoState.health.databases.length} reachable`,
 							}
 						: { state: "down", label: "No databases reachable" }
 				: { state: "unknown", label: "Not checked yet" },
 );
 
 function handleQuerySubmit(): void {
-	libsqlState.executeQuery();
+	tursoState.executeQuery();
 }
 
 function handleKeydown(event: KeyboardEvent): void {
@@ -150,8 +150,8 @@ function handleKeydown(event: KeyboardEvent): void {
 </script>
 
 <ServiceDevtoolShell
-	infoTerm="libSQL"
-	title="LibSQL"
+	infoTerm="Turso"
+	title="Turso"
 	description="System + User relational store · SQLite"
 	icon={Database}
 	axis="stores"
@@ -164,7 +164,7 @@ function handleKeydown(event: KeyboardEvent): void {
 		<div class="space-y-3">
 			<StoreHeroCard
 				icon={Database}
-				name="libSQL"
+				name="Turso"
 				purpose="Relational rows — system + user state, project notes, every persistent fact Clyffy keeps"
 				health={heroState}
 				latencyMs={heroLatencyMs}
@@ -172,17 +172,17 @@ function handleKeydown(event: KeyboardEvent): void {
 				{activityTick}
 				accentVar="--accent-cyan"
 			>
-				<LibsqlHero state={heroState} />
+				<TursoHero state={heroState} />
 			</StoreHeroCard>
 
 			<div class="flex items-center justify-end gap-2">
 				<Button
 					preset="ghost"
 					size="sm"
-					onclick={() => libsqlState.loadHealth()}
-					disabled={libsqlState.healthLoading}
+					onclick={() => tursoState.loadHealth()}
+					disabled={tursoState.healthLoading}
 				>
-					{#if libsqlState.healthLoading}
+					{#if tursoState.healthLoading}
 						<Spinner size="xs" tone="accent" />
 					{:else}
 						<RefreshCw size={14} />
@@ -191,22 +191,22 @@ function handleKeydown(event: KeyboardEvent): void {
 				</Button>
 			</div>
 
-			{#if libsqlState.healthError}
+			{#if tursoState.healthError}
 				<div class="rounded-lg p-3" style="background: color-mix(in oklch, var(--signal-error) 10%, transparent); border: 1px solid color-mix(in oklch, var(--signal-error) 30%, transparent);">
 					<Text size="xs" weight="semibold" class="block mb-1" style="color: var(--signal-error);">
 						Probe failed
 					</Text>
-					<Text size="xs" color="muted">{libsqlState.healthError}</Text>
+					<Text size="xs" color="muted">{tursoState.healthError}</Text>
 				</div>
 			{/if}
 
-			{#if libsqlState.health && libsqlState.health.databases.length > 0}
+			{#if tursoState.health && tursoState.health.databases.length > 0}
 				<div class="rounded-lg p-3" style="background: var(--surface-raised); border: 1px solid var(--border-subtle);">
 					<Text size="xs" weight="semibold" class="block mb-2" color="muted">
 						Per-database breakdown
 					</Text>
 					<div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-						{#each libsqlState.health.databases as db (db.database)}
+						{#each tursoState.health.databases as db (db.database)}
 							<div class="flex flex-col gap-1 rounded p-2" style="background: var(--surface-base); border: 1px solid var(--border-soft);">
 								<div class="flex items-center justify-between gap-2">
 									<div class="flex items-center gap-2 min-w-0">
@@ -237,12 +237,12 @@ function handleKeydown(event: KeyboardEvent): void {
 						{/each}
 					</div>
 				</div>
-			{:else if !libsqlState.health && !libsqlState.healthLoading}
+			{:else if !tursoState.health && !tursoState.healthLoading}
 				<EmptyStatePoster
 					icon={Database}
-					title="Probe libSQL to see its state"
+					title="Probe Turso to see its state"
 					hint="Each database file lives at the path declared in platform.toml. If they're missing, the first probe surfaces the path here."
-					logTarget="libsql.lifecycle"
+					logTarget="turso.lifecycle"
 					accentVar="--accent-cyan"
 				/>
 			{/if}
@@ -253,14 +253,14 @@ function handleKeydown(event: KeyboardEvent): void {
 	{#snippet config()}
 		<div class="space-y-3">
 			<Text size="sm" color="muted">
-				LibSQL configuration is read-only here. The SSOT for file paths,
+				Turso configuration is read-only here. The SSOT for file paths,
 				retry policy, and WAL checkpoint cadence lives in
-				<code>[services.system.libsql]</code> of
+				<code>[services.system.turso]</code> of
 				<code>platform.toml</code>. Edit the TOML and restart the platform
 				to apply changes.
 			</Text>
 			<Text size="sm" color="muted">
-				The charter's <code>libsql_save_config</code> command will land
+				The charter's <code>turso_save_config</code> command will land
 				with the services-rewire phase; once it's wired, this tab gains
 				editable controls.
 			</Text>
@@ -272,7 +272,7 @@ function handleKeydown(event: KeyboardEvent): void {
 		<div class="space-y-3">
 			<div class="flex items-center justify-between">
 				<Text size="sm" weight="semibold">
-					Scoped log — <span class="font-mono text-xs">devtools.libsql</span>
+					Scoped log — <span class="font-mono text-xs">devtools.turso</span>
 				</Text>
 				<Button preset="ghost" size="sm" onclick={loadLogs} disabled={logLoading}>
 					{#if logLoading}
@@ -324,7 +324,7 @@ function handleKeydown(event: KeyboardEvent): void {
 	{#snippet actions()}
 		<div class="space-y-4">
 			<Text size="sm" color="muted">
-				LibSQL is in-process (no managed sidecar), so there's no
+				Turso is in-process (no managed sidecar), so there's no
 				start/stop. Actions here trigger refresh + maintenance on the
 				current connections.
 			</Text>
@@ -340,10 +340,10 @@ function handleKeydown(event: KeyboardEvent): void {
 					<Button
 						preset="primary"
 						size="sm"
-						onclick={() => libsqlState.loadHealth()}
-						disabled={libsqlState.healthLoading}
+						onclick={() => tursoState.loadHealth()}
+						disabled={tursoState.healthLoading}
 					>
-						{#if libsqlState.healthLoading}
+						{#if tursoState.healthLoading}
 							<Spinner size="xs" tone="accent" />
 						{:else}
 							<RefreshCw size={14} />
@@ -362,10 +362,10 @@ function handleKeydown(event: KeyboardEvent): void {
 					<Button
 						preset="primary"
 						size="sm"
-						onclick={() => libsqlState.loadTables()}
-						disabled={libsqlState.tablesLoading}
+						onclick={() => tursoState.loadTables()}
+						disabled={tursoState.tablesLoading}
 					>
-						{#if libsqlState.tablesLoading}
+						{#if tursoState.tablesLoading}
 							<Spinner size="xs" tone="accent" />
 						{:else}
 							<Table2 size={14} />
@@ -420,7 +420,7 @@ function handleKeydown(event: KeyboardEvent): void {
 					<Hammer size={14} class="inline" />
 					Active database
 				</Text>
-				<div class="text-xs font-mono">{libsqlState.activeDatabase}</div>
+				<div class="text-xs font-mono">{tursoState.activeDatabase}</div>
 				<Text size="xs" color="muted" class="block mt-1">
 					Switch via the selector in Tables / Console; the probe uses
 					whichever database is active there.
@@ -447,13 +447,13 @@ function handleKeydown(event: KeyboardEvent): void {
 		<div class="flex items-center justify-between">
 			<div class="flex items-center gap-2">
 				<Text size="sm" weight="semibold">
-					Tables in {libsqlState.activeDatabase}
+					Tables in {tursoState.activeDatabase}
 				</Text>
 				<select
 					class="bg-[var(--surface-raised)] text-xs border border-[var(--border-subtle)] rounded px-2 py-1 text-[var(--text-primary)]"
-					value={libsqlState.activeDatabase}
+					value={tursoState.activeDatabase}
 					onchange={(e) =>
-						libsqlState.setDatabase(
+						tursoState.setDatabase(
 							(e.target as HTMLSelectElement)
 								.value as (typeof DATABASE_OPTIONS)[number]["value"],
 						)}
@@ -466,10 +466,10 @@ function handleKeydown(event: KeyboardEvent): void {
 			<Button
 				preset="ghost"
 				size="sm"
-				onclick={() => libsqlState.loadTables()}
-				disabled={libsqlState.tablesLoading}
+				onclick={() => tursoState.loadTables()}
+				disabled={tursoState.tablesLoading}
 			>
-				{#if libsqlState.tablesLoading}
+				{#if tursoState.tablesLoading}
 					<Spinner size="xs" tone="accent" />
 				{:else}
 					<RefreshCw size={14} />
@@ -478,15 +478,15 @@ function handleKeydown(event: KeyboardEvent): void {
 			</Button>
 		</div>
 
-		{#if libsqlState.tablesError}
+		{#if tursoState.tablesError}
 			<div
 				class="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-xs text-red-400"
 			>
-				{libsqlState.tablesError}
+				{tursoState.tablesError}
 			</div>
 		{/if}
 
-		{#if libsqlState.tables.length > 0}
+		{#if tursoState.tables.length > 0}
 			<div class="rounded-lg border border-[var(--border-subtle)] overflow-hidden">
 				<table class="w-full text-xs">
 					<thead>
@@ -500,7 +500,7 @@ function handleKeydown(event: KeyboardEvent): void {
 						</tr>
 					</thead>
 					<tbody>
-						{#each libsqlState.tables as table}
+						{#each tursoState.tables as table}
 							<tr
 								class="border-b border-[var(--border-subtle)] hover:bg-[var(--surface-raised)]"
 							>
@@ -511,7 +511,7 @@ function handleKeydown(event: KeyboardEvent): void {
 					</tbody>
 				</table>
 			</div>
-		{:else if libsqlState.tablesLoading}
+		{:else if tursoState.tablesLoading}
 			<Text size="sm" color="muted">Loading tables…</Text>
 		{:else}
 			<Text size="sm" color="muted">Click Refresh to load tables.</Text>
@@ -525,9 +525,9 @@ function handleKeydown(event: KeyboardEvent): void {
 			<Text size="sm" weight="semibold">SQL Console</Text>
 			<select
 				class="bg-[var(--surface-raised)] text-xs border border-[var(--border-subtle)] rounded px-2 py-1 text-[var(--text-primary)]"
-				value={libsqlState.activeDatabase}
+				value={tursoState.activeDatabase}
 				onchange={(e) =>
-					libsqlState.setDatabase(
+					tursoState.setDatabase(
 						(e.target as HTMLSelectElement)
 							.value as (typeof DATABASE_OPTIONS)[number]["value"],
 					)}
@@ -542,7 +542,7 @@ function handleKeydown(event: KeyboardEvent): void {
 			<textarea
 				class="w-full h-28 p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] text-xs font-mono text-[var(--text-primary)] resize-y focus:border-[var(--color-teal-500)] focus:outline-none"
 				placeholder="SELECT * FROM sessions LIMIT 10;"
-				bind:value={libsqlState.queryInput}
+				bind:value={tursoState.queryInput}
 				onkeydown={handleKeydown}
 			></textarea>
 			<div class="absolute bottom-2 right-2 flex items-center gap-2">
@@ -551,22 +551,22 @@ function handleKeydown(event: KeyboardEvent): void {
 					preset="primary"
 					size="sm"
 					onclick={handleQuerySubmit}
-					disabled={libsqlState.queryLoading || !libsqlState.queryInput.trim()}
+					disabled={tursoState.queryLoading || !tursoState.queryInput.trim()}
 				>
-					{libsqlState.queryLoading ? "Running…" : "Execute"}
+					{tursoState.queryLoading ? "Running…" : "Execute"}
 				</Button>
 			</div>
 		</div>
 
-		{#if libsqlState.queryHistory.length > 0}
+		{#if tursoState.queryHistory.length > 0}
 			<div>
 				<Text size="xs" weight="semibold" color="secondary">History</Text>
 				<div class="mt-1 flex flex-wrap gap-1">
-					{#each libsqlState.queryHistory.slice(0, 8) as q}
+					{#each tursoState.queryHistory.slice(0, 8) as q}
 						<button
 							type="button"
 							class="px-2 py-0.5 text-[10px] font-mono rounded bg-[var(--surface-raised)] border border-[var(--border-subtle)] hover:border-[var(--color-teal-600)] truncate max-w-[200px]"
-							onclick={() => libsqlState.setQueryFromHistory(q)}
+							onclick={() => tursoState.setQueryFromHistory(q)}
 						>
 							{q}
 						</button>
@@ -575,35 +575,35 @@ function handleKeydown(event: KeyboardEvent): void {
 			</div>
 		{/if}
 
-		{#if libsqlState.queryError}
+		{#if tursoState.queryError}
 			<div
 				class="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-xs text-red-400 font-mono break-all"
 			>
-				{libsqlState.queryError}
+				{tursoState.queryError}
 			</div>
 		{/if}
 
-		{#if libsqlState.queryResult !== null}
+		{#if tursoState.queryResult !== null}
 			<div>
 				<div class="flex items-center justify-between mb-1">
 					<Text size="xs" weight="semibold" color="secondary">
 						Result
-						{#if libsqlState.queryResult.rows_affected > 0}
-							({libsqlState.queryResult.rows_affected} rows affected)
+						{#if tursoState.queryResult.rows_affected > 0}
+							({tursoState.queryResult.rows_affected} rows affected)
 						{:else}
-							({libsqlState.queryResult.row_count} rows)
+							({tursoState.queryResult.row_count} rows)
 						{/if}
 					</Text>
 					<button
 						type="button"
 						class="text-[10px] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-						onclick={() => libsqlState.clearResult()}
+						onclick={() => tursoState.clearResult()}
 					>
 						Clear
 					</button>
 				</div>
 				<pre
-					class="p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] text-xs font-mono overflow-auto max-h-80 text-[var(--text-primary)]">{JSON.stringify(JSON.parse(libsqlState.queryResult.rows_json), null, 2)}</pre>
+					class="p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] text-xs font-mono overflow-auto max-h-80 text-[var(--text-primary)]">{JSON.stringify(JSON.parse(tursoState.queryResult.rows_json), null, 2)}</pre>
 			</div>
 		{/if}
 	</div>

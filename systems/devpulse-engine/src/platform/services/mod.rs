@@ -48,7 +48,7 @@ use specta::Type;
 /// subscribers can round-trip events through OTLP/JSONL exports.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Type)]
 pub enum ServiceRole {
-    /// Relational service (`LibSQL`).
+    /// Relational service (Turso).
     Relational,
     /// Analytics service (`DuckDB`).
     Analytics,

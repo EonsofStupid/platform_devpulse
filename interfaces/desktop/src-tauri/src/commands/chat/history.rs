@@ -1,4 +1,4 @@
-//! Chat history — load turns from `LibSQL`.
+//! Chat history — load turns from Turso.
 
 use super::ChatMessage;
 use crate::state::PlatformState;

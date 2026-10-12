@@ -10,7 +10,7 @@
 //!
 //! - `cargo clean` stops costing 5 minutes. Clean wipes `target/`, but
 //!   sccache repopulates it from its own cache on the next build.
-//! - Feature-flag flips don't rebuild libsql/duckdb/surrealdb/rro from
+//! - Feature-flag flips don't rebuild turso/duckdb/surrealdb/rro from
 //!   scratch as long as that feature set has been compiled before.
 //! - Toolchain bumps naturally miss once, then hit.
 //!

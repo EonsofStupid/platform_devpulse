@@ -8,7 +8,7 @@
 //!
 //! # Modules (authored as S0 phases land)
 //!
-//! - `libsql` — relational (system scope + per-user scope)
+//! - `turso` — relational (system scope + per-user scope)
 //! - `duckdb` — analytics (system scope)
 //! - `surrealdb` — graph (system + user + global + project scopes)
 //! - `cache` — in-memory KV (Moka)

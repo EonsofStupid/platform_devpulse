@@ -73,7 +73,7 @@ pub enum ExecutionLane {
     // ── Storage lanes ───────────────────────────────────────
     /// Vector search (RRO/Qdrant). Disk-backed.
     VectorRetrieval,
-    /// Relational query (libSQL). File-backed.
+    /// Relational query (Turso). File-backed.
     RelationalQuery,
     /// Analytical query (`DuckDB`). File-backed.
     AnalyticalQuery,
@@ -361,7 +361,7 @@ pub struct ScopedServicesConfig {
 /// System-scope service configuration.
 #[derive(Debug, Clone, Deserialize)]
 pub struct SystemServicesConfig {
-    /// Relational store (`LibSQL`) — kernel state, boot records.
+    /// Relational store (Turso) — kernel state, boot records.
     #[serde(default = "ServiceEntry::system_relational_default")]
     pub relational: ServiceEntry,
     /// Analytics store (`DuckDB`) — system telemetry.
@@ -417,7 +417,7 @@ impl Default for SystemServicesConfig {
 /// User-scope service configuration.
 #[derive(Debug, Clone, Deserialize)]
 pub struct UserServicesConfig {
-    /// Relational store (`LibSQL`) — sessions, messages, user config.
+    /// Relational store (Turso) — sessions, messages, user config.
     #[serde(default = "ServiceEntry::user_relational_default")]
     pub relational: ServiceEntry,
     /// Analytics store (`DuckDB`) — user/project stats: ROTI,
@@ -508,7 +508,7 @@ pub struct ServiceEntry {
     /// Whether boot fails if this service fails (critical = true).
     #[serde(default)]
     pub critical: bool,
-    /// Service kind identifier (e.g., "libsql", "duckdb").
+    /// Service kind identifier (e.g., "turso", "duckdb").
     #[serde(default)]
     pub kind: String,
     /// Relative path from data directory.
@@ -517,17 +517,35 @@ pub struct ServiceEntry {
     /// Per-service retry config — overrides global defaults.
     #[serde(default)]
     pub retry: ServiceRetryConfig,
+    /// Relational stores: how long an operation waits for a lock held by
+    /// another connection before reporting busy.
+    #[serde(default = "default_busy_timeout_ms")]
+    pub busy_timeout_ms: u64,
+}
+
+/// Shipped suggestion for [`ServiceEntry::busy_timeout_ms`].
+const fn default_busy_timeout_ms() -> u64 {
+    5_000
 }
 
 impl ServiceEntry {
+    /// Connection options for a relational (Turso) store.
+    #[must_use]
+    pub const fn turso_options(&self) -> crate::platform::TursoOptions {
+        crate::platform::TursoOptions {
+            busy_timeout: std::time::Duration::from_millis(self.busy_timeout_ms),
+        }
+    }
+
     /// System relational service defaults.
     pub fn system_relational_default() -> Self {
         Self {
             enabled: true,
             critical: true,
-            kind: "libsql".to_string(),
-            path: "system/libsql/platform.db".to_string(),
+            kind: "turso".to_string(),
+            path: "system/turso/platform.db".to_string(),
             retry: ServiceRetryConfig::default(),
+            busy_timeout_ms: default_busy_timeout_ms(),
         }
     }
 
@@ -540,6 +558,7 @@ impl ServiceEntry {
             kind: "duckdb".to_string(),
             path: "system/duckdb/analytics.duckdb".to_string(),
             retry: ServiceRetryConfig::default(),
+            busy_timeout_ms: default_busy_timeout_ms(),
         }
     }
 
@@ -548,9 +567,10 @@ impl ServiceEntry {
         Self {
             enabled: true,
             critical: false,
-            kind: "libsql".to_string(),
-            path: "user/libsql/user.db".to_string(),
+            kind: "turso".to_string(),
+            path: "user/turso/user.db".to_string(),
             retry: ServiceRetryConfig::default(),
+            busy_timeout_ms: default_busy_timeout_ms(),
         }
     }
 
@@ -566,6 +586,7 @@ impl ServiceEntry {
             kind: "duckdb".to_string(),
             path: "user/duckdb/user-analytics.duckdb".to_string(),
             retry: ServiceRetryConfig::default(),
+            busy_timeout_ms: default_busy_timeout_ms(),
         }
     }
 
@@ -1250,7 +1271,7 @@ fn default_subdir_vision() -> String {
 ///
 /// `DevForge` is a Layer 1 infrastructure service — a managed Node process
 /// running the VS Code REH (Remote Extension Host) server. It boots
-/// through the platform service pipeline like libSQL, `DuckDB`, etc.
+/// through the platform service pipeline like Turso, `DuckDB`, etc.
 ///
 /// The REH tree is fetched from `github.com/EonsofStupid/devforge`
 /// releases via `cargo xtask fetch-devforge` and lives under

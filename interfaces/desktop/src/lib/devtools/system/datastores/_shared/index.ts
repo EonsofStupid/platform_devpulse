@@ -2,7 +2,7 @@
  * @file Datastore devtool shared visual primitives — barrel.
  * @module @devpulse/devtools/system/datastores/_shared
  *
- * Per-store devtools (DuckDB / libSQL / SurrealDB / Qdrant) consume
+ * Per-store devtools (DuckDB / Turso / SurrealDB / Qdrant) consume
  * these primitives so the user sees a coherent visual language across
  * every store: same health-signal motion, same activity pulse, same
  * empty-state poster, same hero-card layout — only the accent color

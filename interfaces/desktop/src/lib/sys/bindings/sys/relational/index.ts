@@ -1,18 +1,18 @@
 /**
  * @file sys/bindings/sys/relational/index.ts
- * @description LibSQL relational store devtool surface.
+ * @description Turso relational store devtool surface.
  */
 
 import { commands } from "$lib/sys/generated/bindings.js";
 
-export const libsqlHealthAll = commands.libsqlHealthAll;
-export const libsqlListTables = commands.libsqlListTables;
-export const libsqlQuery = commands.libsqlQuery;
+export const tursoHealthAll = commands.tursoHealthAll;
+export const tursoListTables = commands.tursoListTables;
+export const tursoQuery = commands.tursoQuery;
 
 export type {
-	LibSqlDatabase,
-	LibSqlHealth,
-	LibSqlHealthAll,
-	LibSqlQueryResult,
-	LibSqlTableInfo,
+	TursoDatabase,
+	TursoHealth,
+	TursoHealthAll,
+	TursoQueryResult,
+	TursoTableInfo,
 } from "$lib/sys/generated/bindings.js";

@@ -4,7 +4,7 @@
 //! (attach / bump), spawn / attach disposition, health poll, HTTP
 //! client for the Ollama REST API. Lifted out of
 //! `systems/devpulse-engine/src/platform/services/ollama.rs` so Ollama
-//! sits alongside the other cortex resource adapters (surreal, libsql,
+//! sits alongside the other cortex resource adapters (surreal, turso,
 //! duckdb, rro, moka, whisper, kokoros, embedder).
 //!
 //! Kernel/engine split:

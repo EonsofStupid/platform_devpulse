@@ -215,7 +215,7 @@ pub enum LoadError {
         /// Human-readable failure reason.
         reason: String,
     },
-    /// `ConfigBackend` trait operation failed (libsql write, memory-
+    /// `ConfigBackend` trait operation failed (turso write, memory-
     /// config invariant violation, etc.). Usually transient unless
     /// the backing store is itself corrupt.
     ConfigBackendFailed {

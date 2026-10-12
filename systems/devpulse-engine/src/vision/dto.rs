@@ -144,7 +144,7 @@ pub struct FrameMetric {
     /// `"siglip1-candle"` | `"siglip2-ort"` | `"siglip1-tiled"`.
     pub hd_path: String,
     /// Comma-separated list of sink names that acknowledged the write.
-    /// e.g. `"disk,libsql,duckdb"`.
+    /// e.g. `"disk,turso,duckdb"`.
     pub sink_list: String,
 }
 

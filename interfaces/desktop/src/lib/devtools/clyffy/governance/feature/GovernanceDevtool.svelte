@@ -92,7 +92,7 @@ const badge: HealthBadge = {
 					</div>
 					<div class="flex justify-between">
 						<span style="color: var(--text-secondary)">System table</span>
-						<span class="font-mono">grammar_service (libsql)</span>
+						<span class="font-mono">grammar_service (turso)</span>
 					</div>
 					<div class="flex justify-between">
 						<span style="color: var(--text-secondary)">Tracing target</span>

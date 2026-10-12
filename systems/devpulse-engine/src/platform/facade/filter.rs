@@ -161,7 +161,7 @@ fn redact_ip(text: &str) -> String {
         ("flume", "message"),
         ("rkyv", "data"),
         ("Qdrant", "knowledge base"),
-        ("libSQL", "database"),
+        ("Turso", "database"),
         ("DuckDB", "analytics"),
         ("SurrealDB", "graph"),
         ("Candle", "AI engine"),

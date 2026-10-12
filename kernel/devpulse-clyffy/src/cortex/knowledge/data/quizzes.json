@@ -156,7 +156,7 @@
           "id": "specialization",
           "label": "Each store is best at its specific job",
           "isCorrect": true,
-          "explanation": "Yes. libSQL = SSOT for facts; SurrealDB = persona/graph; DuckDB = analytics OLAP; Qdrant = embedded vector. One DB-of-everything would lose on at least one axis."
+          "explanation": "Yes. Turso = SSOT for facts; SurrealDB = persona/graph; DuckDB = analytics OLAP; Qdrant = embedded vector. One DB-of-everything would lose on at least one axis."
         },
         {
           "id": "compliance",
@@ -270,7 +270,7 @@
           "id": "encryption",
           "label": "SurrealDB encrypts at rest",
           "isCorrect": false,
-          "explanation": "Encryption isn't the driver — the encrypted-at-rest layer lives in the OS keyring + libSQL for secrets."
+          "explanation": "Encryption isn't the driver — the encrypted-at-rest layer lives in the OS keyring + Turso for secrets."
         }
       ]
     },

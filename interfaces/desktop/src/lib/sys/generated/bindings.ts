@@ -755,33 +755,33 @@ async graphKvList(namespace: GraphNamespace) : Promise<Result<GraphKvEntry[], st
 }
 },
 /**
- * Ping both `LibSQL` databases — returns health for each.
+ * Ping both Turso databases — returns health for each.
  */
-async libsqlHealthAll() : Promise<Result<LibSqlHealthAll, string>> {
+async tursoHealthAll() : Promise<Result<TursoHealthAll, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("libsql_health_all") };
+    return { status: "ok", data: await TAURI_INVOKE("turso_health_all") };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
 }
 },
 /**
- * List tables and row counts for a `LibSQL` database.
+ * List tables and row counts for a Turso database.
  */
-async libsqlListTables(database: LibSqlDatabase) : Promise<Result<LibSqlTableInfo[], string>> {
+async tursoListTables(database: TursoDatabase) : Promise<Result<TursoTableInfo[], string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("libsql_list_tables", { database }) };
+    return { status: "ok", data: await TAURI_INVOKE("turso_list_tables", { database }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
 }
 },
 /**
- * Execute a raw SQL query against a `LibSQL` database — devtools console.
+ * Execute a raw SQL query against a Turso database — devtools console.
  */
-async libsqlQuery(database: LibSqlDatabase, sql: string) : Promise<Result<LibSqlQueryResult, string>> {
+async tursoQuery(database: TursoDatabase, sql: string) : Promise<Result<TursoQueryResult, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("libsql_query", { database, sql }) };
+    return { status: "ok", data: await TAURI_INVOKE("turso_query", { database, sql }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -1946,7 +1946,7 @@ async pixvixCaptureWebcamOnce(index: number) : Promise<Result<CapturedFrame, Com
  * Fetch dashboard data from all services.
  * 
  * Queries:
- * - `LibSQL`: projects (recent 8), project count, message/session counts
+ * - Turso: projects (recent 8), project count, message/session counts
  * - `DuckDB`: `daily_stats` (last 20 days)
  * - Moka: cache stats (entry count / capacity)
  */
@@ -2008,7 +2008,7 @@ async updateUserPreferences(patch: UpdateUserPreferencesInput) : Promise<Result<
 }
 },
 /**
- * Create a new project row in user `LibSQL`.
+ * Create a new project row in user Turso.
  * 
  * Duplicate `root_path` values are rejected at the SQL level — the
  * `projects` table schema declares `root_path TEXT NOT NULL UNIQUE`,
@@ -2176,7 +2176,7 @@ async recordKnowledgeReaction(entryId: string, reaction: string) : Promise<Resul
 },
 /**
  * Pull the latest knowledge catalog from the configured Supabase
- * Storage bucket and upsert into libSQL.
+ * Storage bucket and upsert into Turso.
  * 
  * URL convention (public bucket, anon-keyed read):
  * 
@@ -2409,7 +2409,7 @@ async unloadSlot(slotId: string) : Promise<Result<null, LoadError>> {
 /**
  * Clear the persisted model assignment from a slot.
  * 
- * Distinct from `unload_slot`: this removes the libSQL
+ * Distinct from `unload_slot`: this removes the Turso
  * `slot.<id>.model` key so the next app launch does NOT re-attempt
  * the load. The use case is a stuck assignment whose load crashes the
  * backend on every relaunch — clear it once, the slot stays empty
@@ -3415,10 +3415,10 @@ async voiceSttSaveConfig(cfg: VoiceSttConfig) : Promise<Result<VoiceSttConfig, s
 }
 },
 /**
- * Store an API key in the OS keychain and mirror a masked hint to libSQL.
+ * Store an API key in the OS keychain and mirror a masked hint to Turso.
  * 
  * Idempotent — re-storing for the same provider overwrites both halves.
- * The libSQL mirror is best-effort; failure there logs a warning but
+ * The Turso mirror is best-effort; failure there logs a warning but
  * does not roll back the keychain write (keychain is the source of truth).
  * 
  * # Errors
@@ -3454,7 +3454,7 @@ async getApiKey(provider: ProviderId) : Promise<Result<string | null, CommandErr
 }
 },
 /**
- * Delete an API key from the OS keychain and the libSQL mirror.
+ * Delete an API key from the OS keychain and the Turso mirror.
  * 
  * Idempotent — deleting a non-existent key is success.
  * 
@@ -5836,7 +5836,7 @@ avg_latency_ms: number }
 /**
  * Single IPC response for the dashboard route. Assembles data from all services.
  * 
- * `LibSQL` may be unavailable during early boot — fields fall back to empty/zero.
+ * Turso may be unavailable during early boot — fields fall back to empty/zero.
  */
 export type DashboardPayload = { 
 /**
@@ -5856,7 +5856,7 @@ daily_stats: DailyStatsRow[];
  */
 cache_stats: CacheStats; 
 /**
- * Both fields zero if `LibSQL` is unavailable.
+ * Both fields zero if Turso is unavailable.
  */
 message_stats: MessageStats; 
 /**
@@ -6563,7 +6563,7 @@ export type ExecutionLane =
  */
 "VectorRetrieval" | 
 /**
- * Relational query (libSQL). File-backed.
+ * Relational query (Turso). File-backed.
  */
 "RelationalQuery" | 
 /**
@@ -6612,7 +6612,7 @@ rowsExported: number;
 path: string }
 /**
  * A single community feed item, both as fetched from the remote
- * endpoint and as stored in libSQL.
+ * endpoint and as stored in Turso.
  * 
  * `payload_json` is the JSON-encoded form of the kind-specific payload
  * shape. Kept as `String` (not `serde_json::Value`) so the type is
@@ -7731,82 +7731,6 @@ vad_silence_ms: number;
  */
 stream_chunk_size: number }
 /**
- * Which `LibSQL` database to target.
- */
-export type LibSqlDatabase = 
-/**
- * System database — platform.db (sessions, projects, config).
- */
-"System" | 
-/**
- * User database — user.db (turns, preferences, `api_keys`).
- */
-"User"
-/**
- * Health of a single `LibSQL` database.
- */
-export type LibSqlHealth = { 
-/**
- * Which database.
- */
-database: string; 
-/**
- * Whether SELECT 1 succeeded.
- */
-reachable: boolean; 
-/**
- * Latency in microseconds.
- */
-latency_us: number; 
-/**
- * Error message if unreachable.
- */
-error: string | null; 
-/**
- * Database file path.
- */
-path: string }
-/**
- * Combined health of both databases.
- */
-export type LibSqlHealthAll = { 
-/**
- * Per-database health.
- */
-databases: LibSqlHealth[] }
-/**
- * Result of a raw SQL query (JSON-serialized rows).
- */
-export type LibSqlQueryResult = { 
-/**
- * Column names.
- */
-columns: string[]; 
-/**
- * Rows as JSON string (serialized array of arrays).
- */
-rows_json: string; 
-/**
- * Number of rows returned.
- */
-row_count: number; 
-/**
- * Number of rows affected (for INSERT/UPDATE/DELETE).
- */
-rows_affected: number }
-/**
- * A table in the database with its row count.
- */
-export type LibSqlTableInfo = { 
-/**
- * Table name.
- */
-name: string; 
-/**
- * Number of rows.
- */
-row_count: number }
-/**
  * Where the license verdict came from. Drives UX copy on the
  * "subscription" panel — `Dev` shows a "developer bypass" badge,
  * `Supabase` shows the live verification timestamp, `OfflineBypass`
@@ -8196,7 +8120,7 @@ export type LoadError =
  */
 { kind: "boot-failed"; step: string; reason: string } | 
 /**
- * `ConfigBackend` trait operation failed (libsql write, memory-
+ * `ConfigBackend` trait operation failed (turso write, memory-
  * config invariant violation, etc.). Usually transient unless
  * the backing store is itself corrupt.
  */
@@ -8331,7 +8255,7 @@ export type MemoryKind =
  */
 "reflection"
 /**
- * Aggregate counts from `LibSQL` — cheap `COUNT(*)` queries, not row scans.
+ * Aggregate counts from Turso — cheap `COUNT(*)` queries, not row scans.
  */
 export type MessageStats = { 
 /**
@@ -9025,7 +8949,7 @@ kind: string;
  */
 created_at: number }
 /**
- * A project row from `LibSQL` — maps 1:1 to the `projects` table.
+ * A project row from Turso — maps 1:1 to the `projects` table.
  */
 export type ProjectRow = { 
 /**
@@ -9765,7 +9689,7 @@ timestamp: string;
 level: string; 
 /**
  * Tracing target — e.g. `devtools.claude`, `mcp_stdio_server`,
- * `claude::mcp::tools::query_libsql`.
+ * `claude::mcp::tools::query_database`.
  */
 target: string; 
 /**
@@ -9782,7 +9706,7 @@ message: string }
  */
 export type ServiceRole = 
 /**
- * Relational service (`LibSQL`).
+ * Relational service (Turso).
  */
 "Relational" | 
 /**
@@ -10862,6 +10786,82 @@ rate: number;
  * Output gain in decibels. `0` = unchanged.
  */
 gain_db: number }
+/**
+ * Which Turso database to target.
+ */
+export type TursoDatabase = 
+/**
+ * System database — platform.db (sessions, projects, config).
+ */
+"System" | 
+/**
+ * User database — user.db (turns, preferences, `api_keys`).
+ */
+"User"
+/**
+ * Health of a single Turso database.
+ */
+export type TursoHealth = { 
+/**
+ * Which database.
+ */
+database: string; 
+/**
+ * Whether SELECT 1 succeeded.
+ */
+reachable: boolean; 
+/**
+ * Latency in microseconds.
+ */
+latency_us: number; 
+/**
+ * Error message if unreachable.
+ */
+error: string | null; 
+/**
+ * Database file path.
+ */
+path: string }
+/**
+ * Combined health of both databases.
+ */
+export type TursoHealthAll = { 
+/**
+ * Per-database health.
+ */
+databases: TursoHealth[] }
+/**
+ * Result of a raw SQL query (JSON-serialized rows).
+ */
+export type TursoQueryResult = { 
+/**
+ * Column names.
+ */
+columns: string[]; 
+/**
+ * Rows as JSON string (serialized array of arrays).
+ */
+rows_json: string; 
+/**
+ * Number of rows returned.
+ */
+row_count: number; 
+/**
+ * Number of rows affected (for INSERT/UPDATE/DELETE).
+ */
+rows_affected: number }
+/**
+ * A table in the database with its row count.
+ */
+export type TursoTableInfo = { 
+/**
+ * Table name.
+ */
+name: string; 
+/**
+ * Number of rows.
+ */
+row_count: number }
 /**
  * Why a known architecture cannot be loaded in the requested format.
  */

@@ -3,7 +3,7 @@
  * @module @devpulse/domains/app/devpulse/services
  *
  * Data fetching for the DevPulse hub.
- * Calls Tauri IPC commands to query real services (LibSQL, DuckDB, Moka).
+ * Calls Tauri IPC commands to query real services (Turso, DuckDB, Moka).
  * ALL calls are logged through the platform logger.
  *
  * Mapping rule: every dashboard value is a real store value, labelled as
@@ -18,7 +18,7 @@ import type { DashboardData, RecentProject } from "../util/devpulse.types.js";
 
 /**
  * Fetch dashboard data from the Rust backend via Tauri IPC.
- * Queries LibSQL (projects, messages), DuckDB (daily_stats), Moka (cache stats).
+ * Queries Turso (projects, messages), DuckDB (daily_stats), Moka (cache stats).
  */
 export async function fetchDashboardData(): Promise<DashboardPayload> {
 	logInfo("devpulse", "Fetching dashboard data via IPC...");

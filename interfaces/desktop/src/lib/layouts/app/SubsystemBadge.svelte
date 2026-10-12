@@ -6,7 +6,7 @@
   Single subsystem chip rendered inside StatusBar. Wraps a ColdLight
   Badge in a ColdLight Tooltip. The tooltip surfaces:
     - Friendly (prod) label + category from the terminology SSOT.
-    - Technical (dev) label — e.g. "LibSQL", "SurrealDB", vector store.
+    - Technical (dev) label — e.g. "Turso", "SurrealDB", vector store.
     - State + latency.
     - Live Clyffy narration line when Clyffy is active.
 

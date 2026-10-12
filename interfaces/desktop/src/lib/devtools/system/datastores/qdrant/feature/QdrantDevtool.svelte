@@ -9,7 +9,7 @@
 
 	# Why this lives under system/datastores
 
-	Qdrant is a peer database to LibSQL / DuckDB / SurrealDB — it
+	Qdrant is a peer database to Turso / DuckDB / SurrealDB — it
 	stores its own files at `{data_dir}/system/rro/vectors`, has its
 	own health probe, and the user-experience parity ("each DB has a
 	devtool") demands a peer entry. The RRO devtool at

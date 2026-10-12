@@ -150,7 +150,7 @@ pub enum LoaderError {
         reason: String,
     },
 
-    /// `ConfigBackend` trait operation failed (libsql write, memory-config
+    /// `ConfigBackend` trait operation failed (turso write, memory-config
     /// invariant violation, etc.).
     #[error("Config backend {operation} failed for key '{key}': {reason}")]
     ConfigBackend {

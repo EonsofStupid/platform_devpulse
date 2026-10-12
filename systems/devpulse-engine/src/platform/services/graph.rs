@@ -164,7 +164,7 @@ DEFINE FIELD IF NOT EXISTS is_processing ON thinking_state TYPE bool DEFAULT fal
 DEFINE FIELD IF NOT EXISTS updated_at ON thinking_state TYPE datetime DEFAULT time::now();
 DEFINE INDEX IF NOT EXISTS thinking_session ON thinking_state FIELDS session_id UNIQUE;
 
--- Constrained decoding service (system-owned mirror of LibSQL grammar tables)
+-- Constrained decoding service (system-owned mirror of Turso grammar tables)
 DEFINE TABLE IF NOT EXISTS grammar_service SCHEMAFULL;
 DEFINE FIELD IF NOT EXISTS singleton_key ON grammar_service TYPE string;
 DEFINE FIELD IF NOT EXISTS enabled ON grammar_service TYPE bool DEFAULT false;

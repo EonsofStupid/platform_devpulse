@@ -18,7 +18,7 @@
  * dashboard hierarchy exactly:
  *
  * ```
- * /devtools/system/datastores/libsql      ← tier: system,   bucket: datastores
+ * /devtools/system/datastores/turso      ← tier: system,   bucket: datastores
  * /devtools/clyffy/ears/stt               ← tier: clyffy,   bucket: ears
  * /devtools/runtimes/inference/candle     ← tier: runtimes, bucket: inference
  * ```

@@ -10,8 +10,8 @@
  * projects and the currently-active project's references.
  *
  * Commands are called via tauri-specta generated bindings under
- * `commands.*` — they write libSQL first (authoritative) and mirror
- * to SurrealDB. This state reloads from libSQL after every mutation
+ * `commands.*` — they write Turso first (authoritative) and mirror
+ * to SurrealDB. This state reloads from Turso after every mutation
  * so the UI reflects the ground truth, not our in-memory guess.
  */
 

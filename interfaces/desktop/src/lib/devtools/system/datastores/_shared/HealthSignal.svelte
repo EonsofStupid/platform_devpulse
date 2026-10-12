@@ -4,7 +4,7 @@
 
 	Animated semantic health indicator for a datastore. Replaces the
 	static `style="background: var(--signal-success)"` dot pattern that
-	the existing DuckDB / libSQL / SurrealDB devtools render six different
+	the existing DuckDB / Turso / SurrealDB devtools render six different
 	ways. Single source for the up / starting / degraded / down / unknown
 	visual language.
 

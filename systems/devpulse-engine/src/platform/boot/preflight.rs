@@ -18,8 +18,8 @@ use std::path::Path;
 /// Directory structure:
 /// ```text
 /// {data_dir}/
-/// ├── system/{libsql,duckdb,surreal,rro}/
-/// ├── user/{libsql,surreal}/
+/// ├── system/{turso,duckdb,surreal,rro}/
+/// ├── user/{turso,surreal}/
 /// ├── global/surreal/
 /// ├── projects/          (root only — per-project dirs on demand)
 /// └── logs/

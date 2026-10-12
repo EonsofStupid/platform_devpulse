@@ -1,14 +1,14 @@
-//! System-scoped `LibSQL` persistence for grammar / constrained decoding.
+//! System-scoped Turso persistence for grammar / constrained decoding.
 //!
 //! Tables are created by the engine's `SYSTEM_SCHEMA`; this module owns the
 //! kernel-side write contract for those rows.
 
 use anyhow::{Context, Result};
-use libsql::params;
 use serde_json::json;
+use turso::params;
 
 use super::GrammarConfig;
-use crate::cortex::persistence::LibSqlAdapter;
+use crate::cortex::persistence::TursoAdapter;
 
 /// Primary singleton row id in `grammar_service`.
 pub const GRAMMAR_SERVICE_PRIMARY_ID: &str = "primary";
@@ -16,9 +16,9 @@ pub const GRAMMAR_SERVICE_PRIMARY_ID: &str = "primary";
 /// Upsert the `grammar_service` row from kernel-owned [`GrammarConfig`].
 ///
 /// # Errors
-/// Returns an error if serialization or `LibSQL` execution fails.
+/// Returns an error if serialization or Turso execution fails.
 pub async fn sync_grammar_service_from_config(
-    adapter: &LibSqlAdapter,
+    adapter: &TursoAdapter,
     grammar: &GrammarConfig,
 ) -> Result<()> {
     let enabled: i64 = i64::from(grammar.enabled);

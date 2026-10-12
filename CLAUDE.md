@@ -11,8 +11,9 @@ Pre-release — aggressive reauthoring, no shims.
 - **AI = providers over endpoints** — local runtimes are prebuilt, supervised
   subprocesses (plan 0007); subscriptions run as the vendor's own CLI over ACP;
   no new compiled-in inference (plan 0001)
-- **Turso** (SSOT, replaces libSQL — owner decision 2026-07-01; port in plan
-  0001 A1) + **SurrealDB** (graph) + **DuckDB** (analytics)
+- **Turso** (SSOT, `kernel/.../persistence/turso/` — one connection per
+  operation; DBs at `.userdata/{system,user}/turso/`) + **SurrealDB** (graph)
+  + **DuckDB** (analytics)
 - **Style Dictionary 5** drives ColdLight — DTCG tokens → CSS + TS types
 
 ## Commands

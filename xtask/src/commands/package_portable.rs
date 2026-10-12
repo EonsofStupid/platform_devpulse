@@ -1057,7 +1057,7 @@ fn write_readme(plan: &PackagePlan, report: &PortableReport) -> Result<()> {
     }
     body.push_str("  icon.ico — application icon\n");
     body.push_str("  manifest.json — build metadata + per-file SHA256 (integrity check)\n\n");
-    body.push_str("First run writes data to %LOCALAPPDATA%\\DevPulse\\ (libSQL, DuckDB, logs).\n");
+    body.push_str("First run writes data to %LOCALAPPDATA%\\DevPulse\\ (Turso, DuckDB, logs).\n");
 
     let path = plan.portable_dir.join("README.txt");
     let mut f = File::create(&path).with_context(|| format!("creating {}", path.display()))?;

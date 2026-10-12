@@ -17,8 +17,8 @@
 //! # Data Scopes
 //! ```text
 //! .userdata/
-//! ├── system/     Kernel internals (LibSQL, DuckDB, SurrealDB)
-//! ├── user/       User data (LibSQL, SurrealDB)
+//! ├── system/     Kernel internals (Turso, DuckDB, SurrealDB)
+//! ├── user/       User data (Turso, SurrealDB)
 //! ├── global/     Cross-project knowledge (SurrealDB)
 //! ├── projects/   Per-project data (SurrealDB, on demand)
 //! └── logs/       Rotated log files
@@ -79,10 +79,11 @@ pub use services::{Service, ServiceRole, ServiceState};
 // See `feedback_ip_boundary_is_vocabulary_not_wrappers.md` for the rule.
 
 // IP-NOTE: persistence adapter traits + raw SQL value types. All names
-// are generic (Analytics / Cache / LibSql / Sql{Adapter,Row,Value}) —
+// are generic (Analytics / Cache / Turso / Sql{Adapter,Row,Value}) —
 // no kernel vocabulary, no rename needed.
 pub use devpulse_clyffy::cortex::persistence::{
-    AnalyticsAdapter, CacheAdapter, DuckDbAdapter, LibSqlAdapter, SqlAdapter, SqlRow, SqlValue,
+    AnalyticsAdapter, CacheAdapter, DuckDbAdapter, SqlAdapter, SqlRow, SqlValue, TursoAdapter,
+    TursoOptions,
 };
 
 // IP-NOTE: RRO state machine — public-vocabulary types + runtime handle.
@@ -370,7 +371,7 @@ pub struct Platform {
     // Records enforcement / failure stats and exposes public toggle verbs.
     grammar: GrammarHandle,
     // ── Project scope ──────────────────────────────────────────
-    /// Per-project libSQL databases, created on demand (not at boot).
+    /// Per-project Turso databases, created on demand (not at boot).
     project_db: Arc<ProjectDbManager>,
     /// Per-project `DuckDB` analytics, created on demand.
     project_analytics: Arc<ProjectAnalyticsManager>,
@@ -491,7 +492,9 @@ impl Platform {
             devforge: ArcSwapOption::empty(),
             ollama: ArcSwapOption::empty(),
             sherpa_streaming: Arc::new(SherpaStreamingService::new(&data_dir)),
-            project_db: Arc::new(ProjectDbManager::new()),
+            project_db: Arc::new(ProjectDbManager::new(
+                boot_config.services.user.relational.turso_options(),
+            )),
             project_analytics: Arc::new(ProjectAnalyticsManager::new()),
             project_graph: Arc::new(ProjectGraphManager::new()),
             #[cfg(feature = "rro")]
@@ -1477,7 +1480,7 @@ impl Platform {
         // Project-scope managers are not in the macro — they're
         // on-demand, not boot-time. Order mirrors init: tear down
         // graph + vector handles first (in-memory only), then the
-        // file-owning libSQL / DuckDB adapters.
+        // file-owning Turso / DuckDB adapters.
         self.project_graph.shutdown().await;
         #[cfg(feature = "rro")]
         self.project_vector.shutdown().await;

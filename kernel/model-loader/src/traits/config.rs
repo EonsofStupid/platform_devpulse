@@ -2,35 +2,35 @@
 
 /// How the Model Loader persists slot assignments and preferences.
 ///
-/// `DevPulse` implements this with libSQL. Other apps use whatever they want.
+/// `DevPulse` implements this with Turso. Other apps use whatever they want.
 /// The Model Loader never touches a database directly.
 pub trait ConfigBackend: Send + Sync {
     /// Get a config value by key. Returns `None` if key doesn't exist.
     ///
     /// # Errors
     /// Returns error if the underlying store cannot be read (lock poisoned,
-    /// libSQL query failure, IO error on the persistence layer).
+    /// Turso query failure, IO error on the persistence layer).
     fn get(&self, key: &str) -> anyhow::Result<Option<String>>;
 
     /// Set a config value. Creates or overwrites.
     ///
     /// # Errors
     /// Returns error if the underlying store cannot be written (lock
-    /// poisoned, libSQL write failure, disk full, IO error).
+    /// poisoned, Turso write failure, disk full, IO error).
     fn set(&self, key: &str, value: &str) -> anyhow::Result<()>;
 
     /// Delete a config key.
     ///
     /// # Errors
     /// Returns error if the underlying store cannot be written (lock
-    /// poisoned, libSQL delete failure, IO error).
+    /// poisoned, Turso delete failure, IO error).
     fn delete(&self, key: &str) -> anyhow::Result<()>;
 
     /// List all key-value pairs where the key starts with `prefix`.
     ///
     /// # Errors
     /// Returns error if the underlying store cannot be read (lock poisoned,
-    /// libSQL query failure, IO error).
+    /// Turso query failure, IO error).
     fn list_by_prefix(&self, prefix: &str) -> anyhow::Result<Vec<(String, String)>>;
 }
 
