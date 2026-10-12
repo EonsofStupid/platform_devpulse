@@ -36,7 +36,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"d:/localdev/platform_devpulse/.claude/hooks/save-state.js\"",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/save-state.js\"",
             "timeout": 15
           }
         ]
@@ -47,13 +47,13 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"d:/localdev/platform_devpulse/.claude/hooks/banter-dump.js\" user-prompt",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/banter-dump.js\" user-prompt",
             "timeout": 10,
             "async": true
           },
           {
             "type": "command",
-            "command": "node \"d:/localdev/platform_devpulse/.claude/hooks/psych-translator.js\"",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/psych-translator.js\"",
             "timeout": 5
           }
         ]
@@ -64,7 +64,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"d:/localdev/platform_devpulse/.claude/hooks/restore-memory.js\"",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/restore-memory.js\"",
             "timeout": 30
           }
         ]
@@ -75,7 +75,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"d:/localdev/platform_devpulse/.claude/hooks/session-end.js\"",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/session-end.js\"",
             "timeout": 10
           }
         ]
@@ -87,7 +87,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"d:/localdev/platform_devpulse/.claude/hooks/track-files.js\"",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/track-files.js\"",
             "timeout": 10,
             "async": true
           }
@@ -99,12 +99,12 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"d:/localdev/platform_devpulse/.claude/hooks/banter-dump.js\" stop",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/banter-dump.js\" stop",
             "timeout": 15
           },
           {
             "type": "command",
-            "command": "node \"d:/localdev/platform_devpulse/.claude/hooks/verify-on-stop.js\"",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/verify-on-stop.js\"",
             "timeout": 60
           }
         ]
