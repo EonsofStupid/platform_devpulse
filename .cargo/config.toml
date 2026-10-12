@@ -48,3 +48,9 @@ PYO3_USE_ABI3_FORWARD_COMPATIBILITY = "1"
 # `warn` keeps real errors visible (cache write failures, server crashes)
 # without the per-invocation noise.
 SCCACHE_LOG = "warn"
+# aws-lc-sys (TLS via rustls) assembles x86_64 code with NASM. When `nasm` is
+# on PATH it is used; otherwise this allows the crate's own shipped prebuilt
+# NASM objects (`aws-lc-sys/builder/prebuilt-nasm/`) instead of panicking.
+# Keeps plain `cargo check -p <crate>` working on any machine without a
+# machine-specific NASM path.
+AWS_LC_SYS_PREBUILT_NASM = "1"

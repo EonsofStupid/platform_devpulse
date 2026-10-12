@@ -36,6 +36,7 @@ import {
 	installToSlot,
 } from "$lib/sys/bindings/models/index.js";
 import type { TierDisplay, WizardCopy } from "$lib/sys/generated/bindings.js";
+import { platformState } from "$lib/sys/runes/platformState.svelte.js";
 import { hardwareState } from "../../data-access/hardware.state.svelte.js";
 import ClyffyCollabView from "./feature/views/ClyffyCollabView.svelte";
 import CompleteView from "./feature/views/CompleteView.svelte";
@@ -77,6 +78,8 @@ interface AutoConfigPayload {
 let copy = $state<WizardCopy | null>(null);
 let tierDisplay = $state<TierDisplay | null>(null);
 let copyError = $state<string | null>(null);
+/** Recommendation failures — separate from copy load failures. */
+let recommendationsError = $state<string | null>(null);
 let busy = $state(false);
 
 let recommendations = $state<SlotRecommendation[]>([]);
@@ -300,23 +303,29 @@ $effect(() => {
  */
 $effect(() => {
 	if (wizardState.view !== "cortex") return;
+	// Recommendations are computed by the model loader, which exists only
+	// once the platform has booted. Reading `isReady` here makes this
+	// effect re-run when boot completes instead of failing once and
+	// never retrying.
+	if (!platformState.isReady) return;
 	if (recommendations.length > 0) return;
 	void loadRecommendations();
 });
 
 async function loadRecommendations(): Promise<void> {
 	busy = true;
+	recommendationsError = null;
 	try {
 		const r = await autoConfigure();
 		if (r.status === "error") {
-			copyError = `Couldn't compute recommendations: ${r.error}`;
+			recommendationsError = `Couldn't compute recommendations: ${r.error}`;
 			return;
 		}
 		try {
 			const payload = JSON.parse(r.data) as AutoConfigPayload;
 			recommendations = payload.recommendations;
 		} catch (e) {
-			copyError = `Couldn't parse auto-config response: ${(e as Error).message}`;
+			recommendationsError = `Couldn't parse auto-config response: ${(e as Error).message}`;
 		}
 	} finally {
 		busy = false;
@@ -346,10 +355,11 @@ async function applyAutoConfig() {
 	dispatchErrors = {};
 	dispatchedInstallIds = [];
 
+	recommendationsError = null;
 	try {
 		const r = await autoConfigure();
 		if (r.status === "error") {
-			copyError = `Couldn't compute recommendations: ${r.error}`;
+			recommendationsError = `Couldn't compute recommendations: ${r.error}`;
 			return;
 		}
 
@@ -357,7 +367,7 @@ async function applyAutoConfig() {
 		try {
 			payload = JSON.parse(r.data) as AutoConfigPayload;
 		} catch (e) {
-			copyError = `Couldn't parse auto-config response: ${(e as Error).message}`;
+			recommendationsError = `Couldn't parse auto-config response: ${(e as Error).message}`;
 			return;
 		}
 
@@ -456,6 +466,9 @@ const callbacks: WizardCallbacks = {
 		<div class="dispatcher-error" role="alert">
 			Couldn't load wizard copy: {copyError}
 		</div>
+	{/if}
+	{#if recommendationsError}
+		<div class="dispatcher-error" role="alert">{recommendationsError}</div>
 	{/if}
 
 	{#if wizardState.view === "welcome"}

@@ -34,6 +34,7 @@ pub mod init;
 pub mod integrations;
 pub mod metrics;
 pub mod module;
+pub mod onboarding;
 pub mod services;
 pub mod telemetry;
 

@@ -1,0 +1,9 @@
+{
+	"$comment": "Ratchet for scripts/hooks/coldlight-boundary.mjs — counts may only go down; target is 0 for every rule.",
+	"counts": {
+		"undefined-var": 176,
+		"tailwind-visual": 2298,
+		"visual-theme-token": 732,
+		"raw-value": 574
+	}
+}
