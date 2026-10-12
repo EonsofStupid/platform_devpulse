@@ -14,7 +14,7 @@ use crate::platform::boot::log::BootLog;
 use crate::platform::boot::retry;
 use crate::platform::config::{sanitize_path, ServiceEntry, WindowsConfig};
 use crate::platform::init::InitEvent;
-use crate::platform::services::relational::RelationalService;
+use crate::platform::services::relational::{RelationalService, StoreSchema};
 
 use std::path::Path;
 use std::sync::Arc;
@@ -29,7 +29,7 @@ pub async fn boot(
     data_dir: &Path,
     entry: &ServiceEntry,
     win_config: &WindowsConfig,
-    schema: &'static str,
+    store: StoreSchema,
     label: &'static str,
     on_event: &(impl Fn(InitEvent) + Send + 'static),
     boot_log: &BootLog,
@@ -51,7 +51,7 @@ pub async fn boot(
 
     let result = retry::retry_on_lock_async(&retry_cfg, label, || {
         let p = path.clone();
-        async move { RelationalService::boot(&p, schema, label, options).await }
+        async move { RelationalService::boot(&p, store, label, options).await }
     })
     .await;
 

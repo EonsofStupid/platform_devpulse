@@ -100,7 +100,7 @@ async fn sync_entries(
             "INSERT INTO knowledge_config (user_id, config_json, updated_at) \
              VALUES ('system', ?, unixepoch()) \
              ON CONFLICT(user_id) DO UPDATE SET config_json = excluded.config_json, updated_at = excluded.updated_at",
-            &[config_json.as_str()],
+            &[config_json.into()],
         )
         .await
         .map_err(|e| format!("Failed to update knowledge_config: {e}"))?;
@@ -116,18 +116,16 @@ async fn sync_entries(
 
 /// Upsert a single entry into `knowledge_entries`.
 async fn upsert_entry(adapter: &dyn SqlAdapter, entry: &KnowledgeEntry) -> Result<(), String> {
-    let entry_type = entry.entry_type.as_str();
-    let tier = entry.tier.as_str();
     let payload_json = serde_json::to_string(&entry.payload)
         .map_err(|e| format!("Failed to serialize payload for {}: {e}", entry.id))?;
     let tags_csv = entry.tags.join(",");
     let content_hash = loader::content_hash(entry);
-    let tool = entry.tool.as_deref().unwrap_or("");
+    let tool = entry.tool.as_deref().filter(|t| !t.is_empty());
 
     adapter
         .execute(
             "INSERT INTO knowledge_entries (id, type, tool, category, tier, payload_json, tags_csv, added, content_hash) \
-             VALUES (?, ?, NULLIF(?, ''), ?, ?, ?, ?, ?, ?) \
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) \
              ON CONFLICT(id) DO UPDATE SET \
                type = excluded.type, \
                tool = excluded.tool, \
@@ -138,15 +136,15 @@ async fn upsert_entry(adapter: &dyn SqlAdapter, entry: &KnowledgeEntry) -> Resul
                added = excluded.added, \
                content_hash = excluded.content_hash",
             &[
-                entry.id.as_str(),
-                entry_type,
-                tool,
-                entry.category.as_str(),
-                tier,
-                payload_json.as_str(),
-                tags_csv.as_str(),
-                entry.added.as_str(),
-                content_hash.as_str(),
+                entry.id.as_str().into(),
+                entry.entry_type.as_str().into(),
+                tool.into(),
+                entry.category.as_str().into(),
+                entry.tier.as_str().into(),
+                payload_json.into(),
+                tags_csv.into(),
+                entry.added.as_str().into(),
+                content_hash.into(),
             ],
         )
         .await

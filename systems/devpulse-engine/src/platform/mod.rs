@@ -26,6 +26,7 @@
 
 mod boot;
 pub mod config;
+pub mod db;
 #[allow(missing_docs)]
 pub mod facade;
 pub mod health;
@@ -493,9 +494,10 @@ impl Platform {
             ollama: ArcSwapOption::empty(),
             sherpa_streaming: Arc::new(SherpaStreamingService::new(&data_dir)),
             project_db: Arc::new(ProjectDbManager::new(
+                data_dir.join("projects"),
                 boot_config.services.user.relational.turso_options(),
             )),
-            project_analytics: Arc::new(ProjectAnalyticsManager::new()),
+            project_analytics: Arc::new(ProjectAnalyticsManager::new(data_dir.join("projects"))),
             project_graph: Arc::new(ProjectGraphManager::new()),
             #[cfg(feature = "rro")]
             project_vector: Arc::new(ProjectVectorManager::new()),

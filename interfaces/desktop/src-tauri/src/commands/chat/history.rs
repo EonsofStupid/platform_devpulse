@@ -28,7 +28,7 @@ pub async fn load_recent(
         let check = adapter
             .query(
                 "SELECT id FROM sessions WHERE id = ? AND project_id = ? LIMIT 1",
-                &[id.as_str(), project_id.as_str()],
+                &[id.as_str().into(), project_id.as_str().into()],
             )
             .await
             .map_err(|e| format!("Failed to validate session: {e}"))?;
@@ -40,7 +40,7 @@ pub async fn load_recent(
         let session_rows = adapter
             .query(
                 "SELECT id FROM sessions WHERE project_id = ? ORDER BY updated_at DESC LIMIT 1",
-                &[project_id.as_str()],
+                &[project_id.as_str().into()],
             )
             .await
             .map_err(|e| format!("Failed to query sessions: {e}"))?;
@@ -54,7 +54,7 @@ pub async fn load_recent(
 		.query(
 			"SELECT id, session_id, role, content, created_at, token_count, model_used, latency_ms \
 			 FROM turns WHERE session_id = ? ORDER BY sequence_num ASC, created_at ASC LIMIT 200",
-			&[sid.as_str()],
+			&[sid.as_str().into()],
 		)
 		.await
 		.map_err(|e| format!("Failed to load turns: {e}"))?;

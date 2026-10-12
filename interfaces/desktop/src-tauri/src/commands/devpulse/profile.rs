@@ -154,8 +154,10 @@ pub(crate) async fn ensure_profile(adapter: &TursoAdapter) -> Result<UserProfile
     let profile_id = format!("prof-{}", Uuid::new_v4());
     adapter
         .execute(
-            "INSERT INTO profiles (id) VALUES (?)",
-            &[profile_id.as_str()],
+            // Explicit NULLs: databases created before user migration 0001 still
+            // carry column defaults ('32g_engineer', 1) in their table definition.
+            "INSERT INTO profiles (id, hardware_profile, expertise_level) VALUES (?, NULL, NULL)",
+            &[profile_id.as_str().into()],
         )
         .await
         .context("insert default profile row")?;
@@ -165,7 +167,7 @@ pub(crate) async fn ensure_profile(adapter: &TursoAdapter) -> Result<UserProfile
     adapter
         .execute(
             "INSERT INTO preferences (id, user_id) VALUES (?, ?)",
-            &[pref_id.as_str(), profile_id.as_str()],
+            &[pref_id.as_str().into(), profile_id.as_str().into()],
         )
         .await
         .context("insert default preferences row")?;
@@ -185,7 +187,7 @@ pub(crate) async fn ensure_profile(adapter: &TursoAdapter) -> Result<UserProfile
 #[tracing::instrument(skip(adapter), fields(profile_id), err)]
 async fn ensure_prefs(adapter: &TursoAdapter, profile_id: &str) -> Result<UserPreferences> {
     let rows = adapter
-        .query(PREFS_SELECT, &[profile_id])
+        .query(PREFS_SELECT, &[profile_id.into()])
         .await
         .context("query preferences table")?;
 
@@ -197,7 +199,7 @@ async fn ensure_prefs(adapter: &TursoAdapter, profile_id: &str) -> Result<UserPr
     adapter
         .execute(
             "INSERT INTO preferences (id, user_id) VALUES (?, ?)",
-            &[pref_id.as_str(), profile_id],
+            &[pref_id.as_str().into(), profile_id.into()],
         )
         .await
         .context("insert default preferences row")?;
@@ -295,7 +297,7 @@ async fn inner_update_user_profile(
     adapter
         .execute(
             "UPDATE profiles SET display_name = NULLIF(?, ''), email = NULLIF(?, ''), updated_at = unixepoch() WHERE id = ?",
-            &[new_name.as_str(), new_email_raw.as_str(), profile.id.as_str()],
+            &[new_name.as_str().into(), new_email_raw.as_str().into(), profile.id.as_str().into()],
         )
         .await
         .context("update_user_profile: UPDATE profiles")?;
@@ -387,34 +389,24 @@ async fn inner_update_user_preferences(
 
     let new_theme = patch.theme.unwrap_or(prefs.theme);
     let new_ctx = patch.context_mode.unwrap_or(prefs.context_mode);
-    let new_thinking = if patch.show_thinking.unwrap_or(prefs.show_thinking) {
-        "1"
-    } else {
-        "0"
-    };
     let new_verbosity = patch.verbosity.unwrap_or(prefs.verbosity);
-    let new_temp = patch
-        .default_temperature
-        .unwrap_or(prefs.default_temperature)
-        .to_string();
-    let new_telemetry = if patch.allow_telemetry.unwrap_or(prefs.allow_telemetry) {
-        "1"
-    } else {
-        "0"
-    };
-    let new_capture = if patch
-        .screen_capture_enabled
-        .unwrap_or(prefs.screen_capture_enabled)
-    {
-        "1"
-    } else {
-        "0"
-    };
 
     adapter
         .execute(
             "UPDATE preferences SET theme = ?, context_mode = ?, show_thinking = ?, verbosity = ?, default_temperature = ?, allow_telemetry = ?, screen_capture_enabled = ?, updated_at = unixepoch() WHERE id = ?",
-            &[new_theme.as_str(), new_ctx.as_str(), new_thinking, new_verbosity.as_str(), new_temp.as_str(), new_telemetry, new_capture, prefs.id.as_str()],
+            &[
+                new_theme.into(),
+                new_ctx.into(),
+                patch.show_thinking.unwrap_or(prefs.show_thinking).into(),
+                new_verbosity.into(),
+                patch.default_temperature.unwrap_or(prefs.default_temperature).into(),
+                patch.allow_telemetry.unwrap_or(prefs.allow_telemetry).into(),
+                patch
+                    .screen_capture_enabled
+                    .unwrap_or(prefs.screen_capture_enabled)
+                    .into(),
+                prefs.id.as_str().into(),
+            ],
         )
         .await
         .context("update_user_preferences: UPDATE preferences")?;

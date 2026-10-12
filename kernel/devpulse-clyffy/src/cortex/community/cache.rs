@@ -16,10 +16,6 @@ use crate::cortex::persistence::SqlAdapter;
 /// # Errors
 /// Returns the underlying SQL error stringified.
 pub async fn upsert_feed_item(adapter: &dyn SqlAdapter, item: &FeedItem) -> Result<(), String> {
-    let kind = item.kind.as_str();
-    let created_at = item.created_at.to_string();
-    let synced_at = item.synced_at.to_string();
-
     adapter
         .execute(
             "INSERT INTO community_feed \
@@ -35,15 +31,15 @@ pub async fn upsert_feed_item(adapter: &dyn SqlAdapter, item: &FeedItem) -> Resu
                url = excluded.url, \
                payload_json = excluded.payload_json",
             &[
-                item.id.as_str(),
-                kind,
-                item.title.as_deref().unwrap_or(""),
-                item.body.as_deref().unwrap_or(""),
-                item.actor.as_deref().unwrap_or(""),
-                created_at.as_str(),
-                synced_at.as_str(),
-                item.url.as_deref().unwrap_or(""),
-                item.payload_json.as_str(),
+                item.id.as_str().into(),
+                item.kind.as_str().into(),
+                item.title.as_deref().into(),
+                item.body.as_deref().into(),
+                item.actor.as_deref().into(),
+                item.created_at.into(),
+                item.synced_at.into(),
+                item.url.as_deref().into(),
+                item.payload_json.as_str().into(),
             ],
         )
         .await
@@ -64,8 +60,8 @@ pub async fn query_feed(
     kind: Option<FeedKind>,
     limit: Option<usize>,
 ) -> Result<Vec<FeedItem>, String> {
-    let limit = limit.unwrap_or(DEFAULT_FEED_LIMIT).clamp(1, 500);
-    let limit_str = limit.to_string();
+    // Clamped to 500, so the conversion cannot fail.
+    let limit = i64::try_from(limit.unwrap_or(DEFAULT_FEED_LIMIT).clamp(1, 500)).unwrap_or(500);
 
     let rows = if let Some(k) = kind {
         adapter
@@ -75,7 +71,7 @@ pub async fn query_feed(
                  WHERE kind = ? \
                  ORDER BY created_at DESC \
                  LIMIT ?",
-                &[k.as_str(), limit_str.as_str()],
+                &[k.as_str().into(), limit.into()],
             )
             .await
             .map_err(|e| format!("query community_feed (kind={}): {e}", k.as_str()))?
@@ -86,7 +82,7 @@ pub async fn query_feed(
                  FROM community_feed \
                  ORDER BY created_at DESC \
                  LIMIT ?",
-                &[limit_str.as_str()],
+                &[limit.into()],
             )
             .await
             .map_err(|e| format!("query community_feed: {e}"))?
@@ -129,12 +125,11 @@ pub async fn most_recent_sync_at(adapter: &dyn SqlAdapter) -> Result<i64, String
 /// # Errors
 /// Returns the underlying SQL error stringified.
 pub async fn set_community_enabled(adapter: &dyn SqlAdapter, enabled: bool) -> Result<(), String> {
-    let flag = if enabled { "1" } else { "0" };
     adapter
         .execute(
             "INSERT INTO community_config (user_id, enabled) VALUES ('system', ?) \
              ON CONFLICT(user_id) DO UPDATE SET enabled = excluded.enabled",
-            &[flag],
+            &[enabled.into()],
         )
         .await
         .map(|_rows_affected| ())

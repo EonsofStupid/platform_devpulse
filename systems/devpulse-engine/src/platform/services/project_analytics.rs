@@ -1,9 +1,10 @@
 //! Per-project `DuckDB` analytics manager.
 //!
 //! Mirrors [`super::project_db::ProjectDbManager`] but for the OLAP
-//! columnar store. Each project gets its own `analytics.duckdb` at
-//! `{project_root}/.userdata/analytics.duckdb` — created lazily when
-//! the project is initialized, opened with a project-scoped schema.
+//! columnar store. Each project gets its own `analytics.duckdb` inside the
+//! `DevPulse` folder, at `{data_dir}/projects/{project_id}/analytics.duckdb`
+//! — never inside the project's own folder. Created lazily when the project
+//! is initialized, opened with a project-scoped schema.
 //!
 //! Per-project (not global) so OLAP queries don't have to filter on
 //! `project_id` on every read, and so dropping a project = deleting
@@ -21,7 +22,7 @@
 use anyhow::{Context, Result};
 use devpulse_clyffy::cortex::persistence::DuckDbAdapter;
 use std::collections::HashMap;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
@@ -30,37 +31,36 @@ use tokio::sync::RwLock;
 /// Stored as `Arc<ProjectAnalyticsManager>` on `Platform`.
 pub struct ProjectAnalyticsManager {
     dbs: RwLock<HashMap<String, Arc<DuckDbAdapter>>>,
-}
-
-impl Default for ProjectAnalyticsManager {
-    fn default() -> Self {
-        Self::new()
-    }
+    /// `{data_dir}/projects` — one folder per project.
+    projects_dir: PathBuf,
 }
 
 impl ProjectAnalyticsManager {
-    /// Construct an empty manager.
+    /// Construct an empty manager; `projects_dir` is `{data_dir}/projects`.
     #[must_use]
-    pub fn new() -> Self {
+    pub fn new(projects_dir: PathBuf) -> Self {
         Self {
             dbs: RwLock::new(HashMap::new()),
+            projects_dir,
         }
+    }
+
+    /// The project's analytics file: `{data_dir}/projects/{project_id}/analytics.duckdb`.
+    #[must_use]
+    pub fn db_path(&self, project_id: &str) -> PathBuf {
+        self.projects_dir.join(project_id).join("analytics.duckdb")
     }
 
     /// Initialize the per-project analytics database.
     ///
-    /// Creates `{project_root}/.userdata/analytics.duckdb` if absent,
+    /// Creates the project's `analytics.duckdb` if absent,
     /// applies [`PROJECT_ANALYTICS_SCHEMA`], caches the adapter by
     /// project id.
     ///
     /// # Errors
     /// Returns error if file creation, `DuckDB` open, or schema init fails.
-    pub async fn init_project(
-        &self,
-        project_id: &str,
-        project_root: &Path,
-    ) -> Result<Arc<DuckDbAdapter>> {
-        let db_path = Self::db_path(project_root);
+    pub async fn init_project(&self, project_id: &str) -> Result<Arc<DuckDbAdapter>> {
+        let db_path = self.db_path(project_id);
 
         tracing::info!(
             project_id,
@@ -122,11 +122,6 @@ impl ProjectAnalyticsManager {
     /// Open project ids currently held in the cache.
     pub async fn open_projects(&self) -> Vec<String> {
         self.dbs.read().await.keys().cloned().collect()
-    }
-
-    /// Canonical path: `{project_root}/.userdata/analytics.duckdb`.
-    fn db_path(project_root: &Path) -> PathBuf {
-        project_root.join(".userdata").join("analytics.duckdb")
     }
 }
 

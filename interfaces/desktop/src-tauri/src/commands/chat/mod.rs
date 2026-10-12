@@ -120,7 +120,7 @@ pub async fn send_message(
     let proj = adapter
         .query(
             "SELECT id FROM projects WHERE id = ? LIMIT 1",
-            &[project_id.as_str()],
+            &[project_id.as_str().into()],
         )
         .await
         .map_err(|e| format!("Failed to resolve project: {e}"))?;
@@ -132,7 +132,7 @@ pub async fn send_message(
         .query(
             "SELECT id FROM sessions WHERE project_id = ? AND ended_at IS NULL \
 			 ORDER BY updated_at DESC LIMIT 1",
-            &[project_id.as_str()],
+            &[project_id.as_str().into()],
         )
         .await
         .map_err(|e| format!("Failed to query sessions: {e}"))?;
@@ -144,7 +144,7 @@ pub async fn send_message(
         adapter
             .execute(
                 "INSERT INTO sessions (id, project_id, title, is_active) VALUES (?, ?, NULL, 1)",
-                &[new_id.as_str(), project_id.as_str()],
+                &[new_id.as_str().into(), project_id.as_str().into()],
             )
             .await
             .map_err(|e| format!("Failed to create session: {e}"))?;
@@ -154,7 +154,7 @@ pub async fn send_message(
     let seq_rows = adapter
         .query(
             "SELECT COALESCE(MAX(sequence_num), 0) + 1 AS next_seq FROM turns WHERE session_id = ?",
-            &[session_id.as_str()],
+            &[session_id.as_str().into()],
         )
         .await
         .map_err(|e| format!("Failed to read sequence: {e}"))?;
@@ -170,18 +170,17 @@ pub async fn send_message(
         return Err("Message content is empty".to_string());
     }
     let body = trimmed.to_string();
-    let seq_str = sequence_num.to_string();
 
     adapter
         .execute(
             "INSERT INTO turns (id, session_id, project_id, role, content, sequence_num, \
 			 token_count, model_used, latency_ms) VALUES (?, ?, ?, 'user', ?, ?, NULL, NULL, NULL)",
             &[
-                turn_id.as_str(),
-                session_id.as_str(),
-                project_id.as_str(),
-                body.as_str(),
-                seq_str.as_str(),
+                turn_id.as_str().into(),
+                session_id.as_str().into(),
+                project_id.as_str().into(),
+                body.into(),
+                sequence_num.into(),
             ],
         )
         .await
@@ -191,7 +190,7 @@ pub async fn send_message(
 		.execute(
 			"UPDATE sessions SET updated_at = unixepoch(), interaction_count = interaction_count + 1 \
 			 WHERE id = ?",
-			&[session_id.as_str()],
+			&[session_id.as_str().into()],
 		)
 		.await
 		.map_err(|e| format!("Failed to touch session: {e}"))?;
@@ -200,7 +199,7 @@ pub async fn send_message(
 		.query(
 			"SELECT id, session_id, role, content, created_at, token_count, model_used, latency_ms \
 			 FROM turns WHERE id = ? LIMIT 1",
-			&[turn_id.as_str()],
+			&[turn_id.as_str().into()],
 		)
 		.await
 		.map_err(|e| format!("Failed to read turn: {e}"))?;
@@ -293,7 +292,7 @@ pub async fn store_assistant_turn(
     let seq_rows = adapter
         .query(
             "SELECT COALESCE(MAX(sequence_num), 0) + 1 AS next_seq FROM turns WHERE session_id = ?",
-            &[session_id.as_str()],
+            &[session_id.as_str().into()],
         )
         .await
         .map_err(|e| format!("Failed to read sequence: {e}"))?;
@@ -304,23 +303,20 @@ pub async fn store_assistant_turn(
         .unwrap_or(1);
 
     let turn_id = format!("turn-{}", Uuid::new_v4());
-    let seq_str = sequence_num.to_string();
-    let tc_str = token_count.to_string();
-    let lat_str = latency_ms.to_string();
 
     adapter
         .execute(
             "INSERT INTO turns (id, session_id, project_id, role, content, sequence_num, \
 			 token_count, model_used, latency_ms) VALUES (?, ?, ?, 'assistant', ?, ?, ?, ?, ?)",
             &[
-                turn_id.as_str(),
-                session_id.as_str(),
-                project_id.as_str(),
-                content.as_str(),
-                seq_str.as_str(),
-                tc_str.as_str(),
-                model_used.as_str(),
-                lat_str.as_str(),
+                turn_id.as_str().into(),
+                session_id.as_str().into(),
+                project_id.as_str().into(),
+                content.as_str().into(),
+                sequence_num.into(),
+                token_count.into(),
+                model_used.as_str().into(),
+                latency_ms.into(),
             ],
         )
         .await
@@ -330,7 +326,7 @@ pub async fn store_assistant_turn(
 		.execute(
 			"UPDATE sessions SET updated_at = unixepoch(), interaction_count = interaction_count + 1 \
 			 WHERE id = ?",
-			&[session_id.as_str()],
+			&[session_id.as_str().into()],
 		)
 		.await
 		.map_err(|e| format!("Failed to touch session: {e}"))?;
@@ -339,7 +335,7 @@ pub async fn store_assistant_turn(
 		.query(
 			"SELECT id, session_id, role, content, created_at, token_count, model_used, latency_ms \
 			 FROM turns WHERE id = ? LIMIT 1",
-			&[turn_id.as_str()],
+			&[turn_id.as_str().into()],
 		)
 		.await
 		.map_err(|e| format!("Failed to read turn: {e}"))?;

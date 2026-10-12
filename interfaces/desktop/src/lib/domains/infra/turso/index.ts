@@ -4,15 +4,18 @@
  * Public API for the Turso devtools domain.
  */
 
-export { tursoHealthAll, tursoListTables, tursoQuery } from "./data-access/turso.service.js";
 export { tursoState } from "./data-access/turso.state.svelte.js";
 export type {
-	DatabaseOption,
+	Affinity,
+	Cell,
+	CellChange,
+	Column,
+	MigrationStatus,
+	Row,
+	RowPage,
+	SqlOutcome,
+	TableSummary,
 	TursoDatabase,
 	TursoHealth,
-	TursoHealthAll,
-	TursoQueryResult,
-	TursoTab,
-	TursoTableInfo,
 } from "./util/turso.types.js";
-export { DATABASE_OPTIONS } from "./util/turso.types.js";
+export { AFFINITY_LABEL, cellText, PAGE_SIZE } from "./util/turso.types.js";

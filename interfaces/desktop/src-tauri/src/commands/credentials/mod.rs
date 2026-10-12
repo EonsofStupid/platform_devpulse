@@ -280,7 +280,7 @@ async fn mirror_hint_to_database(state: State<'_, PlatformState>, provider: Prov
     if let Err(e) = adapter
         .execute(
             "INSERT OR REPLACE INTO api_keys (id, user_id, adapter, key_hint, last_used_at) VALUES (?, ?, ?, ?, datetime('now'))",
-            &[key_id.as_str(), profile.id.as_str(), adapter_name.as_str(), hint.as_str()],
+            &[key_id.into(), profile.id.as_str().into(), adapter_name.as_str().into(), hint.into()],
         )
         .await
     {
@@ -307,7 +307,7 @@ async fn delete_hint_from_database(state: State<'_, PlatformState>, provider: Pr
     if let Err(e) = adapter
         .execute(
             "DELETE FROM api_keys WHERE adapter = ?",
-            &[adapter_name.as_str()],
+            &[adapter_name.as_str().into()],
         )
         .await
     {

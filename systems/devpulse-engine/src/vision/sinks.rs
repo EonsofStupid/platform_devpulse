@@ -264,10 +264,8 @@ impl FrameSink for TursoFrameSink {
             None => String::new(),
         };
 
-        // Embedding stored as a CSV string of f32s — Turso has BLOB
-        // support but the SqlAdapter trait only takes `&[&str]` for
-        // params. CSV is portable and round-trips through serde when
-        // read back.
+        // The `embedding_csv` column holds the f32s as CSV text; empty
+        // when the frame was captured without an embedding.
         let embedding_csv = record
             .embedding
             .as_ref()
@@ -279,11 +277,8 @@ impl FrameSink for TursoFrameSink {
             })
             .unwrap_or_default();
 
-        let frame_id_str = record.frame_id.to_string();
-        let captured_at_str = record.captured_at_ms.to_string();
-        let source_id_str = record.source_id.to_string();
-        let width_str = record.width.to_string();
-        let height_str = record.height.to_string();
+        let frame_id = i64::try_from(record.frame_id)
+            .map_err(|_| anyhow::anyhow!("frame id {} exceeds SQLite INTEGER", record.frame_id))?;
 
         let result = self
             .adapter
@@ -293,15 +288,15 @@ impl FrameSink for TursoFrameSink {
                   width, height, sink_path, embedding_csv) \
                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 &[
-                    record.session_id.as_str(),
-                    frame_id_str.as_str(),
-                    captured_at_str.as_str(),
-                    record.source_kind.as_str(),
-                    source_id_str.as_str(),
-                    width_str.as_str(),
-                    height_str.as_str(),
-                    sink_path.as_str(),
-                    embedding_csv.as_str(),
+                    record.session_id.as_str().into(),
+                    frame_id.into(),
+                    record.captured_at_ms.into(),
+                    record.source_kind.as_str().into(),
+                    record.source_id.into(),
+                    record.width.into(),
+                    record.height.into(),
+                    sink_path.into(),
+                    embedding_csv.into(),
                 ],
             )
             .await;

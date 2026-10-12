@@ -139,21 +139,6 @@ impl TursoAdapter {
         rows.next().await.context("Turso ping: read row")?;
         Ok(())
     }
-
-    /// Execute one SQL statement with bound parameters (for example `turso::params![..]`).
-    ///
-    /// # Errors
-    /// Returns an error if Turso rejects the statement.
-    pub async fn execute_bound(
-        &self,
-        sql: &str,
-        params: impl turso::IntoParams + Send,
-    ) -> Result<u64> {
-        self.connect()?
-            .execute(sql, params)
-            .await
-            .with_context(|| format!("Turso execute failed: {sql}"))
-    }
 }
 
 impl PersistenceAdapter for TursoAdapter {
@@ -213,6 +198,17 @@ impl PersistenceAdapter for TursoAdapter {
     }
 }
 
+/// Convert one adapter-neutral [`SqlValue`] into a Turso bind value.
+fn to_turso_value(value: &SqlValue) -> turso::Value {
+    match value {
+        SqlValue::Null => turso::Value::Null,
+        SqlValue::Integer(v) => turso::Value::Integer(*v),
+        SqlValue::Real(v) => turso::Value::Real(*v),
+        SqlValue::Text(v) => turso::Value::Text(v.clone()),
+        SqlValue::Blob(v) => turso::Value::Blob(v.clone()),
+    }
+}
+
 /// Convert one Turso value into the adapter-neutral [`SqlValue`].
 fn to_sql_value(value: turso::Value) -> SqlValue {
     match value {
@@ -227,8 +223,8 @@ fn to_sql_value(value: turso::Value) -> SqlValue {
 #[async_trait::async_trait]
 impl SqlAdapter for TursoAdapter {
     #[tracing::instrument(skip(self, params), fields(sql_preview = %sql.chars().take(80).collect::<String>(), param_count = params.len()), err)]
-    async fn query(&self, sql: &str, params: &[&str]) -> Result<Vec<SqlRow>> {
-        let params: Vec<turso::Value> = params.iter().map(|s| turso::Value::from(*s)).collect();
+    async fn query(&self, sql: &str, params: &[SqlValue]) -> Result<Vec<SqlRow>> {
+        let params: Vec<turso::Value> = params.iter().map(to_turso_value).collect();
         // Hold the connection until the rows are consumed: a dropped
         // connection returns to the pool while the rows still read it.
         let conn = self.connect()?;
@@ -249,8 +245,8 @@ impl SqlAdapter for TursoAdapter {
     }
 
     #[tracing::instrument(skip(self, params), fields(sql_preview = %sql.chars().take(80).collect::<String>(), param_count = params.len()), err)]
-    async fn execute(&self, sql: &str, params: &[&str]) -> Result<u64> {
-        let params: Vec<turso::Value> = params.iter().map(|s| turso::Value::from(*s)).collect();
+    async fn execute(&self, sql: &str, params: &[SqlValue]) -> Result<u64> {
+        let params: Vec<turso::Value> = params.iter().map(to_turso_value).collect();
         self.connect()?
             .execute(sql, params)
             .await
@@ -364,6 +360,38 @@ CREATE TABLE IF NOT EXISTS platform_config (
             .await
             .expect("wide select");
         assert_eq!(rows.first().map(Vec::len), Some(40));
+
+        // Bound values keep their SQL type, including NULL, in a column
+        // without a declared type (where text is never coerced to a number).
+        adapter
+            .execute_batch("CREATE TABLE typed (a, b, c, d, e);")
+            .await
+            .expect("create typed");
+        let bound = vec![
+            SqlValue::Null,
+            SqlValue::Integer(42),
+            SqlValue::Real(0.5),
+            SqlValue::Text("text".into()),
+            SqlValue::Blob(vec![1, 2, 3]),
+        ];
+        adapter
+            .execute("INSERT INTO typed VALUES (?, ?, ?, ?, ?)", &bound)
+            .await
+            .expect("typed insert");
+        let rows = adapter
+            .query("SELECT a, b, c, d, e FROM typed WHERE b = ?", &[42.into()])
+            .await
+            .expect("typed select");
+        assert_eq!(rows, vec![bound]);
+        let rows = adapter
+            .query(
+                "SELECT typeof(a), typeof(b), typeof(c), typeof(d), typeof(e) FROM typed",
+                &[],
+            )
+            .await
+            .expect("typeof");
+        let types: Vec<_> = rows[0].iter().filter_map(SqlValue::as_text).collect();
+        assert_eq!(types, ["null", "integer", "real", "text", "blob"]);
 
         adapter.close().await;
         drop(adapter);

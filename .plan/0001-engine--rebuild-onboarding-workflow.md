@@ -788,3 +788,43 @@ queries proving what was written.
     persisted assignment through Turso (models=12 assigned=1, unchanged),
     READY with only the known boot-race errors (`get_status` /
     `get_assistant_config` called before READY — fixed in A6).
+- 2026-10-12 — **A1 T5–T6 done: project data in the DevPulse folder; versioned migrations.**
+  - T5: per-project stores open at `.userdata/projects/<id>/` (`ProjectDbManager` /
+    `ProjectAnalyticsManager` take the projects dir). Registering a project
+    writes nothing inside it. No project was registered, so no data moved.
+  - T6: numbered SQL files under `systems/devpulse-engine/migrations/{system,user,project}/`.
+    - `build.rs` embeds them (the sqlx `migrate!` / refinery pattern) and
+      fails the build on a malformed name or a duplicate version.
+    - `platform/db::migrate` applies pending ones in order. Each runs in one
+      transaction with its `schema_migrations` row. A failure rolls back and
+      names the migration; a database migrated by an unknown build is refused.
+    - Every store migrates when it opens (`StoreSchema { schema, migrations }`).
+  - First migration: `user/0001_clear_seeded_profile_values` clears the
+    invented `32g_engineer` / expertise / `Developer` values.
+  - Verified:
+    - tests 4/4 (order + once, rollback, unknown build, embedded order);
+    - live boot logged `migration applied version=1`;
+    - through `--mcp-stdio`, `profiles` row `user-1` has
+      `hardware_profile = NULL, expertise_level = NULL`;
+    - `schema_migrations` holds `1 clear_seeded_profile_values`;
+    - the next boot applied nothing.
+- 2026-10-12 — **Structural fix found during T7: SQL parameters are typed.**
+  `SqlAdapter::query/execute` bound every parameter as text (`&[&str]`, 45
+  call sites in 11 files). Nothing could be set to NULL, and numbers went in
+  as text and relied on column affinity. Callers worked around it: `""` for
+  absent values, `NULLIF(?, '')`, `n.to_string()`. A row editor cannot be
+  correct on top of that.
+  - Now `&[SqlValue]`, with `From` conversions (`id.into()`, `count.into()`,
+    `None::<String>.into()` → NULL). The separate `execute_bound` is folded
+    into `execute`, so there is one API.
+  - Callers bind real types. Optional fields that were stored as `""` are now
+    NULL where the column is nullable and the reader already treats NULL as
+    absent (community feed, knowledge `tool`, project description/tool/stack,
+    turn token counts).
+  - New adapter test: NULL / integer / real / text / blob round-trip with
+    `typeof()` checked.
+  - Pre-existing, not from this change: knowledge content tests
+    `manifest_parses_clean` (expects manifest 0.1.0, data is 0.2.0) and
+    `non_glossary_entries_have_title_and_body` (quiz entries have no title)
+    fail on committed data. The telemetry span writer also logs "Failed to
+    flush span traces to DuckDB" every ~5 s, in every session today.

@@ -10,10 +10,33 @@
 //!   codebase patterns, conventions, anti-drift log
 
 use super::{Service, ServiceRole, ServiceState};
-use anyhow::Result;
+use crate::platform::db::{migrate, Migration};
+use anyhow::{Context, Result};
 use devpulse_clyffy::cortex::persistence::{TursoAdapter, TursoOptions};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
+
+/// What a relational store applies when it opens: the base schema
+/// (idempotent `CREATE ... IF NOT EXISTS`) and its versioned migrations.
+#[derive(Debug, Clone, Copy)]
+pub struct StoreSchema {
+    /// Base schema for the scope.
+    pub schema: &'static str,
+    /// Versioned migrations for the scope, in order.
+    pub migrations: &'static [Migration],
+}
+
+/// The system store: base schema + `migrations/system`.
+pub const SYSTEM_STORE: StoreSchema = StoreSchema {
+    schema: SYSTEM_SCHEMA,
+    migrations: crate::platform::db::migrations::SYSTEM,
+};
+
+/// The user store: base schema + `migrations/user`.
+pub const USER_STORE: StoreSchema = StoreSchema {
+    schema: USER_SCHEMA,
+    migrations: crate::platform::db::migrations::USER,
+};
 
 /// Relational store backed by Turso.
 pub struct RelationalService {
@@ -22,6 +45,8 @@ pub struct RelationalService {
     path: PathBuf,
     /// Scoped name for health checks (e.g., "System relational", "User relational").
     label: &'static str,
+    /// The migrations this build ships for the store's scope.
+    migrations: &'static [Migration],
 }
 
 impl RelationalService {
@@ -31,15 +56,22 @@ impl RelationalService {
     /// Returns error if the database cannot be opened or schema initialization fails.
     pub async fn boot(
         path: &Path,
-        schema: &str,
+        store: StoreSchema,
         label: &'static str,
         options: TursoOptions,
     ) -> Result<Self> {
-        let adapter = TursoAdapter::open_with_schema(path, schema, options).await?;
+        let adapter = TursoAdapter::open_with_schema(path, store.schema, options).await?;
+        let applied = migrate(&adapter, store.migrations)
+            .await
+            .with_context(|| format!("{label}: schema migration"))?;
+        if applied > 0 {
+            tracing::info!(service = label, applied, "relational store migrated");
+        }
         Ok(Self {
             adapter: Arc::new(adapter),
             path: path.to_path_buf(),
             label,
+            migrations: store.migrations,
         })
     }
 
@@ -51,6 +83,11 @@ impl RelationalService {
     /// The database file this service opened.
     pub fn path(&self) -> &Path {
         &self.path
+    }
+
+    /// The migrations this build ships for the store's scope.
+    pub fn migrations(&self) -> &'static [Migration] {
+        self.migrations
     }
 }
 

@@ -44,8 +44,7 @@ pub async fn execute(platform: &Platform, sql: &str, scope: &str) -> String {
         None => return format!("ERROR: Turso {scope} service not available"),
     };
 
-    let params: Vec<&str> = Vec::new();
-    match adapter.query(sql, &params).await {
+    match adapter.query(sql, &[]).await {
         Ok(rows) => {
             let count = rows.len();
             let json_val = rows_to_json(&rows);

@@ -108,8 +108,7 @@ pub struct CreateProjectInput {
     /// Defaults to `"personal"`.
     #[serde(default)]
     pub project_type: Option<String>,
-    /// Optional one-line description. Stored as empty string when
-    /// omitted to keep the column NOT NULL.
+    /// Optional one-line description. Stored as NULL when omitted.
     #[serde(default)]
     pub description: Option<String>,
     /// Optional source-tool hint (e.g. `"vscode"`, `"cursor"`). Free-form.
@@ -212,18 +211,22 @@ pub async fn create_project(
     let adapter = svc.adapter();
 
     let id = Uuid::new_v4().to_string();
-    let description = input.description.as_deref().unwrap_or("");
-    let tool = input.tool.as_deref().unwrap_or("");
-    let tech_stack = input.tech_stack.as_deref().unwrap_or("");
-
-    // Parameterized INSERT. SqlAdapter params are `&[&str]` — numeric /
-    // null fields we handle by inserting the SQL literal directly where
-    // the schema's DEFAULT is appropriate (active, created_at).
+    // Empty optional fields are stored as NULL; `active` and `created_at`
+    // take the schema defaults.
+    let optional = |v: &Option<String>| v.as_deref().filter(|s| !s.is_empty()).map(str::to_owned);
     adapter
         .execute(
             r"INSERT INTO projects (id, name, root_path, project_type, description, tool, tech_stack)
               VALUES (?, ?, ?, ?, ?, ?, ?)",
-            &[&id, name, root_path, &project_type, description, tool, tech_stack],
+            &[
+                id.as_str().into(),
+                name.into(),
+                root_path.into(),
+                project_type.as_str().into(),
+                optional(&input.description).into(),
+                optional(&input.tool).into(),
+                optional(&input.tech_stack).into(),
+            ],
         )
         .await
         .map_err(|e| format!("inserting project: {e:#}"))?;
@@ -313,7 +316,10 @@ pub async fn clear_active_project(state: State<'_, PlatformState>) -> Result<(),
         .ok_or_else(|| "user relational service not available".to_string())?;
     let adapter = svc.adapter();
     adapter
-        .execute("DELETE FROM kv_store WHERE key = ?", &[KV_ACTIVE_PROJECT])
+        .execute(
+            "DELETE FROM kv_store WHERE key = ?",
+            &[KV_ACTIVE_PROJECT.into()],
+        )
         .await
         .map_err(|e| format!("clearing kv_store: {e:#}"))?;
 
@@ -363,7 +369,13 @@ pub async fn add_project_reference(
         .execute(
             r"INSERT INTO project_references (id, project_id, path, label, kind)
               VALUES (?, ?, ?, ?, ?)",
-            &[&id, project_id, path, label, &kind],
+            &[
+                (&id).into(),
+                project_id.into(),
+                path.into(),
+                label.into(),
+                (&kind).into(),
+            ],
         )
         .await
         .map_err(|e| format!("inserting project_reference: {e:#}"))?;
@@ -402,7 +414,7 @@ pub async fn list_project_references(
              FROM project_references
              WHERE project_id = ?
              ORDER BY created_at ASC",
-            &[&project_id],
+            &[(&project_id).into()],
         )
         .await
         .map_err(|e| format!("listing references for {project_id}: {e:#}"))?;
@@ -429,7 +441,10 @@ pub async fn remove_project_reference(
 
     let rows_affected = svc
         .adapter()
-        .execute("DELETE FROM project_references WHERE id = ?", &[&id])
+        .execute(
+            "DELETE FROM project_references WHERE id = ?",
+            &[(&id).into()],
+        )
         .await
         .map_err(|e| format!("deleting reference {id}: {e:#}"))?;
 
@@ -461,7 +476,7 @@ async fn set_active_project_inner(platform: &Platform, id: &str) -> Result<Proje
         .execute(
             r"INSERT INTO kv_store (key, value) VALUES (?, ?)
               ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = unixepoch()",
-            &[KV_ACTIVE_PROJECT, id],
+            &[KV_ACTIVE_PROJECT.into(), id.into()],
         )
         .await
         .map_err(|e| format!("writing kv_store active_project_id: {e:#}"))?;
@@ -475,7 +490,10 @@ async fn set_active_project_inner(platform: &Platform, id: &str) -> Result<Proje
 async fn kv_get(adapter: &dyn SqlAdapter, key: &str) -> Result<Option<String>, String> {
     use devpulse_engine::platform::SqlValue;
     let rows = adapter
-        .query("SELECT value FROM kv_store WHERE key = ? LIMIT 1", &[key])
+        .query(
+            "SELECT value FROM kv_store WHERE key = ? LIMIT 1",
+            &[key.into()],
+        )
         .await
         .map_err(|e| format!("reading kv_store[{key}]: {e:#}"))?;
     let Some(row) = rows.into_iter().next() else {
@@ -496,7 +514,7 @@ async fn read_one_reference(
         .query(
             "SELECT id, project_id, path, label, kind, created_at
              FROM project_references WHERE id = ? LIMIT 1",
-            &[id],
+            &[id.into()],
         )
         .await?;
     Ok(rows.into_iter().next().and_then(row_to_reference))
@@ -710,7 +728,10 @@ pub async fn delete_project(state: State<'_, PlatformState>, id: String) -> Resu
 
     let rows_affected = svc
         .adapter()
-        .execute("UPDATE projects SET active = 0 WHERE id = ?", &[&id])
+        .execute(
+            "UPDATE projects SET active = 0 WHERE id = ?",
+            &[id.as_str().into()],
+        )
         .await
         .map_err(|e| format!("soft-deleting project {id}: {e:#}"))?;
 
@@ -732,7 +753,10 @@ pub async fn restore_project(state: State<'_, PlatformState>, id: String) -> Res
 
     let rows_affected = svc
         .adapter()
-        .execute("UPDATE projects SET active = 1 WHERE id = ?", &[&id])
+        .execute(
+            "UPDATE projects SET active = 1 WHERE id = ?",
+            &[(&id).into()],
+        )
         .await
         .map_err(|e| format!("restoring project {id}: {e:#}"))?;
 
@@ -750,7 +774,7 @@ async fn read_one_project(adapter: &dyn SqlAdapter, id: &str) -> anyhow::Result<
         .query(
             "SELECT id, name, root_path, project_type, slug, description, tool, tech_stack, active, created_at
              FROM projects WHERE id = ? LIMIT 1",
-            &[id],
+            &[id.into()],
         )
         .await?;
     Ok(rows.into_iter().next().and_then(row_to_project))

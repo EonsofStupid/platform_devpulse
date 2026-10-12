@@ -43,15 +43,12 @@ pub async fn select_entry(
     adapter: &dyn SqlAdapter,
     params: &SelectionParams,
 ) -> Result<Option<SelectedEntry>, String> {
-    let entry_type = params.entry_type.as_str();
     let cooldown_cutoff = (std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .ok()
         .and_then(|d| i64::try_from(d.as_secs()).ok())
         .unwrap_or(0))
         - params.cooldown_secs;
-    let cutoff_str = cooldown_cutoff.to_string();
-    let current_tool = params.current_tool.as_deref().unwrap_or("");
 
     // Build tier IN clause — SQLite doesn't support array params,
     // so we use a comma-separated string with INSTR trick.
@@ -77,11 +74,11 @@ pub async fn select_entry(
              END DESC \
              LIMIT 1",
             &[
-                params.user_id.as_str(),
-                entry_type,
-                tiers_csv.as_str(),
-                cutoff_str.as_str(),
-                current_tool,
+                params.user_id.as_str().into(),
+                params.entry_type.as_str().into(),
+                tiers_csv.into(),
+                cooldown_cutoff.into(),
+                params.current_tool.as_deref().into(),
             ],
         )
         .await
@@ -150,7 +147,6 @@ async fn record_shown(
         .ok()
         .and_then(|d| i64::try_from(d.as_secs()).ok())
         .unwrap_or(0);
-    let now_str = now.to_string();
 
     adapter
         .execute(
@@ -159,7 +155,7 @@ async fn record_shown(
              ON CONFLICT(entry_id, user_id) DO UPDATE SET \
                last_shown_at = excluded.last_shown_at, \
                shown_count = shown_count + 1",
-            &[entry_id, user_id, now_str.as_str(), now_str.as_str()],
+            &[entry_id.into(), user_id.into(), now.into(), now.into()],
         )
         .await
         .map_err(|e| format!("Failed to record knowledge_seen: {e}"))?;
@@ -185,7 +181,7 @@ pub async fn record_reaction(
     adapter
         .execute(
             "UPDATE knowledge_seen SET reaction = ? WHERE entry_id = ? AND user_id = ?",
-            &[reaction_str, entry_id, user_id],
+            &[reaction_str.into(), entry_id.into(), user_id.into()],
         )
         .await
         .map_err(|e| format!("Failed to record reaction: {e}"))?;

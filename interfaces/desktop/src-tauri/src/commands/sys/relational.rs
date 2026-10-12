@@ -1,294 +1,239 @@
-//! Turso devtool commands — health, table listing, raw SQL console.
+//! Turso devtool commands — health, tables, row editing, migration history
+//! and the SQL console for the system (`platform.db`) and user (`user.db`)
+//! databases.
 //!
-//! Two databases: system (platform.db) and user (user.db).
-//! Mirrors the graph.rs pattern: read platform state, access service, execute.
+//! Thin wrappers: the table editor lives in the engine
+//! (`devpulse_engine::platform::db::editor`), which checks every change
+//! against the table's columns before writing. Changes are logged to the
+//! `devtools.turso` scope, which the devtool's Logs tab reads.
 #![expect(
     clippy::missing_errors_doc,
-    reason = "Tauri command module — every Result-returning fn is a thin wrapper over the `Platform` relational service whose adapter docs hold the canonical # Errors copy"
+    reason = "Tauri command module — every Result-returning fn is a thin wrapper over the engine's `db` module, whose docs hold the canonical # Errors copy"
 )]
 
+use std::sync::Arc;
+
 use crate::state::PlatformState;
+use devpulse_engine::platform::db::editor::{
+    self, CellChange, Row, RowPage, SqlOutcome, TableSummary,
+};
+use devpulse_engine::platform::db::{self, MigrationStatus};
+use devpulse_engine::platform::services::relational::RelationalService;
+use devpulse_engine::platform::Platform;
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use tauri::State;
 
-use devpulse_engine::platform::SqlAdapter;
-
-// ═══════════════════════════════════════════════════════════════
-// Types
-// ═══════════════════════════════════════════════════════════════
+/// Scoped-log target the devtool's Logs tab reads.
+const LOG_TARGET: &str = "devtools.turso";
 
 /// Which Turso database to target.
-#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Type)]
 pub enum TursoDatabase {
-    /// System database — platform.db (sessions, projects, config).
+    /// System database — `platform.db` (platform state, never user data).
     System,
-    /// User database — user.db (turns, preferences, `api_keys`).
+    /// User database — `user.db` (profile, preferences, projects, chat).
     User,
 }
 
-/// Health of a single Turso database.
-#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+impl TursoDatabase {
+    const ALL: [Self; 2] = [Self::System, Self::User];
+
+    fn service(self, platform: &Platform) -> Result<&Arc<RelationalService>, String> {
+        match self {
+            Self::System => platform.relational(),
+            Self::User => platform.user_relational(),
+        }
+        .ok_or_else(|| format!("The {self:?} database is not open"))
+    }
+}
+
+/// Health of one Turso database.
+#[derive(Debug, Clone, Serialize, Type)]
+#[serde(rename_all = "camelCase")]
 pub struct TursoHealth {
     /// Which database.
-    pub database: String,
-    /// Whether SELECT 1 succeeded.
+    pub database: TursoDatabase,
+    /// Whether it answered `SELECT 1`.
     pub reachable: bool,
-    /// Latency in microseconds.
+    /// Round-trip time in microseconds.
     pub latency_us: u64,
-    /// Error message if unreachable.
+    /// Why it is unreachable.
     pub error: Option<String>,
-    /// Database file path.
-    pub path: String,
+    /// The database file the service opened; `None` when it is not open.
+    pub path: Option<String>,
 }
 
-/// Combined health of both databases.
-#[derive(Debug, Clone, Serialize, Deserialize, Type)]
-pub struct TursoHealthAll {
-    /// Per-database health.
-    pub databases: Vec<TursoHealth>,
-}
-
-/// A table in the database with its row count.
-#[derive(Debug, Clone, Serialize, Deserialize, Type)]
-pub struct TursoTableInfo {
-    /// Table name.
-    pub name: String,
-    /// Number of rows.
-    pub row_count: u64,
-}
-
-/// Result of a raw SQL query (JSON-serialized rows).
-#[derive(Debug, Clone, Serialize, Deserialize, Type)]
-pub struct TursoQueryResult {
-    /// Column names.
-    pub columns: Vec<String>,
-    /// Rows as JSON string (serialized array of arrays).
-    pub rows_json: String,
-    /// Number of rows returned.
-    pub row_count: u64,
-    /// Number of rows affected (for INSERT/UPDATE/DELETE).
-    pub rows_affected: u64,
-}
-
-// ═══════════════════════════════════════════════════════════════
-// Commands
-// ═══════════════════════════════════════════════════════════════
-
-/// Ping both Turso databases — returns health for each.
-#[tauri::command]
-#[specta::specta]
-pub async fn turso_health_all(state: State<'_, PlatformState>) -> Result<TursoHealthAll, String> {
-    tracing::info!("cmd turso_health_all: entry");
-    // P0: lock-free atomic load.
-    let platform = state
+fn platform(state: &PlatformState) -> Result<Arc<Platform>, String> {
+    state
         .platform
         .load_full()
-        .ok_or("Platform is still booting")?;
-
-    let mut databases = Vec::with_capacity(2);
-
-    // System DB
-    {
-        let start = std::time::Instant::now();
-        match platform.relational() {
-            Some(svc) => {
-                let adapter = svc.adapter();
-                match adapter.query("SELECT 1", &[]).await {
-                    Ok(_) => databases.push(TursoHealth {
-                        database: "system".into(),
-                        reachable: true,
-                        latency_us: start.elapsed().as_micros() as u64,
-                        error: None,
-                        path: svc.path().display().to_string(),
-                    }),
-                    Err(e) => databases.push(TursoHealth {
-                        database: "system".into(),
-                        reachable: false,
-                        latency_us: 0,
-                        error: Some(format!("{e:#}")),
-                        path: String::new(),
-                    }),
-                }
-            }
-            None => databases.push(TursoHealth {
-                database: "system".into(),
-                reachable: false,
-                latency_us: 0,
-                error: Some("Service not booted".into()),
-                path: String::new(),
-            }),
-        }
-    }
-
-    // User DB
-    {
-        let start = std::time::Instant::now();
-        match platform.user_relational() {
-            Some(svc) => {
-                let adapter = svc.adapter();
-                match adapter.query("SELECT 1", &[]).await {
-                    Ok(_) => databases.push(TursoHealth {
-                        database: "user".into(),
-                        reachable: true,
-                        latency_us: start.elapsed().as_micros() as u64,
-                        error: None,
-                        path: svc.path().display().to_string(),
-                    }),
-                    Err(e) => databases.push(TursoHealth {
-                        database: "user".into(),
-                        reachable: false,
-                        latency_us: 0,
-                        error: Some(format!("{e:#}")),
-                        path: String::new(),
-                    }),
-                }
-            }
-            None => databases.push(TursoHealth {
-                database: "user".into(),
-                reachable: false,
-                latency_us: 0,
-                error: Some("Service not booted".into()),
-                path: String::new(),
-            }),
-        }
-    }
-
-    Ok(TursoHealthAll { databases })
+        .ok_or_else(|| "Platform is still booting".to_owned())
 }
 
-/// List tables and row counts for a Turso database.
+/// Ping every Turso database.
+#[tauri::command]
+#[specta::specta]
+pub async fn turso_health_all(state: State<'_, PlatformState>) -> Result<Vec<TursoHealth>, String> {
+    let platform = platform(&state)?;
+    let mut out = Vec::with_capacity(TursoDatabase::ALL.len());
+    for database in TursoDatabase::ALL {
+        let health = match database.service(&platform) {
+            Ok(svc) => {
+                let start = std::time::Instant::now();
+                let ping = svc.adapter().ping().await;
+                TursoHealth {
+                    database,
+                    reachable: ping.is_ok(),
+                    latency_us: u64::try_from(start.elapsed().as_micros()).unwrap_or(u64::MAX),
+                    error: ping.err().map(|e| format!("{e:#}")),
+                    path: Some(svc.path().display().to_string()),
+                }
+            }
+            Err(e) => TursoHealth {
+                database,
+                reachable: false,
+                latency_us: 0,
+                error: Some(e),
+                path: None,
+            },
+        };
+        out.push(health);
+    }
+    Ok(out)
+}
+
+/// The tables in a database, with row and column counts.
 #[tauri::command]
 #[specta::specta]
 pub async fn turso_list_tables(
     state: State<'_, PlatformState>,
     database: TursoDatabase,
-) -> Result<Vec<TursoTableInfo>, String> {
-    tracing::info!(?database, "cmd turso_list_tables: entry");
-    // P0: lock-free atomic load.
-    let platform = state
-        .platform
-        .load_full()
-        .ok_or("Platform is still booting")?;
-
-    let svc = match &database {
-        TursoDatabase::System => platform.relational(),
-        TursoDatabase::User => platform.user_relational(),
-    }
-    .ok_or("Database service not available")?;
-
-    let adapter = svc.adapter();
-
-    // SQLite schema query
-    let rows = adapter
-        .query(
-            "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name",
-            &[],
-        )
+) -> Result<Vec<TableSummary>, String> {
+    let platform = platform(&state)?;
+    let svc = database.service(&platform)?;
+    editor::tables(svc.adapter().as_ref())
         .await
-        .map_err(|e| format!("Failed to list tables: {e:#}"))?;
-
-    let mut tables = Vec::new();
-    for row in &rows {
-        if let Some(name) = row.first().and_then(|v| v.as_text()) {
-            let count_rows = adapter
-                .query(&format!("SELECT COUNT(*) FROM [{name}]"), &[])
-                .await
-                .unwrap_or_default();
-            let count = count_rows
-                .first()
-                .and_then(|r| r.first())
-                .and_then(devpulse_engine::platform::SqlValue::as_integer)
-                .and_then(|n| u64::try_from(n).ok())
-                .unwrap_or(0);
-
-            tables.push(TursoTableInfo {
-                name: name.to_string(),
-                row_count: count,
-            });
-        }
-    }
-
-    Ok(tables)
+        .map_err(|e| format!("{e:#}"))
 }
 
-/// Execute a raw SQL query against a Turso database — devtools console.
+/// One page of a table's rows, with its columns.
+#[tauri::command]
+#[specta::specta]
+pub async fn turso_table_rows(
+    state: State<'_, PlatformState>,
+    database: TursoDatabase,
+    table: String,
+    offset: u32,
+    limit: u32,
+) -> Result<RowPage, String> {
+    let platform = platform(&state)?;
+    let svc = database.service(&platform)?;
+    editor::rows(svc.adapter().as_ref(), &table, offset, limit)
+        .await
+        .map_err(|e| format!("{e:#}"))
+}
+
+/// Change some columns of one row; returns the row as stored.
+#[tauri::command]
+#[specta::specta]
+pub async fn turso_update_row(
+    state: State<'_, PlatformState>,
+    database: TursoDatabase,
+    table: String,
+    rowid: i64,
+    changes: Vec<CellChange>,
+) -> Result<Row, String> {
+    let platform = platform(&state)?;
+    let svc = database.service(&platform)?;
+    let columns: Vec<&str> = changes.iter().map(|c| c.column.as_str()).collect();
+    match editor::update_row(svc.adapter().as_ref(), &table, rowid, &changes).await {
+        Ok(row) => {
+            tracing::info!(target: LOG_TARGET, ?database, %table, rowid, ?columns, "row updated");
+            Ok(row)
+        }
+        Err(e) => {
+            tracing::warn!(target: LOG_TARGET, ?database, %table, rowid, error = %format!("{e:#}"), "row update refused");
+            Err(format!("{e:#}"))
+        }
+    }
+}
+
+/// Add a row; returns it as stored (defaults filled in).
+#[tauri::command]
+#[specta::specta]
+pub async fn turso_insert_row(
+    state: State<'_, PlatformState>,
+    database: TursoDatabase,
+    table: String,
+    values: Vec<CellChange>,
+) -> Result<Row, String> {
+    let platform = platform(&state)?;
+    let svc = database.service(&platform)?;
+    match editor::insert_row(svc.adapter().as_ref(), &table, &values).await {
+        Ok(row) => {
+            tracing::info!(target: LOG_TARGET, ?database, %table, rowid = row.rowid, "row added");
+            Ok(row)
+        }
+        Err(e) => {
+            tracing::warn!(target: LOG_TARGET, ?database, %table, error = %format!("{e:#}"), "row add refused");
+            Err(format!("{e:#}"))
+        }
+    }
+}
+
+/// Delete one row.
+#[tauri::command]
+#[specta::specta]
+pub async fn turso_delete_row(
+    state: State<'_, PlatformState>,
+    database: TursoDatabase,
+    table: String,
+    rowid: i64,
+) -> Result<(), String> {
+    let platform = platform(&state)?;
+    let svc = database.service(&platform)?;
+    match editor::delete_row(svc.adapter().as_ref(), &table, rowid).await {
+        Ok(()) => {
+            tracing::info!(target: LOG_TARGET, ?database, %table, rowid, "row deleted");
+            Ok(())
+        }
+        Err(e) => {
+            tracing::warn!(target: LOG_TARGET, ?database, %table, rowid, error = %format!("{e:#}"), "row delete refused");
+            Err(format!("{e:#}"))
+        }
+    }
+}
+
+/// Every migration this build ships for a database, with when it was applied.
+#[tauri::command]
+#[specta::specta]
+pub async fn turso_migrations(
+    state: State<'_, PlatformState>,
+    database: TursoDatabase,
+) -> Result<Vec<MigrationStatus>, String> {
+    let platform = platform(&state)?;
+    let svc = database.service(&platform)?;
+    db::status(svc.adapter(), svc.migrations())
+        .await
+        .map_err(|e| format!("{e:#}"))
+}
+
+/// Run one statement from the SQL console.
 #[tauri::command]
 #[specta::specta]
 pub async fn turso_query(
     state: State<'_, PlatformState>,
     database: TursoDatabase,
     sql: String,
-) -> Result<TursoQueryResult, String> {
-    tracing::info!(?database, sql_len = sql.len(), "cmd turso_query: entry");
-    // P0: lock-free atomic load.
-    let platform = state
-        .platform
-        .load_full()
-        .ok_or("Platform is still booting")?;
-
-    let svc = match &database {
-        TursoDatabase::System => platform.relational(),
-        TursoDatabase::User => platform.user_relational(),
+) -> Result<SqlOutcome, String> {
+    let platform = platform(&state)?;
+    let svc = database.service(&platform)?;
+    let outcome = editor::run_sql(svc.adapter().as_ref(), &sql)
+        .await
+        .map_err(|e| format!("{e:#}"))?;
+    if outcome.rows_affected > 0 {
+        tracing::info!(target: LOG_TARGET, ?database, rows_affected = outcome.rows_affected, sql = %sql.trim(), "console statement changed rows");
     }
-    .ok_or("Database service not available")?;
-
-    let adapter = svc.adapter();
-    let trimmed = sql.trim();
-
-    if trimmed.is_empty() {
-        return Err("Empty query".into());
-    }
-
-    // Detect if this is a SELECT or a mutation
-    let is_select = trimmed.to_uppercase().starts_with("SELECT")
-        || trimmed.to_uppercase().starts_with("PRAGMA")
-        || trimmed.to_uppercase().starts_with("EXPLAIN");
-
-    if is_select {
-        let rows = adapter
-            .query(trimmed, &[])
-            .await
-            .map_err(|e| format!("Query failed: {e:#}"))?;
-
-        // Convert SqlRow → JSON arrays
-        let json_rows: Vec<Vec<serde_json::Value>> = rows
-            .iter()
-            .map(|row| {
-                row.iter()
-                    .map(|val| {
-                        if let Some(t) = val.as_text() {
-                            serde_json::Value::String(t.to_string())
-                        } else if let Some(i) = val.as_integer() {
-                            serde_json::json!(i)
-                        } else if let Some(f) = val.as_real() {
-                            serde_json::json!(f)
-                        } else {
-                            serde_json::Value::Null
-                        }
-                    })
-                    .collect()
-            })
-            .collect();
-
-        let row_count = json_rows.len() as u64;
-        Ok(TursoQueryResult {
-            columns: Vec::new(),
-            rows_json: serde_json::to_string(&json_rows).unwrap_or_default(),
-            row_count,
-            rows_affected: 0,
-        })
-    } else {
-        let affected = adapter
-            .execute(trimmed, &[])
-            .await
-            .map_err(|e| format!("Execute failed: {e:#}"))?;
-
-        Ok(TursoQueryResult {
-            columns: Vec::new(),
-            rows_json: "[]".to_string(),
-            row_count: 0,
-            rows_affected: affected,
-        })
-    }
+    Ok(outcome)
 }

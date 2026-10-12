@@ -755,9 +755,9 @@ async graphKvList(namespace: GraphNamespace) : Promise<Result<GraphKvEntry[], st
 }
 },
 /**
- * Ping both Turso databases — returns health for each.
+ * Ping every Turso database.
  */
-async tursoHealthAll() : Promise<Result<TursoHealthAll, string>> {
+async tursoHealthAll() : Promise<Result<TursoHealth[], string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("turso_health_all") };
 } catch (e) {
@@ -766,9 +766,9 @@ async tursoHealthAll() : Promise<Result<TursoHealthAll, string>> {
 }
 },
 /**
- * List tables and row counts for a Turso database.
+ * The tables in a database, with row and column counts.
  */
-async tursoListTables(database: TursoDatabase) : Promise<Result<TursoTableInfo[], string>> {
+async tursoListTables(database: TursoDatabase) : Promise<Result<TableSummary[], string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("turso_list_tables", { database }) };
 } catch (e) {
@@ -777,9 +777,64 @@ async tursoListTables(database: TursoDatabase) : Promise<Result<TursoTableInfo[]
 }
 },
 /**
- * Execute a raw SQL query against a Turso database — devtools console.
+ * One page of a table's rows, with its columns.
  */
-async tursoQuery(database: TursoDatabase, sql: string) : Promise<Result<TursoQueryResult, string>> {
+async tursoTableRows(database: TursoDatabase, table: string, offset: number, limit: number) : Promise<Result<RowPage, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("turso_table_rows", { database, table, offset, limit }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Change some columns of one row; returns the row as stored.
+ */
+async tursoUpdateRow(database: TursoDatabase, table: string, rowid: number, changes: CellChange[]) : Promise<Result<Row, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("turso_update_row", { database, table, rowid, changes }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Add a row; returns it as stored (defaults filled in).
+ */
+async tursoInsertRow(database: TursoDatabase, table: string, values: CellChange[]) : Promise<Result<Row, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("turso_insert_row", { database, table, values }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Delete one row.
+ */
+async tursoDeleteRow(database: TursoDatabase, table: string, rowid: number) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("turso_delete_row", { database, table, rowid }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Every migration this build ships for a database, with when it was applied.
+ */
+async tursoMigrations(database: TursoDatabase) : Promise<Result<MigrationStatus[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("turso_migrations", { database }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Run one statement from the SQL console.
+ */
+async tursoQuery(database: TursoDatabase, sql: string) : Promise<Result<SqlOutcome, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("turso_query", { database, sql }) };
 } catch (e) {
@@ -4059,6 +4114,31 @@ label?: string | null;
  */
 kind?: string | null }
 /**
+ * How a column stores values — `SQLite`'s type affinity, derived from the
+ * declared type by the rules in <https://sqlite.org/datatype3.html> §3.1.
+ */
+export type Affinity = 
+/**
+ * Whole numbers (`INTEGER`, `INT`, `BIGINT`, …).
+ */
+"integer" | 
+/**
+ * Text (`TEXT`, `VARCHAR`, `CLOB`, …).
+ */
+"text" | 
+/**
+ * Declared without a type, or `BLOB`: stores any value as given.
+ */
+"blob" | 
+/**
+ * Decimal numbers (`REAL`, `DOUBLE`, `FLOAT`).
+ */
+"real" | 
+/**
+ * Numbers of either kind (`NUMERIC`, `DECIMAL`, `BOOLEAN`, `DATE`, …).
+ */
+"numeric"
+/**
  * A suggested alternative path the user could take. The frontend
  * renders each as a one-click action.
  */
@@ -5352,6 +5432,42 @@ size_mb: number;
  */
 is_dir?: boolean }
 /**
+ * One cell value as the devtool shows and edits it.
+ */
+export type Cell = 
+/**
+ * Empty (NULL).
+ */
+{ kind: "null" } | 
+/**
+ * A whole number.
+ */
+{ kind: "integer"; value: number } | 
+/**
+ * A decimal number.
+ */
+{ kind: "real"; value: number } | 
+/**
+ * Text.
+ */
+{ kind: "text"; value: string } | 
+/**
+ * Binary data, shown as its size in bytes; not editable here.
+ */
+{ kind: "blob"; value: number }
+/**
+ * One column's new value in an insert or update.
+ */
+export type CellChange = { 
+/**
+ * Column name.
+ */
+column: string; 
+/**
+ * The new value.
+ */
+value: Cell }
+/**
  * A chat turn returned to the frontend (`turns.id` is a string key).
  */
 export type ChatMessage = { 
@@ -5632,6 +5748,34 @@ name: string;
  */
 point_count: number }
 /**
+ * One column of a table, as `PRAGMA table_info` describes it.
+ */
+export type Column = { 
+/**
+ * Column name.
+ */
+name: string; 
+/**
+ * The type as written in `CREATE TABLE` (may be empty).
+ */
+declaredType: string; 
+/**
+ * How the column stores values.
+ */
+affinity: Affinity; 
+/**
+ * Whether the column may be empty (NULL).
+ */
+nullable: boolean; 
+/**
+ * The default, as SQL text, when the column has one.
+ */
+defaultValue: string | null; 
+/**
+ * Whether the column is part of the primary key.
+ */
+primaryKey: boolean }
+/**
  * Classified failure with a human-readable message + optional context.
  * 
  * `message` is the operator-facing summary. `context` is optional
@@ -5750,8 +5894,7 @@ root_path: string;
  */
 project_type?: string | null; 
 /**
- * Optional one-line description. Stored as empty string when
- * omitted to keep the column NOT NULL.
+ * Optional one-line description. Stored as NULL when omitted.
  */
 description?: string | null; 
 /**
@@ -8287,6 +8430,22 @@ avg_amplitude: number;
  */
 noise_floor: number }
 /**
+ * A migration this build ships, and when the database applied it.
+ */
+export type MigrationStatus = { 
+/**
+ * Migration version.
+ */
+version: number; 
+/**
+ * Migration name.
+ */
+name: string; 
+/**
+ * Unix timestamp when it was applied; `None` while pending.
+ */
+appliedAt: number | null }
+/**
  * High-level file format. Matches the frontend's storage convention.
  * 
  * Both `Serialize` and `Deserialize` are derived because this enum
@@ -9387,6 +9546,42 @@ export type RoutingMode =
  */
 "local_claude_api_council"
 /**
+ * One row: its `rowid` and a cell per column, in column order.
+ */
+export type Row = { 
+/**
+ * The row's `rowid` — how edits address it.
+ */
+rowid: number; 
+/**
+ * One cell per column of the table, in column order.
+ */
+cells: Cell[] }
+/**
+ * A page of a table's rows, with the columns that describe them.
+ */
+export type RowPage = { 
+/**
+ * The table.
+ */
+table: string; 
+/**
+ * The table's columns, in order.
+ */
+columns: Column[]; 
+/**
+ * The rows on this page, in `rowid` order.
+ */
+rows: Row[]; 
+/**
+ * Rows in the whole table.
+ */
+total: number; 
+/**
+ * Index of the first row on this page.
+ */
+offset: number }
+/**
  * Deliberation depth — how deeply Clyffy ruminates before acting.
  * 
  * SSOT: `signals.registry.yaml` → group `rro` → attribute `rro.depth`.
@@ -10226,6 +10421,18 @@ fields_json: string | null;
  */
 created_at: string }
 /**
+ * The result of a statement typed into the SQL console.
+ */
+export type SqlOutcome = { 
+/**
+ * Rows returned (statements that read).
+ */
+rows: Cell[][]; 
+/**
+ * Rows changed (statements that write).
+ */
+rowsAffected: number }
+/**
  * Every state signal's latest value at one revision.
  */
 export type StateSnapshot = { 
@@ -10540,6 +10747,22 @@ export type SystemStatus =
  */
 "Shutdown"
 /**
+ * A table and how many rows it holds.
+ */
+export type TableSummary = { 
+/**
+ * Table name.
+ */
+name: string; 
+/**
+ * Number of rows.
+ */
+rowCount: number; 
+/**
+ * Number of columns.
+ */
+columnCount: number }
+/**
  * Per-target stage state — one entry per manifest artifact.
  * 
  * Populated even when the target is not extracted (`extracted: false`)
@@ -10791,77 +11014,37 @@ gain_db: number }
  */
 export type TursoDatabase = 
 /**
- * System database — platform.db (sessions, projects, config).
+ * System database — `platform.db` (platform state, never user data).
  */
 "System" | 
 /**
- * User database — user.db (turns, preferences, `api_keys`).
+ * User database — `user.db` (profile, preferences, projects, chat).
  */
 "User"
 /**
- * Health of a single Turso database.
+ * Health of one Turso database.
  */
 export type TursoHealth = { 
 /**
  * Which database.
  */
-database: string; 
+database: TursoDatabase; 
 /**
- * Whether SELECT 1 succeeded.
+ * Whether it answered `SELECT 1`.
  */
 reachable: boolean; 
 /**
- * Latency in microseconds.
+ * Round-trip time in microseconds.
  */
-latency_us: number; 
+latencyUs: number; 
 /**
- * Error message if unreachable.
+ * Why it is unreachable.
  */
 error: string | null; 
 /**
- * Database file path.
+ * The database file the service opened; `None` when it is not open.
  */
-path: string }
-/**
- * Combined health of both databases.
- */
-export type TursoHealthAll = { 
-/**
- * Per-database health.
- */
-databases: TursoHealth[] }
-/**
- * Result of a raw SQL query (JSON-serialized rows).
- */
-export type TursoQueryResult = { 
-/**
- * Column names.
- */
-columns: string[]; 
-/**
- * Rows as JSON string (serialized array of arrays).
- */
-rows_json: string; 
-/**
- * Number of rows returned.
- */
-row_count: number; 
-/**
- * Number of rows affected (for INSERT/UPDATE/DELETE).
- */
-rows_affected: number }
-/**
- * A table in the database with its row count.
- */
-export type TursoTableInfo = { 
-/**
- * Table name.
- */
-name: string; 
-/**
- * Number of rows.
- */
-row_count: number }
+path: string | null }
 /**
  * Why a known architecture cannot be loaded in the requested format.
  */

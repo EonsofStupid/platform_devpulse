@@ -68,7 +68,7 @@ use crate::platform::services::graph::GraphService;
 // WhisperService removed — slot-managed by model loader
 #[cfg(feature = "inference")]
 use crate::platform::services::model_loader::ModelLoaderService;
-use crate::platform::services::relational::{RelationalService, SYSTEM_SCHEMA, USER_SCHEMA};
+use crate::platform::services::relational::{RelationalService, SYSTEM_STORE, USER_STORE};
 use crate::platform::services::surreal::SurrealService;
 #[cfg(feature = "rro")]
 use crate::platform::services::vector::VectorService;
@@ -188,7 +188,7 @@ async fn execute_inner(
         data_dir,
         &boot_config.services.system.relational,
         &boot_config.windows,
-        SYSTEM_SCHEMA,
+        SYSTEM_STORE,
         "System relational",
         on_event,
         boot_log,
@@ -275,7 +275,7 @@ async fn execute_inner(
         data_dir,
         &boot_config.services.user.relational,
         &boot_config.windows,
-        USER_SCHEMA,
+        USER_STORE,
         "User relational",
         on_event,
         boot_log,

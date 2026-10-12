@@ -10,9 +10,9 @@
 //!
 //! ## What it touches
 //!
-//! 1. **Turso** — `{project_root}/.userdata/project.db`
+//! 1. **Turso** — `{data_dir}/projects/{project_id}/project.db`
 //!    (file index, RAG chunks, signals, drift log)
-//! 2. **`DuckDB`** — `{project_root}/.userdata/analytics.duckdb`
+//! 2. **`DuckDB`** — `{data_dir}/projects/{project_id}/analytics.duckdb`
 //!    (per-project OLAP telemetry — model calls, indexing,
 //!    retrieval, daily rollups)
 //! 3. **`SurrealDB`** — namespace `projects` / database
@@ -47,7 +47,6 @@ use anyhow::{Context, Result};
 use devpulse_clyffy::cortex::persistence::{
     DuckDbAdapter, ScopedGraphHandle, SurrealAdapter, TursoAdapter,
 };
-use std::path::Path;
 use std::sync::Arc;
 
 use super::project_analytics::ProjectAnalyticsManager;
@@ -150,13 +149,12 @@ pub async fn init_project_full(
 
     let project_id = config.project_id.as_str();
     let project_name = config.project_name.as_str();
-    let project_root: &Path = config.project_root.as_path();
 
     // ── Turso ────────────────────────────────────────────────────
     let relational = {
         let _s = tracing::info_span!("project_init.relational").entered();
         cx.project_db
-            .init_project(project_id, project_root, project_name)
+            .init_project(project_id, project_name)
             .await
             .context("project init: Turso")?
     };
@@ -165,7 +163,7 @@ pub async fn init_project_full(
     let analytics = {
         let _s = tracing::info_span!("project_init.analytics").entered();
         cx.project_analytics
-            .init_project(project_id, project_root)
+            .init_project(project_id)
             .await
             .context("project init: DuckDB analytics")?
     };

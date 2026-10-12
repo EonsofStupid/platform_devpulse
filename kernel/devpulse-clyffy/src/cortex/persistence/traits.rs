@@ -73,6 +73,76 @@ impl fmt::Display for SqlValue {
     }
 }
 
+// Conversions for binding parameters: every Rust value a statement binds
+// becomes the SQL type it is, so integers stay integers and `None` is NULL.
+
+impl From<&str> for SqlValue {
+    fn from(v: &str) -> Self {
+        Self::Text(v.to_owned())
+    }
+}
+
+impl From<String> for SqlValue {
+    fn from(v: String) -> Self {
+        Self::Text(v)
+    }
+}
+
+impl From<&String> for SqlValue {
+    fn from(v: &String) -> Self {
+        Self::Text(v.clone())
+    }
+}
+
+impl From<i64> for SqlValue {
+    fn from(v: i64) -> Self {
+        Self::Integer(v)
+    }
+}
+
+impl From<i32> for SqlValue {
+    fn from(v: i32) -> Self {
+        Self::Integer(i64::from(v))
+    }
+}
+
+impl From<u32> for SqlValue {
+    fn from(v: u32) -> Self {
+        Self::Integer(i64::from(v))
+    }
+}
+
+/// `SQLite` has no boolean type; booleans are stored as 0 / 1.
+impl From<bool> for SqlValue {
+    fn from(v: bool) -> Self {
+        Self::Integer(i64::from(v))
+    }
+}
+
+impl From<f64> for SqlValue {
+    fn from(v: f64) -> Self {
+        Self::Real(v)
+    }
+}
+
+impl From<Vec<u8>> for SqlValue {
+    fn from(v: Vec<u8>) -> Self {
+        Self::Blob(v)
+    }
+}
+
+impl From<&[u8]> for SqlValue {
+    fn from(v: &[u8]) -> Self {
+        Self::Blob(v.to_vec())
+    }
+}
+
+impl<T: Into<Self>> From<Option<T>> for SqlValue {
+    fn from(v: Option<T>) -> Self {
+        v.map_or(Self::Null, Into::into)
+    }
+}
+
 /// A single row of typed SQL values.
 pub type SqlRow = Vec<SqlValue>;
 
@@ -118,13 +188,16 @@ impl<T: PersistenceAdapter> TypedPersistence for T {}
 ///
 /// Uses `#[async_trait]` so the trait is dyn-compatible — callers accept
 /// `&dyn SqlAdapter` rather than hard-coding the concrete adapter type.
+///
+/// Parameters are typed [`SqlValue`]s bound positionally to `?`
+/// placeholders (`&[id.into(), count.into(), None::<String>.into()]`).
 #[async_trait::async_trait]
 pub trait SqlAdapter: Send + Sync {
     /// Execute a query that returns typed rows.
-    async fn query(&self, sql: &str, params: &[&str]) -> Result<Vec<SqlRow>>;
+    async fn query(&self, sql: &str, params: &[SqlValue]) -> Result<Vec<SqlRow>>;
 
-    /// Execute a statement that modifies data.
-    async fn execute(&self, sql: &str, params: &[&str]) -> Result<u64>;
+    /// Execute a statement that modifies data. Returns the rows affected.
+    async fn execute(&self, sql: &str, params: &[SqlValue]) -> Result<u64>;
 
     /// Execute a batch of statements.
     async fn execute_batch(&self, sql: &str) -> Result<()>;

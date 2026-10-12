@@ -172,6 +172,11 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             // Relational store (Turso) devtools
             commands::sys::relational::turso_health_all,
             commands::sys::relational::turso_list_tables,
+            commands::sys::relational::turso_table_rows,
+            commands::sys::relational::turso_update_row,
+            commands::sys::relational::turso_insert_row,
+            commands::sys::relational::turso_delete_row,
+            commands::sys::relational::turso_migrations,
             commands::sys::relational::turso_query,
             // Project store (per-project Turso) devtools
             commands::sys::project_db::init_project_db,
