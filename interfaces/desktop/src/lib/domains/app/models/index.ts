@@ -5,15 +5,15 @@
  * 2026-05-01 sweep) lives at `kernel/model-loader/` with the Tauri
  * command surface at `$lib/sys/bindings/models/`. This module is the
  * **state + UI bridge** between those bindings and consumer surfaces:
- * the dashboard, the slot orchestrator devtool, the chat strip, the
- * voice lab, and the onboarding wizard.
+ * the dashboard, the slot orchestrator devtool, the chat strip and the
+ * voice lab.
  *
  * Layer contract (Nx library-types per `project_nx_library_types`):
  *
  *   util/         — pure types + format/slot/role helpers
  *   data-access/  — singleton runes (modelsState, hardwareState, narrationState)
  *   ui/           — dumb presentational components (VramBar, ClyffyNarration, ModelEventCard)
- *   feature/      — orchestrating components (SetupWizardOverlay, SwapOverlay)
+ *   feature/      — orchestrating components (SwapOverlay, ModelDownloaderOverlay)
  *
  * Routes and other domains MUST import from THIS file. Don't reach
  * into sub-folders directly — that bypasses the contract and re-breaks
@@ -57,17 +57,6 @@ export {
 	type TagConfidence,
 	topSuggestion,
 } from "./feature/downloader/index.js";
-// ── Onboarding wizard ────────────────────────────────────
-// `bootstrapDownloadBridge` moved to `./data-access/download-bootstrap.js`
-// (re-exported above). The setup-wizard surface itself is being
-// absorbed into the SlotsDevtool — these exports remain only until
-// the next pass deletes the wizard files; consumers should migrate
-// to the slots devtool / data-access runes.
-export {
-	SetupWizardOverlay,
-	type WizardView,
-	wizardState,
-} from "./feature/setup-wizard/index.js";
 // ── UI components ────────────────────────────────────────
 export { default as ClyffyNarration } from "./ui/ClyffyNarration.svelte";
 export { default as ContextGauge } from "./ui/ContextGauge.svelte";

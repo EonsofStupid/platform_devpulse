@@ -19,7 +19,6 @@
 import type { Snippet } from "svelte";
 import { BackgroundScene } from "$lib/design/components/background-scene/index.js";
 import { cn } from "$lib/design/utils/cn.js";
-import { SetupWizardOverlay } from "$lib/domains/app/models/feature/setup-wizard/index.js";
 import { SwapOverlay } from "$lib/domains/app/models/index.js";
 import ActivityHud from "$lib/sys/activity-hud/ActivityHud.svelte";
 import { globalState } from "$lib/sys/runes/global.svelte";
@@ -136,8 +135,6 @@ const SLOTS = {
 		onkeydown={(e) => { if (e.key === 'Enter' || e.key === 'Escape') globalState.hideOverlay(); }}
 	>
 	</div>
-
-	<SetupWizardOverlay />
 
 	<!-- Model swap overlay — full-screen block during load/unload only -->
 	<SwapOverlay />

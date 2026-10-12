@@ -8,8 +8,11 @@ Pre-release — aggressive reauthoring, no shims.
 - **Rust workspace** — kernel, engine, Tauri backend, xtask
 - **Svelte 5 runes** — `$state`, `$derived`, `$effect`. No legacy stores.
 - **Tauri 2.0** — multi-window cockpit via WebviewWindow
-- **Candle** (primary inference) + **llama.cpp FFI** (GGUF, secondary)
-- **libSQL** (SSOT) + **SurrealDB** (graph) + **DuckDB** (analytics)
+- **AI = providers over endpoints** — local runtimes are prebuilt, supervised
+  subprocesses (plan 0007); subscriptions run as the vendor's own CLI over ACP;
+  no new compiled-in inference (plan 0001)
+- **Turso** (SSOT, replaces libSQL — owner decision 2026-07-01; port in plan
+  0001 A1) + **SurrealDB** (graph) + **DuckDB** (analytics)
 - **Style Dictionary 5** drives ColdLight — DTCG tokens → CSS + TS types
 
 ## Commands
@@ -28,7 +31,7 @@ Pre-release — aggressive reauthoring, no shims.
 - `systems/infra/{devpulse-telemetry, devpulse-telemetry-macros}/` — peer
   infrastructure crates (upward-only dependency direction)
 - `interfaces/desktop/` — Tauri 2 + SvelteKit 5 app
-  - Devtool taxonomy SSOT: `src/lib/domains/platform/_shared/devtool-registry.ts`
+  - Devtool taxonomy SSOT: `src/lib/devtools/registry.ts` (+ `meta.ts`)
     drives `/devtools/{tier}/{bucket}/{id}` — three tiers (System / Clyffy /
     Runtimes), each bucketed. Add a devtool = one registry entry + one route
     folder under that path.

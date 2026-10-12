@@ -16,9 +16,6 @@ export const scanModels = commands.scanModels;
 export const getSlots = commands.getSlots;
 export const getModelsStatus = commands.getModelsStatus;
 export const getModelCatalog = commands.getModelCatalog;
-export const isFirstRun = commands.isFirstRun;
-export const markSetupComplete = commands.markSetupComplete;
-export const isSetupComplete = commands.isSetupComplete;
 
 // ── Slot lifecycle ──────────────────────────────────────────────
 export const assignModelToSlot = commands.assignModelToSlot;
@@ -60,17 +57,15 @@ export const setBrainNgl = commands.setBrainNgl;
 export const uploadVoiceSample = commands.uploadVoiceSample;
 export const listKokoroVoices = commands.listKokoroVoices;
 
-// ── Local model import + setup wizard ───────────────────────────
+// ── Local model import + hardware presets ───────────────────────
 export const deleteModel = commands.deleteModel;
 export const importLocalModel = commands.importLocalModel;
 export const pickDirectory = commands.pickDirectory;
-export const createDevProfile = commands.createDevProfile;
 export const autoConfigure = commands.autoConfigure;
 export const listPresets = commands.listPresets;
 export const configForTier = commands.configForTier;
 export const getWizardCopy = commands.getWizardCopy;
 export const getTierDisplay = commands.getTierDisplay;
-export const completeModelSetup = commands.completeModelSetup;
 
 // ── Inference ───────────────────────────────────────────────────
 export const inferenceGenerate = commands.inferenceGenerate;

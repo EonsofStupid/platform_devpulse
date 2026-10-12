@@ -1,5 +1,10 @@
 # 08 — Wizard recode slice family (INDEX)
 
+> **SUPERSEDED — DO NOT EXECUTE (2026-10-12).** The wizard these slices recode
+> was deleted. The owner's requirements from `../07-wizard-recode-spec.md`
+> carry into `.plan/0001-engine--rebuild-onboarding-workflow.md` (first run:
+> stages 0–5, A7 UI).
+
 > Executes the BINDING spec in `../07-wizard-recode-spec.md`. Authored 2026-07-13
 > from a full ground-truth audit (every file re-read this session — EndpointView,
 > SetupWizardOverlay, OverlayShell, CortexView, wizard.state, wizard.types,

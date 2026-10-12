@@ -27,12 +27,13 @@ pub struct UserProfile {
     pub display_name: Option<String>,
     /// Optional email associated with the local profile.
     pub email: Option<String>,
-    /// Hardware profile identifier chosen for onboarding defaults.
-    pub hardware_profile: String,
+    /// Id of the hardware preset the user selected; `None` until one is chosen.
+    pub hardware_profile: Option<String>,
     /// Whether onboarding has been completed for this profile.
     pub onboarding_complete: bool,
-    /// Numeric expertise level used for adaptive UX.
-    pub expertise_level: i64,
+    /// Skill level inferred from the user's projects and GitHub; `None`
+    /// until inferred. Never asked.
+    pub expertise_level: Option<i64>,
     /// Unix timestamp when the profile row was created.
     pub created_at: i64,
     /// Unix timestamp when the profile row was last updated.
@@ -86,13 +87,9 @@ fn row_to_profile(row: &[SqlValue]) -> UserProfile {
             .to_string(),
         display_name: row.get(1).and_then(|v| v.as_text()).map(String::from),
         email: row.get(2).and_then(|v| v.as_text()).map(String::from),
-        hardware_profile: row
-            .get(3)
-            .and_then(|v| v.as_text())
-            .unwrap_or("32g_engineer")
-            .to_string(),
+        hardware_profile: row.get(3).and_then(|v| v.as_text()).map(String::from),
         onboarding_complete: row.get(4).and_then(SqlValue::as_integer).unwrap_or(0) != 0,
-        expertise_level: row.get(5).and_then(SqlValue::as_integer).unwrap_or(1),
+        expertise_level: row.get(5).and_then(SqlValue::as_integer),
         created_at: row.get(6).and_then(SqlValue::as_integer).unwrap_or(0),
         updated_at: row.get(7).and_then(SqlValue::as_integer).unwrap_or(0),
         last_active_at: row.get(8).and_then(SqlValue::as_integer),
@@ -140,9 +137,10 @@ const PROFILE_SELECT: &str = "SELECT id, display_name, email, hardware_profile, 
 
 const PREFS_SELECT: &str = "SELECT id, user_id, theme, context_mode, show_thinking, preferred_languages, tab_size, use_semicolons, default_temperature, verbosity, allow_telemetry, screen_capture_enabled FROM preferences WHERE user_id = ? LIMIT 1";
 
-/// Get or create the single user profile via the given adapter.
+/// Get or create the single user profile via the given adapter. The
+/// only place a profile row is created.
 #[tracing::instrument(skip_all, err)]
-async fn ensure_profile(adapter: &LibSqlAdapter) -> Result<UserProfile> {
+pub(crate) async fn ensure_profile(adapter: &LibSqlAdapter) -> Result<UserProfile> {
     let rows = adapter
         .query(PROFILE_SELECT, &[])
         .await
@@ -156,7 +154,7 @@ async fn ensure_profile(adapter: &LibSqlAdapter) -> Result<UserProfile> {
     let profile_id = format!("prof-{}", Uuid::new_v4());
     adapter
         .execute(
-            "INSERT INTO profiles (id, display_name, expertise_level) VALUES (?, 'Developer', 1)",
+            "INSERT INTO profiles (id) VALUES (?)",
             &[profile_id.as_str()],
         )
         .await
@@ -269,10 +267,9 @@ async fn inner_fetch_user_profile(state: State<'_, PlatformState>) -> Result<Use
 pub async fn update_user_profile(
     display_name: Option<String>,
     email: Option<String>,
-    expertise_level: Option<i64>,
     state: State<'_, PlatformState>,
 ) -> std::result::Result<UserProfile, String> {
-    inner_update_user_profile(display_name, email, expertise_level, state)
+    inner_update_user_profile(display_name, email, state)
         .await
         .map_err(|e| format!("{e:#}"))
 }
@@ -281,7 +278,6 @@ pub async fn update_user_profile(
 async fn inner_update_user_profile(
     display_name: Option<String>,
     email: Option<String>,
-    expertise_level: Option<i64>,
     state: State<'_, PlatformState>,
 ) -> Result<UserProfile> {
     let adapter = get_adapter(&state)
@@ -295,13 +291,11 @@ async fn inner_update_user_profile(
     // Use NULLIF(?, '') so empty strings become NULL in the DB.
     let new_name = display_name.unwrap_or_else(|| profile.display_name.unwrap_or_default());
     let new_email_raw = email.unwrap_or_else(|| profile.email.clone().unwrap_or_default());
-    let new_level = expertise_level.unwrap_or(profile.expertise_level);
-    let level_str = new_level.to_string();
 
     adapter
         .execute(
-            "UPDATE profiles SET display_name = NULLIF(?, ''), email = NULLIF(?, ''), expertise_level = ?, updated_at = unixepoch() WHERE id = ?",
-            &[new_name.as_str(), new_email_raw.as_str(), level_str.as_str(), profile.id.as_str()],
+            "UPDATE profiles SET display_name = NULLIF(?, ''), email = NULLIF(?, ''), updated_at = unixepoch() WHERE id = ?",
+            &[new_name.as_str(), new_email_raw.as_str(), profile.id.as_str()],
         )
         .await
         .context("update_user_profile: UPDATE profiles")?;

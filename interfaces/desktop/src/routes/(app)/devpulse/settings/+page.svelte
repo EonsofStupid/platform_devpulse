@@ -7,6 +7,7 @@
 import { Check, Pencil, X } from "lucide-svelte";
 import { Widget } from "$lib/design/blocks/widgets/index.js";
 import { Button } from "$lib/design/components/button/index.js";
+import { InlineMessage } from "$lib/design/components/inline-message/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { cn } from "$lib/design/utils/cn.js";
@@ -53,18 +54,9 @@ $effect(() => {
 								placeholder="you@example.com"
 							/>
 						</div>
-						<div class={stack({ gap: "1" })}>
-							<Text size="xs" color="secondary">Experience</Text>
-							<div class={hstack({ gap: "2" })}>
-								{#each [1, 2, 3] as lvl}
-									<button
-										class="level-btn"
-										class:level-active={settingsState.editLevel === lvl}
-										onclick={() => (settingsState.editLevel = lvl)}
-									>{settingsState.levelLabel(lvl)}</button>
-								{/each}
-							</div>
-						</div>
+						{#if settingsState.saveError}
+							<InlineMessage tone="error">{settingsState.saveError}</InlineMessage>
+						{/if}
 						<div class={hstack({ gap: "2", justify: "end" })}>
 							<Button preset="ghost" size="sm" onclick={() => settingsState.cancelEdit()} disabled={settingsState.saving}>
 								<X size={14} />
@@ -89,10 +81,6 @@ $effect(() => {
 						<div class={hstack({ justify: "between" })}>
 							<Text color="secondary">Email</Text>
 							<Text>{settingsState.profile.email ?? "Not set"}</Text>
-						</div>
-						<div class={hstack({ justify: "between" })}>
-							<Text color="secondary">Experience</Text>
-							<Text>{settingsState.levelLabel(settingsState.profile.expertiseLevel)}</Text>
 						</div>
 						<div class={hstack({ justify: "end" })}>
 							<Button preset="ghost" size="sm" onclick={() => settingsState.startEdit()}>
@@ -153,25 +141,5 @@ $effect(() => {
 	}
 	.settings-input::placeholder {
 		color: var(--text-muted);
-	}
-
-	.level-btn {
-		padding: 0.375rem 0.75rem;
-		border-radius: 0.375rem;
-		border: 0.0625rem solid var(--border-soft);
-		background: transparent;
-		color: var(--text-muted);
-		font-size: 0.75rem;
-		cursor: pointer;
-		transition: all 150ms ease-out;
-	}
-	.level-btn:hover {
-		border-color: var(--accent-teal-main);
-		color: var(--text-secondary);
-	}
-	.level-active {
-		border-color: var(--accent-teal-main);
-		background: color-mix(in oklch, var(--accent-teal-main) 15%, transparent);
-		color: var(--accent-teal-main);
 	}
 </style>

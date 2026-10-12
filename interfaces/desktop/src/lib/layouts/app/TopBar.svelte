@@ -14,7 +14,6 @@
 }
 -->
 <script lang="ts">
-import { invoke } from "@tauri-apps/api/core";
 import { Bell, Menu, MessageCircle, Search } from "lucide-svelte";
 import { Avatar } from "$lib/design/components/avatar/index.js";
 import { Badge } from "$lib/design/components/badge/index.js";
@@ -25,6 +24,8 @@ import { cn } from "$lib/design/utils/cn.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { ProjectSwitcher } from "$lib/domains/app/projects/index.js";
 import { ClyffyStatusOrb } from "$lib/domains/clyffy/index.js";
+import { openWindow } from "$lib/sys/bindings/window/index.js";
+import { logError } from "$lib/sys/logger.js";
 import { globalState } from "$lib/sys/runes/global.svelte";
 
 let searchOpen = $state(false);
@@ -35,8 +36,11 @@ function toggleSearch(): void {
 	if (!searchOpen) searchQuery = "";
 }
 
-function openChat(): void {
-	invoke("open_chat_window");
+async function openChat(): Promise<void> {
+	const result = await openWindow("Chat");
+	if (result.status === "error") {
+		logError("layouts.app.TopBar", `open chat window failed: ${result.error}`);
+	}
 }
 
 function onKey(e: KeyboardEvent): void {

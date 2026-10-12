@@ -9,7 +9,6 @@
   is the priority over strict isolation.
 -->
 <script lang="ts">
-import { invoke } from "@tauri-apps/api/core";
 import { Activity, BrainCircuit, Cpu, ExternalLink, Grid3x3, Settings, X } from "lucide-svelte";
 import { untrack } from "svelte";
 import { Button } from "$lib/design/components/button/index.js";
@@ -30,6 +29,7 @@ import type {
 	ServiceStatusSnapshot,
 } from "$lib/sys/generated/bindings.js";
 import { commands } from "$lib/sys/generated/bindings.js";
+import { logError } from "$lib/sys/logger.js";
 
 // ── Tab state ────────────────────────────────────────────────
 type TabId = "overview" | "lanes" | "config";
@@ -227,8 +227,11 @@ $effect(() => {
 });
 
 // ── Window control ───────────────────────────────────────────
-function handleClose(): void {
-	invoke("close_window", { label: "devtools" });
+async function handleClose(): Promise<void> {
+	const result = await commands.closeChildWindow("DevTools");
+	if (result.status === "error") {
+		logError("devtools", `close devtools window failed: ${result.error}`);
+	}
 }
 
 function openWindow(role: string): void {

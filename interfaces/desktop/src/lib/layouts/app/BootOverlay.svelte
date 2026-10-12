@@ -3,9 +3,9 @@
   @module @devpulse/layouts/app/BootOverlay
 
   Full-viewport overlay during platform boot.
-  Phase 1: Subsystem progress (narrow centered column).
-  Phase 2: Model setup wizard (wider, scrollable).
-  Fades out and unmounts only when platform + models are fully ready.
+  Subsystem progress (narrow centered column).
+  Fades out and unmounts once the platform is ready and the first models
+  readiness snapshot has arrived.
   No timeout dismissal — core services must complete or fail visibly.
 
   All layout via utils (hstack, stack, box -> class strings).
@@ -29,7 +29,6 @@ import { box } from "$lib/design/utils/box/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
-import { wizardState } from "$lib/domains/app/models/feature/setup-wizard/index.js";
 import { LoadingContentCard } from "$lib/domains/clyffy/index.js";
 import { DEV_MODE, devLabel, resolveLabel } from "$lib/sys/generated/terminology.js";
 import { getIcon } from "$lib/sys/generated/terminology-icons.js";
@@ -96,16 +95,8 @@ function stateToLabel(state: SubsystemState, latencyMs: number | null): string {
 // `Registry::scan`). The user opens the `ModelDownloaderOverlay`
 // explicitly — from the dashboard widget, the sidebar nav, or a
 // per-slot card in the slot orchestrator devtool — to add or assign
-// a model. There is no auto-install path. There never was a
-// product-supported one: the prior `baselineState.kick()` here
-// silently fired 13 concurrent installs against a tier-keyed preset
-// table whose entries had drifted (dead repos, wrong filename
-// casing), and lock-fought hf-hub's shared blob cache. The fix is
-// not to repair the preset table — the lock says cloud sync /
-// preset downloads stay opt-in and never gate the app. The fix is
-// to never fire on boot. User-initiated downloads remain wired
-// through the existing `installToSlot` / `downloadModel` IPC; this
-// surface just stops auto-triggering them.
+// a model. Nothing installs on boot; every download starts from the
+// user's click (`installToSlot` / `downloadModel`).
 //
 // Gate on `modelsStatusReceived` — the kernel emits `platform:ready`
 // and `platform:models-status` as separate events. Without this gate
@@ -121,25 +112,6 @@ $effect(() => {
 			"layouts.app.BootOverlay",
 			`Boot complete — modelsReady=${platformState.modelsReady} firstRun=${platformState.modelsFirstRun} — dashboard takes over`,
 		);
-		// Wizard auto-open — authoritative signal is `platformState.modelsReady`
-		// which the boot snapshot computes as
-		// `setup_done && !registry.is_empty() && assigned > 0`
-		// (kernel side at `lib.rs:1195`). Anything less than fully ready means
-		// the customer needs the wizard: brand-new install, partial setup
-		// after a crash, or models scanned but no slots assigned.
-		//
-		// NOTE: we do NOT call `wizardState.refreshFirstRun()` here — that
-		// would fire a second IPC and overwrite the authoritative snapshot.
-		// `platformState.modelsFirstRun` is populated atomically by boot.
-		// The bool sync into `wizardState.firstRun` (used by the dashboard
-		// re-open path) happens lazily on dashboard mount.
-		if (!platformState.modelsReady) {
-			wizardState.open();
-			logInfo(
-				"layouts.app.BootOverlay",
-				`Models not ready (firstRun=${platformState.modelsFirstRun}) — opened setup wizard`,
-			);
-		}
 		fading = true;
 		setTimeout(() => {
 			visible = false;
@@ -164,11 +136,7 @@ $effect(() => {
 		animated
 	/>
 
-	<!--
-		Two-phase container:
-		Boot phase → narrow centered column (400px) for subsystem list.
-		Wizard phase → wider (768px) with scroll for model setup.
-	-->
+	<!-- Narrow centered column (400px) for the subsystem list. -->
 	<div class={cn(
 		stack({ gap: "6", align: "center" }),
 		"overflow-y-auto scrollbar-thin pointer-events-auto",
@@ -212,7 +180,6 @@ $effect(() => {
 			</div>
 		{/if}
 
-		<!-- Subsystem list — always visible during boot, collapses during wizard -->
 		<!-- Subsystem progress always visible during boot -->
 			<div class={cn(stack({ gap: "8" }), "w-full")}>
 				{#each subsystems as sub (sub.name)}

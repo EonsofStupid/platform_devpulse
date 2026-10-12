@@ -494,39 +494,6 @@ pub async fn get_model_catalog(
     Ok(platform.model_loader_catalog().to_vec())
 }
 
-/// Check if this is the first run (no models configured).
-#[tauri::command]
-#[specta::specta]
-pub async fn is_first_run(state: State<'_, PlatformState>) -> Result<bool, String> {
-    let loader = get_loader(&state).await?;
-    Ok(loader.is_first_run().await)
-}
-
-/// Mark the setup wizard as complete. Persists to `LibSQL`.
-/// Called by the frontend when the user finishes the wizard.
-#[tauri::command]
-#[specta::specta]
-#[allow(clippy::missing_errors_doc)]
-pub async fn mark_setup_complete(state: State<'_, PlatformState>) -> Result<(), String> {
-    let loader = get_loader(&state).await?;
-    loader
-        .mark_setup_complete()
-        .await
-        .map_err(|e| e.to_string())?;
-    loader.publish_readiness().await;
-    Ok(())
-}
-
-/// Check if the setup wizard was previously completed.
-/// Used at boot to decide whether to show the wizard overlay.
-#[tauri::command]
-#[specta::specta]
-#[allow(clippy::missing_errors_doc)]
-pub async fn is_setup_complete(state: State<'_, PlatformState>) -> Result<bool, String> {
-    let loader = get_loader(&state).await?;
-    Ok(loader.is_setup_complete().await)
-}
-
 /// Assign a model to a slot.
 #[tauri::command]
 #[specta::specta]
@@ -1670,73 +1637,6 @@ pub async fn get_tier_display(
     Ok(config.tier.display())
 }
 
-/// Called when the setup wizard finishes.
-///
-/// 1. Re-scans the model registry to pick up any newly downloaded/imported models.
-/// 2. Auto-assigns unassigned models to matching slots by capability.
-/// 3. Verifies at least the chat.brain slot has an assigned model.
-/// 4. Only THEN emits the models-ready signal and opens the chat window.
-///
-/// Returns error if no text-generation model is available for chat.brain.
-#[tauri::command]
-#[specta::specta]
-pub async fn complete_model_setup(
-    app: tauri::AppHandle,
-    state: State<'_, PlatformState>,
-) -> Result<(), String> {
-    let loader = get_loader(&state).await?;
-
-    // Re-scan to pick up anything downloaded/imported during wizard
-    if let Err(e) = loader.scan_models().await {
-        tracing::warn!(error = %e, "Post-wizard scan failed (non-fatal)");
-    }
-
-    // Auto-assign loop REMOVED — wizard handles explicit per-slot assignment.
-    // complete_model_setup() now only verifies and signals.
-
-    // Verify: chat.brain MUST have a model assigned
-    let slots_after = loader.list_slots().await;
-    let brain = slots_after.iter().find(|s| s.id == "chat.brain");
-    let brain_assigned = brain.is_some_and(|s| s.assigned_model.is_some());
-
-    let assigned_count = slots_after
-        .iter()
-        .filter(|s| s.assigned_model.is_some())
-        .count();
-    let registry_count = loader.get_registry().await.len();
-
-    if !brain_assigned {
-        tracing::warn!(
-            models = registry_count,
-            assigned = assigned_count,
-            "Model setup incomplete — no chat brain model available"
-        );
-        crate::commands::emit_status(
-            &app,
-            "models",
-            crate::commands::StatusKind::Error,
-            &"No AI brain model found. Import or download a text-generation model (.gguf) to get started.",
-        );
-        return Err("No AI brain model available. Import or download a GGUF model first.".into());
-    }
-
-    tracing::info!(
-        models = registry_count,
-        assigned = assigned_count,
-        "Model setup verified — chat brain assigned, signaling ready"
-    );
-
-    // Push full state snapshot — frontend sets $state directly
-    loader.publish_readiness().await;
-
-    // Now safe to open chat window
-    if let Err(e) = crate::commands::window::open_chat_window(app).await {
-        tracing::warn!(error = %e, "Chat window failed to open after setup (non-fatal)");
-    }
-
-    Ok(())
-}
-
 /// Import a model from the local filesystem.
 ///
 /// Opens a native file picker filtered to GGUF files. Copies the selected
@@ -1884,53 +1784,6 @@ pub async fn pick_audio_file(title: String) -> Result<Option<String>, String> {
         .pick_file()
         .await;
     Ok(picked.map(|f| f.path().to_string_lossy().to_string()))
-}
-
-/// Create a developer profile and persist it as a preference.
-///
-/// Stores a JSON blob with name, experience level, and optional project path.
-/// Uses the same preferences.json storage as `set_preference`.
-#[tauri::command]
-#[specta::specta]
-pub async fn create_dev_profile(
-    state: State<'_, PlatformState>,
-    name: String,
-    experience: String,
-    project_path: Option<String>,
-) -> Result<(), String> {
-    let profile = serde_json::json!({
-        "type": "dev",
-        "name": name,
-        "experience": experience,
-        "project_path": project_path,
-        "created": chrono::Utc::now().to_rfc3339(),
-    });
-
-    // Write to preferences.json — same storage as set_preference command.
-    // P0: lock-free atomic load.
-    let platform = state.platform.load_full().ok_or("Platform not ready")?;
-    let prefs_path = platform.config().data_dir.clone();
-    drop(platform);
-
-    let prefs_file = std::path::PathBuf::from(&prefs_path).join("preferences.json");
-
-    let mut prefs: std::collections::HashMap<String, String> = if prefs_file.exists() {
-        let content = std::fs::read_to_string(&prefs_file).map_err(|e| e.to_string())?;
-        serde_json::from_str(&content).unwrap_or_default()
-    } else {
-        std::collections::HashMap::new()
-    };
-
-    prefs.insert("dev_profile".to_string(), profile.to_string());
-    let json = serde_json::to_string_pretty(&prefs).map_err(|e| e.to_string())?;
-
-    if let Some(parent) = prefs_file.parent() {
-        std::fs::create_dir_all(parent).map_err(|e| e.to_string())?;
-    }
-    std::fs::write(&prefs_file, json).map_err(|e| e.to_string())?;
-
-    tracing::info!(name = %name, experience = %experience, "Developer profile created");
-    Ok(())
 }
 
 /// Generate text using a loaded model slot.

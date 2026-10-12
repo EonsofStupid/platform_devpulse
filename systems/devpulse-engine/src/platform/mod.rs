@@ -173,16 +173,6 @@ pub use devpulse_clyffy::cortex::intelligence::{
     EMBEDDING_DIM, MEMORY_SCHEMA,
 };
 
-// IP-NOTE: interaction templates — kernel-owned scripted exchanges
-// (setup wizard, welcome-back, etc.). Re-exported for the Tauri
-// `commands::interactions` module so the dispatcher can load
-// templates without crossing the IP boundary directly. Industry-
-// standard concept (state-machine-driven UI walkthroughs); the
-// vocabulary stays generic.
-pub use devpulse_clyffy::interactions::{
-    InteractionError, InteractionPhase, InteractionTemplate, InteractionTrigger,
-};
-
 // IP-NOTE: capability-bucket inference for downloadable model
 // filenames. Wraps the keyword SSOT in `model_loader::download` —
 // surfaced to the Tauri layer for the model-downloader UI's

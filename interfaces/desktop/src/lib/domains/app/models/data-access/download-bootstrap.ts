@@ -21,10 +21,7 @@
  *
  * Lives alongside the other model-loader state runes in
  * `data-access/` so the boot wiring is colocated with the runes it
- * boots — same Nx library-type, same import boundary. The previous
- * home under `feature/setup-wizard/` conflated the boot wiring with
- * a UI surface; the wiring is foundational and runs whether the
- * wizard ever mounts.
+ * boots — same Nx library-type, same import boundary.
  */
 
 import { downloadState } from "$lib/sys/activity-hud/download.state.svelte.js";

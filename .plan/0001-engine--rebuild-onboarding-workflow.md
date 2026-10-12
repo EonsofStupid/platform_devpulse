@@ -2,134 +2,620 @@
 id: 0001
 boundary: engine
 paths:
+  - kernel/devpulse-clyffy/src/providers/
+  - systems/devpulse-engine/src/platform/providers/
   - systems/devpulse-engine/src/platform/onboarding/
-  - kernel/devpulse-clyffy/src/agents/
+  - systems/devpulse-engine/src/platform/forms/
+  - systems/devpulse-engine/src/platform/github/
+  - systems/devpulse-engine/src/platform/copy/
+  - interfaces/desktop/src-tauri/src/commands/providers/
   - interfaces/desktop/src-tauri/src/commands/onboarding/
+  - interfaces/desktop/src-tauri/src/commands/github/
+  - interfaces/desktop/src/lib/design/blocks/schema-form/
+  - interfaces/desktop/src/lib/domains/app/providers/
   - interfaces/desktop/src/lib/domains/app/onboarding/
-touches: [kernel-clyffy, kernel-model-loader, desktop-tauri, desktop-onboarding, desktop-models, desktop-chat, desktop-coldlight]
+touches: [kernel-clyffy, kernel-model-loader, desktop-tauri, desktop-onboarding, desktop-models, desktop-chat, desktop-coldlight, desktop-profile]
 status: draft
 owner: Jesse Hades Hall
 created: 2026-10-10
 updated: 2026-10-12
-supersedes: []
+supersedes: [0002]   # reserved for "user-managed AI endpoints", never written; folded in here
 specs:
-  - scripts/docs/specs/MODEL-LOADER-UX-REQUIREMENTS.md          # owner dictation, SSOT for model-loader UX
-  - .claude/plans/coldlight-recovery/07-wizard-recode-spec.md    # owner's binding wizard requirements
-  - docs/PLATFORM_SPEC_LAYMAN.md
-  - .plan/0006-desktop-coldlight--rebuild-preset-system.md
+  # Research for this revision, read in full before writing (2026-10-12):
+  - ~/.claude/plans/onboarding-endpoints/01-owner-requirements.md   # your 120 requirements, quoted with source + date; R-IDs below
+  - ~/.claude/plans/onboarding-endpoints/02-branch-review.md        # the origin/main GB10/July work: what to port, what to drop
+  - ~/.claude/plans/onboarding-endpoints/03-structure.md            # your structure rules S-1..S-40
+  - ~/.claude/plans/onboarding-endpoints/04-current-code.md         # every current onboarding file, verdict, delete order
+  # Owner specs and decisions:
+  - interfaces/desktop/src/lib/design/ONBOARDING-CASCADE.md
+  - .claude/agents/coldlight-curator.md                              # the 9 locks
+  - .claude/plans/coldlight-recovery/07-wizard-recode-spec.md
+  - scripts/docs/specs/MODEL-LOADER-UX-REQUIREMENTS.md
+  - docs/platform/Desktop.md                                         # Nx library types, LOCKED 2026-04-14
+  - docs/chat-modes/_raw/all-prompts.txt                             # raw owner prompts, April 2026
+  - origin/main f3748059                                             # "migrate the libsql crate to turso" (owner decision 2026-07-01)
+  - .plan/0004-engine--wire-contextual-guidance.md
+  - .plan/0007-kernel-model-loader--replace-inprocess-inference-with-runtimes.md
 ---
 
-# Rebuild onboarding: engine-owned capability lifecycle over endpoints
+# Rebuild onboarding: first run over providers, on Turso
 
 ## Goal
 
-Every AI capability — Brain, Vision, Voice (listening + speaking), Memory —
-can be installed, configured, maintained, and removed from the UI with a
-click, and authored as one folder. Every capability is an **endpoint**,
-running embedded on this machine or on a server, reached over HTTPS (tier 1)
-or a private network — WireGuard, mesh, VPN — when one exists (tier 2). The
-**engine** owns this as the onboarding boundary; it writes the resulting AI
-configuration into the **kernel**, which holds configuration only.
+DevPulse is a dedicated dev platform for vibe coders (R-0.1). First run sets up
+the person, their projects and their AI. Clyffy guides it, and it lowers the
+barrier instead of asking questions machine code can answer (R-A7).
 
-The user's own **subscriptions — Claude, Codex/ChatGPT, Gemini, Cursor — are
-first-class Brains**, used to their full capacity and side by side in **one
-clear chat** (Part B). Onboarding connects the Brain (a subscription, a local
-runtime, or a network endpoint) and feeds the developer profile from the
-user's projects and GitHub (plan 0004 Part C). Vision, Voice and Memory are
-maintained in the Model Loader and offered later by guides when a real signal
-shows the user needs them (plan 0004, onboarding scope).
+How the system behaves:
 
-## Owner requirements (binding — see sources)
+- The Svelte UI drives Rust: every click is an intent, and Rust validates,
+  decides and writes to DevPulse's own **Turso** database (your decision of
+  2026-07-01).
+- Every line on screen is something that actually happened (R-A1).
+- Nothing is hardcoded: providers, ports, hosts, models, presets, steps,
+  hotkeys and copy are configurable default suggestions (R-G6).
 
-From `MODEL-LOADER-UX-REQUIREMENTS.md` (2026-04-04, direct dictation):
+## First run — the full experience
 
-1. Friendlier than OpenWebUI / LM Studio / Jan.ai — zero jargon by default.
-2. Vision a first-class card; 3. Voice a first-class card (Listening + Speaking, preview, mic, push-to-talk).
-4. Configuration updates the existing record in GlobalDb — never creates new; live UI via events.
-5. Consumer product: first-run detects hardware → recommends → one-click install; no terminal; plain English; resume failed downloads; real progress, no fake spinners; offline works; undo ("go back to previous").
-6. Four sections minimum: Brain, Vision, Voice, Memory.
-7. Advanced view behind a feature flag — everything layered, nothing deleted.
+Each stage below lists what you see, what Clyffy does, what is written to
+Turso, which signal drives the screen, and the shipped product it follows.
+Strings come from the copy catalog, technical words carry tooltips, and every
+screen keeps a way out and a way back.
 
-From `07-wizard-recode-spec.md` (2026-07-13): real scan that actually tries
-local and network AI services; **no mock — a message only when it is true and
-happened**; signals behind every UI line; tooltips everywhere; components as
-colocated variants of base blocks; generated ColdLight tokens only; crisp
-edges, zero halos; animated backdrop variations.
+### Stage 0 — Boot (R-A9, R-D13, R-D8)
 
-From the owner (2026-10-10): onboarding is an engine boundary that configures
-the kernel; everything is an endpoint; tier 1 HTTPS → tier 2 private network.
+- **You see:**
+  - the real services starting, each with its true status (the existing `boot` state signal);
+  - Clyffy's sprite spinner with layman narration of the real stage;
+  - a rotating Did You Know / Knowledge Drop from the knowledge tables in the DB.
+- **Never:** a fake progress bar, or a locked app if a service is slow (R-A10).
+- **Then:** the overlay fades to first run when Rust's `onboarding` state says
+  setup is not complete, or to the dashboard when it is.
 
-From the owner (2026-10-12): "we are bringing their subscription to be easily
-used and maximized and capable of working codex with grok and claude in one
-clear chat" — subscriptions named: Claude, Cursor, Gemini, Codex/ChatGPT.
-Onboarding feeds the user's projects and GitHub into profile stats. Anything
-that drives an AI connection is kernel work; the engine is the facade.
+### Stage 1 — Welcome: "Let's go" (R-A14, R-D7, R-F4–F7)
 
-## Context (verified 2026-10-10)
+- **You see:**
+  - Clyffy's mascot and greeting;
+  - the animated main-content background (the rotating background variants
+    plus the MP4 loop, one configurable component);
+  - the XY fluid clamp at every window size;
+  - colour, a large blue/purple **Let's go** CTA, and a secondary **Set up later**.
+- **Clyffy:** passive knowledge-drop nudges when you hover technical words.
+- **Detection starts here.** DevPulse begins looking for your subscriptions,
+  AI servers, git identity and project folders. As each one is really found,
+  a chip appears: "I can already see Claude Code and Cursor."
+- **Grounding:** NN/g — "Users want to start using the product right away", and
+  getting rid of an overlay must always be possible.
 
-- Current wizard (June 7, pre-spec) breaks most requirements: jargon,
-  per-tile Apply, Svelte orchestrating installs, no resume.
-- Later history has a 07-spec scan (`endpoint_discovery.rs`, 391 lines:
-  saved → configured → this machine → mDNS → Tailscale mesh, bounded probing,
-  `clyffy.discovery` signals) that only recognized a Clyffy server — to be
-  ported and generalized.
-- A first OpenAI-compatible probe was drafted in `kernel/devpulse-clyffy/src/endpoints/`
-  (uncommitted). Probing is a process, not configuration — it moves into the
-  engine boundary in phase 1.
-- Kernel `interactions` module calls the Setup Wizard an interaction
-  template — overlaps this boundary; see Decisions.
+### Stage 2 — You (R-A11, R-A12 phase 1, R-E4; your 2026-10-12 list)
 
-## Structure — authored and plug-and-play
+One page with three sections, narrated by Clyffy ("the steps reduce to sections
+within ONE page", R-A15). Every input is a schema-driven field with
+suggestions; Rust validates and writes it; errors show per field.
 
-Lifecycle per capability follows the **reconcile loop** (desired state vs
-observed state → install / repair / update / remove), the pattern Kubernetes
-operators use to install *and maintain*. Capabilities are **declarative
-manifests**, like package formulae: adding one is a folder, not code changes.
+1. **GitHub.**
+   - **Sign in with GitHub** uses GitHub's device flow: you see a code, approve
+     it in the browser, and DevPulse shows your avatar and login.
+   - The token lives only in the OS keyring.
+   - You can skip it.
+2. **Name and email.**
+   - Prefilled from your GitHub account and `git config`.
+   - **Turso:** profile `display_name`, `email`, `github_login`, `avatar_url`.
+3. **Projects folder.**
+   - **Suggestions:** folders that already hold git repositories (your GitHub
+     Desktop folder, `source/repos`, `Projects`, your editor's recent workspaces).
+   - Pick one with the folder picker. DevPulse scans it and lists the repos it
+     finds with their languages (tokei), with DevPulse itself first (dogfood, R-A12).
+   - You tick which to add. They are registered in place, never copied.
+   - Indexing is offered later through a notice (R-E4).
+   - **Turso:** profile `projects_root`, and project records.
+
+**Grounding:** GitHub Desktop's first run is sign in → configure Git with name
+and email taken from the GitHub account → add the repositories on disk.
+
+### Stage 3 — Your AI (R-B1–B5, R-B16, R-C1–C3, R-A19–A20; your 2026-10-12 list)
+
+One page with four sections.
+
+1. **Your subscriptions.**
+   - **Cards:** Grok, Claude Code, Codex, Gemini, Cursor and Claude Desktop, plus
+     any provider whose definition you add.
+   - Each card shows installed or not, the version against the latest, signed
+     in or not, and **Update**.
+   - **Sign in** opens that vendor's own login. **Test** sends a real hello and
+     shows the real reply.
+   - The Claude Desktop card offers "Give Claude Desktop your DevPulse context" (MCP).
+2. **Your AI servers.**
+   - A live scan of this machine, your network and your private mesh. Each
+     source shows its real result, and each attempt appears as it happens.
+   - Found servers (a GB10, Ollama, LM Studio, vLLM, llama-server) appear as
+     cards listing the models they report.
+   - **Add by address** and **Add an API key** (the key goes to the OS keyring).
+3. **Run AI on this machine** (optional).
+   - DevPulse detects your hardware and suggests the presets that match it:
+     the bundled ones, plus your own saved ones.
+   - Choosing one fills suggestions; nothing downloads until you click each
+     item (R-A27).
+   - This section appears only once plan 0007's prebuilt runtimes are
+     available. Until then it is not shown at all (no mock).
+4. **Who powers Clyffy** (the Clyffy adapter).
+   - A custom endpoint you provide wins; otherwise you pick one subscription to
+     dedicate to Clyffy. The suggestion is the first signed-in one.
+   - Clyffy says hello through it for real.
+   - **Turso:** the Clyffy power record.
+
+**Grounding:**
+
+- Zed hosts Claude and Gemini as ACP agents that handle their own
+  authentication and billing.
+- LM Studio detects hardware on first launch and suggests models that fit.
+- xAI's docs list Grok Build as usable "through the Agent Client Protocol (ACP)
+  in other apps".
+
+### Stage 4 — Teach Clyffy how you talk (R-A13; optional, one time)
+
+- **You see:** a few short interactive cards that Clyffy fills through the
+  provider powering it:
+  - "Describe the app you are building";
+  - "How would you ask me to fix a bug?";
+  - a style choice.
+- **What it does:** your own typing becomes the seed of your developer lexicon
+  and prompt style (plan 0004 C uses it).
+- **Turso:** the calibration samples.
+- **Skip:** you can skip it and run it later from the checklist.
+- **Grounding:** your own requirement — "a onetime where they do more
+  interactive premade components populated by clyffy we get enough typing to
+  ensure accurate costar".
+
+### Stage 5 — Done: "Here's what I learned" (R-A4, R-E1, R-A28)
+
+- **Your snapshot:**
+  - languages and frameworks across the projects you added (tokei and manifest detection);
+  - your GitHub summary;
+  - which AI is connected and what powers Clyffy.
+- **Turso:** the profile snapshot. Plan 0004 C builds the weights and lexicon on it.
+- **Your hotkeys:**
+  - **Ctrl+Shift+Space** opens chat and **Ctrl+Shift+Q** opens the dashboard.
+  - Both are shown with "change", configurable right there, and stored in Turso.
+  - Grounding: Raycast sets its global hotkey during onboarding.
+- **CTA:** **Open DevPulse**. First run closes; chat opens only when you open it.
+
+### After first run — the Getting Started checklist (pull, not push)
+
+- **Where:** a dismissible checklist on the dashboard.
+- **Items:**
+  - "Index DevPulse" (plan 0005);
+  - "Ask Clyffy your first question";
+  - "Try your subscriptions side by side" (Part B);
+  - "Teach Clyffy how you talk" (if skipped);
+  - "Add vision, voice or memory" (R-A5: offered later, not during setup).
+- **Honesty:** each item ticks only when the real signal arrives (R-A20).
+- **Re-entry:** the TopBar chip reopens first run at any stage (R-A24).
+- **Grounding:**
+  - VS Code walkthroughs: "a multi-step checklist featuring rich content", with
+    an action per step.
+  - NN/g: prefer contextual "pull" help over upfront tutorials. Clyffy's later
+    nudges are plan 0004 B.
+
+### Data written, all in Turso
+
+| Data | Where | Owner |
+| --- | --- | --- |
+| Name, email, GitHub login/avatar, projects folder, first-run progress, selected preset, hotkeys | the existing profile record (columns rewritten, none dropped) | engine |
+| Registered projects + language snapshot | the existing project records | engine |
+| GitHub token | the OS keyring only | engine |
+| Your providers, their status, Clyffy's power | kernel-owned tables in DevPulse's database | kernel |
+| Calibration samples | engine table; plan 0004 C reads it | engine |
+
+You can see and edit all of it in the database devtool (A1, T7).
+
+## Order — foundations first, nothing built on what is about to change
+
+| Step | Why it comes here |
+| --- | --- |
+| A0 Delete the old onboarding | Your order. Nothing new is wired to code that is going away. |
+| A1 Move to Turso | Every later step writes data. Writing new tables on libSQL and migrating them afterwards is the mess to avoid. |
+| A2 Schema-driven inputs | First run's inputs and the provider definitions both use the same schema pattern. Built once, then used. |
+| A3 You: name, GitHub, projects folder | Engine-side data owners for screen 2. |
+| A4 Providers and adapters | One schema for every AI you bring. Kernel-side data owners for screen 3. |
+| A4b Hardware presets as configuration | The hardcoded tier enum (and `JessePrimary`) leaves the code; presets become data you select, edit and save as your own. |
+| A5 The Clyffy adapter | Decides what powers Clyffy, from A4's providers. |
+| A6 Copy, flow and intents | The first-run workflow in Rust, on top of A3–A5. |
+| A7 First run UI | Renders what A6 publishes. Last, so it renders real state. |
+| A8 Your checkpoint | Nothing else starts until you sign off (R-H7). |
+
+## One model: every AI you bring is a provider
 
 ```text
-systems/devpulse-engine/src/platform/onboarding/      the boundary (engine)
-  mod.rs               facade: start / choose / retry / skip / snapshot; capability registry
-  workflow.rs          first-run flow: detect → scan → recommend → install → confirm → complete
-  reconcile.rs         desired vs observed per capability: install, repair, update, remove, undo
-  store.rs             GlobalDb checkpoints + config history (resume, undo)
-  events.rs            typed snapshot + scan/progress events; tracing target 1:1
-  connectivity/        how an endpoint is reached
-    mod.rs             Tier: Https (1) → PrivateNetwork (2)
-    https.rs
-    private_network.rs WireGuard / mesh (Tailscale, Headscale) / VPN detection + peers
-  discovery/           finding endpoints — one file per source
-    saved.rs  configured.rs  this_machine.rs  home_network.rs  private_network.rs
-  probes/              identifying protocols — one file per protocol
-    openai_compatible.rs  anthropic.rs  clyffy.rs
-                       (local runtimes are installed and supervised by plan 0007's
-                       kernel runtime adapter; onboarding only decides desired state)
-  capabilities/        one folder per capability — the authoring surface
-    brain/   vision/   voice-listening/   voice-speaking/   memory/
-      capability.toml  layman copy, protocol, install methods, health check, hardware fit
-      mod.rs           optional hooks
+ProviderDefinition   (one TOML file per provider, checked against a schema generated from Rust)
+  id, name (copy key)
+  kind      subscription_agent | mcp_client | api | endpoint
+  adapter   acp_agent | mcp_client | openai_compatible | anthropic   (one adapter file each)
+  detect    how to find it installed: executables, install paths, app bundles, config files
+  signed_in how to tell it is signed in (its own login; DevPulse never holds the token)
+  version   how to read the installed version and the latest release
+  update    the vendor's own update command
+  defaults  suggested addresses / ports / models   (suggestions, editable)
 
-kernel/devpulse-clyffy/src/config/                    receives AI configuration only
-kernel/devpulse-clyffy/src/agents/                    subscription agents over ACP (Part B)
-  mod.rs        facade: list, connect, sessions
-  client.rs     ACP client (official `agent-client-protocol` crate) over the agent's stdio
-  catalog.rs    agent catalog from `config/agents.default.toml` + user overrides
-  sessions.rs   thread ↔ ACP session ids (resume via `session/load`)
-interfaces/desktop/src-tauri/src/commands/onboarding/ intents + event forwarding only
-interfaces/desktop/src-tauri/src/commands/agents/     chat intents; session updates over typed Channel
-interfaces/desktop/src/lib/domains/app/onboarding/    presentational UI (first run)
-interfaces/desktop/src/lib/domains/app/models/        Model Loader: maintain the same capabilities
+Provider             (a provider you have, stored in Turso)
+  definition, address (URL or command), scope (project | global | profile),
+  auth_ref (OS keyring entry name), status (from a live check only)
 ```
+
+- **Built-in definitions**: Grok Build, Claude Desktop, Claude Code, Gemini CLI,
+  Cursor, Codex, plus the API providers DevPulse knows (OpenAI, Anthropic, xAI,
+  Google, …) and **custom endpoint** (any OpenAI-compatible server: a local LLM,
+  a GB10, Ollama, LM Studio, vLLM, llama-server).
+- **Any other provider** must adhere to the same schema. Adding one = adding a
+  definition file that validates. A new adapter file is needed only when it
+  speaks a new protocol.
+- **Five of the six subscriptions share one adapter.** Claude Code, Codex,
+  Gemini CLI, Cursor and Grok Build all speak the Agent Client Protocol: xAI's
+  docs say Grok Build runs "through the Agent Client Protocol (ACP) in other
+  apps". They differ only in their definition files.
+- **Claude Desktop is different.** It is an app with no programmatic chat API.
+  DevPulse detects it and offers, with your click, to give it DevPulse's
+  context through MCP (`claude_desktop_config.json` or a `.mcpb` extension). It
+  cannot power Clyffy.
+- **Deps stay easy to update.** Each definition declares how to read the
+  installed and latest versions and how to update. DevPulse shows both versions
+  and runs the vendor's own updater when you click.
+
+Grounded in:
+
+- the Agent Client Protocol (Zed and JetBrains host agents this way; each agent owns its login);
+- MCP for Claude Desktop;
+- JSON Schema for definition files and forms (the pattern behind JSON Forms and react-jsonschema-form);
+- Kubernetes-style status from live checks only.
+
+## Your requirements this plan delivers
+
+Full quotes, sources and dates are in the first spec file. In scope:
+
+| Topic | Requirements |
+| --- | --- |
+| Onboarding | A1 real, no mock · A2 connects what you have, not a model wizard · A3 engine boundary that configures the kernel · A4 feeds projects · A5 no Vision/Voice/Memory steps · A6 rewritten · A7 detect instead of ask · A8 UI-driven, resumable · A9 services start visibly, then first run · A10 opens when nothing is set up, never locks · A11 name + projects location (with suggestions) · A14 Clyffy first page · A15 three screens, the rest overlays · A16 one decision per screen, errors are actions, detect first · A19 a real scan · A20 a signal per attempt · A21 tooltips everywhere · A22 no English in views · A24 re-entry always available · A25 chat never blocks first run · A27 nothing starts without your click |
+| Endpoints | B1 everything is an endpoint · B2 add and remove · B3 HTTPS, then private network · B4 "local" is a server on your network · B5 GB10 is just an endpoint · B14 configurable defaults · B15 capabilities come from the provider · B16 discovery ladder |
+| Subscriptions | C1 your subscriptions are the headline · C2 Grok, Claude, Gemini, Cursor, Codex · C3 each vendor's own login · C4 the Clyffy toggle (now the Clyffy adapter) |
+| Clyffy | D7 first-page nudges · D8 Did You Know / Knowledge Drops from the DB · D13 one Clyffy spinner with real narration |
+| Visual | F1–F8, F10, F11 |
+| Structure | G1 kernel = AI, engine = the rest · G4 Svelte drives Rust · G5 signal fabric · G6 no hardcoding · G7 no machine paths · G8 delete, don't deprecate · G9 colocated Nx folders · G11 latest stable deps · G12 real-world practice · G13 portable folder · G16 errors surface and are logged |
+| Process | H1–H9 |
+
+Not in this plan, and who owns it:
+
+- Local runtimes, the models folder, WSL: plan 0007.
+- Developer profile stats, lexicon and skill inference from your GitHub and projects: plan 0004 C, which builds on the GitHub connection and projects made here.
+- The one-chat UI: Part B, on the ACP client built in A4.
+- Turso as a persistence variant for RRFLOW: later.
+
+## Settled by your own rules
+
+Say so if any is wrong.
+
+1. **Providers and adapters live in the kernel.** That covers detection, live
+   checks, ACP sessions and Clyffy's power, because they drive AI connections
+   (R-B9, R-G1). The first-run workflow, your profile, GitHub and projects live
+   in the engine (R-A3).
+2. **Turso replaces libSQL everywhere**, using `turso` 0.8.1, the current stable
+   release. Your decision of 2026-07-01 lives on `origin/main` (`f3748059`),
+   and this branch was restored to before it. Turso's README says "existing
+   SQLite database files work as-is", so your data carries over. No new
+   database files: AI configuration is kernel-owned tables inside DevPulse's
+   database.
+3. **The GB10 work is not restored.** A GB10 is a custom endpoint provider. The
+   generic discovery parts of that work are ported (A4); the GB10 client crate,
+   the Local/GB10 modes and the GB10 copy are dropped (R-B5).
+4. **Your projects folder is referenced, not copied.** First run scans the
+   folder you choose and registers the repos it finds in place, using the
+   existing `add_project_reference`. What DevPulse keeps about a project moves
+   into the DevPulse folder. Today `project.db` is written inside your repo
+   (`{project_root}/.userdata/project.db`); that stops (R-G13).
+5. **Name is asked, prefilled.** Your name is a first-run input with
+   suggestions from git config and GitHub. Email comes from GitHub; it is not a
+   separate question.
+6. **Skill level is never asked** (R-E2). Plan 0004 C infers it from your
+   projects and GitHub.
+7. **One schema pattern for inputs and definitions.**
+   - A Rust type carries its rules.
+   - JSON Schema is generated from it.
+   - The UI renders the form from that schema and shows suggestions.
+   - Rust validates the submission against the same schema, then writes.
+   - Errors come back per field.
+8. **Existing code is rewritten, not paralleled.**
+   - Engine `ai_providers` (a hardcoded vendor enum and 15 base URLs) becomes the provider definitions.
+   - `routing_config`'s Claude-only `LocalFirst` / `LocalClaudeSubscription` lanes become the Clyffy adapter.
+   - The wizard copy becomes one engine copy catalog.
+   - The existing `Form`, `FormField`, `TextField` and `Combobox` components and the `pick_directory` folder picker are reused.
+9. **The onboarding cascade is adopted with two changes.**
+   - Layers kept: flow TOML → views with no strings → copy from Rust → your state.
+   - Gates are evaluated in Rust.
+   - Your state lives in Turso, not `preferences.toml`.
+10. **UI layout is Nx library types** (locked 2026-04-14). The chat window
+    becomes a normal window that never opens over first run. The kernel
+    `interactions` templates go. Clyffy's mascot and nudge blocks are reused.
+
+## Rulings needed (3)
+
+If you approve without comment, the recommended default is built.
+
+1. **Skip.** **Recommended:** allowed and remembered, with a TopBar chip to
+   reopen first run.
+2. **"Deps easily updateable" — my reading:**
+   - (a) every provider and runtime shows its installed and latest version and
+     updates with one click through the vendor's own updater;
+   - (b) a `cargo xtask deps` report lists outdated Rust and npm packages so
+     upgrades stay routine (R-G11).
+
+   Correct me if you meant something else.
+3. **Database files.** Today there are three: system, user, and one per
+   project. **Recommended:** keep the three scopes as Turso files, matching your
+   project / global / profile settings scopes (R-E3). Drop `libsql` from the
+   paths and put project databases inside the DevPulse folder. The alternative
+   is one single `devpulse.db`.
+
+## Structure
+
+```text
+kernel/devpulse-clyffy/
+├── config/providers/                 one definition file per provider, checked against the generated schema
+│   ├── claude-code.toml  claude-desktop.toml  codex.toml  gemini-cli.toml  cursor.toml  grok-build.toml
+│   └── openai.toml  anthropic.toml  xai.toml  custom-endpoint.toml  …
+└── src/providers/                    every AI you bring
+    ├── mod.rs                        facade: scan / list / add / update / remove / check / assign / undo
+    ├── definition.rs                 ProviderDefinition: the schema every provider adheres to
+    ├── catalog.rs                    bundled + your definitions; invalid ones rejected with the reason
+    ├── store.rs                      your providers in DevPulse's Turso database; update in place, history
+    ├── supervisor.rs                 live status per provider; the only writer of status
+    ├── clyffy.rs                     the Clyffy adapter: what powers Clyffy
+    ├── adapters/                     one file per protocol
+    │   ├── mod.rs  acp_agent.rs  mcp_client.rs  openai_compatible.rs  anthropic.rs
+    ├── acp/                          ACP client on the official `agent-client-protocol` crate
+    │   ├── mod.rs  client.rs  sessions.rs
+    └── discovery/                    where providers are found: one file per source
+        ├── mod.rs  installed.rs  saved.rs  configured.rs  this_machine.rs  home_network.rs  private_network.rs
+        └── mesh/tailscale.rs
+
+systems/devpulse-engine/
+├── config/copy.default.toml          one UI copy catalog (from wizard_copy.default.toml, trimmed)
+├── config/onboarding/first-run.flow.toml
+└── src/platform/
+    ├── providers/mod.rs              facade over the kernel; publishes Providers + ProviderScan state
+    ├── onboarding/{mod,flow,workflow,store,state}.rs   the first-run workflow
+    ├── forms/mod.rs                  schema-driven inputs: schema export, suggestions, validation
+    ├── github/{mod.rs,device_flow.rs}  GitHub sign-in (device flow); token in the OS keyring
+    └── copy/mod.rs                   typed copy catalog
+
+interfaces/desktop/src-tauri/src/commands/
+├── providers/mod.rs  onboarding/mod.rs  github/mod.rs  copy/mod.rs   intents only, no logic
+
+interfaces/desktop/src/lib/
+├── design/blocks/schema-form/        renders a form from a schema with the existing form components
+│   ├── SchemaForm.svelte  schema-form.types.ts  index.ts  SchemaForm.test.ts
+├── domains/app/providers/            provider card + editor, shared by first run, the Model Loader and chat
+│   ├── index.ts  util/  data-access/  ui/provider-card/  feature/provider-editor/
+└── domains/app/onboarding/
+    ├── index.ts  util/  data-access/
+    ├── ui/{onboarding-shell,scan-source,scan-attempt}/    typed variants of base design blocks
+    └── feature/first-run/
+        ├── FirstRunFlow.svelte  first-run.tokens.json
+        └── views/{WelcomeView,YouView,YourAiView}.svelte
+```
+
+## Part A — Phases
+
+Rules for every phase:
+
+- At most 5 files (mechanical renames excepted), and your approval between phases.
+- Verification:
+  - `cargo check -p` and `cargo xtask clippy -p` for each touched crate
+  - `cargo xtask test -p` where tests exist
+  - `pnpm check`
+  - a grep for raw `invoke("…")` strings, which `pnpm check` cannot see
+  - a live check in `cargo xtask run-dev`
+- Every phase that writes data proves the row exists in the Turso database file
+  with a query.
+
+### A0 — Delete the old onboarding (your order: delete first)
+
+One approval covers D1–D12 and D15–D18; each group is verified before the next
+starts. (D13–D14 were wrong — they deleted your tiers, presets and Jesse config.
+Those are made configurable in H1–H3 instead.)
+Until A7, first run has no guided setup. The app still runs.
+
+| # | What goes | Files | Check |
+| --- | --- | --- | --- |
+| D1 | Dead code | delete `models/data-access/baseline.state.svelte.ts`, `setup-wizard/download-bootstrap.ts`, `setup-wizard/feature/views/SlotSaveView.svelte`, `setup-wizard/ui/SaveSlotCard.svelte` | `pnpm check` |
+| D2 | e2e specs whose selectors no longer exist | delete `e2e/wizard-{happy-path,completion,customize,search-browse}.spec.ts` | — |
+| D3 | Unmount the wizard | edit `layouts/app/Frame.svelte`, `layouts/app/BootOverlay.svelte` (auto-open block), `domains/app/models/index.ts` | `pnpm check`; live: boot shows no wizard |
+| D4 | Wizard core | delete `SetupWizardOverlay.svelte`, `index.ts`, `wizard.state.svelte.ts`, `views/ClyffyCollabView.svelte`, `views/CortexView.svelte` | `pnpm check` |
+| D5 | Wizard views | delete `views/{Complete,Hardware,Installing,Preset,Welcome}View.svelte` | `pnpm check` |
+| D6 | Wizard shell, tiles, types (folder gone) | delete `feature/OverlayShell.svelte`, `ui/AnatomyConstellation.svelte`, `ui/AnatomyTile.svelte`, `util/wizard.types.ts` | `pnpm check` |
+| D7 | The wizard copy inside the Slots devtool | edit `SlotsDevtool.svelte`, `slots/index.ts` | `pnpm check`; live: Slots devtool still lists and assigns |
+| D8 | Its files | delete `slots-bootstrap.state.svelte.ts`, `slot-anatomy.ts`, `anatomy.types.ts`, `slots/ui/AnatomyConstellation.svelte`, `slots/ui/AnatomyTile.svelte` | `pnpm check` |
+| D9 | Its files | delete `slots/ui/SaveSlotCard.svelte`, `slots/ui/BootstrapBackdrop.svelte` | `pnpm check` |
+| D10 | Dead bindings and ids (the preset bindings stay for H3) | edit `sys/bindings/models/index.ts`, `sys/action-ids.ts` (26 `wizard.*` ids, never dispatched), `sys/activity-hud/knowledge-drops.ts`, `sys/runes/platformState.svelte.ts` (2 dead getters) | `pnpm check` |
+| D11 | Wizard-only commands (`is_first_run`, `mark_setup_complete`, `is_setup_complete`, `complete_model_setup`, `create_dev_profile`) + the interaction command. **The preset commands stay** (`auto_configure`, `list_presets`, `config_for_tier`, `get_tier_display`); H3 rewrites them | edit `src-tauri/src/commands/models/mod.rs`, `lib.rs`, `commands/mod.rs`; delete `commands/interactions/mod.rs` | `cargo check -p devpulse_desktop_backend`; bindings regenerated; `pnpm check` |
+| D12 | Kernel interaction templates | delete kernel `interactions/mod.rs`, `config/interactions/{setup,welcome-back}.default.toml`; edit kernel `lib.rs`, engine `platform/mod.rs` | `cargo check -p devpulse-clyffy -p devpulse-engine` |
+| D15 | Profile: the columns stay and get their real owners. Remove only the hardcoded values (`'32g_engineer'` default, the dev seed's `'claude-sonnet-4-6'`), the skill picker, and the never-read `hardware_profile` table | edit engine `relational.rs`, Tauri `commands/devpulse/profile.rs`, `lib.rs` (dev seed), `profile-settings.state.svelte.ts` (typed bindings), `(app)/devpulse/settings/+page.svelte` | a fresh `.userdata` boots; settings page loads |
+| D16 | Chat window, UI side: real minimize, typed commands, no auto-open after boot | edit `layouts/chat/components/shell/Frame.svelte`, `routes/+layout.svelte`, `layouts/app/TopBar.svelte`, `sys/runes/global.svelte.ts`, `sys/bindings/window/index.ts` | `pnpm check`; raw-invoke grep empty |
+| D17 | Chat window, Rust side: normal top-level window; legacy `open_chat_window` / `close_window` deleted; the hotkey uses `open_window(Chat)` | edit `commands/window/mod.rs`, `commands/window/types.rs`, `lib.rs` | live: chat minimizes to the taskbar, main stays usable, closing chat leaves the app running |
+| D18 | Stale instructions that would steer agents wrong | edit `CLAUDE.md` (devtool registry path; compiled-in inference line; libSQL → Turso), `ONBOARDING-CASCADE.md` (banner: settled item 9), mark `09-connection-slices/slice-C4-connection-mode-real.md` and the `08` / `09` INDEX rows superseded | your review |
+
+### A1 — Move to Turso (DevPulse's dedicated database)
+
+Only the kernel depends on the `libsql` crate. One adapter module
+(`cortex/persistence/libsql/mod.rs`) does the work, about 12 files call it, and
+the rest are names, config keys and paths. The port follows `f3748059`.
+
+| # | Outcome | Files | Check |
+| --- | --- | --- | --- |
+| T1 | `turso` 0.8.1 replaces `libsql`; the kernel persistence adapter rewritten on Turso | workspace `Cargo.toml`, kernel `Cargo.toml`, kernel `cortex/persistence/turso/mod.rs` (from `libsql/mod.rs`), `cortex/persistence/mod.rs`, `cortex/adapters/persistence/turso.rs` (from `libsql.rs`) | kernel persistence tests pass on Turso; an existing `.db` file opens as-is |
+| T2 | Engine call sites | engine `services/{project_db,relational,project_init,model_loader}.rs`, `integrations/config.rs` | `cargo check -p devpulse-engine`; live: the boot log shows the system and user DBs opened through Turso |
+| T3 | Remaining call sites | Tauri `commands/devpulse/profile.rs`, `commands/projects/mod.rs`, `commands/sys/relational.rs`; kernel `llguidance/system_libsql.rs`; engine `vision/sinks.rs` | live: profile and projects read and write |
+| T4… | Rename `LibSql*` identifiers, `libsql` config keys and `.userdata/*/libsql/` paths | mechanical groups of ≤10 files, listed at T4 start from separate searches: identifiers, strings, config, tests, docs | grep: `libsql` gone from code and config |
+| T5 | Project data moves into the DevPulse folder (`.userdata/projects/<id>/project.db`) | engine `services/{project_db,project_init}.rs` | registering a project writes nothing inside the project |
+| T6 | Versioned migrations | engine `platform/db/migrations/` (numbered SQL), `platform/db/migrate.rs`, `services/relational.rs` | tests: a fresh DB and an existing DB reach the same schema; history listed |
+| T7 | The database devtool on Turso: see every table and its schema, browse and edit rows in plain language (R-D10), see migration history | Tauri `commands/sys/relational.rs`, the existing database devtool under `lib/devtools/` (rewritten, not a new one), `devtools/registry.ts` | live: you open the devtool, edit your profile row, and first run shows the change |
+
+T6 follows the Rails / Django / sqlx / refinery pattern: numbered SQL files
+applied in order and recorded in a `schema_migrations` table. The schema
+changes in this plan (profile columns, providers, calibration) arrive as
+migrations, never as ad-hoc `CREATE TABLE`.
+
+### A2 — Schema-driven inputs (one pattern, built once)
+
+| # | Outcome | Files | Check |
+| --- | --- | --- | --- |
+| S1 | `schemars` to latest stable; JSON Schema validation; engine `forms` module: a form = schema + copy keys + suggestions; `validate` returns per-field errors | engine `Cargo.toml`, `platform/forms/mod.rs`, `platform/mod.rs` | tests: an invalid payload → per-field errors; a valid one → typed value |
+| S2 | `SchemaForm` design block: renders `Form` / `FormField` / `TextField` / `Combobox` / folder field from the schema, offers suggestions, shows Rust's field errors | `design/blocks/schema-form/{SchemaForm.svelte,schema-form.types.ts,index.ts,SchemaForm.test.ts}` | component test with a fixture schema; no validation logic of its own |
+
+### A3 — You: name, GitHub, projects folder (engine)
+
+| # | Outcome | Files | Check |
+| --- | --- | --- | --- |
+| Y1 | Profile input: name with suggestions (git config, then GitHub); written to your profile row in place | engine profile service (`services/relational.rs`), `platform/forms` profile schema, Tauri `commands/devpulse/profile.rs` | live: submit → the row in Turso shows the value; an invalid name → field error, nothing written |
+| Y2 | GitHub sign-in through GitHub's device flow (the documented method for desktop apps); the token lives only in the OS keyring | engine `platform/github/{mod.rs,device_flow.rs}`, Tauri `commands/github/mod.rs`, `Cargo.toml` (`octocrab` latest stable) | live: sign in with your account → login and avatar shown; the token is in the keyring and nowhere in Turso or files |
+| Y3 | Projects folder | engine projects service, `platform/forms` projects schema, Tauri `commands/projects/mod.rs` (reuses `pick_directory`, `add_project_reference`) | live: pick a folder → your repos listed → registered in Turso, nothing written inside them |
+
+| Y4 | Detection starts at Welcome: git identity, project folders and installed providers are looked for in the background, each publishing as it is really found | engine `onboarding/detect.rs`, `signals/{payloads,variants}.rs` | live: chips appear in the order things are actually found |
+| Y5 | Profile snapshot: languages and frameworks across the added projects (tokei + manifest detection) plus the GitHub summary, written as the profile snapshot | engine `platform/projects/snapshot.rs`, `Cargo.toml` (`tokei` latest stable), profile migration | live: the Done screen numbers match `tokei` run by hand on the same folders |
+| Y6 | Configurable hotkeys: chat and dashboard shortcuts stored in Turso, registered from there, changeable from the Done screen and settings | Tauri `lib.rs` (global shortcut registration), engine profile settings, migration | live: change Ctrl+Shift+Space → the new shortcut opens chat after restart |
+
+Y3 suggests folders that hold repos, scans the chosen folder for git
+repositories, lists DevPulse itself first, and registers the ones you tick, in
+place.
+
+### A4 — Providers and adapters (kernel; one schema for everything you bring)
+
+| # | Outcome | Files | Check |
+| --- | --- | --- | --- |
+| R1 | `ProviderDefinition` schema + catalog; built-in definition files; an invalid definition is rejected with its reason | kernel `providers/{mod.rs,definition.rs,catalog.rs}`, `config/providers/*.toml` (mechanical data files), kernel `lib.rs` | tests: every bundled definition validates; a broken one names the field |
+| R2 | Your providers in Turso: kernel-owned tables, update in place, history for undo | kernel `providers/store.rs` | tests on a temp Turso DB |
+| R3 | Detection: installed? version? signed in? | kernel `providers/discovery/{mod.rs,installed.rs}` | live: this machine's real answer for each of the six |
+| R4 | ACP client on the official `agent-client-protocol` crate + the `acp_agent` adapter | kernel `providers/acp/{mod.rs,client.rs,sessions.rs}`, `providers/adapters/{mod.rs,acp_agent.rs}` | tests against a scripted agent; live: one real prompt through an agent you have signed in |
+| R5 | Custom endpoints: the `openai_compatible` and `anthropic` adapters with honest handshakes | kernel `providers/adapters/{openai_compatible.rs,anthropic.rs}`; delete engine `onboarding/probes/` | tests against a local mock server; live: a real server (local or GB10) → verified with its model list |
+| R6 | Discovery ladder for endpoints | kernel `providers/discovery/{saved,configured,this_machine,home_network,private_network}.rs` + `mesh/tailscale.rs`, kernel `Cargo.toml` (`mdns-sd`, `url`, latest stable) | live: each source shows its true result |
+| R7 | Live status | kernel `providers/supervisor.rs` | tests: a re-point mid-check never publishes the old address; live: stop a server → `unreachable{refused}` within one interval |
+| R8 | Claude Desktop through MCP: offer, with your click, to give it DevPulse's context | kernel `providers/adapters/mcp_client.rs` | live: Claude Desktop lists DevPulse's MCP server after you accept |
+| R9 | Updates: installed vs latest version per provider; Update runs the vendor's own updater | kernel `providers/definition.rs`, `providers/mod.rs` | live: the versions shown match `--version` output |
+| R10 | `ai_providers` rewritten into definitions; its enum and hardcoded URLs deleted | delete engine `ai_providers/{mod,registry,types}.rs`; edit Tauri `commands/{credentials,cloud,providers}/mod.rs` | the credentials UI lists the same providers |
+| R11 | Engine facade + signals: `Providers` and `ProviderScan` state (revisioned, replayed to late windows) | engine `platform/providers/mod.rs`, `signals/{payloads,variants,spec}.rs`, `tests/signal_contract.rs` | contract snapshots; live: a scan streams revisions in the session log |
+
+Detail for the larger rows:
+
+- **R3** checks Grok Build, Claude Desktop, Claude Code, Gemini CLI, Cursor and
+  Codex, each through its definition file.
+- **R5 handshakes** report:
+  - every protocol that matches, not just the first;
+  - `unreachable` with a reason: refused, timeout, dns or tls;
+  - latency;
+  - the status code, checked before the body is decoded.
+- **R6 discovery:**
+  - sources run in order: saved, configured, this machine, LAN (mDNS), private mesh;
+  - only addresses a source found are probed, each as it arrives;
+  - there is a hard cap on candidates;
+  - every source reports done, skipped or failed, with a reason.
+- **R7 status:** one task per provider, a generation counter, backoff with a
+  configurable ceiling, and a saved choice beats config.
+
+### A4b — Hardware presets as configuration (your seed configs; nothing hardcoded)
+
+The presets already live in TOML (`kernel/model-loader/config/presets.default.toml`,
+overridable by `.userdata/config/presets.toml`). What is hardcoded is the
+`HardwareTier` Rust enum: its names, including `JessePrimary`, the VRAM
+thresholds in `detect_tier`, and the display names. Nothing here is deleted.
+The rules move into the presets, and your configs become seed presets you
+select (R-A26, R-B14, R-G6).
+
+| # | Outcome | Files | Check |
+| --- | --- | --- | --- |
+| H1 | Each preset declares its own id, name (copy key), hardware match rule (VRAM / RAM / GPU vendor ranges) and suggested models. The `HardwareTier` enum and the `detect_tier` thresholds leave the code; matching reads the presets | kernel `hardware/{auto_config.rs,presets.rs}`, `config/presets.default.toml`, `models/recommender.rs` | tests: every bundled preset matches the hardware it says it does; grep: no tier names or VRAM thresholds in `.rs` |
+| H2 | Your presets: `.userdata/config/presets.toml` adds to and overrides the bundled ones by id (merge, not full replace) | kernel `hardware/presets.rs`, `config/presets.default.toml` | tests: your preset wins by id; live: your Jesse config is listed and selectable |
+| H3 | Commands rewritten on the data: `list_presets`, `suggest_for_hardware` (from `auto_configure` + `config_for_tier`), `get_tier_display` → preset display from copy | Tauri `commands/models/mod.rs`, `lib.rs`, engine `services/model_loader.rs`, kernel `wizard/tier_display.rs` → preset display | bindings regenerated; live: the Model Loader and the Your AI screen list your presets |
+
+H2 details:
+
+- `JessePrimary` is deleted from the code. No personal names ship.
+- Bundled presets are named for what they are (for example, the 16 GB GPU
+  preset), with copy keys.
+- Your own configurations are your presets in `.userdata/config/presets.toml`,
+  saved from the UI.
+- Selecting a preset fills suggestions only. Nothing downloads or loads until
+  you apply each item (R-A27), and you can always go back (undo).
+
+### A5 — The Clyffy adapter
+
+| # | Outcome | Files | Check |
+| --- | --- | --- | --- |
+| K1 | Clyffy's power, stored in Turso and published as a signal; `routing_config`'s Claude-only lanes deleted | kernel `providers/clyffy.rs`, engine `services/routing_config.rs`, `signals/{payloads,variants}.rs` | tests: endpoint beats subscription; no provider → honest "not powered"; live: Clyffy answers through the chosen provider |
+
+The resolution order is:
+
+1. A custom endpoint you provided (a local LLM, a GB10).
+2. Otherwise the one subscription you dedicate to Clyffy. The suggestion is the
+   first signed-in agent found.
+
+### A5b — Teach Clyffy how you talk (calibration)
+
+| # | Outcome | Files | Check |
+| --- | --- | --- | --- |
+| L1 | Calibration: Clyffy fills a few interactive cards through the provider powering him; your answers are stored as calibration samples for plan 0004 C | engine `onboarding/calibration.rs`, migration, copy keys | live: the cards are generated by the real provider; your text is in Turso |
+
+### A6 — Copy, flow and intents (engine, Tauri)
+
+| # | Outcome | Files | Check |
+| --- | --- | --- | --- |
+| O1 | One UI copy catalog: the live sections (sign-in, downloader, runtime picker) plus first run and providers; no model names | engine `platform/copy/mod.rs`, `config/copy.default.toml`, Tauri `commands/copy/mod.rs`, `lib.rs` | every section loads; your override file wins |
+| O2 | Readers switch to it | `ModelDownloaderOverlay.svelte`, `LoginShell.svelte`, `EmbedderPicker.svelte`, `sys/bindings/copy/index.ts`, `sys/bindings/models/index.ts` | `pnpm check`; live: same text |
+| O3 | The old copy path goes: `get_wizard_copy` and kernel `model-loader/src/wizard/` (analytics moves out) | Tauri `commands/models/mod.rs` + `lib.rs`, kernel `wizard/{mod,copy}.rs` → `analytics.rs`, engine `services/model_loader.rs` | grep: the kernel no longer `include_str!`s an engine file |
+| O4 | Flow and progress in Turso: the bundled flow TOML (screens, order, gates); decided, completed, current screen | engine `onboarding/{flow.rs,store.rs,state.rs}`, `config/onboarding/first-run.flow.toml` | tests: gates, resume after a kill, your flow override wins |
+| O5 | The workflow publishes `Onboarding` state for stages 0–5 and the checklist: start, choose, skip, back, continue, reopen; checklist items complete only on their real signal | engine `onboarding/{workflow.rs,mod.rs}`, `signals/{variants,spec,payloads}.rs` | tests for every transition; contract snapshot |
+| O6 | Tauri intents: no logic, no emits | `commands/{onboarding,providers}/mod.rs`, `commands/mod.rs`, `lib.rs`, kernel `service.rs` (the old setup flag goes) | bindings regenerated; `pnpm check` |
+
+### A7 — First run UI (Svelte drives Rust; ColdLight)
+
+Rules for every screen:
+
+- No string literals in `.svelte` files.
+- No hand-written CSS; visuals come from ColdLight presets and `data-*` attributes.
+- Tailwind for layout only.
+- Every component is a typed variant of a base design block.
+
+| # | Outcome | Files | Check |
+| --- | --- | --- | --- |
+| U1 | Providers domain data: types, state from signals, intents | `domains/app/providers/{index.ts,util/providers.types.ts,data-access/providers.state.svelte.ts,data-access/providers.service.ts}`, `sys/bindings/providers/index.ts` | state test: applies only newer revisions |
+| U2 | Provider card and editor (add a custom endpoint, or an API key into the keyring) | `providers/ui/provider-card/{ProviderCard.svelte,provider-card.types.ts,index.ts}`, `providers/feature/provider-editor/ProviderEditor.svelte` | live: a bad address shows its real reason |
+| U3 | Onboarding domain data | `domains/app/onboarding/{index.ts,util/onboarding.types.ts,data-access/onboarding.state.svelte.ts,data-access/onboarding.service.ts}`, `sys/bindings/onboarding/index.ts` | state test |
+| U4 | Boot: Clyffy spinner, real stage narration, rotating knowledge drops from the DB | `layouts/app/BootOverlay.svelte` (rewritten), the existing loading-content card | live: each narration line matches a `boot` signal |
+| U5 | Welcome: Clyffy's first page with the detection chips | `onboarding/ui/onboarding-shell/{OnboardingShell.svelte,onboarding-shell.types.ts,index.ts}`, `views/WelcomeView.svelte`, `first-run.tokens.json` | Playwright screenshots at three window sizes |
+| U6 | You: GitHub, name and email, projects folder, through `SchemaForm` with suggestions | `views/YouView.svelte`, `feature/first-run/FirstRunFlow.svelte` | live: each value lands in Turso; invalid input is refused per field |
+| U7 | Your AI: subscriptions, servers (scan rows + attempts), run-on-this-machine presets, who powers Clyffy | `onboarding/ui/scan-source/*`, `onboarding/ui/scan-attempt/*`, `views/YourAiView.svelte` | live: every line on screen matches a logged attempt |
+| U8 | Teach Clyffy how you talk | `views/CalibrationView.svelte`, `onboarding/ui/calibration-card/*` | live: cards come from the real provider |
+| U9 | Done: snapshot and hotkeys | `views/DoneView.svelte`, `onboarding/ui/snapshot-stat/*` | live: snapshot matches Turso; a changed hotkey works |
+| U10 | Getting Started checklist, re-entry chip, StatusBar power badge | `onboarding/feature/checklist/GettingStarted.svelte`, `layouts/app/{Frame,TopBar,StatusBar}.svelte`, `routes/(app)/onboarding/+page.svelte` | live: an item ticks only after its real signal; skip → chip → back in |
+| U11 | End to end | `e2e/onboarding-first-run.spec.ts` | Playwright passes on a clean `.userdata` |
+
+What each screen shows:
+
+The screens follow "First run — the full experience" above, stage by stage.
+Visual identity: blue shell, purple body, teal wells; crisp edges, no halos
+(R-F4, R-F7).
+
+### A8 — Your checkpoint
+
+You run first run on a clean DevPulse folder. Nothing else starts until you
+sign it off (R-H7, R-H8).
 
 ## Part B — Subscriptions in one chat (ACP)
 
 ### How shipping products do it (verified 2026-10-12)
 
 **Zed** and **JetBrains** host coding agents through the **Agent Client
-Protocol**: each agent runs as its own process speaking JSON-RPC over stdio,
+Protocol**. Each agent runs as its own process speaking JSON-RPC over stdio,
 and "owns its own authentication and billing" (Zed docs). The client renders
-what the agent streams — message chunks, tool calls, plans, permission
-requests — and never sees a subscription token. It is also the only pattern
-inside every vendor's current terms:
+what the agent streams and never sees a subscription token. It is also the only
+pattern inside every vendor's current terms:
 
 | Subscription | Agent (ACP) | Sign-in | Never do |
 | --- | --- | --- | --- |
@@ -137,113 +623,136 @@ inside every vendor's current terms:
 | Codex / ChatGPT | Codex CLI via `codex-acp` (or Codex `app-server`) | Codex's own ChatGPT login | a DevPulse-owned ChatGPT sign-in without OpenAI's "Sign in with ChatGPT" partner access |
 | Gemini | Gemini CLI (native ACP) | Gemini CLI's own Google login, or API key / Vertex | using Gemini CLI's OAuth from any other tool (suspension) |
 | Cursor | `agent acp` (official) | Cursor login or API key | — |
+| Grok | Grok Build (ACP, per xAI's docs) | Grok Build's own browser login, or `XAI_API_KEY` | — |
 
-Sources: Claude Code legal & compliance (authentication and credential use;
-"Can customers offer Claude Code in their products?"), OpenAI "Sign in with
-ChatGPT" docs (plan usage is a waitlist for select commercial partners,
-preview), Gemini CLI ToS page (OAuth piggybacking is a violation; unpaid and
-Google One users moved to Antigravity CLI on 2026-06-18), Cursor CLI ACP
-docs, agentclientprotocol.com (agents, protocol, session setup), Zed external
-agents docs. Enforcement precedent: OpenCode's Claude OAuth cut off
-Jan–Feb 2026; Google suspensions for Gemini CLI OAuth proxies.
+Sources:
+
+- Claude Code legal & compliance
+- OpenAI "Sign in with ChatGPT" docs
+- Gemini CLI ToS
+- Cursor CLI ACP docs
+- docs.x.ai/build/overview
+- agentclientprotocol.com
+- Zed external agents docs
+
+Enforcement precedent: OpenCode's Claude OAuth was cut off Jan–Feb 2026, and
+Google suspended accounts for Gemini CLI OAuth proxies.
 
 ### Design
 
-- **Agent processes are runtimes.** Each agent CLI is an unmodified binary —
-  the user's own install, or fetched from the ACP Registry on opt-in — run and
-  supervised by plan 0007's kernel runtime adapter (pull, digest, Job Object,
-  health). Nothing new to invent.
-- **One chat.** One thread list; each thread picks an agent. Every agent
-  streams the same ACP `session/update` kinds, so one renderer serves all four.
-  Session updates are request-scoped streams → typed `Channel<T>` per thread
-  (plan 0004 A9); thread ↔ session ids persist so `session/load` restores
-  history.
+- **One chat.**
+  - One thread list; each thread picks an agent.
+  - Every agent streams the same ACP `session/update` kinds, so one renderer serves all.
+  - Updates go over a typed `Channel<T>` per thread.
+  - `session/load` restores history.
 - **Maximized subscriptions = shared context.** `session/new` takes
-  `mcpServers`: every agent session gets DevPulse's own MCP server (the engine
-  already ships one), exposing the developer profile, project knowledge and
-  Knowledge Drops (plan 0004 C). Claude, Codex, Gemini and Cursor work from
-  the same context.
+  `mcpServers`, so every session gets DevPulse's own MCP server (profile,
+  project knowledge, Knowledge Drops).
 - **Permission prompts teach.** `session/request_permission` becomes a UI
-  intent; plan 0004's guidance explains what the agent wants to do, in plain
-  language.
-- **Auth stays with the agent.** DevPulse reads the agent's advertised auth
-  methods (`initialize`), triggers `authenticate`, and shows the agent's own
-  sign-in. No token ever enters DevPulse storage.
+  intent, explained in plain language.
+- **Auth stays with the agent.** No token ever enters DevPulse storage.
 
-### Phases (each ≤5 files, verified live)
+### Phases (after Part A is signed off; the ACP client is built in A4)
 
 | # | Outcome | Live check |
 | --- | --- | --- |
-| B1 | Kernel ACP client on the official `agent-client-protocol` crate: initialize, authenticate, session new/load/prompt/cancel, updates, permission requests | tests against a scripted agent; one real prompt through Gemini CLI or Cursor on this machine |
-| B2 | Agent catalog (`config/agents.default.toml`: id, command, ACP adapter, install source) + detection of installed agents and their sign-in state | this machine reports which of the four are installed and signed in |
-| B3 | Agents run through plan 0007's runtime adapter; install from the ACP Registry with digest check | install → run → stop an agent from the UI; nothing left running after app exit |
-| B4 | Engine facade + Tauri intents (start thread, prompt, cancel, answer permission); updates over typed `Channel<T>`; thread store in libSQL | prompt → streamed reply; restart app → `session/load` restores the thread |
-| B5 | One chat UI: thread list, agent picker, renderer for message chunks / tool calls / plans / permission prompts | the same question to Claude, Codex, Gemini and Cursor in one window |
-| B6 | DevPulse MCP server attached to every session (profile, project knowledge, Knowledge Drops) | each agent answers using DevPulse context it could only get from the MCP server |
-| B7 | Onboarding "Connect your AI": detect, install, sign in through the agent's own flow, test prompt | first run connects one subscription end to end with no terminal |
-| B8 | Owner checkpoint | owner sign-off |
+| B1 | Agents run through plan 0007's runtime adapter; install from the ACP Registry with a digest check | install → run → stop an agent from the UI; nothing left running after app exit |
+| B2 | Engine facade + Tauri intents (start thread, prompt, cancel, answer permission); updates over typed `Channel<T>`; threads in Turso | prompt → streamed reply; restart → `session/load` restores the thread |
+| B3 | One chat UI: thread list, agent picker, renderer for chunks / tool calls / plans / permission prompts | the same question to Claude, Codex, Gemini, Cursor and Grok in one window |
+| B4 | DevPulse MCP server attached to every session | each agent answers with context only the MCP server has |
+| B5 | Your checkpoint | your sign-off |
 
-## Non-goals
+## Part C — The Model Loader maintains every capability (after Part A)
 
-- Clyffy contextual help (plans 0004 / 0005).
-- Preset system rebuild (plan 0006) — this plan consumes it.
-- Building our own agents or reselling model usage — each user's own
-  subscription or key is billed directly by its vendor.
+Brain, Vision, Voice and Memory are maintained in the Model Loader as providers
+(R-A5, R-A17): change one and the same card updates. The advanced view sits
+behind a flag. Planned in detail after A8, with plan 0007.
 
-## Part A — Endpoints and capabilities: phases
+## Decisions still open (vendor terms)
 
-Approval between each; each ≤ 5 files except mechanical moves. UI-bound
-updates ride the signal fabric (plan 0004 Part A), never new string events.
-
-| # | Outcome | Verification |
-| --- | --- | --- |
-| 1 | `connectivity/` tiers + `probes/` (OpenAI-compatible and Anthropic; the probe must not mislabel an Anthropic 401 as OpenAI and must report every matching protocol) | Live: tier 1 against Ollama on this machine; tier 2 against a mesh peer (`100.x`) |
-| 2 | `discovery/` ladder, ported + generalized, with signals | Live scan: every UI-bound event matches a logged probe |
-| 3 | `capabilities/` manifests (brain, vision, voice-listening, voice-speaking, memory) + registry; kernel config write path | Manifest schema validation; config written to existing record, never a new one |
-| 4 | `reconcile.rs` + `store.rs`: desired state, repair, update, remove, undo; resume. Local runtimes are installed and run by plan 0007's kernel runtime adapter | Kill mid-install, relaunch → resumes; undo restores previous config |
-| 5 | `workflow.rs` + Tauri intents; state published as fabric signals | `cargo check -p devpulse_desktop_backend`; bindings regenerated at debug startup |
-| 6 | Frontend `onboarding/`: first run = connect the Brain (Part B7) + point at projects / GitHub (plan 0004 C7); scan UI, tooltips, layman copy (07 R2–R6) | Live; text scan finds no jargon from UX spec §1 |
-| 7 | Model Loader maintains every capability (Brain, Vision, Voice, Memory); advanced view behind flag | Live: change a capability → same card updates, no new card |
-| 8 | Owner checkpoint (07 R7) | Owner sign-off |
-
-## Decisions needed
-
-1. **Tiers** — read as: tier 1 = direct HTTPS; tier 2 = private network
-   (WireGuard, Tailscale/Headscale mesh, VPN), preferred when present. Correct?
-2. **Kernel `interactions`** — the kernel module that defines the Setup Wizard
-   as an interaction template: move its onboarding parts into this boundary
-   (proposed) or keep it as Clyffy's scripted copy only?
-3. **Frontend layout** — Nx library types in code vs `Desktop.md`
-   `contracts / state / services / features` (still open).
-4. **Anthropic Commercial Terms** — running Claude Code inside a product
-   requires accepting them (owner action, before shipping B3).
-5. **Claude adapter** — Zed's `claude-agent-acp` is built on the Agent SDK,
-   whose terms bar subscription login without Anthropic's approval, while the
-   compliance page allows users signing in to the unmodified Claude Code binary
-   a platform hosts. Confirm the adapter route with Anthropic (contact sales),
-   or drive Claude Code's own headless mode instead. Recommended: confirm
-   before B3.
-6. **OpenAI "Sign in with ChatGPT"** — only needed if DevPulse ever owns the
-   ChatGPT sign-in; the ACP route uses Codex's own login. Join the partner
-   waitlist? (optional, owner action)
-7. **Gemini for free-tier users** — they moved to Antigravity CLI on
-   2026-06-18; its ACP support is unverified. Verify in B2.
-8. **Grok** — named on 2026-10-12 but no ACP agent was verified; until one
-   is, Grok is a network endpoint (xAI API key) in Part A.
+1. **Anthropic Commercial Terms.** Running Claude Code inside a product
+   requires accepting them. This is your action, needed before a Claude
+   subscription can be dedicated to Clyffy in a shipped build.
+2. **Claude adapter route.**
+   - Zed's `claude-agent-acp` is built on the Agent SDK, whose terms bar
+     subscription login without Anthropic's approval.
+   - Hosting the unmodified Claude Code binary is allowed.
+   - Confirm with Anthropic, or drive Claude Code's own headless mode.
+3. **OpenAI "Sign in with ChatGPT".** Only needed if DevPulse ever owns the
+   ChatGPT sign-in.
+4. **Gemini free tier.** Those users moved to Antigravity CLI on 2026-06-18,
+   and its ACP support is unverified. Verify in R3.
 
 ## Verification
 
-Recorded per phase in the log.
+Recorded per phase in the log: command output, live log lines, and Turso
+queries proving what was written.
 
 ## Log
 
-- 2026-10-10 — Rewritten on the owner's UX requirements (restored from the
-  June 30 recovery) and the 07 spec. Onboarding is the engine boundary;
-  everything is an endpoint; tier 1 HTTPS → tier 2 private network.
-- 2026-10-12 — Extended (owner direction): Part B, the user's subscriptions in
-  one chat over ACP, grounded in Zed / JetBrains and verified against each
-  vendor's current terms; agent connections live in the kernel (`agents/`),
-  using the official `agent-client-protocol` crate (3.3.0). Applied plan 0007's
-  amendment (no `onboarding/runtimes/`; the kernel runtime adapter runs local
-  runtimes and agent CLIs) and plan 0004's onboarding scope (first run =
-  Brain + projects/GitHub; Vision/Voice/Memory offered later by guides).
+- 2026-10-10 — Rewritten on the owner's UX requirements and the 07 spec.
+  Onboarding is the engine boundary; everything is an endpoint.
+- 2026-10-12 — Extended: Part B, subscriptions in one chat over ACP.
+- 2026-10-12 — Rebuilt from four research passes: 120 owner requirements, the
+  origin/main GB10 review, the structure rules, and the delete inventory. A0
+  delete groups added. 0002 folded in.
+- 2026-10-12 — Revised (owner):
+
+  > "First Run - name, github, local projects folder, intuitive UI, suggestions,
+  > schema driven inputs … svelte UI drives the rust and is actually writing to
+  > turso not libsql … deps easily updateable … bring your own subscriptions so
+  > it scans and identifies you have grok, claude desktop, claude code, gemini,
+  > cursor, codex … others … adhere to our schema … a clyffy adapter that has
+  > one subscription dedicated to power clyffy if no custom endpoint for local
+  > llm is provided"
+
+  The previous revision built new tables on libSQL beside a new `ai.db`, and
+  split endpoints and agents into two systems. Both were parallel to your
+  design.
+
+  What this revision does instead:
+  - **Turso first (A1):** `turso` 0.8.1 is the current stable release.
+  - **One schema pattern (A2)**, used by both inputs and provider definitions.
+  - **One provider schema** with adapters by protocol (A4). Grok Build's ACP
+    support is confirmed in xAI's docs. Claude Desktop is handled as an MCP
+    client.
+  - **The Clyffy adapter (A5)** rewrites `routing_config`'s Claude-only lanes.
+  - **First run is Welcome → You → Your AI.**
+- 2026-10-12 — Owner corrections:
+  - Hardcoded tiers and presets are made configurable (H1–H3), not deleted.
+    `JessePrimary` leaves the code; no personal names ship.
+  - Profile columns keep their real owners.
+  - No compatibility, aliases or legacy.
+  - The full first-run experience (stages 0–5 + checklist) is written above,
+    grounded in GitHub Desktop, Zed, LM Studio, Raycast, VS Code walkthroughs
+    and NN/g.
+- 2026-10-12 — **A0 done** (D1–D12, D15–D18). Deleted:
+  - the 17-file wizard;
+  - its 7-file copy in the Slots devtool (the header badge now reads the real install state);
+  - the baseline auto-install rune;
+  - 4 stale e2e specs;
+  - 26 never-dispatched action ids;
+  - 5 wizard-only commands + `get_interaction_template` + the kernel interaction templates;
+  - the legacy `open_chat_window` / `close_window`;
+  - the debug-only `seed_dev_data` (20 days of invented DuckDB stats, a duplicate
+    profile creator, a hardcoded model row nothing read).
+
+  Profile:
+  - `hardware_profile` / `expertise_level` are nullable; no `'32g_engineer'`, no `'Developer'` name;
+  - one creator (`ensure_profile`), and credentials use the real profile id;
+  - the skill picker is gone.
+
+  Chat is a normal top-level window: not owned by main, not forced on top, native
+  minimize, user-opened only. Every raw `invoke("…")` of a removed command was
+  replaced with typed bindings. Stale instructions were corrected (CLAUDE.md
+  stack + registry path; C4 / 08 / 09 marked superseded; cascade banner).
+
+  Verified after every group:
+  - `cargo xtask clippy -p devpulse_desktop_backend` clean;
+  - bindings regenerated;
+  - `pnpm check` 0 errors (warnings 10 → 4).
+
+  Not yet run: a live boot.
+
+  Note: a dev DuckDB seeded before this change still holds the invented
+  `daily_stats` rows; they are removable from the database devtool (T7).

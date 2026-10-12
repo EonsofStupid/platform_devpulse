@@ -44,7 +44,7 @@ Planned (these IDs are reserved for them):
 | Plan | Name |
 | --- | --- |
 | Onboarding (07 spec) + subscriptions in one chat (ACP) | `0001-engine--rebuild-onboarding-workflow.md` |
-| User-managed AI endpoints | `0002-kernel-clyffy--add-endpoint-registry.md` |
+| ~~User-managed AI endpoints~~ — folded into 0001 Part A (2026-10-12); ID retired | ~~`0002-kernel-clyffy--add-endpoint-registry.md`~~ |
 | ColdLight / Tailwind boundary gate | `0003-repo--enforce-coldlight-boundary.md` |
 | Contextual guidance + signal fabric + developer profile | `0004-engine--wire-contextual-guidance.md` |
 | Prebuilt AI runtimes instead of compiled-in engines | `0007-kernel-model-loader--replace-inprocess-inference-with-runtimes.md` |

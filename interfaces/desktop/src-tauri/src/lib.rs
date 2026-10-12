@@ -228,7 +228,6 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             commands::intelligence::intel_list_projects,
             commands::intelligence::intel_save_memory,
             commands::intelligence::infer_capability_bucket,
-            commands::interactions::get_interaction_template,
             commands::sherpa::sherpa_compile_info,
             commands::sherpa::sherpa_list_models,
             commands::sherpa::sherpa_delete_model,
@@ -292,8 +291,6 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             commands::window::open_window,
             commands::window::close_child_window,
             commands::window::list_windows,
-            commands::window::open_chat_window,
-            commands::window::close_window,
             commands::window::focus_window,
             commands::window::toggle_devtools,
             // Model management
@@ -302,9 +299,6 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             commands::models::get_slots,
             commands::models::get_models_status,
             commands::models::get_model_catalog,
-            commands::models::is_first_run,
-            commands::models::mark_setup_complete,
-            commands::models::is_setup_complete,
             commands::models::assign_model_to_slot,
             commands::models::load_slot,
             commands::models::unload_slot,
@@ -343,13 +337,11 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             commands::models::import_local_model,
             commands::models::pick_directory,
             commands::models::pick_audio_file,
-            commands::models::create_dev_profile,
             commands::models::auto_configure,
             commands::models::list_presets,
             commands::models::config_for_tier,
             commands::models::get_wizard_copy,
             commands::models::get_tier_display,
-            commands::models::complete_model_setup,
             commands::models::inference_generate,
             commands::models::test_inference,
             commands::models::get_vram_budget,
@@ -882,7 +874,9 @@ pub fn run() {
                     if event.state == tauri_plugin_global_shortcut::ShortcutState::Pressed {
                         let h = app_handle.clone();
                         tauri::async_runtime::spawn(async move {
-                            if let Err(e) = commands::window::open_chat_window(h).await {
+                            if let Err(e) =
+                                commands::window::open_window(h, commands::window::WindowRole::Chat).await
+                            {
                                 tracing::warn!(error = %e, "Failed to open chat window");
                             }
                         });
@@ -1060,14 +1054,6 @@ async fn boot_task(
                 tracing::info!(service = %sub.name, status = ?sub.status, "health verified");
             }
             tracing::info!(status = ?health.status, total_ms, "Platform ready");
-
-            // Dev mode: seed sample data if services are empty
-            #[cfg(debug_assertions)]
-            {
-                if let Err(e) = seed_dev_data(&platform).await {
-                    tracing::warn!(error = %e, "Dev seed failed (non-fatal)");
-                }
-            }
 
             // Record in tracker before emitting
             tracker.set_ready();
@@ -1278,131 +1264,6 @@ fn publish_boot_status(app: &tauri::AppHandle, tracker: &BootStateTracker) {
             devpulse_engine::signals::SignalVariant::Boot(tracker.status()),
         ));
     }
-}
-
-/// Seed sample data for dev mode — only if tables are empty.
-#[cfg(debug_assertions)]
-#[allow(clippy::too_many_lines)]
-async fn seed_dev_data(platform: &Platform) -> anyhow::Result<()> {
-    use devpulse_engine::platform::{AnalyticsAdapter, SqlAdapter};
-
-    // Seed system relational: platform_config + boot_history
-    if let Some(svc) = platform.relational() {
-        let adapter = svc.adapter();
-
-        let rows = adapter
-            .query("SELECT COUNT(*) FROM platform_config", &[])
-            .await?;
-        let count = rows
-            .first()
-            .and_then(|r| r.first())
-            .and_then(devpulse_engine::platform::SqlValue::as_integer)
-            .unwrap_or(0);
-
-        if count == 0 {
-            tracing::info!("Seeding system config into LibSQL...");
-
-            adapter
-                .execute_batch(
-                    r"
-                    INSERT INTO platform_config (key, value, category) VALUES
-                        ('version', '0.1.0', 'system'),
-                        ('portable_mode', 'true', 'system'),
-                        ('log_level', 'info', 'system'),
-                        ('default_model', 'claude-sonnet-4-6', 'ai'),
-                        ('max_tokens_per_turn', '8192', 'ai'),
-                        ('default_temperature', '0.7', 'ai');
-                    ",
-                )
-                .await?;
-
-            tracing::info!("System LibSQL seeded: 6 config entries");
-        }
-    }
-
-    // Seed user relational: default profile + preferences ONLY.
-    //
-    // Owner directive 2026-04-22: fresh installs start with an EMPTY
-    // projects table. The user creates their first project through the
-    // wizard's "Let's Go" (which calls `commands::projects::create_project`)
-    // or the dashboard's "Add Project" flow. Sessions/turns depend on
-    // a real project id, so they're also user-created downstream.
-    //
-    // The legacy 4 hardcoded projects (`proj-1` … `proj-4`) with
-    // canned chat turns were developer convenience fixtures — they
-    // made the "4 projects" dashboard look populated on fresh installs
-    // but pointed at paths that only exist on one machine. Out.
-    if let Some(svc) = platform.user_relational() {
-        let adapter = svc.adapter();
-
-        let rows = adapter.query("SELECT COUNT(*) FROM profiles", &[]).await?;
-        let count = rows
-            .first()
-            .and_then(|r| r.first())
-            .and_then(devpulse_engine::platform::SqlValue::as_integer)
-            .unwrap_or(0);
-
-        if count == 0 {
-            tracing::info!("Seeding default user profile into LibSQL...");
-
-            adapter
-                .execute_batch(
-                    r"
-                    INSERT INTO profiles (id, display_name, hardware_profile, onboarding_complete, expertise_level) VALUES
-                        ('user-1', NULL, '32g_engineer', 0, 1);
-
-                    INSERT INTO preferences (id, user_id, theme, context_mode, verbosity) VALUES
-                        ('pref-1', 'user-1', 'dark', 'normal', 'balanced');
-                    ",
-                )
-                .await?;
-
-            tracing::info!(
-                "User LibSQL seeded: default profile + preferences (no projects — user-created)"
-            );
-        }
-    }
-
-    // Seed DuckDB daily_stats
-    if let Some(svc) = platform.analytics() {
-        let adapter = svc.adapter();
-
-        let rows = adapter
-            .analytics_query("SELECT COUNT(*) FROM daily_stats")
-            .await?;
-        let count = rows
-            .first()
-            .and_then(|r| r.first())
-            .and_then(devpulse_engine::platform::SqlValue::as_integer)
-            .unwrap_or(0);
-
-        if count == 0 {
-            tracing::info!("Seeding dev data into DuckDB...");
-
-            let mut data = Vec::new();
-            for i in 0..20 {
-                data.push(serde_json::json!({
-                    "date": format!("2026-02-{:02}", 16 + (i % 13)),
-                    "total_model_calls": 20 + (i * 5) % 30,
-                    "total_sessions": 3 + (i * 2) % 8,
-                    "total_messages": 10 + (i * 3) % 25,
-                    "total_prompt_tokens": 500 + (i * 80) % 1200,
-                    "total_completion_tokens": 400 + (i * 60) % 900,
-                    "total_cost_usd": 0.05 + f64::from((i * 3) % 20) * 0.01,
-                    "avg_latency_ms": 15.0 + f64::from((i * 5) % 30),
-                    "avg_roti_ratio": 1.5 + f64::from((i * 2) % 10) * 0.1,
-                    "cache_hit_rate": 0.3 + f64::from((i * 4) % 30) * 0.01,
-                    "error_count": (i * 3) % 5,
-                    "governance_violations": (i * 2) % 3,
-                }));
-            }
-
-            let inserted = adapter.append("daily_stats", &data).await?;
-            tracing::info!(rows = inserted, "DuckDB seeded: daily_stats");
-        }
-    }
-
-    Ok(())
 }
 
 /// Extract a string message from a panic payload (the `Box<dyn Any>`

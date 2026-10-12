@@ -135,22 +135,12 @@ class PlatformState {
 		return this.phase === "ready";
 	}
 
-	/** Platform AND models both ready — the full app can render. */
-	get isFullyReady(): boolean {
-		return this.phase === "ready" && this.modelsReady;
-	}
-
 	/** Any non-skipped subsystem reported `Error` — blocking until fixed. */
 	get hasSubsystemFailure(): boolean {
 		for (const s of this.subsystems.values()) {
 			if (s.state === "failed") return true;
 		}
 		return false;
-	}
-
-	/** Platform booted but models need setup — show the wizard. */
-	get needsModelSetup(): boolean {
-		return this.phase === "ready" && !this.modelsReady;
 	}
 
 	get isBooting(): boolean {

@@ -180,9 +180,9 @@ CREATE TABLE IF NOT EXISTS profiles (
     id TEXT PRIMARY KEY,
     display_name TEXT,
     email TEXT UNIQUE,
-    hardware_profile TEXT DEFAULT '32g_engineer',
+    hardware_profile TEXT,
     onboarding_complete INTEGER DEFAULT 0,
-    expertise_level INTEGER DEFAULT 1,
+    expertise_level INTEGER,
     created_at INTEGER DEFAULT (unixepoch()),
     updated_at INTEGER DEFAULT (unixepoch()),
     last_active_at INTEGER
@@ -599,20 +599,6 @@ CREATE TABLE IF NOT EXISTS model_registry (
     last_loaded     INTEGER
 );
 CREATE INDEX IF NOT EXISTS idx_models_slot ON model_registry(slot_name, is_active);
-
--- Detected hardware (populated during onboarding)
-CREATE TABLE IF NOT EXISTS hardware_profile (
-    id              TEXT PRIMARY KEY,
-    detected_at     INTEGER NOT NULL DEFAULT (unixepoch()),
-    cpu_model       TEXT,
-    cpu_cores       INTEGER,
-    ram_total_mb    INTEGER,
-    gpu_count       INTEGER,
-    gpu_details     TEXT,                        -- JSON array of GPU info
-    vram_total_mb   INTEGER,
-    os_info         TEXT,
-    preset_tier     TEXT                         -- baseline_8gb | midrange_12gb | highend_24gb | custom
-);
 
 -- ── Internal / Dogfooding ───────────────────────────────────
 

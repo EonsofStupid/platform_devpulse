@@ -7,11 +7,9 @@ class GlobalState {
 	context_mode = $state<"collapsed" | "expanded">("collapsed");
 	overlay_active = $state<boolean>(false);
 
-	// Chat window state (spec: layouts/chat/README.md lines 400-416)
-	chat_open = $state<boolean>(false);
-	chat_minimized = $state<boolean>(false);
+	// Chat mode. The chat window itself is a native OS window: open,
+	// minimize and close are window operations, not UI state.
 	chat_mode = $state<ChatMode>("general");
-	chat_transparency = $state<number>(0.35);
 
 	setDomain(domain: string): void {
 		this.current_domain = domain;
@@ -41,20 +39,8 @@ class GlobalState {
 		this.overlay_active = false;
 	}
 
-	toggleChat(): void {
-		this.chat_open = !this.chat_open;
-	}
-
 	setMode(mode: ChatMode): void {
 		this.chat_mode = mode;
-	}
-
-	minimizeChat(): void {
-		this.chat_minimized = true;
-	}
-
-	restoreChat(): void {
-		this.chat_minimized = false;
 	}
 }
 

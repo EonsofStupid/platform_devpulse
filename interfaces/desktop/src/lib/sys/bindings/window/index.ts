@@ -8,8 +8,6 @@ import { commands } from "$lib/sys/generated/bindings.js";
 export const openWindow = commands.openWindow;
 export const closeChildWindow = commands.closeChildWindow;
 export const listWindows = commands.listWindows;
-export const openChatWindow = commands.openChatWindow;
-export const closeWindow = commands.closeWindow;
 export const focusWindow = commands.focusWindow;
 export const toggleDevtools = commands.toggleDevtools;
 

@@ -263,13 +263,24 @@ async fn mirror_hint_to_libsql(state: State<'_, PlatformState>, provider: Provid
         return;
     };
     let adapter = svc.adapter();
+    let profile = match crate::commands::devpulse::profile::ensure_profile(adapter.as_ref()).await {
+        Ok(profile) => profile,
+        Err(e) => {
+            tracing::warn!(
+                provider = ?provider,
+                error = %format!("{e:#}"),
+                "Failed to resolve the user profile for the API key hint (non-fatal — keychain is SSOT)"
+            );
+            return;
+        }
+    };
     let adapter_name = adapter_name_for(provider);
     let key_id = format!("key-{adapter_name}");
     let hint = mask_preview(key);
     if let Err(e) = adapter
         .execute(
-            "INSERT OR REPLACE INTO api_keys (id, user_id, adapter, key_hint, last_used_at) VALUES (?, 'user-1', ?, ?, datetime('now'))",
-            &[key_id.as_str(), adapter_name.as_str(), hint.as_str()],
+            "INSERT OR REPLACE INTO api_keys (id, user_id, adapter, key_hint, last_used_at) VALUES (?, ?, ?, ?, datetime('now'))",
+            &[key_id.as_str(), profile.id.as_str(), adapter_name.as_str(), hint.as_str()],
         )
         .await
     {

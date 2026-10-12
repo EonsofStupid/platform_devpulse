@@ -1,5 +1,11 @@
 # 09 — Connection slice family (plan 04 executed, INDEX)
 
+> **SUPERSEDED — DO NOT EXECUTE (2026-10-12).** This family targeted the
+> GB10 / Clyffy-server connection that the owner rolled back
+> (`restore/pre-gb10`). Its generic parts (discovery ladder, honest per-attempt
+> signals, ask-once + re-entry) are ported in
+> `.plan/0001-engine--rebuild-onboarding-workflow.md` A4; the rest is dropped.
+
 > Amnesia-grade execution of `../04-connection-audit-plan.md`'s remaining
 > breaks, authored 2026-07-14 from live code reads (lib.rs probe loop,
 > clyffy.rs commands, endpoint_discovery.rs builders, loader.rs

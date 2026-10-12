@@ -1,5 +1,20 @@
 # Onboarding Cascade — authoritative spec
 
+> **Revised 2026-10-12 (plan 0001, settled item 9).** The four layers stay:
+> flow template (TOML) → views with no strings → copy from the Rust SSOT →
+> the user's state. Two changes:
+>
+> - Gates are evaluated in Rust (the onboarding workflow), not in TypeScript.
+>   Svelte renders what Rust publishes.
+> - The user's state lives in DevPulse's Turso database (the profile record),
+>   not in `preferences.toml`.
+>
+> The model-tier sections below (`auto_config` tier → model maps, the Qwen
+> floor) are superseded: AI comes from providers over endpoints, and hardware
+> presets are configuration the user selects (plan 0001 A4, A4b). The
+> onboarding UI lives in `domains/app/onboarding/`; the setup wizard under
+> `domains/app/models/feature/setup-wizard/` was deleted.
+
 > **Sprint 00 deliverable.** Locks the four-layer cascade that drives
 > the onboarding wizard, the per-template configuration system, and
 > the per-user vs per-project model scope rule.

@@ -82,15 +82,6 @@ impl WindowRole {
         true
     }
 
-    /// Whether this window should be always on top.
-    #[must_use]
-    pub fn always_on_top(&self) -> bool {
-        match self {
-            Self::Chat | Self::KnowledgeViewer | Self::DevTools => true,
-            Self::Main | Self::ModelLoader => false,
-        }
-    }
-
     /// Whether this window should be transparent.
     ///
     /// Transparent windows on Windows require `decorations=false`. Since every

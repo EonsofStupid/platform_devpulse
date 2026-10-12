@@ -42,10 +42,9 @@ onMount(() => {
 	logInfo("layout", `__TAURI_INTERNALS__: ${typeof (window as any).__TAURI_INTERNALS__}`);
 
 	// Single subscription point for every kernel model-loader event —
-	// downloads, loads, cancels. Routes through wizardState rune methods
-	// so the overlay reflects live state whether it is currently open or
-	// dismissed. Attached here (root layout) so downloads started before
-	// the overlay opens still populate when the overlay mounts.
+	// downloads, loads, cancels — into the model runes. Attached here
+	// (root layout) so downloads started before the downloader overlay
+	// opens still populate when it mounts.
 	let detachDownloadBridge: (() => void) | null = null;
 	bootstrapDownloadBridge()
 		.then((detach) => {
@@ -134,36 +133,6 @@ onMount(() => {
 		clearInterval(idleInterval);
 		platformState.destroy();
 	};
-});
-
-// ── Chat window auto-open ─────────────────────────────────
-// Five WindowRoles are authored kernel-side (Main / Chat / CortexViewer /
-// ModelLoader / DevTools) but `tauri.conf.json` declares only Main; the
-// rest spawn via `commands::window::open_window(role)`. Nothing fires the
-// Chat spawn after boot — the customer flow per spec is "chat window
-// opens behind Main, wizard overlays on first run." This $effect watches
-// `platformState.isReady` transitioning true (services confirmed
-// reachable) and fires the Chat window open exactly once per session.
-// Guarded by `chatOpenedOnce` so a transient re-ready (hot-reload,
-// degraded-mode recovery) doesn't reopen the window.
-let chatOpenedOnce = $state(false);
-$effect(() => {
-	if (platformState.isReady && !chatOpenedOnce) {
-		chatOpenedOnce = true;
-		void (async () => {
-			try {
-				const { commands } = await import("$lib/sys/generated/bindings.js");
-				const r = await commands.openWindow("Chat");
-				if (r.status === "error") {
-					logError("layout", `openWindow(Chat) failed: ${r.error}`);
-				} else {
-					logInfo("layout", "Chat window auto-opened post-boot");
-				}
-			} catch (e) {
-				logError("layout", `chat auto-open failed: ${e}`);
-			}
-		})();
-	}
 });
 </script>
 

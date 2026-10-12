@@ -1,37 +1,20 @@
 /**
  * @file Profile settings controller state.
  * @module @devpulse/domains/app/devpulse/data-access/profile-settings-state
+ *
+ * Reads and edits the user's profile and preferences through the typed
+ * Tauri commands. Rust owns validation and storage; this rune holds the
+ * loaded records and the in-progress edit.
  */
 
-import { invoke } from "@tauri-apps/api/core";
+import {
+	fetchUserPreferences,
+	fetchUserProfile,
+	type UserPreferences,
+	type UserProfile,
+	updateUserProfile,
+} from "$lib/sys/bindings/devpulse/index.js";
 import { logError, logInfo } from "$lib/sys/logger.js";
-
-export interface UserProfile {
-	id: string;
-	displayName: string | null;
-	email: string | null;
-	hardwareProfile: string;
-	onboardingComplete: boolean;
-	expertiseLevel: number;
-	createdAt: number;
-	updatedAt: number;
-	lastActiveAt: number | null;
-}
-
-export interface UserPreferences {
-	id: string;
-	userId: string;
-	theme: string;
-	contextMode: string;
-	showThinking: boolean;
-	preferredLanguages: string | null;
-	tabSize: number;
-	useSemicolons: boolean;
-	defaultTemperature: number;
-	verbosity: string;
-	allowTelemetry: boolean;
-	screenCaptureEnabled: boolean;
-}
 
 class ProfileSettingsState {
 	profile = $state<UserProfile | null>(null);
@@ -41,36 +24,36 @@ class ProfileSettingsState {
 	editing = $state(false);
 	editName = $state("");
 	editEmail = $state("");
-	editLevel = $state(1);
 	saving = $state(false);
+	saveError = $state<string | null>(null);
 
 	async load(): Promise<void> {
 		this.loading = true;
 		this.error = null;
-		try {
-			const [profile, preferences] = await Promise.all([
-				invoke<UserProfile>("fetch_user_profile"),
-				invoke<UserPreferences>("fetch_user_preferences"),
-			]);
-			this.profile = profile;
-			this.prefs = preferences;
-			logInfo("settings", `Profile loaded: ${profile.displayName}`);
-		} catch (error) {
-			this.error = error instanceof Error ? error.message : String(error);
-			logError("settings", `Failed to load profile: ${this.error}`);
-		} finally {
-			this.loading = false;
+		const [profile, preferences] = await Promise.all([fetchUserProfile(), fetchUserPreferences()]);
+		if (profile.status === "error") {
+			this.error = profile.error;
+			logError("settings", `Failed to load profile: ${profile.error}`);
+		} else {
+			this.profile = profile.data;
+			logInfo("settings", "Profile loaded");
 		}
+		if (preferences.status === "error") {
+			this.error = preferences.error;
+			logError("settings", `Failed to load preferences: ${preferences.error}`);
+		} else {
+			this.prefs = preferences.data;
+		}
+		this.loading = false;
 	}
 
 	startEdit(): void {
 		if (!this.profile) {
 			return;
 		}
-
 		this.editName = this.profile.displayName ?? "";
 		this.editEmail = this.profile.email ?? "";
-		this.editLevel = this.profile.expertiseLevel;
+		this.saveError = null;
 		this.editing = true;
 	}
 
@@ -80,24 +63,20 @@ class ProfileSettingsState {
 
 	async save(): Promise<void> {
 		this.saving = true;
-		try {
-			await invoke("update_user_profile", {
-				displayName: this.editName.trim() || null,
-				email: this.editEmail.trim() || null,
-				expertiseLevel: this.editLevel,
-			});
-			logInfo("settings", "Profile updated");
-			await this.load();
+		this.saveError = null;
+		const result = await updateUserProfile(
+			this.editName.trim() || null,
+			this.editEmail.trim() || null,
+		);
+		if (result.status === "error") {
+			this.saveError = result.error;
+			logError("settings", `Failed to save profile: ${result.error}`);
+		} else {
+			this.profile = result.data;
 			this.editing = false;
-		} catch (error) {
-			logError("settings", `Failed to save profile: ${error}`);
-		} finally {
-			this.saving = false;
+			logInfo("settings", "Profile updated");
 		}
-	}
-
-	levelLabel(level: number): string {
-		return level === 1 ? "Beginner" : level === 2 ? "Intermediate" : "Advanced";
+		this.saving = false;
 	}
 }
 

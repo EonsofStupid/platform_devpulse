@@ -1589,29 +1589,6 @@ async inferCapabilityBucket(filename: string) : Promise<Result<string, string>> 
 }
 },
 /**
- * Load a parsed kernel interaction template by id.
- * 
- * Supported ids: `"setup"`, `"welcome-back"`. Each id maps to the
- * matching `InteractionTemplate::<id>` constructor on the kernel
- * side; templates are bundled at compile time via `include_str!`
- * so this command never touches disk except to read user
- * overrides at `{userdata_dir}/config/interactions/<id>.toml`.
- * 
- * # Errors
- * Returns the kernel's parse / validation error message as a
- * string when the embedded default or the user override fails to
- * parse. Returns `"Unknown interaction id: <id>"` when the id
- * doesn't match a built-in template.
- */
-async getInteractionTemplate(id: string) : Promise<Result<InteractionTemplate, string>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("get_interaction_template", { id }) };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
-/**
  * Report whether the `sherpa` cargo feature is baked into this build.
  * Used by the devtool to render a "not available in this build" banner
  * instead of silently failing when the user opens the page.
@@ -1995,9 +1972,9 @@ async fetchUserProfile() : Promise<Result<UserProfile, string>> {
 /**
  * Update the user profile. Only non-None fields are written.
  */
-async updateUserProfile(displayName: string | null, email: string | null, expertiseLevel: number | null) : Promise<Result<UserProfile, string>> {
+async updateUserProfile(displayName: string | null, email: string | null) : Promise<Result<UserProfile, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("update_user_profile", { displayName, email, expertiseLevel }) };
+    return { status: "ok", data: await TAURI_INVOKE("update_user_profile", { displayName, email }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -2281,40 +2258,12 @@ async closeChildWindow(role: WindowRole) : Promise<Result<null, string>> {
  * 
  * # Errors
  * Infallible — the `Result` shape is preserved for binding parity with
- * the sibling `open_window` / `close_window` commands so the TS
+ * the sibling `open_window` / `close_child_window` commands so the TS
  * surface stays uniform.
  */
 async listWindows() : Promise<Result<WindowInfo[], string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("list_windows") };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
-/**
- * Legacy: Open or focus the Chat window. Delegates to `open_window`.
- * 
- * # Errors
- * Returns an error string if the window cannot be created or focused.
- */
-async openChatWindow() : Promise<Result<null, string>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("open_chat_window") };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
-/**
- * Legacy: Close a window by its label string.
- * 
- * # Errors
- * Returns an error string if the window cannot be closed.
- */
-async closeWindow(label: string) : Promise<Result<null, string>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("close_window", { label }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -2406,41 +2355,6 @@ async getModelsStatus() : Promise<Result<ModelsStatusData, string>> {
 async getModelCatalog() : Promise<Result<CatalogEntry[], string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("get_model_catalog") };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
-/**
- * Check if this is the first run (no models configured).
- */
-async isFirstRun() : Promise<Result<boolean, string>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("is_first_run") };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
-/**
- * Mark the setup wizard as complete. Persists to `LibSQL`.
- * Called by the frontend when the user finishes the wizard.
- */
-async markSetupComplete() : Promise<Result<null, string>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("mark_setup_complete") };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
-/**
- * Check if the setup wizard was previously completed.
- * Used at boot to decide whether to show the wizard overlay.
- */
-async isSetupComplete() : Promise<Result<boolean, string>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("is_setup_complete") };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -2983,20 +2897,6 @@ async pickAudioFile(title: string) : Promise<Result<string | null, string>> {
 }
 },
 /**
- * Create a developer profile and persist it as a preference.
- * 
- * Stores a JSON blob with name, experience level, and optional project path.
- * Uses the same preferences.json storage as `set_preference`.
- */
-async createDevProfile(name: string, experience: string, projectPath: string | null) : Promise<Result<null, string>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("create_dev_profile", { name, experience, projectPath }) };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
-/**
  * Auto-configure model recommendations based on detected hardware.
  */
 async autoConfigure() : Promise<Result<string, string>> {
@@ -3072,24 +2972,6 @@ async getWizardCopy() : Promise<Result<WizardCopy, string>> {
 async getTierDisplay() : Promise<Result<TierDisplay, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("get_tier_display") };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
-/**
- * Called when the setup wizard finishes.
- * 
- * 1. Re-scans the model registry to pick up any newly downloaded/imported models.
- * 2. Auto-assigns unassigned models to matching slots by capability.
- * 3. Verifies at least the chat.brain slot has an assigned model.
- * 4. Only THEN emits the models-ready signal and opens the chat window.
- * 
- * Returns error if no text-generation model is available for chat.brain.
- */
-async completeModelSetup() : Promise<Result<null, string>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("complete_model_setup") };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -7652,119 +7534,6 @@ embedding_dim: number;
  */
 project_count: number }
 /**
- * A single phase inside an interaction's state machine.
- * 
- * Phases are ordered, named, and carry pointers into the wizard
- * copy TOML (kept separate so copy translators only edit one file).
- */
-export type InteractionPhase = { 
-/**
- * Stable phase identifier (`"welcome"`, `"scanning"`, etc.).
- * Matches the frontend phase-machine enum variant the overlay
- * uses to decide which sub-component to render.
- */
-id: string; 
-/**
- * Human-readable label for developer traces and UI breadcrumbs.
- */
-label: string; 
-/**
- * Copy block name inside `wizard_copy.default.toml` that this
- * phase renders from (e.g. `"greeting"`, `"scanning"`).
- * 
- * Empty when the phase renders dynamic content that is not
- * copy-backed (e.g. the preset picker, which builds its rows
- * from `list_presets` at runtime).
- */
-copy_block?: string; 
-/**
- * Ordered list of phase ids this phase can transition to.
- * The overlay uses this for "Next" button wiring and for
- * validating that the state machine cannot reach an undeclared
- * phase.
- */
-next?: string[]; 
-/**
- * Whether this phase is terminal (no further transitions). The
- * overlay shows a "Close" button instead of "Next" on terminal
- * phases.
- */
-terminal?: boolean }
-/**
- * A complete interaction template.
- * 
- * Templates are **data**, not code. The kernel loader parses them
- * from TOML and hands them to the engine facade, which in turn hands
- * them to the frontend overlay via a Tauri command. Every phase
- * transition fires a `SignalVariant::System` event through the
- * (future) `SignalBridge` so the `Monitor` tab in Slot Config can see
- * the whole interaction play out.
- */
-export type InteractionTemplate = { 
-/**
- * Stable template identifier (e.g. `"setup"`,
- * `"hardware-change"`). Used as the TOML file stem and as the
- * Tauri event channel suffix.
- */
-id: string; 
-/**
- * One-line description for developer logs and template browsers.
- */
-description: string; 
-/**
- * Ordered list of triggers that open this interaction.
- * Evaluated in order — the first trigger that matches opens
- * the overlay.
- */
-triggers?: InteractionTrigger[]; 
-/**
- * Phase machine. Position in the array is the default entry
- * order; the actual runtime order follows each phase's `next`
- * pointers.
- */
-phases: InteractionPhase[]; 
-/**
- * Entry phase id — the state machine starts here. Must match
- * exactly one phase in `phases`.
- */
-entry_phase: string }
-/**
- * A declarative trigger that opens an interaction.
- * 
- * Triggers are evaluated by the kernel's interaction dispatcher. The
- * frontend overlay never decides on its own whether to open — it
- * receives a "show this template now" signal from the platform
- * based on trigger evaluation.
- */
-export type InteractionTrigger = 
-/**
- * Fires on first run — no `Factory Default` configuration exists
- * in libSQL AND `chat.brain` has no assigned model. Authoritative
- * signal per D12.
- */
-{ kind: "first_run" } | 
-/**
- * Fires when the user invokes the interaction manually from a
- * menu, keyboard shortcut, or command palette entry.
- */
-{ kind: "manual" } | 
-/**
- * Fires when detected hardware changes materially from what the
- * current `Factory Default` configuration was built against.
- */
-{ kind: "hardware_changed" } | 
-/**
- * Fires when a slot fails to load and the user needs guided
- * recovery.
- */
-{ kind: "slot_broken"; slot_id: string } | 
-/**
- * Fires when the app opens and the gap since the user's last
- * recorded `last_seen_at` exceeds `days`. Drives the
- * `welcome-back` interaction template.
- */
-{ kind: "long_absence"; days: number }
-/**
  * A named action the assistant can run when its associated phrase is
  * detected after the wake phrase fires.
  * 
@@ -11329,17 +11098,18 @@ displayName: string | null;
  */
 email: string | null; 
 /**
- * Hardware profile identifier chosen for onboarding defaults.
+ * Id of the hardware preset the user selected; `None` until one is chosen.
  */
-hardwareProfile: string; 
+hardwareProfile: string | null; 
 /**
  * Whether onboarding has been completed for this profile.
  */
 onboardingComplete: boolean; 
 /**
- * Numeric expertise level used for adaptive UX.
+ * Skill level inferred from the user's projects and GitHub; `None`
+ * until inferred. Never asked.
  */
-expertiseLevel: number; 
+expertiseLevel: number | null; 
 /**
  * Unix timestamp when the profile row was created.
  */
