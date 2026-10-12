@@ -2,609 +2,349 @@
 	@file TursoDevtool.svelte
 	@module @devpulse/devtools/system/datastores/turso
 
-	Turso devtool — relational store (system + user databases). Wraps
-	`ServiceDevtoolShell` with the standard 5 tabs (Status / Config /
-	Logs / Actions / Debug) plus extras (Tables browser, SQL console).
+	The database devtool for DevPulse's Turso databases — your data
+	(`user.db`) and the platform's (`platform.db`). Wraps
+	`ServiceDevtoolShell`:
 
-	Turso is in-process (no managed sidecar), so Actions verbs are
-	limited to refresh + maintenance operations. Config is read-only —
-	the SSOT lives in `[services.system.turso]` of `platform.toml`.
+	- Status — is each database reachable, and where its file is.
+	- Tables — browse and edit rows without SQL (TursoTableEditor).
+	- Migrations — every schema update this build ships, and when it ran.
+	- SQL console — run a statement directly.
+	- Logs — row changes (`devtools.turso`) and migrations (`db.migrate`).
+
+	All data comes from Rust; every change is checked there first.
 -->
 <script lang="ts">
-import { Database, Hammer, Play, RefreshCw, Table2, Terminal } from "lucide-svelte";
+import { Database, History, RefreshCw, Table2, Terminal } from "lucide-svelte";
 import { onMount } from "svelte";
+import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
+import { InlineMessage } from "$lib/design/components/inline-message/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
+import { Table } from "$lib/design/components/table/index.js";
 import { Text } from "$lib/design/components/text/index.js";
-import { type ExtraTab, type HealthBadge, ServiceDevtoolShell } from "$lib/devtools/index.js";
-import { EmptyStatePoster, StoreHeroCard } from "$lib/devtools/system/datastores/_shared/index.js";
-import { DATABASE_OPTIONS, tursoState } from "$lib/domains/infra/turso/index.js";
-import { commands, type ScopedLogEntry } from "$lib/sys/generated/bindings.js";
+import { Textarea } from "$lib/design/components/textarea/index.js";
+import {
+	DevtoolLogsTab,
+	type ExtraTab,
+	type HealthBadge,
+	type LogTargetPreset,
+	ServiceDevtoolShell,
+} from "$lib/devtools/index.js";
+import { StoreHeroCard } from "$lib/devtools/system/datastores/_shared/index.js";
+import { cellText, type TursoDatabase, tursoState } from "$lib/domains/infra/turso/index.js";
 import TursoHero from "./TursoHero.svelte";
+import TursoTableEditor from "./TursoTableEditor.svelte";
 
-// ── Scoped log state ─────────────────────────────────────
-let logEntries = $state<ScopedLogEntry[]>([]);
-let logLoading = $state(false);
-let logError = $state<string | null>(null);
+const DATABASES: { value: TursoDatabase; label: string; file: string }[] = [
+	{ value: "User", label: "Your data", file: "user.db" },
+	{ value: "System", label: "Platform", file: "platform.db" },
+];
 
-async function loadLogs(): Promise<void> {
-	logLoading = true;
-	logError = null;
-	try {
-		const r = await commands.queryScopedLog("devtools.turso", 100);
-		if (r.status === "error") throw new Error(r.error);
-		logEntries = r.data;
-	} catch (e) {
-		logError = e instanceof Error ? e.message : String(e);
-	} finally {
-		logLoading = false;
-	}
-}
-
-// ── Debug probe state ────────────────────────────────────
-let probeRunning = $state(false);
-let probeLastResult = $state<string | null>(null);
-
-async function runSanityProbe(): Promise<void> {
-	probeRunning = true;
-	probeLastResult = null;
-	try {
-		// SELECT 1 against the current database — confirms the connection
-		// is alive and the SQL surface answers.
-		tursoState.queryInput = "SELECT 1 AS probe;";
-		await tursoState.executeQuery();
-		probeLastResult = tursoState.queryError ? `error: ${tursoState.queryError}` : "ok";
-	} catch (e) {
-		probeLastResult = `error: ${e instanceof Error ? e.message : String(e)}`;
-	} finally {
-		probeRunning = false;
-	}
-}
+const LOG_TARGETS: LogTargetPreset[] = [
+	{ value: "devtools.turso", label: "Row changes" },
+	{ value: "db.migrate", label: "Migrations" },
+	{ value: "", label: "All targets" },
+];
 
 const extraTabs: ExtraTab[] = [
 	{ id: "tables", label: "Tables", Icon: Table2 },
-	{ id: "console", label: "Console", Icon: Terminal },
+	{ id: "migrations", label: "Migrations", Icon: History },
+	{ id: "console", label: "SQL console", Icon: Terminal },
 ];
 
 onMount(() => {
-	if (!tursoState.health && !tursoState.healthLoading) {
-		tursoState.loadHealth();
-	}
+	if (!tursoState.health && !tursoState.healthLoading) void tursoState.refreshHealth();
+	void tursoState.selectDatabase(tursoState.database);
 });
 
-// Hero-state derivation. Turso is multi-database, so "up" means every
-// database is reachable; "degraded" means some-but-not-all are; "down"
-// means none. Latency on the hero is the average across reachable DBs
-// so a single slow DB doesn't dominate the readout — per-DB breakdown
-// still lives in the grid below for diagnosis.
 type StoreHealth = "up" | "starting" | "degraded" | "down" | "unknown";
+
+const total = $derived(tursoState.health?.length ?? 0);
 const heroState = $derived<StoreHealth>(
 	tursoState.healthLoading
 		? "starting"
 		: tursoState.healthError
 			? "down"
-			: tursoState.health
-				? tursoState.health.databases.length === 0
-					? "unknown"
-					: tursoState.reachableCount === tursoState.health.databases.length
-						? "up"
-						: tursoState.reachableCount > 0
-							? "degraded"
-							: "down"
-				: "unknown",
-);
-const heroLatencyMs = $derived(
-	(() => {
-		const reachable = tursoState.health?.databases.filter((d) => d.reachable) ?? [];
-		if (reachable.length === 0) return null;
-		const totalUs = reachable.reduce((sum, d) => sum + (d.latency_us ?? 0), 0);
-		return totalUs / reachable.length / 1000;
-	})(),
-);
-const heroHealthLabel = $derived(
-	tursoState.healthLoading
-		? "Probing…"
-		: tursoState.healthError
-			? "Unreachable"
-			: tursoState.health
-				? tursoState.reachableCount === tursoState.health.databases.length
-					? `${tursoState.reachableCount} reachable`
+			: total === 0
+				? "unknown"
+				: tursoState.reachableCount === total
+					? "up"
 					: tursoState.reachableCount > 0
-						? `${tursoState.reachableCount}/${tursoState.health.databases.length} reachable`
-						: "All down"
-				: "Not probed yet",
+						? "degraded"
+						: "down",
 );
-let activityTick = $state(0);
-$effect(() => {
-	if (tursoState.health) {
-		activityTick = activityTick + 1;
-	}
+const heroLatencyMs = $derived.by(() => {
+	const reachable = tursoState.health?.filter((d) => d.reachable) ?? [];
+	if (reachable.length === 0) return null;
+	return reachable.reduce((sum, d) => sum + d.latencyUs, 0) / reachable.length / 1000;
+});
+const heroLabel = $derived(
+	heroState === "starting"
+		? "Checking…"
+		: heroState === "up"
+			? `${total} reachable`
+			: heroState === "degraded"
+				? `${tursoState.reachableCount}/${total} reachable`
+				: heroState === "down"
+					? "Unreachable"
+					: "Not checked yet",
+);
+const badge = $derived<HealthBadge>({
+	state: heroState,
+	label: heroLabel,
 });
 
-const badge = $derived<HealthBadge>(
-	tursoState.healthLoading
-		? { state: "starting", label: "Checking…" }
-		: tursoState.healthError
-			? { state: "down", label: "Unreachable" }
-			: tursoState.health
-				? tursoState.reachableCount === tursoState.health.databases.length
-					? { state: "up", label: `${tursoState.reachableCount} databases reachable` }
-					: tursoState.reachableCount > 0
-						? {
-								state: "degraded",
-								label: `${tursoState.reachableCount}/${tursoState.health.databases.length} reachable`,
-							}
-						: { state: "down", label: "No databases reachable" }
-				: { state: "unknown", label: "Not checked yet" },
-);
-
-function handleQuerySubmit(): void {
-	tursoState.executeQuery();
+function latency(us: number): string {
+	return us >= 1000 ? `${Math.round(us / 1000)} ms` : `${us} µs`;
 }
 
-function handleKeydown(event: KeyboardEvent): void {
-	if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
-		handleQuerySubmit();
-	}
+function appliedAt(seconds: number): string {
+	return new Date(seconds * 1000).toLocaleString();
 }
 </script>
 
 <ServiceDevtoolShell
 	infoTerm="Turso"
 	title="Turso"
-	description="System + User relational store · SQLite"
+	description="Your data and the platform's · browse, edit, migrate"
 	icon={Database}
 	axis="stores"
 	accent="blue"
 	health={badge}
 	{extraTabs}
 >
-	<!-- ── STATUS ────────────────────────────────────────────── -->
 	{#snippet status()}
-		<div class="space-y-3">
+		<div class="flex flex-col gap-[var(--space-3)]">
 			<StoreHeroCard
 				icon={Database}
 				name="Turso"
-				purpose="Relational rows — system + user state, project notes, every persistent fact Clyffy keeps"
+				purpose="DevPulse's own database — your profile, preferences, projects and chats, and the platform's state"
 				health={heroState}
 				latencyMs={heroLatencyMs}
-				healthLabel={heroHealthLabel}
-				{activityTick}
+				healthLabel={heroLabel}
+				activityTick={tursoState.healthChecks}
 				accentVar="--accent-cyan"
 			>
 				<TursoHero state={heroState} />
 			</StoreHeroCard>
 
-			<div class="flex items-center justify-end gap-2">
+			{#if tursoState.healthError}
+				<InlineMessage tone="error">{tursoState.healthError}</InlineMessage>
+			{/if}
+
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-[var(--space-2)]">
+				{#each tursoState.health ?? [] as db (db.database)}
+					{@const meta = DATABASES.find((d) => d.value === db.database)}
+					<div
+						class="flex flex-col gap-[var(--space-1)] rounded-lg p-[var(--space-3)]"
+						style="background: var(--surface-raised); border: 1px solid var(--border-subtle);"
+					>
+						<div class="flex items-center justify-between gap-[var(--space-2)]">
+							<Text size="sm" weight="semibold">{meta?.label ?? db.database}</Text>
+							<Badge size="sm" variant={db.reachable ? "positive" : "negative"} fillStyle="subtle">
+								{db.reachable ? latency(db.latencyUs) : "Down"}
+							</Badge>
+						</div>
+						<Text size="xs" class="font-mono break-all" style="color: var(--text-secondary);">
+							{db.path ?? "not open"}
+						</Text>
+						{#if db.error}
+							<InlineMessage tone="error">{db.error}</InlineMessage>
+						{/if}
+					</div>
+				{/each}
+			</div>
+		</div>
+	{/snippet}
+
+	{#snippet config()}
+		<div class="flex flex-col gap-[var(--space-2)]">
+			<Text size="sm" style="color: var(--text-secondary);">
+				Where each database lives and how long a write waits for a busy
+				database (<code>busy_timeout_ms</code>) are set in
+				<code>config/platform/services/system/turso.toml</code>. Change the
+				file and restart DevPulse to apply.
+			</Text>
+			<Text size="sm" style="color: var(--text-secondary);">
+				Schema changes ship as numbered migrations in
+				<code>systems/devpulse-engine/migrations/</code> and run when a
+				database opens — see the Migrations tab.
+			</Text>
+		</div>
+	{/snippet}
+
+	{#snippet logs()}
+		<DevtoolLogsTab targetPresets={LOG_TARGETS} />
+	{/snippet}
+
+	{#snippet actions()}
+		<div class="grid grid-cols-1 md:grid-cols-2 gap-[var(--space-3)]">
+			<div
+				class="flex flex-col gap-[var(--space-2)] p-[var(--space-3)] rounded-lg"
+				style="background: var(--surface-raised); border: 1px solid var(--border-subtle);"
+			>
+				<Text size="sm" weight="semibold">Check databases</Text>
+				<Text size="xs" style="color: var(--text-secondary);">Ping each database and refresh its round-trip time.</Text>
 				<Button
-					preset="ghost"
+					preset="primary"
 					size="sm"
-					onclick={() => tursoState.loadHealth()}
+					onclick={() => tursoState.refreshHealth()}
 					disabled={tursoState.healthLoading}
 				>
-					{#if tursoState.healthLoading}
-						<Spinner size="xs" tone="accent" />
-					{:else}
-						<RefreshCw size={14} />
-					{/if}
-					Re-probe
+					{#if tursoState.healthLoading}<Spinner size="xs" tone="accent" />{:else}<RefreshCw size={14} />{/if}
+					Check now
 				</Button>
 			</div>
-
-			{#if tursoState.healthError}
-				<div class="rounded-lg p-3" style="background: color-mix(in oklch, var(--signal-error) 10%, transparent); border: 1px solid color-mix(in oklch, var(--signal-error) 30%, transparent);">
-					<Text size="xs" weight="semibold" class="block mb-1" style="color: var(--signal-error);">
-						Probe failed
-					</Text>
-					<Text size="xs" color="muted">{tursoState.healthError}</Text>
-				</div>
-			{/if}
-
-			{#if tursoState.health && tursoState.health.databases.length > 0}
-				<div class="rounded-lg p-3" style="background: var(--surface-raised); border: 1px solid var(--border-subtle);">
-					<Text size="xs" weight="semibold" class="block mb-2" color="muted">
-						Per-database breakdown
-					</Text>
-					<div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-						{#each tursoState.health.databases as db (db.database)}
-							<div class="flex flex-col gap-1 rounded p-2" style="background: var(--surface-base); border: 1px solid var(--border-soft);">
-								<div class="flex items-center justify-between gap-2">
-									<div class="flex items-center gap-2 min-w-0">
-										<span
-											class="inline-block w-2 h-2 rounded-full flex-shrink-0"
-											style="background: {db.reachable ? 'var(--signal-success)' : 'var(--signal-error)'};"
-										></span>
-										<Text size="xs" weight="semibold" class="truncate">{db.database}</Text>
-									</div>
-									<div class="flex items-center gap-2 flex-shrink-0">
-										{#if db.reachable}
-											<Text size="xs" color="muted" class="font-mono">
-												{db.latency_us >= 1000
-													? `${Math.round(db.latency_us / 1000)}ms`
-													: `${db.latency_us}µs`}
-											</Text>
-										{:else}
-											<Text size="xs" style="color: var(--signal-error);">Down</Text>
-										{/if}
-									</div>
-								</div>
-								{#if db.error}
-									<Text size="xs" class="break-all" style="color: var(--signal-error);">
-										{db.error}
-									</Text>
-								{/if}
-							</div>
-						{/each}
-					</div>
-				</div>
-			{:else if !tursoState.health && !tursoState.healthLoading}
-				<EmptyStatePoster
-					icon={Database}
-					title="Probe Turso to see its state"
-					hint="Each database file lives at the path declared in platform.toml. If they're missing, the first probe surfaces the path here."
-					logTarget="turso.lifecycle"
-					accentVar="--accent-cyan"
-				/>
-			{/if}
-		</div>
-	{/snippet}
-
-	<!-- ── CONFIG ────────────────────────────────────────────── -->
-	{#snippet config()}
-		<div class="space-y-3">
-			<Text size="sm" color="muted">
-				Turso configuration is read-only here. The SSOT for file paths,
-				retry policy, and WAL checkpoint cadence lives in
-				<code>[services.system.turso]</code> of
-				<code>platform.toml</code>. Edit the TOML and restart the platform
-				to apply changes.
-			</Text>
-			<Text size="sm" color="muted">
-				The charter's <code>turso_save_config</code> command will land
-				with the services-rewire phase; once it's wired, this tab gains
-				editable controls.
-			</Text>
-		</div>
-	{/snippet}
-
-	<!-- ── LOGS ──────────────────────────────────────────────── -->
-	{#snippet logs()}
-		<div class="space-y-3">
-			<div class="flex items-center justify-between">
-				<Text size="sm" weight="semibold">
-					Scoped log — <span class="font-mono text-xs">devtools.turso</span>
-				</Text>
-				<Button preset="ghost" size="sm" onclick={loadLogs} disabled={logLoading}>
-					{#if logLoading}
-						<Spinner size="xs" tone="accent" />
-					{:else}
-						Refresh
-					{/if}
+			<div
+				class="flex flex-col gap-[var(--space-2)] p-[var(--space-3)] rounded-lg"
+				style="background: var(--surface-raised); border: 1px solid var(--border-subtle);"
+			>
+				<Text size="sm" weight="semibold">Reload tables</Text>
+				<Text size="xs" style="color: var(--text-secondary);">Re-read the tables and row counts of the selected database.</Text>
+				<Button
+					preset="primary"
+					size="sm"
+					onclick={() => tursoState.refreshTables()}
+					disabled={tursoState.tablesLoading}
+				>
+					{#if tursoState.tablesLoading}<Spinner size="xs" tone="accent" />{:else}<Table2 size={14} />{/if}
+					Reload
 				</Button>
 			</div>
-
-			{#if logError}
-				<div class="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-xs text-red-400">
-					{logError}
-				</div>
-			{/if}
-
-			{#if logEntries.length > 0}
-				<div class="rounded-lg border border-[var(--border-subtle)] overflow-hidden max-h-80 overflow-y-auto">
-					<table class="w-full text-xs">
-						<thead class="sticky top-0 bg-[var(--surface-raised)]">
-							<tr class="border-b border-[var(--border-subtle)]">
-								<th class="text-left px-2 py-1 font-medium text-[var(--text-secondary)]">Time</th>
-								<th class="text-left px-2 py-1 font-medium text-[var(--text-secondary)]">Level</th>
-								<th class="text-left px-2 py-1 font-medium text-[var(--text-secondary)]">Message</th>
-							</tr>
-						</thead>
-						<tbody>
-							{#each logEntries as line (line.timestamp + line.message)}
-								<tr class="border-b border-[var(--border-subtle)]">
-									<td class="px-2 py-1 font-mono text-[10px] text-[var(--text-secondary)]">{line.timestamp.slice(11, 19)}</td>
-									<td class="px-2 py-1 font-mono text-[10px]">{line.level}</td>
-									<td class="px-2 py-1 break-all">{line.message}</td>
-								</tr>
-							{/each}
-						</tbody>
-					</table>
-				</div>
-			{:else if logLoading}
-				<Text size="sm" color="muted">Loading…</Text>
-			{:else}
-				<Text size="sm" color="muted">
-					No entries — click Refresh to tail the current session log.
-				</Text>
-			{/if}
 		</div>
 	{/snippet}
 
-	<!-- ── ACTIONS ───────────────────────────────────────────── -->
-	{#snippet actions()}
-		<div class="space-y-4">
-			<Text size="sm" color="muted">
-				Turso is in-process (no managed sidecar), so there's no
-				start/stop. Actions here trigger refresh + maintenance on the
-				current connections.
-			</Text>
-
-			<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-				<div
-					class="p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)]"
-				>
-					<Text size="sm" weight="semibold">Refresh health</Text>
-					<Text size="xs" color="muted" class="block mb-2">
-						Re-ping every database and reload latency.
-					</Text>
-					<Button
-						preset="primary"
-						size="sm"
-						onclick={() => tursoState.loadHealth()}
-						disabled={tursoState.healthLoading}
-					>
-						{#if tursoState.healthLoading}
-							<Spinner size="xs" tone="accent" />
-						{:else}
-							<RefreshCw size={14} />
-						{/if}
-						Re-ping
-					</Button>
-				</div>
-
-				<div
-					class="p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)]"
-				>
-					<Text size="sm" weight="semibold">Reload tables</Text>
-					<Text size="xs" color="muted" class="block mb-2">
-						Refresh the table catalog for the active database.
-					</Text>
-					<Button
-						preset="primary"
-						size="sm"
-						onclick={() => tursoState.loadTables()}
-						disabled={tursoState.tablesLoading}
-					>
-						{#if tursoState.tablesLoading}
-							<Spinner size="xs" tone="accent" />
-						{:else}
-							<Table2 size={14} />
-						{/if}
-						Reload tables
-					</Button>
-				</div>
-			</div>
-		</div>
-	{/snippet}
-
-	<!-- ── DEBUG ─────────────────────────────────────────────── -->
-	{#snippet debug()}
-		<div class="space-y-4">
-			<Text size="sm" color="muted">
-				Power-user probes. The sanity probe runs <code>SELECT 1</code>
-				against the active database via the same path the app uses, so
-				a failure here points to the connection layer, not your query.
-			</Text>
-
-			<div class="p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)]">
-				<div class="flex items-center justify-between mb-2">
-					<Text size="sm" weight="semibold">Sanity probe</Text>
-					<Button
-						preset="primary"
-						size="sm"
-						onclick={runSanityProbe}
-						disabled={probeRunning}
-					>
-						{#if probeRunning}
-							<Spinner size="xs" tone="accent" />
-						{:else}
-							<Play size={14} />
-						{/if}
-						Run
-					</Button>
-				</div>
-				{#if probeLastResult}
-					<div
-						class="text-xs font-mono"
-						style="color: {probeLastResult === 'ok'
-							? 'var(--signal-success)'
-							: 'var(--signal-error)'}"
-					>
-						Last result: {probeLastResult}
-					</div>
-				{/if}
-			</div>
-
-			<div class="p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)]">
-				<Text size="sm" weight="semibold" class="block mb-2">
-					<Hammer size={14} class="inline" />
-					Active database
-				</Text>
-				<div class="text-xs font-mono">{tursoState.activeDatabase}</div>
-				<Text size="xs" color="muted" class="block mt-1">
-					Switch via the selector in Tables / Console; the probe uses
-					whichever database is active there.
-				</Text>
-			</div>
-		</div>
-	{/snippet}
-
-	<!-- ── EXTRA TABS: dispatched by id ────────────────────────── -->
 	{#snippet extra(tabId: string)}
-		{#if tabId === "tables"}
-			{@render tablesBody()}
-		{:else if tabId === "console"}
-			{@render consoleBody()}
-		{/if}
+		<div class="flex flex-col gap-[var(--space-4)]">
+			{@render databasePicker()}
+			{#if tabId === "tables"}
+				<TursoTableEditor />
+			{:else if tabId === "migrations"}
+				{@render migrationsBody()}
+			{:else if tabId === "console"}
+				{@render consoleBody()}
+			{/if}
+		</div>
 	{/snippet}
 </ServiceDevtoolShell>
 
-<!-- Snippets hoisted to module scope so the shell's `extra` dispatcher
-	can forward by id. Each body auto-loads its data via $effect when
-	the relevant tab first becomes active (via tabId changes). -->
-{#snippet tablesBody()}
-	<div class="space-y-4">
-		<div class="flex items-center justify-between">
-			<div class="flex items-center gap-2">
-				<Text size="sm" weight="semibold">
-					Tables in {tursoState.activeDatabase}
-				</Text>
-				<select
-					class="bg-[var(--surface-raised)] text-xs border border-[var(--border-subtle)] rounded px-2 py-1 text-[var(--text-primary)]"
-					value={tursoState.activeDatabase}
-					onchange={(e) =>
-						tursoState.setDatabase(
-							(e.target as HTMLSelectElement)
-								.value as (typeof DATABASE_OPTIONS)[number]["value"],
-						)}
-				>
-					{#each DATABASE_OPTIONS as opt}
-						<option value={opt.value}>{opt.label}</option>
-					{/each}
-				</select>
-			</div>
+{#snippet databasePicker()}
+	<div class="flex items-center gap-[var(--space-2)]" role="group" aria-label="Database">
+		{#each DATABASES as db (db.value)}
 			<Button
-				preset="ghost"
+				preset={tursoState.database === db.value ? "secondary" : "ghost"}
 				size="sm"
-				onclick={() => tursoState.loadTables()}
-				disabled={tursoState.tablesLoading}
+				aria-pressed={tursoState.database === db.value}
+				onclick={() => tursoState.selectDatabase(db.value)}
 			>
-				{#if tursoState.tablesLoading}
-					<Spinner size="xs" tone="accent" />
-				{:else}
-					<RefreshCw size={14} />
-				{/if}
-				Refresh
+				{db.label}
+				<span class="font-mono" style="color: var(--text-muted);">{db.file}</span>
 			</Button>
-		</div>
+		{/each}
+	</div>
+{/snippet}
 
-		{#if tursoState.tablesError}
-			<div
-				class="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-xs text-red-400"
-			>
-				{tursoState.tablesError}
-			</div>
-		{/if}
-
-		{#if tursoState.tables.length > 0}
-			<div class="rounded-lg border border-[var(--border-subtle)] overflow-hidden">
-				<table class="w-full text-xs">
-					<thead>
-						<tr class="bg-[var(--surface-raised)] border-b border-[var(--border-subtle)]">
-							<th class="text-left px-3 py-2 font-medium text-[var(--text-secondary)]">
-								Table
-							</th>
-							<th class="text-right px-3 py-2 font-medium text-[var(--text-secondary)]">
-								Rows
-							</th>
-						</tr>
-					</thead>
-					<tbody>
-						{#each tursoState.tables as table}
-							<tr
-								class="border-b border-[var(--border-subtle)] hover:bg-[var(--surface-raised)]"
-							>
-								<td class="px-3 py-2 font-mono">{table.name}</td>
-								<td class="px-3 py-2 text-right font-mono">{table.row_count}</td>
-							</tr>
-						{/each}
-					</tbody>
-				</table>
-			</div>
-		{:else if tursoState.tablesLoading}
-			<Text size="sm" color="muted">Loading tables…</Text>
+{#snippet migrationsBody()}
+	<div class="flex flex-col gap-[var(--space-2)]">
+		{#if tursoState.migrationsError}
+			<InlineMessage tone="error">{tursoState.migrationsError}</InlineMessage>
+		{:else if tursoState.migrationsLoading}
+			<Spinner size="sm" tone="accent" />
+		{:else if tursoState.migrations.length === 0}
+			<Text size="sm" style="color: var(--text-secondary);">
+				No migrations ship for this database yet — its tables are exactly the base schema.
+			</Text>
 		{:else}
-			<Text size="sm" color="muted">Click Refresh to load tables.</Text>
+			{#each tursoState.migrations as m (m.version)}
+				<div
+					class="flex items-center justify-between gap-[var(--space-2)] rounded-lg p-[var(--space-2)]"
+					style="background: var(--surface-raised); border: 1px solid var(--border-subtle);"
+				>
+					<div class="flex items-center gap-[var(--space-2)] min-w-0">
+						<Text size="xs" class="font-mono" style="color: var(--text-muted);">
+							{String(m.version).padStart(4, "0")}
+						</Text>
+						<Text size="sm" class="font-mono truncate">{m.name}</Text>
+					</div>
+					{#if m.appliedAt !== null}
+						<Badge size="sm" variant="positive" fillStyle="subtle">Applied {appliedAt(m.appliedAt)}</Badge>
+					{:else}
+						<Badge size="sm" variant="notice" fillStyle="subtle">Pending</Badge>
+					{/if}
+				</div>
+			{/each}
 		{/if}
 	</div>
 {/snippet}
 
 {#snippet consoleBody()}
-	<div class="space-y-4">
-		<div class="flex items-center gap-2">
-			<Text size="sm" weight="semibold">SQL Console</Text>
-			<select
-				class="bg-[var(--surface-raised)] text-xs border border-[var(--border-subtle)] rounded px-2 py-1 text-[var(--text-primary)]"
-				value={tursoState.activeDatabase}
-				onchange={(e) =>
-					tursoState.setDatabase(
-						(e.target as HTMLSelectElement)
-							.value as (typeof DATABASE_OPTIONS)[number]["value"],
-					)}
+	<div class="flex flex-col gap-[var(--space-3)]">
+		<Textarea
+			rows={4}
+			value={tursoState.sql}
+			onValueChange={(v) => (tursoState.sql = v)}
+			placeholder="SELECT * FROM profiles;"
+			aria-label="SQL statement"
+			class="font-mono"
+			onkeydown={(e: KeyboardEvent) => {
+				if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) void tursoState.runConsole();
+			}}
+		/>
+		<div class="flex items-center justify-between gap-[var(--space-2)]">
+			<Text size="xs" style="color: var(--text-muted);">Ctrl+Enter runs it. Changes made here are logged.</Text>
+			<Button
+				preset="primary"
+				size="sm"
+				onclick={() => tursoState.runConsole()}
+				disabled={tursoState.running || !tursoState.sql.trim()}
 			>
-				{#each DATABASE_OPTIONS as opt}
-					<option value={opt.value}>{opt.label}</option>
+				{tursoState.running ? "Running…" : "Run"}
+			</Button>
+		</div>
+
+		{#if tursoState.sqlHistory.length > 0}
+			<div class="flex flex-wrap gap-[var(--space-1)]">
+				{#each tursoState.sqlHistory.slice(0, 8) as q (q)}
+					<Button preset="ghost" size="sm" class="font-mono max-w-[16rem] truncate" onclick={() => (tursoState.sql = q)}>
+						{q}
+					</Button>
 				{/each}
-			</select>
-		</div>
-
-		<div class="relative">
-			<textarea
-				class="w-full h-28 p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] text-xs font-mono text-[var(--text-primary)] resize-y focus:border-[var(--color-teal-500)] focus:outline-none"
-				placeholder="SELECT * FROM sessions LIMIT 10;"
-				bind:value={tursoState.queryInput}
-				onkeydown={handleKeydown}
-			></textarea>
-			<div class="absolute bottom-2 right-2 flex items-center gap-2">
-				<span class="text-[10px] text-[var(--text-secondary)]">Ctrl+Enter to run</span>
-				<Button
-					preset="primary"
-					size="sm"
-					onclick={handleQuerySubmit}
-					disabled={tursoState.queryLoading || !tursoState.queryInput.trim()}
-				>
-					{tursoState.queryLoading ? "Running…" : "Execute"}
-				</Button>
-			</div>
-		</div>
-
-		{#if tursoState.queryHistory.length > 0}
-			<div>
-				<Text size="xs" weight="semibold" color="secondary">History</Text>
-				<div class="mt-1 flex flex-wrap gap-1">
-					{#each tursoState.queryHistory.slice(0, 8) as q}
-						<button
-							type="button"
-							class="px-2 py-0.5 text-[10px] font-mono rounded bg-[var(--surface-raised)] border border-[var(--border-subtle)] hover:border-[var(--color-teal-600)] truncate max-w-[200px]"
-							onclick={() => tursoState.setQueryFromHistory(q)}
-						>
-							{q}
-						</button>
-					{/each}
-				</div>
 			</div>
 		{/if}
 
-		{#if tursoState.queryError}
-			<div
-				class="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-xs text-red-400 font-mono break-all"
-			>
-				{tursoState.queryError}
-			</div>
+		{#if tursoState.consoleError}
+			<InlineMessage tone="error">{tursoState.consoleError}</InlineMessage>
 		{/if}
 
-		{#if tursoState.queryResult !== null}
-			<div>
-				<div class="flex items-center justify-between mb-1">
-					<Text size="xs" weight="semibold" color="secondary">
-						Result
-						{#if tursoState.queryResult.rows_affected > 0}
-							({tursoState.queryResult.rows_affected} rows affected)
-						{:else}
-							({tursoState.queryResult.row_count} rows)
-						{/if}
-					</Text>
-					<button
-						type="button"
-						class="text-[10px] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-						onclick={() => tursoState.clearResult()}
-					>
-						Clear
-					</button>
+		{#if tursoState.outcome}
+			{@const outcome = tursoState.outcome}
+			{#if outcome.rows.length === 0}
+				<Text size="sm" style="color: var(--text-secondary);">
+					{outcome.rowsAffected > 0 ? `${outcome.rowsAffected} rows changed.` : "No rows."}
+				</Text>
+			{:else}
+				<Text size="xs" style="color: var(--text-secondary);">{outcome.rows.length} rows</Text>
+				<div class="rounded-lg overflow-auto max-h-96" style="border: 1px solid var(--border-subtle);">
+					<Table label="Result" class="w-full text-xs">
+						<tbody>
+							{#each outcome.rows as cells, r (r)}
+								<tr style="border-top: 1px solid var(--border-subtle);">
+									{#each cells as cell, c (c)}
+										<td
+											class="px-[var(--space-2)] py-[var(--space-1)] font-mono max-w-[20rem] truncate"
+											style="color: {cell.kind === 'null' ? 'var(--text-muted)' : 'var(--text-primary)'};"
+											title={cellText(cell)}
+										>
+											{cellText(cell)}
+										</td>
+									{/each}
+								</tr>
+							{/each}
+						</tbody>
+					</Table>
 				</div>
-				<pre
-					class="p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] text-xs font-mono overflow-auto max-h-80 text-[var(--text-primary)]">{JSON.stringify(JSON.parse(tursoState.queryResult.rows_json), null, 2)}</pre>
-			</div>
+			{/if}
 		{/if}
 	</div>
 {/snippet}

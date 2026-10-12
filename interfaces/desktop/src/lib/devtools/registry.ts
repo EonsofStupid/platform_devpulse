@@ -118,7 +118,7 @@ export const DEVTOOL_REGISTRY: DevtoolMeta[] = [
 		bucket: "datastores",
 		route: "/devtools/system/datastores/turso",
 		label: "Turso",
-		blurb: "Relational engine. System + user stores. WAL, schema, queries.",
+		blurb: "Your data: browse and edit rows, see migration history, run SQL.",
 		icon: Database,
 	},
 	{

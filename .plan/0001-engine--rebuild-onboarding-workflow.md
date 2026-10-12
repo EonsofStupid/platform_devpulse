@@ -828,3 +828,58 @@ queries proving what was written.
     `non_glossary_entries_have_title_and_body` (quiz entries have no title)
     fail on committed data. The telemetry span writer also logs "Failed to
     flush span traces to DuckDB" every ~5 s, in every session today.
+- 2026-10-12 — **A1 T7 done: the database devtool manages your data. A1 is complete.**
+  - Follows the Supabase Table Editor / Prisma Studio / DB Browser for SQLite
+    pattern: pick a table, page its rows, open a row in a side sheet, change it,
+    add a row, or delete one (confirmed).
+  - Engine `platform/db/editor.rs`:
+    - tables from the catalog; columns from `PRAGMA table_info` with `SQLite`
+      type affinity (datatype3 §3.1);
+    - rows addressed by `rowid`;
+    - every change is checked against the table's own columns first. Unknown
+      table or column, empty in a required column, or a value of the wrong
+      type is refused with the column named ("profiles.created_at takes a
+      whole number").
+    - Names come from the catalog and are quoted; values are bound.
+    - `schema_migrations` is hidden from editing and shown read-only.
+    - `db::status` lists each shipped migration and when it ran.
+  - Tauri `commands/sys/relational.rs`: thin wrappers (health, tables, rows,
+    update/insert/delete, migrations, console). Changes are logged to
+    `devtools.turso`, which the Logs tab reads.
+  - UI:
+    - the existing `TursoDevtool` is rewritten, with `TursoTableEditor` and
+      `TursoRowForm` beside it;
+    - the domain reads through the `sys/bindings/sys/relational` facade;
+    - the state holds only what Rust returned; a saved row is replaced by the
+      row Rust stored;
+    - the hardcoded database list and the dead Debug probe are gone;
+    - Config describes where config really lives.
+  - Verified:
+    - engine tests 103/103 (editor 5: affinity, catalog + injection-shaped
+      name refused, insert/update/delete round-trip, refusals, console);
+    - clippy clean for kernel, engine and desktop; `pnpm check` 0 errors;
+    - **live** through the UI: Tables → profiles → Edit → `display_name` set,
+      saved, read back from Turso through Rust, then set back to Empty (NULL);
+    - Migrations shows `0001 clear_seeded_profile_values` applied;
+    - Logs shows the row changes;
+    - `created_at` = 2.5 was refused in the sheet with Rust's message, and the
+      stored value was unchanged.
+  - Fixed during the live check: an `$effect` that read and wrote its own
+    state looped (`effect_update_depth_exceeded`). The pulse now reads a
+    counter the state bumps when Rust answers.
+  - Open:
+    - The first refusal run after an app restart logged two refusals and the
+      sheet closed. It did not reproduce in two further runs with the same
+      steps.
+    - "First run shows the change" is checked in A7, when first run exists.
+    - Plain-language table names and descriptions (R-D10) belong in the A6
+      copy catalog.
+    - The console shows rows without column names, because `SqlAdapter`
+      returns values only.
+  - ColdLight defects found (design-system scope, not patched here):
+    - `Sheet`: Escape does not close; no visible backdrop.
+    - `Sheet` `open`, `Switch` `checked`, `NumberField` `value` and `Select`
+      `value` are read once at mount.
+    - `ToggleGroup` renders no items.
+    - `Text` has no `color` prop. Existing `color="muted"` callers do nothing;
+      this devtool uses `--text-*` tokens.

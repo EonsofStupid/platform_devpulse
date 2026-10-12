@@ -149,11 +149,11 @@ pub async fn turso_update_row(
     let columns: Vec<&str> = changes.iter().map(|c| c.column.as_str()).collect();
     match editor::update_row(svc.adapter().as_ref(), &table, rowid, &changes).await {
         Ok(row) => {
-            tracing::info!(target: LOG_TARGET, ?database, %table, rowid, ?columns, "row updated");
+            tracing::info!(target: LOG_TARGET, ?database, %table, rowid, ?columns, "{database:?} {table} row {rowid} updated: {}", columns.join(", "));
             Ok(row)
         }
         Err(e) => {
-            tracing::warn!(target: LOG_TARGET, ?database, %table, rowid, error = %format!("{e:#}"), "row update refused");
+            tracing::warn!(target: LOG_TARGET, ?database, %table, rowid, "{database:?} {table} row {rowid} not updated: {e:#}");
             Err(format!("{e:#}"))
         }
     }
@@ -172,11 +172,11 @@ pub async fn turso_insert_row(
     let svc = database.service(&platform)?;
     match editor::insert_row(svc.adapter().as_ref(), &table, &values).await {
         Ok(row) => {
-            tracing::info!(target: LOG_TARGET, ?database, %table, rowid = row.rowid, "row added");
+            tracing::info!(target: LOG_TARGET, ?database, %table, rowid = row.rowid, "{database:?} {table} row {} added", row.rowid);
             Ok(row)
         }
         Err(e) => {
-            tracing::warn!(target: LOG_TARGET, ?database, %table, error = %format!("{e:#}"), "row add refused");
+            tracing::warn!(target: LOG_TARGET, ?database, %table, "{database:?} {table} row not added: {e:#}");
             Err(format!("{e:#}"))
         }
     }
@@ -195,11 +195,11 @@ pub async fn turso_delete_row(
     let svc = database.service(&platform)?;
     match editor::delete_row(svc.adapter().as_ref(), &table, rowid).await {
         Ok(()) => {
-            tracing::info!(target: LOG_TARGET, ?database, %table, rowid, "row deleted");
+            tracing::info!(target: LOG_TARGET, ?database, %table, rowid, "{database:?} {table} row {rowid} deleted");
             Ok(())
         }
         Err(e) => {
-            tracing::warn!(target: LOG_TARGET, ?database, %table, rowid, error = %format!("{e:#}"), "row delete refused");
+            tracing::warn!(target: LOG_TARGET, ?database, %table, rowid, "{database:?} {table} row {rowid} not deleted: {e:#}");
             Err(format!("{e:#}"))
         }
     }
@@ -233,7 +233,7 @@ pub async fn turso_query(
         .await
         .map_err(|e| format!("{e:#}"))?;
     if outcome.rows_affected > 0 {
-        tracing::info!(target: LOG_TARGET, ?database, rows_affected = outcome.rows_affected, sql = %sql.trim(), "console statement changed rows");
+        tracing::info!(target: LOG_TARGET, ?database, rows_affected = outcome.rows_affected, "{database:?} console changed {} rows: {}", outcome.rows_affected, sql.trim());
     }
     Ok(outcome)
 }

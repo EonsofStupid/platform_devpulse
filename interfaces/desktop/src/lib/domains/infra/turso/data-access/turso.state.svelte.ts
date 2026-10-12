@@ -37,6 +37,8 @@ class TursoState {
 	health = $state<TursoHealth[] | null>(null);
 	healthLoading = $state(false);
 	healthError = $state<string | null>(null);
+	/** Completed health checks — drives the status card's activity pulse. */
+	healthChecks = $state(0);
 
 	// ── Tables ──────────────────────────────────────────────
 	tables = $state<TableSummary[]>([]);
@@ -69,6 +71,7 @@ class TursoState {
 		this.healthError = null;
 		try {
 			this.health = await loadHealth();
+			this.healthChecks += 1;
 		} catch (e) {
 			this.healthError = message(e);
 		} finally {
