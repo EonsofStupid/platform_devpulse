@@ -14,6 +14,7 @@ import { commands } from "$lib/sys/generated/bindings.js";
 export const getHardwareMetrics = commands.getHardwareMetrics;
 export const scanModels = commands.scanModels;
 export const getSlots = commands.getSlots;
+export const getModelsStatus = commands.getModelsStatus;
 export const getModelCatalog = commands.getModelCatalog;
 export const isFirstRun = commands.isFirstRun;
 export const markSetupComplete = commands.markSetupComplete;
@@ -124,7 +125,7 @@ export type {
 	ModelFormat,
 	ModelInfo,
 	ModelsCopy,
-	ModelsStatusSnapshot,
+	ModelsReadiness,
 	ProfileCopy,
 	RepoFile,
 	Resolution,

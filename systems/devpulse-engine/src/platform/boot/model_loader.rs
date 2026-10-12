@@ -32,6 +32,7 @@ pub async fn boot(
     entry: &ModelLoaderServiceEntry,
     on_event: &(impl Fn(InitEvent) + Send + 'static),
     boot_log: &BootLog,
+    signals: crate::Engine,
     event_sink: Option<std::sync::Arc<dyn devpulse_clyffy::model_loader::LoaderEventSink>>,
     libsql_adapter: Option<std::sync::Arc<devpulse_clyffy::cortex::persistence::LibSqlAdapter>>,
 ) -> Option<Arc<ModelLoaderService>> {
@@ -75,6 +76,7 @@ pub async fn boot(
     let result = devpulse_telemetry::spawn_blocking(move || {
         ModelLoaderService::boot(
             &data_dir_owned,
+            signals,
             event_sink,
             models_dir,
             subdirs,
@@ -138,6 +140,9 @@ pub async fn boot(
                         tracing::warn!(error = %e, "Model Loader background registry scan failed (non-fatal)");
                     }
                     tracing::info!("Model Loader: registry scan complete — slots stay cold until user Apply");
+                    // The registry is now known: publish readiness so every
+                    // window's lists and setup flow reflect what is on disk.
+                    bg_service.publish_readiness().await;
                 }
                 .instrument(tracing::info_span!("model_loader.bg_scan")),
             );

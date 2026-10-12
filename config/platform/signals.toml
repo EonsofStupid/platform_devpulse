@@ -1,0 +1,18 @@
+# Signal delivery tuning — default suggestions.
+#
+# Keys are signal kinds (`SignalKind` in
+# systems/devpulse-engine/src/signals/variants.rs); an unknown kind fails
+# config parsing. Override any value in `{data_dir}/platform.toml`.
+#
+# What a kind *is* (event or state) and its wire version stay in code — every
+# consumer depends on them. How often it is sampled or delivered is tuning.
+
+[signals.coalesce_ms]
+# Minimum milliseconds between two UI deliveries of a kind; a newer value
+# replaces one still waiting. A kind not listed is delivered every time.
+hardware = 1000
+
+[signals.sample_interval_ms]
+# How often a sampled producer runs while at least one window is watching
+# its kind. Nothing is sampled while no window is watching.
+hardware = 2000

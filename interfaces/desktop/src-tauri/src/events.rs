@@ -37,42 +37,6 @@ use serde::{Deserialize, Serialize};
 use specta::Type;
 use tauri_specta::Event;
 
-// ── Platform boot lifecycle ─────────────────────────────────────────
-
-/// Emitted as the boot task transitions between phases. Replaces the
-/// stringly-typed `platform:boot-phase` event family.
-///
-/// Frontend listens via `events.bootPhaseChanged.listen(cb)` and
-/// renders the appropriate splash / dashboard / error overlay based
-/// on the phase.
-///
-/// The boot health snapshot is intentionally NOT a field here — it's
-/// a deep `SystemHealth` tree that doesn't implement `specta::Type`
-/// without a wider derive sweep. Consumers that need the post-boot
-/// health blob call the `get_boot_state` Tauri command which returns
-/// it inside a typed `BootSnapshot`.
-#[derive(Debug, Clone, Serialize, Deserialize, Type, Event)]
-pub struct BootPhaseChanged {
-    /// New phase value.
-    pub phase: BootPhaseValue,
-    /// Failure message — populated only when `phase == Failed`.
-    pub error: Option<String>,
-}
-
-/// Boot phase value. Mirrors [`crate::state::BootPhase`] but lives in
-/// the events module so the event-export crate doesn't pull the
-/// managed-state surface.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Type)]
-#[serde(rename_all = "lowercase")]
-pub enum BootPhaseValue {
-    /// Platform is still starting up.
-    Initializing,
-    /// All services booted successfully (or degraded gracefully).
-    Ready,
-    /// Boot failed — `BootPhaseChanged.error` carries the reason.
-    Failed,
-}
-
 // ── Signal fabric bridge ────────────────────────────────────────────
 
 /// One engine signal forwarded to the UI.

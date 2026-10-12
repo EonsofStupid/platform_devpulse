@@ -30,12 +30,19 @@ burn-cuda = ["dep:burn", "burn/cuda", "dep:arc-swap", "dep:static_assertions", "
 # AMD/Intel. Requires Vulkan SDK at build time; runtime loads the system's
 # `vulkan-1.dll` (every modern GPU driver ships one).
 burn-wgpu = ["dep:burn", "burn/wgpu", "dep:arc-swap", "dep:static_assertions", "dep:safetensors", "dep:rrd", "dep:model-loader", "dep:tokenizers"]
-model-loader = [
+# Model-loader types + hardware sampling (NVML) with no inference backend.
+# Always linked by the engine: hardware stats, slots and registry types do
+# not depend on candle/ort being compiled in.
+model-loader-core = [
     "dep:model-loader",
     "model-loader/specta",
+    "model-loader/nvml",
+]
+# Full model-loader including the compiled-in inference backends.
+model-loader = [
+    "model-loader-core",
     "model-loader/candle-backend",
     "model-loader/ort-backend",
-    "model-loader/nvml",
 ]
 # ── GPU backend proxies for the consumed model-loader crate ──
 # Cargo features can only chain one level deep (`dep/feature`, not

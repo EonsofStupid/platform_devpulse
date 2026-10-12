@@ -18,12 +18,7 @@ import { cn } from "$lib/design/utils/cn.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
 import { devpulseState } from "$lib/domains/app/devpulse/index.js";
-import {
-	ContextGauge,
-	GpuUtilGauge,
-	hardwareState,
-	VramGauge,
-} from "$lib/domains/app/models/index.js";
+import { GpuUtilGauge, hardwareState, VramGauge } from "$lib/domains/app/models/index.js";
 import { groupHealthSubsystems } from "$lib/layouts/app/StatusBar.types.js";
 import { platformState } from "$lib/sys/runes/platformState.svelte.js";
 
@@ -45,10 +40,18 @@ const healthGroups = $derived(
 	platformState.health ? groupHealthSubsystems(platformState.health.subsystems) : [],
 );
 
-// Subscribe to live hardware telemetry (VRAM / GPU util / temp).
+// Subscribe to live hardware telemetry (CPU / RAM / VRAM / GPU util / temp).
 // Ref-counted: attaches on mount, detaches on unmount, shared with
 // other active subscribers (StatusBar, ModelLoaderPanel, wizard).
 $effect(() => hardwareState.subscribe("devpulse-dashboard"));
+
+const MB_PER_GB = 1024;
+const ramUsedGb = $derived(
+	hardwareState.ramUsedMb === null ? 0 : Number((hardwareState.ramUsedMb / MB_PER_GB).toFixed(1)),
+);
+const ramTotalGb = $derived(
+	hardwareState.ramTotalMb === null ? 0 : Number((hardwareState.ramTotalMb / MB_PER_GB).toFixed(1)),
+);
 
 // Fetch dashboard data only after platform boot completes
 $effect(() => {
@@ -87,9 +90,9 @@ $effect(() => {
 		>
 			<div class="flex items-center justify-center py-4">
 				<RadialGauge
-					value={devpulseState.data.system.clyffyLoad.value}
-					max={devpulseState.data.system.clyffyLoad.max}
-					label={devpulseState.data.system.clyffyLoad.label}
+					value={Math.round(hardwareState.cpuUsagePercent ?? 0)}
+					max={100}
+					label="CPU"
 					unit="%"
 					accent="teal"
 					preset="glass"
@@ -107,18 +110,8 @@ $effect(() => {
 		>
 			<div class="flex items-center justify-center gap-6 py-2">
 				<RadialGauge
-					value={devpulseState.data.system.contextLoad.value}
-					max={devpulseState.data.system.contextLoad.max}
-					label="Context"
-					unit="%"
-					accent="purple"
-					preset="glass"
-					size={130}
-					strokeWidth={6}
-				/>
-				<RadialGauge
-					value={devpulseState.data.system.memoryUsage.value}
-					max={devpulseState.data.system.memoryUsage.max}
+					value={ramUsedGb}
+					max={ramTotalGb}
 					label="Memory"
 					unit="GB"
 					accent="cyber"
@@ -143,18 +136,17 @@ $effect(() => {
 						<Text size="xl" weight="bold" preset="default" class="tabular-nums font-display drop-shadow-[0_0_0.5rem_var(--accent-teal-glow)]">{devpulseState.data.user.totalProjects}</Text>
 					</div>
 					<div class={stack({ gap: "1" })}>
-						<Text size="xs" preset="default">Commits</Text>
-						<Text size="xl" weight="bold" preset="default" class="tabular-nums font-display drop-shadow-[0_0_0.5rem_var(--accent-teal-glow)]">{devpulseState.data.user.totalCommits}</Text>
+						<Text size="xs" preset="default">Messages</Text>
+						<Text size="xl" weight="bold" preset="default" class="tabular-nums font-display drop-shadow-[0_0_0.5rem_var(--accent-teal-glow)]">{devpulseState.data.user.totalMessages}</Text>
 					</div>
 					<div class={stack({ gap: "1" })}>
-						<Text size="xs" preset="default">Branches</Text>
-						<Text size="xl" weight="bold" preset="default" class="tabular-nums font-display drop-shadow-[0_0_0.5rem_var(--accent-teal-glow)]">{devpulseState.data.user.activeBranches}</Text>
+						<Text size="xs" preset="default">Sessions</Text>
+						<Text size="xl" weight="bold" preset="default" class="tabular-nums font-display drop-shadow-[0_0_0.5rem_var(--accent-teal-glow)]">{devpulseState.data.user.totalSessions}</Text>
 					</div>
 				</div>
 				<Card preset="neuro-deep" class="flex items-center gap-2 px-3 py-2">
 					<span class="inline-block h-2 w-2 rounded-full animate-pulse" style="background: var(--accent-teal-main); box-shadow: var(--glow-dot-md);"></span>
-					<Text size="sm" weight="semibold" preset="default">{devpulseState.data.user.streak}d streak</Text>
-					<Text size="xs" preset="default">{"\u00B7"} {devpulseState.data.user.lastActivity}</Text>
+					<Text size="sm" weight="semibold" preset="default">Up {devpulseState.data.user.uptime}</Text>
 				</Card>
 			</div>
 		</Widget>
@@ -182,12 +174,6 @@ $effect(() => {
 					label="GPU Load"
 					size={130}
 				/>
-				<ContextGauge
-					usedTokens={devpulseState.data.system.contextLoad.value * 15}
-					maxTokens={devpulseState.data.system.contextLoad.max * 15}
-					label="Context Window"
-					size={130}
-				/>
 			</div>
 		</Widget>
 	</div>
@@ -198,16 +184,10 @@ $effect(() => {
 			title="Activity Timeline"
 			icon={BarChart3}
 			preset="glass-deep"
-			tabs={[
-				{ id: "activity", label: "Activity" },
-				{ id: "commits", label: "Commits" },
-				{ id: "builds", label: "Builds" },
-			]}
-			activeTab="activity"
 		>
 			<div class={stack({ gap: "3" })}>
 				<SparkLine
-					data={[...devpulseState.data.system.activityTimeline.data]}
+					data={[...devpulseState.data.history.activityTimeline.data]}
 					accent="teal"
 					preset="glass"
 					width={400}
@@ -217,9 +197,9 @@ $effect(() => {
 				/>
 				<div class="flex gap-4">
 					<div class="flex-1 min-w-0">
-						<Text size="xs" preset="default" class="mb-1">Commit Velocity</Text>
+						<Text size="xs" preset="default" class="mb-1">{devpulseState.data.history.messageHistory.label}</Text>
 						<SparkLine
-							data={[...devpulseState.data.system.commitHistory.data]}
+							data={[...devpulseState.data.history.messageHistory.data]}
 							accent="purple"
 							preset="glass"
 							width={200}
@@ -229,9 +209,9 @@ $effect(() => {
 						/>
 					</div>
 					<div class="flex-1 min-w-0">
-						<Text size="xs" preset="default" class="mb-1">Build Health</Text>
+						<Text size="xs" preset="default" class="mb-1">{devpulseState.data.history.latencyHistory.label}</Text>
 						<SparkLine
-							data={[...devpulseState.data.system.buildHealth.data]}
+							data={[...devpulseState.data.history.latencyHistory.data]}
 							accent="cyber"
 							preset="glass"
 							width={200}
@@ -315,12 +295,7 @@ $effect(() => {
 								></span>
 								<Text weight="semibold" size="sm" preset="default">{project.name}</Text>
 							</div>
-							<div class={hstack({ justify: "between" })}>
-								<Text size="xs" preset="default">{project.language}</Text>
-								<Badge variant="neutral" size="sm">
-									{project.branch}
-								</Badge>
-							</div>
+							<Text size="xs" preset="default">{project.language}</Text>
 							<Text size="xs" preset="default">{project.lastModified}</Text>
 						</div>
 					</Card>

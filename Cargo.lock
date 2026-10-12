@@ -1242,6 +1242,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "bit-set"
+version = "0.11.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "56d87354e4229f54a44f7bf2435906a4656dba36026ab6eaca629a2c436a691c"
+dependencies = [
+ "bit-vec 0.10.1",
+]
+
+[[package]]
 name = "bit-vec"
 version = "0.6.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1258,6 +1267,16 @@ name = "bit-vec"
 version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b71798fca2c1fe1086445a7258a4bc81e6e49dcd24c8d0dd9a1e57395b603f51"
+
+[[package]]
+name = "bit-vec"
+version = "0.10.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5727b15fa97d4f4fee0a3b7c3d550ed0269f54329207b86388de918604e31269"
+dependencies = [
+ "borsh",
+ "serde",
+]
 
 [[package]]
 name = "bit_field"
@@ -1433,9 +1452,9 @@ checksum = "dc0b364ead1874514c8c2855ab558056ebfeb775653e7ae45ff72f28f8f3166c"
 
 [[package]]
 name = "borsh"
-version = "1.6.1"
+version = "1.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cfd1e3f8955a5d7de9fab72fc8373fade9fb8a703968cb200ae3dc6cf08e185a"
+checksum = "553c5d846a6ba5150c65e3b1b8ec073bcf1abc20f9b7220de384a4443ea4e20a"
 dependencies = [
  "borsh-derive",
  "bytes",
@@ -1444,15 +1463,15 @@ dependencies = [
 
 [[package]]
 name = "borsh-derive"
-version = "1.6.1"
+version = "1.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bfcfdc083699101d5a7965e49925975f2f55060f94f9a05e7187be95d530ca59"
+checksum = "12cdfe656708a01f89b451a7d36466e6fe6c414de0aa18fc54f864f6f9ca9f56"
 dependencies = [
  "once_cell",
  "proc-macro-crate 3.5.0",
  "proc-macro2",
  "quote",
- "syn 2.0.117",
+ "syn 3.0.8",
 ]
 
 [[package]]
@@ -2900,6 +2919,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "core_detect"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7f8f80099a98041a3d1622845c271458a2d73e688351bf3cb999266764b81d48"
+
+[[package]]
 name = "coreaudio-rs"
 version = "0.11.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4159,7 +4184,9 @@ dependencies = [
  "figment",
  "flume",
  "futures-core",
+ "insta",
  "portpicker",
+ "proptest",
  "rand 0.8.5",
  "reqwest 0.12.28",
  "rmcp",
@@ -4170,6 +4197,8 @@ dependencies = [
  "serde_json",
  "sherpa-onnx",
  "specta",
+ "specta-typescript",
+ "strum 0.28.0",
  "sysinfo 0.33.1",
  "tempfile",
  "thiserror 2.0.18",
@@ -7107,7 +7136,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "525e9ff3e1a4be2fbea1fdf0e98686a6d98b4d8f937e1bf7402245af1909e8c3"
 dependencies = [
  "byteorder-lite",
- "quick-error",
+ "quick-error 2.0.1",
 ]
 
 [[package]]
@@ -7195,6 +7224,18 @@ checksum = "879f10e63c20629ecabbb64a8010319738c66a5cd0c29b02d63d272b03751d01"
 dependencies = [
  "block-padding",
  "generic-array 0.14.7",
+]
+
+[[package]]
+name = "insta"
+version = "1.49.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b67d3d2e287e4b86c10b3f3b641033d1f89b74bdb39d05f34952e2b9a6fe21cd"
+dependencies = [
+ "console 0.16.3",
+ "once_cell",
+ "similar",
+ "tempfile",
 ]
 
 [[package]]
@@ -10856,6 +10897,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "proptest"
+version = "1.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b8530004ccb15eae51c7e40009fbe317f341f804db54dc033eec1c50be28cfa0"
+dependencies = [
+ "bit-set 0.11.1",
+ "bit-vec 0.10.1",
+ "bitflags 2.11.0",
+ "chacha20",
+ "core_detect",
+ "num-traits",
+ "rand 0.10.1",
+ "rand_xorshift",
+ "regex-syntax",
+ "rusty-fork",
+ "tempfile",
+ "unarray",
+]
+
+[[package]]
 name = "prost"
 version = "0.12.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -11007,6 +11068,12 @@ checksum = "7f6d64c71eb498fe9eae14ce4ec935c555749aef511cca85b5568910d6e48001"
 dependencies = [
  "bytemuck",
 ]
+
+[[package]]
+name = "quick-error"
+version = "1.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a1d01941d82fa2ab50be1e79e6714289dd7cde78eba4c074bc5a4374f650dfe0"
 
 [[package]]
 name = "quick-error"
@@ -11351,6 +11418,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "rand_xorshift"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "60aa6af80be32871323012e02e6e65f8a7cc7890931ae421d217ad8fe0df2ccf"
+dependencies = [
+ "rand_core 0.10.1",
+]
+
+[[package]]
 name = "range-alloc"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -11400,7 +11476,7 @@ dependencies = [
  "avif-serialize",
  "imgref",
  "loop9",
- "quick-error",
+ "quick-error 2.0.1",
  "rav1e",
  "rayon",
  "rgb",
@@ -12349,6 +12425,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b39cdef0fa800fc44525c84ccb54a029961a8215f9619753635a9c0d2538d46d"
 
 [[package]]
+name = "rusty-fork"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cc6bf79ff24e648f6da1f8d1f011e9cac26491b619e6b9280f2b47f1774e6ee2"
+dependencies = [
+ "fnv",
+ "quick-error 1.2.3",
+ "tempfile",
+ "wait-timeout",
+]
+
+[[package]]
 name = "ryu"
 version = "1.0.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -13091,6 +13179,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e3a9fe34e3e7a50316060351f37187a3f546bce95496156754b601a5fa71b76e"
 
 [[package]]
+name = "similar"
+version = "2.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bbbb5d9659141646ae647b42fe094daf6c6192d1620870b449d9557f748b2daa"
+
+[[package]]
 name = "simple_asn1"
 version = "0.6.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -13529,6 +13623,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "strum"
+version = "0.28.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9628de9b8791db39ceda2b119bbe13134770b56c138ec1d3af810d045c04f9bd"
+dependencies = [
+ "strum_macros 0.28.0",
+]
+
+[[package]]
 name = "strum_macros"
 version = "0.26.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -13546,6 +13649,18 @@ name = "strum_macros"
 version = "0.27.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7695ce3845ea4b33927c055a39dc438a45b059f7c1b3d91d38d10355fb8cbca7"
+dependencies = [
+ "heck 0.5.0",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.117",
+]
+
+[[package]]
+name = "strum_macros"
+version = "0.28.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ab85eea0270ee17587ed4156089e10b9e6880ee688791d45a905f5b1ca36f664"
 dependencies = [
  "heck 0.5.0",
  "proc-macro2",
@@ -13935,6 +14050,17 @@ name = "syn"
 version = "2.0.117"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e665b8803e7b1d2a727f4023456bbbbe74da67099c585258af0ad9c5013b9b99"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "unicode-ident",
+]
+
+[[package]]
+name = "syn"
+version = "3.0.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "01016da373cd8f7ef12624f796309f5c31ba8d646dd08856c02cd741d823c622"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -14656,7 +14782,7 @@ dependencies = [
  "fax",
  "flate2",
  "half",
- "quick-error",
+ "quick-error 2.0.1",
  "weezl",
  "zune-jpeg",
 ]
@@ -15741,6 +15867,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "unarray"
+version = "0.1.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "eaea85b334db583fe3274d12b4cd1880032beab409c0d774be044d4480ab9a94"
+
+[[package]]
 name = "uncased"
 version = "0.9.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -16167,6 +16299,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fb067e4cbd1ff067d1df46c9194b5de0e98efd2810bbc95c5d5e5f25a3231150"
 dependencies = [
  "cc",
+ "libc",
+]
+
+[[package]]
+name = "wait-timeout"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "09ac3b126d3914f9849036f826e054cbabdc8519970b8998ddaf3b5bd3c65f11"
+dependencies = [
  "libc",
 ]
 

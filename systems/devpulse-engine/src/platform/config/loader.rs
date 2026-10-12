@@ -15,9 +15,11 @@
 //! - **global**: Cross-project shared knowledge
 //! - **project**: Per-project namespaced data (created on demand)
 
+use crate::signals::SignalKind;
 use devpulse_clyffy::cortex::llguidance::GrammarConfig;
 use serde::{Deserialize, Serialize};
 use specta::Type;
+use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
@@ -237,6 +239,61 @@ pub struct PlatformBootConfig {
     /// Telemetry — lane tracing for inference pipeline instrumentation.
     #[serde(default)]
     pub telemetry: TelemetryBootConfig,
+    /// Signal delivery tuning (`[signals]`). An override file without a
+    /// `[signals]` section keeps the shipped default suggestions.
+    #[serde(default = "SignalsConfig::shipped")]
+    pub signals: SignalsConfig,
+}
+
+/// Signal delivery tuning from `config/platform/signals.toml`.
+///
+/// The shipped values are default suggestions; `{data_dir}/platform.toml`
+/// overrides them. Keys are signal kinds, so an unknown kind fails parsing.
+/// What a kind *is* (event or state) and its wire version are code — see
+/// `SignalSpec` — because every consumer depends on them.
+#[derive(Debug, Clone, Default, PartialEq, Eq, Deserialize)]
+pub struct SignalsConfig {
+    /// Minimum milliseconds between two UI deliveries of a kind; a newer
+    /// value replaces one still waiting. Unlisted kinds are delivered every time.
+    #[serde(default)]
+    pub coalesce_ms: HashMap<SignalKind, u32>,
+    /// How often a sampled producer runs while a window watches its kind.
+    #[serde(default)]
+    pub sample_interval_ms: HashMap<SignalKind, u32>,
+}
+
+impl SignalsConfig {
+    /// The `[signals]` section of the shipped platform config — the single
+    /// source of the default suggestions.
+    #[must_use]
+    pub fn shipped() -> Self {
+        #[derive(Deserialize)]
+        struct Shipped {
+            #[serde(default)]
+            signals: SignalsConfig,
+        }
+        match toml::from_str::<Shipped>(DEFAULT_CONFIG) {
+            Ok(shipped) => shipped.signals,
+            Err(err) => {
+                tracing::error!(%err, "shipped [signals] config does not parse — no signal tuning applied");
+                Self::default()
+            }
+        }
+    }
+
+    /// Minimum time between two UI deliveries of `kind` (zero = every signal).
+    #[must_use]
+    pub fn coalesce_window(&self, kind: SignalKind) -> Duration {
+        Duration::from_millis(u64::from(self.coalesce_ms.get(&kind).copied().unwrap_or(0)))
+    }
+
+    /// Sampling period for a sampled producer of `kind`, if configured.
+    #[must_use]
+    pub fn sample_interval(&self, kind: SignalKind) -> Option<Duration> {
+        self.sample_interval_ms
+            .get(&kind)
+            .map(|ms| Duration::from_millis(u64::from(*ms)))
+    }
 }
 
 /// Portable mode configuration.
@@ -2158,6 +2215,54 @@ fn default_boot_timeout() -> u64 {
 }
 fn default_lane_preset() -> String {
     "standard".to_string()
+}
+
+#[cfg(test)]
+#[allow(clippy::unwrap_used, clippy::expect_used)]
+mod signals_config_tests {
+    use super::{PlatformBootConfig, SignalsConfig, DEFAULT_CONFIG};
+    use crate::signals::SignalKind;
+    use std::time::Duration;
+
+    #[test]
+    fn shipped_defaults_come_from_the_platform_config() {
+        let shipped = SignalsConfig::shipped();
+        assert_eq!(shipped.coalesce_window(SignalKind::Hardware), Duration::from_secs(1));
+        assert_eq!(shipped.sample_interval(SignalKind::Hardware), Some(Duration::from_secs(2)));
+        assert_eq!(shipped.coalesce_window(SignalKind::Chat), Duration::ZERO);
+
+        let boot: PlatformBootConfig = toml::from_str(DEFAULT_CONFIG).unwrap();
+        assert_eq!(boot.signals, shipped);
+    }
+
+    #[test]
+    fn an_override_without_signals_keeps_the_shipped_defaults() {
+        let parsed: SignalsConfigHolder = toml::from_str("").unwrap();
+        assert_eq!(parsed.signals, SignalsConfig::shipped());
+    }
+
+    #[test]
+    fn an_override_can_retune_a_kind() {
+        let parsed: SignalsConfigHolder =
+            toml::from_str("[signals.coalesce_ms]\nhardware = 250\n").unwrap();
+        assert_eq!(
+            parsed.signals.coalesce_window(SignalKind::Hardware),
+            Duration::from_millis(250)
+        );
+    }
+
+    #[test]
+    fn an_unknown_kind_fails_parsing() {
+        let parsed = toml::from_str::<SignalsConfigHolder>("[signals.coalesce_ms]\nhardwear = 250\n");
+        assert!(parsed.is_err());
+    }
+
+    /// Just the `signals` field, deserialized exactly as `PlatformBootConfig` does.
+    #[derive(serde::Deserialize)]
+    struct SignalsConfigHolder {
+        #[serde(default = "SignalsConfig::shipped")]
+        signals: SignalsConfig,
+    }
 }
 
 #[cfg(test)]

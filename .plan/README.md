@@ -43,10 +43,10 @@ Planned (these IDs are reserved for them):
 
 | Plan | Name |
 | --- | --- |
-| Onboarding as an engine-owned workflow (07 spec) | `0001-engine--rebuild-onboarding-workflow.md` |
+| Onboarding (07 spec) + subscriptions in one chat (ACP) | `0001-engine--rebuild-onboarding-workflow.md` |
 | User-managed AI endpoints | `0002-kernel-clyffy--add-endpoint-registry.md` |
 | ColdLight / Tailwind boundary gate | `0003-repo--enforce-coldlight-boundary.md` |
-| Contextual guidance: tooltips, pop-ups, Knowledge Drops | `0004-engine--wire-contextual-guidance.md` |
+| Contextual guidance + signal fabric + developer profile | `0004-engine--wire-contextual-guidance.md` |
 | Prebuilt AI runtimes instead of compiled-in engines | `0007-kernel-model-loader--replace-inprocess-inference-with-runtimes.md` |
 | Codebase indexing for Clyffy | `0005-kernel-clyffy--index-project-codebase.md` |
 

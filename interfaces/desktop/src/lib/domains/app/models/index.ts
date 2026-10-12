@@ -91,7 +91,7 @@ export type {
 	LoadError,
 	ModelInfo,
 	ModelLoadStatus,
-	ModelsStatusSnapshot,
+	ModelsReadiness,
 	SlotInfo,
 	SlotNarration,
 	VramBudgetInfo,

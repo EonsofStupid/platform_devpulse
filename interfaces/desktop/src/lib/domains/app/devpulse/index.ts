@@ -6,7 +6,6 @@
 
 export {
 	fetchDashboardData,
-	fetchProcessMetrics,
 	getEmptyDashboard,
 	mapPayloadToDashboard,
 } from "./data-access/devpulse.service.js";

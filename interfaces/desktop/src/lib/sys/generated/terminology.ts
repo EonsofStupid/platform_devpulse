@@ -1,6 +1,6 @@
 /**
  * AUTO-GENERATED from kernel_terms.toml — DO NOT EDIT
- * Generated: 2026-10-12T03:29:38.364Z
+ * Generated: 2026-10-12T12:35:01.023Z
  * Source: systems/devpulse-engine/ip/kernel_terms.toml
  *
  * Regenerate: pnpm generate:terminology

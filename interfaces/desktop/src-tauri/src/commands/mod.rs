@@ -102,6 +102,7 @@ pub mod projects;
 pub mod providers;
 pub mod routing;
 pub mod sherpa;
+pub mod signals;
 pub mod surreal;
 pub mod sys;
 pub mod thinkclyffy;

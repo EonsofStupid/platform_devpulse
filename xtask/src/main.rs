@@ -89,6 +89,25 @@ enum Commands {
     },
     /// Verify the setup: svelte-check + cargo check.
     Verify,
+    /// `cargo clippy` with `run-dev`'s build env and acceleration features,
+    /// so linting does not invalidate the dev loop's build artifacts.
+    /// Arguments after `--` go to cargo (default: `-- -D warnings`).
+    Clippy {
+        #[command(flatten)]
+        selection: commands::cargo_tool::Selection,
+        /// Forwarded to cargo verbatim.
+        #[arg(last = true)]
+        args: Vec<String>,
+    },
+    /// `cargo test` with `run-dev`'s build env and acceleration features.
+    /// Arguments after `--` go to cargo.
+    Test {
+        #[command(flatten)]
+        selection: commands::cargo_tool::Selection,
+        /// Forwarded to cargo verbatim.
+        #[arg(last = true)]
+        args: Vec<String>,
+    },
     /// Verify IP boundary: desktop must not depend on clyffy.
     VerifyIpBoundary,
     /// Download, verify, and extract a pinned `DevForge` REH release
@@ -202,6 +221,16 @@ fn main() -> anyhow::Result<()> {
             Box::new(commands::package_portable::PackagePortable { dry_run })
         }
         Commands::Verify => Box::new(commands::verify::Verify),
+        Commands::Clippy { selection, args } => Box::new(commands::cargo_tool::CargoTool {
+            tool: commands::cargo_tool::Tool::Clippy,
+            selection,
+            args,
+        }),
+        Commands::Test { selection, args } => Box::new(commands::cargo_tool::CargoTool {
+            tool: commands::cargo_tool::Tool::Test,
+            selection,
+            args,
+        }),
         Commands::VerifyIpBoundary => Box::new(commands::ip_boundary::IpBoundary),
         Commands::FetchDevforge {
             target,

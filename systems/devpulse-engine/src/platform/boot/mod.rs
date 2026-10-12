@@ -115,6 +115,7 @@ pub async fn execute(
     boot_config: &PlatformBootConfig,
     on_event: &(impl Fn(InitEvent) + Send + 'static),
     model_event_sink: Option<std::sync::Arc<dyn std::any::Any + Send + Sync>>,
+    signals: crate::Engine,
 ) -> Result<BootedServices> {
     // ── Boot log: real-time sink to file + stderr ──────────────
     let boot_log = BootLog::open(data_dir)?;
@@ -123,7 +124,7 @@ pub async fn execute(
     let timeout_dur = std::time::Duration::from_secs(boot_config.boot.timeout_secs);
     let result = tokio::time::timeout(
         timeout_dur,
-        execute_inner(data_dir, boot_config, on_event, &boot_log, model_event_sink),
+        execute_inner(data_dir, boot_config, on_event, &boot_log, model_event_sink, signals),
     )
     .await;
 
@@ -159,6 +160,7 @@ async fn execute_inner(
     #[allow(unused_variables)] model_event_sink: Option<
         std::sync::Arc<dyn std::any::Any + Send + Sync>,
     >,
+    #[allow(unused_variables)] signals: crate::Engine,
 ) -> Result<BootedServices> {
     // ── Stage 1: Preflight — directory hierarchy ──────────────
     on_event(InitEvent::running("preflight", "Creating data directories"));
@@ -231,6 +233,7 @@ async fn execute_inner(
             &boot_config.services.system.model_loader,
             on_event,
             boot_log,
+            signals,
             loader_event_sink,
             system_relational.as_ref().map(|svc| svc.adapter().clone()),
         )

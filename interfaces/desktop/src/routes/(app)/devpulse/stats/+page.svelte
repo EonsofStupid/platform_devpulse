@@ -16,16 +16,16 @@ import { devpulseState } from "$lib/domains/app/devpulse/index.js";
 	<Widget title="Coding Stats" tabs={[{id: "week", label: "Week"}, {id: "month", label: "Month"}, {id: "year", label: "Year"}]} activeTab="week">
 		<div class={stack({ gap: "3" })}>
 			<div class={hstack({ justify: "between" })}>
-				<Text color="secondary">Commits</Text>
-				<Text weight="semibold">{devpulseState.data.user.totalCommits}</Text>
+				<Text color="secondary">Projects</Text>
+				<Text weight="semibold">{devpulseState.data.user.totalProjects}</Text>
 			</div>
 			<div class={hstack({ justify: "between" })}>
-				<Text color="secondary">Streak</Text>
-				<Text weight="semibold">{devpulseState.data.user.streak} days</Text>
+				<Text color="secondary">Messages</Text>
+				<Text weight="semibold">{devpulseState.data.user.totalMessages}</Text>
 			</div>
 			<div class={hstack({ justify: "between" })}>
-				<Text color="secondary">Branches</Text>
-				<Text weight="semibold">{devpulseState.data.user.activeBranches}</Text>
+				<Text color="secondary">Sessions</Text>
+				<Text weight="semibold">{devpulseState.data.user.totalSessions}</Text>
 			</div>
 		</div>
 	</Widget>

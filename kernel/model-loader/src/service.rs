@@ -428,6 +428,45 @@ impl ModelLoaderService {
         self.hardware.write().refresh().clone()
     }
 
+    /// Run the hardware sampler: while `active` is `true`, collect fresh
+    /// hardware metrics every `period` and emit
+    /// [`LoaderEvent::HardwareMetricsUpdated`]; idle while it is `false`.
+    ///
+    /// `active` is the consumer's demand switch — the engine passes "a UI
+    /// window is watching hardware" — so nothing is sampled while no one
+    /// looks. Collection (NVML, OS counters) runs on the blocking pool. The
+    /// task ends when the switch's sender is dropped.
+    pub fn spawn_hardware_sampler(
+        &self,
+        period: std::time::Duration,
+        mut active: tokio::sync::watch::Receiver<bool>,
+    ) {
+        let monitor = Arc::clone(&self.hardware);
+        let events = Arc::clone(&self.boot.events);
+        devpulse_telemetry::spawn(async move {
+            loop {
+                if active.wait_for(|watching| *watching).await.is_err() {
+                    return;
+                }
+                let mut tick = tokio::time::interval(period);
+                tick.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Delay);
+                while *active.borrow() {
+                    tick.tick().await;
+                    if !*active.borrow() {
+                        break;
+                    }
+                    let monitor = Arc::clone(&monitor);
+                    match devpulse_telemetry::spawn_blocking(move || monitor.write().refresh().clone())
+                        .await
+                    {
+                        Ok(metrics) => events.emit(LoaderEvent::HardwareMetricsUpdated(metrics)),
+                        Err(err) => tracing::warn!(%err, "hardware sampler: collection failed"),
+                    }
+                }
+            }
+        });
+    }
+
     /// Compute VRAM budget plan across all slots.
     pub async fn vram_budget_plan(&self) -> vram::VramBudget {
         let cfg = self.config.read().await;

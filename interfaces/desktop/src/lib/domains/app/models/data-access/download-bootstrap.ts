@@ -7,7 +7,7 @@
  *
  *   - `download.state.boot()`  — `model:download-{progress,complete,failed,cancelled}`
  *   - `install.state.boot()`   — `model:install-{started,complete,failed}`
- *   - `modelsState.boot()`     — `model:slot-status`, `platform:models-status`
+ *   - `modelsState.boot()`     — `models` state signal (signal fabric)
  *   - `narrationState.boot()`  — `model:narration`
  *
  * Returns a teardown fn that removes every listener, which the layout

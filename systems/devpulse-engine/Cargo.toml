@@ -72,6 +72,8 @@ cpu-mkl = [
 serde = { workspace = true }
 serde_json = { workspace = true }
 specta = { workspace = true }
+# Signal registry: generates `SignalKind` (payload-free twin of `SignalVariant`).
+strum = { version = "0.28", features = ["derive"] }
 uuid = { workspace = true }
 tokio = { workspace = true }
 async-trait = "0.1"
@@ -82,7 +84,7 @@ tracing-subscriber = { workspace = true }
 chrono = { workspace = true }
 
 # Kernel (the brain — always linked, facade controls exposure)
-devpulse-clyffy = { path = "../../kernel/devpulse-clyffy", features = ["specta"] }
+devpulse-clyffy = { path = "../../kernel/devpulse-clyffy", features = ["specta", "model-loader-core"] }
 
 # Reason Ready Daemon (RRD) — in-process orchestrator for the RRO
 # cluster's hot-update lifecycle. The engine consumes only the
@@ -150,6 +152,12 @@ serde_json = "1.0"
 
 [dev-dependencies]
 tempfile = "3"
+# Signal contract: snapshot tests pin the wire shape (reviewed diffs).
+insta = "1.49"
+# State store invariants under random update orders.
+proptest = "1.12"
+# Signal contract: render `SignalVariant` as the UI sees it.
+specta-typescript = { workspace = true }
 
 [lints]
 workspace = true

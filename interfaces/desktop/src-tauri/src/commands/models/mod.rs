@@ -150,11 +150,9 @@ pub fn slot_to_slot_info(
     }
 }
 
-/// Domain payload for `platform:models-status` events.
-///
-/// Emitted by [`emit_status`] after every mutation and at boot.
-/// The frontend `startStatusListener()` receives this and sets
-/// `$state` directly — zero IPC polling.
+/// Slot + registry lists, read from the loader's in-memory state (no disk
+/// scan). Returned by [`get_models_status`]; the UI refetches it whenever a
+/// newer `models` state signal arrives.
 #[derive(Debug, Clone, Serialize, Type)]
 #[serde(rename_all = "camelCase")]
 pub struct ModelsStatusData {
@@ -162,34 +160,22 @@ pub struct ModelsStatusData {
     pub slots: Vec<SlotInfo>,
     /// All discovered models in the registry.
     pub models: Vec<ModelInfo>,
-    /// Whether this is a fresh install with no prior configuration.
-    pub first_run: bool,
 }
 
-/// Read fresh state from the model loader and push via [`emit_status`].
+/// Slot + registry lists from the loader's in-memory state.
 ///
-/// Called after every write operation that mutates slots or registry.
-/// Uses read locks only — the write lock was just released by the
-/// completed operation, so these proceed instantly.
-pub async fn emit_models_status(app: &tauri::AppHandle, loader: &ModelLoaderService) {
+/// # Errors
+/// Returns an error when the model loader is not available.
+#[tauri::command]
+#[specta::specta]
+pub async fn get_models_status(state: State<'_, PlatformState>) -> Result<ModelsStatusData, String> {
+    let loader = get_loader(&state).await?;
     let slots = loader.list_slots().await;
     let registry = loader.get_registry().await;
-    let first_run = loader.is_first_run().await;
-    let slot_infos: Vec<SlotInfo> = slots
-        .iter()
-        .map(|s| slot_to_slot_info(s, &registry))
-        .collect();
-    let model_infos: Vec<ModelInfo> = registry.iter().map(entry_to_model_info).collect();
-    crate::commands::emit_status(
-        app,
-        "models",
-        crate::commands::StatusKind::Data,
-        &ModelsStatusData {
-            slots: slot_infos,
-            models: model_infos,
-            first_run,
-        },
-    );
+    Ok(ModelsStatusData {
+        slots: slots.iter().map(|s| slot_to_slot_info(s, &registry)).collect(),
+        models: registry.iter().map(entry_to_model_info).collect(),
+    })
 }
 
 /// Hardware metrics for the frontend.
@@ -332,10 +318,7 @@ pub async fn get_hardware_metrics(state: State<'_, PlatformState>) -> Result<Har
 /// Scan the models directory for GGUF files.
 #[tauri::command]
 #[specta::specta]
-pub async fn scan_models(
-    app: tauri::AppHandle,
-    state: State<'_, PlatformState>,
-) -> Result<Vec<ModelInfo>, String> {
+pub async fn scan_models(state: State<'_, PlatformState>) -> Result<Vec<ModelInfo>, String> {
     tracing::info!("cmd scan_models: entry — acquiring platform read lock...");
     let loader = get_loader(&state).await?;
     tracing::info!("cmd scan_models: loader acquired — starting scan (blocking_write)...");
@@ -351,7 +334,7 @@ pub async fn scan_models(
     };
 
     // Push fresh state after scan
-    emit_models_status(&app, &loader).await;
+    loader.publish_readiness().await;
 
     Ok(entries
         .into_iter()
@@ -519,16 +502,13 @@ pub async fn is_first_run(state: State<'_, PlatformState>) -> Result<bool, Strin
 #[tauri::command]
 #[specta::specta]
 #[allow(clippy::missing_errors_doc)]
-pub async fn mark_setup_complete(
-    app: tauri::AppHandle,
-    state: State<'_, PlatformState>,
-) -> Result<(), String> {
+pub async fn mark_setup_complete(state: State<'_, PlatformState>) -> Result<(), String> {
     let loader = get_loader(&state).await?;
     loader
         .mark_setup_complete()
         .await
         .map_err(|e| e.to_string())?;
-    emit_models_status(&app, &loader).await;
+    loader.publish_readiness().await;
     Ok(())
 }
 
@@ -555,7 +535,7 @@ pub async fn assign_model_to_slot(
     tracing::info!("cmd assign_model_to_slot");
     let loader = get_loader_typed(&state).await?;
     loader.assign_model(&slot_id, &model_id).await?;
-    emit_models_status(&app, &loader).await;
+    loader.publish_readiness().await;
     Ok(())
 }
 
@@ -593,7 +573,7 @@ pub async fn load_slot(
         tracing::info!(slot = %slot_id, "cmd load_slot: routing to llama-server sidecar");
         let result = load_via_sidecar(app.clone(), &loader, llama_state, &slot_id).await;
         if result.is_ok() {
-            emit_models_status(&app, &loader).await;
+            loader.publish_readiness().await;
         }
         return result;
     }
@@ -602,7 +582,7 @@ pub async fn load_slot(
     match loader.load_slot(&slot_id).await {
         Ok(()) => {
             tracing::info!(slot = %slot_id, "cmd load_slot: exit ok (kernel pool)");
-            emit_models_status(&app, &loader).await;
+            loader.publish_readiness().await;
             Ok(())
         }
         Err(e) => {
@@ -741,7 +721,7 @@ pub async fn unload_slot(
     tracing::info!("cmd unload_slot");
     let loader = get_loader_typed(&state).await?;
     loader.unload_slot(&slot_id).await?;
-    emit_models_status(&app, &loader).await;
+    loader.publish_readiness().await;
     Ok(())
 }
 
@@ -767,7 +747,7 @@ pub async fn clear_slot_assignment(
     tracing::info!("cmd clear_slot_assignment");
     let loader = get_loader_typed(&state).await?;
     loader.unassign_slot(&slot_id).await?;
-    emit_models_status(&app, &loader).await;
+    loader.publish_readiness().await;
     Ok(())
 }
 
@@ -788,7 +768,7 @@ pub async fn swap_slot_model(
     tracing::info!("cmd swap_slot_model");
     let loader = get_loader_typed(&state).await?;
     loader.swap_model(&slot_id, &new_model_id).await?;
-    emit_models_status(&app, &loader).await;
+    loader.publish_readiness().await;
     Ok(())
 }
 
@@ -1528,7 +1508,7 @@ pub async fn warm_slot(
     tracing::info!("cmd warm_slot");
     let loader = get_loader_typed(&state).await?;
     loader.warm_slot(&slot_id).await?;
-    emit_models_status(&app, &loader).await;
+    loader.publish_readiness().await;
     Ok(())
 }
 
@@ -1546,7 +1526,7 @@ pub async fn delete_model(
     tracing::info!("cmd delete_model");
     let loader = get_loader_typed(&state).await?;
     loader.delete_model(&model_id).await?;
-    emit_models_status(&app, &loader).await;
+    loader.publish_readiness().await;
     Ok(())
 }
 
@@ -1742,7 +1722,7 @@ pub async fn complete_model_setup(
     );
 
     // Push full state snapshot — frontend sets $state directly
-    emit_models_status(&app, &loader).await;
+    loader.publish_readiness().await;
 
     // Now safe to open chat window
     if let Err(e) = crate::commands::window::open_chat_window(app).await {
@@ -1760,7 +1740,6 @@ pub async fn complete_model_setup(
 #[tauri::command]
 #[specta::specta]
 pub async fn import_local_model(
-    app: tauri::AppHandle,
     state: State<'_, PlatformState>,
     target_slot: Option<String>,
     import_mode: Option<String>,
@@ -1864,7 +1843,7 @@ pub async fn import_local_model(
         .map_err(|e| format!("Scan failed: {e}"))?;
 
     // Push fresh state — frontend sees the new model immediately
-    emit_models_status(&app, &loader).await;
+    loader.publish_readiness().await;
 
     tracing::info!(filename = %filename, "Local model imported successfully");
     Ok(filename)

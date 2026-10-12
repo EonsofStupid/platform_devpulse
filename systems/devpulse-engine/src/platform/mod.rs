@@ -193,9 +193,9 @@ pub use devpulse_clyffy::interactions::{
 pub use devpulse_clyffy::model_loader::infer_download_folder;
 
 // IP-NOTE: model-loader concepts the desktop UI surfaces directly
-// (registry entries, source-tier classification, slot identity).
+// (registry entries, source-tier classification, slot identity, hardware).
 // All names describe industry-standard concepts, no rename needed.
-#[cfg(feature = "inference")]
+// Plain types — linked through `model-loader-core`, no inference backend.
 pub use devpulse_clyffy::model_loader::{
     HardwareMetrics, ModelRegistryEntry, ModelSourceTier, Slot,
 };
@@ -427,6 +427,7 @@ impl Platform {
         data_dir: PathBuf,
         on_event: impl Fn(InitEvent) + Send + 'static,
         model_event_sink: Option<std::sync::Arc<dyn std::any::Any + Send + Sync>>,
+        signals: crate::Engine,
     ) -> Result<Self> {
         let boot_time = Instant::now();
         let boot_config = PlatformBootConfig::load(&data_dir)?;
@@ -438,7 +439,8 @@ impl Platform {
         // `SendError`, which callsites ignore.
         let (internal_tx, _) = broadcast_channel::<InternalEvent>(INTERNAL_EVENT_CAPACITY);
 
-        let booted = boot::execute(&data_dir, &boot_config, &on_event, model_event_sink).await?;
+        let booted =
+            boot::execute(&data_dir, &boot_config, &on_event, model_event_sink, signals).await?;
 
         // Spawn telemetry handle after services boot.
         // Requires analytics service (DuckDB) for trace persistence.

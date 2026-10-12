@@ -10,7 +10,7 @@ export type {
 	HardwareInfo,
 	LoadError,
 	ModelInfo,
-	ModelsStatusSnapshot,
+	ModelsReadiness,
 	SlotInfo,
 	VramBudgetInfo,
 } from "$lib/sys/generated/bindings.js";

@@ -1059,13 +1059,11 @@ impl BuildConfig {
             }
         }
 
-        // ── Fast-build wiring resolved at runtime ──
-        // rust-lld + sccache live outside the repo (per-machine toolchain and
-        // per-machine cargo bin). Hardcoded paths in `.cargo/config.toml`
-        // would break for every other dev box. cargo respects
-        // `CARGO_TARGET_<TARGET>_LINKER` and `RUSTC_WRAPPER` env vars with
-        // higher precedence than config-file settings, so injecting them
-        // here keeps the repo config portable.
+        // ── Fast-build wiring ──
+        // The linker is declared in `.cargo/config.toml`, never injected
+        // here: cargo hashes the target linker into every unit's
+        // fingerprint, so a linker only xtask's cargo sees makes every
+        // other cargo invocation rebuild the shared units in place.
         self.apply_fast_build_env();
 
         // ── MSVC toolchain activation + cmake generator selection ──
@@ -1327,11 +1325,13 @@ fn detect_and_export_mkl() -> bool {
 }
 
 impl BuildConfig {
-    /// Resolve rust-lld and sccache from per-machine locations and export
-    /// them as cargo env vars. Idempotent; safe to call multiple times.
+    /// Confirm the rust-lld linker `.cargo/config.toml` names is installed,
+    /// and export sccache as `RUSTC_WRAPPER`. Idempotent; safe to call
+    /// multiple times.
     fn apply_fast_build_env(&self) {
         // rust-lld ships in the `llvm-tools-preview` rustup component at
-        // `{sysroot}/lib/rustlib/{target}/bin/rust-lld[.exe]`.
+        // `{sysroot}/lib/rustlib/{target}/bin/rust-lld[.exe]`; rustc finds
+        // it there by bare name, so the config needs no machine path.
         match Command::new("rustc").args(["--print", "sysroot"]).output() {
             Ok(out) if out.status.success() => {
                 let sysroot = String::from_utf8_lossy(&out.stdout).trim().to_string();
@@ -1347,14 +1347,8 @@ impl BuildConfig {
                     .join("bin")
                     .join(lld_name);
                 if rust_lld.is_file() {
-                    let env_key = format!(
-                        "CARGO_TARGET_{}_LINKER",
-                        self.toolchain.target.replace('-', "_").to_uppercase()
-                    );
-                    std::env::set_var(&env_key, &rust_lld);
                     println!(
-                        "  [env] {} = {} (rust-lld fast linker)",
-                        env_key,
+                        "  [linker] rust-lld at {} (declared in .cargo/config.toml)",
                         rust_lld.display()
                     );
                 } else {
@@ -1364,7 +1358,7 @@ impl BuildConfig {
                     );
                 }
             }
-            _ => println!("  [warn] `rustc --print sysroot` failed; rust-lld not wired"),
+            _ => println!("  [warn] `rustc --print sysroot` failed; rust-lld presence not checked"),
         }
 
         // sccache — compile cache that survives `cargo clean` and branch

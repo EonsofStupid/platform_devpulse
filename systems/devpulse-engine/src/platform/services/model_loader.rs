@@ -43,14 +43,17 @@ use devpulse_clyffy::model_loader::{
 };
 pub use devpulse_clyffy::model_loader::{RebindReason, RuntimeFingerprint};
 pub use devpulse_clyffy::model_loader::{VoiceEntry, VoiceRegistry};
+use crate::signals::{ModelsReadiness, Signal, SignalSource, SignalVariant};
 use std::sync::Arc;
 
 /// Model Loader service — managed by the platform boot pipeline.
 ///
 /// The kernel `Inner` owns all concurrency. This wrapper just holds an
-/// `Arc<Inner>` and forwards calls. No outer `RwLock` exists.
+/// `Arc<Inner>` and forwards calls. No outer `RwLock` exists. It also
+/// owns models readiness and publishes it on the signal fabric.
 pub struct ModelLoaderService {
     inner: Arc<Inner>,
+    signals: crate::Engine,
 }
 
 // Engineering judgment: this `impl` block is a ~40-function thin
@@ -72,6 +75,7 @@ impl ModelLoaderService {
     /// Boot the model loader.
     pub fn boot(
         data_dir: &std::path::Path,
+        signals: crate::Engine,
         events: Option<Arc<dyn devpulse_clyffy::model_loader::LoaderEventSink>>,
         models_dir: std::path::PathBuf,
         subdirs: Vec<String>,
@@ -119,9 +123,42 @@ impl ModelLoaderService {
         Ok((
             Self {
                 inner: Arc::new(service),
+                signals,
             },
             default_slots,
         ))
+    }
+
+    /// Models readiness — the one place it is computed. Ready means setup
+    /// is complete AND at least one model is registered AND at least one
+    /// slot has a model assigned. Every window renders this value; none
+    /// recomputes it.
+    pub async fn readiness(&self) -> ModelsReadiness {
+        let slots = self.list_slots().await;
+        let model_count = self.get_registry().await.len();
+        let assigned_count = slots.iter().filter(|s| s.assigned_model.is_some()).count();
+        let setup_complete = self.is_setup_complete().await;
+        ModelsReadiness {
+            ready: setup_complete && model_count > 0 && assigned_count > 0,
+            setup_complete,
+            first_run: self.is_first_run().await,
+            model_count: u32::try_from(model_count).unwrap_or(u32::MAX),
+            slot_count: u32::try_from(slots.len()).unwrap_or(u32::MAX),
+            assigned_count: u32::try_from(assigned_count).unwrap_or(u32::MAX),
+        }
+    }
+
+    /// Publish the current readiness as a `models` state signal. Called
+    /// after the background registry scan and after every slot or registry
+    /// change. Returns what was published.
+    pub async fn publish_readiness(&self) -> ModelsReadiness {
+        let readiness = self.readiness().await;
+        tracing::info!(?readiness, "models readiness published");
+        self.signals.emit(Signal::new(
+            SignalSource::System,
+            SignalVariant::Models(readiness.clone()),
+        ));
+        readiness
     }
 
     /// Clone the underlying kernel service for embedder-bridge construction.
@@ -275,6 +312,17 @@ impl ModelLoaderService {
     #[allow(clippy::unused_async)]
     pub async fn hardware_refresh(&self) -> HardwareMetrics {
         self.inner.hardware_refresh()
+    }
+
+    /// Start the kernel hardware sampler: one collection every `period`
+    /// while `active` is `true` (some window is watching hardware), each
+    /// published through the loader's event sink.
+    pub fn spawn_hardware_sampler(
+        &self,
+        period: std::time::Duration,
+        active: tokio::sync::watch::Receiver<bool>,
+    ) {
+        self.inner.spawn_hardware_sampler(period, active);
     }
 
     // ── Registry write (scan) ────────────────────────────────

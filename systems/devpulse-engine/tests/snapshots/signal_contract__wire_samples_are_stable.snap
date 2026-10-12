@@ -1,0 +1,117 @@
+---
+source: systems/devpulse-engine/tests/signal_contract.rs
+expression: "serde_json::to_string_pretty(&samples).expect(\"samples render\")"
+---
+[
+  {
+    "data": {
+      "content": "hello",
+      "model": "qwen3-30b-a3b",
+      "role": "Assistant"
+    },
+    "type": "chat"
+  },
+  {
+    "data": {
+      "event_type": "FeatureUsed",
+      "properties": {
+        "action": null,
+        "error_code": null,
+        "label": null,
+        "session_id": null,
+        "source": null,
+        "target": "model-loader",
+        "user_id": null,
+        "value": null
+      }
+    },
+    "type": "analytics"
+  },
+  {
+    "data": {
+      "chunks": [
+        {
+          "content": "fn main() {}",
+          "score": 0.5,
+          "source": "src/main.rs"
+        }
+      ],
+      "query": "entry point"
+    },
+    "type": "context"
+  },
+  {
+    "data": {
+      "latency_ms": 56,
+      "model": "qwen3-30b-a3b",
+      "tokens_in": 12,
+      "tokens_out": 34
+    },
+    "type": "inference"
+  },
+  {
+    "data": {
+      "message": "Engine started",
+      "status": "Ready"
+    },
+    "type": "system"
+  },
+  {
+    "data": {
+      "detail": "fastest ready endpoint",
+      "event": "ProviderSelected",
+      "lane": "chat",
+      "provider": "local"
+    },
+    "type": "governance"
+  },
+  {
+    "data": {
+      "cpu_cores": 8,
+      "cpu_name": "test cpu",
+      "cpu_usage_percent": 0.0,
+      "gpu_error": null,
+      "gpu_name": null,
+      "gpu_temperature_c": null,
+      "gpu_utilization_percent": null,
+      "gpu_vram_free_mb": null,
+      "gpu_vram_total_mb": null,
+      "gpu_vram_used_mb": null,
+      "process_ram_mb": 0,
+      "process_vram_mb": 0,
+      "ram_available_mb": 0,
+      "ram_total_mb": 0,
+      "ram_used_mb": 0
+    },
+    "type": "hardware"
+  },
+  {
+    "data": {
+      "assigned_count": 1,
+      "first_run": true,
+      "model_count": 3,
+      "ready": false,
+      "setup_complete": false,
+      "slot_count": 16
+    },
+    "type": "models"
+  },
+  {
+    "data": {
+      "error": null,
+      "phase": "initializing",
+      "steps": [
+        {
+          "latency_us": null,
+          "message": "opening",
+          "status": "Running",
+          "step": "System relational"
+        }
+      ]
+    },
+    "type": "boot"
+  },
+  {
+    "type": "resync"
+  }
+]

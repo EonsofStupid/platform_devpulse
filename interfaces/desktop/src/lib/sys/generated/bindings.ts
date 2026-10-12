@@ -308,20 +308,6 @@ async queryScopedLog(targetPrefix: string, limit: number) : Promise<Result<Scope
 }
 },
 /**
- * Return the current boot state snapshot.
- * 
- * Called by the frontend on mount before registering live event listeners.
- * This eliminates the race condition where events fire before listeners exist.
- */
-async getBootState() : Promise<Result<BootSnapshot, string>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("get_boot_state") };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
-/**
  * Return real process metrics measured from the OS.
  * 
  * Every field is a real measurement — no proxies, no cache counts
@@ -2236,6 +2222,18 @@ async syncKnowledgeFromRemote() : Promise<Result<KnowledgeSyncResult, string>> {
 }
 },
 /**
+ * The latest value of every state signal, for list-then-watch sync.
+ */
+async getSignalState() : Promise<StateSnapshot> {
+    return await TAURI_INVOKE("get_signal_state");
+},
+/**
+ * The calling window started (`interested = true`) or stopped watching `kind`.
+ */
+async setSignalInterest(kind: SignalKind, interested: boolean) : Promise<void> {
+    await TAURI_INVOKE("set_signal_interest", { kind, interested });
+},
+/**
  * Create a new thinking canvas session.
  */
 async createCanvas() : Promise<void> {
@@ -2380,6 +2378,20 @@ async scanModels() : Promise<Result<ModelInfo[], string>> {
 async getSlots() : Promise<Result<SlotInfo[], string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("get_slots") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Slot + registry lists from the loader's in-memory state.
+ * 
+ * # Errors
+ * Returns an error when the model loader is not available.
+ */
+async getModelsStatus() : Promise<Result<ModelsStatusData, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_models_status") };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -4049,28 +4061,26 @@ async setCommunityEnabledCmd(enabled: boolean) : Promise<Result<null, string>> {
 
 
 export const events = __makeEvents__<{
-bootPhaseChanged: BootPhaseChanged,
 chatSessionDeleted: ChatSessionDeleted,
 cloudCompletionFinished: CloudCompletionFinished,
 cloudTokenStreamed: CloudTokenStreamed,
-hardwareMetricsUpdated: HardwareMetricsUpdated,
 inferenceProviderChanged: InferenceProviderChanged,
 inferenceTokenStreamed: InferenceTokenStreamed,
 llamaServerReady: LlamaServerReady,
 llamaTokenStreamed: LlamaTokenStreamed,
+signalBroadcast: SignalBroadcast,
 updateAvailable: UpdateAvailable,
 updateDownloadProgress: UpdateDownloadProgress,
 updateInstallFinished: UpdateInstallFinished
 }>({
-bootPhaseChanged: "boot-phase-changed",
 chatSessionDeleted: "chat-session-deleted",
 cloudCompletionFinished: "cloud-completion-finished",
 cloudTokenStreamed: "cloud-token-streamed",
-hardwareMetricsUpdated: "hardware-metrics-updated",
 inferenceProviderChanged: "inference-provider-changed",
 inferenceTokenStreamed: "inference-token-streamed",
 llamaServerReady: "llama-server-ready",
 llamaTokenStreamed: "llama-token-streamed",
+signalBroadcast: "signal-broadcast",
 updateAvailable: "update-available",
 updateDownloadProgress: "update-download-progress",
 updateInstallFinished: "update-install-finished"
@@ -4420,6 +4430,82 @@ user_id: string } } |
  * Supabase user id of the signed-out session.
  */
 user_id: string } }
+/**
+ * Analytics event classification.
+ */
+export type AnalyticsEventType = 
+/**
+ * User viewed a page/screen.
+ */
+"PageView" | 
+/**
+ * User interacted with a feature.
+ */
+"FeatureUsed" | 
+/**
+ * An error occurred.
+ */
+"Error" | 
+/**
+ * Performance metric recorded.
+ */
+"Performance" | 
+/**
+ * User session event.
+ */
+"Session" | 
+/**
+ * Custom event type.
+ */
+{ Custom: string }
+/**
+ * Analytics event payload - metrics, usage tracking.
+ */
+export type AnalyticsPayload = { 
+/**
+ * Event classification (e.g., `page_view`, `feature_used`, `error`).
+ */
+event_type: AnalyticsEventType; 
+/**
+ * Structured event properties.
+ */
+properties: AnalyticsProperties }
+/**
+ * Structured analytics properties.
+ */
+export type AnalyticsProperties = { 
+/**
+ * User identifier (anonymized).
+ */
+user_id: string | null; 
+/**
+ * Session identifier.
+ */
+session_id: string | null; 
+/**
+ * Feature or page name.
+ */
+target: string | null; 
+/**
+ * Action taken (e.g., "click", "submit", "navigate").
+ */
+action: string | null; 
+/**
+ * Numeric value (e.g., `duration_ms`, count).
+ */
+value: number | null; 
+/**
+ * Additional context label.
+ */
+label: string | null; 
+/**
+ * Error code if applicable.
+ */
+error_code: string | null; 
+/**
+ * Component or module source.
+ */
+source: string | null }
 /**
  * Stored-key status for a single provider — what the devtool renders.
  * 
@@ -4954,89 +5040,38 @@ backends: BackendInfo[];
  */
 architectures: ArchitectureSpec[] }
 /**
- * Boot phase — serialized to frontend as `PascalCase`.
+ * Platform boot phase.
  */
 export type BootPhase = 
 /**
- * Platform is still starting up — services initializing.
- */
-"Initializing" | 
-/**
- * All services booted successfully (or degraded gracefully).
- */
-"Ready" | 
-/**
- * Boot failed — see `BootSnapshot::error` for details.
- */
-"Failed"
-/**
- * Emitted as the boot task transitions between phases. Replaces the
- * stringly-typed `platform:boot-phase` event family.
- * 
- * Frontend listens via `events.bootPhaseChanged.listen(cb)` and
- * renders the appropriate splash / dashboard / error overlay based
- * on the phase.
- * 
- * The boot health snapshot is intentionally NOT a field here — it's
- * a deep `SystemHealth` tree that doesn't implement `specta::Type`
- * without a wider derive sweep. Consumers that need the post-boot
- * health blob call the `get_boot_state` Tauri command which returns
- * it inside a typed `BootSnapshot`.
- */
-export type BootPhaseChanged = { 
-/**
- * New phase value.
- */
-phase: BootPhaseValue; 
-/**
- * Failure message — populated only when `phase == Failed`.
- */
-error: string | null }
-/**
- * Boot phase value. Mirrors [`crate::state::BootPhase`] but lives in
- * the events module so the event-export crate doesn't pull the
- * managed-state surface.
- */
-export type BootPhaseValue = 
-/**
- * Platform is still starting up.
+ * Services are starting.
  */
 "initializing" | 
 /**
- * All services booted successfully (or degraded gracefully).
+ * All critical services are up (or degraded gracefully).
  */
 "ready" | 
 /**
- * Boot failed — `BootPhaseChanged.error` carries the reason.
+ * Boot failed — `BootStatus::error` says why.
  */
 "failed"
 /**
- * Snapshot of boot state — returned by `get_boot_state` command.
+ * Platform boot progress — Rust-owned state. Every window renders it; a
+ * window opened later receives it from the state snapshot.
  */
-export type BootSnapshot = { 
+export type BootStatus = { 
 /**
- * Current boot phase.
+ * Where boot is.
  */
 phase: BootPhase; 
 /**
- * Ordered list of subsystem init events accumulated during boot.
- */
-events: InitEvent[]; 
-/**
- * Final health snapshot (populated once boot completes).
- */
-health: SystemHealth | null; 
-/**
- * Error message if boot failed.
+ * Why boot failed; set only when `phase` is `failed`.
  */
 error: string | null; 
 /**
- * Model readiness — populated after the model loader check runs.
- * Frontend reads this in `applySnapshot()` to catch up on
- * `platform:models-status` events that fired before the listener
- * was mounted.
+ * Latest status of each boot step, in the order steps first reported.
  */
-modelsStatus: ModelsStatusSnapshot | null }
+steps: InitEvent[] }
 /**
  * Browse / Search models screen.
  */
@@ -5471,6 +5506,38 @@ modelUsed: string | null;
  */
 latencyMs: number | null }
 /**
+ * Chat message payload - LLM responses, user messages.
+ */
+export type ChatPayload = { 
+/**
+ * The message content.
+ */
+content: string; 
+/**
+ * Who sent the message.
+ */
+role: ChatRole; 
+/**
+ * Model used for generation (if assistant).
+ */
+model: string | null }
+/**
+ * Chat message role.
+ */
+export type ChatRole = 
+/**
+ * Human user message.
+ */
+"User" | 
+/**
+ * AI assistant response.
+ */
+"Assistant" | 
+/**
+ * System instruction or context.
+ */
+"System"
+/**
  * Session row for sidebar / grouping.
  */
 export type ChatSession = { 
@@ -5754,6 +5821,34 @@ launch_label: string;
  * Small hint below the launch button (e.g. reassurance that settings can be changed later).
  */
 hint: string }
+/**
+ * A single context chunk from retrieval.
+ */
+export type ContextChunk = { 
+/**
+ * The retrieved text content.
+ */
+content: string; 
+/**
+ * Source document/location.
+ */
+source: string; 
+/**
+ * Relevance score (0.0 - 1.0).
+ */
+score: number }
+/**
+ * Context payload - RAG results, retrieved context.
+ */
+export type ContextPayload = { 
+/**
+ * Retrieved context chunks.
+ */
+chunks: ContextChunk[]; 
+/**
+ * Original query that triggered retrieval.
+ */
+query: string }
 /**
  * Input for [`create_project`]. Only `name` and `root_path` are
  * required; every other field has a sensible default or is nullable.
@@ -6722,6 +6817,58 @@ format: ModelFormat;
  */
 status: SupportStatus }
 /**
+ * Governance event classification.
+ */
+export type GovernanceEvent = 
+/**
+ * A provider was selected for a request.
+ */
+"ProviderSelected" | 
+/**
+ * Rate limit hit — request queued or rejected.
+ */
+"RateLimitHit" | 
+/**
+ * Daily budget threshold reached (warning or hard stop).
+ */
+"BudgetThresholdReached" | 
+/**
+ * Cooldown period started after 429 response.
+ */
+"CooldownStarted" | 
+/**
+ * Cooldown period ended — lane available again.
+ */
+"CooldownEnded" | 
+/**
+ * Council chose between multiple lane responses.
+ */
+"CouncilArbitration" | 
+/**
+ * Request escalated from one lane to another.
+ */
+"LaneEscalation"
+/**
+ * Governance event payload — lane routing, rate limiting, council arbitration.
+ */
+export type GovernancePayload = { 
+/**
+ * What happened.
+ */
+event: GovernanceEvent; 
+/**
+ * Which lane triggered this. "internal" or "api".
+ */
+lane: string; 
+/**
+ * Provider involved (if applicable). "claude", "gpt", "gemini".
+ */
+provider: string | null; 
+/**
+ * Human-readable detail.
+ */
+detail: string }
+/**
  * A single enforcement failure. Held in a bounded ring for replay.
  */
 export type GrammarFailure = { 
@@ -7174,20 +7321,6 @@ process_ram_mb: number;
  */
 process_vram_mb: number }
 /**
- * Periodic hardware metrics push (CPU / RAM / GPU / VRAM). Replaces
- * the stringly-typed `model:hardware` event.
- * 
- * Emitted every 2s by the hardware push task in [`crate::lib`].
- * Frontend `hardwareState` rune listens and updates VRAM bar, GPU
- * utilization, etc.
- */
-export type HardwareMetricsUpdated = { 
-/**
- * Full metrics snapshot. The frontend overwrites its rune state
- * from this struct directly — no diff merging.
- */
-metrics: HardwareMetrics }
-/**
  * Health status enum.
  */
 export type HealthStatus = 
@@ -7352,6 +7485,26 @@ name: string;
  * `"your local AI co-pilot"`.
  */
 tagline: string }
+/**
+ * Inference metrics payload - model performance data.
+ */
+export type InferencePayload = { 
+/**
+ * Input token count.
+ */
+tokens_in: number; 
+/**
+ * Output token count.
+ */
+tokens_out: number; 
+/**
+ * Total latency in milliseconds.
+ */
+latency_ms: number; 
+/**
+ * Model identifier.
+ */
+model: string }
 /**
  * Which Claude escalation lane is allowed after local-first routing.
  * 
@@ -8566,37 +8719,49 @@ continue_label: string;
  */
 back_label: string }
 /**
- * Model readiness snapshot — survives the frontend mount race.
- * 
- * Emitted as `platform:models-status` from the boot task, AND stored in
- * the `BootStateTracker` so `get_boot_state` returns it to late-mounting
- * frontends that missed the live event.
+ * Models readiness — computed once, in Rust. `ready` decides whether the app
+ * opens the setup flow; the UI renders it and never recomputes it.
  */
-export type ModelsStatusSnapshot = { 
+export type ModelsReadiness = { 
 /**
- * Whether models are present AND at least one slot is assigned.
+ * Setup is complete AND at least one model is registered AND at least
+ * one slot has a model assigned.
  */
 ready: boolean; 
 /**
- * No slot assignments exist — show setup wizard.
+ * The user finished (or skipped) setup.
  */
-firstRun: boolean; 
+setup_complete: boolean; 
 /**
- * Number of model files found by the registry scan.
+ * No prior configuration exists on this machine.
  */
-modelCount: number; 
+first_run: boolean; 
 /**
- * Total slots configured.
+ * Models in the registry.
  */
-slotCount: number; 
+model_count: number; 
 /**
- * Slots that have an assigned model.
+ * Slots defined.
  */
-assignedCount: number; 
+slot_count: number; 
 /**
- * Optional error from the model readiness check.
+ * Slots with a model assigned.
  */
-error: string | null }
+assigned_count: number }
+/**
+ * Slot + registry lists, read from the loader's in-memory state (no disk
+ * scan). Returned by [`get_models_status`]; the UI refetches it whenever a
+ * newer `models` state signal arrives.
+ */
+export type ModelsStatusData = { 
+/**
+ * All registered slots with their assignments.
+ */
+slots: SlotInfo[]; 
+/**
+ * All discovered models in the registry.
+ */
+models: ModelInfo[] }
 /**
  * One physical/virtual monitor reported by xcap.
  * 
@@ -10058,6 +10223,172 @@ transcript: string;
  */
 samples_fed: number }
 /**
+ * The complete signal packet for broadcast.
+ * 
+ * Uses `Arc<SignalVariant>` for zero-copy fanout to multiple subscribers.
+ */
+export type Signal = { 
+/**
+ * The 4 atomic metadata fields.
+ */
+header: SignalHeader; 
+/**
+ * The typed payload (Arc-wrapped for zero-copy).
+ */
+payload: SignalVariant }
+/**
+ * One engine signal forwarded to the UI.
+ * 
+ * The desktop shell subscribes to the engine's `SignalRouter` once and
+ * re-emits every signal whose variant routes to `SinkKind::Broadcast`.
+ * The frontend signal fabric (`$lib/sys/events/signal-fabric.svelte.ts`)
+ * is the single listener and dispatches on `signal.payload.type`.
+ */
+export type SignalBroadcast = { 
+/**
+ * Provenance header + typed payload.
+ */
+signal: Signal }
+/**
+ * The 4 atomic requirements for every signal.
+ * 
+ * This enables:
+ * - Tracing: Follow any output back to its input via `correlation_id`
+ * - Replay: Reconstruct sessions from stored headers
+ * - Debugging: Know exactly when/where/who created each signal
+ */
+export type SignalHeader = { 
+/**
+ * Unique identity for this signal (Uuid v7 for time-ordering)
+ */
+id: string; 
+/**
+ * Links to parent signal for causality tracking (None = root/user input)
+ */
+correlation_id: string | null; 
+/**
+ * Unix millis at creation time (not emission time)
+ */
+timestamp: number; 
+/**
+ * Who created this signal
+ */
+source: SignalSource; 
+/**
+ * Position in the state store's history. Set only on state signals
+ * (stamped by `StateStore::record`); `None` on events. Consumers apply
+ * a state signal only when its revision is newer than the one they hold.
+ */
+revision: number | null }
+/**
+ * Payload-free kind of a signal — the registry key (see `SignalSpec`).
+ */
+export type SignalKind = 
+/**
+ * Chat message (LLM response, user message)
+ */
+"chat" | 
+/**
+ * Analytics event
+ */
+"analytics" | 
+/**
+ * Retrieved context (RAG)
+ */
+"context" | 
+/**
+ * Inference metrics
+ */
+"inference" | 
+/**
+ * System status change
+ */
+"system" | 
+/**
+ * Governance event (lane routing, rate limits, council)
+ */
+"governance" | 
+/**
+ * Hardware snapshot (CPU / RAM / GPU / VRAM).
+ */
+"hardware" | 
+/**
+ * Models readiness (decides whether setup opens).
+ */
+"models" | 
+/**
+ * Platform boot progress (phase + per-step status).
+ */
+"boot" | 
+/**
+ * The bridge fell behind: windows re-read the state snapshot.
+ */
+"resync"
+/**
+ * Who created this signal - provenance tracking.
+ */
+export type SignalSource = 
+/**
+ * Human input (keyboard, mouse, voice)
+ */
+"User" | 
+/**
+ * System events (OS, file watcher, process monitor)
+ */
+"System" | 
+/**
+ * Expert/sub-agent output (LLM reaction)
+ */
+"Expert" | 
+/**
+ * Timer/scheduled events
+ */
+"Clock"
+/**
+ * The master enum of all signal output types.
+ */
+export type SignalVariant = 
+/**
+ * Chat message (LLM response, user message)
+ */
+{ type: "chat"; data: ChatPayload } | 
+/**
+ * Analytics event
+ */
+{ type: "analytics"; data: AnalyticsPayload } | 
+/**
+ * Retrieved context (RAG)
+ */
+{ type: "context"; data: ContextPayload } | 
+/**
+ * Inference metrics
+ */
+{ type: "inference"; data: InferencePayload } | 
+/**
+ * System status change
+ */
+{ type: "system"; data: SystemPayload } | 
+/**
+ * Governance event (lane routing, rate limits, council)
+ */
+{ type: "governance"; data: GovernancePayload } | 
+/**
+ * Hardware snapshot (CPU / RAM / GPU / VRAM).
+ */
+{ type: "hardware"; data: HardwareMetrics } | 
+/**
+ * Models readiness (decides whether setup opens).
+ */
+{ type: "models"; data: ModelsReadiness } | 
+/**
+ * Platform boot progress (phase + per-step status).
+ */
+{ type: "boot"; data: BootStatus } | 
+/**
+ * The bridge fell behind: windows re-read the state snapshot.
+ */
+{ type: "resync" }
+/**
  * A single slot's VRAM contribution.
  */
 export type SlotBudgetEntryInfo = { 
@@ -10201,6 +10532,23 @@ fields_json: string | null;
  * ISO-8601 timestamp when the span was created.
  */
 created_at: string }
+/**
+ * Every state signal's latest value at one revision.
+ */
+export type StateSnapshot = { 
+/**
+ * Identifies this process run (UUID v7). A different epoch means the
+ * consumer's copy is from an earlier run and must be discarded.
+ */
+epoch: string; 
+/**
+ * Highest revision recorded when the snapshot was taken.
+ */
+revision: number; 
+/**
+ * The latest signal of every state kind, oldest revision first.
+ */
+signals: Signal[] }
 /**
  * Result of a full STS (speech-to-speech) pipeline run.
  * 
@@ -10466,6 +10814,38 @@ uptime_secs: number;
  * Per-subsystem health details.
  */
 subsystems: SubsystemHealth[] }
+/**
+ * System status payload - health checks, state changes.
+ */
+export type SystemPayload = { 
+/**
+ * Current system status.
+ */
+status: SystemStatus; 
+/**
+ * Human-readable status message.
+ */
+message: string }
+/**
+ * System status enum.
+ */
+export type SystemStatus = 
+/**
+ * System is ready to process requests.
+ */
+"Ready" | 
+/**
+ * System is actively processing.
+ */
+"Processing" | 
+/**
+ * System encountered an error.
+ */
+"Error" | 
+/**
+ * System is shutting down.
+ */
+"Shutdown"
 /**
  * Per-target stage state — one entry per manifest artifact.
  * 

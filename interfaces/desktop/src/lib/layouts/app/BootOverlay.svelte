@@ -21,8 +21,6 @@
 }
 -->
 <script lang="ts">
-import { listen } from "@tauri-apps/api/event";
-import { onMount } from "svelte";
 import { Badge, type BadgeVariant } from "$lib/design/components/badge/index.js";
 import { DynamicBackground } from "$lib/design/components/dynamic-background/index.js";
 import { Progress } from "$lib/design/components/progress/index.js";
@@ -41,31 +39,10 @@ import { platformState } from "$lib/sys/runes/platformState.svelte.js";
 
 let visible = $state(true);
 let fading = $state(false);
-let bootFailureMessage = $state<string | null>(null);
 
-onMount(() => {
-	// Listen for platform:boot-failed emitted by the boot_task supervisor
-	// in src-tauri/src/lib.rs. A non-empty payload means the Rust
-	// boot_task panicked or failed in a way that the per-subsystem event
-	// stream cannot recover from; surface the message verbatim so the
-	// user sees a root cause instead of a frozen spinner.
-	const unlistenPromise = listen<string>("platform:boot-failed", (event) => {
-		const msg = typeof event.payload === "string" ? event.payload : String(event.payload);
-		bootFailureMessage = msg;
-		logError("layouts.app.BootOverlay", `platform:boot-failed → ${msg}`);
-	})
-		.then((fn) => {
-			logInfo("layouts.app.BootOverlay", "listening for platform:boot-failed");
-			return fn;
-		})
-		.catch((e) => {
-			logError("layouts.app.BootOverlay", `failed to attach platform:boot-failed listener: ${e}`);
-			return null;
-		});
-	return () => {
-		void unlistenPromise.then((unlisten) => unlisten?.());
-	};
-});
+// Rust's boot state carries the failure — a failed boot step or a panic in
+// the boot task — so the user sees the root cause instead of a frozen spinner.
+const bootFailureMessage = $derived(platformState.hasFailed ? platformState.error : null);
 
 async function openLogsFolder() {
 	try {
@@ -295,20 +272,6 @@ $effect(() => {
 			{#if platformState.isBooting}
 				<div class="w-full max-w-[24rem]">
 					<LoadingContentCard rotateEveryMs={9000} />
-				</div>
-			{/if}
-
-			<!-- Error state — boot phase failed or platform error string -->
-			{#if platformState.hasFailed && platformState.error}
-				<div
-					class={cn(
-						box({ paddingX: "12", paddingY: "8" }),
-						"w-full text-center rounded-md border border-[var(--signal-error)]/20 bg-[var(--signal-error)]/10",
-					)}
-					data-kind="box"
-					data-slot="root"
-				>
-					<Text size="xs" color="accent">{platformState.error}</Text>
 				</div>
 			{/if}
 

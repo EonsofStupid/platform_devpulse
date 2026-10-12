@@ -20,6 +20,7 @@
 //! Terminal still shows real-time progress via boot.log sink (stderr)
 //! in both modes. Frontend `DevTools` (F12) show platform events live.
 
+pub mod bindings;
 pub mod commands;
 pub mod crash_safety;
 pub mod events;
@@ -32,12 +33,10 @@ pub use crash_safety::install_early_panic_hook;
 use devpulse_engine::platform::{InitStatus, Platform};
 use devpulse_telemetry::boot::TelemetryGuard;
 use devpulse_telemetry::spawn_blocking;
-use events::{BootPhaseChanged, BootPhaseValue, SignalBroadcast};
-use state::{BootStateTracker, ModelsStatusSnapshot, PlatformState};
+use state::{BootStateTracker, PlatformState};
 use std::path::PathBuf;
 use std::sync::Arc;
 use tauri::{Emitter, Manager};
-use tauri_specta::Event;
 use tauri_specta::{collect_commands, collect_events, Builder};
 
 /// Boot a Platform without Tauri and serve MCP over stdio.
@@ -83,7 +82,8 @@ pub fn run_mcp_stdio() {
         };
         tracing::info!(data_dir = %data_dir.display(), "MCP stdio: booting platform");
 
-        let platform = match Platform::boot(data_dir, |_| {}, None).await {
+        // Headless MCP mode has no windows; signals go to an engine no one reads.
+        let platform = match Platform::boot(data_dir, |_| {}, None, devpulse_engine::Engine::boot()).await {
             Ok(p) => Arc::new(p),
             Err(e) => {
                 eprintln!("devpulse-mcp: platform boot failed: {e:#}");
@@ -132,7 +132,6 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             commands::sys::action_log::tail_action_log,
             commands::sys::action_log::open_action_logs_folder,
             commands::sys::scoped_log::query_scoped_log,
-            commands::sys::boot::get_boot_state,
             commands::sys::metrics::get_process_metrics,
             commands::sys::telemetry::get_lane_config,
             commands::sys::telemetry::set_lane_config,
@@ -284,6 +283,9 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             commands::knowledge::get_knowledge_entry,
             commands::knowledge::record_knowledge_reaction,
             commands::knowledge::sync_knowledge_from_remote,
+            // Signal fabric: list-then-watch snapshot + per-window interest.
+            commands::signals::get_signal_state,
+            commands::signals::set_signal_interest,
             commands::thinkclyffy::create_canvas,
             commands::wiredfront::connect_peer,
             commands::window::open_window,
@@ -297,6 +299,7 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             commands::models::get_hardware_metrics,
             commands::models::scan_models,
             commands::models::get_slots,
+            commands::models::get_models_status,
             commands::models::get_model_catalog,
             commands::models::is_first_run,
             commands::models::mark_setup_complete,
@@ -421,8 +424,6 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             commands::community::set_community_enabled_cmd,
         ])
         .events(collect_events![
-            // Platform boot lifecycle — replaces `platform:boot-phase` string event.
-            events::BootPhaseChanged,
             // Signal fabric bridge — every Broadcast-routed engine signal.
             events::SignalBroadcast,
             // llama-server sidecar — replaces `llama:server-ready` / `llama:token`.
@@ -600,6 +601,15 @@ pub fn run() {
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .invoke_handler(traced_invoke_handler)
+        .on_window_event(|window, event| {
+            // A closed window stops watching every signal kind it watched,
+            // so demand-driven producers can stop.
+            if let tauri::WindowEvent::Destroyed = event {
+                if let Some(engine) = window.try_state::<devpulse_engine::Engine>() {
+                    engine.router().forget_subscriber(window.label());
+                }
+            }
+        })
         .setup(move |app| {
             builder.mount_events(app);
             // ── Telemetry: create OTel provider + layer (no subscriber yet) ──
@@ -678,6 +688,10 @@ pub fn run() {
             };
             tracing::info!(data_dir = %data_dir.display(), "DevPulse Desktop starting");
 
+            // ── Bindings: keep TypeScript in step with Rust in dev ──
+            #[cfg(debug_assertions)]
+            bindings::refresh_dev(&builder);
+
             // ── Telemetry: install OTLP JSONL file exporter ──────
             let telemetry_dir = data_dir.join("telemetry");
             let telemetry_guard = match devpulse_telemetry::boot::install_exporter(
@@ -732,6 +746,20 @@ pub fn run() {
             // Engine signal router — the one typed signal path to the UI.
             app.manage(devpulse_engine::Engine::boot());
 
+            // ── Signal fabric bridge ─────────────────────────────
+            // Engine `SignalRouter` → `SignalBroadcast` → frontend fabric.
+            // Started before boot so boot progress streams live. Delivery
+            // tuning comes from `[signals]` in the platform config.
+            let signals_config =
+                devpulse_engine::platform::config::PlatformBootConfig::load(&data_dir).map_or_else(
+                    |err| {
+                        tracing::warn!(%err, "platform config did not load — shipped signal tuning applies");
+                        devpulse_engine::platform::config::SignalsConfig::shipped()
+                    },
+                    |config| config.signals,
+                );
+            commands::signals::spawn_bridge(app.handle().clone(), signals_config);
+
             // DevForge REH now boots through the platform service pipeline
             // (boot/devforge.rs), NOT a parallel Tauri bootstrap. Removed
             // the async_runtime::spawn(bootstrap::run(...)) call. The
@@ -785,14 +813,14 @@ pub fn run() {
             // and accessible via `.is_panic()` + `.try_into_panic()`. Without
             // this supervisor task a panic inside boot_task is swallowed
             // silently and the splash hangs forever. Now: panic → tracing
-            // error + `platform:boot-failed` Tauri event → BootOverlay
-            // frontend listener renders a red failure panel with the
-            // message so the user sees the root cause instead of a frozen
-            // spinner.
+            // error + failed `Boot` state → BootOverlay renders a red
+            // failure panel with the message so the user sees the root
+            // cause instead of a frozen spinner.
             let boot_handle = tauri::async_runtime::spawn(
                 boot_task(handle, data_dir, tracker_clone, span_rx.take())
             );
             let emit_on_fail = app.handle().clone();
+            let tracker_on_fail = tracker.clone_tracker();
             tauri::async_runtime::spawn(async move {
                 match boot_handle.await {
                     Ok(()) => {
@@ -809,14 +837,16 @@ pub fn run() {
                         tracing::error!(
                             target: "boot",
                             panic = %msg,
-                            "boot_task did not complete normally — emitting platform:boot-failed"
+                            "boot_task did not complete normally — publishing failed boot state"
                         );
-                        let _ = emit_on_fail.emit("platform:boot-failed", &msg);
+                        tracker_on_fail.set_failed(msg);
+                        publish_boot_status(&emit_on_fail, &tracker_on_fail);
                     }
                     Err(other) => {
                         let msg = format!("boot_task tauri::Error: {other}");
                         tracing::error!(target: "boot", err = %msg, "boot_task wrapper error");
-                        let _ = emit_on_fail.emit("platform:boot-failed", &msg);
+                        tracker_on_fail.set_failed(msg);
+                        publish_boot_status(&emit_on_fail, &tracker_on_fail);
                     }
                 }
             });
@@ -952,25 +982,26 @@ async fn boot_task(
 
     tracing::info!("Boot task started");
 
-    let _ = BootPhaseChanged {
-        phase: BootPhaseValue::Initializing,
-        error: None,
-    }
-    .emit(&app);
+    publish_boot_status(&app, &tracker);
 
     let boot_start = std::time::Instant::now();
     let app_for_callback = app.clone();
     let tracker_for_callback = tracker.clone_tracker();
 
-    // Create model-loader event bridge — emits Tauri events for load/download progress
+    // Create model-loader event bridge — fabric families are published as
+    // typed signals; the rest still emit legacy Tauri string events.
     let model_event_sink: Option<std::sync::Arc<dyn std::any::Any + Send + Sync>> = {
         let app_for_events = app.clone();
+        let app_for_signals = app.clone();
         Some(std::sync::Arc::new(
-            devpulse_engine::platform::integrations::EventBridge::new(std::sync::Arc::new(
-                move |event_name: &str, payload: serde_json::Value| {
+            devpulse_engine::platform::integrations::EventBridge::new(
+                std::sync::Arc::new(move |event_name: &str, payload: serde_json::Value| {
                     let _ = app_for_events.emit(event_name, payload);
-                },
-            )),
+                }),
+                std::sync::Arc::new(move |signal: devpulse_engine::signals::Signal| {
+                    app_for_signals.state::<devpulse_engine::Engine>().emit(signal);
+                }),
+            ),
         ))
     };
 
@@ -979,8 +1010,9 @@ async fn boot_task(
     let result = Platform::boot(
         data_dir.clone(),
         move |event: InitEvent| {
-            // Record in tracker (so get_boot_state IPC works)
+            // Record in tracker and publish the new boot progress.
             tracker_for_callback.record_event(event.clone());
+            publish_boot_status(&app_for_callback, &tracker_for_callback);
 
             // Log completion events via tracing (for session log file)
             if event.status != InitStatus::Running {
@@ -1008,11 +1040,9 @@ async fn boot_task(
                     InitStatus::Running => {}
                 }
             }
-
-            // Bridge to frontend StatusBar
-            let _ = app_for_callback.emit("platform:subsystem-status", &event);
         },
         model_event_sink,
+        app.state::<devpulse_engine::Engine>().inner().clone(),
     )
     .await;
 
@@ -1037,7 +1067,7 @@ async fn boot_task(
             }
 
             // Record in tracker before emitting
-            tracker.set_ready(health.clone());
+            tracker.set_ready();
 
             // Spawn span trace writer now that analytics is available
             if let Some(rx) = span_rx {
@@ -1060,11 +1090,7 @@ async fn boot_task(
             // P0: lock-free atomic store. Boot task writes exactly once.
             state.platform.store(Some(Arc::new(platform)));
 
-            let _ = BootPhaseChanged {
-                phase: BootPhaseValue::Ready,
-                error: None,
-            }
-            .emit(&app);
+            publish_boot_status(&app, &tracker);
 
             // ── Claude MCP autoregister (operator opt-in) ────────
             // Reads `claude.autoregister.code` / `claude.autoregister.desktop`
@@ -1160,96 +1186,60 @@ async fn boot_task(
                 tracing::info!("rrd event bridge: spawned");
             }
 
-            // ── Signal fabric bridge ─────────────────────────────
-            // Engine `SignalRouter` → `SignalBroadcast` → frontend fabric.
-            // Started before any producer so no early signal is lost.
-            spawn_signal_bridge(app.clone());
-
-            // ── Hardware metrics push loop ───────────────────────
-            // Rust-driven: no frontend polling. Browser throttling can't
-            // affect this — Rust tokio runtime is never throttled.
-            spawn_hardware_push(app.clone());
-
-            // ── Model readiness check ────────────────────────────
-            // Query the model loader to determine if models are present
-            // and assigned. Frontend uses this to decide: show app or
-            // show the setup wizard.
-            let models_ready = {
-                tracing::info!("boot: atomic-loading platform for model readiness check...");
-                // P0: lock-free atomic load.
-                let platform_opt = state.platform.load_full();
-                tracing::info!("boot: platform loaded (lock-free)");
-                if let Some(ref platform) = platform_opt {
-                    if let Some(loader) = platform.model_loader() {
-                        tracing::info!("boot: get_registry...");
-                        let registry = loader.get_registry().await;
-                        tracing::info!("boot: list_slots...");
-                        let slots = loader.list_slots().await;
-                        tracing::info!("boot: is_first_run...");
-                        let first_run = loader.is_first_run().await;
-                        let assigned = slots.iter().filter(|s| s.assigned_model.is_some()).count();
-                        tracing::info!("boot: is_setup_complete...");
-                        let setup_done = loader.is_setup_complete().await;
-                        tracing::info!("boot: all loader queries done — building snapshot");
-                        let ready = setup_done && !registry.is_empty() && assigned > 0;
-                        tracing::info!(
-                            models = registry.len(),
-                            slots = slots.len(),
-                            assigned,
-                            first_run,
-                            setup_done,
-                            ready,
-                            "Model readiness check"
-                        );
-                        let models_snapshot = ModelsStatusSnapshot {
-                            ready,
-                            first_run,
-                            model_count: registry.len(),
-                            slot_count: slots.len(),
-                            assigned_count: assigned,
-                            error: None,
-                        };
-                        // Push full model state — frontend sets $state directly
-                        let slot_infos: Vec<commands::models::SlotInfo> = slots
-                            .iter()
-                            .map(|s| commands::models::slot_to_slot_info(s, &registry))
-                            .collect();
-                        let model_infos: Vec<commands::models::ModelInfo> = registry
-                            .iter()
-                            .map(commands::models::entry_to_model_info)
-                            .collect();
-                        commands::emit_status(
-                            &app,
-                            "models",
-                            commands::StatusKind::Data,
-                            &commands::models::ModelsStatusData {
-                                slots: slot_infos,
-                                models: model_infos,
-                                first_run,
-                            },
-                        );
-                        // Store in tracker so get_boot_state catches up
-                        // late-mounting frontends that missed the live event.
-                        tracker.set_models_status(models_snapshot);
-                        tracing::info!(
-                            "boot: model readiness block done — dropping platform read lock"
-                        );
-                        ready
-                    } else {
-                        tracing::warn!("Model Loader not available — models not ready");
-                        commands::emit_status(
-                            &app,
-                            "models",
-                            commands::StatusKind::Data,
-                            &commands::models::ModelsStatusData {
-                                slots: vec![],
-                                models: vec![],
-                                first_run: true,
-                            },
-                        );
-                        false
+            // ── Hardware sampler (kernel, on demand) ─────────────
+            // The kernel loader samples only while a window watches
+            // hardware (`set_signal_interest`), every
+            // `[signals.sample_interval_ms].hardware`.
+            #[cfg(feature = "inference")]
+            {
+                let platform = state.platform.load_full();
+                let hardware_period = platform
+                    .as_ref()
+                    .map_or_else(
+                        devpulse_engine::platform::config::SignalsConfig::shipped,
+                        |p| p.boot_config().signals.clone(),
+                    )
+                    .sample_interval(devpulse_engine::signals::SignalKind::Hardware);
+                let loader = platform.as_ref().and_then(|p| p.model_loader());
+                match (loader, hardware_period) {
+                    (Some(loader), Some(period)) => {
+                        let watching = app
+                            .state::<devpulse_engine::Engine>()
+                            .router()
+                            .interest(devpulse_engine::signals::SignalKind::Hardware);
+                        loader.spawn_hardware_sampler(period, watching);
                     }
+                    (None, _) => tracing::warn!("hardware sampler: no model loader — hardware signals off"),
+                    (_, None) => tracing::warn!("hardware sampler: no [signals.sample_interval_ms].hardware — hardware signals off"),
+                }
+            }
+
+            // ── Models readiness ─────────────────────────────────
+            // Computed once, in the engine's model-loader service,
+            // and published as a `models` state signal. Every window —
+            // including ones opened later — renders it and opens the setup
+            // flow exactly when Rust says setup is incomplete.
+            let models_ready = {
+                let platform_opt = state.platform.load_full();
+                if let Some(loader) = platform_opt.as_ref().and_then(|p| p.model_loader()) {
+                    loader.publish_readiness().await.ready
                 } else {
+                    tracing::warn!("Model Loader not available — models not ready");
+                    app.state::<devpulse_engine::Engine>().emit(
+                        devpulse_engine::signals::Signal::new(
+                            devpulse_engine::signals::SignalSource::System,
+                            devpulse_engine::signals::SignalVariant::Models(
+                                devpulse_engine::signals::ModelsReadiness {
+                                    ready: false,
+                                    setup_complete: false,
+                                    first_run: true,
+                                    model_count: 0,
+                                    slot_count: 0,
+                                    assigned_count: 0,
+                                },
+                            ),
+                        ),
+                    );
                     false
                 }
             };
@@ -1272,87 +1262,21 @@ async fn boot_task(
         Err(e) => {
             tracing::error!(error = %e, total_ms, "Platform boot failed");
             tracker.set_failed(e.to_string());
-            let _ = BootPhaseChanged {
-                phase: BootPhaseValue::Failed,
-                error: Some(e.to_string()),
-            }
-            .emit(&app);
+            publish_boot_status(&app, &tracker);
         }
     }
 }
 
-/// Forward engine signals to the UI — the one bridge between the engine's
-/// `SignalRouter` and the frontend signal fabric.
-///
-/// Subscribes before `Engine::start` so the UI also receives the engine's
-/// ready signal. Only variants routed to `SinkKind::Broadcast` cross the
-/// IPC boundary. A lagged receiver logs the skipped count and keeps
-/// forwarding instead of ending the bridge.
-fn spawn_signal_bridge(app: tauri::AppHandle) {
-    use devpulse_engine::signals::SinkKind;
-    use tokio::sync::broadcast::error::RecvError;
-
-    let mut rx = {
-        let engine = app.state::<devpulse_engine::Engine>();
-        let rx = engine.router().subscribe();
-        engine.start();
-        rx
-    };
-
-    devpulse_telemetry::spawn(async move {
-        loop {
-            match rx.recv().await {
-                Ok(linked) => {
-                    let (signal, _producer_cx) = linked.into_parts();
-                    if signal.payload.sinks().contains(&SinkKind::Broadcast) {
-                        let _ = SignalBroadcast { signal }.emit(&app);
-                    }
-                }
-                Err(RecvError::Lagged(skipped)) => {
-                    tracing::warn!(skipped, "signal bridge: receiver lagged, signals skipped");
-                }
-                Err(RecvError::Closed) => break,
-            }
-        }
-        tracing::info!("signal bridge: router closed");
-    });
+/// Publish the current boot progress as the signal fabric's `Boot` state.
+fn publish_boot_status(app: &tauri::AppHandle, tracker: &BootStateTracker) {
+    if let Some(engine) = app.try_state::<devpulse_engine::Engine>() {
+        engine.emit(devpulse_engine::signals::Signal::new(
+            devpulse_engine::signals::SignalSource::System,
+            devpulse_engine::signals::SignalVariant::Boot(tracker.status()),
+        ));
+    }
 }
 
-/// Rust-driven hardware metrics push — replaces frontend setInterval polling.
-///
-/// Runs every 2s and emits a `SignalVariant::Hardware` signal into the
-/// engine router; the signal bridge carries it to the UI.
-fn spawn_hardware_push(app: tauri::AppHandle) {
-    tauri::async_runtime::spawn(async move {
-        let mut interval = tokio::time::interval(std::time::Duration::from_secs(2));
-        loop {
-            interval.tick().await;
-
-            // Access managed state each tick via AppHandle
-            let state = app.state::<PlatformState>();
-            // P0: lock-free atomic load.
-            let platform_arc = state.platform.load_full();
-
-            let Some(platform) = platform_arc else {
-                continue;
-            };
-
-            #[cfg(feature = "inference")]
-            {
-                let Some(loader) = platform.model_loader() else {
-                    continue;
-                };
-                use devpulse_engine::signals::{Signal, SignalSource, SignalVariant};
-
-                let metrics = loader.hardware_metrics().await;
-                app.state::<devpulse_engine::Engine>().emit(Signal::new(
-                    SignalSource::System,
-                    SignalVariant::Hardware(metrics),
-                ));
-            }
-        }
-    });
-}
 
 /// Seed sample data for dev mode — only if tables are empty.
 #[cfg(debug_assertions)]

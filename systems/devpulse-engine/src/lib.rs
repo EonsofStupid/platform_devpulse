@@ -49,21 +49,31 @@ pub mod vision;
 // Re-exports
 // ═══════════════════════════════════════════════════════════════
 
-use signals::{Signal, SignalRouter, SignalSource, SignalVariant, SystemPayload, SystemStatus};
+use signals::{
+    Delivery, Signal, SignalRouter, SignalSource, SignalVariant, StateStore, SystemPayload,
+    SystemStatus,
+};
 
-/// The Engine — signal router and public API.
+/// The Engine — signal fabric and public API.
 ///
-/// Engine owns the signal router. This is the public facade.
+/// Engine owns the signal router (fan-out + interest) and the state store
+/// (latest value of every state kind). This is the public facade.
 /// Clyffy subscribes to signals for internal processing.
+///
+/// A cheap-to-clone handle (`Arc` inside): the desktop shell keeps one,
+/// and the platform's services receive clones so they publish directly.
+#[derive(Clone)]
 pub struct Engine {
-    router: SignalRouter,
+    router: std::sync::Arc<SignalRouter>,
+    state: std::sync::Arc<StateStore>,
 }
 
 impl Engine {
     /// Boot the engine.
     pub fn boot() -> Self {
         Self {
-            router: SignalRouter::new(),
+            router: std::sync::Arc::new(SignalRouter::new()),
+            state: std::sync::Arc::new(StateStore::new()),
         }
     }
 
@@ -76,7 +86,7 @@ impl Engine {
                 message: "Engine started".to_string(),
             }),
         );
-        self.router.emit(signal);
+        self.emit(signal);
     }
 
     /// Get a reference to the signal router.
@@ -84,8 +94,20 @@ impl Engine {
         &self.router
     }
 
-    /// Emit a signal through the router.
+    /// Get a reference to the state store.
+    pub fn state(&self) -> &StateStore {
+        &self.state
+    }
+
+    /// Publish a signal. Delivery comes from the kind's contract: a state
+    /// signal is recorded (stamped with the next revision) before it fans
+    /// out; an event fans out as-is. Returns the number of subscribers
+    /// reached.
     pub fn emit(&self, signal: Signal) -> usize {
+        let signal = match signal.payload.kind().spec().delivery {
+            Delivery::State => self.state.record(signal),
+            Delivery::Event => signal,
+        };
         self.router.emit(signal)
     }
 }

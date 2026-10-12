@@ -3,9 +3,12 @@
  * @module @devpulse/domains/app/models/data-access/models-state
  *
  * Singleton Svelte 5 rune that mirrors the kernel's slot orchestrator.
- * Reads via Tauri commands (`getSlots`, `getModelCatalog`); per-slot
- * load status updates arrive on the `model:slot-status` event the
- * kernel emits whenever a slot transitions.
+ * Rust publishes a `models` state signal after every slot or registry
+ * change; each newer revision (and the current one, replayed to a late
+ * window) re-reads the lists with `getModelsStatus` — in-memory, no disk
+ * scan. Per-slot load statuses move onto the signal fabric in plan 0004
+ * A8a; until then `statuses` holds the optimistic values set by `load` /
+ * `unload`.
  *
  * Consumed by the Slot Orchestrator devtool, the Models page,
  * `CortexMemoryStrip` in chat, and `DevPulseDashboard`. The shape is
@@ -13,87 +16,70 @@
  * `load` / `unload` verbs that wrap the corresponding Tauri commands.
  */
 
-import { listen } from "@tauri-apps/api/event";
 import {
 	assignModelToSlot as assignModelToSlotCmd,
 	clearSlotAssignment as clearSlotAssignmentCmd,
+	getModelsStatus,
 	getSlots,
 	loadSlot as loadSlotCmd,
 	scanModels,
 	unloadSlot as unloadSlotCmd,
 } from "$lib/sys/bindings/models/index.js";
+import { signalFabric } from "$lib/sys/events/signal-fabric.js";
 import type { ModelInfo, SlotInfo } from "$lib/sys/generated/bindings.js";
 import type { ModelLoadStatus } from "../util/types.js";
-
-/**
- * Wire payload from the `platform:models-status` Tauri event. The
- * kernel pushes a `StatusUpdate` envelope (`{ kind: "data", data: {...} }`)
- * with the full slot + registry snapshot whenever models or slots
- * mutate. We accept either the envelope or a raw payload for
- * backwards compatibility with the boot-snapshot replay format
- * defined in `platformState.svelte.ts`.
- */
-interface ModelsStatusEnvelope {
-	kind?: string;
-	data?: {
-		slots?: SlotInfo[];
-		models?: ModelInfo[];
-		firstRun?: boolean;
-	};
-	slots?: SlotInfo[];
-	models?: ModelInfo[];
-}
 
 class ModelsState {
 	slots = $state<SlotInfo[]>([]);
 	/**
-	 * Registry of every discovered model. Populated from the kernel
-	 * `platform:models-status` event (`ModelsStatusData.models`) which
-	 * mirrors `loader.get_registry()` post-mutation. Initial fill comes
-	 * from a one-shot `scanModels()` at boot — subsequent updates flow
-	 * exclusively through the event listener so the UI never lags the
-	 * authoritative kernel state.
+	 * Registry of every discovered model. Initial fill comes from a
+	 * one-shot `scanModels()` at boot; afterwards every `models` state
+	 * signal re-reads it from the loader so the UI never lags Rust.
 	 */
 	models = $state<ModelInfo[]>([]);
 	statuses = $state<Record<string, ModelLoadStatus>>({});
 	private booted = false;
+	private platformReady = false;
+	private listsStale = false;
 
 	/**
-	 * Wire up `model:slot-status` listeners + run a one-shot refresh.
+	 * Follow Rust's `models` state (lists re-read on each newer revision).
 	 * Called once at app boot via `bootstrapDownloadBridge()`.
 	 */
 	async boot(): Promise<void> {
 		if (this.booted) return;
 		this.booted = true;
 
-		await listen<{
-			slot_id: string;
-			status: ModelLoadStatus;
-		}>("model:slot-status", (event) => {
-			const { slot_id, status } = event.payload;
-			this.statuses = { ...this.statuses, [slot_id]: status };
+		// Rust scans the models folder in the background at boot and
+		// publishes `models` when done; the fabric replays the current value,
+		// so the lists load without a mount-time scan racing boot. The scan
+		// can finish before the platform answers queries, so a re-read waits
+		// for Rust's `boot` state to reach ready.
+		signalFabric.on("models", () => {
+			this.listsStale = true;
+			this.reloadWhenReady();
 		});
+		signalFabric.on("boot", (status) => {
+			this.platformReady = status.phase === "ready";
+			this.reloadWhenReady();
+		});
+	}
 
-		await listen<ModelsStatusEnvelope>("platform:models-status", (event) => {
-			// The kernel pushes a snapshot any time slots or registry
-			// change (scan, assign, load, unload, swap). Accept either
-			// the `emit_status` envelope (`{ kind, data }`) or the raw
-			// payload (boot-snapshot replay shape).
-			const p = event.payload;
-			const payload = p?.kind === "data" && p.data ? p.data : p;
-			if (Array.isArray(payload?.slots)) {
-				this.slots = payload.slots;
-			}
-			if (Array.isArray(payload?.models)) {
-				this.models = payload.models;
-			}
-		});
+	private reloadWhenReady(): void {
+		if (!this.platformReady || !this.listsStale) return;
+		this.listsStale = false;
+		void this.reload();
+	}
 
-		// One-shot boot refresh — covers the window before the live
-		// `platform:models-status` event arrives.
-		await this.refresh().catch((e) => {
-			console.warn("modelsState: initial refresh failed", e);
-		});
+	/** Re-read slots + registry from the loader's in-memory state (no disk scan). */
+	async reload(): Promise<void> {
+		const r = await getModelsStatus();
+		if (r.status === "ok") {
+			this.slots = r.data.slots;
+			this.models = r.data.models;
+		} else {
+			console.error("modelsState.reload failed:", r.error);
+		}
 	}
 
 	/**
@@ -113,9 +99,9 @@ class ModelsState {
 	 *
 	 * Slots are cheap (in-memory list). The registry call (`scanModels`)
 	 * walks the models directory, so we only run it on initial boot.
-	 * Subsequent refreshes ride the `platform:models-status` event,
-	 * which carries the full registry snapshot the kernel just
-	 * computed — zero extra IO.
+	 * Subsequent refreshes follow the `models` state signal (`reload`),
+	 * which re-reads the registry the loader already holds
+	 * — zero extra IO.
 	 */
 	async refresh(): Promise<void> {
 		const [slotsR, modelsR] = await Promise.all([getSlots(), scanModels()]);
@@ -129,8 +115,8 @@ class ModelsState {
 	/**
 	 * Load the model assigned to `slotId`. Optimistically marks the
 	 * slot as `loading` so the UI shows a spinner immediately; the
-	 * `model:slot-status` event from the kernel supersedes once it
-	 * fires.
+	 * loader lifecycle signals supersede it once they move onto the
+	 * signal fabric (plan 0004 A8a).
 	 */
 	async load(slotId: string): Promise<void> {
 		this.statuses = {
@@ -150,7 +136,7 @@ class ModelsState {
 	/**
 	 * Bind a discovered local model to `slotId`. The kernel persists the
 	 * choice to its libSQL kv store, validates capability compatibility,
-	 * and emits `platform:models-status` on success — the listener above
+	 * and publishes a newer `models` state on success — `reload` above
 	 * refreshes the local slot/model views so the UI flips immediately.
 	 *
 	 * The optimistic local update covers the gap between the assign
@@ -190,7 +176,7 @@ class ModelsState {
 
 	/**
 	 * Unload the slot. Optimistically marks the slot as `unloading`;
-	 * the `model:slot-status` event clears it.
+	 * loader lifecycle signals clear it once on the fabric (plan 0004 A8a).
 	 */
 	async unload(slotId: string): Promise<void> {
 		this.statuses = {

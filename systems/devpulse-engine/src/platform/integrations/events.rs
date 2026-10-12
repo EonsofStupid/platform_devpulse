@@ -1,11 +1,13 @@
-//! Event bridge — routes model-loader events to Tauri frontend.
+//! Event bridge — routes model-loader events to the frontend.
 //!
-//! `TauriEventBridge` implements `LoaderEventSink` and emits Tauri events
-//! so the frontend receives real-time loading progress, download status,
-//! and slot changes. No more file-only logging.
+//! `EventBridge` implements `LoaderEventSink`. Event families already on the
+//! signal fabric are published as typed signals (plan 0004 Part A); the
+//! remaining families still go out as legacy string events until their
+//! phase moves them. Each family has exactly one path at any time.
 
 pub use devpulse_clyffy::model_loader::TracingEventSink;
 
+use crate::signals::{Signal, SignalSource, SignalVariant};
 use devpulse_clyffy::model_loader::{LoaderEvent, LoaderEventSink};
 use serde_json::json;
 use std::sync::Arc;
@@ -18,20 +20,25 @@ use std::sync::Arc;
 /// repeated three times).
 pub type TauriEmitFn = Arc<dyn Fn(&str, serde_json::Value) + Send + Sync>;
 
-/// Event bridge that emits model-loader events as Tauri events.
+/// Publishes a typed signal into the engine's signal fabric. The desktop
+/// crate passes a closure over its managed `Engine` (`Engine::emit`).
+pub type SignalPublishFn = Arc<dyn Fn(Signal) + Send + Sync>;
+
+/// Event bridge from model-loader events to the frontend.
 ///
-/// The `AppHandle` is stored as an opaque `TauriEmitFn` so this module
-/// doesn't depend on `tauri` directly (engine crate has no tauri dep).
-/// The desktop crate passes a closure that captures the `AppHandle`.
+/// The `AppHandle` and `Engine` are reached through opaque callbacks so this
+/// module doesn't depend on `tauri` directly (engine crate has no tauri dep).
 pub struct EventBridge {
     emit_fn: TauriEmitFn,
+    publish: SignalPublishFn,
 }
 
 impl EventBridge {
-    /// Create a new event bridge with a Tauri emit function.
+    /// Create a new event bridge: `emit_fn` for families still on legacy
+    /// string events, `publish` for families on the signal fabric.
     #[must_use]
-    pub fn new(emit_fn: TauriEmitFn) -> Self {
-        Self { emit_fn }
+    pub fn new(emit_fn: TauriEmitFn, publish: SignalPublishFn) -> Self {
+        Self { emit_fn, publish }
     }
 }
 
@@ -41,8 +48,14 @@ impl LoaderEventSink for EventBridge {
         reason = "central event dispatch — one match arm per `LoaderEvent` variant. Decomposing by event family would obscure the readable variant → wire-payload mapping; each arm is 3-7 lines and lives next to the variant it handles."
     )]
     fn emit(&self, event: LoaderEvent) {
-        // Frontend wire payloads stay snake_case so every Rust-originated
-        // event follows one predictable contract.
+        // Families on the signal fabric.
+        if let LoaderEvent::HardwareMetricsUpdated(metrics) = event {
+            (self.publish)(Signal::new(SignalSource::System, SignalVariant::Hardware(metrics)));
+            return;
+        }
+
+        // Legacy string events. Frontend wire payloads stay snake_case so
+        // every Rust-originated event follows one predictable contract.
         let (event_name, payload) = match &event {
             LoaderEvent::LoadingStarted { slot_id, model_id } => (
                 "model:loading-started",

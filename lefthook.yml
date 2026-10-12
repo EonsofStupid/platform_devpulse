@@ -85,10 +85,11 @@ commit-msg:
 pre-push:
   parallel: true
   commands:
-    # Full Rust lint on push
+    # Full Rust lint on push, under run-dev's build env so it reuses the
+    # dev loop's artifacts instead of invalidating them.
     clippy:
       glob: "*.rs"
-      run: cargo clippy --workspace -- -D warnings
+      run: cargo xtask clippy --workspace
 
     # Security audit
     cargo-deny:

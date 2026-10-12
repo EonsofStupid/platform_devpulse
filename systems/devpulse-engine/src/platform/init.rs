@@ -3,12 +3,12 @@
 //! Emitted during `Platform::boot()` so the launcher UI can show
 //! real-time progress for each database and subsystem.
 
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use specta::Type;
 use std::time::Duration;
 
 /// Event emitted during platform initialization.
-#[derive(Debug, Clone, Serialize, Type)]
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct InitEvent {
     /// Step name (public-safe, `ip_term!()` already applied).
     pub step: String,
@@ -22,7 +22,7 @@ pub struct InitEvent {
 }
 
 /// Status of an initialization step.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Type)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Type)]
 pub enum InitStatus {
     /// Step is currently executing.
     Running,

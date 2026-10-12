@@ -17,7 +17,9 @@ pub use interactions::{
 /// The model-loader crate is self-enclosed — clyffy does NOT depend on it
 /// for its own functionality. This re-export exists solely so the engine
 /// can access model-loader types through the existing dependency chain.
-#[cfg(feature = "model-loader")]
+/// Available with `model-loader-core` (types + hardware, no inference
+/// backends); `model-loader` adds the compiled-in backends on top.
+#[cfg(feature = "model-loader-core")]
 pub use model_loader;
 
 /// Top-level orchestrator facade.

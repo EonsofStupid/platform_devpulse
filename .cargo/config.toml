@@ -30,14 +30,15 @@ rustc-wrapper = "sccache"
 # builds use /MD too. This is NOT a hack — it's the correct way to unify CRT
 # linkage across all native deps in one binary.
 #
-# NOTE: The fast linker (rust-lld) is NOT pinned here. Hardcoding the path
-# would couple `.cargo/config.toml` to the current developer's rustup install
-# (~/.rustup/toolchains/<ver>/...) and break portability. Instead, xtask
-# resolves rust-lld at runtime via `rustc --print sysroot` and injects
-# `CARGO_TARGET_X86_64_PC_WINDOWS_MSVC_LINKER` — see workspace.rs::apply_env.
-# Direct `cargo check -p X` calls don't link, so they don't need rust-lld;
-# `cargo xtask run-dev` / `cargo xtask build-release` do, and they get it.
+# Fast linker: rust-lld from the `llvm-tools-preview` component that
+# rust-toolchain.toml installs. The bare name is portable — rustc finds it in
+# its own sysroot tools dir, no machine path. It MUST be declared here, not
+# injected as an env var by xtask: cargo hashes the target linker into every
+# unit's fingerprint (check-only units too), so a linker that only some cargo
+# invocations see makes the others (the `cargo xtask` outer build, plain
+# cargo, rust-analyzer) rebuild the shared units in place on every switch.
 [target.x86_64-pc-windows-msvc]
+linker = "rust-lld.exe"
 rustflags = ["-C", "target-feature=-crt-static"]
 
 [env]

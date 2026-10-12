@@ -5,6 +5,7 @@
 
 pub mod build_deps;
 pub mod build_release;
+pub mod cargo_tool;
 pub mod deps;
 pub mod dev;
 pub mod fetch_devforge;

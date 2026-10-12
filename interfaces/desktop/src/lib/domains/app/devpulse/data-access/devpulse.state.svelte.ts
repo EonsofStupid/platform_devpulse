@@ -5,15 +5,11 @@
  * Svelte 5 runes for the DevPulse dashboard hub.
  * Fetches real data from stores via Tauri IPC.
  * Does NOT auto-fetch — dashboard page triggers fetch after boot completes.
+ * Live system load is not here — it is the hardware state (`hardwareState`).
  */
 
 import type { DashboardData } from "../util/devpulse.types.js";
-import {
-	fetchDashboardData,
-	fetchProcessMetrics,
-	getEmptyDashboard,
-	mapPayloadToDashboard,
-} from "./devpulse.service.js";
+import { fetchDashboardData, getEmptyDashboard, mapPayloadToDashboard } from "./devpulse.service.js";
 
 class DevPulseState {
 	data = $state<DashboardData>(getEmptyDashboard());
@@ -23,10 +19,6 @@ class DevPulseState {
 
 	get totalProjects(): number {
 		return this.data.user.totalProjects;
-	}
-
-	get streak(): number {
-		return this.data.user.streak;
 	}
 
 	get recentProjects() {
@@ -41,8 +33,7 @@ class DevPulseState {
 		this.loading = true;
 		this.error = null;
 		try {
-			const [payload, metrics] = await Promise.all([fetchDashboardData(), fetchProcessMetrics()]);
-			this.data = mapPayloadToDashboard(payload, metrics);
+			this.data = mapPayloadToDashboard(await fetchDashboardData());
 		} catch (e) {
 			this.error = e instanceof Error ? e.message : String(e);
 		} finally {
