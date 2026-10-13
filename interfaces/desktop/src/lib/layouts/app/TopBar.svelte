@@ -22,9 +22,11 @@ import { TextField as Input } from "$lib/design/components/text-field/index.js";
 import { Parasite } from "$lib/design/plugins/parasite";
 import { cn } from "$lib/design/utils/cn.js";
 import { hstack } from "$lib/design/utils/hstack/index.js";
+import { onboardingState } from "$lib/domains/app/onboarding/index.js";
 import { ProjectSwitcher } from "$lib/domains/app/projects/index.js";
 import { ClyffyStatusOrb } from "$lib/domains/clyffy/index.js";
 import { openWindow } from "$lib/sys/bindings/window/index.js";
+import { copyState } from "$lib/sys/copy/index.js";
 import { logError } from "$lib/sys/logger.js";
 import { globalState } from "$lib/sys/runes/global.svelte";
 
@@ -42,6 +44,10 @@ async function openChat(): Promise<void> {
 		logError("layouts.app.TopBar", `open chat window failed: ${result.error}`);
 	}
 }
+
+$effect(() => {
+	void copyState.load();
+});
 
 function onKey(e: KeyboardEvent): void {
 	if (e.key === "Escape" && searchOpen) toggleSearch();
@@ -67,6 +73,12 @@ function onKey(e: KeyboardEvent): void {
 		<!-- Active-project pill — next to brand so "what am I working on"
 		     is the first thing the user sees after the app identity. -->
 		<ProjectSwitcher />
+		<!-- First run was set for later: the way back in (Rust reopens it). -->
+		{#if onboardingState.current?.status === "later" && copyState.catalog}
+			<Button preset="secondary" size="sm" onclick={onboardingState.reopen} disabled={onboardingState.busy}>
+				{copyState.catalog.onboarding.common.reopen}
+			</Button>
+		{/if}
 	</div>
 
 	<!-- Center: PULSE FEED pill -->

@@ -33,8 +33,11 @@
 /* 8. Non-token: SVG Filters (neumorphism) */
 @import "./svg/filters/filters.css";
 
-/* 9. Non-token: RenderForge glue — maps canonical vars to CSS properties on [data-kind] */
-@import "./generated/render-base.css";
+/* 9. Non-token: RenderForge glue — maps canonical vars to CSS properties on [data-kind].
+ *    In the `components` layer: above Tailwind's `base`, below its `utilities`,
+ *    so a size or layout class on a component (`text-4xl`, `h-12`) wins over
+ *    the preset default. Unlayered, it overrode every one of them. */
+@import "./generated/render-base.css" layer(components);
 
 /* 10. Non-token: SVG RenderForge glue — maps --svg-* vars to SVG elements on [data-svg-kind] */
 @import "./svg/svg-macro-base.css";

@@ -10,6 +10,9 @@
     reason = "test assertions — a failed expect is the test failure"
 )]
 
+use devpulse_engine::platform::onboarding::{
+    OnboardingState, OnboardingStatus, Requirement, Stage,
+};
 use devpulse_engine::platform::{HardwareMetrics, InitEvent};
 use devpulse_engine::signals::{
     AnalyticsEventType, AnalyticsPayload, AnalyticsProperties, BootPhase, BootStatus, ChatPayload,
@@ -76,6 +79,13 @@ fn sample(kind: SignalKind) -> SignalVariant {
             phase: BootPhase::Initializing,
             error: None,
             steps: vec![InitEvent::running("System relational", "opening")],
+        }),
+        SignalKind::Onboarding => SignalVariant::Onboarding(OnboardingState {
+            status: OnboardingStatus::Open,
+            stage: Stage::You,
+            stages: vec![Stage::Welcome, Stage::You],
+            needs: vec![Requirement::Name],
+            flow_problem: None,
         }),
         SignalKind::Resync => SignalVariant::Resync,
     }

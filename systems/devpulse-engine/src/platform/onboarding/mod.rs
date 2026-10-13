@@ -1,25 +1,33 @@
-//! Onboarding — install, configure, and maintain every AI capability.
+//! Onboarding — first run: the person, their projects, their AI.
 //!
-//! The engine owns this boundary. Every capability (Brain, Vision, Voice,
-//! Memory) is an *endpoint*: a base URL speaking a known protocol, running
-//! embedded on this machine or on a server. Onboarding finds endpoints,
-//! identifies them, installs and maintains capabilities on them, and writes
-//! the resulting AI configuration into the kernel.
+//! The engine owns the first-run workflow. The UI holds no logic: it renders
+//! the `Onboarding` state this module publishes and sends your choices back
+//! as intents; Rust validates, decides and writes to Turso.
 //!
-//! The UI holds no logic: it renders what this boundary emits and sends
-//! the user's choices back as intents.
+//! See `.plan/0001-engine--rebuild-onboarding-workflow.md` ("First run — the
+//! full experience", slices).
 //!
-//! See `.plan/0001-engine--rebuild-onboarding-workflow.md`.
+//! # Layout
 //!
-//! # Layout (one file per adapter — add one, register it, done)
-//!
-//! - [`probes`] — identify the protocol an endpoint speaks.
+//! - [`flow`] — which stages, in what order (configuration with a default).
+//! - [`store`] — progress on the profile row in Turso.
+//! - [`state`] — the `Onboarding` state every window renders.
+//! - [`workflow`] — your intents in, the state out; gates live here.
+//! - [`probes`] — identify the protocol an AI endpoint speaks. Moves to the
+//!   kernel's provider adapters in plan 0001 R5 (slice 5).
 //!
 //! # Honesty rule
 //!
-//! Nothing is assumed. An endpoint's protocol and models come only from a
-//! live handshake, and every outcome is reported exactly as it happened.
+//! Nothing is assumed. Everything shown was really found, and every outcome
+//! is reported exactly as it happened.
 
+pub mod flow;
 pub mod probes;
+pub mod state;
+pub mod store;
+pub mod workflow;
 
+pub use flow::{Flow, LoadedFlow, Stage};
 pub use probes::{identify, EndpointCapabilities, EndpointProbe, EndpointProtocol, ProbeOutcome};
+pub use state::{OnboardingState, OnboardingStatus, Requirement};
+pub use workflow::Onboarding;

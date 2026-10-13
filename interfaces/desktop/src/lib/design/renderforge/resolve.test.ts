@@ -61,10 +61,10 @@ describe("renderForge — CSS var chains", () => {
 		expect(m.dataAttrs["data-kind"]).toBe("card");
 	});
 
-	test("cssVars contains -bg", () => {
+	test("cssVars contains --background-color", () => {
 		const m = renderForge({ kind: "button", preset: "primary" });
-		expect(m.cssVars["-bg"]).toBeDefined();
-		expect(m.cssVars["-bg"]).toContain("var(");
+		expect(m.cssVars["--background-color"]).toBeDefined();
+		expect(m.cssVars["--background-color"]).toContain("var(");
 	});
 
 	test("cssVars contains --box-shadow", () => {
@@ -82,23 +82,30 @@ describe("renderForge — CSS var chains", () => {
 		expect(m.cssVars["--border-radius"]).toBeDefined();
 	});
 
-	test("cssVars uses two-tier var() chain (per-kind → shared → fallback)", () => {
+	test("an intent resolves kind+intent tokens first, then per-kind, shared, fallback", () => {
 		const m = renderForge({ kind: "button", preset: "primary" });
-		const bg = m.cssVars["-bg"];
-		// Should contain var(--style-button-glass-deep-..., var(--preset-glass-deep-..., ...))
+		const bg = m.cssVars["--background-color"];
+		expect(bg.startsWith("var(--preset-button-primary-background-color,")).toBe(true);
 		expect(bg).toContain("--style-button-glass-deep");
 		expect(bg).toContain("--preset-glass-deep");
 	});
 
+	test("a compound preset id has no kind+intent layer", () => {
+		const m = renderForge({ kind: "card", preset: "glass-deep" });
+		const bg = m.cssVars["--background-color"];
+		expect(bg.startsWith("var(--style-card-glass-deep-background-color,")).toBe(true);
+		expect(bg).not.toContain("--preset-card-glass-deep");
+	});
+
 	test("'default' preset resolves through neuro-elevated tokens", () => {
 		const m = renderForge({ kind: "card", preset: "default" });
-		const bg = m.cssVars["-bg"];
+		const bg = m.cssVars["--background-color"];
 		expect(bg).toContain("--preset-neuro-elevated");
 	});
 
 	test("'glass' preset resolves through glass-deep tokens", () => {
 		const m = renderForge({ kind: "card", preset: "glass" });
-		const bg = m.cssVars["-bg"];
+		const bg = m.cssVars["--background-color"];
 		expect(bg).toContain("--preset-glass-deep");
 	});
 });
@@ -110,19 +117,19 @@ describe("renderForge — CSS var chains", () => {
 describe("renderForge — state overrides", () => {
 	test("state='disabled' applies state-specific vars", () => {
 		const m = renderForge({ kind: "button", preset: "primary", state: "disabled" });
-		const bg = m.cssVars["-bg"];
+		const bg = m.cssVars["--background-color"];
 		expect(bg).toContain("disabled");
 	});
 
 	test("state='active' applies active-specific vars", () => {
 		const m = renderForge({ kind: "button", preset: "primary", state: "active" });
-		const bg = m.cssVars["-bg"];
+		const bg = m.cssVars["--background-color"];
 		expect(bg).toContain("active");
 	});
 
 	test("state='default' does NOT apply state overrides", () => {
 		const m = renderForge({ kind: "button", preset: "primary", state: "default" });
-		const bg = m.cssVars["-bg"];
+		const bg = m.cssVars["--background-color"];
 		expect(bg).not.toContain("default-background");
 	});
 });

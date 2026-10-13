@@ -43,6 +43,10 @@ export type SignalVariant =
  */
 { type: "boot"; data: BootStatus } | 
 /**
+ * First run: status, stage, what the stage still needs.
+ */
+{ type: "onboarding"; data: OnboardingState } | 
+/**
  * The bridge fell behind: windows re-read the state snapshot.
  */
 { type: "resync" }

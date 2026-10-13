@@ -263,7 +263,7 @@ async fn mirror_hint_to_database(state: State<'_, PlatformState>, provider: Prov
         return;
     };
     let adapter = svc.adapter();
-    let profile = match crate::commands::devpulse::profile::ensure_profile(adapter.as_ref()).await {
+    let profile = match devpulse_engine::platform::profile::ensure(adapter.as_ref()).await {
         Ok(profile) => profile,
         Err(e) => {
             tracing::warn!(

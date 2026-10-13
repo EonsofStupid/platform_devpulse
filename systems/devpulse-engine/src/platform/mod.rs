@@ -26,6 +26,7 @@
 
 mod boot;
 pub mod config;
+pub mod copy;
 pub mod db;
 #[allow(missing_docs)]
 pub mod facade;
@@ -36,6 +37,7 @@ pub mod integrations;
 pub mod metrics;
 pub mod module;
 pub mod onboarding;
+pub mod profile;
 pub mod services;
 pub mod telemetry;
 
@@ -326,6 +328,8 @@ pub struct Platform {
     system_cache: Option<Arc<CacheService>>,
     // ── User scope ──────────────────────────────────────────────
     user_relational: Option<Arc<RelationalService>>,
+    /// First run (needs the user database).
+    onboarding: Option<Arc<onboarding::Onboarding>>,
     user_analytics: Option<Arc<AnalyticsService>>,
     user_graph: Option<Arc<GraphService>>,
     // ── Global scope ────────────────────────────────────────────
@@ -431,6 +435,7 @@ impl Platform {
         // `SendError`, which callsites ignore.
         let (internal_tx, _) = broadcast_channel::<InternalEvent>(INTERNAL_EVENT_CAPACITY);
 
+        let onboarding_signals = signals.clone();
         let booted = boot::execute(
             &data_dir,
             &boot_config,
@@ -439,6 +444,27 @@ impl Platform {
             signals,
         )
         .await?;
+
+        // First run reads and writes the user database; without it there is
+        // nothing to set up, and the reason is logged.
+        let onboarding = match &booted.user_relational {
+            Some(user) => {
+                match onboarding::Onboarding::start(
+                    Arc::clone(user.adapter()),
+                    &data_dir,
+                    onboarding_signals,
+                )
+                .await
+                {
+                    Ok(o) => Some(Arc::new(o)),
+                    Err(e) => {
+                        tracing::error!(target: "onboarding", error = %format!("{e:#}"), "first run could not start");
+                        None
+                    }
+                }
+            }
+            None => None,
+        };
 
         // Spawn telemetry handle after services boot.
         // Requires analytics service (DuckDB) for trace persistence.
@@ -481,6 +507,7 @@ impl Platform {
             system_graph: booted.system_graph,
             system_cache: booted.system_cache,
             user_relational: booted.user_relational,
+            onboarding,
             user_analytics: booted.user_analytics,
             user_graph: booted.user_graph,
             global_graph: booted.global_graph,
@@ -698,6 +725,11 @@ impl Platform {
     }
 
     // ── User scope accessors ────────────────────────────────────
+
+    /// First run (when the user database is open).
+    pub fn onboarding(&self) -> Option<&Arc<onboarding::Onboarding>> {
+        self.onboarding.as_ref()
+    }
 
     /// Get the user relational service (if enabled and booted).
     pub fn user_relational(&self) -> Option<&Arc<RelationalService>> {

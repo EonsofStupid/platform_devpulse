@@ -44,10 +44,13 @@
  *   --transition-duration  Duration          transition-duration
  *   --transition-timing    Easing            transition-timing-function
  *
- * Resolution chain:
- *   var(--style-{kind}-{preset}-{axis},    ← per-kind VPB override
- *       var(--preset-{preset}-{axis},      ← shared preset default
- *           {fallback}))                    ← absolute fallback
+ * Resolution chain (most specific first):
+ *   var(--preset-{kind}-{intent}-{axis},   ← kind + semantic intent (e.g.
+ *                                            --preset-button-primary-*), only
+ *                                            when `preset` is an intent
+ *       var(--style-{kind}-{preset}-{axis},    ← per-kind VPB override
+ *           var(--preset-{preset}-{axis},      ← shared preset default
+ *               {fallback})))                   ← absolute fallback
  *
  * @example
  * ```svelte
@@ -83,10 +86,16 @@ export function renderForge(input: StyleMacro): ResolvedMacro {
 
 	const perKind = `--style-${kind}-${resolved}`;
 	const shared = `--preset-${resolved}`;
+	// A semantic intent ("primary") may have tokens authored for this kind
+	// (`--preset-button-primary-*`); they win. A compound preset id
+	// ("glass-deep") has none.
+	const kindIntent = preset === resolved ? null : `--preset-${kind}-${preset}`;
 
-	/** Build a var() chain: per-kind override → shared preset → fallback */
-	const v = (axis: string, fallback: string): string =>
-		`var(${perKind}-${axis}, var(${shared}-${axis}, ${fallback}))`;
+	/** Build a var() chain: kind+intent → per-kind override → shared preset → fallback */
+	const v = (axis: string, fallback: string): string => {
+		const base = `var(${perKind}-${axis}, var(${shared}-${axis}, ${fallback}))`;
+		return kindIntent ? `var(${kindIntent}-${axis}, ${base})` : base;
+	};
 
 	// ── 20 Canonical Axes ─────────────────────────────────
 	const cssVars: Record<string, string> = {

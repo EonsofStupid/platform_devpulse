@@ -2014,7 +2014,7 @@ async fetchDashboard() : Promise<Result<DashboardPayload, string>> {
 }
 },
 /**
- * Fetch the current user profile. Creates a default if none exists.
+ * Fetch your profile. Creates it the first time.
  */
 async fetchUserProfile() : Promise<Result<UserProfile, string>> {
     try {
@@ -2025,7 +2025,7 @@ async fetchUserProfile() : Promise<Result<UserProfile, string>> {
 }
 },
 /**
- * Update the user profile. Only non-None fields are written.
+ * Change your name and email. `None` leaves a field; an empty string clears it.
  */
 async updateUserProfile(displayName: string | null, email: string | null) : Promise<Result<UserProfile, string>> {
     try {
@@ -2036,7 +2036,7 @@ async updateUserProfile(displayName: string | null, email: string | null) : Prom
 }
 },
 /**
- * Fetch user preferences. Creates defaults if none exist.
+ * Fetch your preferences. Creates them with the defaults the first time.
  */
 async fetchUserPreferences() : Promise<Result<UserPreferences, string>> {
     try {
@@ -2047,16 +2047,77 @@ async fetchUserPreferences() : Promise<Result<UserPreferences, string>> {
 }
 },
 /**
- * Update user preferences. Only non-None fields in `patch` are written.
- * 
- * # Errors
- * Returns the formatted error string when the adapter cannot be
- * resolved, the profile / preferences row cannot be loaded, or the
- * `UPDATE preferences` statement fails.
+ * Change your preferences. Only the fields given are written.
  */
 async updateUserPreferences(patch: UpdateUserPreferencesInput) : Promise<Result<UserPreferences, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("update_user_preferences", { patch }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * The copy catalog, and why your `copy.toml` was not used (if it wasn't).
+ */
+async getCopy() : Promise<Result<LoadedCopy, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_copy") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * The current first-run state (the same value the `onboarding` signal carries).
+ */
+async onboardingState() : Promise<Result<OnboardingState, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("onboarding_state") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Continue to the next stage (after the last one, first run is finished).
+ */
+async onboardingNext() : Promise<Result<OnboardingState, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("onboarding_next") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Go back one stage.
+ */
+async onboardingBack() : Promise<Result<OnboardingState, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("onboarding_back") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * "Set up later": leave first run; it can be reopened at any time.
+ */
+async onboardingLater() : Promise<Result<OnboardingState, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("onboarding_later") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Reopen first run where you left it.
+ */
+async onboardingReopen() : Promise<Result<OnboardingState, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("onboarding_reopen") };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -5876,6 +5937,14 @@ chunks: ContextChunk[];
  */
 query: string }
 /**
+ * The whole catalog.
+ */
+export type CopyCatalog = { 
+/**
+ * First run.
+ */
+onboarding: OnboardingCopy }
+/**
  * Input for [`create_project`]. Only `name` and `root_path` are
  * required; every other field has a sensible default or is nullable.
  */
@@ -8282,6 +8351,18 @@ export type LoadError =
  */
 { kind: "other"; message: string }
 /**
+ * The catalog in effect, and why your file was not used (if it wasn't).
+ */
+export type LoadedCopy = { 
+/**
+ * The catalog.
+ */
+copy: CopyCatalog; 
+/**
+ * Why your `copy.toml` was not used; `None` when it was, or there is none.
+ */
+overrideProblem: string | null }
+/**
  * Copy for the per-slot model loading feedback. Rendered by
  * `ClyffyLoadSpinner` inside each role card while the slot is loading.
  */
@@ -8802,6 +8883,91 @@ managed: boolean | null;
  */
 version: string | null }
 /**
+ * Text shared by every first-run stage.
+ */
+export type OnboardingCommonCopy = { 
+/**
+ * Continue button.
+ */
+continue: string; 
+/**
+ * Back button.
+ */
+back: string; 
+/**
+ * "Set up later" button.
+ */
+later: string; 
+/**
+ * Final button.
+ */
+finish: string; 
+/**
+ * "Step {current} of {total}".
+ */
+progress: string; 
+/**
+ * Shown when your flow file was not used.
+ */
+flow_problem: string; 
+/**
+ * The top-bar chip that reopens first run.
+ */
+reopen: string }
+/**
+ * First run.
+ */
+export type OnboardingCopy = { 
+/**
+ * Shared text.
+ */
+common: OnboardingCommonCopy; 
+/**
+ * Welcome.
+ */
+welcome: WelcomeCopy }
+/**
+ * The first-run state published as the `onboarding` signal.
+ */
+export type OnboardingState = { 
+/**
+ * Where first run stands.
+ */
+status: OnboardingStatus; 
+/**
+ * The stage to show.
+ */
+stage: Stage; 
+/**
+ * Every stage, in order.
+ */
+stages: Stage[]; 
+/**
+ * What the stage still needs; empty means you can continue.
+ */
+needs: Requirement[]; 
+/**
+ * Why your flow file was not used, if it wasn't.
+ */
+flowProblem: string | null }
+/**
+ * Where first run stands.
+ */
+export type OnboardingStatus = 
+/**
+ * First run is showing.
+ */
+"open" | 
+/**
+ * You chose "Set up later"; the dashboard shows, and first run can be
+ * reopened at any time.
+ */
+"later" | 
+/**
+ * First run is finished.
+ */
+"complete"
+/**
  * What the wizard / chat command sends.
  */
 export type PingClaudeRequest = { 
@@ -9312,6 +9478,14 @@ name: string;
  * otherwise. UI treats `None` as "unknown".
  */
 size: number | null }
+/**
+ * Something the current stage still needs before you can continue.
+ */
+export type Requirement = 
+/**
+ * Your name.
+ */
+"name"
 /**
  * Resolver output. Either a concrete plan or a typed failure with
  * alternatives.
@@ -10209,6 +10383,10 @@ export type SignalKind =
  */
 "boot" | 
 /**
+ * First run: status, stage, what the stage still needs.
+ */
+"onboarding" | 
+/**
  * The bridge fell behind: windows re-read the state snapshot.
  */
 "resync"
@@ -10272,6 +10450,10 @@ export type SignalVariant =
  * Platform boot progress (phase + per-step status).
  */
 { type: "boot"; data: BootStatus } | 
+/**
+ * First run: status, stage, what the stage still needs.
+ */
+{ type: "onboarding"; data: OnboardingState } | 
 /**
  * The bridge fell behind: windows re-read the state snapshot.
  */
@@ -10432,6 +10614,18 @@ rows: Cell[][];
  * Rows changed (statements that write).
  */
 rowsAffected: number }
+/**
+ * One first-run stage. A stage exists here only once it works end to end.
+ */
+export type Stage = 
+/**
+ * Clyffy greets you; detection starts.
+ */
+"welcome" | 
+/**
+ * Your name, email and projects folder.
+ */
+"you"
 /**
  * Every state signal's latest value at one revision.
  */
@@ -11179,29 +11373,27 @@ published_at: string | null }
  */
 export type UpdateInstallFinished = Record<string, never>
 /**
- * Patch input for [`update_user_preferences`]. Every field is optional;
- * only the keys the caller supplies are written. Mirrors the
- * camelCase TS shape via tauri-specta.
+ * A change to preferences. Only the fields given are written.
  */
 export type UpdateUserPreferencesInput = { 
 /**
- * New theme selection.
+ * New theme.
  */
 theme: string | null; 
 /**
- * New context-density mode.
+ * New context density mode.
  */
 contextMode: string | null; 
 /**
- * Whether model reasoning should be shown.
+ * Whether model reasoning is shown.
  */
 showThinking: boolean | null; 
 /**
- * New explanation verbosity preset.
+ * New verbosity preset.
  */
 verbosity: string | null; 
 /**
- * Default model temperature for freeform generation.
+ * Default model temperature.
  */
 defaultTemperature: number | null; 
 /**
@@ -11213,39 +11405,39 @@ allowTelemetry: boolean | null;
  */
 screenCaptureEnabled: boolean | null }
 /**
- * User preferences row from the `preferences` table.
+ * The `preferences` row.
  */
 export type UserPreferences = { 
 /**
- * Primary key for the preferences row.
+ * Primary key.
  */
 id: string; 
 /**
- * Foreign key pointing at the owning profile row.
+ * The owning profile.
  */
 userId: string; 
 /**
- * Active theme selection.
+ * Active theme.
  */
 theme: string; 
 /**
- * Preferred context density mode for the UI.
+ * Context density mode.
  */
 contextMode: string; 
 /**
- * Whether model reasoning should be shown in supported surfaces.
+ * Whether model reasoning is shown where supported.
  */
 showThinking: boolean; 
 /**
- * Optional serialized list of preferred programming languages.
+ * Preferred programming languages (JSON list).
  */
 preferredLanguages: string | null; 
 /**
- * Preferred editor tab width.
+ * Editor tab width.
  */
 tabSize: number; 
 /**
- * Whether generated code should default to semicolons.
+ * Whether generated code uses semicolons by default.
  */
 useSemicolons: boolean; 
 /**
@@ -11253,7 +11445,7 @@ useSemicolons: boolean;
  */
 defaultTemperature: number; 
 /**
- * Preferred explanation verbosity preset.
+ * Explanation verbosity preset.
  */
 verbosity: string; 
 /**
@@ -11265,44 +11457,48 @@ allowTelemetry: boolean;
  */
 screenCaptureEnabled: boolean }
 /**
- * User profile row from the `profiles` table.
+ * The profile row from the `profiles` table.
  */
 export type UserProfile = { 
 /**
- * Primary key for the profile row.
+ * Primary key.
  */
 id: string; 
 /**
- * Optional display name shown across the desktop app.
+ * Your name, shown across the app; `None` until you give it.
  */
 displayName: string | null; 
 /**
- * Optional email associated with the local profile.
+ * Your email; `None` until you give it.
  */
 email: string | null; 
 /**
- * Id of the hardware preset the user selected; `None` until one is chosen.
+ * Id of the hardware preset you selected; `None` until one is chosen.
  */
 hardwareProfile: string | null; 
 /**
- * Whether onboarding has been completed for this profile.
+ * Whether first run is finished.
  */
 onboardingComplete: boolean; 
 /**
- * Skill level inferred from the user's projects and GitHub; `None`
- * until inferred. Never asked.
+ * Skill level inferred from your projects and GitHub; `None` until
+ * inferred. Never asked.
  */
 expertiseLevel: number | null; 
 /**
- * Unix timestamp when the profile row was created.
+ * The folder your projects live in; `None` until you choose it.
+ */
+projectsRoot: string | null; 
+/**
+ * Unix timestamp when the row was created.
  */
 createdAt: number; 
 /**
- * Unix timestamp when the profile row was last updated.
+ * Unix timestamp when the row was last updated.
  */
 updatedAt: number; 
 /**
- * Unix timestamp for the last active session, if recorded.
+ * Unix timestamp of the last active session, if recorded.
  */
 lastActiveAt: number | null }
 /**
@@ -11663,6 +11859,42 @@ description: string;
  * rarely need it.
  */
 backendHandle: string }
+/**
+ * The Welcome stage.
+ */
+export type WelcomeCopy = { 
+/**
+ * Greeting.
+ */
+title: string; 
+/**
+ * What first run does.
+ */
+subtitle: string; 
+/**
+ * Mascot image description.
+ */
+mascot_alt: string; 
+/**
+ * Main button.
+ */
+cta: string; 
+/**
+ * Under "Set up later".
+ */
+later_hint: string; 
+/**
+ * While detection runs.
+ */
+looking: string; 
+/**
+ * Above the found chips.
+ */
+found_heading: string; 
+/**
+ * When detection found nothing.
+ */
+nothing_found: string }
 /**
  * Wayland degraded-capability flag returned with `list_windows`.
  * 

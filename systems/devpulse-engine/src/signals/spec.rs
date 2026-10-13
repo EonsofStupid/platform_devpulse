@@ -94,7 +94,7 @@ impl SignalKind {
                 sinks: &[SinkKind::Broadcast, SinkKind::Analytics],
                 version: 1,
             },
-            Self::Hardware | Self::Models | Self::Boot => SignalSpec {
+            Self::Hardware | Self::Models | Self::Boot | Self::Onboarding => SignalSpec {
                 delivery: Delivery::State,
                 audience: Audience::All,
                 sinks: &[SinkKind::Broadcast],

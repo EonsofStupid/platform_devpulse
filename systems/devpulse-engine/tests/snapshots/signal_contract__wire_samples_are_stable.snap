@@ -112,6 +112,21 @@ expression: "serde_json::to_string_pretty(&samples).expect(\"samples render\")"
     "type": "boot"
   },
   {
+    "data": {
+      "flowProblem": null,
+      "needs": [
+        "name"
+      ],
+      "stage": "you",
+      "stages": [
+        "welcome",
+        "you"
+      ],
+      "status": "open"
+    },
+    "type": "onboarding"
+  },
+  {
     "type": "resync"
   }
 ]

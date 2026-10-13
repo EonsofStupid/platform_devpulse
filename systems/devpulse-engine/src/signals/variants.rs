@@ -54,6 +54,8 @@ pub enum SignalVariant {
     Models(ModelsReadiness),
     /// Platform boot progress (phase + per-step status).
     Boot(BootStatus),
+    /// First run: status, stage, what the stage still needs.
+    Onboarding(crate::platform::onboarding::OnboardingState),
     /// The bridge fell behind: windows re-read the state snapshot.
     Resync,
 }

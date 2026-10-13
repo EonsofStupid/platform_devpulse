@@ -209,20 +209,61 @@ One page with four sections.
 
 You can see and edit all of it in the database devtool (A1, T7).
 
-## Order — foundations first, nothing built on what is about to change
+## Order — vertical slices, each one live on screen (re-ordered 2026-10-12)
 
-| Step | Why it comes here |
-| --- | --- |
-| A0 Delete the old onboarding | Your order. Nothing new is wired to code that is going away. |
-| A1 Move to Turso | Every later step writes data. Writing new tables on libSQL and migrating them afterwards is the mess to avoid. |
-| A2 Schema-driven inputs | First run's inputs and the provider definitions both use the same schema pattern. Built once, then used. |
-| A3 You: name, GitHub, projects folder | Engine-side data owners for screen 2. |
-| A4 Providers and adapters | One schema for every AI you bring. Kernel-side data owners for screen 3. |
-| A4b Hardware presets as configuration | The hardcoded tier enum (and `JessePrimary`) leaves the code; presets become data you select, edit and save as your own. |
-| A5 The Clyffy adapter | Decides what powers Clyffy, from A4's providers. |
-| A6 Copy, flow and intents | The first-run workflow in Rust, on top of A3–A5. |
-| A7 First run UI | Renders what A6 publishes. Last, so it renders real state. |
-| A8 Your checkpoint | Nothing else starts until you sign off (R-H7). |
+A0 (delete) and A1 (Turso) are the foundation and are done. The first order
+then built every backend step (A2–A6) before any screen (A7). That meant weeks
+in which nothing you could see changed. You called it going in circles, and it
+was.
+
+From A2 on, the work is cut into **slices**. Each slice takes one stage of first
+run (or one product surface) through Rust, Turso and the screen, and ends with a
+live check you can see. The A-rows below remain the inventory of what gets
+built; each slice names the rows it delivers.
+
+| Slice | What you see at the end | Delivers |
+| --- | --- | --- |
+| 1 Boot → Welcome → You | Boot hands over to first run, not the dashboard, while setup is not done. Welcome greets you with chips for what was really found (git identity, folders with repos). "You" asks your name and email, prefilled from `git config`, and your projects folder, with suggestions; a scan lists its repos with languages; you tick, and they are registered in place. Everything is saved to Turso and validated per field. Finishing goes to the dashboard. | S1, S2, Y1, Y3, Y4 (git + folders), O1 (onboarding copy), O4, O5, O6, U3, U5, U6 |
+| 2 Dashboard to DASHBOARD-REFERENCE-01 | Mission Control: a VRAM / context ring and live time-series charts from real telemetry, real model and provider status, the Pulse Feed, real developer stats from the projects slice 1 registered; no overflow, no mislabels | new rows, written at slice start |
+| 3 GitHub in "You" | Sign in with GitHub (device flow): login, avatar and email shown; token in the keyring | Y2 (needs a GitHub OAuth app client id — asked at slice start) |
+| 4 Your AI: subscriptions | The six cards with installed, version, signed in, Update, Sign in, Test; Welcome chips for found agents | R1–R4, R9, R10, R11, U1, U2, U7 (subscriptions) |
+| 5 Your AI: servers + who powers Clyffy | Scan ladder with real attempts, custom endpoints (GB10), the Clyffy adapter answering for real | R5–R8, K1, U7 (servers) |
+| 6 Run on this machine | Presets as data, matched to your hardware (needs plan 0007 runtimes) | H1–H3 |
+| 7 Teach Clyffy + Done | Calibration cards, "here's what I learned", hotkeys | L1, Y5, Y6, U8, U9 |
+| 8 After first run | Getting Started checklist, re-entry chip, boot narration with the Clyffy spinner, end-to-end test | U4, U10, U11, O2, O3 |
+| A8 Your checkpoint | You run first run on a clean DevPulse folder | — |
+
+Each slice keeps the phase rules below (≤5 files per phase, verified per
+phase) and ends with screenshots in the log.
+
+### Slice 1 — phases
+
+Facts it builds on (code map, 2026-10-12):
+
+- `profiles.onboarding_complete` exists, and nothing writes it.
+- The boot overlay fades on `isReady && modelsStatusReceived` and never
+  chooses first run.
+- The old "setup complete" flag is the model loader's, in system `kv_store`
+  (`model_loader.setup_complete`). It goes in O6 (slice 8) and is not reused.
+- `create_project` registers a folder in place.
+- `pick_directory` exists.
+- Nothing reads the git identity, scans for repos or runs tokei.
+- `schemars` is 0.8 in the engine but unused there: MCP uses `rmcp::schemars`,
+  which is 1.2.1.
+
+| # | Outcome | Files | Check |
+| --- | --- | --- | --- |
+| 1.1 | First-run progress in Turso: migration `user/0002` (profile `onboarding_stage`, `onboarding_later_at`, `projects_root`); the flow (stages, order) from bundled `config/onboarding/first-run.flow.toml`, your override wins | engine `platform/onboarding/{mod,flow,store}.rs`, the TOML, the migration | tests: flow parse, override, unknown stage refused; store round-trip on a temp DB |
+| 1.2 | `Onboarding` state signal and the workflow: next / back / set up later / reopen / finish, with the gate (a name is needed to leave "You") | engine `onboarding/workflow.rs`, `signals/{payloads,variants,spec}.rs`, contract test + snapshot | a test per transition; contract snapshot |
+| 1.3 | Intents, and the state published at boot | Tauri `commands/onboarding/mod.rs`, `commands/mod.rs`, `lib.rs`; engine `platform/mod.rs` | bindings; live: `get_signal_state` holds `onboarding` |
+| 1.4 | The engine copy catalog with the onboarding sections. Wizard sections nothing reads any more are deleted, so no text exists twice; the rest moves in O2/O3 | engine `platform/copy/mod.rs`, `config/copy.default.toml`, Tauri `commands/copy/mod.rs` | tests: your override wins per key |
+| 1.5 | UI data for onboarding | `sys/bindings/onboarding/index.ts`, `domains/app/onboarding/{index.ts,util/onboarding.types.ts,data-access/onboarding.{state.svelte,service}.ts}` | `pnpm check` |
+| 1.6 | **Welcome on screen**: boot hands over to it while setup is not done; Set up later goes to the dashboard | `routes/(app)/onboarding/+page.svelte`, `onboarding/ui/onboarding-shell/*`, `feature/first-run/{FirstRunFlow,views/WelcomeView}.svelte`, `layouts/app/BootOverlay.svelte` | live screenshots |
+| 1.7 | Schema-driven input: `schemars` 1.x (the same version as rmcp), `jsonschema`; engine `platform/forms`; the "You" form type | engine `Cargo.toml`, `platform/forms/mod.rs`, `onboarding/you.rs`, Tauri commands | tests: invalid → per-field errors and nothing written |
+| 1.8 | `SchemaForm` block | `design/blocks/schema-form/*` | component test |
+| 1.9 | **"You" on screen**: name and email prefilled from `git config`, the projects folder with suggestions and the picker; saved to Turso | `views/YouView.svelte`, engine `onboarding/detect.rs` | live: the row in Turso |
+| 1.10 | Repo scan with languages (tokei), DevPulse first; ticked repos registered in place | engine `platform/projects/scan.rs`, `Cargo.toml` (`tokei`), Tauri projects commands, the "You" view | live: projects in Turso, nothing written inside the repos |
+| 1.11 | Welcome chips from real detection | detection publishes into the `Onboarding` state; the Welcome view | live |
 
 ## One model: every AI you bring is a provider
 
@@ -883,3 +924,51 @@ queries proving what was written.
     - `ToggleGroup` renders no items.
     - `Text` has no `color` prop. Existing `color="muted"` callers do nothing;
       this devtool uses `--text-*` tokens.
+- 2026-10-12 — **Re-ordered into vertical slices** (your word: "going in circles").
+  The order now ships one stage at a time, live on screen.
+- 2026-10-12 — **Slice 1, phases 1.1–1.6: Welcome is live.**
+  - Profile ownership moved into the engine (`platform/profile/`): the
+    profile and preferences rows. The Tauri commands are thin. A missing
+    preferences row is created and read back instead of returning
+    hardcoded copies of the column defaults.
+  - Migration `user/0002_first_run_progress`: `onboarding_stage`,
+    `onboarding_later_at`, `projects_root`.
+  - First run:
+    - The flow comes from TOML with your override; a broken override is
+      reported, not ignored.
+    - Progress is stored on the profile row.
+    - The workflow (next / back / later / reopen) and its name gate live in
+      Rust and are published as the new `onboarding` state signal; the
+      contract snapshots changed only by that kind.
+  - Copy catalog: engine `platform/copy` + `config/copy.default.toml`, typed,
+    per-key override, available before boot finishes (`get_copy`).
+  - UI:
+    - `domains/app/onboarding` (store from the signal, intents), the shell and
+      the Welcome view, the `/onboarding` route;
+    - the app layout hands over to first run while it is open;
+    - TopBar "Finish setting up" while it is set for later.
+  - Verified:
+    - engine tests 110/110 + contract 4/4; clippy clean; `pnpm check` 0 errors;
+    - **live:** boot lands on Welcome;
+    - Set up later → the dashboard with the chip, and Turso
+      `onboarding_later_at` set;
+    - the chip → back in, cleared; no console errors.
+  - **Two ColdLight bugs found and fixed at the source** (they made every
+    screen look wrong, not just this one):
+    1. `renderForge` never read the kind+intent tokens (`--preset-button-primary-*`
+       in `app.css` and the generated CSS). Every `primary` button rendered as
+       dark glass. The chain now resolves kind+intent first. The renderForge
+       tests were stale (they read a `-bg` key that does not exist) and were
+       rewritten; 21/21 pass.
+    2. `render-base.css` was imported outside any cascade layer, so
+       `[data-cl-text] { font-size: var(--font-size) }` beat every Tailwind
+       size class. Every `Text` / `Heading` `size` and every `text-*` class in
+       the app was ignored. It now imports into `layer(components)`, under
+       `utilities`. Side effect, as written by its author: the dashboard's
+       `font-display` numbers now render in Orbitron (slashed zeros).
+  - Vite served an empty compile of `WelcomeView` once (it read the file
+    mid-write); touching the file fixed it. That is not a code issue.
+  - Memory: the app process is flat at ~210 MB over 10 minutes. The crash at
+    16:03 was `memory allocation failed` with the machine's commit nearly
+    exhausted (63 GB private across all processes). Sampling now includes
+    WebView2 and system commit to find any grower.
