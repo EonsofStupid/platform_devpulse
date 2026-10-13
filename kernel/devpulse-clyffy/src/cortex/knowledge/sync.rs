@@ -5,8 +5,11 @@
 //! 2. [`sync_remote_entries`] — entries fetched from a remote manifest
 //!    by the desktop tier (HTTP lives there, kernel stays network-free)
 //!
-//! Both flow through [`sync_entries`] which owns the version-compare
-//! fast path, the per-entry upsert, and the `knowledge_config` write.
+//! Both flow through [`sync_entries`], which compares each entry's content
+//! hash with the stored one and upserts exactly the entries that are new or
+//! changed. Content is the source of truth, not the manifest version: an
+//! edited entry reaches the database even if nobody bumped the version
+//! (a version-only check once left renamed text stale in users' databases).
 //!
 //! `knowledge_seen` is intentionally never touched during sync — user
 //! cooldowns survive content updates.
@@ -47,9 +50,9 @@ pub async fn sync_remote_entries(
     sync_entries(adapter, entries, content_version).await
 }
 
-/// Shared upsert pipeline. Returns 0 when the version matches the
-/// stored one (no work needed); returns the number of entries upserted
-/// otherwise.
+/// Shared upsert pipeline: upserts the entries whose content hash differs
+/// from the stored one (or that are not stored yet) and records the
+/// version. Returns how many entries were written.
 ///
 /// # Errors
 /// Returns the underlying SQL error stringified on the first failing
@@ -59,38 +62,36 @@ async fn sync_entries(
     entries: &[KnowledgeEntry],
     content_version: &str,
 ) -> Result<usize, String> {
-    let rows = adapter
-        .query(
-            "SELECT config_json FROM knowledge_config WHERE user_id = 'system' LIMIT 1",
-            &[],
-        )
+    let stored: std::collections::HashMap<String, String> = adapter
+        .query("SELECT id, content_hash FROM knowledge_entries", &[])
         .await
-        .map_err(|e| format!("Failed to query knowledge_config: {e}"))?;
+        .map_err(|e| format!("Failed to read stored knowledge hashes: {e}"))?
+        .into_iter()
+        .filter_map(|row| {
+            let id = row.first()?.as_text()?.to_owned();
+            let hash = row.get(1)?.as_text()?.to_owned();
+            Some((id, hash))
+        })
+        .collect();
 
-    let stored_version = rows
-        .first()
-        .and_then(|r| r.first())
-        .and_then(|v| v.as_text())
-        .and_then(|json| serde_json::from_str::<serde_json::Value>(json).ok())
-        .and_then(|v| v.get("version").and_then(|v| v.as_str()).map(String::from))
-        .unwrap_or_default();
+    let changed: Vec<&KnowledgeEntry> = entries
+        .iter()
+        .filter(|e| stored.get(&e.id) != Some(&loader::content_hash(e)))
+        .collect();
 
-    if stored_version == content_version {
-        tracing::info!(
-            version = %content_version,
-            "Knowledge content up to date — skipping sync"
-        );
+    if changed.is_empty() {
+        tracing::info!(version = %content_version, "Knowledge content up to date — every entry matches");
         return Ok(0);
     }
 
     tracing::info!(
-        stored = %stored_version,
-        new = %content_version,
-        entry_count = entries.len(),
-        "Knowledge content version mismatch — syncing"
+        version = %content_version,
+        changed = changed.len(),
+        total = entries.len(),
+        "Knowledge content changed — upserting changed entries"
     );
 
-    for entry in entries {
+    for entry in &changed {
         upsert_entry(adapter, entry).await?;
     }
 
@@ -106,12 +107,12 @@ async fn sync_entries(
         .map_err(|e| format!("Failed to update knowledge_config: {e}"))?;
 
     tracing::info!(
-        count = entries.len(),
+        count = changed.len(),
         version = %content_version,
         "Knowledge sync complete"
     );
 
-    Ok(entries.len())
+    Ok(changed.len())
 }
 
 /// Upsert a single entry into `knowledge_entries`.
@@ -151,4 +152,92 @@ async fn upsert_entry(adapter: &dyn SqlAdapter, entry: &KnowledgeEntry) -> Resul
         .map_err(|e| format!("Failed to upsert knowledge entry {id}: {e}", id = entry.id))?;
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::expect_used, clippy::unwrap_used, reason = "test assertions")]
+
+    use super::*;
+    use crate::cortex::knowledge::types::{EntryType, Tier};
+    use crate::cortex::persistence::{SqlValue, TursoAdapter, TursoOptions};
+
+    const SCHEMA: &str = "
+        CREATE TABLE IF NOT EXISTS knowledge_entries (
+            id TEXT PRIMARY KEY, type TEXT NOT NULL, tool TEXT, category TEXT NOT NULL,
+            tier TEXT NOT NULL, payload_json TEXT NOT NULL, tags_csv TEXT, added TEXT,
+            content_hash TEXT NOT NULL
+        );
+        CREATE TABLE IF NOT EXISTS knowledge_config (
+            user_id TEXT PRIMARY KEY, config_json TEXT NOT NULL, updated_at INTEGER
+        );
+    ";
+
+    fn entry(id: &str, body: &str) -> KnowledgeEntry {
+        KnowledgeEntry {
+            id: id.into(),
+            entry_type: EntryType::Insight,
+            tool: None,
+            category: "stores".into(),
+            tier: Tier::Beginner,
+            payload: serde_json::json!({ "title": "Stores", "body": body }),
+            tags: vec![],
+            added: "2026-10-13".into(),
+        }
+    }
+
+    async fn body_of(db: &TursoAdapter, id: &str) -> String {
+        let rows = db
+            .query(
+                "SELECT payload_json FROM knowledge_entries WHERE id = ?",
+                &[id.into()],
+            )
+            .await
+            .unwrap();
+        match &rows[0][0] {
+            SqlValue::Text(t) => serde_json::from_str::<serde_json::Value>(t).unwrap()["body"]
+                .as_str()
+                .unwrap()
+                .to_owned(),
+            other => panic!("{other:?}"),
+        }
+    }
+
+    #[tokio::test]
+    async fn changed_text_reaches_the_database_without_a_version_bump() {
+        let nanos = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map(|d| d.as_nanos())
+            .unwrap_or(0);
+        let dir = std::env::temp_dir().join(format!("devpulse-knowledge-sync-{nanos}"));
+        let db = TursoAdapter::open_with_schema(&dir.join("k.db"), SCHEMA, TursoOptions::default())
+            .await
+            .unwrap();
+
+        let v1 = [
+            entry("a", "LibSQL stores rows."),
+            entry("b", "DuckDB stores analytics."),
+        ];
+        assert_eq!(sync_entries(&db, &v1, "0.2.0").await.unwrap(), 2);
+        assert_eq!(
+            sync_entries(&db, &v1, "0.2.0").await.unwrap(),
+            0,
+            "nothing changed"
+        );
+
+        let v2 = [
+            entry("a", "Turso stores rows."),
+            entry("b", "DuckDB stores analytics."),
+        ];
+        assert_eq!(
+            sync_entries(&db, &v2, "0.2.0").await.unwrap(),
+            1,
+            "same version, changed text"
+        );
+        assert_eq!(body_of(&db, "a").await, "Turso stores rows.");
+
+        db.close().await;
+        drop(db);
+        let _ = std::fs::remove_dir_all(dir);
+    }
 }
