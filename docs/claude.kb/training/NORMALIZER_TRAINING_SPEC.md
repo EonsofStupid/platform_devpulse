@@ -7,7 +7,7 @@
 | **Version** | `1.0.0` |
 | **Created** | `2026-04-06` |
 | **Connects** | PSYCH + SCRIBE + TEACHER → COSTAR+ → Clyffy brain |
-| **Storage** | DuckDB (training pairs), libSQL (translation memory), Qdrant (pattern vectors) |
+| **Storage** | DuckDB (training pairs), Turso (translation memory), Qdrant (pattern vectors) |
 | **Goal** | User types 6 angry words. Clyffy sees a perfect COSTAR+ spec. |
 
 ---
@@ -151,7 +151,7 @@ pub struct ScribeOutput {
 {"input":"hook it up","ctx":{"service":"authService","component":"LoginForm"},"output":{"task":"BUILD","mat":"HIT","cfd":0.88,"inp":"hook it up","out":"Integrate LoginForm with authService.login() using existing useAuth hook","missing":[]}}
 ```
 
-### Translation Memory (libSQL, persists across sessions)
+### Translation Memory (Turso, persists across sessions)
 
 ```sql
 CREATE TABLE translation_memory (
@@ -428,7 +428,7 @@ PSYCH is translating their emotion into precision.
 
 ### The "rage and disable" feature
 
-User settings in libSQL:
+User settings in Turso:
 ```sql
 CREATE TABLE user_preferences (
     user_id TEXT PRIMARY KEY,
@@ -639,16 +639,16 @@ They never had to study prompt engineering. It just happened.
 |------|----------------|-------------|-------------|
 | Raw user input | Every message | DuckDB raw_interactions | All 3 encoders |
 | Emotional signals | PSYCH output per message | DuckDB psych_training | PSYCH LoRA adapter |
-| Vibe→dev translations | SCRIBE output per message | DuckDB scribe_training + libSQL translation_memory | SCRIBE LoRA adapter |
+| Vibe→dev translations | SCRIBE output per message | DuckDB scribe_training + Turso translation_memory | SCRIBE LoRA adapter |
 | User edits (GOLD) | When user modifies output | DuckDB scribe_training.ground_truth | SCRIBE LoRA (highest value) |
 | Competency signals | TEACHER output per message | DuckDB teacher_training | TEACHER LoRA adapter |
 | Full COSTAR+ assembly | Assembler output | DuckDB raw_interactions.assembled_costar | Assembly quality metrics |
 | Outcome (accept/edit/reject) | User behavior after response | DuckDB raw_interactions.outcome | All encoders (reward signal) |
 | ROTI score | Time saved estimate | DuckDB raw_interactions.roti_score | Product metrics |
-| Translation patterns | Successful vibe→dev mappings | libSQL translation_memory | SCRIBE fast-path (no ML needed) |
+| Translation patterns | Successful vibe→dev mappings | Turso translation_memory | SCRIBE fast-path (no ML needed) |
 | Pattern vectors | Embedded translation pairs | Qdrant | Similarity search for new inputs |
-| Session context | DIARY observations | libSQL session_context | Context aggregator |
-| File patterns | REPO observations | Qdrant + libSQL | REPO retrieval quality |
+| Session context | DIARY observations | Turso session_context | Context aggregator |
+| File patterns | REPO observations | Qdrant + Turso | REPO retrieval quality |
 
 ---
 

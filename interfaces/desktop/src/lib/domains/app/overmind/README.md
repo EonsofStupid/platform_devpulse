@@ -84,7 +84,7 @@ Sub-Agents to help the user theorycraft:
 
 - **Sandboxed execution** - No impact on Core Project Memories
 - **Low-weight vectors** - Not persisted until graduation
-- **Explicit graduation** - User action required to move to libSQL
+- **Explicit graduation** - User action required to move to Turso
 
 ---
 

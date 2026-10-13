@@ -14,7 +14,7 @@ When authoring a new domain, duplicate this folder layout and dependency arrows,
 
 ## Persistence SSOT
 
-Chat persistence is **`sessions` + `turns`** in the engine user-scoped LibSQL schema. The Tauri command layer (`src-tauri/src/commands/chat/`) is the IPC boundary; the UI never calls `@tauri-apps/api` outside `chat.service.ts`.
+Chat persistence is **`sessions` + `turns`** in the engine user-scoped Turso schema. The Tauri command layer (`src-tauri/src/commands/chat/`) is the IPC boundary; the UI never calls `@tauri-apps/api` outside `chat.service.ts`.
 
 ## Motion rules
 

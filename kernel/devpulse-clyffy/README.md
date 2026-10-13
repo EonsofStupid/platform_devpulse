@@ -17,7 +17,7 @@
 src/
 ├── lib.rs              # Entry point — Cortex facade
 ├── cortex/             # Core AI subsystem
-│   ├── persistence/    # Storage adapters (LibSQL, DuckDB, SurrealDB, Moka)
+│   ├── persistence/    # Storage adapters (Turso, DuckDB, SurrealDB, Moka)
 │   ├── adapters/       # Integration adapters (reasoning, kv_cache, safety)
 │   ├── minions/        # Sub-agents (DIARY, GUARDIAN, PSYCH, etc.)
 │   ├── reasoning/      # Reasoning pipeline (HMM, chains)
@@ -40,7 +40,7 @@ src/
 | `candle-core` / `candle-transformers` | Local model inference |
 | `ort` | ONNX Runtime inference |
 | `kokoros` | Voice AI synthesis |
-| `libsql` / `duckdb` / `surrealdb` / `moka` | 4-tier storage |
+| `turso` / `duckdb` / `surrealdb` / `moka` | 4-tier storage |
 
 ## Maintenance Checklist
 

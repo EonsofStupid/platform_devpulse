@@ -38,4 +38,4 @@
 1.  **Idea Arrives**: OverMind (Low Weight).
 2.  **Validation**: User validates OR Gus promotes.
 3.  **Action**: **GRADUATE TO PROJECT**.
-4.  **Result**: Writes to `libSQL` decisions table (Core Memory).
+4.  **Result**: Writes to `Turso` decisions table (Core Memory).

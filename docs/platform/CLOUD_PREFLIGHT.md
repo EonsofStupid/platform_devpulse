@@ -64,8 +64,8 @@ projection target for the `projects_to_qdrant` relation. The customer
 | Backend | `surrealkv://D:/localdev/deps/surrealdb/data` |
 | Boot script | `scripts/surrealdb/start-surreal.cmd` |
 
-**Port 8842 is intentional** — not SurrealDB's default 8000, not LibSQL's
-8080, not SSH-adjacent 8822. Pick once, align local + every hook + every
+**Port 8842 is intentional** — not SurrealDB's default 8000, not the
+common 8080, not SSH-adjacent 8822 (Turso is embedded and opens no port). Pick once, align local + every hook + every
 preflight. Never collides with anything else on the dev box.
 
 ---

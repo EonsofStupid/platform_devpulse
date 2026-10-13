@@ -154,13 +154,13 @@ golden_paths:
 datastores:
   - id: global
     name: "Global DB"
-    type: libsql
+    type: turso
     path: vfs/global.db
     description: "Cross-project persistent data"
     
   - id: project
     name: "Project DB"
-    type: libsql
+    type: turso
     path: vfs/project.db
     description: "Per-project data"
     

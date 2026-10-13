@@ -46,7 +46,7 @@ Tool-specific content covers: Replit, Lovable, Bolt, Base44. Still to audit: v0,
 
 ## Storage Architecture
 
-**JSON + libSQL. Both. From day one.**
+**JSON + Turso. Both. From day one.**
 
 ```
 AUTHORING LAYER          BUILD            RUNTIME LAYER
@@ -59,7 +59,7 @@ library/                                        │
                                          Boot-time sync
                                                 │
                                                 ▼
-                                         libSQL tables
+                                         Turso tables
                                          (query layer)
 ```
 
@@ -69,7 +69,7 @@ library/                                        │
 - CDN-deliverable for Clyffy webapp
 - Source of truth for content
 
-### libSQL (runtime)
+### Turso (runtime)
 - Fast indexed queries for selection
 - Per-user seen-tracking (cooldowns)
 - Reactions (thumbs up/down)
@@ -77,7 +77,7 @@ library/                                        │
 - Source of truth for runtime state
 
 
-## libSQL Schema
+## Turso Schema
 
 ```sql
 -- Content mirror (refreshed on app update from JSON)
@@ -226,7 +226,7 @@ Built progressively as each tool audit lands. Currently covers 4 tools, 25 issue
 1. Edit MD files in `docs/knowledge_library/`
 2. Run `tools/knowledge-converter/` → produces JSON artifacts + manifest
 3. Rebuild DevPulse → new JSON embedded in binary
-4. On next app boot, kernel detects version change, upserts into libSQL
+4. On next app boot, kernel detects version change, upserts into Turso
 5. User's `knowledge_seen` history preserved across content updates
 
 ## Delegation Prompt (For Farming Tool Audits)
@@ -236,7 +236,7 @@ See `07_DELEGATION_PROMPT.md`. Swap `[TOOL_NAME]`, send to another AI, receive ~
 ## Open Decisions (Tracking for Lock)
 
 1. Exact kernel module path for the knowledge module
-2. libSQL database placement (global `.devpulse/data/devpulse.db` assumed)
+2. ~~Turso database placement~~ — settled: the user database, `.userdata/user/turso/user.db`
 3. Default selection weights (draft: 60/20/15/5 → finalize after user testing)
 4. Default cooldown days (draft: 30)
 5. Default tier cap for unknown user (draft: intermediate-and-below)

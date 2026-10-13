@@ -26,7 +26,7 @@ direction of dependency, no cycles.
                                 ▼
 ┌──────────────────────────────────────────────────────────────┐
 │ kernel/devpulse-clyffy + kernel/model-loader                 │
-│  • Persistence adapters (libsql, duckdb, surrealdb, moka)    │
+│  • Persistence adapters (turso, duckdb, surrealdb, moka)    │
 │  • HTTP clients for managed sidecars (ollama, surreal)       │
 │  • Inference runtime (model loader, slots, registries)       │
 │  • Knowledge library (entry storage, reaction recording)     │
@@ -87,7 +87,7 @@ What you do NOT do:
 
 ## Service lifecycle
 
-Every managed runtime (libsql, duckdb, surrealdb sidecar, ollama sidecar, model loader, devforge, vector store, grammar engine, …) implements the same `Service` trait — boot/ping/shutdown — and appears as one entry in `SERVICE_MANIFEST`. Adding a new service is exactly:
+Every managed runtime (turso, duckdb, surrealdb sidecar, ollama sidecar, model loader, devforge, vector store, grammar engine, …) implements the same `Service` trait — boot/ping/shutdown — and appears as one entry in `SERVICE_MANIFEST`. Adding a new service is exactly:
 
 1. Implement `Service` in `platform/services/<name>.rs`.
 2. Add a `ServiceMeta` entry to `SERVICE_MANIFEST` (and a matching `BootStepMeta` if it emits an `InitEvent` step).

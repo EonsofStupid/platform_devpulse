@@ -21,7 +21,7 @@
 
 [ ] Signal Protocol Alignment: Does this logic emit a standard Signal to the Event Bus (iceoryx2) instead of calling other hubs directly?
 
-[ ] ADR Junction Lock: Does this implementation contradict a "Key Junction" stored in libSQL? (e.g., trying to use shadcn if the domain is locked to wgpu primitives).
+[ ] ADR Junction Lock: Does this implementation contradict a "Key Junction" stored in Turso? (e.g., trying to use shadcn if the domain is locked to wgpu primitives).
 
 [ ] Dependency Ghosting: Are all new imports verified against the local verified registry?
 

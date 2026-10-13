@@ -158,7 +158,7 @@ From your history, your strong prompts fall into these buckets:
 |-----------|--------|-------------|
 | Task type buttons | User click | Direct input |
 | Quick describe | User types | Direct input (1-2 sentences max) |
-| Project | Active project from libSQL | Auto from session state |
+| Project | Active project from Turso | Auto from session state |
 | Target directory | REPO recent files + project structure | Auto, user can override |
 | Pattern to match | REPO pattern index | Auto from SCRIBE translation history |
 | Depth slider | TEACHER assessment of user | Auto, user can override |
@@ -179,11 +179,11 @@ From your history, your strong prompts fall into these buckets:
 
 | Dimension | How it gets filled | Storage source |
 |-----------|-------------------|---------------|
-| Context | REPO recent files + DIARY session + project metadata | Qdrant (patterns) + libSQL (project) + Moka (session cache) |
-| Objective | SCRIBE translation of user input | libSQL (translation_memory) + Qdrant (similar past translations) |
-| Style | REPO pattern index + GUARDIAN code conventions | Qdrant (code patterns) + libSQL (project rules) |
+| Context | REPO recent files + DIARY session + project metadata | Qdrant (patterns) + Turso (project) + Moka (session cache) |
+| Objective | SCRIBE translation of user input | Turso (translation_memory) + Qdrant (similar past translations) |
+| Style | REPO pattern index + GUARDIAN code conventions | Qdrant (code patterns) + Turso (project rules) |
 | Tone | TEACHER depth assessment + PSYCH urgency | In-memory (current session state) |
-| Audience | Current model config + tool-specific frame | libSQL (model slots) + hardcoded frame catalog |
+| Audience | Current model config + tool-specific frame | Turso (model slots) + hardcoded frame catalog |
 | Response | Task type default + REPO output patterns | Hardcoded per recipe + Qdrant (past successful outputs) |
 
 ### a2ui interaction types for recipe gathering
@@ -429,7 +429,7 @@ transport. Full 32-tool surface. No browser or UI automation needed.
 └──────────────────────────────────────────────────┘
 ```
 
-### Permission storage (libSQL)
+### Permission storage (Turso)
 
 ```sql
 CREATE TABLE automation_permissions (
@@ -514,7 +514,7 @@ This is the Phase 2 "fallback" approach.
 | **Phase 1** | Local execute (Clyffy brain) | Already exists | Candle |
 | **Phase 1** | Claude Code MCP execute | Already exists | MCP server |
 | **Phase 2** | Browser automation (agent-browser) | 1W | agent-browser CLI |
-| **Phase 2** | Permission model + UI | 3D | libSQL (exists) |
+| **Phase 2** | Permission model + UI | 3D | Turso (exists) |
 | **Phase 3** | Windows desktop automation | 1W | uiautomation-rs |
 | **Phase 3** | VISION response validation loop | 2W | scap + SigLIP2 |
 
