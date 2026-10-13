@@ -14,8 +14,10 @@ import { InlineMessage } from "$lib/design/components/inline-message/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import { copyState, fill } from "$lib/sys/copy/index.js";
 import { onboardingState } from "../../data-access/onboarding.state.svelte.js";
+import { youForm } from "../../data-access/you-form.state.svelte.js";
 import { OnboardingShell } from "../../ui/onboarding-shell/index.js";
 import WelcomeView from "./views/WelcomeView.svelte";
+import YouView from "./views/YouView.svelte";
 
 $effect(() => {
 	void copyState.load();
@@ -47,7 +49,9 @@ $effect(() => {
 		{/if}
 
 		{#if state.stage === "welcome"}
-			<WelcomeView copy={copy.welcome} />
+			<WelcomeView copy={copy.welcome} detected={state.detected} />
+		{:else if state.stage === "you" && copyState.catalog}
+			<YouView copy={copy.you} errorCopy={copyState.catalog.forms.errors} />
 		{/if}
 
 		{#if onboardingState.error}
@@ -69,14 +73,26 @@ $effect(() => {
 				<Button preset="secondary" size="md" onclick={onboardingState.back} disabled={onboardingState.busy}>
 					{copy.common.back}
 				</Button>
-				<Button
-					preset="primary"
-					size="lg"
-					onclick={onboardingState.next}
-					disabled={onboardingState.busy || state.needs.length > 0}
-				>
-					{isLast ? copy.common.finish : copy.common.continue}
-				</Button>
+				{#if state.stage === "you"}
+					<!-- Saving is the gate: Rust validates, writes, then continues. -->
+					<Button
+						preset="primary"
+						size="lg"
+						onclick={youForm.saveAndContinue}
+						disabled={onboardingState.busy || youForm.saving || !youForm.view}
+					>
+						{isLast ? copy.common.finish : copy.common.continue}
+					</Button>
+				{:else}
+					<Button
+						preset="primary"
+						size="lg"
+						onclick={onboardingState.next}
+						disabled={onboardingState.busy || state.needs.length > 0}
+					>
+						{isLast ? copy.common.finish : copy.common.continue}
+					</Button>
+				{/if}
 			{/if}
 		{/snippet}
 	</OnboardingShell>

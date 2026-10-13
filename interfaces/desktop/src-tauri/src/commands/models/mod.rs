@@ -1756,17 +1756,17 @@ pub async fn import_local_model(
 
 /// Open a native folder picker dialog.
 ///
-/// Returns the selected directory path, or error if cancelled.
+/// Returns the chosen folder, or `None` if you closed the dialog without
+/// choosing (cancelling is not a failure — same contract as
+/// [`pick_audio_file`]).
 #[tauri::command]
 #[specta::specta]
-pub async fn pick_directory(title: String) -> Result<String, String> {
+pub async fn pick_directory(title: String) -> Result<Option<String>, String> {
     let picked = rfd::AsyncFileDialog::new()
         .set_title(&title)
         .pick_folder()
         .await;
-
-    let folder = picked.ok_or_else(|| "No folder selected".to_string())?;
-    Ok(folder.path().to_string_lossy().to_string())
+    Ok(picked.map(|f| f.path().to_string_lossy().to_string()))
 }
 
 /// Open a native audio-file picker dialog (mp3 / wav / flac).

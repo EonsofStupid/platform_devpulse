@@ -31,7 +31,7 @@ $effect(() => {
 			{#if projectsState.activeProject}
 				<div>
 					<Text weight="semibold">{projectsState.activeProject.name}</Text>
-					<Text size="xs">{projectsState.activeProject.rootPath}</Text>
+					<Text size="xs">{projectsState.activeProject.root_path}</Text>
 					{#if projectsState.activeProject.description}
 						<Text size="sm">{projectsState.activeProject.description}</Text>
 					{/if}
@@ -56,8 +56,8 @@ $effect(() => {
 					<Card preset="default">
 						<div class={stack({ gap: "2" })}>
 							<Text weight="semibold">{project.name}</Text>
-							<Text size="xs">{project.rootPath}</Text>
-							<Text size="xs">{project.projectType}</Text>
+							<Text size="xs">{project.root_path}</Text>
+							<Text size="xs">{project.project_type}</Text>
 						</div>
 					</Card>
 				{/each}

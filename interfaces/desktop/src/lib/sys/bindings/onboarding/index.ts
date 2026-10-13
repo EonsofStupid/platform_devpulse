@@ -13,10 +13,25 @@ export const onboardingNext = commands.onboardingNext;
 export const onboardingBack = commands.onboardingBack;
 export const onboardingLater = commands.onboardingLater;
 export const onboardingReopen = commands.onboardingReopen;
+export const onboardingYouForm = commands.onboardingYouForm;
+export const onboardingYouSubmit = commands.onboardingYouSubmit;
+export const onboardingScanProjects = commands.onboardingScanProjects;
+export const onboardingRegisterProjects = commands.onboardingRegisterProjects;
 
 export type {
+	Detected,
+	DetectedFolder,
+	ErrorCode,
+	FieldError,
+	FieldSuggestion,
+	FieldSuggestionSource,
+	FormOutcome,
+	FormView,
+	FoundRepo,
+	LanguageShare,
 	OnboardingState,
 	OnboardingStatus,
+	RegisterResult,
 	Requirement,
 	Stage,
 } from "$lib/sys/generated/bindings.js";

@@ -30,6 +30,7 @@ pub mod copy;
 pub mod db;
 #[allow(missing_docs)]
 pub mod facade;
+pub mod forms;
 pub mod health;
 pub mod init;
 #[cfg(feature = "inference")]
@@ -456,7 +457,11 @@ impl Platform {
                 )
                 .await
                 {
-                    Ok(o) => Some(Arc::new(o)),
+                    Ok(o) => {
+                        let o = Arc::new(o);
+                        o.spawn_detection(data_dir.clone());
+                        Some(o)
+                    }
                     Err(e) => {
                         tracing::error!(target: "onboarding", error = %format!("{e:#}"), "first run could not start");
                         None

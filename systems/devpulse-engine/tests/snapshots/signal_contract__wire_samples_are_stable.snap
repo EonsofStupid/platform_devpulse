@@ -113,6 +113,16 @@ expression: "serde_json::to_string_pretty(&samples).expect(\"samples render\")"
   },
   {
     "data": {
+      "detected": {
+        "done": true,
+        "folders": [
+          {
+            "path": "/home/ada/code",
+            "repoCount": 4
+          }
+        ],
+        "gitName": "Ada Lovelace"
+      },
       "flowProblem": null,
       "needs": [
         "name"

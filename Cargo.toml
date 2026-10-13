@@ -32,7 +32,7 @@ tokio = { version = "1.40", features = ["full"] }
 futures = "0.3"
 
 # Type Sync (D2) — specta generates typed TS invoke wrappers; replaces ts-rs
-specta = { version = "=2.0.0-rc.22", features = ["derive", "function", "uuid"] }
+specta = { version = "=2.0.0-rc.22", features = ["derive", "function", "uuid", "serde_json"] }
 specta-typescript = "0.0.9"
 
 # Platform Data (The "Muscle")

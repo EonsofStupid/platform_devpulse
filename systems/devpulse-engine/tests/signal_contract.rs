@@ -11,7 +11,7 @@
 )]
 
 use devpulse_engine::platform::onboarding::{
-    OnboardingState, OnboardingStatus, Requirement, Stage,
+    Detected, DetectedFolder, OnboardingState, OnboardingStatus, Requirement, Stage,
 };
 use devpulse_engine::platform::{HardwareMetrics, InitEvent};
 use devpulse_engine::signals::{
@@ -86,6 +86,14 @@ fn sample(kind: SignalKind) -> SignalVariant {
             stages: vec![Stage::Welcome, Stage::You],
             needs: vec![Requirement::Name],
             flow_problem: None,
+            detected: Detected {
+                done: true,
+                git_name: Some("Ada Lovelace".into()),
+                folders: vec![DetectedFolder {
+                    path: "/home/ada/code".into(),
+                    repo_count: 4,
+                }],
+            },
         }),
         SignalKind::Resync => SignalVariant::Resync,
     }

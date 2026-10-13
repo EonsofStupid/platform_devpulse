@@ -256,7 +256,7 @@ Facts it builds on (code map, 2026-10-12):
 | 1.1 | First-run progress in Turso: migration `user/0002` (profile `onboarding_stage`, `onboarding_later_at`, `projects_root`); the flow (stages, order) from bundled `config/onboarding/first-run.flow.toml`, your override wins | engine `platform/onboarding/{mod,flow,store}.rs`, the TOML, the migration | tests: flow parse, override, unknown stage refused; store round-trip on a temp DB |
 | 1.2 | `Onboarding` state signal and the workflow: next / back / set up later / reopen / finish, with the gate (a name is needed to leave "You") | engine `onboarding/workflow.rs`, `signals/{payloads,variants,spec}.rs`, contract test + snapshot | a test per transition; contract snapshot |
 | 1.3 | Intents, and the state published at boot | Tauri `commands/onboarding/mod.rs`, `commands/mod.rs`, `lib.rs`; engine `platform/mod.rs` | bindings; live: `get_signal_state` holds `onboarding` |
-| 1.4 | The engine copy catalog with the onboarding sections. Wizard sections nothing reads any more are deleted, so no text exists twice; the rest moves in O2/O3 | engine `platform/copy/mod.rs`, `config/copy.default.toml`, Tauri `commands/copy/mod.rs` | tests: your override wins per key |
+| 1.4 | The engine copy catalog with the onboarding sections. The old wizard copy (its dead greeting/profile sections included) moves and is trimmed in O2/O3, where the kernel struct that also feeds preset display is rewritten; the new onboarding text duplicates nothing live | engine `platform/copy/mod.rs`, `config/copy.default.toml`, Tauri `commands/copy/mod.rs` | tests: your override wins per key |
 | 1.5 | UI data for onboarding | `sys/bindings/onboarding/index.ts`, `domains/app/onboarding/{index.ts,util/onboarding.types.ts,data-access/onboarding.{state.svelte,service}.ts}` | `pnpm check` |
 | 1.6 | **Welcome on screen**: boot hands over to it while setup is not done; Set up later goes to the dashboard | `routes/(app)/onboarding/+page.svelte`, `onboarding/ui/onboarding-shell/*`, `feature/first-run/{FirstRunFlow,views/WelcomeView}.svelte`, `layouts/app/BootOverlay.svelte` | live screenshots |
 | 1.7 | Schema-driven input: `schemars` 1.x (the same version as rmcp), `jsonschema`; engine `platform/forms`; the "You" form type | engine `Cargo.toml`, `platform/forms/mod.rs`, `onboarding/you.rs`, Tauri commands | tests: invalid → per-field errors and nothing written |
@@ -972,3 +972,65 @@ queries proving what was written.
     16:03 was `memory allocation failed` with the machine's commit nearly
     exhausted (63 GB private across all processes). Sampling now includes
     WebView2 and system commit to find any grower.
+- 2026-10-12 — **Slice 1 complete (1.7–1.11): Boot → Welcome → You, live.**
+  - 1.7 Schema-driven input:
+    - `schemars` 0.8 → 1.2. The engine's direct 0.8 was unused; MCP already
+      used `rmcp::schemars` 1.2. One version now.
+    - `jsonschema` 0.58 with no default features (no network schema
+      resolution); specta `serde_json`.
+    - Engine `platform/forms`: `schema_of`, `validate` (per-field
+      `FieldError { field, code, limit }`), `FormView`, `FormOutcome`.
+    - The "You" form is a Rust type (`onboarding/you.rs`). Rules the schema
+      cannot express (a blank name, a folder that does not exist) are
+      checked on the raw submission, so **every refused field is reported at
+      once**.
+  - 1.8 `design/blocks/schema-form`: renders text / email / folder fields from
+    the schema, with suggestions and Rust's errors; no validation of its own.
+    `readFields` is tested.
+  - 1.9 Detection (`onboarding/detect.rs`):
+    - git identity from `git config --global`, with one wrapping pair of
+      quotes removed (your config stores the name quoted);
+    - folders holding repos from bundled `config/onboarding/folders.toml`
+      (your copy wins), plus DevPulse's own parent folder when running from
+      source.
+  - 1.10 Repo scan (`onboarding/scan.rs`, `tokei` 15):
+    - repos in the folder with their top languages, DevPulse first, the
+      registered ones marked; a missing folder is an answer (`None`), not an
+      error;
+    - ticked repos are registered in place through the existing
+      `create_project` (its body extracted as `create`); the first becomes
+      active when none is.
+  - 1.11 Welcome chips: detection runs in the background at boot and is
+    published inside the `onboarding` state (`detected`).
+  - Fixed along the way:
+    - `pick_directory` returned cancel as an error string that callers
+      matched on; it now returns `Option` (like `pick_audio_file`), and both
+      callers use the typed binding.
+    - **The projects store never worked:** it cast command `Result`s straight
+      to `Project` and declared camelCase fields Rust never sends. So the
+      active project, the list and paths were always empty ("No active
+      project"). It now uses the generated types and unwraps.
+  - Verified:
+    - engine tests 122/122 + contract 4/4; clippy clean; `pnpm check` 0
+      errors; Biome clean.
+    - **Live, end to end** (Playwright over CDP):
+      - Welcome chips;
+      - You form suggestions (git name/email, `D:\localdev · 22 repositories`);
+      - blank name + bad email + missing folder → all three refused in plain
+        words, nothing written;
+      - typing a path does not scan; a missing folder gets the plain message;
+      - demo folder → 2 repos with languages → add 1 → registered,
+        checkbox checked, top bar shows it active;
+      - "Open DevPulse" → complete → dashboard Projects = 1.
+    - Afterwards the profile, progress and test project were restored, so
+      your own first run starts clean (verified: profile NULLs, 0 projects,
+      no active marker).
+  - Found, not in this slice (each gets its own phase):
+    - **Graph writes fail on SurrealDB 3**: 12 `type::thing(...)` uses in
+      the kernel's surreal client (SurrealDB 2 syntax). Every project mirror
+      logs "graph project mirror failed", and the logged error drops its
+      cause chain.
+    - Project logic (SQL, mirror, active singleton) lives in the Tauri
+      command layer. It belongs in the engine, as the profile now does.
+    - Memory: the app is flat at ~210 MB. The machine has ~9.5 GB of commit
+      free; the earlier abort was machine-wide pressure.

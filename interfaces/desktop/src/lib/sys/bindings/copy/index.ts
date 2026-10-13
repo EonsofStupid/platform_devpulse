@@ -11,8 +11,11 @@ export const getCopy = commands.getCopy;
 
 export type {
 	CopyCatalog,
+	FormErrorsCopy,
+	FormsCopy,
 	LoadedCopy,
 	OnboardingCommonCopy,
 	OnboardingCopy,
 	WelcomeCopy,
+	YouCopy,
 } from "$lib/sys/generated/bindings.js";

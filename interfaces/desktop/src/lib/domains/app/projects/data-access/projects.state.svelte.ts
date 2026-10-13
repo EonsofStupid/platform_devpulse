@@ -9,40 +9,28 @@
  * module mirrors that singleton as `$state`, plus a list of all
  * projects and the currently-active project's references.
  *
- * Commands are called via tauri-specta generated bindings under
- * `commands.*` — they write Turso first (authoritative) and mirror
- * to SurrealDB. This state reloads from Turso after every mutation
- * so the UI reflects the ground truth, not our in-memory guess.
+ * Every command returns a `Result`; it is unwrapped here and a refusal
+ * keeps Rust's message in `error`. Types are the generated ones (the
+ * shape Rust actually sends). The state reloads from Turso after every
+ * change so the UI shows what is stored, not a guess.
  */
 
+import type { Project, ProjectReference, Result } from "$lib/sys/generated/bindings.js";
 import { commands } from "$lib/sys/generated/bindings.js";
 import { logError, logInfo } from "$lib/sys/logger.js";
 
-export interface Project {
-	id: string;
-	name: string;
-	rootPath: string;
-	projectType: string;
-	slug: string | null;
-	description: string | null;
-	tool: string | null;
-	techStack: string | null;
-	active: boolean;
-	createdAt: number;
-}
-
-export interface ProjectReference {
-	id: string;
-	projectId: string;
-	path: string;
-	label: string | null;
-	kind: string;
-	createdAt: number;
-}
+export type { Project, ProjectReference };
 
 export type ReferenceKind = "docs" | "source" | "examples" | "other";
 
 const LOG_TARGET = "domains.projects";
+
+function unwrap<T>(name: string, result: Result<T, string>): T {
+	if (result.status === "error") throw new Error(`${name}: ${result.error}`);
+	return result.data;
+}
+
+const message = (e: unknown): string => (e instanceof Error ? e.message : String(e));
 
 class ProjectsState {
 	projects = $state<Project[]>([]);
@@ -68,19 +56,17 @@ class ProjectsState {
 				commands.listProjects(false),
 				commands.getActiveProject(),
 			]);
-			this.projects = (list as unknown as Project[]) ?? [];
-			this.activeProjectId = active ? (active as unknown as Project).id : null;
-
-			if (this.activeProjectId) {
-				const refs = await commands.listProjectReferences(this.activeProjectId);
-				this.activeProjectReferences = (refs as unknown as ProjectReference[]) ?? [];
-			} else {
-				this.activeProjectReferences = [];
-			}
+			this.projects = unwrap("listProjects", list);
+			this.activeProjectId = unwrap("getActiveProject", active)?.id ?? null;
+			this.activeProjectReferences = this.activeProjectId
+				? unwrap(
+						"listProjectReferences",
+						await commands.listProjectReferences(this.activeProjectId),
+					)
+				: [];
 		} catch (e) {
-			const msg = e instanceof Error ? e.message : String(e);
-			this.error = msg;
-			logError(LOG_TARGET, `refresh() failed — ${msg}`);
+			this.error = message(e);
+			logError(LOG_TARGET, `refresh() failed — ${this.error}`);
 		} finally {
 			this.loading = false;
 		}
@@ -95,43 +81,44 @@ class ProjectsState {
 	}): Promise<Project | null> {
 		logInfo(LOG_TARGET, `createProject(${input.name}, active=${input.setActive ?? false})`);
 		try {
-			const created = await commands.createProject({
-				name: input.name,
-				root_path: input.rootPath,
-				project_type: "personal",
-				description: input.description ?? null,
-				tool: null,
-				tech_stack: null,
-				set_active: input.setActive ?? false,
-			});
+			const created = unwrap(
+				"createProject",
+				await commands.createProject({
+					name: input.name,
+					root_path: input.rootPath,
+					project_type: "personal",
+					description: input.description ?? null,
+					tool: null,
+					tech_stack: null,
+					set_active: input.setActive ?? false,
+				}),
+			);
 			await this.refresh("after-create");
-			return created as unknown as Project;
+			return created;
 		} catch (e) {
-			const msg = e instanceof Error ? e.message : String(e);
-			this.error = msg;
-			logError(LOG_TARGET, `createProject() failed — ${msg}`);
+			this.error = message(e);
+			logError(LOG_TARGET, `createProject() failed — ${this.error}`);
 			return null;
 		}
 	}
 
 	async setActive(id: string): Promise<void> {
 		try {
-			await commands.setActiveProject(id);
+			unwrap("setActiveProject", await commands.setActiveProject(id));
 			await this.refresh("after-set-active");
 		} catch (e) {
-			const msg = e instanceof Error ? e.message : String(e);
-			this.error = msg;
-			logError(LOG_TARGET, `setActive(${id}) failed — ${msg}`);
+			this.error = message(e);
+			logError(LOG_TARGET, `setActive(${id}) failed — ${this.error}`);
 		}
 	}
 
 	async clearActive(): Promise<void> {
 		try {
-			await commands.clearActiveProject();
+			unwrap("clearActiveProject", await commands.clearActiveProject());
 			await this.refresh("after-clear-active");
 		} catch (e) {
-			const msg = e instanceof Error ? e.message : String(e);
-			logError(LOG_TARGET, `clearActive() failed — ${msg}`);
+			this.error = message(e);
+			logError(LOG_TARGET, `clearActive() failed — ${this.error}`);
 		}
 	}
 
@@ -141,27 +128,29 @@ class ProjectsState {
 			return;
 		}
 		try {
-			await commands.addProjectReference({
-				project_id: this.activeProjectId,
-				path,
-				label,
-				kind,
-			});
+			unwrap(
+				"addProjectReference",
+				await commands.addProjectReference({
+					project_id: this.activeProjectId,
+					path,
+					label,
+					kind,
+				}),
+			);
 			await this.refresh("after-add-ref");
 		} catch (e) {
-			const msg = e instanceof Error ? e.message : String(e);
-			this.error = msg;
-			logError(LOG_TARGET, `addReference(${path}) failed — ${msg}`);
+			this.error = message(e);
+			logError(LOG_TARGET, `addReference(${path}) failed — ${this.error}`);
 		}
 	}
 
 	async removeReference(id: string): Promise<void> {
 		try {
-			await commands.removeProjectReference(id);
+			unwrap("removeProjectReference", await commands.removeProjectReference(id));
 			await this.refresh("after-remove-ref");
 		} catch (e) {
-			const msg = e instanceof Error ? e.message : String(e);
-			logError(LOG_TARGET, `removeReference(${id}) failed — ${msg}`);
+			this.error = message(e);
+			logError(LOG_TARGET, `removeReference(${id}) failed — ${this.error}`);
 		}
 	}
 }

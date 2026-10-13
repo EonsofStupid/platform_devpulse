@@ -4,15 +4,16 @@
 //! evaluated here, never in the UI), writes to Turso, then publishes the new
 //! state. Intents are serialized so two clicks never interleave.
 
-use std::path::Path;
-use std::sync::Arc;
+use std::path::{Path, PathBuf};
+use std::sync::{Arc, PoisonError, RwLock};
 
 use anyhow::{bail, Result};
 use devpulse_clyffy::cortex::persistence::TursoAdapter;
 use tokio::sync::Mutex;
 
+use super::detect::{self, GitLookup};
 use super::flow::{Flow, LoadedFlow, Stage};
-use super::state::{OnboardingState, OnboardingStatus, Requirement};
+use super::state::{Detected, DetectedFolder, OnboardingState, OnboardingStatus, Requirement};
 use super::store;
 use crate::platform::profile;
 use crate::signals::{Signal, SignalSource, SignalVariant};
@@ -23,6 +24,7 @@ pub struct Onboarding {
     flow: LoadedFlow,
     signals: crate::Engine,
     serial: Mutex<()>,
+    detected: RwLock<Detected>,
 }
 
 impl Onboarding {
@@ -41,6 +43,7 @@ impl Onboarding {
             flow: Flow::load(data_dir)?,
             signals,
             serial: Mutex::new(()),
+            detected: RwLock::new(Detected::default()),
         };
         let state = onboarding.publish().await?;
         tracing::info!(target: "onboarding", ?state, "first-run state published at boot");
@@ -79,7 +82,55 @@ impl Onboarding {
             stages: flow.stages().to_vec(),
             needs: self.needs(stage).await?,
             flow_problem: self.flow.override_error.clone(),
+            detected: self
+                .detected
+                .read()
+                .unwrap_or_else(PoisonError::into_inner)
+                .clone(),
         })
+    }
+
+    /// Look around this machine in the background (git identity, folders
+    /// that hold repositories) and publish what was found. Welcome shows it.
+    pub fn spawn_detection(self: &Arc<Self>, data_dir: PathBuf) {
+        let me = Arc::clone(self);
+        devpulse_telemetry::spawn(async move {
+            let git_name = match detect::git_identity().await {
+                GitLookup::Found(git) => git.name,
+                GitLookup::Unavailable(reason) => {
+                    tracing::info!(target: "onboarding", %reason, "git identity not available");
+                    None
+                }
+            };
+            let home = std::env::home_dir();
+            let folders = devpulse_telemetry::spawn_blocking(move || {
+                detect::repo_folders(&data_dir, home.as_deref())
+            })
+            .await
+            .map_err(anyhow::Error::from)
+            .and_then(|r| r);
+            let folders = match folders {
+                Ok(found) => found
+                    .into_iter()
+                    .map(|f| DetectedFolder {
+                        path: f.path.display().to_string(),
+                        repo_count: u32::try_from(f.repo_count).unwrap_or(u32::MAX),
+                    })
+                    .collect(),
+                Err(e) => {
+                    tracing::warn!(target: "onboarding", error = %format!("{e:#}"), "folder detection failed");
+                    Vec::new()
+                }
+            };
+            *me.detected.write().unwrap_or_else(PoisonError::into_inner) = Detected {
+                done: true,
+                git_name,
+                folders,
+            };
+            if let Err(e) = me.publish().await {
+                tracing::warn!(target: "onboarding", error = %format!("{e:#}"), "publishing detection failed");
+            }
+        });
     }
 
     /// What a stage still needs before you can continue.
@@ -224,6 +275,26 @@ mod tests {
         assert_eq!(published(&engine).status, OnboardingStatus::Complete);
         assert!(ob.next().await.is_err(), "finished");
 
+        ob.db.close().await;
+        let _ = std::fs::remove_dir_all(dir);
+    }
+
+    #[tokio::test]
+    async fn detection_publishes_when_done() {
+        let (ob, engine, dir) = workflow("detect").await;
+        assert!(!published(&engine).detected.done, "looking at first");
+        let ob = Arc::new(ob);
+        ob.spawn_detection(dir.clone());
+        for _ in 0..100 {
+            if published(&engine).detected.done {
+                break;
+            }
+            tokio::time::sleep(std::time::Duration::from_millis(50)).await;
+        }
+        assert!(
+            published(&engine).detected.done,
+            "detection finished and was published"
+        );
         ob.db.close().await;
         let _ = std::fs::remove_dir_all(dir);
     }

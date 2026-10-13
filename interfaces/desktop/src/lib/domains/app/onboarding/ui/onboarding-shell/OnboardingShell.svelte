@@ -16,15 +16,21 @@ import { ONBOARDING_VIDEO, type OnboardingShellProps } from "./onboarding-shell.
 let { videoSrc = ONBOARDING_VIDEO, progress, children, actions }: OnboardingShellProps = $props();
 </script>
 
-<div class="relative flex min-h-full w-full items-center justify-center px-[clamp(1rem,4vw,4rem)] py-[clamp(1.5rem,6vh,5rem)]">
+<div class="relative flex h-full min-h-[24rem] w-full items-center justify-center px-[clamp(1rem,4vw,4rem)] py-[clamp(1rem,4vh,3rem)]">
 	<DynamicBackground variant="clyffy" {videoSrc} animated />
+	<!-- The panel scrolls inside; the stage's buttons stay in view. -->
 	<Card
 		preset="glass-deep"
-		class="relative flex w-full max-w-[clamp(28rem,60vw,52rem)] flex-col gap-[clamp(1rem,3vh,2rem)] p-[clamp(1.25rem,3vw,3rem)]"
+		class="relative flex max-h-full w-full max-w-[clamp(28rem,60vw,52rem)] flex-col overflow-hidden"
 	>
-		{@render children()}
+		<div class="flex min-h-0 flex-1 flex-col gap-[clamp(1rem,3vh,2rem)] overflow-y-auto p-[clamp(1.25rem,3vw,3rem)]">
+			{@render children()}
+		</div>
 		{#if actions || progress}
-			<div class="flex flex-wrap items-center justify-between gap-[var(--space-3)]">
+			<div
+				class="flex flex-wrap items-center justify-between gap-[var(--space-3)] px-[clamp(1.25rem,3vw,3rem)] py-[var(--space-4)]"
+				style="border-top: 0.0625rem solid var(--border-subtle);"
+			>
 				<Text size="xs" style="color: var(--text-muted);">{progress ?? ""}</Text>
 				<div class="flex flex-wrap items-center gap-[var(--space-2)]">
 					{@render actions?.()}

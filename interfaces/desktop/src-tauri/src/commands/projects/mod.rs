@@ -175,6 +175,29 @@ pub async fn create_project(
     state: State<'_, PlatformState>,
     input: CreateProjectInput,
 ) -> Result<Project, String> {
+    let platform = state
+        .platform
+        .load_full()
+        .ok_or_else(|| "platform not booted".to_string())?;
+    create(&platform, input).await
+}
+
+/// Whether a project is marked active.
+pub(crate) async fn has_active_project(platform: &Platform) -> Result<bool, String> {
+    let svc = platform
+        .user_relational()
+        .ok_or_else(|| "user relational service not available".to_string())?;
+    Ok(kv_get(svc.adapter().as_ref(), KV_ACTIVE_PROJECT)
+        .await?
+        .is_some_and(|id| !id.is_empty()))
+}
+
+/// Register a folder as a project, in place: the body of [`create_project`],
+/// shared with first run's "add these repositories".
+pub(crate) async fn create(
+    platform: &Platform,
+    input: CreateProjectInput,
+) -> Result<Project, String> {
     // Trim + validate — refuse obviously-broken input at the boundary
     // so we don't ship bad rows into the schema and show mystery UI
     // errors later.
@@ -201,10 +224,6 @@ pub async fn create_project(
         ));
     }
 
-    let platform = state
-        .platform
-        .load_full()
-        .ok_or_else(|| "platform not booted".to_string())?;
     let svc = platform
         .user_relational()
         .ok_or_else(|| "user relational service not available".to_string())?;
@@ -245,12 +264,12 @@ pub async fn create_project(
     // Mirror to SurrealDB (best-effort — logged, not fatal). `platform`
     // is `Arc<Platform>` from `load_full()`; deref to `&Platform` for
     // the mirror helpers.
-    mirror_project_to_graph(&platform, &project).await;
+    mirror_project_to_graph(platform, &project).await;
 
     // If the caller requested it, flip the active-project singleton
     // in the same command. Avoids a second round-trip at wizard time.
     if input.set_active {
-        if let Err(e) = set_active_project_inner(&platform, &id).await {
+        if let Err(e) = set_active_project_inner(platform, &id).await {
             tracing::warn!(project_id = %id, error = %e, "set_active after create failed");
         }
     }

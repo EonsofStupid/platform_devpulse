@@ -2124,6 +2124,56 @@ async onboardingReopen() : Promise<Result<OnboardingState, string>> {
 }
 },
 /**
+ * The "You" form: its schema, your stored values, and suggestions found on
+ * this machine (git identity, folders that hold repositories).
+ */
+async onboardingYouForm() : Promise<Result<FormView, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("onboarding_you_form") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Save the "You" form. Refused fields come back in the outcome, with
+ * nothing written.
+ */
+async onboardingYouSubmit(values: JsonValue) : Promise<Result<FormOutcome, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("onboarding_you_submit", { values }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * The repositories in a folder, with their languages; `DevPulse` itself
+ * first; the ones already registered marked. `None` when the folder does
+ * not exist (an answer, not a failure).
+ */
+async onboardingScanProjects(folder: string) : Promise<Result<FoundRepo[] | null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("onboarding_scan_projects", { folder }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Register the repositories you ticked as projects, in place (nothing is
+ * written inside them). When no project is active yet, the first one
+ * added becomes active.
+ */
+async onboardingRegisterProjects(paths: string[]) : Promise<Result<RegisterResult[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("onboarding_register_projects", { paths }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Create a new project row in user Turso.
  * 
  * Duplicate `root_path` values are rejected at the SQL level — the
@@ -2986,9 +3036,11 @@ async importLocalModel(targetSlot: string | null, importMode: string | null) : P
 /**
  * Open a native folder picker dialog.
  * 
- * Returns the selected directory path, or error if cancelled.
+ * Returns the chosen folder, or `None` if you closed the dialog without
+ * choosing (cancelling is not a failure — same contract as
+ * [`pick_audio_file`]).
  */
-async pickDirectory(title: string) : Promise<Result<string, string>> {
+async pickDirectory(title: string) : Promise<Result<string | null, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("pick_directory", { title }) };
 } catch (e) {
@@ -5943,7 +5995,11 @@ export type CopyCatalog = {
 /**
  * First run.
  */
-onboarding: OnboardingCopy }
+onboarding: OnboardingCopy; 
+/**
+ * Forms.
+ */
+forms: FormsCopy }
 /**
  * Input for [`create_project`]. Only `name` and `root_path` are
  * required; every other field has a sensible default or is nullable.
@@ -6095,6 +6151,34 @@ export type DataScope =
  * Per-project namespaced data.
  */
 "Project"
+/**
+ * What first run found on this machine without asking (Welcome's chips).
+ */
+export type Detected = { 
+/**
+ * Detection has finished; until then the UI says it is looking.
+ */
+done: boolean; 
+/**
+ * Your name, as git knows it.
+ */
+gitName: string | null; 
+/**
+ * Folders that hold repositories, most first.
+ */
+folders: DetectedFolder[] }
+/**
+ * A folder on this machine that holds git repositories.
+ */
+export type DetectedFolder = { 
+/**
+ * The folder.
+ */
+path: string; 
+/**
+ * Git repositories directly inside it.
+ */
+repoCount: number }
 /**
  * Unified status returned by [`devforge_get_status`](super::devforge_get_status)
  * and emitted on the `devforge://ready` event after bootstrap.
@@ -6610,6 +6694,38 @@ name: string;
  */
 row_count: number }
 /**
+ * Why a field was refused.
+ */
+export type ErrorCode = 
+/**
+ * The field is required and empty.
+ */
+"required" | 
+/**
+ * Shorter than `limit`.
+ */
+"tooShort" | 
+/**
+ * Longer than `limit`.
+ */
+"tooLong" | 
+/**
+ * Not an email address.
+ */
+"email" | 
+/**
+ * Not a folder that exists.
+ */
+"notAFolder" | 
+/**
+ * The form has no such field.
+ */
+"unknown" | 
+/**
+ * Any other rule.
+ */
+"invalid"
+/**
  * Wire-stable failure classification.
  * 
  * Kebab-case on the wire (`auth-failed`, `not-found`, etc.). Stable
@@ -6891,6 +7007,114 @@ export type FeedKind =
  */
 "activity"
 /**
+ * One refused field.
+ */
+export type FieldError = { 
+/**
+ * The field name, as in the schema.
+ */
+field: string; 
+/**
+ * Why.
+ */
+code: ErrorCode; 
+/**
+ * The length limit, for `tooShort` / `tooLong`.
+ */
+limit: number | null }
+/**
+ * A value the UI can offer for a field.
+ */
+export type FieldSuggestion = { 
+/**
+ * The value.
+ */
+value: string; 
+/**
+ * Where it came from.
+ */
+source: FieldSuggestionSource; 
+/**
+ * Extra facts shown with it (for a folder: how many repositories).
+ */
+detail: string | null }
+/**
+ * Where a suggested value came from.
+ */
+export type FieldSuggestionSource = 
+/**
+ * Your git configuration.
+ */
+"gitConfig" | 
+/**
+ * A folder on this machine that holds repositories.
+ */
+"folder"
+/**
+ * Why a form field was refused, one line per code (`{limit}` is filled).
+ */
+export type FormErrorsCopy = { 
+/**
+ * Required and empty.
+ */
+required: string; 
+/**
+ * Too short.
+ */
+too_short: string; 
+/**
+ * Too long.
+ */
+too_long: string; 
+/**
+ * Not an email.
+ */
+email: string; 
+/**
+ * Folder does not exist.
+ */
+not_a_folder: string; 
+/**
+ * No such field.
+ */
+unknown: string; 
+/**
+ * Anything else.
+ */
+invalid: string }
+/**
+ * The result of a submission.
+ */
+export type FormOutcome = { 
+/**
+ * Whether the values were written.
+ */
+saved: boolean; 
+/**
+ * Refused fields; empty when saved.
+ */
+errors: FieldError[] }
+/**
+ * Everything the UI needs to render a form.
+ */
+export type FormView = { 
+/**
+ * JSON Schema of the form, generated from its Rust type.
+ */
+schema: JsonValue; 
+/**
+ * Current values, as stored.
+ */
+values: JsonValue; 
+/**
+ * The field names, in the order they are shown.
+ */
+fields: string[]; 
+/**
+ * Suggested values per field.
+ */
+suggestions: Partial<{ [key in string]: FieldSuggestion[] }> }
+/**
  * A single `(arch, format)` support declaration. The resolver
  * iterates backends looking for an entry that matches its query.
  * 
@@ -6910,6 +7134,38 @@ format: ModelFormat;
  * Maturity of this `(arch, format)` path.
  */
 status: SupportStatus }
+/**
+ * Text shared by every form.
+ */
+export type FormsCopy = { 
+/**
+ * Field errors.
+ */
+errors: FormErrorsCopy }
+/**
+ * A repository found in the folder.
+ */
+export type FoundRepo = { 
+/**
+ * Folder name.
+ */
+name: string; 
+/**
+ * Full path.
+ */
+path: string; 
+/**
+ * The most-used languages, most first.
+ */
+languages: LanguageShare[]; 
+/**
+ * This is `DevPulse`'s own repository.
+ */
+isDevpulse: boolean; 
+/**
+ * Already registered as a project.
+ */
+registered: boolean }
 /**
  * Governance event classification.
  */
@@ -7745,6 +8001,7 @@ embedding_dim: number;
  * its intelligence schema yet.
  */
 project_count: number }
+export type JsonValue = null | boolean | number | string | JsonValue[] | Partial<{ [key in string]: JsonValue }>
 /**
  * A named action the assistant can run when its associated phrase is
  * detected after the wake phrase fires.
@@ -7917,6 +8174,18 @@ verbose: boolean;
  * Write every trace to `DuckDB` for baseline analysis.
  */
 persist_to_duckdb: boolean }
+/**
+ * Lines of code in one language.
+ */
+export type LanguageShare = { 
+/**
+ * Language name, as tokei reports it.
+ */
+name: string; 
+/**
+ * Lines of code (comments and blank lines excluded).
+ */
+lines: number }
 /**
  * Persisted latency / response-source tuning.
  */
@@ -8925,7 +9194,11 @@ common: OnboardingCommonCopy;
 /**
  * Welcome.
  */
-welcome: WelcomeCopy }
+welcome: WelcomeCopy; 
+/**
+ * You.
+ */
+you: YouCopy }
 /**
  * The first-run state published as the `onboarding` signal.
  */
@@ -8949,7 +9222,11 @@ needs: Requirement[];
 /**
  * Why your flow file was not used, if it wasn't.
  */
-flowProblem: string | null }
+flowProblem: string | null; 
+/**
+ * What was found on this machine so far.
+ */
+detected: Detected }
 /**
  * Where first run stands.
  */
@@ -9440,6 +9717,22 @@ lastError: string | null;
  * (`None` if never validated).
  */
 modelCount: number | null }
+/**
+ * Rust's result for one repository you asked to add.
+ */
+export type RegisterResult = { 
+/**
+ * The repository folder.
+ */
+path: string; 
+/**
+ * The new project's id, when it was added.
+ */
+projectId: string | null; 
+/**
+ * Why it was not added.
+ */
+error: string | null }
 /**
  * Runtime status of the REH web server.
  * 
@@ -11894,7 +12187,15 @@ found_heading: string;
 /**
  * When detection found nothing.
  */
-nothing_found: string }
+nothing_found: string; 
+/**
+ * Chip: "Git knows you as {name}".
+ */
+found_git: string; 
+/**
+ * Chip: "{path} · {count} repositories".
+ */
+found_folder: string }
 /**
  * Wayland degraded-capability flag returned with `list_windows`.
  * 
@@ -12074,6 +12375,94 @@ auth?: AuthCopy;
  * older overrides parsing without `[runtime_picker]`.
  */
 runtime_picker?: RuntimePickerCopy }
+/**
+ * The "You" stage.
+ */
+export type YouCopy = { 
+/**
+ * Heading.
+ */
+title: string; 
+/**
+ * What the stage is for.
+ */
+subtitle: string; 
+/**
+ * Name field label.
+ */
+name_label: string; 
+/**
+ * Name field hint.
+ */
+name_hint: string; 
+/**
+ * Email field label.
+ */
+email_label: string; 
+/**
+ * Email field hint.
+ */
+email_hint: string; 
+/**
+ * Projects folder field label.
+ */
+projects_label: string; 
+/**
+ * Projects folder field hint.
+ */
+projects_hint: string; 
+/**
+ * Folder picker button.
+ */
+browse: string; 
+/**
+ * Folder picker window title.
+ */
+picker_title: string; 
+/**
+ * Shown with a suggestion from git.
+ */
+from_git: string; 
+/**
+ * "{count} repositories" next to a suggested folder.
+ */
+folder_repos: string; 
+/**
+ * Above the repository list.
+ */
+repos_heading: string; 
+/**
+ * Under the heading.
+ */
+repos_hint: string; 
+/**
+ * Scan button.
+ */
+repos_find: string; 
+/**
+ * While scanning.
+ */
+repos_finding: string; 
+/**
+ * When the folder holds no repositories.
+ */
+repos_none: string; 
+/**
+ * "Add {count} to `DevPulse`".
+ */
+repos_add: string; 
+/**
+ * Badge on `DevPulse`'s own repository.
+ */
+repo_devpulse: string; 
+/**
+ * Badge on a repository registered before.
+ */
+repo_registered: string; 
+/**
+ * Badge on a repository just added.
+ */
+repo_added: string }
 
 /** tauri-specta globals **/
 

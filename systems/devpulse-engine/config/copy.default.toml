@@ -32,3 +32,41 @@ later_hint = "Not now? You can pick this up any time from the top bar."
 looking = "Looking around this machine…"
 found_heading = "I can already see"
 nothing_found = "Nothing to show yet — we'll set it up together."
+found_git = "Git knows you as {name}"
+found_folder = "{path} · {count} repositories"
+
+[onboarding.you]
+title = "About you"
+subtitle = "So DevPulse knows who it's working with and where your code lives. Your repositories stay exactly where they are."
+name_label = "Your name"
+name_hint = "Shown across DevPulse."
+email_label = "Email"
+email_hint = "Optional. Used for your commits and your GitHub link later."
+projects_label = "Projects folder"
+projects_hint = "The folder your projects live in. DevPulse remembers them; it never moves or copies them."
+browse = "Browse…"
+picker_title = "Choose your projects folder"
+from_git = "From your git settings"
+folder_repos = "{count} repositories"
+repos_heading = "Repositories in this folder"
+repos_hint = "Tick the ones to add. They stay where they are; DevPulse only remembers them."
+repos_find = "Find repositories"
+repos_finding = "Looking for repositories…"
+repos_none = "No git repositories directly in this folder."
+repos_add = "Add {count} to DevPulse"
+repo_devpulse = "DevPulse itself"
+repo_registered = "Already added"
+repo_added = "Added"
+
+# ─────────────────────────────────────────────────────────────────────
+# Forms — why a field was refused. `{limit}` is the length limit.
+# ─────────────────────────────────────────────────────────────────────
+
+[forms.errors]
+required = "This one is needed."
+too_short = "Needs at least {limit} characters."
+too_long = "Keep it under {limit} characters."
+email = "That doesn't look like an email address."
+not_a_folder = "That folder doesn't exist on this machine."
+unknown = "This form doesn't have that field."
+invalid = "That value isn't valid here."

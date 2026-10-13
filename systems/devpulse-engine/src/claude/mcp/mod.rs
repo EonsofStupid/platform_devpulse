@@ -12,7 +12,6 @@ use std::sync::Arc;
 
 use rmcp::handler::server::wrapper::Parameters;
 use rmcp::model::{CallToolResult, Implementation, ServerCapabilities, ServerInfo};
-use rmcp::schemars;
 use rmcp::tool;
 use rmcp::ServerHandler;
 use serde::Deserialize;

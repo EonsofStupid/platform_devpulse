@@ -12,9 +12,9 @@
 	the UI never drifts from the backend SSOT.
 -->
 <script lang="ts">
-import { invoke } from "@tauri-apps/api/core";
 import { Check, ChevronDown, FolderOpen, Plus } from "lucide-svelte";
 import { onMount } from "svelte";
+import { pickDirectory } from "$lib/sys/bindings/models/index.js";
 import { commands } from "$lib/sys/generated/bindings.js";
 import { logError, logInfo } from "$lib/sys/logger.js";
 import { projectsState } from "../data-access/projects.state.svelte.js";
@@ -41,9 +41,9 @@ async function handleCreate(): Promise<void> {
 	if (creating) return;
 	creating = true;
 	try {
-		const path = await invoke<string>("pick_directory", {
-			title: "Pick project folder",
-		});
+		const picked = await pickDirectory("Pick project folder");
+		if (picked.status === "error") throw new Error(picked.error);
+		const path = picked.data;
 		if (!path) return;
 		const name = path.split(/[/\\]/).filter(Boolean).pop() ?? path;
 		const created = await projectsState.createProject({
@@ -69,8 +69,8 @@ async function handleOpenInDevForge(): Promise<void> {
 	if (opening || !projectsState.activeProject) return;
 	opening = true;
 	try {
-		await commands.openDevforgeWindow(projectsState.activeProject.rootPath);
-		logInfo("projects.switcher", `DevForge opened at ${projectsState.activeProject.rootPath}`);
+		await commands.openDevforgeWindow(projectsState.activeProject.root_path);
+		logInfo("projects.switcher", `DevForge opened at ${projectsState.activeProject.root_path}`);
 	} catch (e) {
 		const msg = e instanceof Error ? e.message : String(e);
 		logError("projects.switcher", `DevForge open failed — ${msg}`);
@@ -95,7 +95,7 @@ async function handleOpenInDevForge(): Promise<void> {
 				Loading…
 			{:else if projectsState.activeProject}
 				<span class="ps-name">{projectsState.activeProject.name}</span>
-				<span class="ps-path">{projectsState.activeProject.rootPath}</span>
+				<span class="ps-path">{projectsState.activeProject.root_path}</span>
 			{:else}
 				<span class="ps-empty">No active project</span>
 			{/if}
@@ -123,7 +123,7 @@ async function handleOpenInDevForge(): Promise<void> {
 							{/if}
 							<span class="ps-row-name">{project.name}</span>
 						</span>
-						<span class="ps-row-path">{project.rootPath}</span>
+						<span class="ps-row-path">{project.root_path}</span>
 					</button>
 				{/each}
 			{/if}

@@ -56,6 +56,58 @@ pub struct WelcomeCopy {
     pub found_heading: String,
     /// When detection found nothing.
     pub nothing_found: String,
+    /// Chip: "Git knows you as {name}".
+    pub found_git: String,
+    /// Chip: "{path} · {count} repositories".
+    pub found_folder: String,
+}
+
+/// The "You" stage.
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+#[serde(deny_unknown_fields)]
+pub struct YouCopy {
+    /// Heading.
+    pub title: String,
+    /// What the stage is for.
+    pub subtitle: String,
+    /// Name field label.
+    pub name_label: String,
+    /// Name field hint.
+    pub name_hint: String,
+    /// Email field label.
+    pub email_label: String,
+    /// Email field hint.
+    pub email_hint: String,
+    /// Projects folder field label.
+    pub projects_label: String,
+    /// Projects folder field hint.
+    pub projects_hint: String,
+    /// Folder picker button.
+    pub browse: String,
+    /// Folder picker window title.
+    pub picker_title: String,
+    /// Shown with a suggestion from git.
+    pub from_git: String,
+    /// "{count} repositories" next to a suggested folder.
+    pub folder_repos: String,
+    /// Above the repository list.
+    pub repos_heading: String,
+    /// Under the heading.
+    pub repos_hint: String,
+    /// Scan button.
+    pub repos_find: String,
+    /// While scanning.
+    pub repos_finding: String,
+    /// When the folder holds no repositories.
+    pub repos_none: String,
+    /// "Add {count} to `DevPulse`".
+    pub repos_add: String,
+    /// Badge on `DevPulse`'s own repository.
+    pub repo_devpulse: String,
+    /// Badge on a repository registered before.
+    pub repo_registered: String,
+    /// Badge on a repository just added.
+    pub repo_added: String,
 }
 
 /// First run.
@@ -66,6 +118,36 @@ pub struct OnboardingCopy {
     pub common: OnboardingCommonCopy,
     /// Welcome.
     pub welcome: WelcomeCopy,
+    /// You.
+    pub you: YouCopy,
+}
+
+/// Why a form field was refused, one line per code (`{limit}` is filled).
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+#[serde(deny_unknown_fields)]
+pub struct FormErrorsCopy {
+    /// Required and empty.
+    pub required: String,
+    /// Too short.
+    pub too_short: String,
+    /// Too long.
+    pub too_long: String,
+    /// Not an email.
+    pub email: String,
+    /// Folder does not exist.
+    pub not_a_folder: String,
+    /// No such field.
+    pub unknown: String,
+    /// Anything else.
+    pub invalid: String,
+}
+
+/// Text shared by every form.
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+#[serde(deny_unknown_fields)]
+pub struct FormsCopy {
+    /// Field errors.
+    pub errors: FormErrorsCopy,
 }
 
 /// The whole catalog.
@@ -74,6 +156,8 @@ pub struct OnboardingCopy {
 pub struct CopyCatalog {
     /// First run.
     pub onboarding: OnboardingCopy,
+    /// Forms.
+    pub forms: FormsCopy,
 }
 
 /// The catalog in effect, and why your file was not used (if it wasn't).
