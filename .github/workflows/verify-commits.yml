@@ -28,7 +28,9 @@ jobs:
     timeout-minutes: 720
     defaults:
       run:
-        shell: bash
+        # Git for Windows is installed on the runner, but only its cmd/ folder
+        # is on the service account's PATH; call its bash directly.
+        shell: '"C:\Program Files\Git\bin\bash.exe" --noprofile --norc -eo pipefail {0}'
     steps:
       - uses: actions/checkout@v4
         with:
@@ -53,9 +55,12 @@ jobs:
       - name: Commits to verify
         env:
           BASE_INPUT: ${{ github.event.inputs.base }}
+          # Repository variable: set it to re-verify a range on the next push
+          # (manual dispatch only works once this workflow is on main).
+          VERIFY_BASE: ${{ vars.VERIFY_BASE }}
           BEFORE: ${{ github.event.before }}
         run: |
-          base="${BASE_INPUT:-$BEFORE}"
+          base="${BASE_INPUT:-${VERIFY_BASE:-$BEFORE}}"
           if [ -z "$base" ] || [ "$base" = "0000000000000000000000000000000000000000" ]; then
             base=$(git merge-base origin/main HEAD)
           fi
