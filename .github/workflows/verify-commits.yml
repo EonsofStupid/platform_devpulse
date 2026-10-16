@@ -1,0 +1,86 @@
+name: Verify commits
+
+# Builds and tests every commit in a push, one at a time, on the self-hosted
+# Windows runner, so each commit on the line is known to compile and pass,
+# not just the tip.
+
+on:
+  push:
+    branches: [restore/pre-gb10, "feat/**"]
+  workflow_dispatch:
+    inputs:
+      base:
+        description: "Verify the commits after this one (sha or ref)"
+        required: true
+
+concurrency:
+  group: verify-commits-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_PROFILE_DEV_DEBUG: "0"
+
+jobs:
+  verify:
+    name: Build and test each commit
+    runs-on: [self-hosted, Windows, dpl-win]
+    timeout-minutes: 720
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Use sccache when the runner has it
+        run: |
+          if command -v sccache >/dev/null 2>&1; then
+            sccache --version
+          else
+            echo "sccache not installed on this runner; building without it"
+            echo "RUSTC_WRAPPER=" >> "$GITHUB_ENV"
+          fi
+
+      - name: Commits to verify
+        env:
+          BASE_INPUT: ${{ github.event.inputs.base }}
+          BEFORE: ${{ github.event.before }}
+        run: |
+          base="${BASE_INPUT:-$BEFORE}"
+          if [ -z "$base" ] || [ "$base" = "0000000000000000000000000000000000000000" ]; then
+            base=$(git merge-base origin/main HEAD)
+          fi
+          git rev-list --reverse "$base..HEAD" > "$RUNNER_TEMP/commits.txt"
+          echo "Verifying $(wc -l < "$RUNNER_TEMP/commits.txt") commits after $base:"
+          git log --oneline --reverse "$base..HEAD"
+
+      - name: Build and test each commit
+        run: |
+          set -euo pipefail
+          tip=$(git rev-parse HEAD)
+          while read -r c; do
+            echo "::group::$(git log -1 --format='%h %s' "$c")"
+            git checkout -q "$c"
+            git submodule update --init --recursive -q
+            cargo fmt --all -- --check
+            cargo check --workspace
+            cargo test -p devpulse-engine -p devpulse-clyffy
+            pnpm install --frozen-lockfile
+            (cd interfaces/desktop && pnpm exec svelte-kit sync && pnpm exec svelte-check --threshold error)
+            echo "::endgroup::"
+          done < "$RUNNER_TEMP/commits.txt"
+          git checkout -q "$tip"
+
+      - name: Tip only - clippy and Biome
+        run: |
+          cargo xtask clippy --workspace
+          (cd interfaces/desktop && pnpm exec biome check .)
