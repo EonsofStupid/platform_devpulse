@@ -67,8 +67,8 @@ const EXTERNAL_WINDOWS: ExternalWindow[] = [
 		icon: BrainCircuit,
 	},
 	{
-		role: "CortexViewer",
-		label: "Cortex Viewer Window",
+		role: "KnowledgeViewer",
+		label: "Knowledge Viewer Window",
 		blurb: "Telemetry graph. Detached window.",
 		icon: Activity,
 	},

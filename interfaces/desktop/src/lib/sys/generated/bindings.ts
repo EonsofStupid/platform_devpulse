@@ -11789,9 +11789,9 @@ export type WindowRole =
  */
 "Chat" | 
 /**
- * Cortex viewer — telemetry / devtools
+ * Knowledge viewer — telemetry / devtools
  */
-"CortexViewer" | 
+"KnowledgeViewer" | 
 /**
  * Model loader — slot management
  */

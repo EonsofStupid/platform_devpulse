@@ -96,7 +96,7 @@ pub async fn list_windows(app: tauri::AppHandle) -> Result<Vec<WindowInfo>, Stri
     let all_roles = [
         WindowRole::Main,
         WindowRole::Chat,
-        WindowRole::CortexViewer,
+        WindowRole::KnowledgeViewer,
         WindowRole::ModelLoader,
         WindowRole::DevTools,
     ];

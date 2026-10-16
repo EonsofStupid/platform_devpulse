@@ -16,8 +16,8 @@ pub enum WindowRole {
     Main,
     /// Clyffy Chat — child window
     Chat,
-    /// Cortex viewer — telemetry / devtools
-    CortexViewer,
+    /// Knowledge viewer — telemetry / devtools
+    KnowledgeViewer,
     /// Model loader — slot management
     ModelLoader,
     /// Unified dev toolbox panel (Ctrl+Shift+Z)
@@ -31,7 +31,7 @@ impl WindowRole {
         match self {
             Self::Main => "main",
             Self::Chat => "chat",
-            Self::CortexViewer => "cortex-viewer",
+            Self::KnowledgeViewer => "knowledge-viewer",
             Self::ModelLoader => "model-loader",
             Self::DevTools => "devtools",
         }
@@ -43,7 +43,7 @@ impl WindowRole {
         match self {
             Self::Main => "DevPulse",
             Self::Chat => "Clyffy Chat",
-            Self::CortexViewer => "Cortex Viewer",
+            Self::KnowledgeViewer => "Knowledge Viewer",
             Self::ModelLoader => "Model Control",
             Self::DevTools => "DevPulse Tools",
         }
@@ -55,7 +55,7 @@ impl WindowRole {
         match self {
             Self::Main => (1280.0, 800.0),
             Self::Chat => (480.0, 700.0),
-            Self::CortexViewer => (600.0, 450.0),
+            Self::KnowledgeViewer => (600.0, 450.0),
             Self::ModelLoader => (700.0, 500.0),
             Self::DevTools => (720.0, 560.0),
         }
@@ -67,7 +67,7 @@ impl WindowRole {
         match self {
             Self::Main => "/devpulse",
             Self::Chat => "/chat",
-            Self::CortexViewer => "/cortex",
+            Self::KnowledgeViewer => "/cortex",
             Self::ModelLoader => "/model-loader",
             Self::DevTools => "/devtools",
         }
@@ -86,7 +86,7 @@ impl WindowRole {
     #[must_use]
     pub fn always_on_top(&self) -> bool {
         match self {
-            Self::Chat | Self::CortexViewer | Self::DevTools => true,
+            Self::Chat | Self::KnowledgeViewer | Self::DevTools => true,
             Self::Main | Self::ModelLoader => false,
         }
     }

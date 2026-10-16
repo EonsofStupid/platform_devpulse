@@ -3,7 +3,7 @@
   @module @devpulse/layouts/chat/Frame
 
   Chat window layout — single-column grid (topbar, messages, footer).
-  TopBar includes buttons to spawn peer child windows (CortexViewer, ModelLoader).
+  TopBar includes buttons to spawn peer child windows (KnowledgeViewer, ModelLoader).
   Per cockpit architecture — these are separate OS windows, not grid columns.
 
   Layout chrome only — message stream + composer live inside `ChatRoot` on the route.
@@ -37,8 +37,8 @@ function handleClose(): void {
 	invoke("close_window", { label: "chat" });
 }
 
-function openCortexViewer(): void {
-	invoke("open_window", { role: "CortexViewer" });
+function openKnowledgeViewer(): void {
+	invoke("open_window", { role: "KnowledgeViewer" });
 }
 
 function openModelLoader(): void {
@@ -54,7 +54,7 @@ function openModelLoader(): void {
 		onClose={handleClose}
 	>
 		{#snippet children()}
-			<Button preset="ghost" size="sm" onclick={openCortexViewer} title="Cortex Viewer" aria-label="Open Cortex Viewer">
+			<Button preset="ghost" size="sm" onclick={openKnowledgeViewer} title="Knowledge Viewer" aria-label="Open Knowledge Viewer">
 				<Brain size={14} />
 			</Button>
 			<Button preset="ghost" size="sm" onclick={openModelLoader} title="Model Control" aria-label="Open Model Control">
