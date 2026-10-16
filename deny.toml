@@ -40,6 +40,12 @@ ignore = [
     "RUSTSEC-2026-0049", # aws-lc CRL matching (transitive via surrealdb)
     "RUSTSEC-2026-0104", # aws-lc CRL parse panic (transitive via surrealdb — supersedes 0044/0048)
     "RUSTSEC-2026-0105", # core2 unmaintained + yanked (transitive via jieba-rs → rro)
+    # No compatible fixed release; none parses untrusted input here (2026-10-15)
+    "RUSTSEC-2026-0194", # quick-xml quadratic attr check: 0.30 (xcb build script, Linux),
+                         # 0.38 (plist via tauri), 0.39 (wayland-scanner proc-macro); fix is 0.41
+    "RUSTSEC-2026-0195", # quick-xml NsReader allocation: same three dependents as 0194
+    "RUSTSEC-2020-0163", # term_size unmaintained, via tokei 15 (latest release; repo scan)
+    "RUSTSEC-2026-0173", # proc-macro-error2 unmaintained, build-time proc-macro only
 ]
 
 [licenses]
