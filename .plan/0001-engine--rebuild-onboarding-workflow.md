@@ -1034,3 +1034,57 @@ queries proving what was written.
       command layer. It belongs in the engine, as the profile now does.
     - Memory: the app is flat at ~210 MB. The machine has ~9.5 GB of commit
       free; the earlier abort was machine-wide pressure.
+- 2026-10-13 — **Committing the work, one commit per phase.** A0 through
+  slice 1, plus the fixes since, had not been committed (285 paths). Owner
+  decisions:
+  - One commit per phase, each holding that phase's exact tree and each
+    built and tested on the self-hosted Windows runner
+    (`devpulse-runner-win-01`).
+  - The commits go to `restore/pre-gb10`. That line eventually replaces
+    `main`; the force-push is confirmed separately.
+  - Method: the session transcript is replayed from `65a76f95` (every
+    Edit/Write exactly, every shell edit verbatim, builds stubbed), and
+    stops at each phase's log entry. Generated files (bindings,
+    `Cargo.lock`, contract snapshots) are regenerated per commit by the real
+    generators. Check: the last commit's tree equals the working tree.
+  - The existing tree already failed the hooks: rustfmt (2 files) and Biome
+    (1 file) get a first commit; the 20 cargo-deny advisories get their own
+    commit. No hook is bypassed.
+- 2026-10-15 — **Account is required; owner decision (settles K7 / R-A11 for
+  email).** "This has been discussed so many times — it's required. On signup
+  it will go from login to creating the account and free subscription."
+  - Slice 1 got this wrong: email was optional and saved only in Turso, and
+    no account was created. The existing Supabase sign-up (`domains/auth/`,
+    May 2026) was optional and reached from Settings. Licensing
+    (`commands/cloud/license.rs`) is a stub that always returns Pro and never
+    contacts the cloud.
+  - New first-run step **Account**, right after Welcome:
+    - email required;
+    - sign up with an email code by default, or a password (both supported);
+    - sign in for existing users;
+    - first run cannot continue without the account; offline, it says it
+      needs a connection and retries.
+  - On sign-up: account → free subscription. Every user's email and sign-up
+    date live in the DevPulse Supabase project. The license comes from the
+    account (Free by default), replacing the hard-coded Pro stub.
+  - Order: after the per-phase commits land; its phase rows are written
+    before it starts.
+- 2026-10-15 — **Committed: one commit per phase, hooks passing.** Rebuilt
+  from the session transcript; the final tree matches the working tree for
+  every hand-written file. Found and fixed on the way, each in its own
+  commit:
+  - No pre-commit check had ever run on this machine. lefthook was missing,
+    and its globs (`*.rs`, `*.svelte`) matched only root files. Reinstalled,
+    and the globs now match nested files.
+  - The bindings-drift hook had been broken since 65a76f95 (export-bindings
+    moved to a fixed output path). It now compares regenerated vs staged.
+  - The ip-boundary hook matched "RRO" inside "ERROR". It now matches at
+    word starts.
+  - Kernel terms outside kernel/:
+    - window role CortexViewer → KnowledgeViewer (the /cortex route it
+      opens does not exist; still open);
+    - the dev banner's "RRO" → "prepared context".
+  - Two raw 1px borders in slice 1 → 0.0625rem (ColdLight rule 29).
+  - Cargo.lock: phase 6 resolved jsonschema on 10-15, so some transitive
+    dependencies are newer than in the 10-13 working tree. Every commit was
+    built with the committed lock.

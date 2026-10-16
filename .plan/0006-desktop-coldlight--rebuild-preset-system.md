@@ -8,7 +8,7 @@ touches: [desktop-models, desktop-chat, desktop-devtools]
 status: draft
 owner: Jesse Hades Hall
 created: 2026-10-10
-updated: 2026-10-10
+updated: 2026-10-13
 supersedes: []
 specs:
   - interfaces/desktop/src/lib/design/MASTER-PLAN.md
@@ -146,6 +146,150 @@ properties are removed.
 - VPB UI rebuild — this plan defines the file contract only.
 - A2UI catalog generation — separate plan once presets are referenceable by id.
 
+## Phase 0 — the token foundation (found 2026-10-13; comes before Phase 1)
+
+Phases 1–5 assume the token layer underneath is sound. An audit of the build
+on 2026-10-13 (every claim below spot-checked in the files) says it is not.
+
+### The established version (what "correct" means here)
+
+- **Format:** DTCG 2025.10 (Format + Color modules, stable). Simple types
+  `color`, `dimension`, `fontFamily`, `fontWeight`, `duration`, `cubicBezier`,
+  `number`; composites `border`, `transition`, `shadow`, `gradient`,
+  `typography`, `strokeStyle`; `{alias}` references.
+- **Tiers:** primitive (raw values only) → semantic (role aliases only) →
+  component (per anatomy part, colocated) → presets (Phases 1–5).
+- **Categories:** each is its own source folder with a primitive and a semantic
+  layer, and each is emitted into its own `@layer`:
+
+  | Category | Primitives | Semantic |
+  | --- | --- | --- |
+  | color | the wheel: hue ramps in OKLCH, neutrals | surface, text, border, accent, signal roles |
+  | dimension | space, size, radius, border width | density, control sizes |
+  | typography | families, weights, fluid size scale | type roles (Phase 1) |
+  | elevation | shadows, z-index | raised / overlay / modal |
+  | opacity | steps | disabled, scrim |
+  | motion | durations, easing curves | transitions by intent (enter, exit, emphasize) |
+  | interaction | state-layer opacities, focus ring | hover / focus / pressed / dragged / selected / disabled |
+
+  Reference values: Material 3 state layers hover 0.08, focus 0.10, pressed
+  0.10, dragged 0.16; durations 50–1000 ms; seven easing curves
+  (AndroidX `StateTokens.kt` / `MotionTokens.kt`).
+- **The color wheel:**
+  - Generated from hue angles in OKLCH with a **chroma curve per step**: chroma
+    peaks mid-ramp and tapers at the light and dark ends, so the steps stay
+    displayable.
+  - Emitted as `oklch()`.
+  - Any sRGB fallback is gamut-mapped by the CSS Color 4 method (reduce chroma,
+    keep lightness and hue), never clipped to grey.
+  - Composites (shadows, gradients) alias the same color tokens as solids.
+- **Pipeline:**
+  - The generators run inside `pnpm ds:tokens:build`.
+  - Style Dictionary emits each category.
+  - Composites become CSS shorthands.
+  - Nothing visual is hand-written outside it.
+
+### What the build does today
+
+- **Color wheel:**
+  - Chroma is constant per hue across all 11 steps (`generate-scales.mjs:89-96`),
+    so 270 of 440 ramp stops are outside sRGB.
+  - The hex fallback (`dtcg-emit.mjs:62-80`) collapses colors to grey
+    (purple-50 → `#f5f5f5`).
+  - Shadows and gradients use that gamut-mapped hex, so they don't match their
+    hue's solid tokens.
+  - The generator is not in the build: no script runs it.
+- **Interaction:**
+  - Four tokens exist and none is focus.
+  - All four are corrupt: `oklch(1.0032 0.0305 28.88 / α)` was meant to be
+    white (`semantic/interaction.css:7-10`).
+  - Hover and active actually use `filter: var(--hover-filter)`, which is
+    defined nowhere.
+- **Motion:**
+  - The primitives exist (`--duration-*`, `--easing-*`).
+  - Semantic transitions are literals, and they are exploded into junk
+    properties such as `--transition-fade-duration-value: 150`.
+- **Never emitted:** 132 tokens (z-index, opacity, border widths, wizard,
+  chat). Components use some of them anyway (`--border-width-thin` × 15).
+- **Invalid gradients:** 30 are invalid CSS — `linear-gradient(135, …)`, a
+  unitless angle (`primitives/gradient.css`).
+- **Presets:**
+  - Two sources hold identical paths, so 1211 leaves collide.
+  - They contain 2404 literal values and 104 aliases.
+- **`src/app.css`:**
+  - An unlayered, hand-written semantic layer of 28 properties.
+  - It includes the button-primary shims, and it overrides generated tokens.
+- **Dead or stale pieces:**
+  - The 10 component `tokens.ts` files are never ingested.
+  - `elevation.css` outputs are stale but still imported.
+  - `claude.css` is emitted but not imported.
+  - `modes/light.tokens.json` is orphaned.
+
+### Implementation steps
+
+`SD` = `interfaces/desktop/scripts/build/styledictionary/`. Each step touches at
+most 5 hand-written files (generated outputs not counted) and stops for
+approval.
+
+**Every step runs the same checks:**
+
+- `pnpm ds:tokens:build`, including the verify gate from 0b.1 onward;
+- `pnpm check` with 0 errors, and Biome clean;
+- on the running app over CDP, a computed-style snapshot of a fixed set of
+  elements (button, card, text, heading, badge, status bar, Welcome panel)
+  before and after. Any difference the step did not intend fails it.
+- screenshots of the dashboard and Welcome.
+
+#### 0a — Faithful color
+
+| Step | Change | Files | Done when |
+| --- | --- | --- | --- |
+| 0a.1 | The generator runs as the build's first step. Composites stop going through hex: shadow and gradient transforms emit `oklch(L C H / a)` from the token's components. Numeric gradient angles get `deg`, and radial gradients are emitted as `radial-gradient`. The hex fallback uses real CSS Color 4 gamut mapping (binary search on chroma, lightness and hue kept, ΔE_OK 0.02), never C = 0. The two no-op collector steps are deleted. | `SD/build.mjs`, `SD/dtcg-emit.mjs`, `SD/sd.config.mjs`; delete `collect-element-seed-defs.mjs`, `collect-preset-styles.mjs` | Zero hex values in `styles/`; all 54 gradients parse (lightningcss 1.30.2, already installed); live shadow and gradient computed values are `oklch(...)` |
+| 0a.2 | **The wheel.** Each hue's `chroma` becomes its peak. Each step takes `min(peak, the largest chroma sRGB can show at that L and H)`. A per-hue `chromaCurve` override is data in the hue table, for tuning without code. The generator prints a gamut report: per ramp, the stops fitted and how far chroma moved. | `SD/generate-scales.mjs` | Report: 440/440 stops in sRGB; a before/after diff proves every stop that was already displayable is byte-identical |
+
+#### 0b — Clear categories, everything emitted
+
+| Step | Change | Files | Done when |
+| --- | --- | --- | --- |
+| 0b.1 | Tier comes from the source's top folder (`primitives/`, `semantic/`, `presets/`, `components/`). Category comes from the second folder, through one table. Output is generated per category as `styles/{tier}/{category}.css`, replacing the hand-kept prefix lists, and the CSS barrel is generated from the same table. A token in an unmapped folder fails the build. New gate `verify-tokens.mjs`, run by the build: (1) source leaves = emitted variables; (2) every `var(--x)` without a fallback in `src/**` resolves to an emitted or locally declared property; (3) every emitted declaration parses; (4) the gamut report. Stale `elevation` outputs deleted. | `SD/sd.config.mjs`, `SD/build.mjs`, new `SD/verify-tokens.mjs` | The 132 missing tokens are emitted; `--border-width-thin`, `--chat-*` and `--outline-offset-md` resolve live; `--hover-filter`, `--active-filter` and `--focus-ring` are reported, and 0b.3 removes them |
+| 0b.2 | **Color semantics alias primitives.** In text, signal and accent, a literal equal to a ramp stop becomes that alias. A literal within ΔE_OK 0.02 of one becomes its alias, and each such change is listed in the log. Any other literal becomes a named primitive in the generator, then is aliased. The gate gains: zero literal values in the semantic tier. | `semantic/text`, `semantic/signal`, `semantic/accent` token files, `SD/generate-scales.mjs`, `SD/verify-tokens.mjs` | Semantic color is 100% aliases; the computed-style snapshot is unchanged, apart from the logged ≤0.02 moves |
+| 0b.3 | **Interaction and motion.** State-layer color aliases `color.white` (fixes the corrupt pink L 1.0032). Opacities become `opacity` primitives with ColdLight's existing values: hover 0.059, pressed 0.102, selected 0.149, disabled 0.031; focus is new and takes 0.102, matching pressed, as Material 3 does. Focus-ring tokens (width, offset, color) alias the existing border-width, outline-offset and accent primitives. `render-base.css` reads these tokens in place of the undefined `--hover-filter` and `--active-filter`. Semantic transitions alias the `duration` and `easing` primitives. | `semantic/interaction`, `semantic/motion` token files, `SD/generate-scales.mjs` (opacity), `renderforge/render-base.css` | Live: computed hover, focus-visible and pressed values on a button; zero undefined variables reported by the gate |
+
+#### 0c — Composites, one source, nothing hand-written
+
+| Step | Change | Files | Done when |
+| --- | --- | --- | --- |
+| 0c.1 | `typography`, `border` and `transition` stop expanding. They use Style Dictionary 5's built-in `typography/css/shorthand`, `border/css/shorthand`, `transition/css/shorthand` and `strokeStyle/css/shorthand`. The 104 split properties (`…-duration-value`, `…-components`) become one shorthand each, and their consumers are renamed, in batches if more than 5. | `SD/sd.config.mjs` + consumers | Zero variables ending `-value`, `-unit` or `-components`; every shorthand parses |
+| 0c.2 | **One preset source:** `tokens/src/presets/*.tokens.json` (DTCG, one file per family, as in the tier table). Measured: those files hold 1211 leaves, identical to `style-presets.json` with zero value conflicts; only the 86 `button-*` leaves are missing. Those move into a new `presets/button.tokens.json`. `style-presets.json`, `generate-style-presets.ts` and `enrich-presets.mjs` are deleted. | new `presets/button.tokens.json`; delete the 3 | The emitted `--preset-*` set is identical (diff) |
+| 0c.3 | The third copy, `visual/presets/*.ts`, is read only by `presets/catalog.ts`. The catalog reads ids and labels from the generated manifest instead, and the TS value modules are deleted. | `presets/catalog.ts`; delete `visual/presets/*` | `pnpm check` 0 errors; catalog lists the same ids |
+| 0c.4 | **`app.css` hand-written layer out.** The `--accent-{role}-*` aliases (33 uses) are generated as semantic color role aliases, so consumers don't change. The 7 button-primary shim values move into `presets/button.tokens.json`. The `:root` block is deleted, leaving `app.css` with imports and layout only. | `src/app.css`, the semantic role token file, `presets/button.tokens.json` | Snapshot unchanged for the primary button and accent consumers |
+
+#### 0d — Component tokens; the status bar as an app-shell component
+
+| Step | Change | Files | Done when |
+| --- | --- | --- | --- |
+| 0d.1 | `collect-component-tokens.ts` reads every `src/lib/design/components/*/tokens.ts` and `src/lib/layouts/**/tokens.ts` and writes `tokens/src/components/<kind>.tokens.json`. Style Dictionary emits `styles/components/<kind>.css` with `--<kind>-<part>-<prop>` in `@layer tokens.components`, which brings the 10 existing files to life. `Badge.svelte` is the first consumer. | `SD/collect-component-tokens.ts`, `SD/sd.config.mjs`, `components/badge/Badge.svelte` | Every key in every `tokens.ts` is emitted; badge computed values come from `--badge-*` |
+| 0d.2 | The status bar becomes `layouts/app/status-bar/`: a `StatusBar.svelte` shell plus `status-bar.tokens.ts`, and `segments/<name>/` folders holding a `Segment.svelte` and its own `tokens.ts`. Variants are `data-state` (ready, loading, failed, pending). Each segment's `<style>` reads only its generated variables, with no literal values. First step: the shell plus the subsystem segment. | shell, its tokens, subsystem segment and tokens, `Frame.svelte` | One line at 1280 and 1920 px (no "Turso (system)" wrap); `scrollWidth <= clientWidth` (no scrollbar); VRAM text not clipped; when space runs out, groups collapse to dot + icon (container query), with the full detail in the existing tooltip |
+| 0d.3 | The remaining segments (connection, brain, VRAM, uptime/version), in batches of 5 or fewer. The old `StatusBar.svelte` and `SubsystemBadge.svelte` are deleted. | segment folders | Zero literal colors or sizes in `status-bar/`; screenshots |
+
+#### 0e — Tailwind back to layout only
+
+| Step | Change | Done when |
+| --- | --- | --- |
+| 0e | `@theme` emits only layout namespaces (spacing, breakpoints, containers). This fixes `--text-primary` landing in Tailwind's font-size namespace. The 43 visual utility classes in markup (`bg-teal-…`, `text-purple-…` and similar) move to ColdLight tokens and attributes, in batches of 5 or fewer. | Zero visual Tailwind classes (grep gate); snapshot unchanged |
+
+**Order:** 0a.1 → 0a.2 → 0b.1 → 0b.2 → 0b.3 → 0c.1 → 0c.2 → 0c.3 → 0c.4 →
+0d.1 → 0d.2 → 0d.3 → 0e. Then Phases 1–5 below. The dashboard rebuild (plan
+0001, slice 2) starts after 0c, on the cleaned tokens. Out of scope:
+`modes/light.tokens.json` (light theme is its own later phase).
+
+**The one owner decision (0a.2):** the recommendation is to fit each step
+to the largest chroma sRGB can show, capped at the hue's current chroma. That
+leaves every color a normal screen can display exactly as it is, and changes
+only the out-of-range steps, which browsers already clip today (and clipping
+shifts the hue). The alternatives are a fixed taper curve, or keeping the
+wider colors for wide-gamut displays behind `@media (color-gamut: p3)`.
+
 ## Phases (approval between each)
 
 | # | Outcome | Files (≤5 unless generated) | Verification |
@@ -220,3 +364,13 @@ Recorded per phase in the log below.
 - 2026-10-10 — Corrected per owner: new roles extend existing ColdLight tokens
   only (no imported Material 3 values); `stat` kept as an extension; Heading
   role mapping measured from current rendering.
+- 2026-10-13 — Phase 0 added (the token foundation) after an audit of the
+  build. Sources: DTCG 2025.10 Format and Color modules; Material 3 tokens
+  (AndroidX `StateTokens.kt` v0_210, `MotionTokens.kt`); Style Dictionary
+  5.3.1 source.
+  - Style Dictionary's `color/css` parses with tinycolor2, so an OKLCH
+    *string* passes through untouched (faithful), while a DTCG color *object*
+    is converted to sRGB hex or rgb, with chroma reduced first.
+  - The wheel itself is the problem: constant chroma per hue and a
+    grey-collapsing hex fallback.
+  - Awaiting the owner's go on 0a (the chroma curve decision).

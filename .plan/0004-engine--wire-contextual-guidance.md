@@ -69,8 +69,8 @@ Research notes with every citation: `~/.claude/plans/unified-signal-fabric.md`
 producers (Rust)                     kernel loader · hardware · boot · chat · project scan · GitHub
   → signal fabric (engine)           events → SignalRouter │ state → StateStore (latest + revision)
   → trigger rule match (Rust)        event kind + state conditions + profile conditions + term sets
-  → content resolve                  copy key (wizard_copy) | knowledge query (libSQL selector, profile-weighted)
-  → frequency gate                   impressions + reactions in libSQL
+  → content resolve                  copy key (wizard_copy) | knowledge query (Turso selector, profile-weighted)
+  → frequency gate                   impressions + reactions in Turso
   → Guidance signal                  { guide, surface, anchor, content, provenance(correlation_id), pose }
   → one bridge → UI fabric           subscribe → snapshot → apply newer revisions
   → GuideHost renders it             tooltip · modal · slideout · inline card · Clyffy pose — no logic
@@ -101,11 +101,11 @@ Verified 2026-10-10 (guidance) and 2026-10-12 (fabric, profile).
 
 | Piece | State | Evidence |
 | --- | --- | --- |
-| Knowledge library spec | Exists | [00_MASTER_SPEC.md](../docs/knowledge_library/00_MASTER_SPEC.md): 5 types, 407 entries, libSQL schema, weighted selector |
+| Knowledge library spec | Exists | [00_MASTER_SPEC.md](../docs/knowledge_library/00_MASTER_SPEC.md): 5 types, 407 entries, Turso schema, weighted selector |
 | Authored content docs | **Missing** | Only 00, 01, 06, 07, 08 exist. [01_DID_YOU_KNOW.md](../docs/knowledge_library/01_DID_YOU_KNOW.md) stops at entry 47 of 100. 02–05 were never committed on any branch (`git log --all`). |
 | Shipped corpus | Partial — 119 of 407 | [knowledge/data/](../kernel/devpulse-clyffy/src/cortex/knowledge/data/): 55 Did You Know, 6 Knowledge Drops, 5 Heads Up, 5 Pro Tips, 24 Glossary, 24 quiz-style |
 | MD → JSON build | Exists, not re-run | [scripts/knowledge_library/build.mjs](../scripts/knowledge_library/build.mjs) |
-| libSQL tables + boot sync | **Works** | [relational.rs:652](../systems/devpulse-engine/src/platform/services/relational.rs#L652), [boot/mod.rs:280](../systems/devpulse-engine/src/platform/boot/mod.rs#L280). `user.db`: 119 rows, 56 shown |
+| Turso tables + boot sync | **Works** | [relational.rs:652](../systems/devpulse-engine/src/platform/services/relational.rs#L652), [boot/mod.rs:280](../systems/devpulse-engine/src/platform/boot/mod.rs#L280). `user.db`: 119 rows, 56 shown |
 | Selector | Works — random rotation only | [selector.rs](../kernel/devpulse-clyffy/src/cortex/knowledge/selector.rs): affinity × cooldown × reaction |
 | Tauri command | Works | [commands/knowledge.rs](../interfaces/desktop/src-tauri/src/commands/knowledge.rs) `get_knowledge_entry` + reactions |
 | Knowledge cards | Exist — self-fetch on a timer | [design/blocks/knowledge/](../interfaces/desktop/src/lib/design/blocks/knowledge/) |
@@ -208,7 +208,7 @@ any UI edit that uses them. Each phase deletes the path it replaces.
 | # | Outcome | Files | Live check |
 | --- | --- | --- | --- |
 | B1 | Guide contract + rule data (kernel); flows and guides share one trigger type | `kernel/devpulse-clyffy/src/guidance/mod.rs`, `config/guidance/onboarding.default.toml`, `config/guidance/capabilities.default.toml`, `interactions/mod.rs`, `lib.rs` | tests parse every rule file, reject unknown anchors and content keys |
-| B2 | Evaluator subscribes to the fabric, matches rules, resolves content, applies frequency, records the impression, publishes a `Guidance` signal whose `correlation_id` names its trigger | `platform/guidance/{mod.rs, evaluator.rs, impressions.rs}`, `platform/mod.rs`, `relational.rs` (`guide_impressions`) | tests with real rule files and libSQL; one `guidance.*` log line per guide |
+| B2 | Evaluator subscribes to the fabric, matches rules, resolves content, applies frequency, records the impression, publishes a `Guidance` signal whose `correlation_id` names its trigger | `platform/guidance/{mod.rs, evaluator.rs, impressions.rs}`, `platform/mod.rs`, `relational.rs` (`guide_impressions`) | tests with real rule files and Turso; one `guidance.*` log line per guide |
 | B3 | Intents: `guide_dismiss`, `guide_react`, `guide_act`, `get_anchor_tooltips` (no new event — guidance rides the fabric) | `commands/guidance.rs`, `commands/mod.rs`, `src-tauri/src/lib.rs` | bindings diff; intents reach the evaluator |
 | B4a | `GuideHost.svelte` renders tooltip / modal / slideout / inline from `Guidance` signals, mounted once in `routes/(app)/+layout.svelte` | `design/blocks/clyffy/GuideHost.svelte`, `routes/(app)/+layout.svelte` | a real signal → screenshot + `guide_impressions` row + log line, matching |
 | B4b | `KnowledgeDeck` renders only what the host passes; `ClyffyKnowledgeNudge` deleted; TS tip lists deleted after B8 | `KnowledgeDeck.svelte`, `ClyffyKnowledgeNudge.svelte`, `loading-content.ts`, `knowledge-drops.ts` | no timer fetch left |
@@ -223,7 +223,7 @@ any UI edit that uses them. Each phase deletes the path it replaces.
 
 | # | Outcome | Files | Live check |
 | --- | --- | --- | --- |
-| C1 | Profile store replaces the dead tables: skill per domain (level, confidence, evidence), lexicon (term, weight, source, last seen), concept mastery (FSRS state), sources (projects, GitHub, last scan); published as a `Profile` state topic | `kernel/devpulse-clyffy/src/profile/{mod.rs, store.rs}`, `relational.rs` (drop `attunement_*`, `translation_memory`, `expertise_level`; add profile tables), `signals/variants.rs` | tests on real libSQL; profile state visible in a devtool |
+| C1 | Profile store replaces the dead tables: skill per domain (level, confidence, evidence), lexicon (term, weight, source, last seen), concept mastery (FSRS state), sources (projects, GitHub, last scan); published as a `Profile` state topic | `kernel/devpulse-clyffy/src/profile/{mod.rs, store.rs}`, `relational.rs` (drop `attunement_*`, `translation_memory`, `expertise_level`; add profile tables), `signals/variants.rs` | tests on real Turso; profile state visible in a devtool |
 | C2 | Project scan in the background: languages (tokei), frameworks + identifiers (tree-sitter), commit cadence (gix) → skill + lexicon | `profile/scan.rs`, `commands/projects/mod.rs` (scan on add), kernel `Cargo.toml` | add this repo → Rust/TypeScript/Svelte skills and its own terms appear, with sources |
 | C3 | GitHub connect: OAuth device flow, token in the OS keychain, repos + languages + activity via octocrab → same profile | `profile/github.rs`, `commands/profile.rs`, kernel `Cargo.toml` | connect a real account → profile gains GitHub-sourced skills; token never in the DB |
 | C4 | Mastery from knowledge reactions (FSRS); the selector favours due and weak concepts at the developer's level | `profile/mastery.rs`, `cortex/knowledge/selector.rs`, `commands/knowledge.rs` | react to cards → `concept_mastery` changes; next drops shift |

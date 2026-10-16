@@ -9,7 +9,7 @@ touches: [kernel-clyffy, engine, desktop-tauri, desktop-devtools, desktop-models
 status: draft
 owner: jesse
 created: 2026-10-11
-updated: 2026-10-12
+updated: 2026-10-13
 supersedes: []
 specs:
   - scripts/docs/specs/MODEL-LOADER-UX-REQUIREMENTS.md
@@ -54,7 +54,7 @@ Research notes with every citation:
 | `devpulse-clyffy` depends on `model-loader` (optional) ([clyffy Cargo.toml:145](../kernel/devpulse-clyffy/Cargo.toml#L145)) | The supervisor reads the catalog and installed records from model-loader |
 | Slots with a `runtime` override and `extensions` map; slots / presets / assistant `.default.toml` + `{userdata}/config/*.toml` overrides ([slots/types.rs:54-73](../kernel/model-loader/src/slots/types.rs#L54-L73), [slots/defaults.rs:36](../kernel/model-loader/src/slots/defaults.rs#L36)) | The runtime catalog is one more kernel config file in the same pattern |
 | Model downloads already live in the kernel ([models/download.rs:60-72](../kernel/model-loader/src/models/download.rs#L60-L72)) | Runtime installs sit beside them in `model-loader/src/runtimes/` |
-| `LibSqlConfig`: model-loader config persisted in the system libSQL `kv_store` (`model_loader.` prefix, `slot.{id}.model`) ([integrations/config.rs:1-47](../systems/devpulse-engine/src/platform/integrations/config.rs#L1-L47)) | Where installed-runtime records and model locations live |
+| `TursoConfig`: model-loader config persisted in the system Turso `kv_store` (`model_loader.` prefix, `slot.{id}.model`) ([integrations/config.rs:1-47](../systems/devpulse-engine/src/platform/integrations/config.rs#L1-L47)) | Where installed-runtime records and model locations live |
 | `commands/models`: install-to-slot, HF download, `list_runtime_fingerprints`, stub `check_runtime_updates` ([commands/models/mod.rs:1419-1514](../interfaces/desktop/src-tauri/src/commands/models/mod.rs#L1419-L1514)); Runtimes devtool ([devtools/runtimes/+page.svelte:66](../interfaces/desktop/src/routes/(devtools)/devtools/runtimes/+page.svelte#L66)) | The intent surface and UI already exist — fill them in |
 | Data dir resolver, portable first: `<exe_dir>/.userdata` ([src-tauri/src/paths.rs:127-172](../interfaces/desktop/src-tauri/src/paths.rs#L127-L172)) | Runtimes install inside the DevPulse folder: `.userdata/global/runtimes/<id>/<build>/` |
 | `deps/moshi` is already a git submodule — your fork, branch `rro-alpha-candle-0.10` ([.gitmodules](../.gitmodules)) | The sub repo that builds and publishes moshi (decision 2) |
@@ -193,6 +193,18 @@ Owner, 2026-10-12:
 4. **Speaking runtime — still open.** moshi-server's TTS needs Python;
    candidates get verified in phase 1 before one is chosen.
 
+Owner, 2026-10-13:
+
+5. **Compiled-in engines leave the build first, not last.** "llama.cpp should
+   be available as a subprocess or remote location — it is a configuration."
+   Every slot points at an endpoint: a llama-server subprocess or a remote
+   URL. Compiled-in llama.cpp and moshi, the `deps/llama-cpp-rs` and
+   `deps/moshi` workspace members and their `[patch]` entries leave the build
+   in the same stage (phases 7 and 11–13, brought forward). A clean checkout
+   then builds without submodules, and CI stops compiling llama.cpp. The
+   installer UI (phases 5 and 8) follows. This starts right after the plan
+   0001 work is committed.
+
 ## Verification
 
 - `cargo clippy -p model-loader -- -D warnings`, `cargo clippy -p devpulse-clyffy -- -D warnings`,
@@ -214,3 +226,8 @@ Owner, 2026-10-12:
   engine facade beside `sidecars/ollama/`); boundary renamed `engine` → `kernel-model-loader`. moshi from a
   sub repo (proposed: existing `deps/moshi`). Vision = endpoint; preparation split into its own plan;
   pixvix out of scope. Local runtimes framed as one endpoint kind beside the user's subscriptions.
+- 2026-10-13 — Owner decision 5: endpoint configuration and the removal of
+  compiled-in llama.cpp and moshi come first, right after the plan 0001
+  commits. Found while rebuilding history in a fresh worktree: no checkout
+  builds without both submodules, because they are workspace members and
+  model-loader dependencies.
