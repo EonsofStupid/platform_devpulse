@@ -14,15 +14,31 @@ mod knowledge_smoke {
     #[test]
     fn manifest_parses_clean() {
         let manifest = loader::load_manifest().expect("manifest should parse");
-        assert_eq!(manifest.version, "0.1.0");
-        assert_eq!(manifest.files.len(), 5, "expected 5 files in manifest");
+        let parts: Vec<&str> = manifest.version.split('.').collect();
+        assert!(
+            parts.len() == 3 && parts.iter().all(|p| p.parse::<u32>().is_ok()),
+            "manifest version {:?} is not major.minor.patch",
+            manifest.version,
+        );
 
         let names: Vec<&str> = manifest.files.iter().map(|f| f.name.as_str()).collect();
-        assert!(names.contains(&"did_you_know.json"));
-        assert!(names.contains(&"knowledge_drops.json"));
-        assert!(names.contains(&"frustrations.json"));
-        assert!(names.contains(&"insights.json"));
-        assert!(names.contains(&"glossary.json"));
+        for expected in [
+            "did_you_know.json",
+            "knowledge_drops.json",
+            "frustrations.json",
+            "insights.json",
+            "glossary.json",
+            "quizzes.json",
+            "rearranges.json",
+            "orderings.json",
+        ] {
+            assert!(names.contains(&expected), "manifest is missing {expected}");
+        }
+        assert_eq!(
+            manifest.files.len(),
+            8,
+            "unexpected files in manifest: {names:?}"
+        );
     }
 
     // ── Test 2: All entries parse ───────────────────────────
@@ -162,16 +178,18 @@ mod knowledge_smoke {
         }
     }
 
-    // ── Test 8: Non-glossary entries have title+body ────────
+    // ── Test 8: Text cards have title+body ──────────────────
 
     #[test]
-    fn non_glossary_entries_have_title_and_body() {
+    fn text_entries_have_title_and_body() {
         let entries = loader::load_all().expect("load_all should succeed");
 
-        for entry in entries
-            .iter()
-            .filter(|e| !matches!(e.entry_type, EntryType::Gloss))
-        {
+        for entry in entries.iter().filter(|e| {
+            matches!(
+                e.entry_type,
+                EntryType::Dyk | EntryType::Kdrop | EntryType::Frust | EntryType::Insight
+            )
+        }) {
             assert!(
                 entry
                     .payload
@@ -186,6 +204,53 @@ mod knowledge_smoke {
                 "entry {} missing 'body' field",
                 entry.id,
             );
+        }
+    }
+
+    // ── Test 9: Interactive entries carry their own fields ──
+
+    #[test]
+    fn interactive_entries_have_their_fields() {
+        let entries = loader::load_all().expect("load_all should succeed");
+        let text = |e: &crate::cortex::knowledge::types::KnowledgeEntry, key: &str| {
+            e.payload.get(key).and_then(|v| v.as_str()).is_some()
+        };
+        let list = |e: &crate::cortex::knowledge::types::KnowledgeEntry, key: &str| {
+            e.payload
+                .get(key)
+                .and_then(|v| v.as_array())
+                .is_some_and(|a| !a.is_empty())
+        };
+
+        for entry in &entries {
+            match entry.entry_type {
+                EntryType::Quiz => {
+                    assert!(
+                        text(entry, "question"),
+                        "quiz {} missing 'question'",
+                        entry.id
+                    );
+                    assert!(
+                        list(entry, "choices"),
+                        "quiz {} missing 'choices'",
+                        entry.id
+                    );
+                }
+                EntryType::Rank => {
+                    assert!(text(entry, "prompt"), "rank {} missing 'prompt'", entry.id);
+                    assert!(list(entry, "items"), "rank {} missing 'items'", entry.id);
+                }
+                EntryType::Order => {
+                    assert!(text(entry, "prompt"), "order {} missing 'prompt'", entry.id);
+                    assert!(list(entry, "items"), "order {} missing 'items'", entry.id);
+                    assert!(
+                        list(entry, "correctOrderIds"),
+                        "order {} missing 'correctOrderIds'",
+                        entry.id,
+                    );
+                }
+                _ => {}
+            }
         }
     }
 }
