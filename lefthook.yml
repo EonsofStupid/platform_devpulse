@@ -8,23 +8,23 @@ pre-commit:
   commands:
     # Rust formatting
     rust-fmt:
-      glob: "*.rs"
+      glob: ["*.rs", "**/*.rs"]
       run: cargo fmt --all -- --check
 
     # Rust linting (quick check, not full clippy)
     rust-check:
-      glob: "*.rs"
+      glob: ["*.rs", "**/*.rs"]
       run: cargo check --workspace --quiet
 
     # Svelte check
     svelte-check:
-      glob: "*.svelte"
+      glob: ["*.svelte", "**/*.svelte"]
       root: "interfaces/desktop"
       run: pnpm exec svelte-check --threshold error
 
     # IP boundary enforcement — blocks kernel terms in staged files
     ip-boundary-check:
-      glob: "*.{rs,ts,svelte,json}"
+      glob: ["*.{rs,ts,svelte,json}", "**/*.{rs,ts,svelte,json}"]
       run: bash scripts/hooks/ip-boundary-check.sh
 
     # Bindings drift guard — if Tauri command .rs files changed but
@@ -88,7 +88,7 @@ pre-push:
     # Full Rust lint on push, under run-dev's build env so it reuses the
     # dev loop's artifacts instead of invalidating them.
     clippy:
-      glob: "*.rs"
+      glob: ["*.rs", "**/*.rs"]
       run: cargo xtask clippy --workspace
 
     # Security audit
