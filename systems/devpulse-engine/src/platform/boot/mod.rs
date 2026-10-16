@@ -124,7 +124,14 @@ pub async fn execute(
     let timeout_dur = std::time::Duration::from_secs(boot_config.boot.timeout_secs);
     let result = tokio::time::timeout(
         timeout_dur,
-        execute_inner(data_dir, boot_config, on_event, &boot_log, model_event_sink, signals),
+        execute_inner(
+            data_dir,
+            boot_config,
+            on_event,
+            &boot_log,
+            model_event_sink,
+            signals,
+        ),
     )
     .await;
 

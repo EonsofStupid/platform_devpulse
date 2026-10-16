@@ -439,8 +439,14 @@ impl Platform {
         // `SendError`, which callsites ignore.
         let (internal_tx, _) = broadcast_channel::<InternalEvent>(INTERNAL_EVENT_CAPACITY);
 
-        let booted =
-            boot::execute(&data_dir, &boot_config, &on_event, model_event_sink, signals).await?;
+        let booted = boot::execute(
+            &data_dir,
+            &boot_config,
+            &on_event,
+            model_event_sink,
+            signals,
+        )
+        .await?;
 
         // Spawn telemetry handle after services boot.
         // Requires analytics service (DuckDB) for trace persistence.

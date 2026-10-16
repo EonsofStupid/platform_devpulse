@@ -50,7 +50,10 @@ impl LoaderEventSink for EventBridge {
     fn emit(&self, event: LoaderEvent) {
         // Families on the signal fabric.
         if let LoaderEvent::HardwareMetricsUpdated(metrics) = event {
-            (self.publish)(Signal::new(SignalSource::System, SignalVariant::Hardware(metrics)));
+            (self.publish)(Signal::new(
+                SignalSource::System,
+                SignalVariant::Hardware(metrics),
+            ));
             return;
         }
 

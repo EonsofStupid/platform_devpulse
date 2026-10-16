@@ -83,13 +83,14 @@ pub fn run_mcp_stdio() {
         tracing::info!(data_dir = %data_dir.display(), "MCP stdio: booting platform");
 
         // Headless MCP mode has no windows; signals go to an engine no one reads.
-        let platform = match Platform::boot(data_dir, |_| {}, None, devpulse_engine::Engine::boot()).await {
-            Ok(p) => Arc::new(p),
-            Err(e) => {
-                eprintln!("devpulse-mcp: platform boot failed: {e:#}");
-                return 1;
-            }
-        };
+        let platform =
+            match Platform::boot(data_dir, |_| {}, None, devpulse_engine::Engine::boot()).await {
+                Ok(p) => Arc::new(p),
+                Err(e) => {
+                    eprintln!("devpulse-mcp: platform boot failed: {e:#}");
+                    return 1;
+                }
+            };
 
         if let Err(e) = devpulse_engine::claude::mcp::start_stdio(platform).await {
             eprintln!("devpulse-mcp: stdio session failed: {e:#}");
@@ -999,7 +1000,9 @@ async fn boot_task(
                     let _ = app_for_events.emit(event_name, payload);
                 }),
                 std::sync::Arc::new(move |signal: devpulse_engine::signals::Signal| {
-                    app_for_signals.state::<devpulse_engine::Engine>().emit(signal);
+                    app_for_signals
+                        .state::<devpulse_engine::Engine>()
+                        .emit(signal);
                 }),
             ),
         ))
@@ -1276,7 +1279,6 @@ fn publish_boot_status(app: &tauri::AppHandle, tracker: &BootStateTracker) {
         ));
     }
 }
-
 
 /// Seed sample data for dev mode — only if tables are empty.
 #[cfg(debug_assertions)]

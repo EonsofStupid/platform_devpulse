@@ -173,7 +173,9 @@ pub fn set_signal_interest(
     kind: SignalKind,
     interested: bool,
 ) {
-    engine.router().set_interest(kind, window.label(), interested);
+    engine
+        .router()
+        .set_interest(kind, window.label(), interested);
 }
 
 #[cfg(test)]
@@ -223,13 +225,19 @@ mod tests {
         let mut coalescer = Coalescer::new(config);
         let start = Instant::now();
 
-        assert_eq!(coalescer.offer(hardware(1), start).as_ref().and_then(cores), Some(1));
+        assert_eq!(
+            coalescer.offer(hardware(1), start).as_ref().and_then(cores),
+            Some(1)
+        );
         assert!(coalescer.offer(hardware(2), start).is_none());
         assert!(coalescer.offer(hardware(3), start).is_none());
         assert!(coalescer.release_due(start).is_empty());
 
         let released = coalescer.release_due(start + window);
-        assert_eq!(released.iter().filter_map(cores).collect::<Vec<_>>(), vec![3]);
+        assert_eq!(
+            released.iter().filter_map(cores).collect::<Vec<_>>(),
+            vec![3]
+        );
         assert!(coalescer.release_due(start + window + window).is_empty());
     }
 }

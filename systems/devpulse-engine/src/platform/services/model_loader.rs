@@ -18,6 +18,7 @@
 use super::model_loader_log::FileEventSink;
 use super::{Service, ServiceRole, ServiceState};
 use crate::platform::integrations::config::{LibSqlConfig, MemoryConfig};
+use crate::signals::{ModelsReadiness, Signal, SignalSource, SignalVariant};
 use anyhow::Result;
 use devpulse_clyffy::cortex::persistence::LibSqlAdapter;
 pub use devpulse_clyffy::model_loader::registry::LoadError;
@@ -43,7 +44,6 @@ use devpulse_clyffy::model_loader::{
 };
 pub use devpulse_clyffy::model_loader::{RebindReason, RuntimeFingerprint};
 pub use devpulse_clyffy::model_loader::{VoiceEntry, VoiceRegistry};
-use crate::signals::{ModelsReadiness, Signal, SignalSource, SignalVariant};
 use std::sync::Arc;
 
 /// Model Loader service — managed by the platform boot pipeline.

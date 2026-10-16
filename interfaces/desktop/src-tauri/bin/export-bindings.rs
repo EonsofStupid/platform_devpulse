@@ -26,7 +26,10 @@ fn main() -> std::process::ExitCode {
         }
     };
     if let Err(err) = std::fs::write(&path, content) {
-        eprintln!("[export-bindings] failed to write {}: {err}", path.display());
+        eprintln!(
+            "[export-bindings] failed to write {}: {err}",
+            path.display()
+        );
         return std::process::ExitCode::FAILURE;
     }
 

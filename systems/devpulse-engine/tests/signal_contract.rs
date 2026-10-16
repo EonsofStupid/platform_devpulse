@@ -12,9 +12,8 @@
 
 use devpulse_engine::platform::{HardwareMetrics, InitEvent};
 use devpulse_engine::signals::{
-    AnalyticsEventType, AnalyticsPayload, AnalyticsProperties, BootPhase, BootStatus,
-    ChatPayload, ChatRole,
-    ContextChunk, ContextPayload, Delivery, GovernanceEvent, GovernancePayload,
+    AnalyticsEventType, AnalyticsPayload, AnalyticsProperties, BootPhase, BootStatus, ChatPayload,
+    ChatRole, ContextChunk, ContextPayload, Delivery, GovernanceEvent, GovernancePayload,
     InferencePayload, ModelsReadiness, SignalKind, SignalVariant, SystemPayload, SystemStatus,
 };
 use specta_typescript::{BigIntExportBehavior, Typescript};
@@ -88,12 +87,18 @@ fn every_kind_has_a_spec_and_its_wire_tag_is_its_name() {
         let spec = kind.spec();
         assert!(spec.version >= 1, "{kind:?}: contract version starts at 1");
         if spec.delivery == Delivery::State {
-            assert!(kind.reaches_ui(), "{kind:?}: state that never reaches the UI has no reader");
+            assert!(
+                kind.reaches_ui(),
+                "{kind:?}: state that never reaches the UI has no reader"
+            );
         }
 
         let name: &'static str = kind.into();
         let wire = serde_json::to_value(sample(kind)).expect("sample serializes");
-        assert_eq!(wire["type"], name, "{kind:?}: wire tag must equal the kind name");
+        assert_eq!(
+            wire["type"], name,
+            "{kind:?}: wire tag must equal the kind name"
+        );
     }
 }
 

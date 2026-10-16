@@ -9,7 +9,11 @@
  */
 
 import type { DashboardData } from "../util/devpulse.types.js";
-import { fetchDashboardData, getEmptyDashboard, mapPayloadToDashboard } from "./devpulse.service.js";
+import {
+	fetchDashboardData,
+	getEmptyDashboard,
+	mapPayloadToDashboard,
+} from "./devpulse.service.js";
 
 class DevPulseState {
 	data = $state<DashboardData>(getEmptyDashboard());

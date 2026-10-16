@@ -115,7 +115,11 @@ impl SignalRouter {
     /// subscriber is. Producers await `changed()` to start or stop.
     pub fn interest(&self, kind: SignalKind) -> watch::Receiver<bool> {
         let mut interest = self.interest.lock().unwrap_or_else(PoisonError::into_inner);
-        interest.entry(kind).or_insert_with(Interest::new).watched.subscribe()
+        interest
+            .entry(kind)
+            .or_insert_with(Interest::new)
+            .watched
+            .subscribe()
     }
 }
 

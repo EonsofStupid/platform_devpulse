@@ -21,8 +21,8 @@ use strum::{EnumDiscriminants, EnumIter, IntoStaticStr};
 
 use super::kinds::SinkKind;
 use super::payloads::{
-    AnalyticsPayload, BootStatus, ChatPayload, ContextPayload, GovernancePayload,
-    InferencePayload, ModelsReadiness, SystemPayload,
+    AnalyticsPayload, BootStatus, ChatPayload, ContextPayload, GovernancePayload, InferencePayload,
+    ModelsReadiness, SystemPayload,
 };
 
 /// The master enum of all signal output types.

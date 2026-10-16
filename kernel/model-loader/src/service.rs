@@ -456,8 +456,10 @@ impl ModelLoaderService {
                         break;
                     }
                     let monitor = Arc::clone(&monitor);
-                    match devpulse_telemetry::spawn_blocking(move || monitor.write().refresh().clone())
-                        .await
+                    match devpulse_telemetry::spawn_blocking(move || {
+                        monitor.write().refresh().clone()
+                    })
+                    .await
                     {
                         Ok(metrics) => events.emit(LoaderEvent::HardwareMetricsUpdated(metrics)),
                         Err(err) => tracing::warn!(%err, "hardware sampler: collection failed"),

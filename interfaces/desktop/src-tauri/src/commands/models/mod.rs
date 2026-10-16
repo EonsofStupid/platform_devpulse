@@ -168,12 +168,17 @@ pub struct ModelsStatusData {
 /// Returns an error when the model loader is not available.
 #[tauri::command]
 #[specta::specta]
-pub async fn get_models_status(state: State<'_, PlatformState>) -> Result<ModelsStatusData, String> {
+pub async fn get_models_status(
+    state: State<'_, PlatformState>,
+) -> Result<ModelsStatusData, String> {
     let loader = get_loader(&state).await?;
     let slots = loader.list_slots().await;
     let registry = loader.get_registry().await;
     Ok(ModelsStatusData {
-        slots: slots.iter().map(|s| slot_to_slot_info(s, &registry)).collect(),
+        slots: slots
+            .iter()
+            .map(|s| slot_to_slot_info(s, &registry))
+            .collect(),
         models: registry.iter().map(entry_to_model_info).collect(),
     })
 }

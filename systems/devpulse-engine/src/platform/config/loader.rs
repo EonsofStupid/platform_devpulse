@@ -2227,8 +2227,14 @@ mod signals_config_tests {
     #[test]
     fn shipped_defaults_come_from_the_platform_config() {
         let shipped = SignalsConfig::shipped();
-        assert_eq!(shipped.coalesce_window(SignalKind::Hardware), Duration::from_secs(1));
-        assert_eq!(shipped.sample_interval(SignalKind::Hardware), Some(Duration::from_secs(2)));
+        assert_eq!(
+            shipped.coalesce_window(SignalKind::Hardware),
+            Duration::from_secs(1)
+        );
+        assert_eq!(
+            shipped.sample_interval(SignalKind::Hardware),
+            Some(Duration::from_secs(2))
+        );
         assert_eq!(shipped.coalesce_window(SignalKind::Chat), Duration::ZERO);
 
         let boot: PlatformBootConfig = toml::from_str(DEFAULT_CONFIG).unwrap();
@@ -2253,7 +2259,8 @@ mod signals_config_tests {
 
     #[test]
     fn an_unknown_kind_fails_parsing() {
-        let parsed = toml::from_str::<SignalsConfigHolder>("[signals.coalesce_ms]\nhardwear = 250\n");
+        let parsed =
+            toml::from_str::<SignalsConfigHolder>("[signals.coalesce_ms]\nhardwear = 250\n");
         assert!(parsed.is_err());
     }
 
