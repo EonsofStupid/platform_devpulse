@@ -154,7 +154,34 @@ opens the Models page the sidebar already links.
   - R9 `42826faf` live strip tiles from their pages (5 of 5 had drifted).
   - R10 `d6098077` `routeHere()`; Community, Latest, Action log headings.
   - R11 `78e81e04` store hero card from its page and the shell's accent.
+- 2026-10-17 — **Live verification** (`cargo xtask run-dev` with WebView2
+  `--remote-debugging-port`, read over CDP). It found that the app had
+  rendered 500 on every page since R3 — fixed in R13 `94f127be`; static
+  checks were all green. After R13:
+  - Sidebar: hubs Latest, Home, UI Demo, OverMind, WiredFront, DevForge,
+    Clyffy in folder order, Models in the footer, names from copy, Home
+    `aria-current`.
+  - Devtools dashboard: 3 tiers (tones success / primary / warning), 13
+    buckets, every devtool tile, detached-window tiles Telemetry and Models.
+    Live strip (R9): each tile's name, line, icon, accent from its page.
+  - R8: `open_window(KnowledgeViewer)` opens a window titled "Telemetry";
+    its page calls IPC and shows live pipeline data.
+  - R10: Latest / Community / Action log headings from copy.
+  - R11: hero accent equals the shell accent on Turso (blue), DuckDB (gold),
+    SurrealDB.
+  - All 44 pages loaded one by one: R14 `ecf48b66` (DuckDB, SurrealDB effect
+    loop) and R15 `15f36bae` (Speech-to-Speech rune in a `.ts` module) fixed;
+    the rest clean.
 - Follow-ups (not in this plan):
+  - Page sweep in automated verification: `xtask smoke` only waits for the
+    backend boot log's READY line, so none of R13–R15 could fail it. Add a
+    step that loads every route folder's page in the dev build over CDP and
+    fails on an exception or console error (the script used here:
+    navigate, collect `Runtime.exceptionThrown` / console errors).
+  - Sidebar entries are a `Button` inside an `<a>` (interactive inside
+    interactive), older than this plan → ColdLight a11y.
+  - The update check fails ("Could not fetch a valid release JSON") — the
+    updater endpoint, unrelated to routing.
   - Page chrome text is still English in code (devtools dashboard tabs and
     tiles, shell tab names and back label, error pages, Latest page
     messages, the live strip's status lines and verbs, the hero cards'
