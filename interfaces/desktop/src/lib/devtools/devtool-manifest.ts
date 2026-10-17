@@ -10,24 +10,16 @@
  */
 
 import {
-	exportsByRouteId,
 	findRouteById,
 	pagesUnder,
 	parentOf,
 	type RouteNode,
+	routeExports,
 	topLevelOf,
 } from "$lib/sys/routing/route-manifest.js";
 import type { DevtoolNav } from "./devtool-nav.js";
 
-const LAYOUT_DEVTOOL = import.meta.glob<DevtoolNav | undefined>("/src/routes/**/+layout.ts", {
-	eager: true,
-	import: "_devtool",
-});
-const PAGE_DEVTOOL = import.meta.glob<DevtoolNav | undefined>("/src/routes/**/+page.ts", {
-	eager: true,
-	import: "_devtool",
-});
-const DEVTOOL_BY_ID = exportsByRouteId(LAYOUT_DEVTOOL, PAGE_DEVTOOL);
+const DEVTOOL_BY_ID = routeExports<DevtoolNav>("_devtool");
 
 /** A folder's devtools-only facts (empty when it declares none). */
 export function devtoolNav(node: RouteNode): DevtoolNav {

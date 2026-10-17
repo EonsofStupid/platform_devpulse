@@ -6,7 +6,7 @@
  * own `import.meta.glob`.
  */
 
-import { readdirSync, statSync } from "node:fs";
+import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
@@ -67,5 +67,28 @@ describe("route manifest", () => {
 
 	it("finds each page by its path", () => {
 		for (const path of expected) expect(findRoute(path)?.hasPage, path).toBe(true);
+	});
+});
+
+function sourceFiles(dir: string, out: string[] = []): string[] {
+	for (const entry of readdirSync(dir)) {
+		const full = join(dir, entry);
+		if (statSync(full).isDirectory()) sourceFiles(full, out);
+		else if (/\.(ts|svelte)$/.test(entry)) out.push(full);
+	}
+	return out;
+}
+
+describe("route modules", () => {
+	// Vite's `import: "_nav"` option is a named import. In the browser a named
+	// import of a name the file does not export fails to link and every page
+	// fails; vitest's transform tolerates it, so this suite would stay green.
+	it("are read whole, never through a glob that picks one export", () => {
+		const SRC = join(__dirname, "../../src");
+		const picksOne = /import\.meta\.glob[^;]*["'`]\/src\/routes[^;]*\bimport\s*:/s;
+		const offenders = sourceFiles(SRC)
+			.filter((file) => picksOne.test(readFileSync(file, "utf8")))
+			.map((file) => relative(SRC, file).split(sep).join("/"));
+		expect(offenders).toEqual([]);
 	});
 });

@@ -8,12 +8,12 @@
 export { routeCopy } from "./route-copy.js";
 export { hrefOf, routeAt, routeHere } from "./route-href.js";
 export {
-	exportsByRouteId,
 	findRoute,
 	findRouteById,
 	pagesUnder,
 	parentOf,
 	type RouteNode,
+	routeExports,
 	routeTree,
 	topLevelOf,
 } from "./route-manifest.js";

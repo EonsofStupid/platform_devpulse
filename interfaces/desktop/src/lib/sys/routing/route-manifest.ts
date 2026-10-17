@@ -18,15 +18,16 @@ import type { RouteNav } from "./route-nav.js";
 /** Every page in the app. Lazy: only the keys are read here. */
 const PAGES = import.meta.glob("/src/routes/**/+page.svelte");
 
-/** Each folder's own `_nav`, from `+page.ts` and `+layout.ts`. */
-const PAGE_NAVS = import.meta.glob<RouteNav | undefined>("/src/routes/**/+page.ts", {
-	eager: true,
-	import: "_nav",
-});
-const LAYOUT_NAVS = import.meta.glob<RouteNav | undefined>("/src/routes/**/+layout.ts", {
-	eager: true,
-	import: "_nav",
-});
+/**
+ * Every `+page.ts` and `+layout.ts`, as whole modules. Read as namespaces on
+ * purpose: Vite's `import: "<name>"` option compiles to a named import, and in
+ * the browser a named import of a name the file does not export fails to
+ * link — every page then fails. vitest's transform tolerates it, so only a
+ * live run or `vite build` would show it.
+ */
+type RouteModule = Record<string, unknown>;
+const PAGE_MODULES = import.meta.glob<RouteModule>("/src/routes/**/+page.ts", { eager: true });
+const LAYOUT_MODULES = import.meta.glob<RouteModule>("/src/routes/**/+layout.ts", { eager: true });
 
 /** One folder of the route tree. */
 export interface RouteNode {
@@ -53,17 +54,18 @@ function routeIdOf(file: string): string {
 }
 
 /**
- * A `_`-prefixed export of every route folder, by route id. Pass the eager
- * globs of `+layout.ts` and `+page.ts`; a folder's page fields win over its
- * layout's. Feature modules use this for their own exports (`_devtool`).
+ * A `_`-prefixed export of every route folder, by route id: `_nav`, or a
+ * feature's own (`_devtool`). A folder's `+page.ts` fields win over its
+ * `+layout.ts`'s; a folder that does not export the name is absent.
  */
-export function exportsByRouteId<T extends object>(
-	layouts: Record<string, T | undefined>,
-	pages: Record<string, T | undefined>,
-): Map<string, T> {
+export function routeExports<T extends object>(name: `_${string}`): Map<string, T> {
 	const out = new Map<string, T>();
-	for (const [file, value] of Object.entries(layouts)) if (value) out.set(routeIdOf(file), value);
-	for (const [file, value] of Object.entries(pages)) {
+	for (const [file, mod] of Object.entries(LAYOUT_MODULES)) {
+		const value = mod[name] as T | undefined;
+		if (value) out.set(routeIdOf(file), value);
+	}
+	for (const [file, mod] of Object.entries(PAGE_MODULES)) {
+		const value = mod[name] as T | undefined;
 		if (!value) continue;
 		const id = routeIdOf(file);
 		out.set(id, { ...out.get(id), ...value });
@@ -93,7 +95,7 @@ interface RouteIndex {
 }
 
 function buildTree(): RouteIndex {
-	const navById = exportsByRouteId(LAYOUT_NAVS, PAGE_NAVS);
+	const navById = routeExports<RouteNav>("_nav");
 
 	const byId = new Map<string, RouteNode>();
 	const node = (routeId: string): RouteNode => {
