@@ -55,6 +55,8 @@ done <<< "$TERMS"
 # A term matches where a word starts (`\b`): it still catches a term used
 # alone or as an identifier prefix (CortexViewer, RROService), but not a
 # term that happens to sit inside an unrelated word ("RRO" in "ERROR").
+# `+++ b/<path>` file headers are not added lines: editing a file whose
+# name already holds a term is not a new use of it.
 VIOLATIONS=$(git diff --cached --diff-filter=ACMR \
   -- ':!kernel/' \
   -- ':!systems/devpulse-engine/' \
@@ -64,6 +66,7 @@ VIOLATIONS=$(git diff --cached --diff-filter=ACMR \
   -- ':!interfaces/desktop/tests/architecture/' \
   -- ':!interfaces/desktop/gritql/' \
   -- '*.rs' '*.ts' '*.svelte' '*.json' \
+  | grep -vE '^\+\+\+ ' \
   | grep -nE "^\+.*\b(${PATTERN})" || true)
 
 if [ -n "$VIOLATIONS" ]; then
