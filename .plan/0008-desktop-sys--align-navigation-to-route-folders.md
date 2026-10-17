@@ -5,7 +5,7 @@ paths:
   - interfaces/desktop/src/lib/sys/routing/
   - interfaces/desktop/src/routes/
 touches: [desktop-devtools, desktop-layouts, desktop-onboarding, desktop-tauri, engine]
-status: approved
+status: done
 owner: jesse
 created: 2026-10-17
 updated: 2026-10-17
@@ -120,3 +120,31 @@ opens the Models page the sidebar already links.
   in desktop TS/Svelte, src-tauri, engine, kernel and config. Owner ordered
   the work done end to end ("you do not stop working until it is all
   existing code identified and properly authored moved").
+- 2026-10-17 — **Done, R1–R7 committed, every hook green.**
+  - R1 `6d0d4ac7` route manifest + test; 29 empty route folders removed.
+  - R2 `3c67ec55` route names in the copy catalog (58 folders) + coverage test.
+  - R3 `5f157731` sidebar from the folders; `child-routes.ts` deleted;
+    `hrefOf`. R4 `40fa8e35` devtools from their folders: 3 tiers, 13
+    buckets, 24 devtools, runtimes page, MongoDB planned folder; shell
+    reads its route; `registry.ts`, the `meta.ts` taxonomy and the accent /
+    backdrop maps deleted; copy gains `description`, `term`, `[devtools]`.
+    `cbe63008` ip-boundary hook skips `+++` diff headers.
+  - R5 `519d483d` point links via `resolve()` / `routeAt()`. Root cause
+    found: `tsconfig.json`'s `include` dropped `.svelte-kit` generated
+    types, so `RouteId` was `string`; fixed.
+  - R6 `9fed98b0` Rust route constants from `build.rs`; KnowledgeViewer →
+    telemetry devtool, ModelLoader → Models page (both pointed nowhere);
+    `window_roles` command; dashboard window tiles from the pages.
+  - R7 `35734c77` `no-hand-typed-routes.mjs` gate; runner runs the
+    architecture tests and the gate per commit.
+  - Divergences resolved by "the page header wins" (written after the
+    registry): listed in the R4 commit message.
+- Follow-ups (not in this plan):
+  - Page chrome text is still English in code (devtools dashboard tabs and
+    tiles, shell tab names and back label, error pages, Latest page
+    messages) → the copy catalog (plan 0001 O1).
+  - Three hand-synced accent unions (`BrandAccent`, `AccentColor`,
+    `GlowToken`) vs `accent.tokens.json` → generate from tokens (plan 0006).
+  - `generated/terminology.ts` rewrites its timestamp on every build.
+  - The KnowledgeViewer role name no longer matches what it opens
+    (telemetry) — rename or give it its own page.
