@@ -231,3 +231,15 @@ Owner, 2026-10-13:
   commits. Found while rebuilding history in a fresh worktree: no checkout
   builds without both submodules, because they are workspace members and
   model-loader dependencies.
+- 2026-10-17 — Found (not fixed; this plan owns it): `ModelLoaderService::new`
+  derives `userdata_dir = models_dir.parent()`
+  ([service.rs:279](../kernel/model-loader/src/service.rs#L279)) instead of
+  taking the engine's `data_dir`, which `load_default_slots` already gets
+  ([services/model_loader.rs:100](../systems/devpulse-engine/src/platform/services/model_loader.rs#L100)).
+  `models_dir` resolves to `<repo>/models` in dev and `<exe_dir>/models` in a
+  portable build ([config/loader.rs:1096](../systems/devpulse-engine/src/platform/config/loader.rs#L1096)),
+  so slot links land outside `.userdata` — on this machine
+  `<repo>/slots/chat.brain/model.gguf` (untracked, since 2026-10-12) — and
+  `assistant.toml` is read and written at `<repo>/config/`. Fix: pass
+  `data_dir` into `new()`; the HF token (`Secrets::load(&models_dir)`) moves
+  with it. Belongs with the phase that touches `service.rs`.
