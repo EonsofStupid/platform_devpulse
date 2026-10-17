@@ -100,14 +100,6 @@ const heroHealthLabel = $derived(
 					? "Down"
 					: "Not probed yet",
 );
-// Activity tick — bump each time the health probe completes so the
-// LiveActivityPulse blips on every successful round-trip.
-let activityTick = $state(0);
-$effect(() => {
-	if (duckdbState.health) {
-		activityTick = activityTick + 1;
-	}
-});
 
 const badge = $derived<HealthBadge>(
 	duckdbState.healthLoading
@@ -143,7 +135,7 @@ function handleKeydown(e: KeyboardEvent): void {
 				health={heroState}
 				latencyMs={heroLatencyMs}
 				healthLabel={heroHealthLabel}
-				{activityTick}
+				activityTick={duckdbState.healthChecks}
 			>
 				<DuckdbHero state={heroState} />
 			</StoreHeroCard>

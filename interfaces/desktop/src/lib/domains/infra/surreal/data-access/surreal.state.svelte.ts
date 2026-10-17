@@ -34,6 +34,8 @@ class SurrealState {
 	health = $state<GraphHealthAll | null>(null);
 	healthLoading = $state(false);
 	healthError = $state<string | null>(null);
+	/** Completed health checks — drives the status card's activity pulse. */
+	healthChecks = $state(0);
 
 	// ── Browser ─────────────────────────────────────────────
 	tables = $state<GraphTableInfo[]>([]);
@@ -69,6 +71,7 @@ class SurrealState {
 		this.healthError = null;
 		try {
 			this.health = await graphHealthAll();
+			this.healthChecks += 1;
 		} catch (e) {
 			this.healthError = e instanceof Error ? e.message : String(e);
 			logError("surreal", `loadHealth() FAILED: ${this.healthError}`);

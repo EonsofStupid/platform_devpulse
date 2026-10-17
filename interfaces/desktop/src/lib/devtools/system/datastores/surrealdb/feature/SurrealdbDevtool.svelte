@@ -110,12 +110,6 @@ const heroHealthLabel = $derived(
 						: `${surrealState.reachableCount}/${surrealState.health.namespaces.length} reachable`
 					: "Not probed yet",
 );
-let activityTick = $state(0);
-$effect(() => {
-	if (surrealState.health) {
-		activityTick = activityTick + 1;
-	}
-});
 
 // ── Unified health badge ──────────────────────────────────
 // Sidecar liveness gates everything — if the process isn't up, the
@@ -250,7 +244,7 @@ function handleKeydown(e: KeyboardEvent): void {
 					health={heroState}
 					latencyMs={heroLatencyMs}
 					healthLabel={heroHealthLabel}
-					{activityTick}
+					activityTick={surrealState.healthChecks}
 				>
 					<SurrealdbHero state={heroState} />
 				</StoreHeroCard>

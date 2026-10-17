@@ -19,6 +19,8 @@ class DuckDbState {
 	health = $state<DuckDbHealth | null>(null);
 	healthLoading = $state(false);
 	healthError = $state<string | null>(null);
+	/** Completed health checks — drives the status card's activity pulse. */
+	healthChecks = $state(0);
 
 	// ── Tables ──────────────────────────────────────────────
 	tables = $state<DuckDbTableInfo[]>([]);
@@ -42,6 +44,7 @@ class DuckDbState {
 		this.healthError = null;
 		try {
 			this.health = await duckdbHealth();
+			this.healthChecks += 1;
 		} catch (e) {
 			this.healthError = e instanceof Error ? e.message : String(e);
 		} finally {
