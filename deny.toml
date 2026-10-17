@@ -55,6 +55,12 @@ ignore = [
     "RUSTSEC-2026-0367", # SUID/SGID bits preserved on extract
     "RUSTSEC-2026-0368", # extract creates symlinks outside the destination
     "RUSTSEC-2026-0369", # extract applies permissions through symlinks
+    # zbus's own crates marked unmaintained with no successor release
+    # (2026-10-17). Pulled in via zbus 5.14 by rfd (ashpd), tauri-plugin-
+    # single-instance and xcap — the Linux D-Bus backends of those crates.
+    "RUSTSEC-2026-0370", # zvariant unmaintained
+    "RUSTSEC-2026-0371", # zbus_names unmaintained
+    "RUSTSEC-2026-0372", # zvariant_derive unmaintained
 ]
 
 [licenses]
