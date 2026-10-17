@@ -21,6 +21,11 @@ env:
   CARGO_TERM_COLOR: always
   CARGO_PROFILE_DEV_DEBUG: "0"
 
+# actions: read lets a run find the last commit a successful run verified.
+permissions:
+  contents: read
+  actions: read
+
 jobs:
   verify:
     name: Build and test each commit
@@ -64,8 +69,27 @@ jobs:
           # (manual dispatch only works once this workflow is on main).
           VERIFY_BASE: ${{ vars.VERIFY_BASE }}
           BEFORE: ${{ github.event.before }}
+          GH_TOKEN: ${{ github.token }}
         run: |
-          base="${BASE_INPUT:-${VERIFY_BASE:-$BEFORE}}"
+          # Start after the last commit a successful run verified, not after
+          # this push's `before`: a push that lands while a run is going
+          # cancels the run still pending, and its commits would be skipped.
+          last_ok=$(node --input-type=module -e '
+            const { GITHUB_API_URL: api, GITHUB_REPOSITORY: repo, GITHUB_REF_NAME: ref, GH_TOKEN: token } = process.env;
+            const url = `${api}/repos/${repo}/actions/workflows/verify-commits.yml/runs?branch=${encodeURIComponent(ref)}&status=success&per_page=1`;
+            try {
+              const res = await fetch(url, { headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json" } });
+              const body = res.ok ? await res.json() : {};
+              process.stdout.write(body.workflow_runs?.[0]?.head_sha ?? "");
+            } catch (e) {
+              console.error(`last verified commit not found: ${e.message}`);
+            }
+          ')
+          echo "Last commit a successful run verified: ${last_ok:-none}"
+          base="${BASE_INPUT:-${VERIFY_BASE:-$last_ok}}"
+          if [ -z "$base" ] || ! git merge-base --is-ancestor "$base" HEAD 2>/dev/null; then
+            base="$BEFORE"
+          fi
           if [ -z "$base" ] || [ "$base" = "0000000000000000000000000000000000000000" ]; then
             base=$(git merge-base origin/main HEAD)
           fi
