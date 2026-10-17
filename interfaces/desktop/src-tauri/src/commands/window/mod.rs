@@ -42,8 +42,19 @@ pub async fn open_window(app: tauri::AppHandle, role: WindowRole) -> Result<Wind
     let (width, height) = role.default_size();
     let route = role.route();
 
+    // The window is named after the page it shows: that page's copy label.
+    let data_dir = crate::paths::resolve_data_dir(&app)?;
+    let catalog = devpulse_engine::platform::copy::load(&data_dir)
+        .map_err(|e| format!("{e:#}"))?
+        .copy;
+    let title = catalog
+        .nav
+        .get(route)
+        .map(|page| page.label.clone())
+        .ok_or_else(|| format!("the copy catalog has no name for {route}"))?;
+
     tauri::WebviewWindowBuilder::new(&app, label, tauri::WebviewUrl::App(route.into()))
-        .title(role.title())
+        .title(title)
         .inner_size(width, height)
         .decorations(role.decorations())
         .transparent(role.transparent())

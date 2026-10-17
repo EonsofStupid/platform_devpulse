@@ -53,18 +53,6 @@ impl WindowRole {
         }
     }
 
-    /// Window title.
-    #[must_use]
-    pub fn title(&self) -> &'static str {
-        match self {
-            Self::Main => "DevPulse",
-            Self::Chat => "Clyffy Chat",
-            Self::KnowledgeViewer => "Knowledge Viewer",
-            Self::ModelLoader => "Model Control",
-            Self::DevTools => "DevPulse Tools",
-        }
-    }
-
     /// Default inner size (width, height).
     #[must_use]
     pub fn default_size(&self) -> (f64, f64) {

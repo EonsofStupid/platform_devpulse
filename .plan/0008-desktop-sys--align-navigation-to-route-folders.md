@@ -94,6 +94,7 @@ Each phase: checked, committed with hooks, pushed, runner-verified.
 | R5 | Point links through `resolve()`; dead text fixed | the files in the inventory | svelte-check (typed routes); scan finds 0 string routes |
 | R6 | Rust route constants from `build.rs`; window roles use them; KnowledgeViewer → telemetry devtool, ModelLoader → Models page; dashboard window tiles from copy | `src-tauri/build.rs`, `commands/window/types.rs`, devtools `+page.svelte` | cargo check; live: each window opens a real page |
 | R7 | Gate: `no-hand-typed-routes.mjs` in lefthook | `scripts/hooks/`, `lefthook.yml` | the hook fails on a seeded string route, passes on the tree |
+| R8 | Window roles own their windows: the capability covers every app window by Tauri's glob (`"*"`, app-local only — the DevForge webview loads an external URL and stays out) instead of a hand-typed label list that had drifted (`cortex-viewer` vs the role's `knowledge-viewer` since `8c486751`, so that window had no IPC); `"main"` lookups use `WindowRole::Main.label()`; a window's title is the copy label of the page it opens (`WindowRole::title()` English deleted) | `capabilities/default.json`, `commands/window/{types,mod}.rs`, `lib.rs`, `commands/devforge/window.rs` | cargo clippy; live: the telemetry window opens and its page loads data |
 
 ## Decisions needed
 

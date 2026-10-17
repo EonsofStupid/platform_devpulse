@@ -154,7 +154,9 @@ pub async fn open_devforge_window(
     // DevForge down with it. This matches the cockpit pattern used by
     // chat / knowledge-viewer / model-loader in
     // [`crate::commands::window::open_window`].
-    if let Some(main_window) = app.get_webview_window("main") {
+    if let Some(main_window) =
+        app.get_webview_window(crate::commands::window::WindowRole::Main.label())
+    {
         builder = builder
             .parent(&main_window)
             .map_err(|e| format!("failed to set DevForge window parent: {e}"))?;

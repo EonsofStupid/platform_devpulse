@@ -602,7 +602,7 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
             tracing::info!("Second instance detected — focusing existing window");
-            if let Some(window) = app.get_webview_window("main") {
+            if let Some(window) = app.get_webview_window(commands::window::WindowRole::Main.label()) {
                 let _ = window.set_focus();
                 let _ = window.show();
             }
@@ -799,7 +799,7 @@ pub fn run() {
             // gives an always-visible console for those early crashes.
             //
             // Opt out with `DEVPULSE_NO_DEVTOOLS=1`.
-            if let Some(window) = app.get_webview_window("main") {
+            if let Some(window) = app.get_webview_window(commands::window::WindowRole::Main.label()) {
                 let _ = window.show();
                 let _ = window.set_focus();
                 tracing::info!("Main window shown immediately (pre-boot) — frontend renders skeleton while services initialize");
@@ -922,7 +922,7 @@ pub fn run() {
                 let app_handle = app.handle().clone();
                 app.global_shortcut().on_shortcut(shortcut, move |_a, _s, event| {
                     if event.state == tauri_plugin_global_shortcut::ShortcutState::Pressed {
-                        if let Some(window) = app_handle.get_webview_window("main") {
+                        if let Some(window) = app_handle.get_webview_window(commands::window::WindowRole::Main.label()) {
                             if window.is_devtools_open() {
                                 window.close_devtools();
                                 tracing::info!("Chromium devtools closed on main window");
