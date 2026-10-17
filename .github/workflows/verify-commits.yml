@@ -86,6 +86,12 @@ jobs:
             cargo test -p devpulse-engine -p devpulse-clyffy
             pnpm install --frozen-lockfile
             (cd interfaces/desktop && pnpm exec svelte-kit sync && pnpm exec svelte-check --threshold error)
+            # Architecture tests: IP boundary, the route manifest against the
+            # route folders, route names, devtools folders (plan 0008).
+            (cd interfaces/desktop && pnpm -s test:arch)
+            if [ -f scripts/hooks/no-hand-typed-routes.mjs ]; then
+              node scripts/hooks/no-hand-typed-routes.mjs --all
+            fi
             echo "::endgroup::"
           done < "$RUNNER_TEMP/commits.txt"
           git checkout -q "$tip"

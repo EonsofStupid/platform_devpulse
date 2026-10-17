@@ -51,6 +51,12 @@ pre-commit:
       glob: "interfaces/desktop/src/**/*.{svelte,css,ts}"
       run: node scripts/hooks/no-raw-values.mjs
 
+    # Routes are the folders under src/routes (plan 0008): no route typed
+    # by hand outside resolve() / routeAt().
+    no-hand-typed-routes:
+      glob: "interfaces/desktop/src/**/*.{svelte,ts}"
+      run: node scripts/hooks/no-hand-typed-routes.mjs
+
     # Documentation preflight checks
     docs-preflight:
       glob: "interfaces/desktop/src/**/*.{ts,svelte}"
