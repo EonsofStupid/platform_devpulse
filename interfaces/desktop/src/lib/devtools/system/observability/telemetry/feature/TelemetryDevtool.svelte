@@ -107,11 +107,6 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 </script>
 
 <ServiceDevtoolShell
-	title="Telemetry"
-	description="OTel pipeline — traces, spans, baselines"
-	icon={Activity}
-	axis="runtime"
-	accent="green"
 	health={badge}
 	{extraTabs}
 >

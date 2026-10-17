@@ -15,7 +15,7 @@
 	             the clyffy domain so the route hierarchy is honest.
 -->
 <script lang="ts">
-import { Brain, RefreshCw } from "lucide-svelte";
+import { RefreshCw } from "lucide-svelte";
 import { onMount } from "svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
@@ -61,12 +61,6 @@ const totalRecords = $derived(
 </script>
 
 <ServiceDevtoolShell
-	title="Persona Graph"
-	description="Clyffy's identity in SurrealDB · 3 namespaces"
-	icon={Brain}
-	axis="capabilities"
-	accent="violet"
-	backdrop="persona-graph"
 	health={badge}
 >
 	<!-- ── STATUS — knowledge graph health + per-namespace cards -->

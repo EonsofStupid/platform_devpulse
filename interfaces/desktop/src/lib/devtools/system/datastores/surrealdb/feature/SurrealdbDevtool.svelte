@@ -163,13 +163,6 @@ function handleKeydown(e: KeyboardEvent): void {
 </script>
 
 <ServiceDevtoolShell
-	infoTerm="SurrealDB"
-	title="SurrealDB"
-	description="Multi-model engine · graph + document · 3 namespaces"
-	icon={Network}
-	axis="stores"
-	accent="violet"
-	backdrop="surrealdb"
 	health={badge}
 	{extraTabs}
 >

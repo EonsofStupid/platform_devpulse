@@ -6005,6 +6005,10 @@ forms: FormsCopy;
  */
 layout: LayoutCopy; 
 /**
+ * Devtools.
+ */
+devtools: DevtoolsCopy; 
+/**
  * Route names, keyed by the URL path the route folders give
  * (`/devtools/system/datastores/turso`). The desktop's architecture
  * test holds these keys equal to its route tree.
@@ -6344,6 +6348,18 @@ export type DevforgeHealthState =
  * Status could not be determined.
  */
 "unknown"
+/**
+ * The devtools' shared text; each devtool's own name and lines are `nav`.
+ */
+export type DevtoolsCopy = { 
+/**
+ * Marker on a devtool that is not built yet.
+ */
+planned: string; 
+/**
+ * What a planned devtool's page says.
+ */
+planned_body: string }
 /**
  * Where on disk a downloaded model lands.
  */
@@ -9995,7 +10011,7 @@ status_error: string;
  */
 vram_estimate_template: string }
 /**
- * A route's name, and the line shown under it where a tile shows one.
+ * A route's name and the lines shown with it.
  */
 export type RouteCopy = { 
 /**
@@ -10003,9 +10019,17 @@ export type RouteCopy = {
  */
 label: string; 
 /**
- * One line under the name.
+ * One line under the name on a tile.
  */
 blurb?: string | null; 
+/**
+ * One line under the name on the page or section itself.
+ */
+description?: string | null; 
+/**
+ * Glossary term shown as an info chip next to the name.
+ */
+term?: string | null; 
 /**
  * What the entry's attention dot means, for a route that shows one.
  */
@@ -10205,7 +10229,7 @@ export type RuntimeFingerprint = {
  * Stable runtime handle — `"candle"`, `"llama-cpp-2"`, `"ort"`,
  * `"sherpa-onnx-asr"`, `"qwen3-tts-candle"`, `"ollama-external"`,
  * `"mistralrs"`, `"siglip2-onnx-fixres"`, … Matches the
- * `runtime_id` field on the frontend `DevtoolMeta` registry.
+ * `runtimeId` a desktop devtool folder declares in `_devtool`.
  */
 runtime_id: string; 
 /**

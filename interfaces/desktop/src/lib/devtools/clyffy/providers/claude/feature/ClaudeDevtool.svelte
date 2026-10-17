@@ -8,7 +8,7 @@
 	DevtoolBentoTile, CommandErrorAlert, DevtoolLogsTab, DevtoolRefreshButton).
 
 	Wrapped in ServiceDevtoolShell which auto-mounts the per-devtool
-	BackgroundScene registered in SERVICE_BACKDROPS["claude"] —
+	BackgroundScene declared by the route folder's `_devtool.backdrop` —
 	cosmic-galaxy at strong intensity, palette derived from the coral
 	accent.
 
@@ -23,7 +23,6 @@ import {
 	CheckCircle2,
 	Cpu,
 	Key,
-	Plug,
 	PlugZap,
 	Terminal,
 	Unplug,
@@ -195,12 +194,6 @@ onMount(() => {
 </script>
 
 <ServiceDevtoolShell
-	title="Claude Integration"
-	description="Subprocess MCP · subscription + API lanes"
-	icon={Plug}
-	axis="integrations"
-	accent="coral"
-	backdrop="claude"
 	health={badge}
 >
 	{#snippet status()}

@@ -183,11 +183,6 @@ function handleDragOver(e: DragEvent): void {
 </script>
 
 <ServiceDevtoolShell
-	title="Speech-to-Text"
-	description="Whisper — batch transcription"
-	icon={Ear}
-	axis="capabilities"
-	accent="blue"
 	health={badge}
 >
 	{#snippet status()}

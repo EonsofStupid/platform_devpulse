@@ -82,6 +82,14 @@ collapse = "Collapse sidebar"
 collapse_short = "Collapse"
 
 # ─────────────────────────────────────────────────────────────────────
+# Devtools — shared text. Each devtool's name and lines are under [nav].
+# ─────────────────────────────────────────────────────────────────────
+
+[devtools]
+planned = "Planned"
+planned_body = "This devtool is planned and not built yet."
+
+# ─────────────────────────────────────────────────────────────────────
 # Routes — one name per route folder, keyed by its URL path (plan 0008).
 # The desktop builds every menu, dashboard and tile from its route folders
 # and reads names from here; a route without a name, or a name for a path
@@ -147,13 +155,16 @@ label = "DevPulse Tools"
 
 [nav."/devtools/system"]
 label = "System"
+description = "Platform infrastructure: datastores, caches, retrieval, observability, IDE."
 
 [nav."/devtools/clyffy"]
 label = "Clyffy"
+description = "The assistant's senses + cognition."
 
 [nav."/devtools/runtimes"]
 label = "Runtimes"
 blurb = "Inverse view — every loaded runtime, its fingerprint, and per-runtime update checks."
+description = "Live state of every inference runtime currently fulfilling a slot"
 
 [nav."/devtools/system/datastores"]
 label = "Datastores"
@@ -197,95 +208,132 @@ label = "Inference"
 [nav."/devtools/system/datastores/turso"]
 label = "Turso"
 blurb = "Your data: browse and edit rows, see migration history, run SQL."
+description = "Your data and the platform's · browse, edit, migrate"
+term = "Turso"
 
 [nav."/devtools/system/datastores/duckdb"]
 label = "DuckDB"
 blurb = "Analytical engine. Telemetry spans, OLAP queries."
+description = "Analytics engine · OLAP"
+term = "DuckDB"
 
 [nav."/devtools/system/datastores/surrealdb"]
 label = "SurrealDB"
 blurb = "Multi-model engine: graph + document. HTTP :8822. Sidecar lifecycle."
+description = "Multi-model engine · graph + document · 3 namespaces"
+term = "SurrealDB"
 
 [nav."/devtools/system/datastores/qdrant"]
 label = "Qdrant"
 blurb = "Embedded vector store · in-process · zero latency. Cross-linked from RRO."
+description = "Embedded vector store · in-process · zero latency"
+term = "Qdrant"
+
+[nav."/devtools/system/datastores/mongodb"]
+label = "MongoDB"
+blurb = "Document engine. Docs + images via GridFS."
 
 [nav."/devtools/system/datastores/project-db"]
 label = "Project DB"
 blurb = "Per-project Turso. Lazy-loaded, on-demand."
+description = "Per-project Turso instances · lazy-loaded"
 
 [nav."/devtools/system/caches/moka"]
-label = "Moka Cache"
+label = "Cache"
 blurb = "In-memory KV. Capacity, TTL, hit-rate."
+description = "In-memory Moka store · non-persistent · TTL-driven"
+term = "Moka cache"
 
 [nav."/devtools/system/observability/telemetry"]
 label = "Telemetry"
 blurb = "OTel spans, lane baselines, exporter config."
+description = "OTel pipeline — traces, spans, baselines"
 
 [nav."/devtools/system/ide/devforge"]
 label = "DevForge"
 blurb = "Embedded IDE host. REH server, extensions, update channel."
+description = "Code Editor · REH Server"
 
 [nav."/devtools/clyffy/ears/stt"]
 label = "Speech-to-Text"
 blurb = "Whisper transcription with VAD."
+description = "Whisper — batch transcription"
 
 [nav."/devtools/clyffy/ears/streaming-asr"]
-label = "Streaming ASR"
+label = "Sherpa (streaming ASR)"
 blurb = "Sherpa streaming + wake-word detection."
+description = "Real-time speech-to-text · zipformer streaming · sherpa-onnx"
 
 [nav."/devtools/clyffy/ears/sts"]
 label = "Speech-to-Speech"
 blurb = "Cascaded loop — wake → STT → brain → TTS."
+description = "Bidirectional voice pipeline — Whisper + Kokoro"
 
 [nav."/devtools/clyffy/mouth/tts"]
 label = "Voice Synthesis"
 blurb = "Qwen3-TTS preset speakers + zero-shot voice cloning."
+description = "Qwen3-TTS — preset speakers + zero-shot voice cloning"
 
 [nav."/devtools/clyffy/eyes/vision"]
-label = "Vision Encoder"
+label = "Vision"
 blurb = "SigLIP2 image embeddings — 1152-dim L2."
+description = "Auto-managed image encoder slot · diagnostics + manual probe"
 
 [nav."/devtools/clyffy/memory/cortex"]
 label = "Knowledge Engine"
 blurb = "Prompt builder, memory lookup, councils."
+description = "Reasoning pipeline — prompt builder, memory, councils"
+term = "Brain"
 
 [nav."/devtools/clyffy/memory/intelligence"]
 label = "Memory Intelligence"
 blurb = "Embedding-indexed memory + RRO archive across project namespaces."
+description = "Embedding-indexed memory + RRO archive across project namespaces"
+term = "RRO"
 
 [nav."/devtools/clyffy/memory/persona-graph"]
 label = "Persona Graph"
 blurb = "Clyffy's identity in SurrealDB namespaces. Links into the engine."
+description = "Clyffy's identity in SurrealDB · 3 namespaces"
 
 [nav."/devtools/clyffy/reasoning/rro"]
 label = "RRO Trifecta"
 blurb = "Embedder + encoder + vector store. The retrieval unit."
+description = "Embedder + encoder + vector store · retrieval-rumination orchestrator"
 
 [nav."/devtools/clyffy/reasoning/rrd"]
 label = "RRD Daemon"
 blurb = "Hot-update lifecycle — pause, drain, swap, resume on the encoder."
+description = "Hot-update lifecycle — pause · drain · swap · resume on the encoder"
 
 [nav."/devtools/clyffy/governance/policy"]
 label = "Agent Policy"
 blurb = "Constrained decoding + AG-UI wire + A2UI grammar. What the agent is allowed to emit."
+description = "Constrained decoding · AG-UI wire · A2UI grammar"
 
 [nav."/devtools/clyffy/providers/claude"]
 label = "Claude Integration"
 blurb = "MCP server, subscription lane, API providers, councils."
+description = "Subprocess MCP · subscription + API lanes"
 
 [nav."/devtools/runtimes/orchestrator/slots"]
-label = "Slot Manager"
+label = "Slot Orchestrator"
 blurb = "Slot assignment, downloads, VRAM budget."
+description = "Slot ↔ model assignments · load / unload · VRAM headroom"
 
 [nav."/devtools/runtimes/inference/candle"]
 label = "Candle"
 blurb = "Native-tensor runtime. GGUF + SafeTensors."
+description = "In-process model runtime · GGUF + SafeTensors"
+term = "Candle"
 
 [nav."/devtools/runtimes/inference/llama-cpp"]
-label = "llama.cpp"
+label = "llama.cpp (embedded)"
 blurb = "In-process GGUF runtime. Light path — CPU-friendly."
+description = "In-process GGUF runtime via llama-cpp-2"
+term = "llama.cpp"
 
 [nav."/devtools/runtimes/inference/ollama"]
 label = "Ollama"
 blurb = "Backup runtime — kept available for fallback."
+description = "External Ollama process · HTTP API"

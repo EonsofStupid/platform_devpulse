@@ -151,15 +151,21 @@ pub struct FormsCopy {
     pub errors: FormErrorsCopy,
 }
 
-/// A route's name, and the line shown under it where a tile shows one.
+/// A route's name and the lines shown with it.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 #[serde(deny_unknown_fields)]
 pub struct RouteCopy {
     /// Name in navigation, tiles and section headers.
     pub label: String,
-    /// One line under the name.
+    /// One line under the name on a tile.
     #[serde(default)]
     pub blurb: Option<String>,
+    /// One line under the name on the page or section itself.
+    #[serde(default)]
+    pub description: Option<String>,
+    /// Glossary term shown as an info chip next to the name.
+    #[serde(default)]
+    pub term: Option<String>,
     /// What the entry's attention dot means, for a route that shows one.
     #[serde(default)]
     pub badge: Option<String>,
@@ -177,6 +183,16 @@ pub struct SidebarCopy {
     pub collapse: String,
     /// The collapse button's text while the sidebar is expanded.
     pub collapse_short: String,
+}
+
+/// The devtools' shared text; each devtool's own name and lines are `nav`.
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+#[serde(deny_unknown_fields)]
+pub struct DevtoolsCopy {
+    /// Marker on a devtool that is not built yet.
+    pub planned: String,
+    /// What a planned devtool's page says.
+    pub planned_body: String,
 }
 
 /// Text owned by the app's layouts.
@@ -197,6 +213,8 @@ pub struct CopyCatalog {
     pub forms: FormsCopy,
     /// Layouts.
     pub layout: LayoutCopy,
+    /// Devtools.
+    pub devtools: DevtoolsCopy,
     /// Route names, keyed by the URL path the route folders give
     /// (`/devtools/system/datastores/turso`). The desktop's architecture
     /// test holds these keys equal to its route tree.

@@ -14,21 +14,21 @@
 	deployed engine even when it's bound to multiple capabilities
 	(ort fulfills voice.stt + voice.tts + vision.embedder + …).
 
-	Cross-references the DEVTOOL_REGISTRY to surface "open the
-	per-runtime devtool" links — clicking a runtime tile takes the
-	user to the devtool that documents that runtime in detail.
+	Each runtime tile links to the devtool that documents it: the devtool
+	folder whose `_devtool.runtimeId` matches (plan 0008).
 -->
 <script lang="ts">
-import { Cpu, ExternalLink, RefreshCw, ServerCog } from "lucide-svelte";
+import { ExternalLink, RefreshCw, ServerCog } from "lucide-svelte";
 import { onMount } from "svelte";
+import { page } from "$app/state";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import {
 	type CapturePayload,
-	DEVTOOL_REGISTRY,
-	type DevtoolMeta,
+	devtoolForRuntime,
+	devtoolPlace,
 	type HealthBadge,
 	ServiceDevtoolShell,
 } from "$lib/devtools/index.js";
@@ -39,6 +39,7 @@ import type {
 } from "$lib/sys/generated/bindings.js";
 import { commands } from "$lib/sys/generated/bindings.js";
 import { logInfo } from "$lib/sys/logger.js";
+import { hrefOf, type RouteNode, routeCopy } from "$lib/sys/routing/index.js";
 
 // ── State ──────────────────────────────────────────────────
 let fingerprints = $state<Record<string, RuntimeFingerprint>>({});
@@ -115,8 +116,10 @@ interface RuntimeGroup {
 	runtime_id: string;
 	fingerprint: RuntimeFingerprint;
 	slots: string[];
-	devtool: DevtoolMeta | undefined;
+	devtool: RouteNode | undefined;
 }
+
+const dashboard = $derived(devtoolPlace(page.route.id)?.dashboard);
 
 const runtimeGroups = $derived<RuntimeGroup[]>(
 	(() => {
@@ -130,7 +133,7 @@ const runtimeGroups = $derived<RuntimeGroup[]>(
 					runtime_id: fp.runtime_id,
 					fingerprint: fp,
 					slots: [slot],
-					devtool: DEVTOOL_REGISTRY.find((d) => d.runtime_id === fp.runtime_id),
+					devtool: dashboard ? devtoolForRuntime(dashboard, fp.runtime_id) : undefined,
 				});
 			}
 		}
@@ -216,11 +219,6 @@ function capture(tabId: string): CapturePayload | undefined {
 </script>
 
 <ServiceDevtoolShell
-	title="Runtimes Aggregation"
-	description="Live state of every inference runtime currently fulfilling a slot"
-	icon={Cpu}
-	axis="capabilities"
-	accent="ember"
 	health={badge}
 	{capture}
 >
@@ -312,11 +310,11 @@ function capture(tabId: string): CapturePayload | undefined {
 
 					{#if group.devtool}
 						<a
-							href={group.devtool.route}
+							href={hrefOf(group.devtool)}
 							class="inline-flex items-center gap-1 self-start"
 							style="color: var(--accent-teal-main); font-size: var(--font-size-xs);"
 						>
-							Open {group.devtool.label} devtool →
+							Open {routeCopy(group.devtool)?.label} devtool →
 						</a>
 					{/if}
 				</div>

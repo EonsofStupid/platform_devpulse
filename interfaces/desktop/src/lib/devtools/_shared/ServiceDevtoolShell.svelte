@@ -13,19 +13,21 @@
 	Actions / Debug. This component is the single implementation; services
 	compose it with Svelte `{#snippet}` blocks for each tab body.
 
+	# What the header shows comes from the page's own route folder (plan 0008)
+
+	Name, subtitle and glossary term are the route's copy (`[nav."<path>"]`);
+	the icon is the folder's `_nav`; accent and backdrop are its `_devtool`;
+	the chip is the bucket folder's name; the back link is the devtools
+	dashboard the page sits under. A page passes none of these.
+
 	# Usage
 
 	```svelte
 	<script lang="ts">
-import { Database } from "lucide-svelte";
 import { ServiceDevtoolShell } from "$lib/devtools/_shared/index.js";
 </script>
 
 	<ServiceDevtoolShell
-		title="Turso"
-		description="System + User relational store"
-		icon={Database}
-		axis="stores"
 		health={{ state: "up", label: "Running" }}
 		capture={(tabId) => tabId === "logs"
 			? { filename: "turso-logs.txt", mime: "text/plain", content: logTail }
@@ -55,75 +57,30 @@ import { ServiceDevtoolShell } from "$lib/devtools/_shared/index.js";
 	# Keyboard
 
 	- `Ctrl+1..5` — jump to Status / Config / Logs / Actions / Debug
-	- `Esc` in the back-link returns to `/devtools`
+	- `Esc` in the back-link returns to the devtools dashboard
 -->
 <script lang="ts">
 	import { type Snippet, untrack } from "svelte";
 	import { ArrowLeft, Check, Copy, Download } from "lucide-svelte";
+	import { page } from "$app/state";
 	import { KnowledgeTerm } from "$lib/design/blocks/knowledge/index.js";
 	import { BackgroundScene } from "$lib/design/components/background-scene/index.js";
 	import { Text } from "$lib/design/components/text/index.js";
+	import { hrefOf, routeCopy } from "$lib/sys/routing/index.js";
+	import { devtoolNav, devtoolPlace } from "../devtool-manifest.js";
 	import {
 		accentToBackdropPalette,
-		type BrandAccent,
 		DEFAULT_SERVICE_ACCENT,
 		serviceAccentStyle,
-		serviceBackdrop,
-		type ServiceBackdrop,
 	} from "./serviceAccents.js";
-	import type { CapturePayload, ExtraTab, HealthBadge, ServiceAxis } from "./types.js";
+	import type { CapturePayload, ExtraTab, HealthBadge } from "./types.js";
 
 	interface Props {
-		/** Display name in the header (e.g. "Turso"). */
-		title: string;
-		/** One-line description under the title. */
-		description?: string;
-		/**
-		 * Optional lucide icon component rendered next to the title.
-		 * Typed `any` because lucide-svelte v0.564 exports class-based
-		 * icons (`SvelteComponentTyped<…>`), which structurally don't
-		 * satisfy Svelte 5's function-form `Component<P, E, S>`.
-		 */
-		// biome-ignore lint/suspicious/noExplicitAny: lucide-svelte class-based exports don't match Svelte 5 `Component<P>` function-form structurally.
-		icon?: any;
-		/** Axis placement — used as the breadcrumb badge label. */
-		axis: ServiceAxis;
-		/**
-		 * ColdLight brand-accent that paints this devtool's icon, badge,
-		 * and active-tab underline. See [`SERVICE_ACCENTS`] for the
-		 * project-wide registry; fallback is [`DEFAULT_SERVICE_ACCENT`].
-		 */
-		accent?: BrandAccent;
 		/** Current health — renders as a colored dot + label in the header. */
 		health?: HealthBadge;
-		/** Where the back-link returns to. Defaults to `/devtools`. */
-		backHref?: string;
-
-		/**
-		 * Per-devtool ambient backdrop. Pass either a slug (looked up via
-		 * [`SERVICE_BACKDROPS`]) or an explicit [`ServiceBackdrop`] config.
-		 * Omit to render no scoped backdrop (the shell-wide cosmic mount
-		 * in Frame.svelte still paints behind everything).
-		 *
-		 * The backdrop's palette derives automatically from `accent` via
-		 * [`accentToBackdropPalette`] so colour stays family-coherent.
-		 */
-		backdrop?: ServiceBackdrop | string;
 
 		/** Extra per-service tabs rendered after the five standard tabs. */
 		extraTabs?: ExtraTab[];
-
-		/**
-		 * Glossary term shown as a hover chip in the header. When set,
-		 * the shell renders a `KnowledgeTerm` chip after the title that
-		 * surfaces the matching glossary entry on hover/focus. Use it
-		 * to give an operator the "what is this subsystem" definition
-		 * without forcing them to read the docs.
-		 *
-		 * Pass the exact `term` field of a `gloss`-type entry (e.g.
-		 * `"SurrealDB"`, `"RRO"`, `"DuckDB"`). Case-insensitive.
-		 */
-		infoTerm?: string;
 
 		// ── Standard tab snippets ────────────────────────────────
 		status?: Snippet;
@@ -164,16 +121,8 @@ import { ServiceDevtoolShell } from "$lib/devtools/_shared/index.js";
 	}
 
 	let {
-		title,
-		description,
-		icon: Icon,
-		axis,
-		accent = DEFAULT_SERVICE_ACCENT,
 		health,
-		backHref = "/devtools",
-		backdrop,
 		extraTabs = [],
-		infoTerm,
 		status,
 		config,
 		logs,
@@ -183,14 +132,15 @@ import { ServiceDevtoolShell } from "$lib/devtools/_shared/index.js";
 		extra,
 	}: Props = $props();
 
-	// Resolve backdrop config — slug → registry lookup, or use object directly.
-	const resolvedBackdrop = $derived<ServiceBackdrop | null>(
-		backdrop === undefined
-			? null
-			: typeof backdrop === "string"
-				? serviceBackdrop(backdrop)
-				: backdrop,
-	);
+	// This page's place among the devtools folders, and what they declare.
+	const place = $derived(devtoolPlace(page.route.id));
+	const own = $derived(place ? routeCopy(place.node) : undefined);
+	const facts = $derived(place ? devtoolNav(place.node) : {});
+	const Icon = $derived(place?.node.nav.icon);
+	const accent = $derived(facts.accent ?? DEFAULT_SERVICE_ACCENT);
+	const resolvedBackdrop = $derived(facts.backdrop ?? null);
+	const bucketName = $derived(place?.bucket ? routeCopy(place.bucket)?.label : undefined);
+	const backHref = $derived(place ? hrefOf(place.dashboard) : undefined);
 
 	// Backdrop palette derives from the accent so the family stays coherent.
 	const backdropPalette = $derived(accentToBackdropPalette(accent));
@@ -298,7 +248,7 @@ import { ServiceDevtoolShell } from "$lib/devtools/_shared/index.js";
 	class="relative flex flex-col h-full bg-[var(--surface-base)] text-[var(--text-primary)] overflow-hidden"
 	style={accentStyle}
 >
-	<!-- ── Per-devtool ambient backdrop (opt-in via `backdrop` prop) ── -->
+	<!-- ── Per-devtool ambient backdrop (the folder's `_devtool.backdrop`) ── -->
 	{#if resolvedBackdrop}
 		<BackgroundScene
 			variation={resolvedBackdrop.variation}
@@ -323,26 +273,28 @@ import { ServiceDevtoolShell } from "$lib/devtools/_shared/index.js";
 			<Icon size={16} style="color: var(--accent-service-main)" />
 		{/if}
 
-		<Text size="sm" weight="semibold">{title}</Text>
+		<Text size="sm" weight="semibold">{own?.label}</Text>
 
-		{#if description}
-			<span class="text-xs text-[var(--text-secondary)]">&middot; {description}</span>
+		{#if own?.description}
+			<span class="text-xs text-[var(--text-secondary)]">&middot; {own.description}</span>
 		{/if}
 
-		{#if infoTerm}
-			<KnowledgeTerm term={infoTerm} tool="devtools" plain>
+		{#if own?.term}
+			<KnowledgeTerm term={own.term} tool="devtools" plain>
 				<span class="ml-1 px-1.5 py-0.5 text-[10px] uppercase tracking-wider rounded border border-[var(--accent-purple-main)] text-[var(--accent-purple-main)] cursor-help">
 					?
 				</span>
 			</KnowledgeTerm>
 		{/if}
 
-		<span
-			class="ml-1 px-1.5 py-0.5 text-xs uppercase tracking-wider rounded border"
-			style="color: var(--accent-service-main); border-color: var(--accent-service-main); opacity: 0.7;"
-		>
-			{axis}
-		</span>
+		{#if bucketName}
+			<span
+				class="ml-1 px-1.5 py-0.5 text-xs uppercase tracking-wider rounded border"
+				style="color: var(--accent-service-main); border-color: var(--accent-service-main); opacity: 0.7;"
+			>
+				{bucketName}
+			</span>
+		{/if}
 
 		<div class="ml-auto flex items-center gap-3">
 			{#if health}

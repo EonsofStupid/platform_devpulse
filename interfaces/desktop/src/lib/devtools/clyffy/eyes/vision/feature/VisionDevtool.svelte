@@ -5,8 +5,8 @@
 
 	Golden-pattern devtool — composes shipped ColdLight primitives only
 	(Stat / EmptyState / Callout / Card preset="glass" / Tabs / Tooltip)
-	via the _shared/ adapters. Backdrop registered in
-	SERVICE_BACKDROPS["vision"] → neural-pulse @ strong intensity, the
+	via the _shared/ adapters. Backdrop declared by the route folder's
+	`_devtool.backdrop` → neural-pulse @ strong intensity, the
 	"thinking feeling" for AI capability surfaces.
 
 	Wraps the real SigLIP2 backend at
@@ -15,7 +15,7 @@
 	SO400M default). Slot id is `vision.embedder`.
 -->
 <script lang="ts">
-import { Check, Clipboard, Eye, FileImage, ImageOff, Play, PowerOff } from "lucide-svelte";
+import { Check, Clipboard, FileImage, ImageOff, Play, PowerOff } from "lucide-svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Callout } from "$lib/design/components/callout/index.js";
@@ -226,12 +226,6 @@ async function handleEncodeFile(event: Event): Promise<void> {
 </script>
 
 <ServiceDevtoolShell
-	title="Vision"
-	description="Auto-managed image encoder slot · diagnostics + manual probe"
-	icon={Eye}
-	axis="capabilities"
-	accent="salmon"
-	backdrop="vision"
 	health={badge}
 >
 	{#snippet status()}

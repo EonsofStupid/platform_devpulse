@@ -18,7 +18,6 @@
 	for `GrammarHandle::status()` and the AG-UI event tap).
 -->
 <script lang="ts">
-import { Shield } from "lucide-svelte";
 import { Text } from "$lib/design/components/text/index.js";
 import { type HealthBadge, ScopedLogPanel, ServiceDevtoolShell } from "$lib/devtools/index.js";
 
@@ -29,11 +28,6 @@ const badge: HealthBadge = {
 </script>
 
 <ServiceDevtoolShell
-	title="Agent Policy"
-	description="Constrained decoding · AG-UI wire · A2UI grammar"
-	icon={Shield}
-	axis="capabilities"
-	accent="electric"
 	health={badge}
 >
 	{#snippet status()}

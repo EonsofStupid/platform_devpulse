@@ -523,11 +523,6 @@ const extraTabs: ExtraTab[] = [{ id: "profiles", label: "Profiles", Icon: UserCi
 </script>
 
 <ServiceDevtoolShell
-	title="Voice Synthesis"
-	description="Qwen3-TTS — preset speakers + zero-shot voice cloning"
-	icon={Volume2}
-	axis="capabilities"
-	accent="magenta"
 	health={badge}
 	{capture}
 	{extraTabs}

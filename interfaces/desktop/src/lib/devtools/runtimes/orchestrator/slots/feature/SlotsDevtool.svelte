@@ -369,11 +369,6 @@ function captureFor(tabId: string): CapturePayload | undefined {
 </script>
 
 <ServiceDevtoolShell
-	title="Slot Orchestrator"
-	description="Slot ↔ model assignments · load / unload · VRAM headroom"
-	icon={Brain}
-	axis="capabilities"
-	accent="teal"
 	health={badge}
 	{extraTabs}
 	capture={captureFor}

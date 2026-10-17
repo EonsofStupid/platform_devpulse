@@ -105,12 +105,6 @@ function appliedAt(seconds: number): string {
 </script>
 
 <ServiceDevtoolShell
-	infoTerm="Turso"
-	title="Turso"
-	description="Your data and the platform's · browse, edit, migrate"
-	icon={Database}
-	axis="stores"
-	accent="blue"
 	health={badge}
 	{extraTabs}
 >

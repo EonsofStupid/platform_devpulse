@@ -7,7 +7,7 @@
 	extras: "Projects" (recent projects list with remove).
 -->
 <script lang="ts">
-import { Code, ExternalLink, FolderOpen, Power, RefreshCw, Trash2 } from "lucide-svelte";
+import { ExternalLink, FolderOpen, Power, RefreshCw, Trash2 } from "lucide-svelte";
 import { onMount } from "svelte";
 import { Button } from "$lib/design/components/button/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
@@ -61,11 +61,6 @@ const badge = $derived<HealthBadge>(
 </script>
 
 <ServiceDevtoolShell
-	title="DevForge"
-	description="Code Editor · REH Server"
-	icon={Code}
-	axis="runtimes"
-	accent="magenta"
 	health={badge}
 	{extraTabs}
 >

@@ -8,7 +8,7 @@
 	on the Model Loader window.
 -->
 <script lang="ts">
-import { PackageOpen, PowerOff, RefreshCw, Send } from "lucide-svelte";
+import { PowerOff, RefreshCw, Send } from "lucide-svelte";
 import { onMount } from "svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
@@ -293,12 +293,6 @@ const badge = $derived<HealthBadge>(
 </script>
 
 <ServiceDevtoolShell
-	infoTerm="llama.cpp"
-	title="llama.cpp (embedded)"
-	description="In-process GGUF runtime via llama-cpp-2"
-	icon={PackageOpen}
-	axis="runtimes"
-	accent="hotpink"
 	health={badge}
 	capture={captureFor}
 >

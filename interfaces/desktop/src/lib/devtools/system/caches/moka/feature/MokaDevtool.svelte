@@ -8,7 +8,7 @@
 -->
 <script lang="ts">
 import { invoke } from "@tauri-apps/api/core";
-import { Database, RefreshCw } from "lucide-svelte";
+import { RefreshCw } from "lucide-svelte";
 import { onMount } from "svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
@@ -61,12 +61,6 @@ onMount(() => {
 </script>
 
 <ServiceDevtoolShell
-	infoTerm="Moka cache"
-	title="Cache"
-	description="In-memory Moka store · non-persistent · TTL-driven"
-	icon={Database}
-	axis="stores"
-	accent="frost"
 	health={badge}
 >
 	{#snippet status()}

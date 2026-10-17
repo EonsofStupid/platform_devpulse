@@ -11,7 +11,7 @@
 	a clear banner instead of silently failing.
 -->
 <script lang="ts">
-import { Ear, Mic, Play, RefreshCw, StopCircle, Trash2 } from "lucide-svelte";
+import { Mic, Play, RefreshCw, StopCircle, Trash2 } from "lucide-svelte";
 import { onMount } from "svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
@@ -113,11 +113,6 @@ async function stopMic(): Promise<void> {
 </script>
 
 <ServiceDevtoolShell
-	title="Sherpa (streaming ASR)"
-	description="Real-time speech-to-text · zipformer streaming · sherpa-onnx"
-	icon={Ear}
-	axis="capabilities"
-	accent="coral"
 	health={badge}
 >
 	{#snippet status()}

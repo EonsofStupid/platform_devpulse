@@ -292,11 +292,6 @@ async function handleTranscribeFile(event: Event): Promise<void> {
 </script>
 
 <ServiceDevtoolShell
-	title="Speech-to-Speech"
-	description="Bidirectional voice pipeline — Whisper + Kokoro"
-	icon={Radio}
-	axis="capabilities"
-	accent="purple"
 	health={badge}
 >
 	{#snippet status()}

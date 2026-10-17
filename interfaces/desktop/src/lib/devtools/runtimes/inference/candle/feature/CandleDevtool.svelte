@@ -7,7 +7,7 @@
 	restart verbs. Previous Phase 4a harness has been removed.
 -->
 <script lang="ts">
-import { Cpu, PowerOff, RefreshCw, Send } from "lucide-svelte";
+import { PowerOff, RefreshCw, Send } from "lucide-svelte";
 import { onMount } from "svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
@@ -262,12 +262,6 @@ function captureFor(tabId: string): CapturePayload | undefined {
 </script>
 
 <ServiceDevtoolShell
-	infoTerm="Candle"
-	title="Candle"
-	description="In-process model runtime · GGUF + SafeTensors"
-	icon={Cpu}
-	axis="runtimes"
-	accent="ember"
 	health={badge}
 	capture={captureFor}
 >

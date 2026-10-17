@@ -9,19 +9,14 @@
   is the priority over strict isolation.
 -->
 <script lang="ts">
-import { Activity, BrainCircuit, Cpu, ExternalLink, Grid3x3, Settings, X } from "lucide-svelte";
+import { Activity, BrainCircuit, ExternalLink, Grid3x3, Settings, X } from "lucide-svelte";
 import { untrack } from "svelte";
+import { page } from "$app/state";
 import { Button } from "$lib/design/components/button/index.js";
 import Text from "$lib/design/components/text/Text.svelte";
 import LiveSubsystemStrip from "$lib/devtools/_shared/LiveSubsystemStrip.svelte";
-import {
-	DEVTOOL_BUCKET_ICONS,
-	DEVTOOL_REGISTRY,
-	type DevtoolMeta,
-	groupByTier,
-	type LucideIcon,
-	type TierGroup,
-} from "$lib/devtools/index.js";
+import { devtoolNav, devtoolTiers } from "$lib/devtools/index.js";
+import { copyState } from "$lib/sys/copy/index.js";
 import type {
 	LaneToggle,
 	LaneTraceConfig,
@@ -30,6 +25,13 @@ import type {
 } from "$lib/sys/generated/bindings.js";
 import { commands } from "$lib/sys/generated/bindings.js";
 import { logError } from "$lib/sys/logger.js";
+import {
+	findRouteById,
+	hrefOf,
+	type LucideIcon,
+	type RouteNode,
+	routeCopy,
+} from "$lib/sys/routing/index.js";
 
 // ── Tab state ────────────────────────────────────────────────
 type TabId = "overview" | "lanes" | "config";
@@ -42,16 +44,18 @@ const tabs = [
 
 let activeTab = $state<TabId>("overview");
 
-// ── Registry-driven tier grouping ────────────────────────────
-// `groupByTier` resolves the per-tier bucket icons from the registry
-// module — every tier is bucketed, so the dashboard renders one
-// uniform `tier → buckets → tiles` shape with no special-casing.
-const tierGroups: TierGroup[] = $derived(groupByTier(DEVTOOL_REGISTRY, DEVTOOL_BUCKET_ICONS));
+// ── Tiers, buckets and devtools from this page's route folders ────
+// This page's child folders are tiers, theirs are buckets, theirs are
+// devtools (plan 0008); icons and order are each folder's `_nav`, tone /
+// status its `_devtool`, every text its copy.
+const dashboard = $derived(findRouteById(page.route.id));
+const tiers = $derived(dashboard ? devtoolTiers(dashboard) : []);
+const devtoolsText = $derived(copyState.catalog?.devtools);
 
 // External windows — Tauri WebviewWindow targets that live outside
 // the routed devtools but still belong on this dashboard for
-// discoverability. Kept hardcoded (not in DEVTOOL_REGISTRY) because
-// they aren't routes — they're window opens.
+// discoverability. Window roles are Rust's; plan 0008 R6 derives this
+// list from them and their routes.
 type ExternalWindow = {
 	role: Parameters<typeof commands.openWindow>[0];
 	label: string;
@@ -74,12 +78,12 @@ const EXTERNAL_WINDOWS: ExternalWindow[] = [
 	},
 ];
 
-function tierAccentClass(tier: TierGroup): string {
-	return `ds-section--${tier.accent}`;
+function tierToneClass(tier: RouteNode): string {
+	return `ds-section--${devtoolNav(tier).tone ?? "muted"}`;
 }
 
-function isPlanned(tile: DevtoolMeta): boolean {
-	return tile.status === "planned";
+function isPlanned(tool: RouteNode): boolean {
+	return devtoolNav(tool).status === "planned";
 }
 
 // ── Lane config state ────────────────────────────────────────
@@ -339,14 +343,18 @@ let laneGroups = $derived<LaneGroup[]>(
 							<span class="ds-tile-title">Config Inspector</span>
 							<span class="ds-tile-blurb">Platform config, service stages, data paths.</span>
 						</button>
-						<a href="/devtools/runtimes" class="ds-tile ds-tile--lg">
-							<Cpu size={26} class="ds-tile-icon" />
-							<span class="ds-tile-title">Runtimes Aggregation</span>
-							<span class="ds-tile-blurb">
-								Inverse view — every loaded runtime, its fingerprint,
-								and per-runtime update checks.
-							</span>
-						</a>
+						<!-- Tier folders that are pages in their own right. -->
+						{#each tiers.filter((t) => t.node.hasPage) as tier (tier.node.path)}
+							{@const TierIcon = tier.node.nav.icon}
+							{@const text = routeCopy(tier.node)}
+							<a href={hrefOf(tier.node)} class="ds-tile ds-tile--lg">
+								{#if TierIcon}
+									<TierIcon size={26} class="ds-tile-icon" />
+								{/if}
+								<span class="ds-tile-title">{text?.label}</span>
+								<span class="ds-tile-blurb">{text?.blurb}</span>
+							</a>
+						{/each}
 					</div>
 				</section>
 
@@ -371,50 +379,44 @@ let laneGroups = $derived<LaneGroup[]>(
 					</div>
 				</section>
 
-				<!-- ── Three tiers from registry — System → Clyffy → Runtimes.
-				     Every tier renders the same shape: section → buckets → tiles.
-				     Per-tier blurb is the only branch. -->
-				{#each tierGroups as group (group.tier)}
-					<section class="ds-section {tierAccentClass(group)}">
+				<!-- ── Tiers → buckets → devtools, from this page's route folders.
+				     Every tier renders the same shape; nothing is special-cased. -->
+				{#each tiers as tier (tier.node.path)}
+					{@const tierText = routeCopy(tier.node)}
+					<section class="ds-section {tierToneClass(tier.node)}">
 						<header class="ds-section-header">
-							<h2 class="ds-section-title">{group.label}</h2>
-							{#if group.tier === "system"}
-								<p class="ds-section-blurb">
-									Platform infrastructure: datastores, caches, retrieval,
-									observability, IDE.
-								</p>
-							{:else if group.tier === "clyffy"}
-								<p class="ds-section-blurb">
-									The assistant's senses + cognition.
-								</p>
-							{:else}
-								<p class="ds-section-blurb">
-									Slot orchestrator + inference runtimes.
-								</p>
+							<h2 class="ds-section-title">{tierText?.label}</h2>
+							{#if tierText?.description}
+								<p class="ds-section-blurb">{tierText.description}</p>
 							{/if}
 						</header>
 
 						<div class="ds-buckets">
-							{#each group.buckets as bucket (bucket.bucket)}
-								{@const BucketIcon = bucket.icon}
+							{#each tier.buckets as bucket (bucket.node.path)}
+								{@const BucketIcon = bucket.node.nav.icon}
 								<div class="ds-bucket">
 									<header class="ds-bucket-header">
-										<BucketIcon size={14} class="ds-bucket-icon" />
-										<span class="ds-bucket-title">{bucket.label}</span>
+										{#if BucketIcon}
+											<BucketIcon size={14} class="ds-bucket-icon" />
+										{/if}
+										<span class="ds-bucket-title">{routeCopy(bucket.node)?.label}</span>
 									</header>
 									<div class="ds-tile-grid">
-										{#each bucket.tiles as tile (tile.id)}
-											{@const Icon = tile.icon}
+										{#each bucket.tools as tool (tool.path)}
+											{@const Icon = tool.nav.icon}
+											{@const toolText = routeCopy(tool)}
 											<a
-												href={tile.route}
+												href={hrefOf(tool)}
 												class="ds-tile"
-												class:ds-tile--planned={isPlanned(tile)}
+												class:ds-tile--planned={isPlanned(tool)}
 											>
-												<Icon size={20} class="ds-tile-icon" />
-												<span class="ds-tile-title">{tile.label}</span>
-												<span class="ds-tile-blurb">{tile.blurb}</span>
-												{#if isPlanned(tile)}
-													<span class="ds-tile-planned-pill">Planned</span>
+												{#if Icon}
+													<Icon size={20} class="ds-tile-icon" />
+												{/if}
+												<span class="ds-tile-title">{toolText?.label}</span>
+												<span class="ds-tile-blurb">{toolText?.blurb}</span>
+												{#if isPlanned(tool)}
+													<span class="ds-tile-planned-pill">{devtoolsText?.planned}</span>
 												{/if}
 											</a>
 										{/each}

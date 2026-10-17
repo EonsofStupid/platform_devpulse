@@ -146,8 +146,9 @@ struct WarmResultCtx<'a> {
 }
 
 /// Resolve the canonical `runtime_id` string for a load — the one
-/// stamped on `LoaderEvent::CapabilityRebound` and used by the
-/// frontend `DevtoolMeta` registry to look up the runtime devtool.
+/// stamped on `LoaderEvent::CapabilityRebound` and matched by the
+/// desktop against each devtool folder's `_devtool.runtimeId` to find
+/// the runtime's devtool.
 ///
 /// The mapping is per-(backend, capability) because a single
 /// `BackendType` (notably `Ort`) hosts multiple distinct runtimes

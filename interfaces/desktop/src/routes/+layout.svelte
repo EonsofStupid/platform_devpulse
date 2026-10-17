@@ -12,6 +12,7 @@ import { updatesState } from "$lib/domains/app/updates/index.js";
 import { authState } from "$lib/domains/auth/index.js";
 import { clyffyStatus } from "$lib/domains/clyffy/index.js";
 import BootOverlay from "$lib/layouts/app/BootOverlay.svelte";
+import { copyState } from "$lib/sys/copy/index.js";
 import ErrorOverlay from "$lib/sys/ErrorOverlay.svelte";
 import { fatalErrorState, setFatal } from "$lib/sys/fatal-error.svelte.js";
 import { installGlobalHandlers, logError, logInfo } from "$lib/sys/logger.js";
@@ -68,6 +69,11 @@ onMount(() => {
 		.catch((e) => {
 			logError("layout", `platformState.init() FAILED: ${e}`);
 		});
+
+	// UI copy catalog — every window's names and text (plan 0001 O1, 0008).
+	// Loaded once here so menus, dashboards and devtool headers in any
+	// window have their labels; `load()` shares the first load.
+	copyState.load().catch((e) => logError("layout", `copyState.load() FAILED: ${e}`));
 
 	// Clyffy presence — mood runes derived from platform + model events.
 	// Owns its own $effect.root internally; returns a teardown fn.

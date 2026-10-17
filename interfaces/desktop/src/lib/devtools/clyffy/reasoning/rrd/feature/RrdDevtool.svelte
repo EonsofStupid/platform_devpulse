@@ -14,7 +14,7 @@
 	pre-instantiation diagnostic surface.
 -->
 <script lang="ts">
-import { Activity, RotateCw, Trash2, Upload } from "lucide-svelte";
+import { Activity, Trash2, Upload } from "lucide-svelte";
 import { onMount } from "svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
@@ -67,11 +67,6 @@ function fmtTime(ms: number): string {
 </script>
 
 <ServiceDevtoolShell
-	title="RRD Daemon"
-	description="Hot-update lifecycle — pause · drain · swap · resume on the encoder"
-	icon={RotateCw}
-	axis="capabilities"
-	accent="purple"
 	health={stateBadge}
 >
 	{#snippet status()}

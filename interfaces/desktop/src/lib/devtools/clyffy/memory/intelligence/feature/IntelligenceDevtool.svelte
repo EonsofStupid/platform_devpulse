@@ -12,7 +12,7 @@
 -->
 <script lang="ts">
 import { invoke } from "@tauri-apps/api/core";
-import { BrainCircuit, Database, HardDrive, RefreshCw, Sparkles } from "lucide-svelte";
+import { Database, HardDrive, RefreshCw, Sparkles } from "lucide-svelte";
 import { onMount } from "svelte";
 import { Button } from "$lib/design/components/button/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
@@ -91,12 +91,6 @@ onMount(refresh);
 </script>
 
 <ServiceDevtoolShell
-	infoTerm="RRO"
-	title="Memory Intelligence"
-	description="Embedding-indexed memory + RRO archive across project namespaces"
-	icon={BrainCircuit}
-	axis="capabilities"
-	accent="cyber"
 	health={badge}
 >
 	{#snippet status()}

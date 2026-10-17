@@ -108,11 +108,6 @@ function prettySize(bytes: number): string {
 </script>
 
 <ServiceDevtoolShell
-	title="Ollama"
-	description="External Ollama process · HTTP API"
-	icon={Boxes}
-	axis="runtimes"
-	accent="salmon"
 	health={badge}
 	capture={captureFor}
 >

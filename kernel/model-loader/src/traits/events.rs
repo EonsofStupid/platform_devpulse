@@ -28,7 +28,7 @@ pub struct RuntimeFingerprint {
     /// Stable runtime handle — `"candle"`, `"llama-cpp-2"`, `"ort"`,
     /// `"sherpa-onnx-asr"`, `"qwen3-tts-candle"`, `"ollama-external"`,
     /// `"mistralrs"`, `"siglip2-onnx-fixres"`, … Matches the
-    /// `runtime_id` field on the frontend `DevtoolMeta` registry.
+    /// `runtimeId` a desktop devtool folder declares in `_devtool`.
     pub runtime_id: String,
     /// Cargo crate version of the runtime crate
     /// (`env!("CARGO_PKG_VERSION")` at runtime). `None` for runtimes

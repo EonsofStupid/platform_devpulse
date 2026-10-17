@@ -20,7 +20,7 @@
 	"Console" — so it doesn't pretend to be either Logs or Config.
 -->
 <script lang="ts">
-import { Database, FolderTree, Play, Plug, RefreshCw, Terminal } from "lucide-svelte";
+import { Database, Play, Plug, RefreshCw, Terminal } from "lucide-svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { InlineMessage } from "$lib/design/components/inline-message/index.js";
@@ -192,11 +192,6 @@ function captureFor(tabId: string): CapturePayload | undefined {
 </script>
 
 <ServiceDevtoolShell
-	title="Project DB"
-	description="Per-project Turso instances · lazy-loaded"
-	icon={FolderTree}
-	axis="stores"
-	accent="cyan"
 	health={badge}
 	{extraTabs}
 	capture={captureFor}

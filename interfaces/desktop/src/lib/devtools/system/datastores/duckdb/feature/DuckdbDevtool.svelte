@@ -133,12 +133,6 @@ function handleKeydown(e: KeyboardEvent): void {
 </script>
 
 <ServiceDevtoolShell
-	infoTerm="DuckDB"
-	title="DuckDB"
-	description="Analytics engine · OLAP"
-	icon={BarChart3}
-	axis="stores"
-	accent="gold"
 	health={badge}
 	{extraTabs}
 >

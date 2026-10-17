@@ -35,10 +35,6 @@ import { hrefOf, type RouteNode, routeCopy } from "$lib/sys/routing/index.js";
 import { globalState } from "$lib/sys/runes/global.svelte";
 import { footerEntries, groupOf, hubEntries, submenuOf } from "./sidebar-entries.js";
 
-$effect(() => {
-	void copyState.load();
-});
-
 const group = $derived(groupOf(page.route.id));
 const hubs = $derived(hubEntries(group));
 const footer = $derived(footerEntries(group));
