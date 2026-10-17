@@ -46,6 +46,15 @@ ignore = [
     "RUSTSEC-2026-0195", # quick-xml NsReader allocation: same three dependents as 0194
     "RUSTSEC-2020-0163", # term_size unmaintained, via tokei 15 (latest release; repo scan)
     "RUSTSEC-2026-0173", # proc-macro-error2 unmaintained, build-time proc-macro only
+    # zip < 9 extraction flaws (2026-10-17). Our own zip (xtask) and duckdb's are
+    # on 9; these two dependents have no release on zip >= 9:
+    # - candle-core 0.10 (zip 7; 0.11 is on zip 8): reads .npy/.npz entries in
+    #   memory, never calls `extract`;
+    # - tauri-plugin-updater 2.x (zip 4, up to 2.14): `extract` runs only on an
+    #   update bundle that passed minisign verification against our release key.
+    "RUSTSEC-2026-0367", # SUID/SGID bits preserved on extract
+    "RUSTSEC-2026-0368", # extract creates symlinks outside the destination
+    "RUSTSEC-2026-0369", # extract applies permissions through symlinks
 ]
 
 [licenses]

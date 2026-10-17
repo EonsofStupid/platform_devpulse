@@ -17,7 +17,7 @@ toml = "0.8"
 # xtask should stay light and use Windows Schannel.
 ureq = { version = "2.10", default-features = false, features = ["native-tls", "gzip"] }
 native-tls = "0.2"
-zip = { version = "2.2", default-features = false, features = ["deflate"] }
+zip = { version = "9", default-features = false, features = ["deflate"] }
 sha2 = "0.10"
 hex = "0.4"
 # ISO8601 timestamps for build.manifest.json. Already workspace-pinned.
