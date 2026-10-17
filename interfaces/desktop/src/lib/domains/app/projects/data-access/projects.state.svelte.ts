@@ -15,6 +15,7 @@
  * change so the UI shows what is stored, not a guess.
  */
 
+import { signalFabric } from "$lib/sys/events/signal-fabric.js";
 import type { Project, ProjectReference, Result } from "$lib/sys/generated/bindings.js";
 import { commands } from "$lib/sys/generated/bindings.js";
 import { logError, logInfo } from "$lib/sys/logger.js";
@@ -45,8 +46,35 @@ class ProjectsState {
 			: null,
 	);
 
+	private platformReady = false;
+	private watchingBoot = false;
+	private pendingReason: string | null = null;
+
+	/**
+	 * Project queries need the booted platform. Follow Rust's `boot` state (the
+	 * fabric replays the current value, so a late call sees it too); a refresh
+	 * asked for before ready runs once boot reaches ready.
+	 */
+	private watchBoot(): void {
+		if (this.watchingBoot) return;
+		this.watchingBoot = true;
+		signalFabric.on("boot", (status) => {
+			this.platformReady = status.phase === "ready";
+			if (!this.platformReady || this.pendingReason === null) return;
+			const reason = this.pendingReason;
+			this.pendingReason = null;
+			void this.refresh(reason);
+		});
+	}
+
 	/** Load all projects + the active-project singleton + its references. */
 	async refresh(reason = "manual"): Promise<void> {
+		this.watchBoot();
+		if (!this.platformReady) {
+			this.pendingReason = reason;
+			logInfo(LOG_TARGET, `refresh() — reason=${reason}, waiting for boot`);
+			return;
+		}
 		if (this.loading) return;
 		this.loading = true;
 		this.error = null;
