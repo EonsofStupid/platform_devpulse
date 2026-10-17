@@ -20,6 +20,7 @@
 <script lang="ts">
 import { ArrowUpRight, Boxes, Database, RefreshCw } from "lucide-svelte";
 import { onMount } from "svelte";
+import { resolve } from "$app/paths";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { InlineMessage } from "$lib/design/components/inline-message/index.js";
@@ -32,6 +33,9 @@ import {
 	ServiceDevtoolShell,
 } from "$lib/devtools/index.js";
 import { rroState } from "$lib/sys/data-access/rro/rro.state.svelte.js";
+
+/** The devtool that uses this store as its vector half (checked against the route folders). */
+const consumerHref = resolve("/devtools/clyffy/reasoning/rro");
 
 onMount(() => {
 	if (!rroState.health && !rroState.healthLoading) {
@@ -78,7 +82,7 @@ const extraTabs: ExtraTab[] = [{ id: "collections", label: "Collections", Icon: 
 						This devtool is the raw Qdrant store view. Search-side tuning
 						(query encoder, rerank thresholds, RRO state) lives in the
 						<a
-							href="/devtools/clyffy/reasoning/rro"
+							href={consumerHref}
 							class="underline hover:text-[var(--accent-service-main)]"
 						>
 							RRO devtool
@@ -86,7 +90,7 @@ const extraTabs: ExtraTab[] = [{ id: "collections", label: "Collections", Icon: 
 					</Text>
 				</div>
 				<a
-					href="/devtools/clyffy/reasoning/rro"
+					href={consumerHref}
 					class="shrink-0 inline-flex items-center gap-1 text-xs hover:text-[var(--accent-service-main)]"
 					title="Open RRO devtool"
 				>
@@ -219,7 +223,7 @@ const extraTabs: ExtraTab[] = [{ id: "collections", label: "Collections", Icon: 
 						Create or delete collections via the RRO Collections panel.
 					</Text>
 					<a
-						href="/devtools/clyffy/reasoning/rro"
+						href={consumerHref}
 						class="inline-flex items-center gap-1 text-xs px-2 py-1 rounded border border-[var(--border-subtle)] hover:border-[var(--accent-service-main)] hover:text-[var(--accent-service-main)]"
 					>
 						Open RRO Collections
@@ -332,7 +336,7 @@ const extraTabs: ExtraTab[] = [{ id: "collections", label: "Collections", Icon: 
 					{totalPoints.toLocaleString()} total points
 				</Badge>
 				<a
-					href="/devtools/clyffy/reasoning/rro"
+					href={consumerHref}
 					class="inline-flex items-center gap-1 text-xs hover:text-[var(--accent-service-main)]"
 				>
 					Manage in RRO
@@ -345,7 +349,7 @@ const extraTabs: ExtraTab[] = [{ id: "collections", label: "Collections", Icon: 
 			<Text size="sm" color="muted">
 				No collections yet. Create one from the
 				<a
-					href="/devtools/clyffy/reasoning/rro"
+					href={consumerHref}
 					class="underline hover:text-[var(--accent-service-main)]"
 				>
 					RRO Collections panel

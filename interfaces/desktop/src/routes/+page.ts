@@ -8,7 +8,8 @@
 
 import type { Load } from "@sveltejs/kit";
 import { redirect } from "@sveltejs/kit";
+import { resolve } from "$app/paths";
 
 export const load: Load = async () => {
-	redirect(302, "/devpulse");
+	redirect(302, resolve("/devpulse"));
 };

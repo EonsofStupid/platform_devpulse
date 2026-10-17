@@ -27,7 +27,7 @@
 
 	```svelte
 	<SubsystemTile
-		route="/devtools/clyffy/eyes/vision"
+		route={resolve("/devtools/clyffy/eyes/vision")}
 		label="Vision"
 		blurb="SigLIP image embeddings"
 		icon={Eye}

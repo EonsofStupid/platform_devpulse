@@ -9,6 +9,7 @@
 -->
 <script lang="ts">
 import { goto } from "$app/navigation";
+import { resolve } from "$app/paths";
 import { Button } from "$lib/design/components/button/index.js";
 import { InlineMessage } from "$lib/design/components/inline-message/index.js";
 import { Spinner } from "$lib/design/components/spinner/index.js";
@@ -18,10 +19,6 @@ import { youForm } from "../../data-access/you-form.state.svelte.js";
 import { OnboardingShell } from "../../ui/onboarding-shell/index.js";
 import WelcomeView from "./views/WelcomeView.svelte";
 import YouView from "./views/YouView.svelte";
-
-$effect(() => {
-	void copyState.load();
-});
 
 const state = $derived(onboardingState.current);
 const copy = $derived(copyState.catalog?.onboarding ?? null);
@@ -34,7 +31,7 @@ const progress = $derived(
 );
 
 $effect(() => {
-	if (state && state.status !== "open") void goto("/devpulse", { replaceState: true });
+	if (state && state.status !== "open") void goto(resolve("/devpulse"), { replaceState: true });
 });
 </script>
 

@@ -11,11 +11,20 @@
 
 import { resolve } from "$app/paths";
 import type { Pathname, ResolvedPathname } from "$app/types";
-import type { RouteNode } from "./route-manifest.js";
+import { findRoute, type RouteNode } from "./route-manifest.js";
 
 const resolvePath = resolve as (route: Pathname) => ResolvedPathname;
 
 /** Link target for a route-tree node. */
 export function hrefOf(node: RouteNode): ResolvedPathname {
 	return resolvePath(node.path);
+}
+
+/**
+ * The node at a path, for a link to one specific page that also wants the
+ * page's name. `path` is typed by SvelteKit's generated `Pathname`, so a
+ * path with no route folder fails type-checking, as with `resolve()`.
+ */
+export function routeAt(path: Pathname): RouteNode | undefined {
+	return findRoute(path);
 }

@@ -2,8 +2,8 @@
 	@file SurrealdbDevtool.svelte
 	@module @devpulse/devtools/system/datastores/surrealdb
 
-	Unified SurrealDB surface. The previous split (`/devtools/surreal`
-	+ `/devtools/surreal/sidecar`) was the overlap the user banned in
+	Unified SurrealDB surface. The previous split into a surreal page and
+	a separate sidecar page was the overlap the user banned in
 	the locked memory `feedback_command_naming_convention.md` —
 	"surrealdb is surrealdb, no `_sidecar` decorator at any layer."
 	The two devtools are folded into one tabbed shell here:

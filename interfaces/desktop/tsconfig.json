@@ -14,7 +14,15 @@
 		"verbatimModuleSyntax": true,
 		"types": ["node"]
 	},
-	"include": ["**/*.d.ts", "**/*.ts", "**/*.js", "**/*.svelte"],
+	"include": [
+		".svelte-kit/ambient.d.ts",
+		".svelte-kit/non-ambient.d.ts",
+		".svelte-kit/types/**/$types.d.ts",
+		"**/*.d.ts",
+		"**/*.ts",
+		"**/*.js",
+		"**/*.svelte"
+	],
 	"exclude": [
 		"node_modules",
 		"**/node_modules",

@@ -6,6 +6,7 @@
 -->
 <script lang="ts">
 import { ArrowUpRight, Database, Plus, RefreshCw, Trash2 } from "lucide-svelte";
+import { resolve } from "$app/paths";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Card } from "$lib/design/components/card/index.js";
@@ -54,7 +55,7 @@ $effect(() => {
 					<Text size="xs" weight="medium">{rroState.health.storage_path}</Text>
 				</div>
 				<a
-					href="/devtools/system/datastores/qdrant"
+					href={resolve("/devtools/system/datastores/qdrant")}
 					class="inline-flex items-center gap-1 text-xs hover:text-[var(--accent-service-main)]"
 					title="Open the Qdrant store devtool — health, raw collection inventory, ops"
 				>

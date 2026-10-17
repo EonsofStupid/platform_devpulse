@@ -19,6 +19,8 @@
 <script lang="ts">
 import { BrainCircuit, Ear, Eye, Sparkles, Volume2 } from "lucide-svelte";
 import { onMount } from "svelte";
+import { goto } from "$app/navigation";
+import { resolve } from "$app/paths";
 import {
 	type SubsystemState,
 	SubsystemTile,
@@ -208,7 +210,7 @@ function slotVerbs(slotId: string): SubsystemVerb[] {
 				ariaLabel: `Open the model downloader for ${slotId}`,
 				tone: "primary",
 				onclick: () => {
-					window.location.assign(`/devtools/runtimes/orchestrator/slots`);
+					void goto(resolve("/devtools/runtimes/orchestrator/slots"));
 				},
 			},
 		];
@@ -330,7 +332,7 @@ const reasoningVerbs = $derived<SubsystemVerb[]>([
 
 	<div class="live-subsystem-strip__grid">
 		<SubsystemTile
-			route="/devtools/clyffy/memory/cortex"
+			route={resolve("/devtools/clyffy/memory/cortex")}
 			label="Cortex"
 			blurb="Memory orchestration · cross-sensor"
 			icon={Sparkles}
@@ -339,7 +341,7 @@ const reasoningVerbs = $derived<SubsystemVerb[]>([
 			verbs={cortexVerbs}
 		/>
 		<SubsystemTile
-			route="/devtools/clyffy/eyes/vision"
+			route={resolve("/devtools/clyffy/eyes/vision")}
 			label="Vision"
 			blurb="SigLIP image embeddings"
 			icon={Eye}
@@ -348,7 +350,7 @@ const reasoningVerbs = $derived<SubsystemVerb[]>([
 			verbs={visionVerbs}
 		/>
 		<SubsystemTile
-			route="/devtools/clyffy/ears/stt"
+			route={resolve("/devtools/clyffy/ears/stt")}
 			label="Ears"
 			blurb="Sherpa speech-to-text"
 			icon={Ear}
@@ -357,7 +359,7 @@ const reasoningVerbs = $derived<SubsystemVerb[]>([
 			verbs={earsVerbs}
 		/>
 		<SubsystemTile
-			route="/devtools/clyffy/mouth/tts"
+			route={resolve("/devtools/clyffy/mouth/tts")}
 			label="Mouth"
 			blurb="Voice synthesis"
 			icon={Volume2}
@@ -366,7 +368,7 @@ const reasoningVerbs = $derived<SubsystemVerb[]>([
 			verbs={mouthVerbs}
 		/>
 		<SubsystemTile
-			route="/devtools/clyffy/reasoning/rrd"
+			route={resolve("/devtools/clyffy/reasoning/rrd")}
 			label="Reasoning"
 			blurb="RRD subconscious daemon"
 			icon={BrainCircuit}
