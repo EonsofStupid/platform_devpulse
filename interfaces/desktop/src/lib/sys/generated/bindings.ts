@@ -5999,7 +5999,13 @@ onboarding: OnboardingCopy;
 /**
  * Forms.
  */
-forms: FormsCopy }
+forms: FormsCopy; 
+/**
+ * Route names, keyed by the URL path the route folders give
+ * (`/devtools/system/datastores/turso`). The desktop's architecture
+ * test holds these keys equal to its route tree.
+ */
+nav: Partial<{ [key in string]: RouteCopy }> }
 /**
  * Input for [`create_project`]. Only `name` and `root_path` are
  * required; every other field has a sensible default or is nullable.
@@ -9976,6 +9982,18 @@ status_error: string;
  * VRAM estimate template. Placeholder `{mb}`.
  */
 vram_estimate_template: string }
+/**
+ * A route's name, and the line shown under it where a tile shows one.
+ */
+export type RouteCopy = { 
+/**
+ * Name in navigation, tiles and section headers.
+ */
+label: string; 
+/**
+ * One line under the name.
+ */
+blurb?: string | null }
 /**
  * Persisted user-scope routing configuration.
  * 

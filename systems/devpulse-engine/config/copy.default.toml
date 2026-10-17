@@ -70,3 +70,211 @@ email = "That doesn't look like an email address."
 not_a_folder = "That folder doesn't exist on this machine."
 unknown = "This form doesn't have that field."
 invalid = "That value isn't valid here."
+
+# ─────────────────────────────────────────────────────────────────────
+# Routes — one name per route folder, keyed by its URL path (plan 0008).
+# The desktop builds every menu, dashboard and tile from its route folders
+# and reads names from here; a route without a name, or a name for a path
+# that is not a route, fails its architecture test.
+# ─────────────────────────────────────────────────────────────────────
+
+[nav."/"]
+label = "DevPulse"
+
+[nav."/latest"]
+label = "Latest"
+
+[nav."/devpulse"]
+label = "Home"
+
+[nav."/devpulse/community"]
+label = "Community"
+
+[nav."/devpulse/models"]
+label = "Models"
+
+[nav."/devpulse/projects"]
+label = "Projects"
+
+[nav."/devpulse/settings"]
+label = "Settings"
+
+[nav."/devpulse/stats"]
+label = "Stats"
+
+[nav."/ui-demo"]
+label = "UI Demo"
+
+[nav."/overmind"]
+label = "OverMind"
+
+[nav."/wiredfront"]
+label = "WiredFront"
+
+[nav."/devforge"]
+label = "DevForge"
+
+[nav."/clyffy"]
+label = "Clyffy"
+
+[nav."/onboarding"]
+label = "First run"
+
+[nav."/profile"]
+label = "Profile"
+
+[nav."/chat"]
+label = "Clyffy Chat"
+
+[nav."/logs"]
+label = "Action log"
+
+# Devtools — tier folders, bucket folders, then each devtool.
+
+[nav."/devtools"]
+label = "DevPulse Tools"
+
+[nav."/devtools/system"]
+label = "System"
+
+[nav."/devtools/clyffy"]
+label = "Clyffy"
+
+[nav."/devtools/runtimes"]
+label = "Runtimes"
+blurb = "Inverse view — every loaded runtime, its fingerprint, and per-runtime update checks."
+
+[nav."/devtools/system/datastores"]
+label = "Datastores"
+
+[nav."/devtools/system/caches"]
+label = "Caches"
+
+[nav."/devtools/system/observability"]
+label = "Observability"
+
+[nav."/devtools/system/ide"]
+label = "IDE"
+
+[nav."/devtools/clyffy/ears"]
+label = "Ears"
+
+[nav."/devtools/clyffy/mouth"]
+label = "Mouth"
+
+[nav."/devtools/clyffy/eyes"]
+label = "Eyes"
+
+[nav."/devtools/clyffy/memory"]
+label = "Memory"
+
+[nav."/devtools/clyffy/reasoning"]
+label = "Reasoning"
+
+[nav."/devtools/clyffy/governance"]
+label = "Governance"
+
+[nav."/devtools/clyffy/providers"]
+label = "Providers"
+
+[nav."/devtools/runtimes/orchestrator"]
+label = "Orchestrator"
+
+[nav."/devtools/runtimes/inference"]
+label = "Inference"
+
+[nav."/devtools/system/datastores/turso"]
+label = "Turso"
+blurb = "Your data: browse and edit rows, see migration history, run SQL."
+
+[nav."/devtools/system/datastores/duckdb"]
+label = "DuckDB"
+blurb = "Analytical engine. Telemetry spans, OLAP queries."
+
+[nav."/devtools/system/datastores/surrealdb"]
+label = "SurrealDB"
+blurb = "Multi-model engine: graph + document. HTTP :8822. Sidecar lifecycle."
+
+[nav."/devtools/system/datastores/qdrant"]
+label = "Qdrant"
+blurb = "Embedded vector store · in-process · zero latency. Cross-linked from RRO."
+
+[nav."/devtools/system/datastores/project-db"]
+label = "Project DB"
+blurb = "Per-project Turso. Lazy-loaded, on-demand."
+
+[nav."/devtools/system/caches/moka"]
+label = "Moka Cache"
+blurb = "In-memory KV. Capacity, TTL, hit-rate."
+
+[nav."/devtools/system/observability/telemetry"]
+label = "Telemetry"
+blurb = "OTel spans, lane baselines, exporter config."
+
+[nav."/devtools/system/ide/devforge"]
+label = "DevForge"
+blurb = "Embedded IDE host. REH server, extensions, update channel."
+
+[nav."/devtools/clyffy/ears/stt"]
+label = "Speech-to-Text"
+blurb = "Whisper transcription with VAD."
+
+[nav."/devtools/clyffy/ears/streaming-asr"]
+label = "Streaming ASR"
+blurb = "Sherpa streaming + wake-word detection."
+
+[nav."/devtools/clyffy/ears/sts"]
+label = "Speech-to-Speech"
+blurb = "Cascaded loop — wake → STT → brain → TTS."
+
+[nav."/devtools/clyffy/mouth/tts"]
+label = "Voice Synthesis"
+blurb = "Qwen3-TTS preset speakers + zero-shot voice cloning."
+
+[nav."/devtools/clyffy/eyes/vision"]
+label = "Vision Encoder"
+blurb = "SigLIP2 image embeddings — 1152-dim L2."
+
+[nav."/devtools/clyffy/memory/cortex"]
+label = "Knowledge Engine"
+blurb = "Prompt builder, memory lookup, councils."
+
+[nav."/devtools/clyffy/memory/intelligence"]
+label = "Memory Intelligence"
+blurb = "Embedding-indexed memory + RRO archive across project namespaces."
+
+[nav."/devtools/clyffy/memory/persona-graph"]
+label = "Persona Graph"
+blurb = "Clyffy's identity in SurrealDB namespaces. Links into the engine."
+
+[nav."/devtools/clyffy/reasoning/rro"]
+label = "RRO Trifecta"
+blurb = "Embedder + encoder + vector store. The retrieval unit."
+
+[nav."/devtools/clyffy/reasoning/rrd"]
+label = "RRD Daemon"
+blurb = "Hot-update lifecycle — pause, drain, swap, resume on the encoder."
+
+[nav."/devtools/clyffy/governance/policy"]
+label = "Agent Policy"
+blurb = "Constrained decoding + AG-UI wire + A2UI grammar. What the agent is allowed to emit."
+
+[nav."/devtools/clyffy/providers/claude"]
+label = "Claude Integration"
+blurb = "MCP server, subscription lane, API providers, councils."
+
+[nav."/devtools/runtimes/orchestrator/slots"]
+label = "Slot Manager"
+blurb = "Slot assignment, downloads, VRAM budget."
+
+[nav."/devtools/runtimes/inference/candle"]
+label = "Candle"
+blurb = "Native-tensor runtime. GGUF + SafeTensors."
+
+[nav."/devtools/runtimes/inference/llama-cpp"]
+label = "llama.cpp"
+blurb = "In-process GGUF runtime. Light path — CPU-friendly."
+
+[nav."/devtools/runtimes/inference/ollama"]
+label = "Ollama"
+blurb = "Backup runtime — kept available for fallback."

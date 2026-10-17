@@ -7,6 +7,7 @@
 //! which is returned with the catalog so the UI can show it — never
 //! silently ignored.
 
+use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 
 use anyhow::{Context, Result};
@@ -150,6 +151,17 @@ pub struct FormsCopy {
     pub errors: FormErrorsCopy,
 }
 
+/// A route's name, and the line shown under it where a tile shows one.
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+#[serde(deny_unknown_fields)]
+pub struct RouteCopy {
+    /// Name in navigation, tiles and section headers.
+    pub label: String,
+    /// One line under the name.
+    #[serde(default)]
+    pub blurb: Option<String>,
+}
+
 /// The whole catalog.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 #[serde(deny_unknown_fields)]
@@ -158,6 +170,10 @@ pub struct CopyCatalog {
     pub onboarding: OnboardingCopy,
     /// Forms.
     pub forms: FormsCopy,
+    /// Route names, keyed by the URL path the route folders give
+    /// (`/devtools/system/datastores/turso`). The desktop's architecture
+    /// test holds these keys equal to its route tree.
+    pub nav: BTreeMap<String, RouteCopy>,
 }
 
 /// The catalog in effect, and why your file was not used (if it wasn't).
@@ -266,6 +282,26 @@ mod tests {
         assert_eq!(
             copy.onboarding.welcome.title,
             bundled().unwrap().onboarding.welcome.title
+        );
+    }
+
+    #[test]
+    fn every_route_has_a_name() {
+        let copy = bundled().expect("bundled");
+        assert!(copy.nav.contains_key("/devpulse"));
+        for (path, route) in &copy.nav {
+            assert!(path.starts_with('/'), "{path}");
+            assert!(!route.label.trim().is_empty(), "{path} has no label");
+        }
+    }
+
+    #[test]
+    fn your_route_name_wins() {
+        let copy = with_overrides("[nav.\"/devpulse\"]\nlabel = \"Start\"\n").expect("override");
+        assert_eq!(copy.nav["/devpulse"].label, "Start");
+        assert_eq!(
+            copy.nav["/latest"].label,
+            bundled().unwrap().nav["/latest"].label
         );
     }
 

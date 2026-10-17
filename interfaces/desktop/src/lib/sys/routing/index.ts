@@ -5,6 +5,7 @@
  * generated at build; each folder declares its own facts in `_nav`.
  */
 
+export { routeCopy } from "./route-copy.js";
 export {
 	findRoute,
 	findRouteById,
