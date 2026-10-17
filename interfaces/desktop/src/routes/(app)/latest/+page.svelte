@@ -28,8 +28,10 @@ import { stack } from "$lib/design/utils/stack/index.js";
 import { communityState } from "$lib/domains/app/community/index.js";
 import { syncKnowledgeFromRemote } from "$lib/domains/app/knowledge/index.js";
 import { updatesState } from "$lib/domains/app/updates/index.js";
-import { hrefOf, routeAt, routeCopy } from "$lib/sys/routing/index.js";
+import { hrefOf, routeAt, routeCopy, routeHere } from "$lib/sys/routing/index.js";
 
+const here = $derived(routeHere());
+const heading = $derived(here ? routeCopy(here) : undefined);
 const community = routeAt("/devpulse/community");
 const communityName = $derived(community ? (routeCopy(community)?.label ?? "") : "");
 
@@ -50,10 +52,8 @@ onMount(() => {
 
 <div class={stack({ gap: "6" })} data-page="latest">
 	<header class={stack({ gap: "1" })}>
-		<h1 class="text-2xl font-bold">Latest</h1>
-		<Text size="sm" color="muted">
-			What's new in your build, your tools, and the community.
-		</Text>
+		<h1 class="text-2xl font-bold">{heading?.label}</h1>
+		<Text size="sm" color="muted">{heading?.description}</Text>
 	</header>
 
 	<!-- Section 1: Update status -->

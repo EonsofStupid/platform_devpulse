@@ -25,6 +25,10 @@ import { gridLayout } from "$lib/design/utils/grid-layout/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
 import { communityState } from "$lib/domains/app/community/index.js";
 import { devpulseState } from "$lib/domains/app/devpulse/index.js";
+import { routeCopy, routeHere } from "$lib/sys/routing/index.js";
+
+const here = $derived(routeHere());
+const heading = $derived(here ? routeCopy(here) : undefined);
 
 onMount(() => {
 	void communityState.refresh();
@@ -48,7 +52,7 @@ async function onRefresh(): Promise<void> {
 <div class={stack({ gap: "4" })} data-page="devpulse-community">
 	<header class="flex flex-wrap items-end justify-between gap-3">
 		<div class={stack({ gap: "1" })}>
-			<h1 class="text-2xl font-bold">Community</h1>
+			<h1 class="text-2xl font-bold">{heading?.label}</h1>
 			<Text size="sm" color="muted">
 				{#if communityState.status.enabled}
 					Last synced {lastSyncLabel}

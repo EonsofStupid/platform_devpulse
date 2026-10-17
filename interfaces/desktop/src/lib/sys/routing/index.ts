@@ -6,7 +6,7 @@
  */
 
 export { routeCopy } from "./route-copy.js";
-export { hrefOf, routeAt } from "./route-href.js";
+export { hrefOf, routeAt, routeHere } from "./route-href.js";
 export {
 	exportsByRouteId,
 	findRoute,

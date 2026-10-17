@@ -5,6 +5,10 @@
 <script lang="ts">
 import { onDestroy, onMount } from "svelte";
 import { commands } from "$lib/sys/generated/bindings.js";
+import { routeCopy, routeHere } from "$lib/sys/routing/index.js";
+
+const here = $derived(routeHere());
+const heading = $derived(here ? routeCopy(here) : undefined);
 
 let filter = $state("");
 let lines = $state<string[]>([]);
@@ -58,7 +62,7 @@ const filtered = $derived.by(() => {
 <div class="mx-auto flex max-w-5xl flex-col gap-4 p-6 font-sans text-sm">
 	<header class="flex flex-wrap items-end justify-between gap-3">
 		<div>
-			<h1 class="text-lg font-semibold">Action log</h1>
+			<h1 class="text-lg font-semibold">{heading?.label}</h1>
 			<p class="text-[var(--text-muted)]">
 				Tailing <code class="rounded bg-black/30 px-1">.userdata/logs/action-*.jsonl</code> (today).
 			</p>

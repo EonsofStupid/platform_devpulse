@@ -1,5 +1,5 @@
 /**
- * @file The href of a route-tree node.
+ * @file Route-tree nodes for links and for the page being shown.
  * @module @devpulse/sys/routing
  *
  * `resolve()` from `$app/paths` is typed for literal routes; a node's path is
@@ -10,8 +10,9 @@
  */
 
 import { resolve } from "$app/paths";
+import { page } from "$app/state";
 import type { Pathname, ResolvedPathname } from "$app/types";
-import { findRoute, type RouteNode } from "./route-manifest.js";
+import { findRoute, findRouteById, type RouteNode } from "./route-manifest.js";
 
 const resolvePath = resolve as (route: Pathname) => ResolvedPathname;
 
@@ -27,4 +28,12 @@ export function hrefOf(node: RouteNode): ResolvedPathname {
  */
 export function routeAt(path: Pathname): RouteNode | undefined {
 	return findRoute(path);
+}
+
+/**
+ * The node of the page being shown, so a page names itself from its own
+ * route folder instead of typing its name. Reactive inside `$derived`.
+ */
+export function routeHere(): RouteNode | undefined {
+	return findRouteById(page.route.id);
 }

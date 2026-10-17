@@ -101,6 +101,7 @@ label = "DevPulse"
 
 [nav."/latest"]
 label = "Latest"
+description = "What's new in your build, your tools, and the community."
 badge = "Update available"
 
 [nav."/devpulse"]
