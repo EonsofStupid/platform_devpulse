@@ -72,6 +72,16 @@ unknown = "This form doesn't have that field."
 invalid = "That value isn't valid here."
 
 # ─────────────────────────────────────────────────────────────────────
+# Layouts — the app sidebar's own text. Its entries are route names.
+# ─────────────────────────────────────────────────────────────────────
+
+[layout.sidebar]
+label = "Primary"
+expand = "Expand sidebar"
+collapse = "Collapse sidebar"
+collapse_short = "Collapse"
+
+# ─────────────────────────────────────────────────────────────────────
 # Routes — one name per route folder, keyed by its URL path (plan 0008).
 # The desktop builds every menu, dashboard and tile from its route folders
 # and reads names from here; a route without a name, or a name for a path
@@ -83,6 +93,7 @@ label = "DevPulse"
 
 [nav."/latest"]
 label = "Latest"
+badge = "Update available"
 
 [nav."/devpulse"]
 label = "Home"

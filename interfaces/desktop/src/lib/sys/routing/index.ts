@@ -6,11 +6,15 @@
  */
 
 export { routeCopy } from "./route-copy.js";
+export { hrefOf } from "./route-href.js";
 export {
+	exportsByRouteId,
 	findRoute,
 	findRouteById,
 	pagesUnder,
+	parentOf,
 	type RouteNode,
 	routeTree,
+	topLevelOf,
 } from "./route-manifest.js";
 export type { LucideIcon, RouteNav, RoutePlacement } from "./route-nav.js";

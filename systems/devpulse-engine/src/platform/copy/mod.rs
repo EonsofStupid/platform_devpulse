@@ -160,6 +160,31 @@ pub struct RouteCopy {
     /// One line under the name.
     #[serde(default)]
     pub blurb: Option<String>,
+    /// What the entry's attention dot means, for a route that shows one.
+    #[serde(default)]
+    pub badge: Option<String>,
+}
+
+/// The app sidebar's own text; its entries are route names (`nav`).
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+#[serde(deny_unknown_fields)]
+pub struct SidebarCopy {
+    /// Accessible name of the navigation landmark.
+    pub label: String,
+    /// The expand button (accessible name and tooltip).
+    pub expand: String,
+    /// The collapse button (accessible name and tooltip).
+    pub collapse: String,
+    /// The collapse button's text while the sidebar is expanded.
+    pub collapse_short: String,
+}
+
+/// Text owned by the app's layouts.
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+#[serde(deny_unknown_fields)]
+pub struct LayoutCopy {
+    /// The app sidebar.
+    pub sidebar: SidebarCopy,
 }
 
 /// The whole catalog.
@@ -170,6 +195,8 @@ pub struct CopyCatalog {
     pub onboarding: OnboardingCopy,
     /// Forms.
     pub forms: FormsCopy,
+    /// Layouts.
+    pub layout: LayoutCopy,
     /// Route names, keyed by the URL path the route folders give
     /// (`/devtools/system/datastores/turso`). The desktop's architecture
     /// test holds these keys equal to its route tree.

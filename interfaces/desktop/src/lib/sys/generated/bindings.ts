@@ -6001,6 +6001,10 @@ onboarding: OnboardingCopy;
  */
 forms: FormsCopy; 
 /**
+ * Layouts.
+ */
+layout: LayoutCopy; 
+/**
  * Route names, keyed by the URL path the route folders give
  * (`/devtools/system/datastores/turso`). The desktop's architecture
  * test holds these keys equal to its route tree.
@@ -8218,6 +8222,14 @@ vad_silence_ms: number;
  */
 stream_chunk_size: number }
 /**
+ * Text owned by the app's layouts.
+ */
+export type LayoutCopy = { 
+/**
+ * The app sidebar.
+ */
+sidebar: SidebarCopy }
+/**
  * Where the license verdict came from. Drives UX copy on the
  * "subscription" panel — `Dev` shows a "developer bypass" badge,
  * `Supabase` shows the live verification timestamp, `OfflineBypass`
@@ -9993,7 +10005,11 @@ label: string;
 /**
  * One line under the name.
  */
-blurb?: string | null }
+blurb?: string | null; 
+/**
+ * What the entry's attention dot means, for a route that shows one.
+ */
+badge?: string | null }
 /**
  * Persisted user-scope routing configuration.
  * 
@@ -10595,6 +10611,26 @@ transcript: string;
  * Total audio samples fed (16 kHz f32 mono).
  */
 samples_fed: number }
+/**
+ * The app sidebar's own text; its entries are route names (`nav`).
+ */
+export type SidebarCopy = { 
+/**
+ * Accessible name of the navigation landmark.
+ */
+label: string; 
+/**
+ * The expand button (accessible name and tooltip).
+ */
+expand: string; 
+/**
+ * The collapse button (accessible name and tooltip).
+ */
+collapse: string; 
+/**
+ * The collapse button's text while the sidebar is expanded.
+ */
+collapse_short: string }
 /**
  * The complete signal packet for broadcast.
  * 

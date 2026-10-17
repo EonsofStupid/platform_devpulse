@@ -35,6 +35,11 @@ export interface RouteNav {
 	icon?: LucideIcon;
 	/** Sort key among siblings, ascending; unordered siblings follow by name. */
 	order?: number;
-	/** Sidebar placement (top-level app pages only). */
+	/** Sidebar placement (app pages; top-level ones default to `primary`). */
 	placement?: RoutePlacement;
+	/**
+	 * Whether the nav entry shows an attention dot right now. Read inside the
+	 * sidebar's render, so a function over `$state` stays reactive.
+	 */
+	badge?: () => boolean;
 }

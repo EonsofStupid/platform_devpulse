@@ -52,6 +52,25 @@ function routeIdOf(file: string): string {
 	return dir === "" ? "/" : dir;
 }
 
+/**
+ * A `_`-prefixed export of every route folder, by route id. Pass the eager
+ * globs of `+layout.ts` and `+page.ts`; a folder's page fields win over its
+ * layout's. Feature modules use this for their own exports (`_devtool`).
+ */
+export function exportsByRouteId<T extends object>(
+	layouts: Record<string, T | undefined>,
+	pages: Record<string, T | undefined>,
+): Map<string, T> {
+	const out = new Map<string, T>();
+	for (const [file, value] of Object.entries(layouts)) if (value) out.set(routeIdOf(file), value);
+	for (const [file, value] of Object.entries(pages)) {
+		if (!value) continue;
+		const id = routeIdOf(file);
+		out.set(id, { ...out.get(id), ...value });
+	}
+	return out;
+}
+
 const isGroup = (segment: string): boolean => segment.startsWith("(") && segment.endsWith(")");
 
 /** `/(app)/latest` → `/latest`. */
@@ -74,13 +93,7 @@ interface RouteIndex {
 }
 
 function buildTree(): RouteIndex {
-	const navById = new Map<string, RouteNav>();
-	for (const [file, nav] of Object.entries(LAYOUT_NAVS)) if (nav) navById.set(routeIdOf(file), nav);
-	for (const [file, nav] of Object.entries(PAGE_NAVS)) {
-		if (!nav) continue;
-		const id = routeIdOf(file);
-		navById.set(id, { ...navById.get(id), ...nav });
-	}
+	const navById = exportsByRouteId(LAYOUT_NAVS, PAGE_NAVS);
 
 	const byId = new Map<string, RouteNode>();
 	const node = (routeId: string): RouteNode => {
@@ -141,6 +154,20 @@ export function findRoute(path: string): RouteNode | undefined {
 /** The folder for a SvelteKit route id — use with `page.route.id`. */
 export function findRouteById(routeId: string | null): RouteNode | undefined {
 	return routeId === null ? undefined : TREE.byId.get(routeId);
+}
+
+/** The folder above a node; `undefined` for the root. */
+export function parentOf(node: RouteNode): RouteNode | undefined {
+	if (node.path === "/") return undefined;
+	const up = node.path.slice(0, node.path.lastIndexOf("/"));
+	return TREE.byPath.get(up === "" ? "/" : up);
+}
+
+/** The node's top-level ancestor (itself when it is top-level). */
+export function topLevelOf(node: RouteNode): RouteNode {
+	let current = node;
+	for (let up = parentOf(current); up && up.path !== "/"; up = parentOf(current)) current = up;
+	return current;
 }
 
 /** Every page at or below a node, depth-first in display order. */

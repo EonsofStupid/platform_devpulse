@@ -61,6 +61,10 @@ describe("route manifest", () => {
 		}
 	});
 
+	it("has no route that takes parameters (hrefOf relies on it)", () => {
+		for (const node of allNodes(routeTree)) expect(node.routeId, node.routeId).not.toMatch(/\[/);
+	});
+
 	it("finds each page by its path", () => {
 		for (const path of expected) expect(findRoute(path)?.hasPage, path).toBe(true);
 	});
