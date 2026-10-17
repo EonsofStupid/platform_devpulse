@@ -26,6 +26,7 @@ pub mod crash_safety;
 pub mod events;
 pub mod logging;
 pub mod paths;
+pub mod routes;
 pub mod state;
 
 pub use crash_safety::install_early_panic_hook;
@@ -306,6 +307,7 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             commands::window::open_window,
             commands::window::close_child_window,
             commands::window::list_windows,
+            commands::window::window_roles,
             commands::window::focus_window,
             commands::window::toggle_devtools,
             // Model management

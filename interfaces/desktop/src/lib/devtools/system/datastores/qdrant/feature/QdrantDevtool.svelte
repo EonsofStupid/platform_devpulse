@@ -12,9 +12,9 @@
 	Qdrant is a peer database to Turso / DuckDB / SurrealDB — it
 	stores its own files at `{data_dir}/system/rro/vectors`, has its
 	own health probe, and the user-experience parity ("each DB has a
-	devtool") demands a peer entry. The RRO devtool at
-	`/devtools/clyffy/reasoning/rro/` consumes this same store as
-	the vector half of the trifecta — its Collections panel
+	devtool") demands a peer entry. The reasoning bucket's trifecta
+	devtool consumes this same store as the vector half of the
+	trifecta — its Collections panel
 	cross-links here for deep dive.
 -->
 <script lang="ts">

@@ -111,6 +111,7 @@ label = "Community"
 
 [nav."/devpulse/models"]
 label = "Models"
+blurb = "Slot management, downloads."
 
 [nav."/devpulse/projects"]
 label = "Projects"

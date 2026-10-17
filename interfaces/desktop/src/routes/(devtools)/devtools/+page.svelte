@@ -9,8 +9,8 @@
   is the priority over strict isolation.
 -->
 <script lang="ts">
-import { Activity, BrainCircuit, ExternalLink, Grid3x3, Settings, X } from "lucide-svelte";
-import { untrack } from "svelte";
+import { Activity, ExternalLink, Grid3x3, Settings, X } from "lucide-svelte";
+import { onMount, untrack } from "svelte";
 import { page } from "$app/state";
 import { Button } from "$lib/design/components/button/index.js";
 import Text from "$lib/design/components/text/Text.svelte";
@@ -22,13 +22,15 @@ import type {
 	LaneTraceConfig,
 	PlatformConfig,
 	ServiceStatusSnapshot,
+	WindowRole,
+	WindowRoleInfo,
 } from "$lib/sys/generated/bindings.js";
 import { commands } from "$lib/sys/generated/bindings.js";
 import { logError } from "$lib/sys/logger.js";
 import {
+	findRoute,
 	findRouteById,
 	hrefOf,
-	type LucideIcon,
 	type RouteNode,
 	routeCopy,
 } from "$lib/sys/routing/index.js";
@@ -52,31 +54,27 @@ const dashboard = $derived(findRouteById(page.route.id));
 const tiers = $derived(dashboard ? devtoolTiers(dashboard) : []);
 const devtoolsText = $derived(copyState.catalog?.devtools);
 
-// External windows — Tauri WebviewWindow targets that live outside
-// the routed devtools but still belong on this dashboard for
-// discoverability. Window roles are Rust's; plan 0008 R6 derives this
-// list from them and their routes.
-type ExternalWindow = {
-	role: Parameters<typeof commands.openWindow>[0];
-	label: string;
-	blurb: string;
-	icon: LucideIcon;
-};
+// ── Detached windows, from Rust's window roles ───────────────
+// Each role names the page it opens (a route constant generated from the
+// route folders); a tile is that page's own icon, name and line.
+let windowRoles = $state<WindowRoleInfo[]>([]);
 
-const EXTERNAL_WINDOWS: ExternalWindow[] = [
-	{
-		role: "ModelLoader",
-		label: "Model Control Window",
-		blurb: "Slot management, downloads. Detached window.",
-		icon: BrainCircuit,
-	},
-	{
-		role: "KnowledgeViewer",
-		label: "Knowledge Viewer Window",
-		blurb: "Telemetry graph. Detached window.",
-		icon: Activity,
-	},
-];
+async function loadWindowRoles(): Promise<void> {
+	const result = await commands.windowRoles();
+	if (result.status === "ok") windowRoles = result.data;
+	else logError("devtools", `window roles failed: ${result.error}`);
+}
+
+onMount(() => {
+	void loadWindowRoles();
+});
+
+const detachedWindows = $derived(
+	windowRoles.flatMap((w) => {
+		const node = w.detached ? findRoute(w.route) : undefined;
+		return node ? [{ role: w.role, node }] : [];
+	}),
+);
 
 function tierToneClass(tier: RouteNode): string {
 	return `ds-section--${devtoolNav(tier).tone ?? "muted"}`;
@@ -238,8 +236,8 @@ async function handleClose(): Promise<void> {
 	}
 }
 
-function openWindow(role: string): void {
-	commands.openWindow(role as Parameters<typeof commands.openWindow>[0]);
+function openWindow(role: WindowRole): void {
+	void commands.openWindow(role);
 }
 
 // ── Lane grouping helper ─────────────────────────────────────
@@ -367,12 +365,15 @@ let laneGroups = $derived<LaneGroup[]>(
 						</p>
 					</header>
 					<div class="ds-tile-grid">
-						{#each EXTERNAL_WINDOWS as win (win.role)}
-							{@const Icon = win.icon}
+						{#each detachedWindows as win (win.role)}
+							{@const Icon = win.node.nav.icon}
+							{@const text = routeCopy(win.node)}
 							<button class="ds-tile" onclick={() => openWindow(win.role)}>
-								<Icon size={20} class="ds-tile-icon" />
-								<span class="ds-tile-title">{win.label}</span>
-								<span class="ds-tile-blurb">{win.blurb}</span>
+								{#if Icon}
+									<Icon size={20} class="ds-tile-icon" />
+								{/if}
+								<span class="ds-tile-title">{text?.label}</span>
+								<span class="ds-tile-blurb">{text?.blurb}</span>
 								<ExternalLink size={12} class="ds-tile-corner" />
 							</button>
 						{/each}

@@ -2436,6 +2436,21 @@ async listWindows() : Promise<Result<WindowInfo[], string>> {
 }
 },
 /**
+ * Every window role with the page it opens, so the frontend can name and
+ * draw a window from that page's own route folder (plan 0008).
+ * 
+ * # Errors
+ * Infallible — the `Result` shape matches the sibling window commands.
+ */
+async windowRoles() : Promise<Result<WindowRoleInfo[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("window_roles") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Focus a window by its label.
  * 
  * # Errors
@@ -12364,6 +12379,22 @@ export type WindowRole =
  * Unified dev toolbox panel (Ctrl+Shift+Z)
  */
 "DevTools"
+/**
+ * A window role and the page it opens.
+ */
+export type WindowRoleInfo = { 
+/**
+ * The role.
+ */
+role: WindowRole; 
+/**
+ * The page it opens (a generated route constant).
+ */
+route: string; 
+/**
+ * Whether the devtools dashboard offers it as a detached surface.
+ */
+detached: boolean }
 /**
  * All wizard copy. One root struct, one Tauri call to fetch everything.
  */

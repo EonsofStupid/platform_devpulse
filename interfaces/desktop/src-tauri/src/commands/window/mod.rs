@@ -4,6 +4,7 @@
 //! - `open_window`: Open or focus a window by role
 //! - `close_child_window`: Close a window by role
 //! - `list_windows`: Get all currently open windows
+//! - `window_roles`: Every role with the page it opens
 //! - `focus_window`: Focus a window by label
 //!
 //! Every window is a normal top-level OS window: its own taskbar entry,
@@ -12,7 +13,7 @@
 
 pub mod types;
 
-pub use types::{WindowInfo, WindowRole};
+pub use types::{WindowInfo, WindowRole, WindowRoleInfo};
 
 use tauri::Manager;
 
@@ -82,16 +83,8 @@ pub async fn close_child_window(app: tauri::AppHandle, role: WindowRole) -> Resu
 #[tauri::command]
 #[specta::specta]
 pub async fn list_windows(app: tauri::AppHandle) -> Result<Vec<WindowInfo>, String> {
-    let all_roles = [
-        WindowRole::Main,
-        WindowRole::Chat,
-        WindowRole::KnowledgeViewer,
-        WindowRole::ModelLoader,
-        WindowRole::DevTools,
-    ];
-
     let mut windows = Vec::new();
-    for role in &all_roles {
+    for role in &WindowRole::ALL {
         let label = role.label();
         let is_open = app.get_webview_window(label).is_some();
         windows.push(WindowInfo {
@@ -101,6 +94,24 @@ pub async fn list_windows(app: tauri::AppHandle) -> Result<Vec<WindowInfo>, Stri
         });
     }
     Ok(windows)
+}
+
+/// Every window role with the page it opens, so the frontend can name and
+/// draw a window from that page's own route folder (plan 0008).
+///
+/// # Errors
+/// Infallible — the `Result` shape matches the sibling window commands.
+#[tauri::command]
+#[specta::specta]
+pub async fn window_roles() -> Result<Vec<WindowRoleInfo>, String> {
+    Ok(WindowRole::ALL
+        .iter()
+        .map(|role| WindowRoleInfo {
+            role: role.clone(),
+            route: role.route().to_owned(),
+            detached: role.detached(),
+        })
+        .collect())
 }
 
 /// Focus a window by its label.

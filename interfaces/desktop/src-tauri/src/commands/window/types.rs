@@ -25,6 +25,22 @@ pub enum WindowRole {
 }
 
 impl WindowRole {
+    /// Every role.
+    pub const ALL: [Self; 5] = [
+        Self::Main,
+        Self::Chat,
+        Self::KnowledgeViewer,
+        Self::ModelLoader,
+        Self::DevTools,
+    ];
+
+    /// Whether this window is a detached surface the devtools dashboard
+    /// offers (it pops a page into its own window).
+    #[must_use]
+    pub fn detached(&self) -> bool {
+        matches!(self, Self::KnowledgeViewer | Self::ModelLoader)
+    }
+
     /// Tauri window label for this role.
     #[must_use]
     pub fn label(&self) -> &'static str {
@@ -61,15 +77,18 @@ impl WindowRole {
         }
     }
 
-    /// `SvelteKit` route path for this window.
+    /// The page this window opens — a constant generated from the route
+    /// folders, so a missing page does not compile (plan 0008).
     #[must_use]
     pub fn route(&self) -> &'static str {
+        use crate::routes;
         match self {
-            Self::Main => "/devpulse",
-            Self::Chat => "/chat",
-            Self::KnowledgeViewer => "/cortex",
-            Self::ModelLoader => "/model-loader",
-            Self::DevTools => "/devtools",
+            Self::Main => routes::DEVPULSE,
+            Self::Chat => routes::CHAT,
+            // Its own description is "Telemetry graph".
+            Self::KnowledgeViewer => routes::DEVTOOLS_SYSTEM_OBSERVABILITY_TELEMETRY,
+            Self::ModelLoader => routes::DEVPULSE_MODELS,
+            Self::DevTools => routes::DEVTOOLS,
         }
     }
 
@@ -91,6 +110,17 @@ impl WindowRole {
     pub fn transparent(&self) -> bool {
         false
     }
+}
+
+/// A window role and the page it opens.
+#[derive(Serialize, Deserialize, Type, Clone, Debug)]
+pub struct WindowRoleInfo {
+    /// The role.
+    pub role: WindowRole,
+    /// The page it opens (a generated route constant).
+    pub route: String,
+    /// Whether the devtools dashboard offers it as a detached surface.
+    pub detached: bool,
 }
 
 /// Tracks an open window's state.
