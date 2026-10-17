@@ -1,0 +1,44 @@
+{
+  "permissions": {
+    "allow": [
+      "Read", "Glob", "Grep", "WebFetch", "WebSearch", "TodoWrite"
+    ],
+    "deny": [
+      "Bash(rm -rf /*)",
+      "Bash(git push --force:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(git clean -fd:*)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [{
+      "matcher": "Write|Edit",
+      "hooks": [{
+        "type": "command",
+        "command": "node .claude/hooks/auto-format.js",
+        "timeout": 10
+      }]
+    }],
+    "Stop": [{
+      "hooks": [{
+        "type": "command",
+        "command": "node .claude/hooks/verify-on-stop.js",
+        "timeout": 60
+      }]
+    }],
+    "PreToolUse": [{
+      "matcher": "Bash",
+      "hooks": [{
+        "type": "command",
+        "command": "node -e \"const i=require('fs').readFileSync(0,'utf8');if(/rm -rf \\/|--force|DROP TABLE/i.test(i)){process.stderr.write('BLOCKED');process.exit(2)}\"",
+        "timeout": 5
+      }]
+    }],
+    "SessionStart": [{
+      "hooks": [{
+        "type": "command",
+        "command": "node -e \"const b=require('child_process').execSync;const br=b('git branch --show-current',{stdio:'pipe'}).toString().trim();const m=b('git diff --name-only',{stdio:'pipe'}).toString().trim().split('\\n').filter(Boolean).length;console.log(JSON.stringify({additionalContext:'Branch: '+br+' | Modified: '+m+' files'}))\""
+      }]
+    }]
+  }
+}
