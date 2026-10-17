@@ -143,10 +143,22 @@ opens the Models page the sidebar already links.
     architecture tests and the gate per commit.
   - Divergences resolved by "the page header wins" (written after the
     registry): listed in the R4 commit message.
+- 2026-10-17 — R8–R11 found by a second sweep for code that repeats what a
+  route folder already says (window identity, tiles, headings, hero cards):
+  - R8 `ab7a356f` capability for every app window by glob; the hand list
+    had left the KnowledgeViewer window without IPC; window titles from copy.
+  - R9 `42826faf` live strip tiles from their pages (5 of 5 had drifted).
+  - R10 `d6098077` `routeHere()`; Community, Latest, Action log headings.
+  - R11 `78e81e04` store hero card from its page and the shell's accent.
 - Follow-ups (not in this plan):
   - Page chrome text is still English in code (devtools dashboard tabs and
     tiles, shell tab names and back label, error pages, Latest page
-    messages) → the copy catalog (plan 0001 O1).
+    messages, the live strip's status lines and verbs, the hero cards'
+    `purpose`) → the copy catalog (plan 0001 O1). Sentences that embed a
+    page name get a `{page}` slot filled from that page's copy label:
+    `CollectionsPanel.svelte:62` ("Open … store devtool"),
+    `QdrantDevtool.svelte:88,95,229,342,355`, `(app)/+error.svelte:14`,
+    `routes/+error.svelte:11`.
   - Three hand-synced accent unions (`BrandAccent`, `AccentColor`,
     `GlowToken`) vs `accent.tokens.json` → generate from tokens (plan 0006).
   - `generated/terminology.ts` rewrites its timestamp on every build.
