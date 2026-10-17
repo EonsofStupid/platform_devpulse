@@ -57,7 +57,8 @@ import {
 	transcribeAudioFile,
 } from "../../stt/data-access/stt.svc.js";
 import { sttConfigState } from "../../stt/data-access/stt-config.state.svelte.js";
-import { runStsPipeline, stsLatencyState } from "../data-access/sts.svc.js";
+import { runStsPipeline } from "../data-access/sts.svc.js";
+import { stsLatencyState } from "../data-access/sts-latency.state.svelte.js";
 
 const LOG_TARGETS: LogTargetPreset[] = [{ value: "devtools.sts", label: "STS devtool" }];
 
