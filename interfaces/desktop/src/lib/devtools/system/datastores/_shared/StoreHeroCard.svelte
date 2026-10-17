@@ -16,35 +16,26 @@
 	- **`syncChip`** — sync-status pill (synced / syncing / queued / paused).
 	  Optional — omit until the sync subsystem is wired.
 
-	## Accent contract
+	## Identity and accent
 
-	`accentVar` drives the left-edge stripe, the icon tint, and the
-	subtle gradient on the background. Convention:
-	- `--accent-amber` — DuckDB (analytical / warm)
-	- `--accent-cyan` — Turso (clean / relational)
-	- `--accent-purple` — SurrealDB (graph / vibrant)
-
-	The accent should match the store's devtool accent on
-	`ServiceDevtoolShell` so the hero card and the shell agree.
+	The card is part of a store's devtool page, and that page's route
+	folder names and draws it (plan 0008): the name from the page's copy,
+	the icon from its `_nav`. The accent is the shell's
+	(`--accent-service-main`, set by `ServiceDevtoolShell` from the
+	page's `_devtool.accent`), so the card and the shell always agree.
+	It drives the left-edge stripe, the icon tint, and the subtle
+	gradient on the background.
 -->
 <script lang="ts">
 import type { Snippet } from "svelte";
 import { Text } from "$lib/design/components/text/index.js";
+import { routeCopy, routeHere } from "$lib/sys/routing/index.js";
 import HealthSignal from "./HealthSignal.svelte";
 import LiveActivityPulse from "./LiveActivityPulse.svelte";
 
 type HealthState = "up" | "starting" | "degraded" | "down" | "unknown";
 
 interface Props {
-	/**
-	 * Lucide icon component for this store. Typed `any` because
-	 * lucide-svelte v0.564 exports class-based icons; the narrow
-	 * `{ size?, class? }` shape fights upstream typing.
-	 */
-	// biome-ignore lint/suspicious/noExplicitAny: lucide-svelte class-based exports don't match Svelte 5 `Component<P>` function-form structurally.
-	icon: any;
-	/** Display name (e.g. "DuckDB", "Turso", "SurrealDB"). */
-	name: string;
 	/** One-line layman purpose ("Columnar analytics engine", "Relational
 	 *  rows for system + user state", "Graph + document multi-model"). */
 	purpose: string;
@@ -56,9 +47,6 @@ interface Props {
 	healthLabel?: string;
 	/** Live activity tick — bump on each observed read/write event. */
 	activityTick?: number;
-	/** Accent CSS variable. Defaults to the platform's electric accent
-	 *  so callers that haven't picked yet still render coherently. */
-	accentVar?: string;
 	/** Hero visualization — the per-store unique character. */
 	children?: Snippet;
 	/** Optional sync-status chip (Phase 1.4 — wire when sync subsystem lands). */
@@ -66,26 +54,30 @@ interface Props {
 }
 
 let {
-	icon: Icon,
-	name,
 	purpose,
 	health,
 	latencyMs = null,
 	healthLabel = undefined,
 	activityTick = 0,
-	accentVar = "--accent-electric",
 	children = undefined,
 	syncChip = undefined,
 }: Props = $props();
+
+/** The store's page: its name and icon. */
+const here = $derived(routeHere());
+const name = $derived(here ? routeCopy(here)?.label : undefined);
+const Icon = $derived(here?.nav.icon);
 </script>
 
-<div class="hero-card" style={`--store-accent: var(${accentVar});`}>
+<div class="hero-card">
 	<div class="accent-stripe"></div>
 
 	<div class="hero-body">
 		<div class="header">
 			<div class="icon-tile">
-				<Icon size={28} class="hero-icon" />
+				{#if Icon}
+					<Icon size={28} class="hero-icon" />
+				{/if}
 			</div>
 			<div class="header-text">
 				<div class="name-row">
@@ -95,7 +87,7 @@ let {
 				<Text size="sm" color="muted">{purpose}</Text>
 			</div>
 			<div class="header-trailing">
-				<LiveActivityPulse {activityTick} {accentVar} />
+				<LiveActivityPulse {activityTick} accentVar="--accent-service-main" />
 				{#if syncChip}
 					{@render syncChip()}
 				{/if}
@@ -112,6 +104,8 @@ let {
 
 <style>
 	.hero-card {
+		/* The shell's accent, set from the page's `_devtool.accent`. */
+		--store-accent: var(--accent-service-main);
 		position: relative;
 		display: flex;
 		border-radius: 0.625rem;

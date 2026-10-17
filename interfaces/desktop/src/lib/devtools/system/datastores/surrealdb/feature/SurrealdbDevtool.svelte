@@ -246,14 +246,11 @@ function handleKeydown(e: KeyboardEvent): void {
 			<!-- Namespaces hero + per-namespace breakdown -->
 			<div class="space-y-3">
 				<StoreHeroCard
-					icon={Network}
-					name="SurrealDB"
 					purpose="Graph + document multi-model — persona, projects, agents linked across namespaces"
 					health={heroState}
 					latencyMs={heroLatencyMs}
 					healthLabel={heroHealthLabel}
 					{activityTick}
-					accentVar="--accent-purple"
 				>
 					<SurrealdbHero state={heroState} />
 				</StoreHeroCard>

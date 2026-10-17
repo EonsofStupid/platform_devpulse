@@ -111,14 +111,11 @@ function appliedAt(seconds: number): string {
 	{#snippet status()}
 		<div class="flex flex-col gap-[var(--space-3)]">
 			<StoreHeroCard
-				icon={Database}
-				name="Turso"
 				purpose="DevPulse's own database — your profile, preferences, projects and chats, and the platform's state"
 				health={heroState}
 				latencyMs={heroLatencyMs}
 				healthLabel={heroLabel}
 				activityTick={tursoState.healthChecks}
-				accentVar="--accent-cyan"
 			>
 				<TursoHero state={heroState} />
 			</StoreHeroCard>

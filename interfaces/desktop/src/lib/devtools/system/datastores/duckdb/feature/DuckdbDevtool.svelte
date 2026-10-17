@@ -139,14 +139,11 @@ function handleKeydown(e: KeyboardEvent): void {
 	{#snippet status()}
 		<div class="space-y-3">
 			<StoreHeroCard
-				icon={BarChart3}
-				name="DuckDB"
 				purpose="Columnar analytics engine — fast aggregates over local + warehouse data"
 				health={heroState}
 				latencyMs={heroLatencyMs}
 				healthLabel={heroHealthLabel}
 				{activityTick}
-				accentVar="--accent-amber"
 			>
 				<DuckdbHero state={heroState} />
 			</StoreHeroCard>
