@@ -75,21 +75,21 @@ pre-commit:
     # Token regeneration (SSOT → generated files)
     tokens-regen:
       glob: "packages/coldlight/tokens/tokens.ts"
-      root: "interfaces/desktop"
-      run: pnpm ds:tokens:build
+      run: pnpm --dir interfaces/desktop ds:tokens:build
       stage_fixed: true
+
+    # ColdLight's build scripts still live in the app until plan 0006 C2c; these
+    # run from the repo root because lefthook drops staged files outside `root`.
 
     # ColdLight manifest verification
     coldlight-verify:
       glob: "packages/coldlight/**/*.{ts,svelte}"
-      root: "interfaces/desktop"
-      run: pnpm coldlight:verify
+      run: pnpm --dir interfaces/desktop coldlight:verify
 
     # ColdLight auto-documentation generation (TypeDoc → .cowlevel/)
     coldlight-docs:
       glob: "packages/coldlight/**/*.{ts,svelte}"
-      root: "interfaces/desktop"
-      run: pnpm coldlight:docs
+      run: pnpm --dir interfaces/desktop coldlight:docs
       stage_fixed: true
 
 commit-msg:
