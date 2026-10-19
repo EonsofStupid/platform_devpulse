@@ -77,8 +77,7 @@ const RULES = [
 	{
 		id: "hex",
 		label: "Raw hex color",
-		// Not an HTML character reference such as `&#8249;` (‹).
-		pattern: /(?<!&)#[0-9a-fA-F]{3,8}\b/g,
+		pattern: /#[0-9a-fA-F]{3,8}\b/g,
 	},
 	{
 		id: "px",

@@ -401,6 +401,27 @@ its cache on it; `package.json` scripts `ds:generate`, `ds:validate`,
 | C2b | The move: `git mv` to `packages/coldlight/` as it stands (its `exports` already assume that root). `package.json` gets an `exports` map of the entry points that have consumers (`types` / `svelte` / `default` on source) and `"imports": {"#coldlight/*": "./*"}`, declares its own dependencies, and gains `check` and `test`; its own `tsconfig.json`, `biome.json` (`extends "//"` + ColdLight's overrides) and `vitest.config.ts` (the browser project, moved from the app). Codemod: ColdLight's `$lib/design/…` → `#coldlight/…`; the app's → `@devpulse/coldlight/…`, deep paths normalised to entry points (`utils/cn.js` and the layout utils → `utils`, `Text.svelte` → `components/text`, `svg-types.js` → `svg`, …; `svg/filters` and `debug` indexes gain their components), duplicates merged, imports re-sorted. The app depends on `workspace:*`; every tool path above follows; the boundary test also asserts the app reaches ColdLight only through `@devpulse/coldlight` | both svelte-checks 0 errors; Biome clean in both; arch tests; ColdLight's 50 browser test files; `vite build` with a ColdLight-only class present in the CSS; all 44 pages live, no console errors |
 | C2c | ColdLight owns its build: the token pipeline, its DTCG sources, `scripts/coldlight/*`, `validate-specs.ts` and typedoc move into the package as its `tokens`, `verify` and `docs` scripts, with their dev dependencies; lefthook runs them there, and `tokens-regen` watches the DTCG sources (its glob names `tokens/tokens.ts`, which has never existed); the dead scripts are deleted; the boundary test's app-side check gains `scripts/` (today the pipeline still reaches into the package by relative path) | `tokens` regenerates byte-identical output; `verify` and `docs` pass; the boundary test covers `scripts/` |
 
+### Icon size tokens (owner 2026-10-19)
+
+> "add an icon-size token please that is a shortcut and we are in
+> pre-release and I want this correctly done"
+
+ColdLight sized Lucide icons with literal px (`size={16}` ×8, `{14}` ×2,
+`{20}` ×1) and had no icon-size token. Design, all on existing patterns:
+
+- **Source:** semantic group `iconSize` in
+  `tokens/src/semantic/icon/size.tokens.json`, hand-authored rem like
+  `borderWidth`: `xs` 0.875rem (14 px, dense chrome), `sm` 1rem (16 px,
+  beside body text, buttons, inputs), `md` 1.25rem (20 px, tiles, headers),
+  `lg` 1.5rem (24 px, Lucide's native grid). Steps match what ColdLight
+  already uses and the common design-system icon scales (Carbon 16/20/24/32).
+- **Outputs:** `--icon-size-*` in `styles/semantic/icon.css`; Tailwind
+  `@theme` key `--spacing-icon-*` (the layout namespace, so the boundary
+  gate allows it), which gives `size-icon-*`; `types/icon.d.ts`.
+- **Consumption:** icons take `class="size-icon-<step>"` (a layout
+  utility; CSS overrides Lucide's `width`/`height` attributes); no literal
+  icon px in ColdLight. The app's own literal icon sizes are a follow-up.
+
 ## Phases (approval between each)
 
 | # | Outcome | Files (≤5 unless generated) | Verification |
@@ -576,6 +597,31 @@ Recorded per phase in the log below.
     `kernel_terms.toml` and the GritQL kernel-terms rule, matching
     `signals.registry.yaml` and `ip-protection.md`; the generated
     terminology loses its unused `helper` entry.
+  - **Corrected 2026-10-19 (owner: deleting `tsdoc.json` was a shortcut).**
+    `tsdoc.json` is restored and is now ColdLight's single tag source:
+    `@microsoft/api-extractor` 7.59.4 (latest) and TypeDoc are ColdLight dev
+    dependencies, it extends api-extractor's base and `typedoc/tsdoc.json`
+    (TypeDoc's documented setup), defines ColdLight's 19 tags (adding the
+    five its `.ts` comments used undefined: `@file` ×450, `@description`,
+    `@consumers`, `@render`, `@theme`) and marks every tag supported, since
+    api-extractor's base puts TypeDoc in allow-list mode. `typedoc.json`'s
+    duplicate `blockTags` / `modifierTags` are gone. Effective tags: all 55
+    block tags kept except `@generated-files` (not a valid TSDoc name,
+    unused) and `@inheritDoc` (TSDoc's inline form, now inline); modifier
+    tags 6 → 40 (TypeDoc's own, e.g. `@hidden`, were unrecognised before).
+    Docs build with no warnings.
+  - **Corrected 2026-10-19 (owner: OKLCH and px rules, no relaxing):** the
+    raw-values hook's hex rule is back as it was. The `&#8249;` / `&#8250;`
+    it flagged in `RangeCalendarHeader` are replaced by the Lucide chevrons
+    `CalendarHeader` uses, sized by the new icon-size token (section above);
+    ColdLight's 11 literal icon sizes now use `size-icon-*`. Live: `/devpulse`
+    7 icons at 16 px, `/devtools` 5 at 20 px, `/chat`, `/clyffy`,
+    `/devforge`, `/overmind`, `/wiredfront` at 16 px, each overriding
+    Lucide's 24 px attribute. The `xs` title-bar icons and the range calendar
+    render on no page, so they rest on the build (the `size-icon-xs` utility
+    is generated) and svelte-check. The app still has 239 literal icon sizes
+    in 58 files across 13 values (12 px ×86): moving them onto the token
+    needs the scale extended first (at least a `2xs` step).
   - Follow-up: the C2b commit skipped `coldlight-verify` and
     `coldlight-docs` (lefthook drops staged files outside a command's
     `root`, and theirs was the app). Both were run by hand before the

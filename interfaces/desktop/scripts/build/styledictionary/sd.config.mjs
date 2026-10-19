@@ -113,6 +113,7 @@ const tiers = {
 		'glass-blur', 'backdrop-glow', 'backdrop-grid',
 		'backdrop-grid-line', 'backdrop-grid-size',
 		'gradient-duration', 'scrollbar-size', 'chat', 'wizard', 'claude',
+		'iconSize',
 	],
 };
 
@@ -131,6 +132,8 @@ const tw4Remap = {
 		textSize: 'text',
 		space: 'spacing',
 		zIndex: 'z',
+		// Icon box sizes are layout: Tailwind's spacing namespace gives `size-icon-*`.
+		iconSize: 'spacing-icon',
 	},
 	nested: {
 		'motion.ease': 'ease',
@@ -943,6 +946,7 @@ const config = {
 			cssFile('accent.css', pathFilter('accent'), layers.semantic),
 			cssFile('role.css', pathFilter('primary', 'secondary', 'danger', 'success', 'warning', 'info', 'muted'), layers.semantic),
 			cssFile('claude.css', pathFilter('claude'), layers.semantic),
+			cssFile('icon.css', pathFilter('iconSize'), layers.semantic),
 			],
 		},
 
@@ -1019,6 +1023,7 @@ const config = {
 		'theme-signal': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('signal.css', pathFilter('signal'))] },
 		'theme-accent': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('accent.css', pathFilter('accent'))] },
 		'theme-role':   { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('role.css',   pathFilter('primary', 'secondary', 'danger', 'success', 'warning', 'info', 'muted'))] },
+		'theme-icon':   { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('icon.css',   pathFilter('iconSize'))] },
 
 		// ── TypeScript Types ──────────────────────────────────────
 		'types-primitives': {
@@ -1047,6 +1052,7 @@ const config = {
 				typesFile('signal.d.ts', pathFilter('signal')),
 				typesFile('accent.d.ts', pathFilter('accent')),
 				typesFile('role.d.ts', pathFilter('primary', 'secondary', 'danger', 'success', 'warning', 'info', 'muted')),
+				typesFile('icon.d.ts', pathFilter('iconSize')),
 			],
 		},
 		'types-components': {

@@ -22,8 +22,8 @@ const cal = getCalendarContext();
 	{#if children}
 		{@render children()}
 	{:else}
-		<button {...cal.prevButton}><ChevronLeft size={16} aria-hidden="true" /></button>
+		<button {...cal.prevButton}><ChevronLeft class="size-icon-sm" aria-hidden="true" /></button>
 		<div {...cal.heading}>{cal.headingText}</div>
-		<button {...cal.nextButton}><ChevronRight size={16} aria-hidden="true" /></button>
+		<button {...cal.nextButton}><ChevronRight class="size-icon-sm" aria-hidden="true" /></button>
 	{/if}
 </div>

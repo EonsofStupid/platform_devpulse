@@ -32909,6 +32909,67 @@
 			}
 		]
 	},
+	"iconSize": {
+		"extensions": {},
+		"tokens": [
+			{
+				"name": "icon-size-xs",
+				"path": [
+					"iconSize",
+					"xs"
+				],
+				"cssVar": "--icon-size-xs",
+				"value": {
+					"value": 0.875,
+					"unit": "rem"
+				},
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "icon-size-sm",
+				"path": [
+					"iconSize",
+					"sm"
+				],
+				"cssVar": "--icon-size-sm",
+				"value": {
+					"value": 1,
+					"unit": "rem"
+				},
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "icon-size-md",
+				"path": [
+					"iconSize",
+					"md"
+				],
+				"cssVar": "--icon-size-md",
+				"value": {
+					"value": 1.25,
+					"unit": "rem"
+				},
+				"type": "dimension",
+				"extensions": null
+			},
+			{
+				"name": "icon-size-lg",
+				"path": [
+					"iconSize",
+					"lg"
+				],
+				"cssVar": "--icon-size-lg",
+				"value": {
+					"value": 1.5,
+					"unit": "rem"
+				},
+				"type": "dimension",
+				"extensions": null
+			}
+		]
+	},
 	"interaction": {
 		"extensions": {},
 		"tokens": [

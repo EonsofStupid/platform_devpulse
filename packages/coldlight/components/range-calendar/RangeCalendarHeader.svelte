@@ -8,6 +8,7 @@
 	ColdLight-owned ARIA.
 -->
 <script lang="ts">
+import { ChevronLeft, ChevronRight } from "lucide-svelte";
 import { cn } from "#coldlight/utils/cn.js";
 import { getRangeCalendarContext } from "./context.js";
 import type { RangeCalendarHeaderProps } from "./types.js";
@@ -41,7 +42,7 @@ const headingText = $derived(
 			onclick={() => ctx.prevMonth()}
 			disabled={ctx.disabled}
 		>
-			&#8249;
+			<ChevronLeft class="size-icon-sm" aria-hidden="true" />
 		</button>
 		<div
 			id={ctx.headingId}
@@ -61,7 +62,7 @@ const headingText = $derived(
 			onclick={() => ctx.nextMonth()}
 			disabled={ctx.disabled}
 		>
-			&#8250;
+			<ChevronRight class="size-icon-sm" aria-hidden="true" />
 		</button>
 	{/if}
 </div>

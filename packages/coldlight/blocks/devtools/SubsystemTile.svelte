@@ -209,7 +209,7 @@ function handleVerbKeydown(event: KeyboardEvent): void {
 	aria-label="{label} subsystem"
 >
 	<a class="subsystem-tile__link" href={route}>
-		<Icon size={20} class="subsystem-tile__icon" />
+		<Icon class="subsystem-tile__icon size-icon-md" />
 		<span class="subsystem-tile__title">
 			<Text size="sm" weight="semibold" as="span">{label}</Text>
 		</span>

@@ -17,3 +17,4 @@ export * from "./text.js";
 export * from "./signal.js";
 export * from "./accent.js";
 export * from "./role.js";
+export * from "./icon.js";

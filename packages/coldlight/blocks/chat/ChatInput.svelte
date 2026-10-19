@@ -64,7 +64,7 @@ function handleKeydown(e: KeyboardEvent): void {
 		onclick={handleSend}
 		aria-label="Send message"
 	>
-		<Send size={16} />
+		<Send class="size-icon-sm" />
 	</Button>
 	{#if onVoice}
 		<Button
@@ -73,7 +73,7 @@ function handleKeydown(e: KeyboardEvent): void {
 			onclick={onVoice}
 			aria-label={voiceActive ? "Stop voice" : "Start voice"}
 		>
-			<Mic size={16} />
+			<Mic class="size-icon-sm" />
 		</Button>
 	{/if}
 </div>

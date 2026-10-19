@@ -31,7 +31,7 @@ let {
 		<span data-slot="title" class="{titleClass} inline-flex items-center gap-1.5">
 			{#if icon}
 				{@const Icon = icon}
-				<Icon size={16} class="shrink-0 text-text-secondary" />
+				<Icon class="size-icon-sm shrink-0 text-text-secondary" />
 			{/if}
 			{#if title}{title}{/if}
 		</span>

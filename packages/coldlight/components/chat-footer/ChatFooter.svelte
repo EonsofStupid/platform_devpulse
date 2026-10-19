@@ -91,7 +91,7 @@ const m = $derived(renderForge({ kind: "chat-footer", preset: "default" }));
 		class="flex-1"
 	/>
 	<Button preset="primary" size="sm" onclick={handleSend} {disabled}>
-		<Send size={16} />
+		<Send class="size-icon-sm" />
 	</Button>
 	{#if onVoice}
 		<Button
@@ -101,7 +101,7 @@ const m = $derived(renderForge({ kind: "chat-footer", preset: "default" }));
 			onclick={onVoice}
 			{disabled}
 		>
-			<Mic size={16} />
+			<Mic class="size-icon-sm" />
 		</Button>
 	{/if}
 </div>
