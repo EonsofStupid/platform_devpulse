@@ -1,0 +1,114 @@
+{
+	"$schema": "https://biomejs.dev/schemas/2.4.0/schema.json",
+	"plugins": [
+		"./scripts/biome/gritql/no-raw-colors.grit",
+		"./scripts/biome/gritql/no-raw-colors-bg.grit",
+		"./scripts/biome/gritql/no-named-colors.grit",
+		"./scripts/biome/gritql/no-raw-px-padding.grit",
+		"./scripts/biome/gritql/no-raw-px-margin.grit",
+		"./scripts/biome/gritql/no-raw-px-gap.grit",
+		"./scripts/biome/gritql/no-raw-px-width.grit",
+		"./scripts/biome/gritql/no-raw-px-height.grit",
+		"./scripts/biome/gritql/no-raw-px-font-size.grit",
+		"./scripts/biome/gritql/no-raw-px-border-radius.grit"
+	],
+	"assist": { "actions": { "source": { "organizeImports": "on" } } },
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"recommended": true,
+			"correctness": {
+				"noUnusedVariables": "error",
+				"noUnusedImports": "error"
+			},
+			"nursery": {
+				"noHexColors": "error"
+			},
+			"suspicious": {
+				"noExplicitAny": "error",
+				"noConsole": {
+					"level": "warn",
+					"options": {
+						"allow": ["info", "warn", "error"]
+					}
+				}
+			},
+			"style": {
+				"useImportType": "error",
+				"useConst": "error",
+				"useFilenamingConvention": {
+					"level": "warn",
+					"options": {
+						"filenameCases": ["camelCase", "PascalCase", "kebab-case"]
+					}
+				},
+				"noRestrictedImports": {
+					"level": "error",
+					"options": {
+						"paths": {},
+						"patterns": [
+							{
+								"group": ["**/_archive/*", "**/_archive/**"],
+								"message": "Archive imports are banned. Build from taxonomy contracts."
+							}
+						]
+					}
+				}
+			}
+		}
+	},
+	"formatter": {
+		"enabled": true,
+		"indentStyle": "tab",
+		"indentWidth": 2,
+		"lineWidth": 100,
+		"lineEnding": "lf"
+	},
+	"javascript": {
+		"formatter": {
+			"quoteStyle": "double",
+			"semicolons": "always"
+		}
+	},
+	"css": {
+		"parser": {
+			"tailwindDirectives": true
+		}
+	},
+	"overrides": [
+		{
+			"includes": ["**/*.svelte"],
+			"linter": {
+				"rules": {
+					"correctness": {
+						"noUnusedImports": "off",
+						"noUnusedVariables": "off"
+					},
+					"style": {
+						"useConst": "off"
+					}
+				}
+			}
+		},
+		{
+			"includes": ["**/scripts/**/*.ts"],
+			"linter": {
+				"rules": {
+					"suspicious": {
+						"noConsole": "off"
+					}
+				}
+			}
+		}
+	],
+	"files": {
+		"includes": [
+			"**",
+			"!**/node_modules",
+			"!**/.svelte-kit",
+			"!**/dist",
+			"!**/build",
+			"!**/*.generated.*"
+		]
+	}
+}

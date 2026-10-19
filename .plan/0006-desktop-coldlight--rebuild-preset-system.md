@@ -368,6 +368,39 @@ Where ColdLight lives was:
 2. ColdLight stays a folder of the app; the empty package file is deleted
    and the boundary is held by the C0 test alone.
 
+### C2 in three steps (inventory 2026-10-18)
+
+What moves: 1,306 tracked files (1,090 code, 125 docs, 50 browser tests, no
+stories). ColdLight's only outside packages are `svelte`, `arktype`, `clsx`,
+`lucide-svelte`, `shiki` (plus `vitest` / `vitest-browser-svelte` in tests);
+no `$app` or `$env` imports. The app imports it from 139 files: 466 imports,
+60 specifiers, 336 of them `components/<name>/index.js`.
+
+Tools that name `src/lib/design` today: Tailwind (auto-detection stops at the
+app folder, so the package needs an `@source`), `app.css` and Storybook
+`preview.ts` imports, the app's `biome.json` overrides and ignores, the
+app's `vitest.config.ts` (its header says `@package @devpulse/coldlight`: it
+is ColdLight's config), `tsconfig.json` excludes, lefthook (`tokens-regen`,
+`coldlight-verify`, `coldlight-docs`, and the `src/**` globs of `biome-lint`,
+`no-raw-values`, `no-legacy-prefixes`, `svelte-check`, `docs-preflight`),
+the raw-values and coldlight-boundary hooks, five docs-preflight checks and
+`cowlevel.policy.json`, the token pipeline and `scripts/coldlight/*`,
+typedoc, release-please (config, manifest, `release.yml`), CODEOWNERS,
+`.gitignore`, `config.json`, `project.manifest.yml`, and CI (`ci.yml`,
+`verify-commits.yml`).
+
+Found on the way: `interfaces/desktop/pnpm-lock.yaml` is stale (last touched
+2026-02-02; the root lockfile is the live one since 2026-05-14) yet CI keys
+its cache on it; `package.json` scripts `ds:generate`, `ds:validate`,
+`coldlight:inventory`, `coldlight:generate` run files that do not exist; the
+`./style-macro` export points at a folder that does not exist.
+
+| # | Outcome | Check |
+| --- | --- | --- |
+| C2a | Workspace foundation, nothing moves: a root `biome.json` holds the shared rules (Biome 2 monorepo form) and the GritQL rules move to `scripts/biome/gritql/`; the app's `biome.json` becomes `"extends": "//"` plus its own overrides; `pnpm-workspace.yaml` gains `packages/*` and a `catalog:` for every dependency the app and ColdLight share, so both resolve one copy; the stale lockfile goes and CI caches on the root one | `biome check` reports exactly what it did before; `pnpm install --frozen-lockfile`; svelte-check; `vite build` |
+| C2b | The move: `git mv` to `packages/coldlight/` as it stands (its `exports` already assume that root). `package.json` gets an `exports` map of the entry points that have consumers (`types` / `svelte` / `default` on source) and `"imports": {"#coldlight/*": "./*"}`, declares its own dependencies, and gains `check` and `test`; its own `tsconfig.json`, `biome.json` (`extends "//"` + ColdLight's overrides) and `vitest.config.ts` (the browser project, moved from the app). Codemod: ColdLight's `$lib/design/…` → `#coldlight/…`; the app's → `@devpulse/coldlight/…`, deep paths normalised to entry points (`utils/cn.js` and the layout utils → `utils`, `Text.svelte` → `components/text`, `svg-types.js` → `svg`, …; `svg/filters` and `debug` indexes gain their components), duplicates merged, imports re-sorted. The app depends on `workspace:*`; every tool path above follows; the boundary test also asserts the app reaches ColdLight only through `@devpulse/coldlight` | both svelte-checks 0 errors; Biome clean in both; arch tests; ColdLight's 50 browser test files; `vite build` with a ColdLight-only class present in the CSS; all 44 pages live, no console errors |
+| C2c | ColdLight owns its build: the token pipeline, its DTCG sources, `scripts/coldlight/*` and typedoc move into the package as its `tokens`, `verify` and `docs` scripts, with their dev dependencies; lefthook runs them there; the dead scripts and the `style-macro` export are deleted | `tokens` regenerates byte-identical output; `verify` and `docs` pass |
+
 ## Phases (approval between each)
 
 | # | Outcome | Files (≤5 unless generated) | Verification |
@@ -490,3 +523,15 @@ Recorded per phase in the log below.
   duplicate of the models domain's `DownloaderTokenStrip` and is removed.
   The boundary test has no exceptions left: ColdLight imports nothing from
   the app.
+- 2026-10-18 — C2 inventoried and split into C2a (workspace foundation),
+  C2b (the move) and C2c (ColdLight owns its build); see "C2 in three steps".
+- 2026-10-18 — C2a done: root `biome.json` holds the shared rules and the
+  GritQL plugins (now `scripts/biome/gritql/`); the app's config is
+  `"extends": "//"` plus its overrides (three overrides for files that no
+  longer exist dropped); Biome is a root dev dependency. `biome check` on the
+  app: 1,618 files clean, the 1,629 before less the 11 moved `.grit` files;
+  seeded raw hex / raw px / `any` / `console.log` files still fail where they
+  did. `pnpm-workspace.yaml` gains `packages/*` and a catalog of the 14
+  dependencies ColdLight will share; the lockfile changed only in specifiers.
+  The stale `interfaces/desktop/pnpm-lock.yaml` is deleted and CI caches on
+  the root lockfile. svelte-check 0 errors, arch tests 17 pass, build passes.

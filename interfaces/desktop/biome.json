@@ -1,105 +1,7 @@
 {
 	"$schema": "https://biomejs.dev/schemas/2.4.0/schema.json",
-	"plugins": [
-		"./gritql/no-raw-colors.grit",
-		"./gritql/no-raw-colors-bg.grit",
-		"./gritql/no-named-colors.grit",
-		"./gritql/no-raw-px-padding.grit",
-		"./gritql/no-raw-px-margin.grit",
-		"./gritql/no-raw-px-gap.grit",
-		"./gritql/no-raw-px-width.grit",
-		"./gritql/no-raw-px-height.grit",
-		"./gritql/no-raw-px-font-size.grit",
-		"./gritql/no-raw-px-border-radius.grit"
-	],
-	"assist": { "actions": { "source": { "organizeImports": "on" } } },
-	"linter": {
-		"enabled": true,
-		"rules": {
-			"recommended": true,
-			"correctness": {
-				"noUnusedVariables": "error",
-				"noUnusedImports": "error"
-			},
-			"nursery": {
-				"noHexColors": "error"
-			},
-			"suspicious": {
-				"noExplicitAny": "error",
-				"noConsole": {
-					"level": "warn",
-					"options": {
-						"allow": ["info", "warn", "error"]
-					}
-				}
-			},
-			"style": {
-				"useImportType": "error",
-				"useConst": "error",
-				"useFilenamingConvention": {
-					"level": "warn",
-					"options": {
-						"filenameCases": ["camelCase", "PascalCase", "kebab-case"]
-					}
-				},
-				"noRestrictedImports": {
-					"level": "error",
-					"options": {
-						"paths": {},
-						"patterns": [
-							{
-								"group": ["**/_archive/*", "**/_archive/**"],
-								"message": "Archive imports are banned. Build from taxonomy contracts."
-							}
-						]
-					}
-				}
-			}
-		}
-	},
-	"formatter": {
-		"enabled": true,
-		"indentStyle": "tab",
-		"indentWidth": 2,
-		"lineWidth": 100,
-		"lineEnding": "lf"
-	},
-	"javascript": {
-		"formatter": {
-			"quoteStyle": "double",
-			"semicolons": "always"
-		}
-	},
-	"css": {
-		"parser": {
-			"tailwindDirectives": true
-		}
-	},
+	"extends": "//",
 	"overrides": [
-		{
-			"includes": ["**/*.svelte"],
-			"linter": {
-				"rules": {
-					"correctness": {
-						"noUnusedImports": "off",
-						"noUnusedVariables": "off"
-					},
-					"style": {
-						"useConst": "off"
-					}
-				}
-			}
-		},
-		{
-			"includes": ["scripts/*.ts", "scripts/**/*.ts"],
-			"linter": {
-				"rules": {
-					"suspicious": {
-						"noConsole": "off"
-					}
-				}
-			}
-		},
 		{
 			"includes": [
 				"src/routes/**/+page.svelte",
@@ -156,17 +58,7 @@
 			}
 		},
 		{
-			"includes": ["**/test-components/**"],
-			"linter": {
-				"rules": {
-					"style": {
-						"noRestrictedImports": "off"
-					}
-				}
-			}
-		},
-		{
-			"includes": ["**/UIDemoPage.svelte", "**/DEBUG_FLAG.ts", "**/VPB.svelte"],
+			"includes": ["**/DEBUG_FLAG.ts"],
 			"linter": {
 				"rules": {
 					"style": {
@@ -196,12 +88,6 @@
 	],
 	"files": {
 		"includes": [
-			"**",
-			"!**/node_modules",
-			"!**/.svelte-kit",
-			"!**/dist",
-			"!**/build",
-			"!**/*.generated.*",
 			"!**/src/lib/sys/generated",
 			"!**/src/lib/design/.cowlevel",
 			"!**/src/lib/design/style",

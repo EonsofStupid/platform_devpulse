@@ -64,7 +64,7 @@ VIOLATIONS=$(git diff --cached --diff-filter=ACMR \
   -- ':!.claude/rules/ip-protection.md' \
   -- ':!.claude/plans/' \
   -- ':!interfaces/desktop/tests/architecture/' \
-  -- ':!interfaces/desktop/gritql/' \
+  -- ':!scripts/biome/gritql/' \
   -- '*.rs' '*.ts' '*.svelte' '*.json' \
   | grep -vE '^\+\+\+ ' \
   | grep -nE "^\+.*\b(${PATTERN})" || true)
