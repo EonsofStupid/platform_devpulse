@@ -19,7 +19,8 @@ sequential {
 			r"VISION",
 			r"RESEARCHER",
 			r"ENFORCER",
-			r"sub-agent"
+			r"sub-agent",
+			r"Minion"
 		},
 		register_diagnostic(span=$str, message="Kernel sub-agent name in frontend string. Use the public equivalent from kernel_terms.toml.")
 	},

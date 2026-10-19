@@ -17,6 +17,12 @@ if [ ! -f "$TERMS_FILE" ]; then
   exit 0
 fi
 
+# Owner 2026-10-19: every term is public for now; the list stays configured
+# and comes back into force with `enforcement = "on"` in the terms file.
+if grep -qE '^enforcement = "off"' "$TERMS_FILE"; then
+  exit 0
+fi
+
 # Extract ONLY hard-severity kernel terms from TOML.
 # Strategy: grep for entries that have severity = "hard" on the next few lines
 # after a kernel = "..." line. Uses awk to pair kernel/severity within [[terms]] blocks.

@@ -46,7 +46,15 @@
 			"svelte": "./plugins/*/index.ts",
 			"default": "./plugins/*/index.ts"
 		},
+		"./primitives/*": {
+			"svelte": "./primitives/*/index.ts"
+		},
 		"./renderforge": {
+			"types": "./renderforge/index.ts",
+			"svelte": "./renderforge/index.ts",
+			"default": "./renderforge/index.ts"
+		},
+		"./style-macro": {
 			"types": "./renderforge/index.ts",
 			"svelte": "./renderforge/index.ts",
 			"default": "./renderforge/index.ts"

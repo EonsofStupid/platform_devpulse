@@ -37,7 +37,9 @@ const REPO_ROOT = resolve(process.cwd());
 /** Paths that are allowed to contain raw values. Kept in sync with the
  *  legacy shell allow-list so behavior doesn't regress. */
 const ALLOW_LIST = [
+	"packages/coldlight/css/",
 	"packages/coldlight/theme/",
+	"packages/coldlight/style/",
 	"packages/coldlight/styles/",
 	"packages/coldlight/generated/",
 	"packages/coldlight/svg/",

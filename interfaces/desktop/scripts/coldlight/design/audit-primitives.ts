@@ -30,6 +30,8 @@ const normalizedDirname =
 	__dirname.startsWith("/") && process.platform === "win32" ? __dirname.slice(1) : __dirname;
 
 const WORKSPACE_ROOT = path.resolve(normalizedDirname, "../../..");
+// biome-ignore lint/correctness/noUnusedVariables: restored (owner rule: nothing deleted for being unused); the primitives it located now live in packages/coldlight
+const SRC_ROOT = path.join(WORKSPACE_ROOT, "src");
 const PRIMITIVES_ROOT = path.join(WORKSPACE_ROOT, "../../packages/coldlight/primitives");
 const PRIMITIVES_MD = path.join(PRIMITIVES_ROOT, "PRIMITIVES.md");
 

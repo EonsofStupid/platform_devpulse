@@ -1,13 +1,43 @@
 /**
  * @file vitest.config.ts
+ * @package @devpulse/coldlight
  *
- * The app's component tests and Storybook stories — Vitest 4 browser mode
- * (Chromium via Playwright). ColdLight's tests run from its own package
- * (`packages/coldlight/vitest.config.ts`); architecture tests from
- * `vitest.config.arch.ts`.
+ * Vitest 4 configuration — browser mode (Chromium via Playwright).
+ *
+ * Node 24 minimum. Svelte 5 runes. Zero stores.
  *
  * Dev:  headed browser, no coverage, no traces
  * CI:   headless, coverage v8, traces on failure, screenshot on failure
+ *
+ * ```mermaid
+ * flowchart LR
+ *   Test[*.test.ts] --> Vitest[Vitest 4]
+ *   Vitest --> Browser[Chromium via Playwright]
+ *   Browser --> DOM[Real DOM]
+ *   Vitest --> Coverage[V8 Coverage]
+ *   Coverage --> Report[HTML + LCOV]
+ * ```
+ */
+
+/**
+ * @file vitest.config.ts
+ * @package @devpulse/coldlight
+ *
+ * Vitest 4 configuration — browser mode (Chromium via Playwright).
+ *
+ * Node 24 minimum. Svelte 5 runes. Zero stores.
+ *
+ * Dev:  headed browser, no coverage, no traces
+ * CI:   headless, coverage v8, traces on failure, screenshot on failure
+ *
+ * ```mermaid
+ * flowchart LR
+ *   Test[*.test.ts] --> Vitest[Vitest 4]
+ *   Vitest --> Browser[Chromium via Playwright]
+ *   Browser --> DOM[Real DOM]
+ *   Vitest --> Coverage[V8 Coverage]
+ *   Coverage --> Report[HTML + LCOV]
+ * ```
  */
 
 import path, { resolve } from "node:path";

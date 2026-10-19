@@ -1,6 +1,8 @@
 import type { Preview } from "@storybook/sveltekit";
 
-// Tailwind + ColdLight's stylesheet, as the app loads them
+// Import ColdLight token CSS — provides all CSS custom properties
+import "@devpulse/coldlight/index.css";
+// Import Tailwind for utility classes used by recipes
 import "../src/app.css";
 
 const preview: Preview = {

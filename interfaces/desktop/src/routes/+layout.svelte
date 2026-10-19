@@ -1,6 +1,7 @@
 <script lang="ts">
-// Tailwind + ColdLight's stylesheet (`@devpulse/coldlight/index.css`).
 import "../app.css";
+// Style presets compiled via SD5 DTCG pipeline → components.generated.css
+// Loaded via app.css → design/index.css → css/index.css import chain
 import { TokenDebugOverlay } from "@devpulse/coldlight/debug";
 import { SvgFilters } from "@devpulse/coldlight/svg/filters";
 import { invoke } from "@tauri-apps/api/core";

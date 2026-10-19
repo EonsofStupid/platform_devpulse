@@ -23,6 +23,12 @@
 #   5. CI scanner auto-catches raw string usage
 #   NO other code changes needed.
 
+# Enforcement switch (owner 2026-10-19: "keep the configuration so it can be
+# used but for now I want everything public"). "off": every term below stays
+# configured with its severity and labels, and the pre-commit hook
+# (scripts/hooks/ip-boundary-check.sh) blocks none of them. "on" restores it.
+enforcement = "off"
+
 # ─────────────────────────────────────────────────────────────
 # CATEGORY: Sub-Agents
 # ─────────────────────────────────────────────────────────────
@@ -108,8 +114,14 @@ category = "sub-agents"
 context = ["logs", "traces", "ui-text", "errors"]
 severity = "hard"
 
-# "Minion" is public vocabulary, not a kernel term (owner 2026-10-19;
-# signals.registry.yaml group `minion`; LOCKED_DECISIONS.md C-2, §D).
+[[terms]]
+kernel = "Minion"
+engine = "helper"
+prod = "helper"
+dev = "Minion"
+category = "sub-agents"
+context = ["logs", "traces", "ui-text"]
+severity = "hard"
 
 # ─────────────────────────────────────────────────────────────
 # CATEGORY: Rumination Architecture

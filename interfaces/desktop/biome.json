@@ -3,7 +3,53 @@
 	"extends": "//",
 	"overrides": [
 		{
-			"includes": ["**/DEBUG_FLAG.ts"],
+			"includes": [
+				"src/routes/**/+page.svelte",
+				"src/routes/**/+page.ts",
+				"src/routes/**/+page.server.ts",
+				"src/routes/**/+layout.svelte",
+				"src/routes/**/+layout.ts"
+			],
+			"linter": {
+				"rules": {
+					"style": {
+						"noRestrictedImports": {
+							"level": "error",
+							"options": {
+								"paths": {},
+								"patterns": [
+									{
+										"group": ["**/_archive/*", "**/_archive/**"],
+										"message": "Archive imports are banned. Build from taxonomy contracts."
+									},
+									{
+										"group": [
+											"$lib/design/recipes/*",
+											"$lib/design/recipes/**",
+											"@devpulse/coldlight/recipes/*",
+											"@devpulse/coldlight/recipes/**"
+										],
+										"message": "Routes must not import recipes directly. Use components or renderers."
+									}
+								]
+							}
+						}
+					}
+				}
+			}
+		},
+		{
+			"includes": ["**/test-components/**"],
+			"linter": {
+				"rules": {
+					"style": {
+						"noRestrictedImports": "off"
+					}
+				}
+			}
+		},
+		{
+			"includes": ["**/UIDemoPage.svelte", "**/DEBUG_FLAG.ts", "**/VPB.svelte"],
 			"linter": {
 				"rules": {
 					"style": {

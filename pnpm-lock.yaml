@@ -144,9 +144,15 @@ importers:
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
+      clsx:
+        specifier: 'catalog:'
+        version: 2.1.1
       lucide-svelte:
         specifier: 'catalog:'
         version: 0.564.0(svelte@5.51.2)
+      shiki:
+        specifier: 'catalog:'
+        version: 4.0.2
       style-dictionary-utils:
         specifier: ^6.0.1
         version: 6.0.1(style-dictionary@5.3.1(tslib@2.8.1))
@@ -160,6 +166,9 @@ importers:
         specifier: ^0.184.0
         version: 0.184.0
     devDependencies:
+      '@biomejs/biome':
+        specifier: ^2.3.13
+        version: 2.4.0
       '@chromatic-com/storybook':
         specifier: ^5.0.2
         version: 5.0.2(storybook@10.3.0(@testing-library/dom@10.4.1)(prettier@3.8.1)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))
@@ -7562,18 +7571,18 @@ snapshots:
     optionalDependencies:
       ajv: 8.20.0
 
-  ajv-formats@2.1.1(ajv@8.18.0):
+  ajv-formats@2.1.1(ajv@8.20.0):
     optionalDependencies:
-      ajv: 8.18.0
+      ajv: 8.20.0
     optional: true
 
   ajv-formats@3.0.1(ajv@8.20.0):
     optionalDependencies:
       ajv: 8.20.0
 
-  ajv-keywords@5.1.0(ajv@8.18.0):
+  ajv-keywords@5.1.0(ajv@8.20.0):
     dependencies:
-      ajv: 8.18.0
+      ajv: 8.20.0
       fast-deep-equal: 3.1.3
     optional: true
 
@@ -9977,9 +9986,9 @@ snapshots:
   schema-utils@4.3.3:
     dependencies:
       '@types/json-schema': 7.0.15
-      ajv: 8.18.0
-      ajv-formats: 2.1.1(ajv@8.18.0)
-      ajv-keywords: 5.1.0(ajv@8.18.0)
+      ajv: 8.20.0
+      ajv-formats: 2.1.1(ajv@8.20.0)
+      ajv-keywords: 5.1.0(ajv@8.20.0)
     optional: true
 
   scule@1.3.0: {}

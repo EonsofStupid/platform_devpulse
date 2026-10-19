@@ -1,6 +1,6 @@
 /**
  * AUTO-GENERATED from kernel_terms.toml — DO NOT EDIT
- * Generated: 2026-10-19T17:40:50.708Z
+ * Generated: 2026-10-19T22:59:59.580Z
  * Source: systems/devpulse-engine/ip/kernel_terms.toml
  *
  * Regenerate: pnpm generate:terminology
@@ -78,6 +78,13 @@ export const TERMS: Record<string, Term> = {
 		dev: "sub-agent",
 		category: "sub-agents",
 		context: ["logs","traces","ui-text","errors"],
+	},
+	"helper": {
+		engine: "helper",
+		prod: "helper",
+		dev: "Minion",
+		category: "sub-agents",
+		context: ["logs","traces","ui-text"],
 	},
 	"thinking": {
 		engine: "thinking",
