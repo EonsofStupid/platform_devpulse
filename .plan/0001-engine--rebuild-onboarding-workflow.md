@@ -689,7 +689,7 @@ bumped at once, the main branch untouched):
 | --- | --- | --- | --- |
 | L1 | Rust 1.99.1 + every compatible lockfile update; new lints fixed, none allowed | `rust-toolchain.toml`, `Cargo.lock`, the fixes | `cargo xtask clippy --workspace -- -D warnings`; tests |
 | L2 | Rust majors for the crates that stay (reqwest, rmcp, rand, keyring, sysinfo, toml, opentelemetry, tree-sitter, wgpu, rodio, rfd, ureq, …) with their code fixed | the 7 manifests + call sites | same; live boot |
-| L3 | SvelteKit 3, Vite 8, vite-plugin-svelte 7, adapter-static 4, TypeScript 6: config into `sveltekit({...})`, `$app/tsconfig`, `$lib` → `#lib` (mechanical), hook types | `vite.config.ts`, `tsconfig.json`, `package.json`, `svelte.config.js` deleted, the import rewrite | svelte-check 0 errors; arch + unit tests; `vite build`; all 44 pages load live |
+| L3 | (after plan 0006 C0–C2, ColdLight's package boundary) SvelteKit 3, Vite 8, vite-plugin-svelte 7, adapter-static 4, TypeScript 6: config into `sveltekit({...})`, `$app/tsconfig`, `$lib` → `#lib` (mechanical), hook types | `vite.config.ts`, `tsconfig.json`, `package.json`, `svelte.config.js` deleted, the import rewrite | svelte-check 0 errors; arch + unit tests; `vite build`; all 44 pages load live |
 | L4 | Vitest 5 family, jsdom, testing-library | `vitest*.ts`, `package.json` | tests pass |
 | L5 | The remaining npm majors: lucide-svelte 1, TanStack Table 9, msw 3, three, pragmatic-drag-and-drop 4, commitlint 21, the docs scripts (chalk, glob, ts-morph) | call sites per package | checks + live |
 | L6 | `cargo xtask deps`: one report of outdated Rust and npm packages, so this stays routine (ruling 2(b)) | `xtask/src/deps.rs` | the report matches this survey |

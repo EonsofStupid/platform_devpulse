@@ -8,7 +8,7 @@ touches: [desktop-models, desktop-chat, desktop-devtools]
 status: draft
 owner: Jesse Hades Hall
 created: 2026-10-10
-updated: 2026-10-13
+updated: 2026-10-18
 supersedes: []
 specs:
   - interfaces/desktop/src/lib/design/MASTER-PLAN.md
@@ -290,6 +290,83 @@ only the out-of-range steps, which browsers already clip today (and clipping
 shifts the hue). The alternatives are a fixed taper curve, or keeping the
 wider colors for wide-gamut displays behind `@media (color-gamut: p3)`.
 
+## ColdLight's package boundary (owner question 2026-10-18)
+
+> "what is the real world advance practices and methods to do this right
+> during pre-release not just rushed or fasted solution but the actual proper
+> path"
+
+**Why now.** SvelteKit 3 removes `$lib` for `#lib`, which is Node subpath
+imports (plan 0001 L3). Node resolves `#…` against the nearest
+`package.json`, and `src/lib/design/package.json` (`@devpulse/coldlight`
+0.2.1) is that file for every ColdLight module, so their `#lib` imports
+cannot resolve. That file declares a package (name, version, `exports`,
+peer dependencies, MIT licence) but the package does not exist:
+`pnpm-workspace.yaml` lists only `interfaces/desktop` and `scripts/docs`,
+and nothing imports `@devpulse/coldlight`. It only changes resolution.
+
+**ColdLight imports the app in 16 files**, against your locked rules
+(`docs/platform/Desktop.md` §1.1.1: `ui/` imports only `util` and ColdLight,
+only `feature/` wires `data-access`; `COMPOSITION-CONTRACT.md`: adapters
+never import state; `design/CLAUDE.md` ADR-001: ColdLight is the bottom
+layer). By library type:
+
+| Kind | Files | Proper home |
+| --- | --- | --- |
+| Presentational, typed by a domain contract | the 8 knowledge cards (`KnowledgeEntry` + payload types), `CommunityFeedList` (`FeedItem`) | the domain's `ui/` (`domains/app/knowledge/ui/`, `domains/app/community/ui/`), exported through its `index.ts`; they compose ColdLight primitives |
+| Smart, wired to state | `KnowledgeDeck`, `KnowledgeTerm`, `ClyffyKnowledgeNudge` (knowledge state), `LatestUpdateCard` (updates state) | the domain's `feature/`, with a `ui/` split where the visual is reused |
+| A ColdLight component reaching into a domain | `LoadingBlock` dynamically imports Clyffy's `LoadingContentCard` | inversion: a `content` snippet prop; the caller passes the Clyffy card (Svelte 5 snippets) |
+| A ColdLight prop typed by app state | `chat-sidebar/types.ts` takes `ChatMode` from `sys/runes/global` | inversion: ColdLight owns the prop contract; the app's rune imports it |
+| App infrastructure | `TokenDebugOverlay` (IPC `commands`, logger) | `lib/sys/debug/` |
+
+### What established projects do
+
+- **Internal packages in a workspace** (Turborepo "internal packages",
+  pnpm workspaces): the design system is a workspace package the app
+  depends on with `workspace:*`. Just-in-time form: `exports` point at
+  source, the app compiles it, no build step; inside the package, Node
+  subpath imports (`#…`), supported by TypeScript 5.4+, instead of path
+  aliases. For Svelte, `exports` carry the `svelte` condition (SvelteKit
+  packaging docs). The dependency direction is then enforced by the
+  package graph: the design system cannot import the app because the app
+  is not its dependency.
+- **Node's rules make this the only clean form**: `imports` are "private
+  mappings that only apply to import specifiers from within the package
+  itself", keys start with `#`, targets stay inside the package (or name an
+  external package), and self-reference works only through `exports`.
+- **Library-type boundaries** (Nx `enforce-module-boundaries`): `type:ui`
+  depends only on `ui` and `util`; `type:feature` on `feature`, `ui`,
+  `data-access`, `util`. Same rule as your Desktop.md.
+- **Presentational / container split**: presentational components take
+  data and callbacks through props and have no dependencies on the rest of
+  the app; containers fetch and pass. In Svelte 5 the container passes
+  markup as typed snippet props.
+- **Enforce first, then fix** (dependency-cruiser and Nx adoption reports):
+  turning a boundary rule on surfaces every existing violation; a known
+  list that may only shrink keeps the refactor honest and stops new ones.
+- **Move with tooling, verify by compiling**: `ts-morph` `SourceFile.move`
+  rewrites relative imports in the moved file and its importers (`.ts`
+  only; `.svelte` specifiers are rewritten from the move map), `git mv`
+  keeps history, and svelte-check, the build and the live page sweep prove
+  it.
+
+### The path
+
+| # | Outcome | Check |
+| --- | --- | --- |
+| C0 | Boundary rule first: an architecture test fails when ColdLight imports `domains/`, `sys/`, `layouts/`, `devtools/` or `routes/`; the 16 are its known list, which may only shrink | the test passes on today's tree and fails on a seeded new import |
+| C1 | The 16 resolved by library type (table above), importers go through each domain's `index.ts`; the known list is empty and the rule is absolute | svelte-check; tests; live: knowledge cards, community feed, latest card, loading block, chat sidebar |
+| C2 | ColdLight becomes a real internal package (ruling below): `exports` with `types` / `svelte` / `default` conditions on source, its own `#coldlight/*` imports, its token pipeline and Storybook with it; the app depends on `@devpulse/coldlight: workspace:*` and imports `@devpulse/coldlight/...`; tool paths follow (Tailwind `@source`, lefthook globs, coldlight verify/docs, typedoc, Biome overrides, preflight checks) | build; svelte-check; all 44 pages load live; ColdLight cannot resolve an app import |
+| C3 | Plan 0001 L3 (SvelteKit 3) finishes on top | plan 0001 L3's checks |
+
+**Ruling needed — where ColdLight lives:**
+
+1. **Recommended: a real internal package at `packages/coldlight/`**, the
+   standard `apps/*` + `packages/*` layout, `git mv` with history. Its own
+   `package.json` already says this is the intent.
+2. ColdLight stays a folder of the app; the empty package file is deleted
+   and the boundary is held by the C0 test alone.
+
 ## Phases (approval between each)
 
 | # | Outcome | Files (≤5 unless generated) | Verification |
@@ -374,3 +451,7 @@ Recorded per phase in the log below.
   - The wheel itself is the problem: constant chroma per hue and a
     grey-collapsing hex fallback.
   - Awaiting the owner's go on 0a (the chroma curve decision).
+- 2026-10-18 — Package boundary section added (owner question while plan
+  0001 L3 moved to SvelteKit 3): the empty `@devpulse/coldlight` package file
+  breaks `#lib`; 16 ColdLight files import the app. Research and path C0–C3
+  recorded; ruling needed on where ColdLight lives.
