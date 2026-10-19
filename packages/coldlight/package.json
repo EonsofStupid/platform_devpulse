@@ -83,6 +83,7 @@
 		"vite": ">=5.0.0"
 	},
 	"devDependencies": {
+		"@microsoft/api-extractor": "^7.59.4",
 		"@sveltejs/vite-plugin-svelte": "catalog:",
 		"@types/node": "catalog:",
 		"@vitest/browser-playwright": "catalog:",
@@ -90,6 +91,7 @@
 		"playwright": "catalog:",
 		"svelte": "catalog:",
 		"svelte-check": "catalog:",
+		"typedoc": "catalog:",
 		"typescript": "catalog:",
 		"vite": "catalog:",
 		"vitest": "catalog:",
