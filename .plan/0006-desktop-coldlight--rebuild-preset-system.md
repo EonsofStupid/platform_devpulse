@@ -422,6 +422,99 @@ ColdLight sized Lucide icons with literal px (`size={16}` ×8, `{14}` ×2,
   utility; CSS overrides Lucide's `width`/`height` attributes); no literal
   icon px in ColdLight. The app's own literal icon sizes are a follow-up.
 
+### ColdLight across frameworks (owner ruling 2026-10-19)
+
+> "if its better to have a coldlight support react and sveltekit app"
+
+- **Who would consume it:** the owner's other sites are React: `shippin`
+  (React 18), `nomen-alpha` `apps/login` and `apps/docs` (Next 16, React 19),
+  `vibeguard` and `onemanwho` (Next 16), `devlabs/connectome` (React 18).
+  DevPulse is the only SvelteKit app.
+- **Measured:** framework-free already — tokens and generated CSS,
+  `renderForge`, `visual/`, `presets/`, `schema/`, `config/`, `types/`, all
+  72 `*.anatomy.ts`. Svelte-bound — 221 components; behaviors (66 runes
+  files, 110 importing Svelte types or context).
+- **Options:** (a) core + Svelte bindings now, React bindings when a React
+  site needs them, behaviors as ColdLight-owned state machines in Zag's
+  shape; (b) Svelte-only, core kept framework-free, React decided later;
+  (c) Web Components.
+
+**Ruled 2026-10-19 (owner): (b).** No package split and no React work now.
+The core stays free of Svelte (F0 enforces it), and the Provider's contract
+is attributes, so a React binding stays possible.
+
+| # | Outcome | Check |
+| --- | --- | --- |
+| F0 | Framework-free core, enforced: an architecture test fails when `styles/`, `theme/`, `generated/`, `types/`, `renderforge/`, `visual/`, `presets/`, `schema/`, `config/`, `utils/` or any `*.anatomy.ts` imports `svelte` or holds a `.svelte.ts`. Known today: `utils/cn.ts` (only the `ClassValue` type, which `clsx` itself exports); `styles/{index,base-state.svelte,macro-mappings}.ts`, imported by nothing (the VPB does not use them) — deleted on the owner's approval | the test passes, and fails on a seeded import |
+
+### Provider — the documented API (owner 2026-10-19)
+
+The owner ruled the documented per-concern API (`colorScheme`, `defaults`, …)
+better than the `theme` object. Facts:
+
+- The `theme` object (`provider/types.ts`, 2026-03-17) is mounted nowhere.
+  The documented API (`ColdLightProvider.mdx`, 2026-03-19, "React Spectrum
+  Provider, ported to Svelte 5") was never implemented.
+- ColdLight is dark-only: its CSS has no colour-scheme selector, and
+  `tokens/src/modes/light.tokens.json` (24 draft tokens) is outside the
+  build's sources. Nothing reads `data-scale`.
+- §4 above (owner-confirmed): concerns are scope attributes that the CSS
+  cascade inherits, nearest scope wins; §6: `renderForge` emits attributes
+  only. So the Provider writes attributes; it does not merge a JS object into
+  each component.
+
+| Prop | Writes | Effect |
+| --- | --- | --- |
+| `colorScheme` `dark` \| `light` (unset → the OS preference) | `data-color-scheme`, CSS `color-scheme` | once light mode exists (L1) |
+| `density` (the docs' `scale`; `data-density` is the name decided 2026-10-10) | `data-density` | once the scope layer exists (Phase 2) |
+| `locale` | `lang`, `dir` | at once: screen readers, right-to-left |
+| `defaults` `{ surface, typography, accent }` | `data-surface`, `data-typography`, `data-accent` | once the scope layer exists (Phase 2) |
+| `isDisabled`, `isQuiet`, `isEmphasized` | context, read by behaviors (`aria-disabled`) | per component as each adopts it |
+
+A nested Provider writes only what it is given; everything else is inherited.
+The `theme` object's `neumorphism` (a surface choice → `defaults`) and
+`animations` (→ `prefers-reduced-motion` and the motion tokens) go.
+To confirm: the `density` values; whether and when light mode (L1) ships.
+
+| # | Outcome | Check |
+| --- | --- | --- |
+| P0 | The Provider per the table, in Svelte; mounted at the app root; the `theme` object deleted | component tests (attributes, nesting); live: the root carries `lang`, `dir` and the attributes |
+| L1 | Light mode: `modes/light.tokens.json` built as `[data-color-scheme="light"]`, with `prefers-color-scheme` as the default | token build; live toggle |
+
+### Storybook — ColdLight's workshop (owner 2026-10-19)
+
+> "rewrite storybook but make sure that is not the correct path or how a real
+> senior dev would approach"
+
+Facts:
+
+- Storybook 10.3.0 runs inside the app on the SvelteKit framework. Its two
+  stories crash at runtime: Svelte `invalid_default_snippet`, from Svelte 4
+  `let:args` inside addon-svelte-csf 5's snippet `<Story>`. Their 12
+  smoke-test passes are false positives.
+- `Panel.stories` documents no ColdLight component (raw divs, legacy
+  classes). `Configure.mdx` is Storybook's boilerplate.
+  `ColdLightProvider.mdx` documents the unimplemented API (P0 implements it).
+  `Terminology.mdx` describes the March model (8-axis encoding, three tiers).
+- `@storybook/addon-actions` 9 and `addon-console` are installed and
+  unregistered (actions are in Storybook's core since 9).
+- Latest stable: Storybook 10.6.2, addon-svelte-csf 5.1.5.
+- Specs: `Desktop.md` (a `ui/` component "could be shown in Storybook with
+  fake data"); `PROGRAM-COLDLIGHT.md` (each component renders in the
+  harness); `SPRINT-GOLD-STANDARD-BUTTON.md` §6 (props, accessibility,
+  keyboard, usage); this plan's C2 row (Storybook moves with ColdLight).
+
+Rewriting the two stories in place would be the shortcut. The path:
+
+| # | Outcome | Check |
+| --- | --- | --- |
+| S0 | Storybook lives in `packages/coldlight`: `@storybook/svelte-vite` 10.6.2, addon-svelte-csf 5.1.5, docs, a11y (`test: "error"`), the Vitest addon as a project in ColdLight's Vitest config, a toolbar driving the Provider decorator (P0), Tailwind through `@tailwindcss/vite` for ColdLight's layout utilities. The app's Storybook config, its Storybook dependencies and its `storybook` Vitest project are removed. `Configure.mdx` and `Panel.stories` deleted; `ColdLightProvider.mdx` rewritten to P0's API; `Terminology.mdx` rewritten against this plan's model | `storybook build`; the stories-as-tests run with zero unhandled errors |
+| S1 | Button, the gold standard, in Svelte CSF 5 (`defineMeta`, args, snippets): every preset, size and state; a docs page with props, accessibility, keyboard and usage; interactions as play functions | stories pass as browser tests; a11y clean |
+| S2… | One component family per phase, stories next to their components; that family's share of the 106 failing tests triaged (the test or the component fixed) | the family's suite green |
+
+Order: F0 → P0 → S0 → S1 → S2…; L1 and Phase 2 when the owner orders them
+(they give the Provider's visual props their effect).
+
 ## Phases (approval between each)
 
 | # | Outcome | Files (≤5 unless generated) | Verification |
@@ -622,6 +715,11 @@ Recorded per phase in the log below.
     is generated) and svelte-check. The app still has 239 literal icon sizes
     in 58 files across 13 values (12 px ×86): moving them onto the token
     needs the scale extended first (at least a `2xs` step).
+  - 2026-10-19 — Owner rulings: ColdLight stays Svelte-only with a
+    framework-free core, React decided later; the Provider follows its
+    documented per-concern API; Storybook is rebuilt as ColdLight's
+    workshop, not patched. Sections above; phases F0, P0, L1, S0–S2 await
+    approval.
   - Follow-up: the C2b commit skipped `coldlight-verify` and
     `coldlight-docs` (lefthook drops staged files outside a command's
     `root`, and theirs was the app). Both were run by hand before the
