@@ -18,7 +18,7 @@ touches: [kernel-clyffy, kernel-model-loader, desktop-tauri, desktop-onboarding,
 status: draft
 owner: Jesse Hades Hall
 created: 2026-10-10
-updated: 2026-10-12
+updated: 2026-10-18
 supersedes: [0002]   # reserved for "user-managed AI endpoints", never written; folded in here
 specs:
   # Research for this revision, read in full before writing (2026-10-12):
@@ -648,6 +648,55 @@ Visual identity: blue shell, purple body, teal wells; crisp edges, no halos
 You run first run on a clean DevPulse folder. Nothing else starts until you
 sign it off (R-H7, R-H8).
 
+## Part L — Everything on its latest stable release (owner 2026-10-18)
+
+> "why not update everything to the latest and let errors surface and properly
+> read the plans and notes … only you fix your … hardcoded … instead of just
+> clean endpoints and ability to just sign in"
+
+Order you set: dependencies first, errors surfaced and fixed, then the
+endpoint and sign-in work (the Account step, slices 4–5 of Part A, and plan
+0007 decision 5). R-G11, ruling 2(b).
+
+**Survey, 2026-10-18** (worktree `../platform_devpulse-latest`, everything
+bumped at once, the main branch untouched):
+
+- npm: 81 packages behind, 30 by a major. Rust: 37 of 101 direct crates
+  behind by a major; toolchain pinned at 1.92.0 (pin comment: Burn), latest
+  stable 1.99.1.
+- Not taken: `typescript` 7 (SvelteKit 3 peers on `^6`; svelte-check needs 6
+  installed beside 7 plus `--tsgo`; typedoc stops at 6) → **6.0.3**, the
+  newest the toolchain supports. `prisma` "latest" is `8.0.0-rc.23` → **7.10.1**.
+  `specta` / `tauri-specta` stay on `2.0.0-rc` (the "stable" 1.x is older and
+  pre-Tauri 2).
+- Not upgraded, deleted instead (plan 0007 decision 5): candle, burn,
+  tokenizers, safetensors, piper-rs, the `ort` / `tar-rs` / `qwen3-tts-rs`
+  forks, `deps/llama-cpp-rs`, `deps/moshi`.
+- Errors surfaced (each layer hides the next):
+  - SvelteKit 3: `svelte.config.js` is no longer read (config moves into
+    `sveltekit({...})`); `tsconfig` must extend `$app/tsconfig` with
+    `$app/types`; **`$lib` is removed → `#lib` subpath imports** (1,844 imports
+    in 778 files, mechanical); hook types move to `@sveltejs/kit/hooks`.
+  - Vitest 5: `test.browser.api` → `test.api`; dependency optimizer error
+    (re-checked after the config moves).
+  - Rust: `hf-hub` 1 dropped `tokio` (only under the `candle` feature);
+    `reqwest` 0.13 renamed `rustls-tls` → `rustls`; OpenTelemetry 0.33 changed
+    `shutdown_with_timeout` (`devpulse-telemetry`); `ureq` 3 removed
+    `AgentBuilder`, `cargo_metadata` 0.23 `PackageName` (`xtask`). Crates
+    downstream of telemetry are reached once it builds.
+
+| # | Outcome | Main files | Check |
+| --- | --- | --- | --- |
+| L1 | Rust 1.99.1 + every compatible lockfile update; new lints fixed, none allowed | `rust-toolchain.toml`, `Cargo.lock`, the fixes | `cargo xtask clippy --workspace -- -D warnings`; tests |
+| L2 | Rust majors for the crates that stay (reqwest, rmcp, rand, keyring, sysinfo, toml, opentelemetry, tree-sitter, wgpu, rodio, rfd, ureq, …) with their code fixed | the 7 manifests + call sites | same; live boot |
+| L3 | SvelteKit 3, Vite 8, vite-plugin-svelte 7, adapter-static 4, TypeScript 6: config into `sveltekit({...})`, `$app/tsconfig`, `$lib` → `#lib` (mechanical), hook types | `vite.config.ts`, `tsconfig.json`, `package.json`, `svelte.config.js` deleted, the import rewrite | svelte-check 0 errors; arch + unit tests; `vite build`; all 44 pages load live |
+| L4 | Vitest 5 family, jsdom, testing-library | `vitest*.ts`, `package.json` | tests pass |
+| L5 | The remaining npm majors: lucide-svelte 1, TanStack Table 9, msw 3, three, pragmatic-drag-and-drop 4, commitlint 21, the docs scripts (chalk, glob, ts-morph) | call sites per package | checks + live |
+| L6 | `cargo xtask deps`: one report of outdated Rust and npm packages, so this stays routine (ruling 2(b)) | `xtask/src/deps.rs` | the report matches this survey |
+
+Each phase is committed on `feat/deps-latest` with every hook passing and the
+runner verifying it, then fast-forwarded onto `restore/pre-gb10`.
+
 ## Part B — Subscriptions in one chat (ACP)
 
 ### How shipping products do it (verified 2026-10-12)
@@ -1088,3 +1137,16 @@ queries proving what was written.
   - Cargo.lock: phase 6 resolved jsonschema on 10-15, so some transitive
     dependencies are newer than in the 10-13 working tree. Every commit was
     built with the committed lock.
+- 2026-10-18 — **Part L added: everything on latest stable, then endpoints and
+  sign-in (owner order).** Read before writing: this plan in full, the 120
+  owner requirements (`onboarding-endpoints/01-owner-requirements.md`), plan
+  0007 (decision 5: compiled-in engines out, endpoints first, ordered
+  2026-10-13 and not yet started), and the memory notes on subscriptions,
+  account, endpoints and deps. Confirmed still in the code: engine
+  `ai_providers` (11 hardcoded base URLs), hardcoded vendor URLs in
+  `claude/mod.rs`, `commands/claude/ping.rs` and `commands/cloud/mod.rs`,
+  `routing_config`'s Claude-only lanes, the license stub that always returns
+  Pro, the llama sidecar's fixed port 8899, the `HardwareTier` enum with
+  `JessePrimary`, and the Supabase project URL as a code constant (the anon
+  key is read from the OS keyring). Survey of the full upgrade recorded in
+  Part L.
