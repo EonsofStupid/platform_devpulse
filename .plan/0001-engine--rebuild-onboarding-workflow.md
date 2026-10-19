@@ -1150,3 +1150,26 @@ queries proving what was written.
   `JessePrimary`, and the Supabase project URL as a code constant (the anon
   key is read from the OS keyring). Survey of the full upgrade recorded in
   Part L.
+- 2026-10-19 — **Owner: "you also never got the onboarding guided UI
+  consistently working projects … stop rushing and work this
+  methodically."** Read-only findings, live over CDP and in code:
+  - First run reads `status: complete`, stage `you`, with **0 projects
+    registered and no active project**: it was finished without projects
+    landing. Slice 1's live check (10-12) registered one, then the test
+    data was reset; nothing since has re-run it end to end.
+  - Nothing in the UI can reopen first run: `onboarding_reopen` exists in
+    Rust, the binding and `onboarding.service.ts:36`, and no screen calls it
+    (the re-entry chip is slice 8). `/onboarding` redirects to the
+    dashboard whenever the state is not `open` (`FirstRunFlow.svelte:34`).
+  - Two sources of truth for the active project: chat uses
+    `devpulseState.recentProjects[0]` in 4 places, everything else uses
+    `projectsState.activeProject` → chat can say "No active project" while
+    one is set. Its three messages are hard-coded English, outside the copy
+    catalog.
+  - The Account step (2026-10-15) is not built. Owner 2026-10-19: login is
+    on devpulse.app and part of Shippin.cloud's identity, shared across the
+    owner's sites — which provider backs it is still open.
+  - Proposed order, for approval: (1) one active-project source, chat
+    included; (2) a re-entry point and a repeatable end-to-end first-run
+    check on a backed-up DevPulse folder, projects included, run more than
+    once; (3) the Account step once the identity provider is decided.

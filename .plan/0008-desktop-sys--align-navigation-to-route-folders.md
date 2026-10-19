@@ -195,3 +195,26 @@ opens the Models page the sidebar already links.
   - `generated/terminology.ts` rewrites its timestamp on every build.
   - The KnowledgeViewer role name no longer matches what it opens
     (telemetry) — rename or give it its own page.
+- 2026-10-19 — **Owner: "you also never restored the links properly or their
+  pages … stop rushing and work this methodically."** Read-only audit against
+  the owner's `coldlight-recovery/11-route-truth-audit.md` (2026-07-14) and
+  `10-app-truth-recovery.md` (never signed off), live over CDP:
+  - Every in-app `<a>` on the 44 pages (37 distinct targets) renders; no page
+    route on `origin/main` (07-24) is missing here (its only extra is the
+    old `libsql` devtool, replaced by Turso).
+  - Deleted pages in history are deliberate moves, except `/(cortex)/cortex`
+    (dropped 2026-05-01 with the legacy model-loader UI): the Knowledge
+    viewer window still exists and opens Telemetry as a stand-in. Owner
+    2026-10-19: Cortex is public, layman-friendly UI by default with an
+    advanced UI — so it needs its own page again, not a stand-in.
+  - From the 07-14 audit, still true: chat decides the active project from
+    `devpulseState.recentProjects[0]` (`chat.state.svelte.ts:43`,
+    `chat.service.ts:18`, `ChatRoot.svelte:33,39`) while the projects page
+    and switcher use `projectsState.activeProject` (Rust
+    `get_active_project`): two sources of truth (plan 0001 log, same day);
+    `/devpulse/community` counts are static zeros. Fixed since: hard
+    `window.location.assign` navigation, chat auto-opening at boot, windows
+    opening missing routes (generated route constants).
+  - Not covered by an anchor crawl and still to audit: buttons and cards
+    that navigate or open windows with `goto` / commands, and controls that
+    look actionable but do nothing.
