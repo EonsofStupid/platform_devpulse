@@ -231,6 +231,11 @@ on 2026-10-13 (every claim below spot-checked in the files) says it is not.
 most 5 hand-written files (generated outputs not counted) and stops for
 approval.
 
+Every "deleted" below is a consolidation: the content moves into the one
+source first, and nothing is removed until that row's check proves the kept
+source covers all of it, and the owner OKs that removal (owner rule
+2026-10-19: dead or duplicate code stays until its purpose is included).
+
 **Every step runs the same checks:**
 
 - `pnpm ds:tokens:build`, including the verify gate from 0b.1 onward;
@@ -399,7 +404,7 @@ its cache on it; `package.json` scripts `ds:generate`, `ds:validate`,
 | --- | --- | --- |
 | C2a | Workspace foundation, nothing moves: a root `biome.json` holds the shared rules (Biome 2 monorepo form) and the GritQL rules move to `scripts/biome/gritql/`; the app's `biome.json` becomes `"extends": "//"` plus its own overrides; `pnpm-workspace.yaml` gains `packages/*` and a `catalog:` for every dependency the app and ColdLight share, so both resolve one copy; the stale lockfile goes and CI caches on the root one | `biome check` reports exactly what it did before; `pnpm install --frozen-lockfile`; svelte-check; `vite build` |
 | C2b | The move: `git mv` to `packages/coldlight/` as it stands (its `exports` already assume that root). `package.json` gets an `exports` map of the entry points that have consumers (`types` / `svelte` / `default` on source) and `"imports": {"#coldlight/*": "./*"}`, declares its own dependencies, and gains `check` and `test`; its own `tsconfig.json`, `biome.json` (`extends "//"` + ColdLight's overrides) and `vitest.config.ts` (the browser project, moved from the app). Codemod: ColdLight's `$lib/design/…` → `#coldlight/…`; the app's → `@devpulse/coldlight/…`, deep paths normalised to entry points (`utils/cn.js` and the layout utils → `utils`, `Text.svelte` → `components/text`, `svg-types.js` → `svg`, …; `svg/filters` and `debug` indexes gain their components), duplicates merged, imports re-sorted. The app depends on `workspace:*`; every tool path above follows; the boundary test also asserts the app reaches ColdLight only through `@devpulse/coldlight` | both svelte-checks 0 errors; Biome clean in both; arch tests; ColdLight's 50 browser test files; `vite build` with a ColdLight-only class present in the CSS; all 44 pages live, no console errors |
-| C2c | ColdLight owns its build: the token pipeline, its DTCG sources, `scripts/coldlight/*`, `validate-specs.ts` and typedoc move into the package as its `tokens`, `verify` and `docs` scripts, with their dev dependencies; lefthook runs them there, and `tokens-regen` watches the DTCG sources (its glob names `tokens/tokens.ts`, which has never existed); the dead scripts are deleted; the boundary test's app-side check gains `scripts/` (today the pipeline still reaches into the package by relative path) | `tokens` regenerates byte-identical output; `verify` and `docs` pass; the boundary test covers `scripts/` |
+| C2c | ColdLight owns its build: the token pipeline, its DTCG sources, `scripts/coldlight/*`, `validate-specs.ts` and typedoc move into the package as its `tokens`, `verify` and `docs` scripts, with their dev dependencies; lefthook runs them there, and `tokens-regen` watches the DTCG sources (its glob names `tokens/tokens.ts`, which has never existed); the four package scripts whose files are gone are traced, not deleted — `generate-inventory.ts` and `generate-manifest.ts` (deleted 2026-03-20, `31dfab89`) restored from history and made to work, or shown covered by a current tool; `coldlight-generate.ts` and `coldlight-validate.ts` (never committed) put to the owner; the boundary test's app-side check gains `scripts/` (today the pipeline still reaches into the package by relative path) | `tokens` regenerates byte-identical output; `verify` and `docs` pass; the boundary test covers `scripts/` |
 
 ### Icon size tokens (owner 2026-10-19)
 
@@ -445,7 +450,7 @@ is attributes, so a React binding stays possible.
 
 | # | Outcome | Check |
 | --- | --- | --- |
-| F0 | Framework-free core, enforced: an architecture test fails when `styles/`, `theme/`, `generated/`, `types/`, `renderforge/`, `visual/`, `presets/`, `schema/`, `config/`, `utils/` or any `*.anatomy.ts` imports `svelte` or holds a `.svelte.ts`. Known today: `utils/cn.ts` (only the `ClassValue` type, which `clsx` itself exports); `styles/{index,base-state.svelte,macro-mappings}.ts`, imported by nothing (the VPB does not use them) — deleted on the owner's approval | the test passes, and fails on a seeded import |
+| F0 | Framework-free core, enforced: an architecture test fails when `styles/`, `theme/`, `generated/`, `types/`, `renderforge/`, `visual/`, `presets/`, `schema/`, `config/`, `utils/` or any `*.anatomy.ts` imports `svelte` or holds a `.svelte.ts`. Known today: `utils/cn.ts` (only the `ClassValue` type, which `clsx` itself exports); `styles/{index,base-state.svelte,macro-mappings}.ts`, imported by nothing — they are the Visual Page Builder's state and 11-axis mappings, and the VPB itself was deleted 2026-03-20 (`31dfab89`, "fixing foundation") although §5 still relies on it. Not deleted: moved out of `styles/` (which then holds only generated CSS) into `vpb/`, kept for the VPB's rebuild, on the owner's OK | the test passes, and fails on a seeded import |
 
 ### Provider — the documented API (owner 2026-10-19)
 
@@ -469,16 +474,19 @@ better than the `theme` object. Facts:
 | `density` (the docs' `scale`; `data-density` is the name decided 2026-10-10) | `data-density` | once the scope layer exists (Phase 2) |
 | `locale` | `lang`, `dir` | at once: screen readers, right-to-left |
 | `defaults` `{ surface, typography, accent }` | `data-surface`, `data-typography`, `data-accent` | once the scope layer exists (Phase 2) |
+| `motion` `reduce` \| `full` (unset → the OS `prefers-reduced-motion`) | `data-motion` | with the motion tokens |
 | `isDisabled`, `isQuiet`, `isEmphasized` | context, read by behaviors (`aria-disabled`) | per component as each adopts it |
 
 A nested Provider writes only what it is given; everything else is inherited.
-The `theme` object's `neumorphism` (a surface choice → `defaults`) and
-`animations` (→ `prefers-reduced-motion` and the motion tokens) go.
+Every concern of the `theme` object is included before the object is
+replaced: `accent` → `defaults.accent`, `colorScheme` → `colorScheme`,
+`scale` → `density`, `neumorphism` (a surface choice) → `defaults.surface`,
+`animations` (an in-app switch, not only the OS setting) → `motion`.
 To confirm: the `density` values; whether and when light mode (L1) ships.
 
 | # | Outcome | Check |
 | --- | --- | --- |
-| P0 | The Provider per the table, in Svelte; mounted at the app root; the `theme` object deleted | component tests (attributes, nesting); live: the root carries `lang`, `dir` and the attributes |
+| P0 | The Provider per the table, in Svelte; mounted at the app root; the `theme` object replaced only once each of its concerns works through the new props, with the owner's OK | component tests (attributes, nesting, each former `theme` concern); live: the root carries `lang`, `dir` and the attributes |
 | L1 | Light mode: `modes/light.tokens.json` built as `[data-color-scheme="light"]`, with `prefers-color-scheme` as the default | token build; live toggle |
 
 ### Storybook — ColdLight's workshop (owner 2026-10-19)
@@ -508,7 +516,7 @@ Rewriting the two stories in place would be the shortcut. The path:
 
 | # | Outcome | Check |
 | --- | --- | --- |
-| S0 | Storybook lives in `packages/coldlight`: `@storybook/svelte-vite` 10.6.2, addon-svelte-csf 5.1.5, docs, a11y (`test: "error"`), the Vitest addon as a project in ColdLight's Vitest config, a toolbar driving the Provider decorator (P0), Tailwind through `@tailwindcss/vite` for ColdLight's layout utilities. The app's Storybook config, its Storybook dependencies and its `storybook` Vitest project are removed. `Configure.mdx` and `Panel.stories` deleted; `ColdLightProvider.mdx` rewritten to P0's API; `Terminology.mdx` rewritten against this plan's model | `storybook build`; the stories-as-tests run with zero unhandled errors |
+| S0 | Storybook lives in `packages/coldlight`: `@storybook/svelte-vite` 10.6.2, addon-svelte-csf 5.1.5, docs, a11y (`test: "error"`), the Vitest addon as a project in ColdLight's Vitest config, a toolbar driving the Provider decorator (P0), Tailwind through `@tailwindcss/vite` for ColdLight's layout utilities. The app's Storybook config, its Storybook dependencies and its `storybook` Vitest project move with it (nothing left behind in the app). `Configure.mdx` becomes ColdLight's welcome page; `Panel.stories`' purpose (glass surfaces, glow variants, bevel progression, depth scale) becomes Foundations/Surfaces stories over the real presets; `ColdLightProvider.mdx` rewritten to P0's API; `Terminology.mdx` rewritten against this plan's model. Nothing is deleted | `storybook build`; the stories-as-tests run with zero unhandled errors |
 | S1 | Button, the gold standard, in Svelte CSF 5 (`defineMeta`, args, snippets): every preset, size and state; a docs page with props, accessibility, keyboard and usage; interactions as play functions | stories pass as browser tests; a11y clean |
 | S2… | One component family per phase, stories next to their components; that family's share of the 106 failing tests triaged (the test or the component fixed) | the family's suite green |
 
@@ -720,6 +728,31 @@ Recorded per phase in the log below.
     documented per-concern API; Storybook is rebuilt as ColdLight's
     workshop, not patched. Sections above; phases F0, P0, L1, S0–S2 await
     approval.
+  - 2026-10-19 — **Owner rule: dead code stays, or its purpose is included
+    first; never deleted for being unused.** Audit of this plan's work:
+    - Broke the rule, now restored: `ClyffyKnowledgeNudge` (deleted in C1a
+      as unmounted) → the knowledge domain's `feature/knowledge-nudge/`,
+      body unchanged, still unmounted until plan 0004 B4b (`b10dd488`);
+      the token debugger's HuggingFace panel (removed in C1d as a
+      "duplicate" without proof — the downloader strip has no reveal, no
+      refresh, and lives only in the downloader) → `sys/debug/HfTokenPanel`,
+      passed into the debugger as children, live under Ctrl+Shift+D
+      (`bbd045d6`); ColdLight's `./behaviors`, `./config`, `./utils/*`
+      exports, dropped in C2b for lacking importers (`b10dd488`).
+      `tsdoc.json` was already restored (`eb9959e2`).
+    - Checked and covered: `ChatSidebar`'s labels live in the app's
+      `ChatModeSelector`; the `blocks/community` and `blocks/latest`
+      barrels' components moved into their domains; `./style-macro` is the
+      exported `./renderforge` (renamed 2026-04-01).
+    - Put to the owner, not code: the stale `interfaces/desktop/pnpm-lock.yaml`
+      deleted in C2a (the root lockfile covers the workspace); Biome and
+      raw-values entries removed in C2a/C2b for paths that do not exist.
+    - Plan rows rewritten so nothing is deleted for being unused: F0 (the
+      VPB's state moves to `vpb/`), P0 (each `theme` concern included,
+      `motion` added), S0 (`Configure.mdx` and `Panel.stories` rebuilt),
+      C2c (missing scripts traced and restored).
+    - Found: the VPB itself was deleted 2026-03-20 (`31dfab89`), while §5
+      and the non-goals still rely on it.
   - Follow-up: the C2b commit skipped `coldlight-verify` and
     `coldlight-docs` (lefthook drops staged files outside a command's
     `root`, and theirs was the app). Both were run by hand before the
