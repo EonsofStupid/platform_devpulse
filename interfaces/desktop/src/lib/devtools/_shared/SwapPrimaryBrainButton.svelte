@@ -34,8 +34,8 @@
 <script lang="ts">
 import { BrainCog } from "lucide-svelte";
 import { Button, type ButtonPreset } from "$lib/design/components/button/index.js";
-import { LoadingBlock } from "$lib/design/components/spinner/index.js";
 import { modelsState } from "$lib/domains/app/models/index.js";
+import { ClyffyLoadingBlock } from "$lib/domains/clyffy/index.js";
 import { commands } from "$lib/sys/generated/bindings.js";
 import { logInfo } from "$lib/sys/logger.js";
 
@@ -150,11 +150,10 @@ async function handleClick(): Promise<void> {
 		aria-label="Swapping primary brain"
 	>
 		<div class="max-w-md w-full mx-4">
-			<LoadingBlock
+			<ClyffyLoadingBlock
 				title="Swapping primary brain…"
 				subtitle={`Safely loading ${newModelId} into VRAM — sit tight.`}
-				showContent
-				contentKind="dyk"
+				kind="dyk"
 			/>
 		</div>
 	</div>

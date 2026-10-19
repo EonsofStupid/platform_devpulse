@@ -22,23 +22,9 @@
 import { Button } from "$lib/design/components/button/index.js";
 import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { cn } from "$lib/design/utils/cn.js";
-import type { ChatMode, ChatSidebarProps } from "./types.js";
+import type { ChatSidebarProps } from "./types.js";
 
-const MODE_LABELS: Record<ChatMode, string> = {
-	developer: "DEV",
-	planning: "PLAN",
-	image: "IMG",
-	general: "GEN",
-};
-
-let {
-	mode = "general",
-	availableModes = ["developer", "planning", "image", "general"],
-	onModeChange,
-	style,
-	class: className,
-	...rest
-}: ChatSidebarProps = $props();
+let { modes, mode, onModeChange, style, class: className, ...rest }: ChatSidebarProps = $props();
 
 const m = $derived(renderForge({ kind: "chat-sidebar", preset: "default" }));
 </script>
@@ -52,14 +38,14 @@ const m = $derived(renderForge({ kind: "chat-sidebar", preset: "default" }));
 	class={cn("flex flex-col items-center gap-2", className)}
 	{...rest}
 >
-	{#each availableModes as m (m)}
+	{#each modes as option (option.id)}
 		<Button
-			preset={mode === m ? "primary" : "ghost"}
+			preset={mode === option.id ? "primary" : "ghost"}
 			size="sm"
-			aria-pressed={mode === m}
-			onclick={() => onModeChange?.(m)}
+			aria-pressed={mode === option.id}
+			onclick={() => onModeChange?.(option.id)}
 		>
-			{MODE_LABELS[m]}
+			{option.label}
 		</Button>
 	{/each}
 </nav>

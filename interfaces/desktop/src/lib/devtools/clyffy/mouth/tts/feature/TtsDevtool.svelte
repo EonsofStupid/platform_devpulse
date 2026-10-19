@@ -36,7 +36,7 @@ import {
 import { onMount } from "svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
-import { LoadingBlock, Spinner } from "$lib/design/components/spinner/index.js";
+import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import type { VoiceInfo } from "$lib/devtools/_shared/voice-contracts.js";
 import { voiceSelectionState } from "$lib/devtools/_shared/voice-selection.state.svelte.js";
@@ -47,6 +47,7 @@ import {
 	ServiceDevtoolShell,
 } from "$lib/devtools/index.js";
 import { modelsState } from "$lib/domains/app/models/index.js";
+import { ClyffyLoadingBlock } from "$lib/domains/clyffy/index.js";
 import { capabilityChannel } from "$lib/sys/events/index.js";
 import {
 	commands,
@@ -770,11 +771,10 @@ const extraTabs: ExtraTab[] = [{ id: "profiles", label: "Profiles", Icon: UserCi
 
 	{#snippet actions()}
 		{#if loadingSlot}
-			<LoadingBlock
+			<ClyffyLoadingBlock
 				title="Loading Qwen3-TTS"
 				subtitle="Talker LM + neural codec into RAM / VRAM — sit tight."
-				showContent
-				contentKind="dyk"
+				kind="dyk"
 			/>
 		{:else}
 			<div class="flex flex-col gap-5">

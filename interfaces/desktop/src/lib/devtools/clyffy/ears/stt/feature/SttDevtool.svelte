@@ -3,7 +3,7 @@
 	@module @devpulse/devtools/clyffy/ears/stt
 
 	Wrapped in ServiceDevtoolShell (Status/Config/Logs/Actions). Every
-	VRAM-touching action (Load slot) presents the Clyffy LoadingBlock —
+	VRAM-touching action (Load slot) presents the ClyffyLoadingBlock —
 	rotating DYK/KDROPS/T&T card — while pending. Short-duration work
 	(mic test, 3-s record) uses inline spinner.
 
@@ -17,7 +17,7 @@ import { Check, Ear, FileAudio, Mic, Play, PowerOff } from "lucide-svelte";
 import { onMount } from "svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
-import { LoadingBlock, Spinner } from "$lib/design/components/spinner/index.js";
+import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import type { MicTestResult } from "$lib/devtools/_shared/voice-contracts.js";
 import {
@@ -27,6 +27,7 @@ import {
 	ServiceDevtoolShell,
 } from "$lib/devtools/index.js";
 import { modelsState } from "$lib/domains/app/models/index.js";
+import { ClyffyLoadingBlock } from "$lib/domains/clyffy/index.js";
 import { capabilityChannel } from "$lib/sys/events/index.js";
 import { logInfo } from "$lib/sys/logger.js";
 import { testMicrophone, transcribeAudio, transcribeAudioFile } from "../data-access/stt.svc.js";
@@ -389,11 +390,10 @@ function handleDragOver(e: DragEvent): void {
 
 	{#snippet actions()}
 		{#if loadingSlot}
-			<LoadingBlock
+			<ClyffyLoadingBlock
 				title="Loading Whisper into memory"
 				subtitle="Safely loading into RAM / VRAM — sit tight."
-				showContent
-				contentKind="dyk"
+				kind="dyk"
 			/>
 		{:else}
 			<div class="flex flex-col gap-4">

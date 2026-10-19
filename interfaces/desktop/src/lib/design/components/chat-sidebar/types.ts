@@ -5,17 +5,20 @@
  */
 
 import type { UIBaseProps } from "$lib/design/components/_base/types.js";
-import type { ChatMode } from "$lib/sys/runes/global.svelte.js";
 
-export type { ChatMode };
+/** One mode the sidebar offers: its id and its short visible label. */
+export interface ChatSidebarMode {
+	id: string;
+	label: string;
+}
 
 export interface ChatSidebarProps extends UIBaseProps {
-	/** Currently active chat mode */
-	mode?: ChatMode;
-	/** Available mode options */
-	availableModes?: ChatMode[];
-	/** Callback when mode is changed */
-	onModeChange?: (mode: ChatMode) => void;
+	/** The modes to offer, in order; the host supplies ids and labels. */
+	modes: ChatSidebarMode[];
+	/** Id of the active mode. */
+	mode?: string;
+	/** Called with a mode's id when it is chosen. */
+	onModeChange?: (id: string) => void;
 	/** Style preset identifier */
 	style?: string;
 }

@@ -1,2 +1,2 @@
 export { default as ChatSidebar } from "./ChatSidebar.svelte";
-export type { ChatMode, ChatSidebarProps } from "./types.js";
+export type { ChatSidebarMode, ChatSidebarProps } from "./types.js";

@@ -5,8 +5,9 @@
 	@category feedback
 	@description Canonical "please wait" panel. A centered spinner
 	              with an optional title, subtitle, progress bar,
-	              and — when the wait is long enough — a rotating
-	              DYK / KDROPS / T&T card. This is the ONE component
+	              and — when the wait is long enough — whatever the
+	              host passes as `content` (the app's Clyffy tip card,
+	              via `ClyffyLoadingBlock`). This is the ONE component
 	              every in-container wait state should use; never
 	              hand-roll a spinner + title + subtitle combo.
 	@container true
@@ -30,24 +31,15 @@ interface Props {
 	spinnerSize?: SpinnerSize;
 	/** Spinner tone. Default `"accent"`. */
 	tone?: SpinnerTone;
-	/**
-	 * Render a rotating DYK / KDROPS / T&T card below the block.
-	 * Only set this for waits that reliably take longer than ~3 s —
-	 * short waits should stay clean.
-	 *
-	 * Accepts the full `LoadingContentCard` prop set via the `contentProps`
-	 * slot so the consumer can bias topic, kind, or rotation speed.
-	 */
-	showContent?: boolean;
-	/** Forwarded to the inner `LoadingContentCard` when `showContent` is true. */
-	contentKind?: "dyk" | "kdrops" | "tnt";
-	/** Forwarded to the inner `LoadingContentCard` — topic tag. */
-	contentTag?: string;
-	/** Forwarded to the inner `LoadingContentCard` — rotation interval. */
-	contentRotateMs?: number;
 	/** Optional slot for custom body content below the subtitle and
-	 *  above the loading card (progress bars, step lists, etc.). */
+	 *  above `content` (progress bars, step lists, etc.). */
 	children?: Snippet;
+	/**
+	 * Something to read during a long wait, shown below the block (the
+	 * app passes a rotating tip card). Only for waits that reliably take
+	 * longer than ~3 s — short waits should stay clean.
+	 */
+	content?: Snippet;
 	/** Extra container classes. Structural only. */
 	class?: string;
 }
@@ -57,26 +49,10 @@ let {
 	subtitle,
 	spinnerSize = "lg",
 	tone = "accent",
-	showContent = false,
-	contentKind,
-	contentTag,
-	contentRotateMs = 8000,
 	children,
+	content,
 	class: className,
 }: Props = $props();
-
-// Dynamic import — `LoadingContentCard` lives in the clyffy domain
-// and shouldn't be a hard dependency of the design system. We only
-// load it when the consumer explicitly asks for it.
-let LoadingContentCard: typeof import("$lib/domains/clyffy/index.js").LoadingContentCard | null =
-	$state(null);
-
-$effect(() => {
-	if (!showContent || LoadingContentCard) return;
-	void import("$lib/domains/clyffy/index.js").then((m) => {
-		LoadingContentCard = m.LoadingContentCard;
-	});
-});
 </script>
 
 <div
@@ -106,10 +82,9 @@ $effect(() => {
 		</div>
 	{/if}
 
-	{#if showContent && LoadingContentCard}
-		{@const Card = LoadingContentCard}
+	{#if content}
 		<div class="w-full max-w-[28rem] mt-2">
-			<Card kind={contentKind} tag={contentTag} rotateEveryMs={contentRotateMs} />
+			{@render content()}
 		</div>
 	{/if}
 </div>

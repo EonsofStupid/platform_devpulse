@@ -475,3 +475,10 @@ Recorded per phase in the log below.
   their domain's `index.ts`; ColdLight's `blocks/community` and
   `blocks/latest` are gone. Known list 6 → 4. Live: Latest and Community
   render, no console errors.
+- 2026-10-18 — C1c done: `LoadingBlock` takes a `content` snippet instead of
+  dynamically importing Clyffy's card; the Clyffy domain's new
+  `ClyffyLoadingBlock` fills it, and the 6 devtools that showed the tip card
+  use it. `ChatSidebar` takes its modes as data (`{ id, label }[]`) instead of
+  the app's `ChatMode` and hardcoded English labels; its 6 browser tests pass.
+  Known list 4 → 2. Live: the 6 devtools load, no console errors (the
+  loading state itself was not triggered: it needs a model load).

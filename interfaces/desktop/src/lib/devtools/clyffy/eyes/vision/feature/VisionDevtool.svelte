@@ -21,7 +21,7 @@ import { Button } from "$lib/design/components/button/index.js";
 import { Callout } from "$lib/design/components/callout/index.js";
 import { Card } from "$lib/design/components/card/index.js";
 import { EmptyState } from "$lib/design/components/empty-state/index.js";
-import { LoadingBlock, Spinner } from "$lib/design/components/spinner/index.js";
+import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Stat } from "$lib/design/components/stat/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { Tooltip, TooltipContent, TooltipTrigger } from "$lib/design/components/tooltip/index.js";
@@ -34,6 +34,7 @@ import {
 	ServiceDevtoolShell,
 } from "$lib/devtools/index.js";
 import { modelsState } from "$lib/domains/app/models/index.js";
+import { ClyffyLoadingBlock } from "$lib/domains/clyffy/index.js";
 import { capabilityChannel } from "$lib/sys/events/index.js";
 import { commands } from "$lib/sys/generated/bindings.js";
 import { logInfo } from "$lib/sys/logger.js";
@@ -432,11 +433,10 @@ async function handleEncodeFile(event: Event): Promise<void> {
 
 	{#snippet actions()}
 		{#if loadingSlot}
-			<LoadingBlock
+			<ClyffyLoadingBlock
 				title="Loading vision.embedder"
 				subtitle="Pulling weights into memory — usually a few seconds."
-				showContent
-				contentKind="dyk"
+				kind="dyk"
 			/>
 		{:else}
 			<div class="flex flex-col gap-[var(--space-4)]">

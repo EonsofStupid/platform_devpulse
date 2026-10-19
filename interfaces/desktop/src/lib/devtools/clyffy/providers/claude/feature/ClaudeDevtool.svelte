@@ -35,7 +35,6 @@ import { Button } from "$lib/design/components/button/index.js";
 import { Callout } from "$lib/design/components/callout/index.js";
 import { Card } from "$lib/design/components/card/index.js";
 import { EmptyState } from "$lib/design/components/empty-state/index.js";
-import { LoadingBlock } from "$lib/design/components/spinner/index.js";
 import { Stat } from "$lib/design/components/stat/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { Tooltip, TooltipContent, TooltipTrigger } from "$lib/design/components/tooltip/index.js";
@@ -48,6 +47,7 @@ import {
 	type LogTargetPreset,
 	ServiceDevtoolShell,
 } from "$lib/devtools/index.js";
+import { ClyffyLoadingBlock } from "$lib/domains/clyffy/index.js";
 import { type ClaudeInstall, type ClaudeTarget, commands } from "$lib/sys/generated/bindings.js";
 import { logError, logInfo } from "$lib/sys/logger.js";
 import { okQuery, PolledQuery } from "$lib/sys/runes/index.js";
@@ -459,11 +459,10 @@ onMount(() => {
 
 	{#snippet actions()}
 		{#if pendingTarget}
-			<LoadingBlock
+			<ClyffyLoadingBlock
 				title={pendingTarget === "code" ? "Updating Claude Code config" : "Updating Claude Desktop config"}
 				subtitle="Atomic rewrite — your other MCP entries are preserved."
-				showContent
-				contentKind="dyk"
+				kind="dyk"
 			/>
 		{:else}
 			<div class="flex flex-col gap-4">

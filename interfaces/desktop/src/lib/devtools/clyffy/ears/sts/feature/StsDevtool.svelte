@@ -13,7 +13,7 @@
 	- Actions — Load/Unload each slot, mic test, record+transcribe,
 	            speak, voice preview, smoke test, full STS pipeline.
 
-	Slot load/unload shows the Clyffy LoadingBlock (rotating DYK card)
+	Slot load/unload shows the ClyffyLoadingBlock (rotating DYK card)
 	for the duration. Short actions keep an inline spinner.
 
 	All calls go through real Tauri commands backed by ORT Whisper +
@@ -35,7 +35,7 @@ import {
 import { onMount } from "svelte";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
-import { LoadingBlock, Spinner } from "$lib/design/components/spinner/index.js";
+import { Spinner } from "$lib/design/components/spinner/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import type { MicTestResult, VoiceInfo } from "$lib/devtools/_shared/voice-contracts.js";
 import { voiceSelectionState } from "$lib/devtools/_shared/voice-selection.state.svelte.js";
@@ -46,6 +46,7 @@ import {
 	ServiceDevtoolShell,
 } from "$lib/devtools/index.js";
 import { modelsState } from "$lib/domains/app/models/index.js";
+import { ClyffyLoadingBlock } from "$lib/domains/clyffy/index.js";
 import { capabilityChannel } from "$lib/sys/events/index.js";
 import { commands, type VoiceSmokeReport } from "$lib/sys/generated/bindings.js";
 import { logInfo } from "$lib/sys/logger.js";
@@ -545,11 +546,10 @@ async function handleTranscribeFile(event: Event): Promise<void> {
 
 	{#snippet actions()}
 		{#if anySlotLoading}
-			<LoadingBlock
+			<ClyffyLoadingBlock
 				title="Loading voice pipeline"
 				subtitle="Safely loading into RAM / VRAM — sit tight."
-				showContent
-				contentKind="dyk"
+				kind="dyk"
 			/>
 		{:else}
 			<div class="flex flex-col gap-4">
