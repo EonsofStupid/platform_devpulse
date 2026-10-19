@@ -460,3 +460,13 @@ Recorded per phase in the log below.
   `packages/coldlight/`. C0 done: `tests/architecture/coldlight-boundary.test.ts`
   holds the 22 imports in 16 files as the known list; it fails on a new one
   (verified with a seeded import) and on a fixed one still listed.
+- 2026-10-18 — C1a done: the knowledge family. The 8 entry-type cards moved
+  to `domains/app/knowledge/ui/knowledge-cards/` (props in, types from the
+  domain's `util`); `KnowledgeDeck`, `KnowledgeTerm`, `KnowledgeTermStrip`
+  to the domain's `feature/`, exported through its `index.ts`.
+  `ClyffyKnowledgeNudge` deleted (mounted nowhere; plan 0004 B4b). ColdLight
+  keeps the generic `KnowledgeCard`, `KnowledgeMultipleChoiceCard`,
+  `KnowledgeOrderingCard`. `ChatThread` / `ChatPanel` take an `empty` snippet
+  instead of rendering `KnowledgeDeck`. Known list 22 → 6. Live: Latest,
+  Slots devtool and a datastore devtool render the deck and term chips, no
+  console errors.

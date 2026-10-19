@@ -1,21 +1,27 @@
 <!--
-	@block KnowledgeKdropCard
+	@block KnowledgeFrustCard
 	@module @devpulse/design/blocks/knowledge
 
-	Knowledge-drop variant. Deeper / more substantial educational
-	content than DYK. Wraps `KnowledgeCard` with the teal accent
-	(reads as "tip / pattern" vs the cyan curiosity tone of DYK),
-	a `thinking` Clyffy headshot, and a "Tip" kicker.
+	Frustration-relief variant — surfaces preemptive help for
+	known pain points (the slow part, the confusing config, the
+	surprise error). Hotpink accent reads as "elevated attention"
+	without crossing into danger-red. The Clyffy headshot
+	defaults to the `pointing` pose so the surface reads as
+	"here, look at this" rather than the passive `idle` of DYK.
+
+	Distinct visual register from `KnowledgeKdropCard`:
+	frustrations are higher-stakes than tips. They get the
+	attention-grabbing color so they're not lost in DYK noise.
 -->
 <script lang="ts">
+import { ClyffyHeadshot } from "$lib/design/blocks/clyffy/index.js";
+import { KnowledgeCard } from "$lib/design/blocks/knowledge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Text } from "$lib/design/components/text/index.js";
-import type { KdropPayload, KnowledgeEntry } from "$lib/domains/app/knowledge/util/index.js";
-import ClyffyHeadshot from "../clyffy/ClyffyHeadshot.svelte";
-import KnowledgeCard from "./KnowledgeCard.svelte";
+import type { FrustPayload, KnowledgeEntry } from "../../util/index.js";
 
 interface Props {
-	entry: KnowledgeEntry & { payload: KdropPayload };
+	entry: KnowledgeEntry & { payload: FrustPayload };
 	live?: "off" | "polite" | "assertive";
 	onHelpful?: () => void;
 	onNotHelpful?: () => void;
@@ -31,18 +37,18 @@ interface Props {
 let { entry, live = "polite", onHelpful, onNotHelpful, onDismiss, labels }: Props = $props();
 
 const resolved = $derived({
-	kicker: labels?.kicker ?? "Tip",
+	kicker: labels?.kicker ?? "Heads up",
 	helpful: labels?.helpful ?? "Helpful",
 	notHelpful: labels?.notHelpful ?? "Not helpful",
-	dismissAria: labels?.dismissAria ?? "Dismiss tip",
+	dismissAria: labels?.dismissAria ?? "Dismiss",
 });
 
-const headingId = $derived(`kc-kdrop-${entry.id}`);
+const headingId = $derived(`kc-frust-${entry.id}`);
 </script>
 
-<KnowledgeCard accent="teal" {headingId} {live}>
+<KnowledgeCard accent="hotpink" {headingId} {live}>
 	{#snippet mascot()}
-		<ClyffyHeadshot pose="thinking" size="md" decorative />
+		<ClyffyHeadshot pose="scanning" size="md" decorative />
 	{/snippet}
 	{#snippet heading()}
 		<Text size="xs" weight="semibold" color="muted" as="p">{resolved.kicker}</Text>

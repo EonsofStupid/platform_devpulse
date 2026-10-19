@@ -63,9 +63,9 @@ import { ServiceDevtoolShell } from "$lib/devtools/_shared/index.js";
 	import { type Snippet, untrack } from "svelte";
 	import { ArrowLeft, Check, Copy, Download } from "lucide-svelte";
 	import { page } from "$app/state";
-	import { KnowledgeTerm } from "$lib/design/blocks/knowledge/index.js";
 	import { BackgroundScene } from "$lib/design/components/background-scene/index.js";
 	import { Text } from "$lib/design/components/text/index.js";
+	import { KnowledgeTerm } from "$lib/domains/app/knowledge/index.js";
 	import { hrefOf, routeCopy } from "$lib/sys/routing/index.js";
 	import { devtoolNav, devtoolPlace } from "../devtool-manifest.js";
 	import {

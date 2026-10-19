@@ -16,7 +16,6 @@ export {
 	type ClyffyHeadshotSize,
 	default as ClyffyHeadshot,
 } from "./ClyffyHeadshot.svelte";
-export { default as ClyffyKnowledgeNudge } from "./ClyffyKnowledgeNudge.svelte";
 export {
 	type ClyffyMascotPose,
 	type ClyffyMascotSize,

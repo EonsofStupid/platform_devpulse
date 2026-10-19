@@ -1,22 +1,21 @@
 <!--
-	@block KnowledgeInsightCard
+	@block KnowledgeKdropCard
 	@module @devpulse/design/blocks/knowledge
 
-	Insight variant — architectural observation, pattern, or
-	tradeoff worth surfacing. Blue accent reads as
-	"design-decision" without the curiosity tone of cyan DYK or
-	the urgency of hotpink frust. Headshot defaults to `thinking`
-	pose since insights are the brain reflecting on something.
+	Knowledge-drop variant. Deeper / more substantial educational
+	content than DYK. Wraps `KnowledgeCard` with the teal accent
+	(reads as "tip / pattern" vs the cyan curiosity tone of DYK),
+	a `thinking` Clyffy headshot, and a "Tip" kicker.
 -->
 <script lang="ts">
+import { ClyffyHeadshot } from "$lib/design/blocks/clyffy/index.js";
+import { KnowledgeCard } from "$lib/design/blocks/knowledge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Text } from "$lib/design/components/text/index.js";
-import type { InsightPayload, KnowledgeEntry } from "$lib/domains/app/knowledge/util/index.js";
-import ClyffyHeadshot from "../clyffy/ClyffyHeadshot.svelte";
-import KnowledgeCard from "./KnowledgeCard.svelte";
+import type { KdropPayload, KnowledgeEntry } from "../../util/index.js";
 
 interface Props {
-	entry: KnowledgeEntry & { payload: InsightPayload };
+	entry: KnowledgeEntry & { payload: KdropPayload };
 	live?: "off" | "polite" | "assertive";
 	onHelpful?: () => void;
 	onNotHelpful?: () => void;
@@ -32,16 +31,16 @@ interface Props {
 let { entry, live = "polite", onHelpful, onNotHelpful, onDismiss, labels }: Props = $props();
 
 const resolved = $derived({
-	kicker: labels?.kicker ?? "Insight",
+	kicker: labels?.kicker ?? "Tip",
 	helpful: labels?.helpful ?? "Helpful",
 	notHelpful: labels?.notHelpful ?? "Not helpful",
-	dismissAria: labels?.dismissAria ?? "Dismiss",
+	dismissAria: labels?.dismissAria ?? "Dismiss tip",
 });
 
-const headingId = $derived(`kc-insight-${entry.id}`);
+const headingId = $derived(`kc-kdrop-${entry.id}`);
 </script>
 
-<KnowledgeCard accent="blue" {headingId} {live}>
+<KnowledgeCard accent="teal" {headingId} {live}>
 	{#snippet mascot()}
 		<ClyffyHeadshot pose="thinking" size="md" decorative />
 	{/snippet}

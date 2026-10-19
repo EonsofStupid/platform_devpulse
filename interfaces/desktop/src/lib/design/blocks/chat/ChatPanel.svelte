@@ -28,6 +28,7 @@ let {
 	onSend,
 	onVoice,
 	voiceActive = false,
+	empty,
 	class: className,
 }: ChatPanelProps = $props();
 </script>
@@ -40,7 +41,7 @@ let {
 		<Separator />
 	{/if}
 
-	<ChatThread {messages} class="flex-1" />
+	<ChatThread {messages} {empty} class="flex-1" />
 
 	<Separator />
 	<ChatInput

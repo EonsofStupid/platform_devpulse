@@ -10,8 +10,8 @@
 	one is for preference capture where there's no correct answer.
 -->
 <script lang="ts">
-import type { KnowledgeEntry, RankPayload } from "$lib/domains/app/knowledge/util/index.js";
-import KnowledgeOrderingCard from "./KnowledgeOrderingCard.svelte";
+import { KnowledgeOrderingCard } from "$lib/design/blocks/knowledge/index.js";
+import type { KnowledgeEntry, RankPayload } from "../../util/index.js";
 
 interface Props {
 	entry: KnowledgeEntry & { payload: RankPayload };

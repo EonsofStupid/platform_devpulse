@@ -1,31 +1,37 @@
 <!--
-	@block KnowledgeFrustCard
+	@block KnowledgeDykCard
 	@module @devpulse/design/blocks/knowledge
 
-	Frustration-relief variant — surfaces preemptive help for
-	known pain points (the slow part, the confusing config, the
-	surprise error). Hotpink accent reads as "elevated attention"
-	without crossing into danger-red. The Clyffy headshot
-	defaults to the `pointing` pose so the surface reads as
-	"here, look at this" rather than the passive `idle` of DYK.
+	Did-you-know variant. Wraps `KnowledgeCard` with a Clyffy
+	headshot (idle pose) + "Did you know?" kicker + title/body
+	rendering + reaction footer.
 
-	Distinct visual register from `KnowledgeKdropCard`:
-	frustrations are higher-stakes than tips. They get the
-	attention-grabbing color so they're not lost in DYK noise.
+	Pure presentational — caller supplies the entry and the
+	handlers. Used by `KnowledgeDeck` when dispatching `dyk`
+	entries from the kernel catalog.
 -->
 <script lang="ts">
+import { ClyffyHeadshot } from "$lib/design/blocks/clyffy/index.js";
+import { KnowledgeCard } from "$lib/design/blocks/knowledge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Text } from "$lib/design/components/text/index.js";
-import type { FrustPayload, KnowledgeEntry } from "$lib/domains/app/knowledge/util/index.js";
-import ClyffyHeadshot from "../clyffy/ClyffyHeadshot.svelte";
-import KnowledgeCard from "./KnowledgeCard.svelte";
+import type { DykPayload, KnowledgeEntry } from "../../util/index.js";
 
 interface Props {
-	entry: KnowledgeEntry & { payload: FrustPayload };
+	/** The entry to render. Must be a `dyk` entry. */
+	entry: KnowledgeEntry & { payload: DykPayload };
+	/**
+	 * `aria-live` mode for the card region. Defaults to `polite`
+	 * since DYKs typically appear asynchronously.
+	 */
 	live?: "off" | "polite" | "assertive";
+	/** Helpful reaction handler. */
 	onHelpful?: () => void;
+	/** Not-helpful reaction handler. */
 	onNotHelpful?: () => void;
+	/** Dismiss handler (no reaction recorded). */
 	onDismiss?: () => void;
+	/** Layman labels — caller resolves from copy cascade. */
 	labels?: {
 		kicker: string;
 		helpful: string;
@@ -37,18 +43,18 @@ interface Props {
 let { entry, live = "polite", onHelpful, onNotHelpful, onDismiss, labels }: Props = $props();
 
 const resolved = $derived({
-	kicker: labels?.kicker ?? "Heads up",
+	kicker: labels?.kicker ?? "Did you know?",
 	helpful: labels?.helpful ?? "Helpful",
 	notHelpful: labels?.notHelpful ?? "Not helpful",
-	dismissAria: labels?.dismissAria ?? "Dismiss",
+	dismissAria: labels?.dismissAria ?? "Dismiss tip",
 });
 
-const headingId = $derived(`kc-frust-${entry.id}`);
+const headingId = $derived(`kc-dyk-${entry.id}`);
 </script>
 
-<KnowledgeCard accent="hotpink" {headingId} {live}>
+<KnowledgeCard accent="cyan" {headingId} {live}>
 	{#snippet mascot()}
-		<ClyffyHeadshot pose="scanning" size="md" decorative />
+		<ClyffyHeadshot pose="idle" size="md" decorative />
 	{/snippet}
 	{#snippet heading()}
 		<Text size="xs" weight="semibold" color="muted" as="p">{resolved.kicker}</Text>

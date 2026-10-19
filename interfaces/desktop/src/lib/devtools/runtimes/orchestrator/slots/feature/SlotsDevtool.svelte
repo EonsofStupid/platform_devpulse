@@ -24,7 +24,6 @@ import {
 	Zap,
 } from "lucide-svelte";
 import { onMount } from "svelte";
-import { KnowledgeDeck } from "$lib/design/blocks/knowledge/index.js";
 import { Badge } from "$lib/design/components/badge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { InlineMessage } from "$lib/design/components/inline-message/index.js";
@@ -37,6 +36,7 @@ import {
 	ScopedLogPanel,
 	ServiceDevtoolShell,
 } from "$lib/devtools/index.js";
+import { KnowledgeDeck } from "$lib/domains/app/knowledge/index.js";
 import {
 	formatMb,
 	getSlotLabel,

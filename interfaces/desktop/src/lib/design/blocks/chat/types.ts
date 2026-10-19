@@ -33,6 +33,8 @@ export interface ChatInputProps {
 
 export interface ChatThreadProps {
 	messages: ChatMessage[];
+	/** Shown while there are no messages; the host decides what. */
+	empty?: Snippet;
 	class?: string;
 }
 
@@ -42,6 +44,8 @@ export interface ChatPanelProps {
 	onSend?: (message: string) => void;
 	onVoice?: () => void;
 	voiceActive?: boolean;
+	/** Passed to the thread: shown while there are no messages. */
+	empty?: Snippet;
 	class?: string;
 	children?: Snippet;
 }

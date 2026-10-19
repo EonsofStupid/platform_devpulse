@@ -20,13 +20,12 @@
 <script lang="ts">
 import { onMount } from "svelte";
 import { CommunityFeedList } from "$lib/design/blocks/community/index.js";
-import { KnowledgeDeck } from "$lib/design/blocks/knowledge/index.js";
 import { LatestUpdateCard } from "$lib/design/blocks/latest/index.js";
 import { Widget } from "$lib/design/blocks/widgets/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
 import { communityState } from "$lib/domains/app/community/index.js";
-import { syncKnowledgeFromRemote } from "$lib/domains/app/knowledge/index.js";
+import { KnowledgeDeck, syncKnowledgeFromRemote } from "$lib/domains/app/knowledge/index.js";
 import { updatesState } from "$lib/domains/app/updates/index.js";
 import { hrefOf, routeAt, routeCopy, routeHere } from "$lib/sys/routing/index.js";
 

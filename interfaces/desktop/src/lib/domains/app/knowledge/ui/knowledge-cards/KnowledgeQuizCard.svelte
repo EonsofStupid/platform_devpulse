@@ -13,8 +13,8 @@
 	harnesses, devtool diagnostics, etc.).
 -->
 <script lang="ts">
-import type { KnowledgeEntry, QuizPayload } from "$lib/domains/app/knowledge/util/index.js";
-import KnowledgeMultipleChoiceCard from "./KnowledgeMultipleChoiceCard.svelte";
+import { KnowledgeMultipleChoiceCard } from "$lib/design/blocks/knowledge/index.js";
+import type { KnowledgeEntry, QuizPayload } from "../../util/index.js";
 
 interface Props {
 	entry: KnowledgeEntry & { payload: QuizPayload };

@@ -53,8 +53,8 @@
 import { onDestroy, type Snippet } from "svelte";
 import { Card } from "$lib/design/components/card/index.js";
 import { Text } from "$lib/design/components/text/index.js";
-import { knowledgeState } from "$lib/domains/app/knowledge/data-access/knowledge.state.svelte.js";
-import { isGlossary } from "$lib/domains/app/knowledge/util/index.js";
+import { knowledgeState } from "../../data-access/knowledge.state.svelte.js";
+import { isGlossary } from "../../util/index.js";
 
 interface Props {
 	/**

@@ -1,37 +1,26 @@
 <!--
-	@block KnowledgeDykCard
+	@block KnowledgeInsightCard
 	@module @devpulse/design/blocks/knowledge
 
-	Did-you-know variant. Wraps `KnowledgeCard` with a Clyffy
-	headshot (idle pose) + "Did you know?" kicker + title/body
-	rendering + reaction footer.
-
-	Pure presentational — caller supplies the entry and the
-	handlers. Used by `KnowledgeDeck` when dispatching `dyk`
-	entries from the kernel catalog.
+	Insight variant — architectural observation, pattern, or
+	tradeoff worth surfacing. Blue accent reads as
+	"design-decision" without the curiosity tone of cyan DYK or
+	the urgency of hotpink frust. Headshot defaults to `thinking`
+	pose since insights are the brain reflecting on something.
 -->
 <script lang="ts">
+import { ClyffyHeadshot } from "$lib/design/blocks/clyffy/index.js";
+import { KnowledgeCard } from "$lib/design/blocks/knowledge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Text } from "$lib/design/components/text/index.js";
-import type { DykPayload, KnowledgeEntry } from "$lib/domains/app/knowledge/util/index.js";
-import ClyffyHeadshot from "../clyffy/ClyffyHeadshot.svelte";
-import KnowledgeCard from "./KnowledgeCard.svelte";
+import type { InsightPayload, KnowledgeEntry } from "../../util/index.js";
 
 interface Props {
-	/** The entry to render. Must be a `dyk` entry. */
-	entry: KnowledgeEntry & { payload: DykPayload };
-	/**
-	 * `aria-live` mode for the card region. Defaults to `polite`
-	 * since DYKs typically appear asynchronously.
-	 */
+	entry: KnowledgeEntry & { payload: InsightPayload };
 	live?: "off" | "polite" | "assertive";
-	/** Helpful reaction handler. */
 	onHelpful?: () => void;
-	/** Not-helpful reaction handler. */
 	onNotHelpful?: () => void;
-	/** Dismiss handler (no reaction recorded). */
 	onDismiss?: () => void;
-	/** Layman labels — caller resolves from copy cascade. */
 	labels?: {
 		kicker: string;
 		helpful: string;
@@ -43,18 +32,18 @@ interface Props {
 let { entry, live = "polite", onHelpful, onNotHelpful, onDismiss, labels }: Props = $props();
 
 const resolved = $derived({
-	kicker: labels?.kicker ?? "Did you know?",
+	kicker: labels?.kicker ?? "Insight",
 	helpful: labels?.helpful ?? "Helpful",
 	notHelpful: labels?.notHelpful ?? "Not helpful",
-	dismissAria: labels?.dismissAria ?? "Dismiss tip",
+	dismissAria: labels?.dismissAria ?? "Dismiss",
 });
 
-const headingId = $derived(`kc-dyk-${entry.id}`);
+const headingId = $derived(`kc-insight-${entry.id}`);
 </script>
 
-<KnowledgeCard accent="cyan" {headingId} {live}>
+<KnowledgeCard accent="blue" {headingId} {live}>
 	{#snippet mascot()}
-		<ClyffyHeadshot pose="idle" size="md" decorative />
+		<ClyffyHeadshot pose="thinking" size="md" decorative />
 	{/snippet}
 	{#snippet heading()}
 		<Text size="xs" weight="semibold" color="muted" as="p">{resolved.kicker}</Text>

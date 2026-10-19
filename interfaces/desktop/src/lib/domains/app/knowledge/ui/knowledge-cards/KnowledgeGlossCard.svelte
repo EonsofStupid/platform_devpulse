@@ -11,11 +11,11 @@
 	`mascot={true}` to opt in.
 -->
 <script lang="ts">
+import { ClyffyHeadshot } from "$lib/design/blocks/clyffy/index.js";
+import { KnowledgeCard } from "$lib/design/blocks/knowledge/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Text } from "$lib/design/components/text/index.js";
-import type { GlossPayload, KnowledgeEntry } from "$lib/domains/app/knowledge/util/index.js";
-import ClyffyHeadshot from "../clyffy/ClyffyHeadshot.svelte";
-import KnowledgeCard from "./KnowledgeCard.svelte";
+import type { GlossPayload, KnowledgeEntry } from "../../util/index.js";
 
 interface Props {
 	entry: KnowledgeEntry & { payload: GlossPayload };

@@ -9,8 +9,8 @@
 	`entry.payload.correctOrderIds` if it's a didactic surface).
 -->
 <script lang="ts">
-import type { KnowledgeEntry, OrderPayload } from "$lib/domains/app/knowledge/util/index.js";
-import KnowledgeOrderingCard from "./KnowledgeOrderingCard.svelte";
+import { KnowledgeOrderingCard } from "$lib/design/blocks/knowledge/index.js";
+import type { KnowledgeEntry, OrderPayload } from "../../util/index.js";
 
 interface Props {
 	entry: KnowledgeEntry & { payload: OrderPayload };

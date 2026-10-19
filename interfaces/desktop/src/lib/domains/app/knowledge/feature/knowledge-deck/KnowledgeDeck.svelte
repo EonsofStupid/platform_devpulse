@@ -43,11 +43,22 @@
 -->
 <script lang="ts">
 import { onDestroy, onMount } from "svelte";
-import { knowledgeState } from "$lib/domains/app/knowledge/data-access/knowledge.state.svelte.js";
+import { logError } from "$lib/sys/logger.js";
+import { knowledgeState } from "../../data-access/knowledge.state.svelte.js";
 import {
 	type KnowledgeContextFrame,
 	knowledgeContext,
-} from "$lib/domains/app/knowledge/data-access/knowledge-context.svelte.js";
+} from "../../data-access/knowledge-context.svelte.js";
+import {
+	KnowledgeDykCard,
+	KnowledgeFrustCard,
+	KnowledgeGlossCard,
+	KnowledgeInsightCard,
+	KnowledgeKdropCard,
+	KnowledgeOrderCard,
+	KnowledgeQuizCard,
+	KnowledgeRankCard,
+} from "../../ui/knowledge-cards/index.js";
 import {
 	hasTitleBody,
 	isGlossary,
@@ -55,16 +66,7 @@ import {
 	isQuiz,
 	isRank,
 	type KnowledgeEntryType,
-} from "$lib/domains/app/knowledge/util/index.js";
-import { logError } from "$lib/sys/logger.js";
-import KnowledgeDykCard from "./KnowledgeDykCard.svelte";
-import KnowledgeFrustCard from "./KnowledgeFrustCard.svelte";
-import KnowledgeGlossCard from "./KnowledgeGlossCard.svelte";
-import KnowledgeInsightCard from "./KnowledgeInsightCard.svelte";
-import KnowledgeKdropCard from "./KnowledgeKdropCard.svelte";
-import KnowledgeOrderCard from "./KnowledgeOrderCard.svelte";
-import KnowledgeQuizCard from "./KnowledgeQuizCard.svelte";
-import KnowledgeRankCard from "./KnowledgeRankCard.svelte";
+} from "../../util/index.js";
 
 interface Props {
 	/**

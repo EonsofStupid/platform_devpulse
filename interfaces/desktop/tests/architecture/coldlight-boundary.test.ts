@@ -17,23 +17,7 @@ const SRC_LIB = resolve(__dirname, "../../src/lib");
 const COLDLIGHT_ROOT = join(SRC_LIB, "design");
 
 const KNOWN: readonly string[] = [
-	"blocks/clyffy/ClyffyKnowledgeNudge.svelte -> $lib/domains/app/knowledge/data-access/knowledge.state.svelte.js",
-	"blocks/clyffy/ClyffyKnowledgeNudge.svelte -> $lib/domains/app/knowledge/util/index.js",
 	"blocks/community/CommunityFeedList.svelte -> $lib/domains/app/community/index.js",
-	"blocks/knowledge/KnowledgeDeck.svelte -> $lib/domains/app/knowledge/data-access/knowledge-context.svelte.js",
-	"blocks/knowledge/KnowledgeDeck.svelte -> $lib/domains/app/knowledge/data-access/knowledge.state.svelte.js",
-	"blocks/knowledge/KnowledgeDeck.svelte -> $lib/domains/app/knowledge/util/index.js",
-	"blocks/knowledge/KnowledgeDeck.svelte -> $lib/sys/logger.js",
-	"blocks/knowledge/KnowledgeDykCard.svelte -> $lib/domains/app/knowledge/util/index.js",
-	"blocks/knowledge/KnowledgeFrustCard.svelte -> $lib/domains/app/knowledge/util/index.js",
-	"blocks/knowledge/KnowledgeGlossCard.svelte -> $lib/domains/app/knowledge/util/index.js",
-	"blocks/knowledge/KnowledgeInsightCard.svelte -> $lib/domains/app/knowledge/util/index.js",
-	"blocks/knowledge/KnowledgeKdropCard.svelte -> $lib/domains/app/knowledge/util/index.js",
-	"blocks/knowledge/KnowledgeOrderCard.svelte -> $lib/domains/app/knowledge/util/index.js",
-	"blocks/knowledge/KnowledgeQuizCard.svelte -> $lib/domains/app/knowledge/util/index.js",
-	"blocks/knowledge/KnowledgeRankCard.svelte -> $lib/domains/app/knowledge/util/index.js",
-	"blocks/knowledge/KnowledgeTerm.svelte -> $lib/domains/app/knowledge/data-access/knowledge.state.svelte.js",
-	"blocks/knowledge/KnowledgeTerm.svelte -> $lib/domains/app/knowledge/util/index.js",
 	"blocks/latest/LatestUpdateCard.svelte -> $lib/domains/app/updates/index.js",
 	"components/chat-sidebar/types.ts -> $lib/sys/runes/global.svelte.js",
 	"components/spinner/LoadingBlock.svelte -> $lib/domains/clyffy/index.js",

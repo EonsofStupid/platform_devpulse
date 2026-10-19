@@ -14,26 +14,15 @@
 	@slots root:all
 -->
 <script lang="ts">
-import { KnowledgeDeck } from "$lib/design/blocks/knowledge/index.js";
 import { ChatBubble } from "$lib/design/components/chat-bubble/index.js";
 import Text from "$lib/design/components/text/Text.svelte";
 import { cn } from "$lib/design/utils/cn.js";
 import type { ChatThreadProps } from "./types.js";
 
-let { messages, class: className }: ChatThreadProps = $props();
-
-// Empty-state context frame — pushed onto knowledgeContext when
-// the thread is empty so KnowledgeDeck pulls the chat-tagged
-// catalog with `chat:empty` scope. When a message arrives, the
-// deck unmounts, the frame pops, and the regular thread takes
-// over. Ambient rotation every 60s while idle so users browsing
-// the empty pane see variety.
-const EMPTY_CONTEXT = {
-	id: "chat-thread-empty",
-	tool: "chat",
-	scope: "chat:empty",
-	preferred: "dyk" as const,
-};
+// `empty` is what the host shows while the thread has no messages
+// (a chat feature passes its knowledge deck); ColdLight renders it and
+// imports nothing from the app.
+let { messages, empty, class: className }: ChatThreadProps = $props();
 </script>
 
 <div
@@ -42,9 +31,11 @@ const EMPTY_CONTEXT = {
 	class={cn("flex flex-col gap-3 overflow-y-auto flex-1 px-4 py-3", className)}
 >
 	{#if messages.length === 0}
-		<div class="chat-thread__empty">
-			<KnowledgeDeck context={EMPTY_CONTEXT} refreshIntervalMs={60000} />
-		</div>
+		{#if empty}
+			<div class="chat-thread__empty">
+				{@render empty()}
+			</div>
+		{/if}
 	{:else}
 		{#each messages as msg (msg.id)}
 			<ChatBubble
