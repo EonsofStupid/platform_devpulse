@@ -482,3 +482,11 @@ Recorded per phase in the log below.
   the app's `ChatMode` and hardcoded English labels; its 6 browser tests pass.
   Known list 4 → 2. Live: the 6 devtools load, no console errors (the
   loading state itself was not triggered: it needs a model load).
+- 2026-10-18 — C1d done, C1 complete: `TokenDebugOverlay` was two tools.
+  The CSS token diagnostic is ColdLight's and stays in `design/debug/`; its
+  raw inline values are deliberate (a token debugger must render when tokens
+  are broken), so `design/debug/` joins the raw-values hook's allow-list
+  beside `sys/debug/vpb/`. The HuggingFace-token panel (IPC + logger) was a
+  duplicate of the models domain's `DownloaderTokenStrip` and is removed.
+  The boundary test has no exceptions left: ColdLight imports nothing from
+  the app.

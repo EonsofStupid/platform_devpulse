@@ -4,9 +4,8 @@
  * §1.1.1, COMPOSITION-CONTRACT.md, design/CLAUDE.md ADR-001; plan 0006
  * "ColdLight's package boundary").
  *
- * `KNOWN` lists the imports that still break the rule. It must match the
- * tree exactly: a new import fails the test, and so does a fixed one that
- * is still listed, so the list only ever shrinks. Plan 0006 C1 empties it.
+ * Plan 0006 C1 moved the last 22 such imports out of ColdLight, so the rule
+ * has no exceptions.
  */
 
 import { readdirSync, readFileSync } from "node:fs";
@@ -15,11 +14,6 @@ import { describe, expect, it } from "vitest";
 
 const SRC_LIB = resolve(__dirname, "../../src/lib");
 const COLDLIGHT_ROOT = join(SRC_LIB, "design");
-
-const KNOWN: readonly string[] = [
-	"debug/TokenDebugOverlay.svelte -> $lib/sys/generated/bindings.js",
-	"debug/TokenDebugOverlay.svelte -> $lib/sys/logger.js",
-];
 
 /** Static, side-effect and dynamic import specifiers. */
 const SPECIFIER = /(?:from\s+|import\s*\(\s*|import\s+)(["'])([^"']+)\1/g;
@@ -60,7 +54,7 @@ function importsLeavingColdLight(): string[] {
 }
 
 describe("ColdLight boundary", () => {
-	it("imports nothing from the app beyond the known list, which only shrinks", () => {
-		expect(importsLeavingColdLight()).toEqual([...KNOWN].sort());
+	it("imports nothing from the app", () => {
+		expect(importsLeavingColdLight()).toEqual([]);
 	});
 });

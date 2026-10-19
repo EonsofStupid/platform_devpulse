@@ -45,6 +45,9 @@ const ALLOW_LIST = [
 	"interfaces/desktop/src/lib/design/svg/",
 	"interfaces/desktop/src/lib/design/plugins/",
 	"interfaces/desktop/src/lib/design/.cowlevel/",
+	// ColdLight's token debugger diagnoses broken tokens, so it must not
+	// depend on them to render (plan 0006 C1d).
+	"interfaces/desktop/src/lib/design/debug/",
 	"interfaces/desktop/src/lib/sys/debug/vpb/",
 	"interfaces/desktop/scripts/build/styledictionary/",
 	"interfaces/desktop/src/lib/domains/app/models/",
