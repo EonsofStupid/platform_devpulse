@@ -470,3 +470,8 @@ Recorded per phase in the log below.
   instead of rendering `KnowledgeDeck`. Known list 22 → 6. Live: Latest,
   Slots devtool and a datastore devtool render the deck and term chips, no
   console errors.
+- 2026-10-18 — C1b done: `CommunityFeedList` → `domains/app/community/ui/`,
+  `LatestUpdateCard` → `domains/app/updates/feature/`, both exported through
+  their domain's `index.ts`; ColdLight's `blocks/community` and
+  `blocks/latest` are gone. Known list 6 → 4. Live: Latest and Community
+  render, no console errors.

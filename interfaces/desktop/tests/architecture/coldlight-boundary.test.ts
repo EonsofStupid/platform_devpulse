@@ -17,8 +17,6 @@ const SRC_LIB = resolve(__dirname, "../../src/lib");
 const COLDLIGHT_ROOT = join(SRC_LIB, "design");
 
 const KNOWN: readonly string[] = [
-	"blocks/community/CommunityFeedList.svelte -> $lib/domains/app/community/index.js",
-	"blocks/latest/LatestUpdateCard.svelte -> $lib/domains/app/updates/index.js",
 	"components/chat-sidebar/types.ts -> $lib/sys/runes/global.svelte.js",
 	"components/spinner/LoadingBlock.svelte -> $lib/domains/clyffy/index.js",
 	"debug/TokenDebugOverlay.svelte -> $lib/sys/generated/bindings.js",

@@ -17,13 +17,12 @@
 <script lang="ts">
 import { RefreshCcw } from "lucide-svelte";
 import { onMount } from "svelte";
-import { CommunityFeedList } from "$lib/design/blocks/community/index.js";
 import { Widget } from "$lib/design/blocks/widgets/index.js";
 import { Button } from "$lib/design/components/button/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { gridLayout } from "$lib/design/utils/grid-layout/index.js";
 import { stack } from "$lib/design/utils/stack/index.js";
-import { communityState } from "$lib/domains/app/community/index.js";
+import { CommunityFeedList, communityState } from "$lib/domains/app/community/index.js";
 import { devpulseState } from "$lib/domains/app/devpulse/index.js";
 import { routeCopy, routeHere } from "$lib/sys/routing/index.js";
 

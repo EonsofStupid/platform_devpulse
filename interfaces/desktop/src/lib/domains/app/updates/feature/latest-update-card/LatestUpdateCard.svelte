@@ -39,7 +39,7 @@ import { InlineMessage } from "$lib/design/components/inline-message/index.js";
 import { Text } from "$lib/design/components/text/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { stack } from "$lib/design/utils/stack/index.js";
-import { updatesState } from "$lib/domains/app/updates/index.js";
+import { updatesState } from "../../data-access/index.js";
 
 const titleId = "latest-update-card-title";
 const progressId = "latest-update-card-progress";

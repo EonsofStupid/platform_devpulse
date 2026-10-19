@@ -22,7 +22,7 @@ import { Megaphone, MessageSquare, Sparkles } from "lucide-svelte";
 import { Text } from "$lib/design/components/text/index.js";
 import { cn } from "$lib/design/utils/cn.js";
 import { stack } from "$lib/design/utils/stack/index.js";
-import type { FeedItem, FeedKind } from "$lib/domains/app/community/index.js";
+import type { FeedItem, FeedKind } from "../../util/index.js";
 
 interface Props {
 	items: FeedItem[];
