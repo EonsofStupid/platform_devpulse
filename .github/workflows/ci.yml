@@ -213,11 +213,17 @@ jobs:
       - name: Biome lint
         run: pnpm lint
 
+      - name: Biome lint (ColdLight)
+        run: pnpm --filter @devpulse/coldlight lint
+
       - name: Architecture tests (IP boundary)
         run: pnpm test:arch
 
       - name: Svelte check
         run: pnpm check
+
+      - name: Svelte check (ColdLight)
+        run: pnpm --filter @devpulse/coldlight check
 
       - name: Build
         run: pnpm build

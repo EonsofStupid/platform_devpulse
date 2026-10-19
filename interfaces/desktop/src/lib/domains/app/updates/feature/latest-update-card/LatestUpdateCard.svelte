@@ -32,13 +32,12 @@
 	to `aria-valuetext="downloading"` for indeterminate sources.
 -->
 <script lang="ts">
+import { Button } from "@devpulse/coldlight/components/button";
+import { Heading } from "@devpulse/coldlight/components/heading";
+import { InlineMessage } from "@devpulse/coldlight/components/inline-message";
+import { Text } from "@devpulse/coldlight/components/text";
+import { cn, stack } from "@devpulse/coldlight/utils";
 import { RefreshCcw, Sparkles } from "lucide-svelte";
-import { Button } from "$lib/design/components/button/index.js";
-import { Heading } from "$lib/design/components/heading/index.js";
-import { InlineMessage } from "$lib/design/components/inline-message/index.js";
-import { Text } from "$lib/design/components/text/index.js";
-import { cn } from "$lib/design/utils/cn.js";
-import { stack } from "$lib/design/utils/stack/index.js";
 import { updatesState } from "../../data-access/index.js";
 
 const titleId = "latest-update-card-title";

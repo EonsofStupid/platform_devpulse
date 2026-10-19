@@ -20,13 +20,13 @@
 	"Console" — so it doesn't pretend to be either Logs or Config.
 -->
 <script lang="ts">
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Button } from "@devpulse/coldlight/components/button";
+import { InlineMessage } from "@devpulse/coldlight/components/inline-message";
+import { Text } from "@devpulse/coldlight/components/text";
+import { TextField } from "@devpulse/coldlight/components/text-field";
+import { Textarea } from "@devpulse/coldlight/components/textarea";
 import { Database, Play, Plug, RefreshCw, Terminal } from "lucide-svelte";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Button } from "$lib/design/components/button/index.js";
-import { InlineMessage } from "$lib/design/components/inline-message/index.js";
-import { Text } from "$lib/design/components/text/index.js";
-import { TextField } from "$lib/design/components/text-field/index.js";
-import { Textarea } from "$lib/design/components/textarea/index.js";
 import {
 	type CapturePayload,
 	type ExtraTab,

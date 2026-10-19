@@ -12,16 +12,14 @@
   terms first with the raw figures shown alongside.
 -->
 <script lang="ts">
+import { Widget } from "@devpulse/coldlight/blocks/widgets";
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Spinner } from "@devpulse/coldlight/components/spinner";
+import { Text } from "@devpulse/coldlight/components/text";
+import { cn, hstack, stack } from "@devpulse/coldlight/utils";
 import { Activity, FolderOpen, Play, Power, RefreshCw, ServerCog, Terminal } from "lucide-svelte";
 import { onMount } from "svelte";
-import { Widget } from "$lib/design/blocks/widgets/index.js";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Button } from "$lib/design/components/button/index.js";
-import { Spinner } from "$lib/design/components/spinner/index.js";
-import { Text } from "$lib/design/components/text/index.js";
-import { cn } from "$lib/design/utils/cn.js";
-import { hstack } from "$lib/design/utils/hstack/index.js";
-import { stack } from "$lib/design/utils/stack/index.js";
 import { devforgeState } from "$lib/domains/app/devforge/index.js";
 import { commands } from "$lib/sys/generated/bindings.js";
 

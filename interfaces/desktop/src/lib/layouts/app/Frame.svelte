@@ -16,9 +16,9 @@
 }
 -->
 <script lang="ts">
+import { BackgroundScene } from "@devpulse/coldlight/components/background-scene";
+import { cn } from "@devpulse/coldlight/utils";
 import type { Snippet } from "svelte";
-import { BackgroundScene } from "$lib/design/components/background-scene/index.js";
-import { cn } from "$lib/design/utils/cn.js";
 import { SwapOverlay } from "$lib/domains/app/models/index.js";
 import ActivityHud from "$lib/sys/activity-hud/ActivityHud.svelte";
 import { globalState } from "$lib/sys/runes/global.svelte";

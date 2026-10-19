@@ -18,10 +18,9 @@
 	wrapped in the appropriate heading level for the surrounding region.
 -->
 <script lang="ts">
+import { Text } from "@devpulse/coldlight/components/text";
+import { cn, stack } from "@devpulse/coldlight/utils";
 import { Megaphone, MessageSquare, Sparkles } from "lucide-svelte";
-import { Text } from "$lib/design/components/text/index.js";
-import { cn } from "$lib/design/utils/cn.js";
-import { stack } from "$lib/design/utils/stack/index.js";
 import type { FeedItem, FeedKind } from "../../util/index.js";
 
 interface Props {

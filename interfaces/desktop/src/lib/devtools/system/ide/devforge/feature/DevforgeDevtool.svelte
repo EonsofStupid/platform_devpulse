@@ -7,11 +7,11 @@
 	extras: "Projects" (recent projects list with remove).
 -->
 <script lang="ts">
+import { Button } from "@devpulse/coldlight/components/button";
+import { Spinner } from "@devpulse/coldlight/components/spinner";
+import { Text } from "@devpulse/coldlight/components/text";
 import { ExternalLink, FolderOpen, Power, RefreshCw, Trash2 } from "lucide-svelte";
 import { onMount } from "svelte";
-import { Button } from "$lib/design/components/button/index.js";
-import { Spinner } from "$lib/design/components/spinner/index.js";
-import { Text } from "$lib/design/components/text/index.js";
 import {
 	type ExtraTab,
 	type HealthBadge,

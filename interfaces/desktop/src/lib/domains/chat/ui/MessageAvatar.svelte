@@ -2,7 +2,7 @@
   @component MessageAvatar — role rim (layout utilities only)
 -->
 <script lang="ts">
-import { cn } from "$lib/design/utils/cn.js";
+import { cn } from "@devpulse/coldlight/utils";
 
 interface Props {
 	variant: "user" | "ai" | "system";

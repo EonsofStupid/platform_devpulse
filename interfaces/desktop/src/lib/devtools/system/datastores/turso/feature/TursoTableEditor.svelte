@@ -8,16 +8,16 @@
 	(confirmed). Rust checks every change and its refusal is shown in place.
 -->
 <script lang="ts">
+import { ConfirmDialog } from "@devpulse/coldlight/blocks/dialogs";
+import { Button } from "@devpulse/coldlight/components/button";
+import { EmptyState } from "@devpulse/coldlight/components/empty-state";
+import { InlineMessage } from "@devpulse/coldlight/components/inline-message";
+import { Pagination } from "@devpulse/coldlight/components/pagination";
+import { Sheet } from "@devpulse/coldlight/components/sheet";
+import { Spinner } from "@devpulse/coldlight/components/spinner";
+import { Table } from "@devpulse/coldlight/components/table";
+import { Text } from "@devpulse/coldlight/components/text";
 import { Plus, RefreshCw, Table2 } from "lucide-svelte";
-import { ConfirmDialog } from "$lib/design/blocks/dialogs/index.js";
-import { Button } from "$lib/design/components/button/index.js";
-import { EmptyState } from "$lib/design/components/empty-state/index.js";
-import { InlineMessage } from "$lib/design/components/inline-message/index.js";
-import { Pagination } from "$lib/design/components/pagination/index.js";
-import { Sheet } from "$lib/design/components/sheet/index.js";
-import { Spinner } from "$lib/design/components/spinner/index.js";
-import { Table } from "$lib/design/components/table/index.js";
-import { Text } from "$lib/design/components/text/index.js";
 import {
 	AFFINITY_LABEL,
 	type CellChange,

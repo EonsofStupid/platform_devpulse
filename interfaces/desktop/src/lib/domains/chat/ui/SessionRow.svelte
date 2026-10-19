@@ -2,9 +2,9 @@
   @component SessionRow — session rail row
 -->
 <script lang="ts">
-import Text from "$lib/design/components/text/Text.svelte";
-import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
-import { cn } from "$lib/design/utils/cn.js";
+import { Text } from "@devpulse/coldlight/components/text";
+import { cssVarString, renderForge } from "@devpulse/coldlight/renderforge";
+import { cn } from "@devpulse/coldlight/utils";
 import type { ChatSession } from "$lib/sys/generated/bindings.js";
 import { previewText } from "../util/format.js";
 

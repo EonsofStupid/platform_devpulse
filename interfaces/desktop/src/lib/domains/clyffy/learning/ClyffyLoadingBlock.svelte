@@ -8,7 +8,7 @@
 	`LoadingBlock` alone.
 -->
 <script lang="ts">
-import { LoadingBlock } from "$lib/design/components/spinner/index.js";
+import { LoadingBlock } from "@devpulse/coldlight/components/spinner";
 import LoadingContentCard from "./LoadingContentCard.svelte";
 import type { LoadingContentKind } from "./loading-content.js";
 

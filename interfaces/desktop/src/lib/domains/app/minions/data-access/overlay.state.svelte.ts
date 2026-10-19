@@ -6,7 +6,7 @@
  * Listens to CLYFFY signals (future) — for now, expose manual controls.
  */
 
-import type { ActiveMinion, MinionAnimationState } from "$lib/design/overlays/types.js";
+import type { ActiveMinion, MinionAnimationState } from "@devpulse/coldlight/overlays";
 
 class MinionOverlayState {
 	active = $state<ActiveMinion[]>([]);

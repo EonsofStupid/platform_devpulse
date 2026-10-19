@@ -12,9 +12,9 @@
 	the user dismisses them.
 -->
 <script lang="ts">
+import { Spinner } from "@devpulse/coldlight/components/spinner";
+import { Text } from "@devpulse/coldlight/components/text";
 import { X } from "lucide-svelte";
-import { Spinner } from "$lib/design/components/spinner/index.js";
-import { Text } from "$lib/design/components/text/index.js";
 import { installState } from "$lib/sys/activity-hud/install.state.svelte.js";
 import { getSlotLabel } from "../../util/slots.js";
 

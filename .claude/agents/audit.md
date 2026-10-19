@@ -23,9 +23,9 @@ Find every `export type` and `export interface` and `export const ... as const`
 in the design system. Map where each is defined. Flag any name defined in 2+ files.
 
 Focus areas:
-- `src/lib/design/tokens/` vs `src/lib/design/registry/`
-- `src/lib/design/style/*/types.ts` vs `src/lib/design/registry/token-categories.ts`
-- `src/lib/design/types/*.d.ts` vs runtime `.ts` files
+- `packages/coldlight/tokens/` vs `packages/coldlight/registry/`
+- `packages/coldlight/style/*/types.ts` vs `packages/coldlight/registry/token-categories.ts`
+- `packages/coldlight/types/*.d.ts` vs runtime `.ts` files
 - Any `types.ts` that duplicates definitions from `_base/schema.ts`
 
 ### 2. Stale Files
@@ -91,6 +91,6 @@ Check against CLAUDE.md declared architecture:
 ## Execution Notes
 
 - Read actual file contents. Do not rely on file names or directory structure.
-- When checking imports, resolve `$lib/design/` to the actual path.
+- When checking imports, resolve `#coldlight/` to `packages/coldlight/`.
 - Check .svelte files too — they can contain competing type definitions in script blocks.
 - Be thorough. The whole point is to catch what sessions miss.

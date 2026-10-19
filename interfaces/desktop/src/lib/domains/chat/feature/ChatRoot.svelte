@@ -2,8 +2,8 @@
   @feature ChatRoot — golden chat composition (atmosphere + chrome + stream + composer)
 -->
 <script lang="ts">
-import DynamicBackground from "$lib/design/components/dynamic-background/DynamicBackground.svelte";
-import Text from "$lib/design/components/text/Text.svelte";
+import { DynamicBackground } from "@devpulse/coldlight/components/dynamic-background";
+import { Text } from "@devpulse/coldlight/components/text";
 import { devpulseState } from "$lib/domains/app/devpulse/index.js";
 import { ModelEventCard, modelsState } from "$lib/domains/app/models/index.js";
 import { chatState } from "../data-access/chat.state.svelte.js";

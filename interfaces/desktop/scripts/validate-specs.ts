@@ -3,7 +3,7 @@ import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
 const root = resolve(import.meta.dirname, "..");
-const base = join(root, "src/lib/design/primitives");
+const base = join(root, "../../packages/coldlight/primitives");
 const dirs = readdirSync(base, { withFileTypes: true }).filter((d) => d.isDirectory());
 
 let pass = 0;

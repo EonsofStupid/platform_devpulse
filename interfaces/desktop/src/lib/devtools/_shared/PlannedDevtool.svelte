@@ -7,8 +7,8 @@
 	line, icon and accent (plan 0008); the body says it is planned (copy).
 -->
 <script lang="ts">
-import { EmptyState } from "$lib/design/components/empty-state/index.js";
-import { Text } from "$lib/design/components/text/index.js";
+import { EmptyState } from "@devpulse/coldlight/components/empty-state";
+import { Text } from "@devpulse/coldlight/components/text";
 import { copyState } from "$lib/sys/copy/index.js";
 import ServiceDevtoolShell from "./ServiceDevtoolShell.svelte";
 

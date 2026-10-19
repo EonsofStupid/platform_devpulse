@@ -8,11 +8,11 @@
 	the buttons (in the flow) send intents to Rust.
 -->
 <script lang="ts">
-import { ClyffyMascot } from "$lib/design/blocks/clyffy/index.js";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Heading } from "$lib/design/components/heading/index.js";
-import { Spinner } from "$lib/design/components/spinner/index.js";
-import { Text } from "$lib/design/components/text/index.js";
+import { ClyffyMascot } from "@devpulse/coldlight/blocks/clyffy";
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Heading } from "@devpulse/coldlight/components/heading";
+import { Spinner } from "@devpulse/coldlight/components/spinner";
+import { Text } from "@devpulse/coldlight/components/text";
 import type { WelcomeCopy } from "$lib/sys/bindings/copy/index.js";
 import type { Detected } from "$lib/sys/bindings/onboarding/index.js";
 import { fill } from "$lib/sys/copy/index.js";

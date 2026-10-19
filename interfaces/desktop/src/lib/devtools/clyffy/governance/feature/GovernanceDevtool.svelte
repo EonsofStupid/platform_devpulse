@@ -18,7 +18,7 @@
 	for `GrammarHandle::status()` and the AG-UI event tap).
 -->
 <script lang="ts">
-import { Text } from "$lib/design/components/text/index.js";
+import { Text } from "@devpulse/coldlight/components/text";
 import { type HealthBadge, ScopedLogPanel, ServiceDevtoolShell } from "$lib/devtools/index.js";
 
 const badge: HealthBadge = {

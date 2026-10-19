@@ -5,9 +5,9 @@
 	@description Label + numeric/string value + optional badge variant. Dumb.
 -->
 <script lang="ts">
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Card } from "$lib/design/components/card/index.js";
-import { Text } from "$lib/design/components/text/index.js";
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Card } from "@devpulse/coldlight/components/card";
+import { Text } from "@devpulse/coldlight/components/text";
 
 type Variant = "neutral" | "accent" | "informative" | "positive" | "notice" | "negative";
 

@@ -10,7 +10,7 @@ const primitiveNoStyleCheck: Check = {
 
   async run(ctx: CheckContext): Promise<CheckResult[]> {
     const results: CheckResult[] = [];
-    const primitivesDir = path.join(ctx.targetRoot, 'lib/design/primitives');
+    const primitivesDir = path.join(ctx.targetRoot, 'primitives');
 
     if (!fs.existsSync(primitivesDir)) {
       results.push({
@@ -23,7 +23,7 @@ const primitiveNoStyleCheck: Check = {
     }
 
     const svelteFiles = ctx.files.filter(f =>
-      f.includes('lib/design/primitives/') &&
+      f.includes('packages/coldlight/primitives/') &&
       f.endsWith('.svelte') &&
       !f.includes('_archive')
     );

@@ -30,8 +30,7 @@ const normalizedDirname =
 	__dirname.startsWith("/") && process.platform === "win32" ? __dirname.slice(1) : __dirname;
 
 const WORKSPACE_ROOT = path.resolve(normalizedDirname, "../../..");
-const SRC_ROOT = path.join(WORKSPACE_ROOT, "src");
-const PRIMITIVES_ROOT = path.join(SRC_ROOT, "lib/design/primitives");
+const PRIMITIVES_ROOT = path.join(WORKSPACE_ROOT, "../../packages/coldlight/primitives");
 const PRIMITIVES_MD = path.join(PRIMITIVES_ROOT, "PRIMITIVES.md");
 
 const _REQUIRED_FILES = ["index.ts", "types.ts", "a11y.md"];

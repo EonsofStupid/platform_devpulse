@@ -60,19 +60,19 @@ import { ServiceDevtoolShell } from "$lib/devtools/_shared/index.js";
 	- `Esc` in the back-link returns to the devtools dashboard
 -->
 <script lang="ts">
+	import { BackgroundScene } from "@devpulse/coldlight/components/background-scene";
+	import { Text } from "@devpulse/coldlight/components/text";
 	import { type Snippet, untrack } from "svelte";
 	import { ArrowLeft, Check, Copy, Download } from "lucide-svelte";
 	import { page } from "$app/state";
-	import { BackgroundScene } from "$lib/design/components/background-scene/index.js";
-	import { Text } from "$lib/design/components/text/index.js";
 	import { KnowledgeTerm } from "$lib/domains/app/knowledge/index.js";
 	import { hrefOf, routeCopy } from "$lib/sys/routing/index.js";
 	import { devtoolNav, devtoolPlace } from "../devtool-manifest.js";
 	import {
-		accentToBackdropPalette,
-		DEFAULT_SERVICE_ACCENT,
-		serviceAccentStyle,
-	} from "./serviceAccents.js";
+			accentToBackdropPalette,
+			DEFAULT_SERVICE_ACCENT,
+			serviceAccentStyle,
+		} from "./serviceAccents.js";
 	import type { CapturePayload, ExtraTab, HealthBadge } from "./types.js";
 
 	interface Props {

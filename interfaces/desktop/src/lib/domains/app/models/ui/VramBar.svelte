@@ -12,7 +12,7 @@
 	notice instead of a bar so we don't lie with a 100% red indicator.
 -->
 <script lang="ts">
-import { Text } from "$lib/design/components/text/index.js";
+import { Text } from "@devpulse/coldlight/components/text";
 import { hardwareState } from "../data-access/hardware.state.svelte.js";
 import { formatMb } from "../util/format.js";
 

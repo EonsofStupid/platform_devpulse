@@ -30,13 +30,13 @@ them before answering anything substantive.
 
 | File | What it locks |
 |---|---|
-| [interfaces/desktop/src/lib/design/TRUTH.md](../../interfaces/desktop/src/lib/design/TRUTH.md) | 5-stage pipeline, 5-tier data-attribute taxonomy, 11/12 DTCG axes, 7 preset families incl. `chat`, 14 semantic intents, 65 primitive kinds |
-| [interfaces/desktop/src/lib/design/RENDERFORGE.md](../../interfaces/desktop/src/lib/design/RENDERFORGE.md) | The 5 locked properties of `renderForge`: P1 pure function, P2/P3 var() chains, P4 canonical longhand keys, P5 Tier-1 attr discipline |
-| [interfaces/desktop/src/lib/design/MACRO-LAW.md](../../interfaces/desktop/src/lib/design/MACRO-LAW.md) | The 5 laws of family-split CSS: family scope opt-in, uniform var names, `[data-kind]` universal, pseudo-classes own interactive state, selectors only target Tier-1/Tier-2 |
-| [interfaces/desktop/src/lib/design/COMPOSITION-CONTRACT.md](../../interfaces/desktop/src/lib/design/COMPOSITION-CONTRACT.md) | Compose-don't-author rule. 94 primitive inventory. `feature/` + `ui/` + `util/` colocation pattern (RRO is reference). Hand-rolled CSS in feature orchestrators is refused. |
-| [interfaces/desktop/src/lib/design/ONBOARDING-CASCADE.md](../../interfaces/desktop/src/lib/design/ONBOARDING-CASCADE.md) | 4-layer cascade (Flow → View → Content → User prefs). Family TOML schema. Per-user vs per-project model scope rule. Gate language. |
+| [packages/coldlight/TRUTH.md](../../packages/coldlight/TRUTH.md) | 5-stage pipeline, 5-tier data-attribute taxonomy, 11/12 DTCG axes, 7 preset families incl. `chat`, 14 semantic intents, 65 primitive kinds |
+| [packages/coldlight/RENDERFORGE.md](../../packages/coldlight/RENDERFORGE.md) | The 5 locked properties of `renderForge`: P1 pure function, P2/P3 var() chains, P4 canonical longhand keys, P5 Tier-1 attr discipline |
+| [packages/coldlight/MACRO-LAW.md](../../packages/coldlight/MACRO-LAW.md) | The 5 laws of family-split CSS: family scope opt-in, uniform var names, `[data-kind]` universal, pseudo-classes own interactive state, selectors only target Tier-1/Tier-2 |
+| [packages/coldlight/COMPOSITION-CONTRACT.md](../../packages/coldlight/COMPOSITION-CONTRACT.md) | Compose-don't-author rule. 94 primitive inventory. `feature/` + `ui/` + `util/` colocation pattern (RRO is reference). Hand-rolled CSS in feature orchestrators is refused. |
+| [packages/coldlight/ONBOARDING-CASCADE.md](../../packages/coldlight/ONBOARDING-CASCADE.md) | 4-layer cascade (Flow → View → Content → User prefs). Family TOML schema. Per-user vs per-project model scope rule. Gate language. |
 | [kernel/model-loader/src/CONNECTOR-DEFERRAL.md](../../kernel/model-loader/src/CONNECTOR-DEFERRAL.md) | Capability deferral table. D6 omni-override warning rule. Voice fallback chain. Integration message wording locks. |
-| [interfaces/desktop/src/lib/design/PARKING-LOT.md](../../interfaces/desktop/src/lib/design/PARKING-LOT.md) | PL-001..PL-008 — what's deferred and why. Don't act inside a parked decision. |
+| [packages/coldlight/PARKING-LOT.md](../../packages/coldlight/PARKING-LOT.md) | PL-001..PL-008 — what's deferred and why. Don't act inside a parked decision. |
 | [scripts/docs/sprints/dev-onboarding/MODEL-LOADER-REQUIREMENTS.md](../../scripts/docs/sprints/dev-onboarding/MODEL-LOADER-REQUIREMENTS.md) | Rules 1-82 — every UI rule from Rust-SSOT-strings to layman-only-error-messages |
 | `~/.claude/projects/d--localdev-platform-devpulse/memory/MEMORY.md` | Locked memory index — start with `project_model_loader_requirements.md`, `project_test_shortcut_requirements.md`, `feedback_token_tier_naming.md`, `project_central_ui_library.md` |
 

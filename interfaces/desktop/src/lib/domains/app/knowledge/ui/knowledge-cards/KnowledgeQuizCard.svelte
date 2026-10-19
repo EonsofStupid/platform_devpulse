@@ -13,7 +13,7 @@
 	harnesses, devtool diagnostics, etc.).
 -->
 <script lang="ts">
-import { KnowledgeMultipleChoiceCard } from "$lib/design/blocks/knowledge/index.js";
+import { KnowledgeMultipleChoiceCard } from "@devpulse/coldlight/blocks/knowledge";
 import type { KnowledgeEntry, QuizPayload } from "../../util/index.js";
 
 interface Props {

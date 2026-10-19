@@ -18,7 +18,7 @@
  *   pnpm headers:inject                - Add missing headers
  *   pnpm headers:fix                   - Patch tags + inject missing
  *   pnpm headers:validate              - CI enforcement
- *   pnpm headers:check src/lib/design  - Target specific directory
+ *   pnpm headers:check src/lib/domains - Target specific directory
  *
  * @since 1.0.0
  */

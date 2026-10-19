@@ -2,7 +2,7 @@
   @feature ChatComposer — footer row + voice orb + type-time suggestions
 -->
 <script lang="ts">
-import { ChatFooter } from "$lib/design/components/chat-footer/index.js";
+import { ChatFooter } from "@devpulse/coldlight/components/chat-footer";
 import type { Suggestion } from "$lib/sys/generated/bindings.js";
 import { chatState } from "../data-access/chat.state.svelte.js";
 import { suggestState } from "../data-access/suggest.state.svelte.js";

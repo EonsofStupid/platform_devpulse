@@ -33,6 +33,8 @@ export interface CheckContext {
 
 export interface CheckConfig {
   description: string;
+  /** This rule's root relative to the platform root; overrides the policy's targetPath */
+  targetPath?: string;
   tier: 1 | 2 | 3;
   scope: string[];
   enforcement: Severity;

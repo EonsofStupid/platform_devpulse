@@ -8,13 +8,13 @@
 	refuses. Text from the copy catalog.
 -->
 <script lang="ts">
+import { SchemaForm, type SchemaFormSuggestion } from "@devpulse/coldlight/blocks/schema-form";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Heading } from "@devpulse/coldlight/components/heading";
+import { InlineMessage } from "@devpulse/coldlight/components/inline-message";
+import { Spinner } from "@devpulse/coldlight/components/spinner";
+import { Text } from "@devpulse/coldlight/components/text";
 import { untrack } from "svelte";
-import { SchemaForm, type SchemaFormSuggestion } from "$lib/design/blocks/schema-form/index.js";
-import { Button } from "$lib/design/components/button/index.js";
-import { Heading } from "$lib/design/components/heading/index.js";
-import { InlineMessage } from "$lib/design/components/inline-message/index.js";
-import { Spinner } from "$lib/design/components/spinner/index.js";
-import { Text } from "$lib/design/components/text/index.js";
 import type { FormErrorsCopy, YouCopy } from "$lib/sys/bindings/copy/index.js";
 import type { FieldError, FieldSuggestion } from "$lib/sys/bindings/onboarding/index.js";
 import { fill } from "$lib/sys/copy/index.js";

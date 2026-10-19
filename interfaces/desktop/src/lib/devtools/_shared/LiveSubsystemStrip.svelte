@@ -16,17 +16,17 @@
 	`rrdState`) so it isn't a primitive — it composes the
 	`SubsystemTile` block with the project's actual state. Following
 	the composition contract: domain-specific composer in
-	`lib/devtools/_shared/`, primitive in `lib/design/blocks/`.
+	`lib/devtools/_shared/`, primitive in `@devpulse/coldlight/blocks/`.
 -->
 <script lang="ts">
-import { onMount } from "svelte";
-import { goto } from "$app/navigation";
-import { resolve } from "$app/paths";
 import {
 	type SubsystemState,
 	SubsystemTile,
 	type SubsystemVerb,
-} from "$lib/design/blocks/devtools/index.js";
+} from "@devpulse/coldlight/blocks/devtools";
+import { onMount } from "svelte";
+import { goto } from "$app/navigation";
+import { resolve } from "$app/paths";
 import { isInferenceReady, modelsState } from "$lib/domains/app/models/index.js";
 import { rroState } from "$lib/sys/data-access/rro/rro.state.svelte.js";
 import { hrefOf, type RouteNode, routeAt, routeCopy } from "$lib/sys/routing/index.js";

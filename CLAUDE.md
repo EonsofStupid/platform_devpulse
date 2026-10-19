@@ -22,6 +22,7 @@ Pre-release — aggressive reauthoring, no shims.
 - `cargo xtask verify` — full verification pipeline
 - `cargo xtask build-release [--portable-only]` — release build
 - `cd interfaces/desktop && pnpm check` — svelte-check (TS + Svelte)
+- `cd packages/coldlight && pnpm check` — svelte-check for ColdLight
 - `cd interfaces/desktop && pnpm ds:tokens:build` — ColdLight token regen
 
 ## Structure
@@ -36,6 +37,10 @@ Pre-release — aggressive reauthoring, no shims.
     drives `/devtools/{tier}/{bucket}/{id}` — three tiers (System / Clyffy /
     Runtimes), each bucketed. Add a devtool = one registry entry + one route
     folder under that path.
+- `packages/coldlight/` — ColdLight, the design system: internal workspace
+  package `@devpulse/coldlight`. The app imports it only through its
+  `exports`; inside, modules import each other as `#coldlight/*`. It imports
+  nothing from the app.
 - `xtask/` — Rust build orchestrator (`cargo xtask <command>`)
 - `scripts/` — build tooling, lefthook hooks, preflight AST checks
 - `docs/` — platform specs, knowledge library

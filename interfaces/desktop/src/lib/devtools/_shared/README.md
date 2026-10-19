@@ -2,7 +2,7 @@
 
 This folder is the canonical chrome + adapter kit for `/devtools/*`
 pages. Every per-service devtool composes the primitives from
-`$lib/design/components/*` directly. The handful of adapters here
+`@devpulse/coldlight/components/*` directly. The handful of adapters here
 exist only for (a) chrome layout, (b) binding shipped primitives to
 the rune helpers in `$lib/sys/runes`, (c) mapping `CommandError.kind`
 to Badge variants. **No bespoke divs in tab bodies.**
@@ -25,20 +25,20 @@ same shape so users learn the chrome once.
 
 | Need | Component path | Variants/props |
 |---|---|---|
-| Big metric tile | `$lib/design/components/stat` | `accent` (teal/purple/magenta/ember/frost/cyber), `glow`, `size` (sm/md/lg) |
-| Time-series strip | `$lib/design/components/spark-line` | live trend, no chart lib |
-| Saturation gauge | `$lib/design/components/radial-gauge` | CPU%, throttle%, etc. |
-| Linear progress | `$lib/design/components/meter` / `progress` | animated fill |
-| Live state pip | `$lib/design/components/status-dot` | pulses in signal color |
-| Frosted card | `$lib/design/components/card` `preset="glass"` | dark-glassmorphism backdrop blur + edge-light border |
-| Service intro chip | `$lib/design/components/callout` `variant="tip"` | also `info` / `success` / `warning` / `error` |
-| Failure surface | `$lib/design/components/alert` | full WAI-ARIA APG `alert` role + dismissible. **Use `CommandErrorAlert` adapter** for typed `CommandError` mapping |
-| Empty / no-data | `$lib/design/components/empty-state` | slot composition (icon/title/description/action) |
-| Tab navigation | `$lib/design/components/tabs` | WAI-ARIA APG-compliant; `activateOnFocus={false}` for click-to-activate (e.g. log target chips) |
-| Hover-context | `$lib/design/components/tooltip` | `Tooltip` + `TooltipTrigger` + `TooltipContent` |
-| Keyboard hints | `$lib/design/components/kbd` | for Actions tab |
-| Inline code | `$lib/design/components/code` | token-styled |
-| Key-value lists | `$lib/design/components/key-value` / `description-list` | metadata blocks |
+| Big metric tile | `@devpulse/coldlight/components/stat` | `accent` (teal/purple/magenta/ember/frost/cyber), `glow`, `size` (sm/md/lg) |
+| Time-series strip | `@devpulse/coldlight/components/spark-line` | live trend, no chart lib |
+| Saturation gauge | `@devpulse/coldlight/components/radial-gauge` | CPU%, throttle%, etc. |
+| Linear progress | `@devpulse/coldlight/components/meter` / `progress` | animated fill |
+| Live state pip | `@devpulse/coldlight/components/status-dot` | pulses in signal color |
+| Frosted card | `@devpulse/coldlight/components/card` `preset="glass"` | dark-glassmorphism backdrop blur + edge-light border |
+| Service intro chip | `@devpulse/coldlight/components/callout` `variant="tip"` | also `info` / `success` / `warning` / `error` |
+| Failure surface | `@devpulse/coldlight/components/alert` | full WAI-ARIA APG `alert` role + dismissible. **Use `CommandErrorAlert` adapter** for typed `CommandError` mapping |
+| Empty / no-data | `@devpulse/coldlight/components/empty-state` | slot composition (icon/title/description/action) |
+| Tab navigation | `@devpulse/coldlight/components/tabs` | WAI-ARIA APG-compliant; `activateOnFocus={false}` for click-to-activate (e.g. log target chips) |
+| Hover-context | `@devpulse/coldlight/components/tooltip` | `Tooltip` + `TooltipTrigger` + `TooltipContent` |
+| Keyboard hints | `@devpulse/coldlight/components/kbd` | for Actions tab |
+| Inline code | `@devpulse/coldlight/components/code` | token-styled |
+| Key-value lists | `@devpulse/coldlight/components/key-value` / `description-list` | metadata blocks |
 
 ## The few `_shared/` adapters
 

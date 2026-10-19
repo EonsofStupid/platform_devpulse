@@ -14,11 +14,10 @@
   the tooltip hook (ref-counted, ARIA-correct).
 -->
 <script lang="ts">
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Text } from "$lib/design/components/text/index.js";
-import { Tooltip, TooltipContent, TooltipTrigger } from "$lib/design/components/tooltip/index.js";
-import { hstack } from "$lib/design/utils/hstack/index.js";
-import { stack } from "$lib/design/utils/stack/index.js";
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Text } from "@devpulse/coldlight/components/text";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@devpulse/coldlight/components/tooltip";
+import { hstack, stack } from "@devpulse/coldlight/utils";
 import { clyffyStatus } from "$lib/domains/clyffy/index.js";
 import { DEV_MODE, devLabel, TERMS } from "$lib/sys/generated/terminology.js";
 import { getIcon } from "$lib/sys/generated/terminology-icons.js";

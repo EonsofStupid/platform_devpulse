@@ -26,10 +26,10 @@ import { join, resolve } from 'node:path';
 // ─── Paths ──────────────────────────────────────────────────────────────────
 
 const ROOT = resolve(import.meta.dirname, '../../../..');
-const COMPONENTS_DIR = join(ROOT, 'src/lib/design/components');
-const CSS_OUTPUT = join(ROOT, 'src/lib/design/styles/components/component.css');
+const COMPONENTS_DIR = join(ROOT, '../../packages/coldlight/components');
+const CSS_OUTPUT = join(ROOT, '../../packages/coldlight/styles/components/component.css');
 const COMPONENT_JSON = join(ROOT, 'scripts/build/styledictionary/tokens/src/component.json');
-const MANIFEST = join(ROOT, 'src/lib/design/generated/token-manifest.json');
+const MANIFEST = join(ROOT, '../../packages/coldlight/generated/token-manifest.json');
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 

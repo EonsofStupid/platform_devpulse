@@ -399,7 +399,7 @@ its cache on it; `package.json` scripts `ds:generate`, `ds:validate`,
 | --- | --- | --- |
 | C2a | Workspace foundation, nothing moves: a root `biome.json` holds the shared rules (Biome 2 monorepo form) and the GritQL rules move to `scripts/biome/gritql/`; the app's `biome.json` becomes `"extends": "//"` plus its own overrides; `pnpm-workspace.yaml` gains `packages/*` and a `catalog:` for every dependency the app and ColdLight share, so both resolve one copy; the stale lockfile goes and CI caches on the root one | `biome check` reports exactly what it did before; `pnpm install --frozen-lockfile`; svelte-check; `vite build` |
 | C2b | The move: `git mv` to `packages/coldlight/` as it stands (its `exports` already assume that root). `package.json` gets an `exports` map of the entry points that have consumers (`types` / `svelte` / `default` on source) and `"imports": {"#coldlight/*": "./*"}`, declares its own dependencies, and gains `check` and `test`; its own `tsconfig.json`, `biome.json` (`extends "//"` + ColdLight's overrides) and `vitest.config.ts` (the browser project, moved from the app). Codemod: ColdLight's `$lib/design/…` → `#coldlight/…`; the app's → `@devpulse/coldlight/…`, deep paths normalised to entry points (`utils/cn.js` and the layout utils → `utils`, `Text.svelte` → `components/text`, `svg-types.js` → `svg`, …; `svg/filters` and `debug` indexes gain their components), duplicates merged, imports re-sorted. The app depends on `workspace:*`; every tool path above follows; the boundary test also asserts the app reaches ColdLight only through `@devpulse/coldlight` | both svelte-checks 0 errors; Biome clean in both; arch tests; ColdLight's 50 browser test files; `vite build` with a ColdLight-only class present in the CSS; all 44 pages live, no console errors |
-| C2c | ColdLight owns its build: the token pipeline, its DTCG sources, `scripts/coldlight/*` and typedoc move into the package as its `tokens`, `verify` and `docs` scripts, with their dev dependencies; lefthook runs them there; the dead scripts and the `style-macro` export are deleted | `tokens` regenerates byte-identical output; `verify` and `docs` pass |
+| C2c | ColdLight owns its build: the token pipeline, its DTCG sources, `scripts/coldlight/*`, `validate-specs.ts` and typedoc move into the package as its `tokens`, `verify` and `docs` scripts, with their dev dependencies; lefthook runs them there; the dead scripts are deleted; the boundary test's app-side check gains `scripts/` (today the pipeline still reaches into the package by relative path) | `tokens` regenerates byte-identical output; `verify` and `docs` pass; the boundary test covers `scripts/` |
 
 ## Phases (approval between each)
 
@@ -535,3 +535,44 @@ Recorded per phase in the log below.
   dependencies ColdLight will share; the lockfile changed only in specifiers.
   The stale `interfaces/desktop/pnpm-lock.yaml` is deleted and CI caches on
   the root lockfile. svelte-check 0 errors, arch tests 17 pass, build passes.
+- 2026-10-19 — C2b done: ColdLight is `packages/coldlight/` (`git mv`, 1,305
+  renames), the workspace package `@devpulse/coldlight`. Its `exports` name
+  the 10 entry points the app uses; inside, `#coldlight/*` (619 rewrites in
+  370 files). The app's 465 imports in 138 files go through the package; the
+  25 deep paths map to entry points (`svg/filters` and `debug` gained their
+  components). Its own `tsconfig`, `biome.json` (`extends "//"`), Vitest
+  config and `.gitignore`; `clsx` and `shiki` move to it; Svelte, Vite and
+  Vitest resolve to one copy (catalog, plus `@types/node`, which moved
+  25.2.3 → 25.5.2 within range). Tool paths follow: Tailwind `@source`,
+  lefthook (ColdLight's own svelte-check and Biome commands), the raw-values,
+  legacy-prefix and boundary hooks, docs-preflight (rules take their own
+  `targetPath`), release-please, CODEOWNERS, CI, docs. Checks: ColdLight's
+  svelte-check 0 errors standalone (it maps no app alias); the app's 0;
+  Biome 551 + 1,071 files = the 1,618 before + 4 new; arch tests 18 (the
+  boundary test also asserts the app reaches ColdLight only through the
+  package); the token build is byte-identical; the build's CSS equals the
+  pre-move build's except Svelte's path-derived scope hashes; the boundary
+  gate counts and the docs-preflight result are unchanged; live, 44 pages
+  load with ColdLight rendered and no exceptions (`/logs` uses no ColdLight
+  component; `/latest` logs the updater's 404 for `latest.json`, which no
+  release publishes yet).
+  - **Found, not fixed:** 106 of ColdLight's 379 browser tests fail, the
+    same 106 at the pre-move commit (assertions such as Badge's
+    `role="status"` against the `presentation` it renders). Tests and
+    components drifted; that is its own phase.
+  - Hooks: the content-diff hooks read past git's 1,000-rename limit, so a
+    large move is a set of renames, not every moved line added; the hex
+    rule no longer matches HTML character references (`&#8249;`).
+  - ColdLight's API docs now build against its own `tsconfig`. TypeDoc
+    reads the `tsdoc.json` beside it, so ColdLight's dormant `tsdoc.json`
+    became live: it extended `@microsoft/api-extractor` (installed nowhere)
+    and its 15 tags are a subset of `typedoc.json`'s 61, the stated SSOT.
+    Deleted. The docs script runs the workspace's TypeDoc instead of `npx`,
+    which from the package folder would fetch another version.
+  - The two legacy stories the move touched had raw canvas values; they
+    now use `--color-void-base` and rem. They still use Svelte 4 `let:`
+    syntax and a removed `ButtonIntent` type.
+  - Owner ruling 2026-10-19: **Minion is public vocabulary.** Removed from
+    `kernel_terms.toml` and the GritQL kernel-terms rule, matching
+    `signals.registry.yaml` and `ip-protection.md`; the generated
+    terminology loses its unused `helper` entry.

@@ -23,11 +23,11 @@
 	immediately but aren't spammed by non-failure transitions.
 -->
 <script lang="ts">
-import { Button } from "$lib/design/components/button/index.js";
-import { Card } from "$lib/design/components/card/index.js";
-import { Heading } from "$lib/design/components/heading/index.js";
-import { Text } from "$lib/design/components/text/index.js";
-import { TextField } from "$lib/design/components/text-field/index.js";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Card } from "@devpulse/coldlight/components/card";
+import { Heading } from "@devpulse/coldlight/components/heading";
+import { Text } from "@devpulse/coldlight/components/text";
+import { TextField } from "@devpulse/coldlight/components/text-field";
 import { commands, type RuntimePickerCopy } from "$lib/sys/generated/bindings.js";
 import { profileState } from "../index.js";
 

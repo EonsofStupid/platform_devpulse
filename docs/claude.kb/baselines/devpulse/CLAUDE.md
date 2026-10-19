@@ -19,7 +19,7 @@
 - Candle (canonical inference) + llama.cpp FFI (GGUF, secondary)
 - flume 0.11 (sync→async bridge) + tokio::broadcast (signal fan-out)
 - libSQL (SSOT) + SurrealDB (graph, implement last) + DuckDB (analytics)
-- ColdLight design system: @interfaces/desktop/src/lib/design/MASTER-PLAN.md
+- ColdLight design system: @packages/coldlight/MASTER-PLAN.md
 
 ## Hard Rules
 - NEVER suggest Python, Docker, npm servers, or external services

@@ -129,7 +129,7 @@ services:
 design_system:
   name: ColdLight
   package: "@devpulse/coldlight"
-  path: interfaces/desktop/src/lib/design
+  path: packages/coldlight
   status: internal
   version: "0.1.0"
   dependencies:

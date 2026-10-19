@@ -33,7 +33,7 @@ export const ROOTS = {
 	/** Lib root */
 	lib: path.join(DESKTOP_ROOT, "src/lib"),
 	/** ColdLight design system */
-	design: path.join(DESKTOP_ROOT, "src/lib/design"),
+	design: path.join(DESKTOP_ROOT, "../../packages/coldlight"),
 	/** System layer */
 	sys: path.join(DESKTOP_ROOT, "src/lib/sys"),
 	/** Feature domains */

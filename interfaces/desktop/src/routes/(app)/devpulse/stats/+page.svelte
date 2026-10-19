@@ -4,11 +4,9 @@
   @domain devpulse
 -->
 <script lang="ts">
-import { Widget } from "$lib/design/blocks/widgets/index.js";
-import { Text } from "$lib/design/components/text/index.js";
-import { gridLayout } from "$lib/design/utils/grid-layout/index.js";
-import { hstack } from "$lib/design/utils/hstack/index.js";
-import { stack } from "$lib/design/utils/stack/index.js";
+import { Widget } from "@devpulse/coldlight/blocks/widgets";
+import { Text } from "@devpulse/coldlight/components/text";
+import { gridLayout, hstack, stack } from "@devpulse/coldlight/utils";
 import { devpulseState } from "$lib/domains/app/devpulse/index.js";
 </script>
 

@@ -21,7 +21,7 @@
 	probe time alongside the up/down at a glance.
 -->
 <script lang="ts">
-import { Text } from "$lib/design/components/text/index.js";
+import { Text } from "@devpulse/coldlight/components/text";
 
 type HealthState = "up" | "starting" | "degraded" | "down" | "unknown";
 

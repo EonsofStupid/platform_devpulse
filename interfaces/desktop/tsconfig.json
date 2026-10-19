@@ -23,13 +23,7 @@
 		"**/*.js",
 		"**/*.svelte"
 	],
-	"exclude": [
-		"node_modules",
-		"**/node_modules",
-		"dist",
-		"src/lib/design/primitives/_archive/**",
-		"src/stories/**"
-	],
+	"exclude": ["node_modules", "**/node_modules", "dist", "src/stories/**"],
 	"references": [
 		{
 			"path": "./tsconfig.node.json"

@@ -20,8 +20,8 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { ALL_PRESETS } from "../../../src/lib/design/visual/presets/index.js";
-import type { AnimationValue, BackgroundImageValue, PresetDefinition, ShadowLayer, StateOverrides } from "../../../src/lib/design/visual/preset-definition.js";
+import { ALL_PRESETS } from "../../../../../packages/coldlight/visual/presets/index.js";
+import type { AnimationValue, BackgroundImageValue, PresetDefinition, ShadowLayer, StateOverrides } from "../../../../../packages/coldlight/visual/preset-definition.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const OUTPUT = path.join(__dirname, "tokens", "src", "style-presets.json");

@@ -9,7 +9,7 @@
 	`entry.payload.correctOrderIds` if it's a didactic surface).
 -->
 <script lang="ts">
-import { KnowledgeOrderingCard } from "$lib/design/blocks/knowledge/index.js";
+import { KnowledgeOrderingCard } from "@devpulse/coldlight/blocks/knowledge";
 import type { KnowledgeEntry, OrderPayload } from "../../util/index.js";
 
 interface Props {

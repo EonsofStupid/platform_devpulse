@@ -14,16 +14,16 @@
 	Every number on this page is read live from Rust. No mocks. No placeholders.
 -->
 <script lang="ts">
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Callout } from "@devpulse/coldlight/components/callout";
+import { Card } from "@devpulse/coldlight/components/card";
+import { Spinner } from "@devpulse/coldlight/components/spinner";
+import { Stat } from "@devpulse/coldlight/components/stat";
+import { StatusDot } from "@devpulse/coldlight/components/status-dot";
+import { Text } from "@devpulse/coldlight/components/text";
 import { Activity, BarChart3, Folder, Gauge, RefreshCw, Zap } from "lucide-svelte";
 import { onMount } from "svelte";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Button } from "$lib/design/components/button/index.js";
-import { Callout } from "$lib/design/components/callout/index.js";
-import { Card } from "$lib/design/components/card/index.js";
-import { Spinner } from "$lib/design/components/spinner/index.js";
-import { Stat } from "$lib/design/components/stat/index.js";
-import { StatusDot } from "$lib/design/components/status-dot/index.js";
-import { Text } from "$lib/design/components/text/index.js";
 import { type ExtraTab, type HealthBadge, ServiceDevtoolShell } from "$lib/devtools/index.js";
 import {
 	formatBytes,

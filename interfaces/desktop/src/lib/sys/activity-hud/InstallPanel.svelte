@@ -10,12 +10,12 @@
 	— and shows the slot the install is targeting.
 -->
 <script lang="ts">
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Heading } from "@devpulse/coldlight/components/heading";
+import { Text } from "@devpulse/coldlight/components/text";
 import { Boxes, X } from "lucide-svelte";
 import { onMount } from "svelte";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Button } from "$lib/design/components/button/index.js";
-import { Heading } from "$lib/design/components/heading/index.js";
-import Text from "$lib/design/components/text/Text.svelte";
 import { type ActiveInstall, installState } from "./install.state.svelte.js";
 
 // See DownloadPanel for the rationale — booting both states keeps any

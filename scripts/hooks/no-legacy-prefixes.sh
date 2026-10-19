@@ -8,10 +8,15 @@
 # It is NOT legacy — it is the active styling system. Only ban external/vendor prefixes.
 BANNED="dp|tw|ui|ds|sx|cx"
 
-DIFF=$(git diff --cached --diff-filter=ACMR -- \
+# The raised rename limit keeps a large move a set of renames: past git's
+# default (1000) every moved line would read as added.
+DIFF=$(git -c diff.renameLimit=32767 diff --cached --diff-filter=ACMR -- \
   "interfaces/desktop/src/**/*.ts" \
   "interfaces/desktop/src/**/*.svelte" \
   "interfaces/desktop/src/**/*.css" \
+  "packages/coldlight/**/*.ts" \
+  "packages/coldlight/**/*.svelte" \
+  "packages/coldlight/**/*.css" \
   | grep -E "^\+.*--(${BANNED})-" || true)
 
 if [ -n "$DIFF" ]; then

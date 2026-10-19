@@ -10,7 +10,7 @@
 	one is for preference capture where there's no correct answer.
 -->
 <script lang="ts">
-import { KnowledgeOrderingCard } from "$lib/design/blocks/knowledge/index.js";
+import { KnowledgeOrderingCard } from "@devpulse/coldlight/blocks/knowledge";
 import type { KnowledgeEntry, RankPayload } from "../../util/index.js";
 
 interface Props {

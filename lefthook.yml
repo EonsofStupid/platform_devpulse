@@ -22,6 +22,11 @@ pre-commit:
       root: "interfaces/desktop"
       run: pnpm exec svelte-check --threshold error
 
+    svelte-check-coldlight:
+      glob: "packages/coldlight/**/*.{ts,svelte}"
+      root: "packages/coldlight"
+      run: pnpm exec svelte-check --threshold error
+
     # IP boundary enforcement — blocks kernel terms in staged files
     ip-boundary-check:
       glob: ["*.{rs,ts,svelte,json}", "**/*.{rs,ts,svelte,json}"]
@@ -36,7 +41,7 @@ pre-commit:
 
     # Block legacy vendor prefixes (--dp-, --tw-, etc.) — --cl-* is ColdLight's own namespace
     no-legacy-prefixes:
-      glob: "interfaces/desktop/src/**/*.{ts,svelte,css}"
+      glob: ["interfaces/desktop/src/**/*.{ts,svelte,css}", "packages/coldlight/**/*.{ts,svelte,css}"]
       run: bash scripts/hooks/no-legacy-prefixes.sh
 
     # Biome lint + format check (TypeScript, Svelte, CSS)
@@ -45,10 +50,15 @@ pre-commit:
       root: "interfaces/desktop"
       run: pnpm exec biome check .
 
+    biome-lint-coldlight:
+      glob: "packages/coldlight/**/*.{ts,svelte,css,json}"
+      root: "packages/coldlight"
+      run: pnpm exec biome check .
+
     # Block raw hex colors and raw px values in Svelte <style> blocks
     # GritQL plugins handle .css files via biome check above
     no-raw-values:
-      glob: "interfaces/desktop/src/**/*.{svelte,css,ts}"
+      glob: ["interfaces/desktop/src/**/*.{svelte,css,ts}", "packages/coldlight/**/*.{svelte,css,ts}"]
       run: node scripts/hooks/no-raw-values.mjs
 
     # Routes are the folders under src/routes (plan 0008): no route typed
@@ -59,25 +69,25 @@ pre-commit:
 
     # Documentation preflight checks
     docs-preflight:
-      glob: "interfaces/desktop/src/**/*.{ts,svelte}"
+      glob: ["interfaces/desktop/src/**/*.{ts,svelte}", "packages/coldlight/**/*.{ts,svelte}"]
       run: cd scripts/docs && pnpm preflight:check
 
     # Token regeneration (SSOT → generated files)
     tokens-regen:
-      glob: "interfaces/desktop/src/lib/design/tokens/tokens.ts"
+      glob: "packages/coldlight/tokens/tokens.ts"
       root: "interfaces/desktop"
       run: pnpm ds:tokens:build
       stage_fixed: true
 
     # ColdLight manifest verification
     coldlight-verify:
-      glob: "interfaces/desktop/src/lib/design/**/*.{ts,svelte}"
+      glob: "packages/coldlight/**/*.{ts,svelte}"
       root: "interfaces/desktop"
       run: pnpm coldlight:verify
 
     # ColdLight auto-documentation generation (TypeDoc → .cowlevel/)
     coldlight-docs:
-      glob: "interfaces/desktop/src/lib/design/**/*.{ts,svelte}"
+      glob: "packages/coldlight/**/*.{ts,svelte}"
       root: "interfaces/desktop"
       run: pnpm coldlight:docs
       stage_fixed: true
@@ -104,4 +114,8 @@ pre-push:
     # Svelte type check
     svelte-typecheck:
       root: "interfaces/desktop"
+      run: pnpm exec svelte-check --threshold error
+
+    svelte-typecheck-coldlight:
+      root: "packages/coldlight"
       run: pnpm exec svelte-check --threshold error

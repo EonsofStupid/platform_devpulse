@@ -57,7 +57,9 @@ done <<< "$TERMS"
 # term that happens to sit inside an unrelated word ("RRO" in "ERROR").
 # `+++ b/<path>` file headers are not added lines: editing a file whose
 # name already holds a term is not a new use of it.
-VIOLATIONS=$(git diff --cached --diff-filter=ACMR \
+# The raised rename limit keeps a large move a set of renames: past git's
+# default (1000) every moved line would read as added.
+VIOLATIONS=$(git -c diff.renameLimit=32767 diff --cached --diff-filter=ACMR \
   -- ':!kernel/' \
   -- ':!systems/devpulse-engine/' \
   -- ':!scripts/docs/sprints/SPRINT-IP*' \

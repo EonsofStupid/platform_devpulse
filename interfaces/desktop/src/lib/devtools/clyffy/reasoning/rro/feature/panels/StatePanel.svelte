@@ -12,17 +12,17 @@
 	- Transition history rows are color-coded by destination state.
 -->
 <script lang="ts">
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Callout } from "@devpulse/coldlight/components/callout";
+import { Card } from "@devpulse/coldlight/components/card";
+import { RadialGauge } from "@devpulse/coldlight/components/radial-gauge";
+import { Slider } from "@devpulse/coldlight/components/slider";
+import { Spinner } from "@devpulse/coldlight/components/spinner";
+import { StatusDot, type StatusDotStatus } from "@devpulse/coldlight/components/status-dot";
+import { Text } from "@devpulse/coldlight/components/text";
+import { TextField } from "@devpulse/coldlight/components/text-field";
 import { Activity, GitFork, Sparkles, Trash } from "lucide-svelte";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Button } from "$lib/design/components/button/index.js";
-import { Callout } from "$lib/design/components/callout/index.js";
-import { Card } from "$lib/design/components/card/index.js";
-import { RadialGauge } from "$lib/design/components/radial-gauge/index.js";
-import { Slider } from "$lib/design/components/slider/index.js";
-import { Spinner } from "$lib/design/components/spinner/index.js";
-import { StatusDot, type StatusDotStatus } from "$lib/design/components/status-dot/index.js";
-import { Text } from "$lib/design/components/text/index.js";
-import { TextField } from "$lib/design/components/text-field/index.js";
 import { rroState } from "$lib/sys/data-access/rro/rro.state.svelte.js";
 import { CapabilityHeader, ErrorCallout } from "../../ui/index.js";
 import {

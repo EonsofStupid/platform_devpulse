@@ -35,8 +35,8 @@ components/{kind}/
 Pattern:
 ```svelte
 <script lang="ts">
-  import { useButton } from "$lib/design/behaviors/button/index.js";
-  import { StyleMacro } from "$lib/design/style/index.js";
+  import { useButton } from "#coldlight/behaviors/button/index.js";
+  import { StyleMacro } from "#coldlight/style/index.js";
   import type { ButtonProps, ButtonSize } from "./button.types.js";
 
   const SIZE: Record<ButtonSize, string> = {
@@ -179,7 +179,7 @@ Every component declares its default visual treatment in a colocated file:
 
 ```ts
 // components/accordion/accordion.visual.ts
-import type { StyleMacroProps } from "$lib/design/style/macro-mappings.js";
+import type { StyleMacroProps } from "#coldlight/style/macro-mappings.js";
 
 export const accordionVisual = {
   backgroundColor: "layer-1",
@@ -199,7 +199,7 @@ StyleMacro reads this at runtime for kind defaults.
 
 ```svelte
 <script>
-import * as Accordion from "$lib/design/components/accordion/index.js";
+import * as Accordion from "#coldlight/components/accordion/index.js";
 </script>
 
 <Accordion.Root type="single" collapsible>
@@ -222,12 +222,12 @@ import * as Accordion from "$lib/design/components/accordion/index.js";
 ### `_internal/utils/`
 | Utility | Import | Purpose |
 |---------|--------|---------|
-| `uid(prefix)` | `$lib/design/_internal/utils/uid.js` | Generate unique ID |
+| `uid(prefix)` | `#coldlight/_internal/utils/uid.js` | Generate unique ID |
 | `createIds(kind, parts)` | Same | Scoped IDs for all parts |
-| `kbd` | `$lib/design/_internal/utils/kbd.js` | Keyboard key constants |
+| `kbd` | `#coldlight/_internal/utils/kbd.js` | Keyboard key constants |
 | `getNextKey(dir, orientation)` | Same | Direction-aware arrow key |
 | `getPrevKey(dir, orientation)` | Same | Direction-aware arrow key |
-| `disabledAttr(bool)` | `$lib/design/_internal/utils/data-attr.js` | `"" | undefined` |
+| `disabledAttr(bool)` | `#coldlight/_internal/utils/data-attr.js` | `"" | undefined` |
 
 ### `_internal/a11y/`
 | Utility | Purpose |
@@ -245,11 +245,11 @@ import * as Accordion from "$lib/design/components/accordion/index.js";
 ### Component base
 | Utility | Import | Purpose |
 |---------|--------|---------|
-| `useColdLight()` | `$lib/design/components/_base/use-coldlight.svelte.js` | 8-axis visual resolution |
-| `cn()` | `$lib/design/utils/cn.js` | Class name composition |
-| `getRecipe(id)` | `$lib/design/recipes/index.js` | Get registered recipe |
-| `PreparedComponentProps` | `$lib/design/components/_base/types.js` | Base prop type |
-| `ComponentContract` | `$lib/design/components/_schema/contract.js` | Contract type |
+| `useColdLight()` | `#coldlight/components/_base/use-coldlight.svelte.js` | 8-axis visual resolution |
+| `cn()` | `#coldlight/utils/cn.js` | Class name composition |
+| `getRecipe(id)` | `#coldlight/recipes/index.js` | Get registered recipe |
+| `PreparedComponentProps` | `#coldlight/components/_base/types.js` | Base prop type |
+| `ComponentContract` | `#coldlight/components/_schema/contract.js` | Contract type |
 
 ---
 

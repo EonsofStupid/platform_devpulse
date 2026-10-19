@@ -22,7 +22,7 @@ import type { Check, CheckContext, CheckResult } from "../types.js";
 const EXCLUDED_DIRS = [".claude", "sprints", "_transport", "_base", "_internal", "tree"];
 
 function getComponentDirs(designRoot: string): string[] {
-	const componentsDir = path.join(designRoot, "lib/design/components");
+	const componentsDir = path.join(designRoot, "components");
 	if (!fs.existsSync(componentsDir)) return [];
 
 	return fs
@@ -109,7 +109,7 @@ function checkMacroLaw(
 			message: `${rel} — missing renderForge import`,
 			file: rel,
 			suggestion: [
-				'Add: import { renderForge, cssVarString } from "$lib/design/renderforge";',
+				'Add: import { renderForge, cssVarString } from "#coldlight/renderforge";',
 				`Then: const m = $derived(renderForge({ kind: "${kind}", preset }));`,
 				"Then: spread {...m.dataAttrs} and style={cssVarString(m.cssVars)} on root element",
 			].join("\n  "),
@@ -182,7 +182,7 @@ const componentStructureCheck: Check = {
 		for (const dir of dirs) {
 			const compDir = path.join(
 				ctx.targetRoot,
-				"lib/design/components",
+				"components",
 				dir,
 			);
 			const files = fs.readdirSync(compDir);
@@ -194,7 +194,7 @@ const componentStructureCheck: Check = {
 					status: "fail",
 					severity: "error",
 					message: `components/${dir}/ missing index.ts`,
-					file: `lib/design/components/${dir}/index.ts`,
+					file: `packages/coldlight/components/${dir}/index.ts`,
 					suggestion: `Create index.ts: export { default as ${toPascal(dir)} } from "./${toPascal(dir)}.svelte";`,
 				});
 			}
@@ -209,7 +209,7 @@ const componentStructureCheck: Check = {
 					status: "fail",
 					severity: "error",
 					message: `components/${dir}/ missing types (types.ts or ${dir}.types.ts)`,
-					file: `lib/design/components/${dir}/types.ts`,
+					file: `packages/coldlight/components/${dir}/types.ts`,
 					suggestion:
 						"Create types.ts with your component's Props interface extending its PrimitiveProps.",
 				});
@@ -225,7 +225,7 @@ const componentStructureCheck: Check = {
 					status: "fail",
 					severity: "error",
 					message: `components/${dir}/ has no .svelte component file`,
-					file: `lib/design/components/${dir}/`,
+					file: `packages/coldlight/components/${dir}/`,
 				});
 				continue;
 			}
@@ -234,7 +234,7 @@ const componentStructureCheck: Check = {
 			for (const svelteFile of svelteFiles) {
 				const filePath = path.join(compDir, svelteFile);
 				const content = fs.readFileSync(filePath, "utf-8");
-				const relPath = `lib/design/components/${dir}/${svelteFile}`;
+				const relPath = `packages/coldlight/components/${dir}/${svelteFile}`;
 				const macroResults = checkMacroLaw(
 					content,
 					relPath,

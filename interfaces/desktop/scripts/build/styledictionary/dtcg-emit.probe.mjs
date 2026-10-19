@@ -15,7 +15,7 @@
  *   node scripts/build/styledictionary/dtcg-emit.probe.mjs
  *
  * Expected every section to match the shapes in
- * interfaces/desktop/src/lib/design/docs/DTCG-REFERENCE.md.
+ * packages/coldlight/docs/DTCG-REFERENCE.md.
  */
 
 import {

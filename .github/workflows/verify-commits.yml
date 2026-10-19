@@ -110,6 +110,10 @@ jobs:
             cargo test -p devpulse-engine -p devpulse-clyffy
             pnpm install --frozen-lockfile
             (cd interfaces/desktop && pnpm exec svelte-kit sync && pnpm exec svelte-check --threshold error)
+            # ColdLight is its own package from plan 0006 C2 on.
+            if [ -f packages/coldlight/package.json ]; then
+              (cd packages/coldlight && pnpm exec svelte-check --threshold error)
+            fi
             # Architecture tests: IP boundary, the route manifest against the
             # route folders, route names, devtools folders (plan 0008).
             (cd interfaces/desktop && pnpm -s test:arch)
@@ -124,3 +128,4 @@ jobs:
         run: |
           cargo xtask clippy --workspace
           (cd interfaces/desktop && pnpm exec biome check .)
+          (cd packages/coldlight && pnpm exec biome check .)

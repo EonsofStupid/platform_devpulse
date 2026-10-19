@@ -12,9 +12,9 @@
 	}
 -->
 <script lang="ts">
+import { Text } from "@devpulse/coldlight/components/text";
+import { stack } from "@devpulse/coldlight/utils";
 import { Brain, Ear, Eye, MessageCircle, Search, Wrench } from "lucide-svelte";
-import { Text } from "$lib/design/components/text/index.js";
-import { stack } from "$lib/design/utils/stack/index.js";
 import {
 	type ClyffyCapability,
 	type ClyffyCapabilityGroup,

@@ -39,7 +39,7 @@ function toPosix(p: string): string {
 // Configuration
 // ============================================================================
 
-const COLDLIGHT_ROOT = toPosix(path.resolve(__dirname, "../../src/lib/design"));
+const COLDLIGHT_ROOT = toPosix(path.resolve(__dirname, "../../../../packages/coldlight"));
 const OUTPUT_DIR = toPosix(path.join(COLDLIGHT_ROOT, ".cowlevel"));
 const TYPEDOC_OUTPUT = toPosix(path.join(OUTPUT_DIR, "typedoc"));
 const TYPEDOC_JSON = toPosix(path.join(OUTPUT_DIR, "api.json"));
@@ -172,8 +172,10 @@ function runTypedoc(config: object): void {
 	fs.writeFileSync(winConfigPath, JSON.stringify(config, null, 2));
 
 	try {
-		// Use POSIX path in the command for TypeDoc
-		execSync(`npx typedoc --options "${configPath}"`, {
+		// Use POSIX path in the command for TypeDoc. `typedoc` is the workspace's
+		// pinned copy, on PATH under `pnpm run`; `npx` from ColdLight's folder
+		// would not find it and could fetch another version.
+		execSync(`typedoc --options "${configPath}"`, {
 			cwd: COLDLIGHT_ROOT.replace(/\//g, path.sep),
 			stdio: "inherit",
 		});

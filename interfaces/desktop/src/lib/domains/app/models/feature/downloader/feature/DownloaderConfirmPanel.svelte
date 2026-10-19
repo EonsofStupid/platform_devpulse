@@ -25,7 +25,7 @@
 	    follows top-to-bottom flow naturally.
 -->
 <script lang="ts">
-import { cn } from "$lib/design/utils/cn.js";
+import { cn } from "@devpulse/coldlight/utils";
 import type { DownloaderCopy, RepoFile } from "$lib/sys/generated/bindings.js";
 import { getSlotLabel, ROLE_FRAMES } from "../../../index.js";
 import { formatBytes, formatMb } from "../../../util/format.js";

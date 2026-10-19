@@ -34,11 +34,11 @@
 	```
 -->
 <script lang="ts">
+import { EmptyState } from "@devpulse/coldlight/components/empty-state";
+import { Tabs, TabsList, TabsTrigger } from "@devpulse/coldlight/components/tabs";
+import { Text } from "@devpulse/coldlight/components/text";
 import { ScrollText } from "lucide-svelte";
 import { untrack } from "svelte";
-import { EmptyState } from "$lib/design/components/empty-state/index.js";
-import { Tabs, TabsList, TabsTrigger } from "$lib/design/components/tabs/index.js";
-import { Text } from "$lib/design/components/text/index.js";
 import { commands, type ScopedLogEntry } from "$lib/sys/generated/bindings.js";
 import { TauriQuery } from "$lib/sys/runes/index.js";
 import CommandErrorAlert from "./CommandErrorAlert.svelte";

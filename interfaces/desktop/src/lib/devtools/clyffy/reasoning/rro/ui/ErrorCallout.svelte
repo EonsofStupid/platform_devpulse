@@ -5,8 +5,8 @@
 	@description Standard error Callout used across all RRO panels.
 -->
 <script lang="ts">
-import { Callout } from "$lib/design/components/callout/index.js";
-import { Text } from "$lib/design/components/text/index.js";
+import { Callout } from "@devpulse/coldlight/components/callout";
+import { Text } from "@devpulse/coldlight/components/text";
 
 interface Props {
 	prefix: string;

@@ -1,43 +1,13 @@
 /**
  * @file vitest.config.ts
- * @package @devpulse/coldlight
  *
- * Vitest 4 configuration — browser mode (Chromium via Playwright).
- *
- * Node 24 minimum. Svelte 5 runes. Zero stores.
- *
- * Dev:  headed browser, no coverage, no traces
- * CI:   headless, coverage v8, traces on failure, screenshot on failure
- *
- * ```mermaid
- * flowchart LR
- *   Test[*.test.ts] --> Vitest[Vitest 4]
- *   Vitest --> Browser[Chromium via Playwright]
- *   Browser --> DOM[Real DOM]
- *   Vitest --> Coverage[V8 Coverage]
- *   Coverage --> Report[HTML + LCOV]
- * ```
- */
-
-/**
- * @file vitest.config.ts
- * @package @devpulse/coldlight
- *
- * Vitest 4 configuration — browser mode (Chromium via Playwright).
- *
- * Node 24 minimum. Svelte 5 runes. Zero stores.
+ * The app's component tests and Storybook stories — Vitest 4 browser mode
+ * (Chromium via Playwright). ColdLight's tests run from its own package
+ * (`packages/coldlight/vitest.config.ts`); architecture tests from
+ * `vitest.config.arch.ts`.
  *
  * Dev:  headed browser, no coverage, no traces
  * CI:   headless, coverage v8, traces on failure, screenshot on failure
- *
- * ```mermaid
- * flowchart LR
- *   Test[*.test.ts] --> Vitest[Vitest 4]
- *   Vitest --> Browser[Chromium via Playwright]
- *   Browser --> DOM[Real DOM]
- *   Vitest --> Coverage[V8 Coverage]
- *   Coverage --> Report[HTML + LCOV]
- * ```
  */
 
 import path, { resolve } from "node:path";
@@ -61,8 +31,8 @@ export default defineConfig({
 		coverage: {
 			provider: "v8",
 			enabled: isCI,
-			include: ["src/lib/design/**/*.{ts,svelte}"],
-			exclude: ["**/*.test.ts", "**/*.spec.ts", "**/.cowlevel/**", "**/node_modules/**"],
+			include: ["src/**/*.{ts,svelte}"],
+			exclude: ["**/*.test.ts", "**/*.spec.ts", "**/node_modules/**"],
 			reporter: isCI ? ["text", "json", "html", "lcov"] : ["text"],
 			reportsDirectory: "./coverage",
 		},
@@ -86,9 +56,10 @@ export default defineConfig({
 						trace: isCI ? "retain-on-failure" : "off",
 						// Screenshot on test failure in CI
 						screenshotFailures: isCI,
+						// ColdLight's own browser tests use 51205
 						api: {
 							host: "127.0.0.1",
-							port: 51205,
+							port: 51206,
 						},
 					},
 				},

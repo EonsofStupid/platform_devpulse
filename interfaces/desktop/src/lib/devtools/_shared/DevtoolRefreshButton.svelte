@@ -14,9 +14,9 @@
 	```
 -->
 <script lang="ts">
+import { Button } from "@devpulse/coldlight/components/button";
+import { Spinner } from "@devpulse/coldlight/components/spinner";
 import { AlertTriangle, RefreshCw } from "lucide-svelte";
-import { Button } from "$lib/design/components/button/index.js";
-import { Spinner } from "$lib/design/components/spinner/index.js";
 import type { PolledQuery, TauriQuery } from "$lib/sys/runes/index.js";
 
 type AnyQuery = TauriQuery<unknown, unknown> | PolledQuery<unknown, unknown>;

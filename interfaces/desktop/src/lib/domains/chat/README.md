@@ -10,7 +10,7 @@ This domain is the **reference implementation** for DevPulse desktop library-typ
 
 ## Copy pattern
 
-When authoring a new domain, duplicate this folder layout and dependency arrows, swap IPC services for your domain’s `*.service.ts`, and register ColdLight presets under `src/lib/design/visual/presets/<domain>.ts` + `ALL_PRESETS`.
+When authoring a new domain, duplicate this folder layout and dependency arrows, swap IPC services for your domain’s `*.service.ts`, and register ColdLight presets under `packages/coldlight/visual/presets/<domain>.ts` + `ALL_PRESETS`.
 
 ## Persistence SSOT
 

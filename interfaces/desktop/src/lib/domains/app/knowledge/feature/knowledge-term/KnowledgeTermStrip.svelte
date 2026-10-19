@@ -22,7 +22,7 @@
 	from `KnowledgeTerm`.
 -->
 <script lang="ts">
-import { Text } from "$lib/design/components/text/index.js";
+import { Text } from "@devpulse/coldlight/components/text";
 import KnowledgeTerm from "./KnowledgeTerm.svelte";
 
 interface Props {

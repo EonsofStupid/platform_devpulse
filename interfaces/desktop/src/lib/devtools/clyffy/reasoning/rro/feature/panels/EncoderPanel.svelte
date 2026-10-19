@@ -5,10 +5,10 @@
 	@description rag.embedder slot status — Burn encoder health + tier display.
 -->
 <script lang="ts">
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Card } from "@devpulse/coldlight/components/card";
+import { Text } from "@devpulse/coldlight/components/text";
 import { Brain, Shapes } from "lucide-svelte";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Card } from "$lib/design/components/card/index.js";
-import { Text } from "$lib/design/components/text/index.js";
 import { rroState } from "$lib/sys/data-access/rro/rro.state.svelte.js";
 import { ReasoningTopology } from "../../../_shared/index.js";
 import { CapabilityHeader, ErrorCallout, StatusRow } from "../../ui/index.js";

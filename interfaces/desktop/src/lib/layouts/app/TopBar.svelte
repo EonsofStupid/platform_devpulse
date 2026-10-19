@@ -14,14 +14,13 @@
 }
 -->
 <script lang="ts">
+import { Avatar } from "@devpulse/coldlight/components/avatar";
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Button } from "@devpulse/coldlight/components/button";
+import { TextField as Input } from "@devpulse/coldlight/components/text-field";
+import { Parasite } from "@devpulse/coldlight/plugins/parasite";
+import { cn, hstack } from "@devpulse/coldlight/utils";
 import { Bell, Menu, MessageCircle, Search } from "lucide-svelte";
-import { Avatar } from "$lib/design/components/avatar/index.js";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Button } from "$lib/design/components/button/index.js";
-import { TextField as Input } from "$lib/design/components/text-field/index.js";
-import { Parasite } from "$lib/design/plugins/parasite";
-import { cn } from "$lib/design/utils/cn.js";
-import { hstack } from "$lib/design/utils/hstack/index.js";
 import { onboardingState } from "$lib/domains/app/onboarding/index.js";
 import { ProjectSwitcher } from "$lib/domains/app/projects/index.js";
 import { ClyffyStatusOrb } from "$lib/domains/clyffy/index.js";

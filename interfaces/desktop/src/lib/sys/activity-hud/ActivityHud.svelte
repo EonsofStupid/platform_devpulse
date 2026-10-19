@@ -3,9 +3,9 @@
   @description Live HUD for in-flight user actions — intent, timer, knowledge drops, errors.
 -->
 <script lang="ts">
+import { Spinner } from "@devpulse/coldlight/components/spinner";
+import { cssVarString, renderForge } from "@devpulse/coldlight/renderforge";
 import { onDestroy } from "svelte";
-import { Spinner } from "$lib/design/components/spinner/index.js";
-import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
 import { commands } from "$lib/sys/generated/bindings.js";
 import { actionBus } from "../action-bus.svelte.js";
 import type { ActionId } from "../action-ids.js";

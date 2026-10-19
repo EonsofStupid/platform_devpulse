@@ -46,9 +46,9 @@
 	anything (devtools are diagnostics, not setup).
 -->
 <script lang="ts">
-import { Badge } from "$lib/design/components/badge/index.js";
-import { StatusDot, type StatusDotStatus } from "$lib/design/components/status-dot/index.js";
-import { Text } from "$lib/design/components/text/index.js";
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { StatusDot, type StatusDotStatus } from "@devpulse/coldlight/components/status-dot";
+import { Text } from "@devpulse/coldlight/components/text";
 import { rrdState } from "$lib/sys/data-access/rrd/rrd.state.svelte.js";
 
 interface Props {

@@ -1,5 +1,8 @@
 @import "tailwindcss";
-@import "$lib/design/index.css";
+@import "@devpulse/coldlight/index.css";
+/* ColdLight is a workspace package outside this folder, so Tailwind's automatic
+   detection does not reach it: register its components as a source. */
+@source "../node_modules/@devpulse/coldlight";
 
 /* ═══════════════════════════════════════════════════════
    Semantic accent layer — VISUAL-EDITOR REBINDABLE.

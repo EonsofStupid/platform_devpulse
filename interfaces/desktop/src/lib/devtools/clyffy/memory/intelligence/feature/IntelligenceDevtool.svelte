@@ -11,12 +11,12 @@
 	follow-up slice.
 -->
 <script lang="ts">
+import { Button } from "@devpulse/coldlight/components/button";
+import { Spinner } from "@devpulse/coldlight/components/spinner";
+import { Text } from "@devpulse/coldlight/components/text";
 import { invoke } from "@tauri-apps/api/core";
 import { Database, HardDrive, RefreshCw, Sparkles } from "lucide-svelte";
 import { onMount } from "svelte";
-import { Button } from "$lib/design/components/button/index.js";
-import { Spinner } from "$lib/design/components/spinner/index.js";
-import { Text } from "$lib/design/components/text/index.js";
 import { type HealthBadge, ScopedLogPanel, ServiceDevtoolShell } from "$lib/devtools/index.js";
 import IntelligenceMemoryStream from "./IntelligenceMemoryStream.svelte";
 

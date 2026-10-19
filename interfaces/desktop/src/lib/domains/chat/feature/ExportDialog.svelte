@@ -2,8 +2,8 @@
   @feature ExportDialog — format + path via IPC
 -->
 <script lang="ts">
-import { Button } from "$lib/design/components/button/index.js";
-import Text from "$lib/design/components/text/Text.svelte";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Text } from "@devpulse/coldlight/components/text";
 import type { ExportFormat } from "$lib/sys/generated/bindings.js";
 import * as exportService from "../data-access/export.service.js";
 

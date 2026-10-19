@@ -20,10 +20,10 @@
 	commands should always return Result<T, CommandError>.
 -->
 <script lang="ts">
-import * as Alert from "$lib/design/components/alert/index.js";
-import type { BadgeVariant } from "$lib/design/components/badge/index.js";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Text } from "$lib/design/components/text/index.js";
+import * as Alert from "@devpulse/coldlight/components/alert";
+import type { BadgeVariant } from "@devpulse/coldlight/components/badge";
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Text } from "@devpulse/coldlight/components/text";
 import type { CommandError, ErrorKind } from "$lib/sys/generated/bindings.js";
 
 interface Props {

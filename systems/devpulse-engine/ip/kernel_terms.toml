@@ -108,14 +108,8 @@ category = "sub-agents"
 context = ["logs", "traces", "ui-text", "errors"]
 severity = "hard"
 
-[[terms]]
-kernel = "Minion"
-engine = "helper"
-prod = "helper"
-dev = "Minion"
-category = "sub-agents"
-context = ["logs", "traces", "ui-text"]
-severity = "hard"
+# "Minion" is public vocabulary, not a kernel term (owner 2026-10-19;
+# signals.registry.yaml group `minion`; LOCKED_DECISIONS.md C-2, §D).
 
 # ─────────────────────────────────────────────────────────────
 # CATEGORY: Rumination Architecture

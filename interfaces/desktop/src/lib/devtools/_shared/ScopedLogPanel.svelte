@@ -27,10 +27,10 @@ import { ScopedLogPanel } from "$lib/devtools/index.js";
 	```
 -->
 <script lang="ts">
-	import { Button } from "$lib/design/components/button/index.js";
-	import { InlineMessage } from "$lib/design/components/inline-message/index.js";
-	import { Spinner } from "$lib/design/components/spinner/index.js";
-	import { Text } from "$lib/design/components/text/index.js";
+	import { Button } from "@devpulse/coldlight/components/button";
+	import { InlineMessage } from "@devpulse/coldlight/components/inline-message";
+	import { Spinner } from "@devpulse/coldlight/components/spinner";
+	import { Text } from "@devpulse/coldlight/components/text";
 	import type { ScopedLogEntry } from "$lib/sys/generated/bindings.js";
 	import { commands } from "$lib/sys/generated/bindings.js";
 

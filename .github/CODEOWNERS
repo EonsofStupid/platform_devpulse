@@ -8,8 +8,8 @@
 /systems/devpulse-engine/ @EonsofStupid
 
 # Design system contracts — breaking changes cascade to all hubs
-/interfaces/desktop/src/lib/design/taxonomy/ @EonsofStupid
-/interfaces/desktop/src/lib/design/tokens/ @EonsofStupid
+/packages/coldlight/taxonomy/ @EonsofStupid
+/packages/coldlight/tokens/ @EonsofStupid
 
 # CI and release — misconfiguration blocks everyone
 /.github/ @EonsofStupid

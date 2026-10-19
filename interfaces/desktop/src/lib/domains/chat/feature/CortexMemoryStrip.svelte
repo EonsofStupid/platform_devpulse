@@ -2,7 +2,7 @@
   @feature CortexMemoryStrip — read-only cortex context graph
 -->
 <script lang="ts">
-import Text from "$lib/design/components/text/Text.svelte";
+import { Text } from "@devpulse/coldlight/components/text";
 import { modelsState } from "$lib/domains/app/models/index.js";
 import { StatusDotNeuron } from "../ui/index.js";
 

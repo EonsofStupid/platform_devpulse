@@ -13,13 +13,13 @@
 	starting value once.
 -->
 <script lang="ts">
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Button } from "$lib/design/components/button/index.js";
-import { InlineMessage } from "$lib/design/components/inline-message/index.js";
-import { NumberField } from "$lib/design/components/number-field/index.js";
-import { Switch } from "$lib/design/components/switch/index.js";
-import { Text } from "$lib/design/components/text/index.js";
-import { Textarea } from "$lib/design/components/textarea/index.js";
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Button } from "@devpulse/coldlight/components/button";
+import { InlineMessage } from "@devpulse/coldlight/components/inline-message";
+import { NumberField } from "@devpulse/coldlight/components/number-field";
+import { Switch } from "@devpulse/coldlight/components/switch";
+import { Text } from "@devpulse/coldlight/components/text";
+import { Textarea } from "@devpulse/coldlight/components/textarea";
 import {
 	AFFINITY_LABEL,
 	type Affinity,

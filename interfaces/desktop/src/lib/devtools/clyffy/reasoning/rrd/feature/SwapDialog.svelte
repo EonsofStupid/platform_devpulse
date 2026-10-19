@@ -35,11 +35,11 @@
 	tells a dev where to look if the swap fails silently.
 -->
 <script lang="ts">
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Spinner } from "@devpulse/coldlight/components/spinner";
+import { Text } from "@devpulse/coldlight/components/text";
 import { CheckCircle2, FileWarning, RotateCw, Upload, X } from "lucide-svelte";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Button } from "$lib/design/components/button/index.js";
-import { Spinner } from "$lib/design/components/spinner/index.js";
-import { Text } from "$lib/design/components/text/index.js";
 import { laymanFor } from "$lib/sys/data-access/rrd/phase-labels.js";
 import { rrdState } from "$lib/sys/data-access/rrd/rrd.state.svelte.js";
 import { type SwapReport, swapEncoderWeights } from "../data-access/swap.svc.js";

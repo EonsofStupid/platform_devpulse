@@ -15,16 +15,16 @@
 	SO400M default). Slot id is `vision.embedder`.
 -->
 <script lang="ts">
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Callout } from "@devpulse/coldlight/components/callout";
+import { Card } from "@devpulse/coldlight/components/card";
+import { EmptyState } from "@devpulse/coldlight/components/empty-state";
+import { Spinner } from "@devpulse/coldlight/components/spinner";
+import { Stat } from "@devpulse/coldlight/components/stat";
+import { Text } from "@devpulse/coldlight/components/text";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@devpulse/coldlight/components/tooltip";
 import { Check, Clipboard, FileImage, ImageOff, Play, PowerOff } from "lucide-svelte";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Button } from "$lib/design/components/button/index.js";
-import { Callout } from "$lib/design/components/callout/index.js";
-import { Card } from "$lib/design/components/card/index.js";
-import { EmptyState } from "$lib/design/components/empty-state/index.js";
-import { Spinner } from "$lib/design/components/spinner/index.js";
-import { Stat } from "$lib/design/components/stat/index.js";
-import { Text } from "$lib/design/components/text/index.js";
-import { Tooltip, TooltipContent, TooltipTrigger } from "$lib/design/components/tooltip/index.js";
 import {
 	CommandErrorAlert,
 	DevtoolBentoGrid,

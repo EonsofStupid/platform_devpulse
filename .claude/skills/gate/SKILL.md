@@ -101,10 +101,10 @@ GATE CHECK: {timestamp}
 
 [PASS] Duplicate definitions: 0 found
 [FAIL] Import chain depth: 3 unnecessary barrels
-  - src/lib/design/recipes/utils.ts imports from tokens/index.js instead of tokens/types.js
+  - packages/coldlight/recipes/utils.ts imports from tokens/index.js instead of tokens/types.js
 [PASS] Bandaid indicators: 0 found
 [FAIL] Stale re-exports: 1 found
-  - src/lib/design/tokens/index.ts re-exports from ./schema.js (file deleted)
+  - packages/coldlight/tokens/index.ts re-exports from ./schema.js (file deleted)
 [PASS] Any types: 0 found
 [PASS] Deleted concepts: 0 found
 [PASS] Compile: 0 errors

@@ -1,12 +1,11 @@
 <script lang="ts">
+// Tailwind + ColdLight's stylesheet (`@devpulse/coldlight/index.css`).
 import "../app.css";
-// Style presets compiled via SD5 DTCG pipeline → components.generated.css
-// Loaded via app.css → design/index.css → css/index.css import chain
+import { TokenDebugOverlay } from "@devpulse/coldlight/debug";
+import { SvgFilters } from "@devpulse/coldlight/svg/filters";
 import { invoke } from "@tauri-apps/api/core";
 import { onMount } from "svelte";
 import { Toaster } from "svelte-sonner";
-import TokenDebugOverlay from "$lib/design/debug/TokenDebugOverlay.svelte";
-import SvgFilters from "$lib/design/svg/filters/SvgFilters.svelte";
 import { bootstrapDownloadBridge, ModelDownloaderOverlay } from "$lib/domains/app/models/index.js";
 import { updatesState } from "$lib/domains/app/updates/index.js";
 import { authState } from "$lib/domains/auth/index.js";

@@ -2,7 +2,7 @@
   @feature ChatSessionList — grouped by project (single list for now)
 -->
 <script lang="ts">
-import Text from "$lib/design/components/text/Text.svelte";
+import { Text } from "@devpulse/coldlight/components/text";
 import { chatState } from "../data-access/chat.state.svelte.js";
 import { sessionsState } from "../data-access/sessions.state.svelte.js";
 import { SessionRow } from "../ui/index.js";

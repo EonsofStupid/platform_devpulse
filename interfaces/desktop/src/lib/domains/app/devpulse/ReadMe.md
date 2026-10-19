@@ -46,7 +46,7 @@ The **DevPulse Hub** is the global overview and entry point. Community engagemen
 ## Architecture Alignment
 
 > **This domain MUST align with ColdLight Registry-First Architecture.**
-> **See:** `$lib/design/MASTER-PLAN.md` | `$lib/design/CONTRACT_SYSTEM.md`
+> **See:** `packages/coldlight/MASTER-PLAN.md` | `packages/coldlight/CONTRACT_SYSTEM.md`
 
 ### Technology Stack (NON-NEGOTIABLE)
 
@@ -62,7 +62,7 @@ The **DevPulse Hub** is the global overview and entry point. Community engagemen
 - Framework-agnostic abstractions
 - Custom headless primitive implementations
 - CSS-in-JS libraries
-- Direct meltui imports (use `$lib/design/sys/api/_internal`)
+- Direct meltui imports (use `#coldlight/sys/api/_internal`)
 
 ---
 
@@ -72,7 +72,7 @@ The **DevPulse Hub** is the global overview and entry point. Community engagemen
 
 | Level | Category | DevPulse Usage |
 |-------|----------|----------------|
-| **0** | **Tokens** | Raw values from `$lib/design/tokens/` |
+| **0** | **Tokens** | Raw values from `packages/coldlight/tokens/` |
 | **1** | **Intent** | `DsIntent`: neutral, info, success, warning, danger |
 | **2** | **Recipe** | `panel.glass`, `widget.glass`, `card.glass` |
 | **3** | **Context** | FOCUS levels cascade to all children |
@@ -183,7 +183,7 @@ base + semantic + recipe + modifiers
 
 <!-- CORRECT -->
 <script>
-  import { BitsButton } from "$lib/design/sys/api/_internal";
+  import { BitsButton } from "#coldlight/sys/api/_internal";
 </script>
 ```
 
@@ -545,9 +545,9 @@ All DevPulse components emit consistent data attributes:
 
 | Resource | Path | Purpose |
 |----------|------|---------|
-| MASTER-PLAN | `$lib/design/MASTER-PLAN.md` | Registry-First Architecture |
-| CONTRACT_SYSTEM | `$lib/design/CONTRACT_SYSTEM.md` | Prop contracts |
-| TAXONOMY | `$lib/design/TAXONOMY.md` | Kind registry, FOCUS system |
+| MASTER-PLAN | `packages/coldlight/MASTER-PLAN.md` | Registry-First Architecture |
+| CONTRACT_SYSTEM | `packages/coldlight/CONTRACT_SYSTEM.md` | Prop contracts |
+| TAXONOMY | `packages/coldlight/TAXONOMY.md` | Kind registry, FOCUS system |
 | App Layout | `layouts/app/` | Shell container |
 | GlobalState | `sys/runes/global.svelte.ts` | Shared state |
 | WiredFront | `domains/app/wiredfront/` | Gold standard scaffold |

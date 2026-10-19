@@ -4,12 +4,11 @@
   Experimental hub: Playground, Experiments. Model control is dev-gated under /devtools.
 -->
 <script lang="ts">
+import { Widget } from "@devpulse/coldlight/blocks/widgets";
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Text } from "@devpulse/coldlight/components/text";
+import { hstack, stack } from "@devpulse/coldlight/utils";
 import { Activity, FlaskConical, FlaskRound } from "lucide-svelte";
-import { Widget } from "$lib/design/blocks/widgets/index.js";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Text } from "$lib/design/components/text/index.js";
-import { hstack } from "$lib/design/utils/hstack/index.js";
-import { stack } from "$lib/design/utils/stack/index.js";
 </script>
 
 <div class="grid grid-cols-12 gap-4" data-page="overmind-dashboard">

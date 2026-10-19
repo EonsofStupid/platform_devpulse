@@ -27,9 +27,9 @@
 }
 -->
 <script lang="ts">
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Text } from "$lib/design/components/text/index.js";
-import { hstack } from "$lib/design/utils/hstack/index.js";
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Text } from "@devpulse/coldlight/components/text";
+import { hstack } from "@devpulse/coldlight/utils";
 import { formatMb, hardwareState, modelsState } from "$lib/domains/app/models/index.js";
 import { DEV_MODE } from "$lib/sys/generated/terminology.js";
 import { platformState } from "$lib/sys/runes/platformState.svelte.js";

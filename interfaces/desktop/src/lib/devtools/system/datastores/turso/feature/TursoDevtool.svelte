@@ -15,15 +15,15 @@
 	All data comes from Rust; every change is checked there first.
 -->
 <script lang="ts">
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Button } from "@devpulse/coldlight/components/button";
+import { InlineMessage } from "@devpulse/coldlight/components/inline-message";
+import { Spinner } from "@devpulse/coldlight/components/spinner";
+import { Table } from "@devpulse/coldlight/components/table";
+import { Text } from "@devpulse/coldlight/components/text";
+import { Textarea } from "@devpulse/coldlight/components/textarea";
 import { Database, History, RefreshCw, Table2, Terminal } from "lucide-svelte";
 import { onMount } from "svelte";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Button } from "$lib/design/components/button/index.js";
-import { InlineMessage } from "$lib/design/components/inline-message/index.js";
-import { Spinner } from "$lib/design/components/spinner/index.js";
-import { Table } from "$lib/design/components/table/index.js";
-import { Text } from "$lib/design/components/text/index.js";
-import { Textarea } from "$lib/design/components/textarea/index.js";
 import {
 	DevtoolLogsTab,
 	type ExtraTab,

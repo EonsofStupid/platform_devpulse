@@ -133,7 +133,7 @@ Each preset has 8 axes:
 ### 8. Types — UIBaseProps + .js extensions
 
 ```typescript
-import type { UIBaseProps } from "$lib/design/components/_base/types.js";
+import type { UIBaseProps } from "#coldlight/components/_base/types.js";
 
 export type {Kind}Intent = "default" | "stark" | "glass" | "flat" | "matte";
 

@@ -68,7 +68,7 @@ name. Add a row here only when the folder exists.
 | `telemetry` | `systems/infra/devpulse-telemetry/`, `systems/infra/devpulse-telemetry-macros/` |
 | `desktop` | `interfaces/desktop/` (whole app — only when no narrower token fits) |
 | `desktop-tauri` | `interfaces/desktop/src-tauri/` |
-| `desktop-coldlight` | `interfaces/desktop/src/lib/design/` |
+| `desktop-coldlight` | `packages/coldlight/` |
 | `desktop-devtools` | `interfaces/desktop/src/lib/devtools/` |
 | `desktop-layouts` | `interfaces/desktop/src/lib/layouts/` |
 | `desktop-sys` | `interfaces/desktop/src/lib/sys/` |

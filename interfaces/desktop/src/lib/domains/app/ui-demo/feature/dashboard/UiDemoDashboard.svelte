@@ -4,7 +4,7 @@
   Demonstrates structureless primitives, styled components, recipes, and tokens.
 -->
 <script lang="ts">
-import { Button, type ButtonPreset, type ButtonSize } from "$lib/design/components/button/index.js";
+import { Button, type ButtonPreset, type ButtonSize } from "@devpulse/coldlight/components/button";
 
 const presets: ButtonPreset[] = ["primary", "secondary", "ghost", "danger"];
 const sizes: ButtonSize[] = ["sm", "md", "lg"];

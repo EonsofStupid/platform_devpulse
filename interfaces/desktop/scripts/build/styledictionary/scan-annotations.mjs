@@ -12,8 +12,8 @@
  * Usage:
  *   import { scanAnnotations } from './scan-annotations.mjs';
  *   const defs = scanAnnotations([
- *     { dir: 'src/lib/design/components', defaultLayer: 'component' },
- *     { dir: 'src/lib/design/blocks', defaultLayer: 'block' },
+ *     { dir: '../../packages/coldlight/components', defaultLayer: 'component' },
+ *     { dir: '../../packages/coldlight/blocks', defaultLayer: 'block' },
  *   ]);
  */
 

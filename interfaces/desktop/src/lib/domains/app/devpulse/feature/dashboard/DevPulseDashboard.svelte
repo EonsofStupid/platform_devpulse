@@ -5,18 +5,16 @@
   Matches DASHBOARD-REFERENCE-01.
 -->
 <script lang="ts">
+import { Widget } from "@devpulse/coldlight/blocks/widgets";
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Card } from "@devpulse/coldlight/components/card";
+import { DynamicBackground } from "@devpulse/coldlight/components/dynamic-background";
+import { RadialGauge } from "@devpulse/coldlight/components/radial-gauge";
+import { SparkLine } from "@devpulse/coldlight/components/spark-line";
+import { Text } from "@devpulse/coldlight/components/text";
+import { cn, hstack, stack } from "@devpulse/coldlight/utils";
 import { Activity, BarChart3, FolderGit2, Gauge, HeartPulse, TrendingUp } from "lucide-svelte";
-import { Widget } from "$lib/design/blocks/widgets/index.js";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Button } from "$lib/design/components/button/index.js";
-import Card from "$lib/design/components/card/Card.svelte";
-import { DynamicBackground } from "$lib/design/components/dynamic-background/index.js";
-import { RadialGauge } from "$lib/design/components/radial-gauge/index.js";
-import { SparkLine } from "$lib/design/components/spark-line/index.js";
-import { Text } from "$lib/design/components/text/index.js";
-import { cn } from "$lib/design/utils/cn.js";
-import { hstack } from "$lib/design/utils/hstack/index.js";
-import { stack } from "$lib/design/utils/stack/index.js";
 import { devpulseState } from "$lib/domains/app/devpulse/index.js";
 import { GpuUtilGauge, hardwareState, VramGauge } from "$lib/domains/app/models/index.js";
 import { groupHealthSubsystems } from "$lib/layouts/app/StatusBar.types.js";

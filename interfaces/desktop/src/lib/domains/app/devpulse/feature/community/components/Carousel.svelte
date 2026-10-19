@@ -7,9 +7,9 @@
   Keyboard: ArrowLeft/Right to navigate, Enter to select.
 -->
 <script lang="ts">
-import { Card } from "$lib/design/components/card/index.js";
-import { Text } from "$lib/design/components/text/index.js";
-import { cn } from "$lib/design/utils/cn.js";
+import { Card } from "@devpulse/coldlight/components/card";
+import { Text } from "@devpulse/coldlight/components/text";
+import { cn } from "@devpulse/coldlight/utils";
 
 interface CarouselItem {
 	icon: string;

@@ -10,12 +10,12 @@
   Layout chrome only — message stream + composer live inside `ChatRoot` on the route.
 -->
 <script lang="ts">
+import { Button } from "@devpulse/coldlight/components/button";
+import { ChatDashboard } from "@devpulse/coldlight/components/chat-dashboard";
+import { ChatFrame } from "@devpulse/coldlight/components/chat-frame";
+import { ChatTopBar } from "@devpulse/coldlight/components/chat-topbar";
 import { Brain, Cpu } from "lucide-svelte";
 import type { Snippet } from "svelte";
-import { Button } from "$lib/design/components/button/index.js";
-import { ChatDashboard } from "$lib/design/components/chat-dashboard/index.js";
-import { ChatFrame } from "$lib/design/components/chat-frame/index.js";
-import { ChatTopBar } from "$lib/design/components/chat-topbar/index.js";
 import { openWindow, type WindowRole } from "$lib/sys/bindings/window/index.js";
 import { logError } from "$lib/sys/logger.js";
 import { globalState } from "$lib/sys/runes/global.svelte.js";

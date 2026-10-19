@@ -23,7 +23,7 @@
  *                       shadow-*, ring-*, blur-*, opacity-*, tracking-*,
  *                       leading-*, transition/animate-*, …).
  *   visual-theme-token  A non-layout custom property emitted into a
- *                       Tailwind `@theme` file (src/lib/design/theme/),
+ *                       Tailwind `@theme` file (packages/coldlight/theme/),
  *                       which is what makes visual utilities exist.
  *   raw-value           A literal color (#hex, rgb(), hsl(), oklch(), …)
  *                       or px length authored outside the generated token
@@ -50,20 +50,21 @@ import { fileURLToPath } from "node:url";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(HERE, "..", "..");
-const SRC = join(REPO_ROOT, "interfaces", "desktop", "src");
+/** The frontend tree: the app's source and the ColdLight package. */
+const ROOTS = [join(REPO_ROOT, "interfaces", "desktop", "src"), join(REPO_ROOT, "packages", "coldlight")];
 const BASELINE_PATH = join(HERE, "coldlight-boundary.baseline.json");
 
 /** Generated token outputs — the only place literal values may live in src. */
 const GENERATED_DIRS = [
-	"lib/design/styles/",
-	"lib/design/theme/",
-	"lib/design/types/",
-	"lib/design/generated/",
-	"lib/design/.cowlevel/",
-	"lib/sys/generated/",
+	"packages/coldlight/styles/",
+	"packages/coldlight/theme/",
+	"packages/coldlight/types/",
+	"packages/coldlight/generated/",
+	"packages/coldlight/.cowlevel/",
+	"interfaces/desktop/src/lib/sys/generated/",
 ];
-const THEME_DIR = "lib/design/theme/";
-const RECIPES_DIR = "lib/design/recipes/";
+const THEME_DIR = "packages/coldlight/theme/";
+const RECIPES_DIR = "packages/coldlight/recipes/";
 
 const RULES = ["undefined-var", "tailwind-visual", "visual-theme-token", "raw-value"];
 
@@ -95,13 +96,14 @@ const PX_LITERAL = /(?<![\w.-])(?:\d*\.)?\d+px\b/g;
 function walk(dir) {
 	return readdirSync(dir, { recursive: true, withFileTypes: true })
 		.filter((d) => d.isFile() && /\.(svelte|css|ts|js)$/.test(d.name))
-		.map((d) => join(d.parentPath ?? d.path, d.name));
+		.map((d) => join(d.parentPath ?? d.path, d.name))
+		.filter((abs) => !abs.split(sep).includes("node_modules"));
 }
 
-const rel = (abs) => relative(SRC, abs).split(sep).join("/");
+const rel = (abs) => relative(REPO_ROOT, abs).split(sep).join("/");
 const isGenerated = (r) => GENERATED_DIRS.some((d) => r.startsWith(d)) || /\.generated\.[a-z]+$/.test(r);
 /** Third-party doc assets — not part of the rendered app. */
-const isVendored = (r) => r.startsWith("lib/design/.cowlevel/");
+const isVendored = (r) => r.startsWith("packages/coldlight/.cowlevel/");
 
 /** Strip block, line and HTML comments while keeping line numbers intact. */
 function stripComments(text) {
@@ -159,7 +161,7 @@ function isVisualUtility(token) {
 // ── scan ────────────────────────────────────────────────────────
 
 function scan() {
-	const files = walk(SRC).map((abs) => ({ abs, r: rel(abs), text: stripComments(readFileSync(abs, "utf8")) }));
+	const files = ROOTS.flatMap(walk).map((abs) => ({ abs, r: rel(abs), text: stripComments(readFileSync(abs, "utf8")) }));
 
 	// Declared custom properties anywhere in src (CSS, style blocks, style:--x, TS keys, setProperty).
 	const declared = new Set();
@@ -241,8 +243,9 @@ function writeBaseline(c) {
 }
 
 function main() {
-	if (!existsSync(SRC)) {
-		console.error(`coldlight-boundary: source dir not found: ${SRC}`);
+	const missing = ROOTS.filter((root) => !existsSync(root));
+	if (missing.length) {
+		console.error(`coldlight-boundary: source dir not found: ${missing.join(", ")}`);
 		return 2;
 	}
 	const args = process.argv.slice(2);

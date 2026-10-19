@@ -39,8 +39,8 @@ const { Story } = defineMeta({
 </script>
 
 <script lang="ts">
-	import Button from '$lib/design/components/button/Button.svelte';
-	import type { ButtonIntent, ButtonSize } from '$lib/design/components/button/button.types.js';
+	import type { ButtonIntent, ButtonSize } from "@devpulse/coldlight/components/button";
+	import { Button } from "@devpulse/coldlight/components/button";
 
 	/**
 	 * DTCG token chain demonstrated in this file:
@@ -60,7 +60,7 @@ const { Story } = defineMeta({
 <!-- @ts-ignore Storybook CSF args typing -->
 <Story name="Default" let:args>
 	{@const a = args as { intent: ButtonIntent; size: ButtonSize; disabled: boolean; loading: boolean; label: string }}
-	<div class="p-12 bg-[#050708] min-h-[200px] flex items-center justify-center">
+	<div class="p-12 bg-[var(--color-void-base)] min-h-[12.5rem] flex items-center justify-center">
 		<Button
 			intent={a.intent}
 			size={a.size}
@@ -74,7 +74,7 @@ const { Story } = defineMeta({
 
 <!-- All Intents — side by side comparison -->
 <Story name="All Intents">
-	<div class="p-12 bg-[#050708] min-h-[200px] flex items-center gap-4 flex-wrap">
+	<div class="p-12 bg-[var(--color-void-base)] min-h-[12.5rem] flex items-center gap-4 flex-wrap">
 		{#each ['primary', 'secondary', 'ghost', 'danger'] as intent (intent)}
 			<Button intent={intent as ButtonIntent}>
 				{intent.charAt(0).toUpperCase() + intent.slice(1)}
@@ -85,7 +85,7 @@ const { Story } = defineMeta({
 
 <!-- All Sizes -->
 <Story name="All Sizes">
-	<div class="p-12 bg-[#050708] min-h-[200px] flex items-center gap-4">
+	<div class="p-12 bg-[var(--color-void-base)] min-h-[12.5rem] flex items-center gap-4">
 		{#each ['sm', 'md', 'lg'] as size (size)}
 			<Button size={size as ButtonSize}>
 				Size {size}
@@ -96,7 +96,7 @@ const { Story } = defineMeta({
 
 <!-- States -->
 <Story name="States">
-	<div class="p-12 bg-[#050708] min-h-[200px] flex items-center gap-4">
+	<div class="p-12 bg-[var(--color-void-base)] min-h-[12.5rem] flex items-center gap-4">
 		<Button>Normal</Button>
 		<Button disabled>Disabled</Button>
 		<Button loading>Loading...</Button>
@@ -105,7 +105,7 @@ const { Story } = defineMeta({
 
 <!-- 8-Axis Composite Effects -->
 <Story name="Composite Effects">
-	<div class="p-12 bg-[#050708] min-h-[400px] flex flex-col gap-8">
+	<div class="p-12 bg-[var(--color-void-base)] min-h-[25rem] flex flex-col gap-8">
 		<p class="text-sm text-zinc-500 font-mono">8-Axis Visual Encoding — each button uses different preset axis values</p>
 
 		<div class="flex items-center gap-4">
@@ -140,7 +140,7 @@ const { Story } = defineMeta({
 	[data-kind] base rule composites all 4 shadow layers into one box-shadow.
 -->
 <Story name="DTCG Composite Tokens">
-	<div class="p-12 bg-[#050708] min-h-[500px] flex flex-col gap-10">
+	<div class="p-12 bg-[var(--color-void-base)] min-h-[31.25rem] flex flex-col gap-10">
 		<div>
 			<p class="text-sm text-zinc-500 font-mono mb-4">DTCG Token Resolution Chain — each row overrides one axis at a time</p>
 
@@ -192,12 +192,12 @@ const { Story } = defineMeta({
 	  → variants.css applies token-backed CSS
 -->
 <Story name="Block Composition">
-	<div class="p-12 bg-[#050708] min-h-[500px] flex flex-col gap-8">
+	<div class="p-12 bg-[var(--color-void-base)] min-h-[31.25rem] flex flex-col gap-8">
 		<p class="text-sm text-zinc-500 font-mono">VPB Block Simulation — button inside a surface block, all token-driven</p>
 
 		<!-- Simulated Panel block containing buttons -->
 		<div
-			class="rounded-xl p-6 w-[480px] v-s3 v-d2 v-b2 v-g1 v-f1 v-t1 border border-[var(--border-subtle)]"
+			class="rounded-xl p-6 w-[30rem] v-s3 v-d2 v-b2 v-g1 v-f1 v-t1 border border-[var(--border-subtle)]"
 			data-kind="panel"
 			data-slot="root"
 		>
@@ -226,7 +226,7 @@ const { Story } = defineMeta({
 
 		<!-- Simulated Card block with danger action -->
 		<div
-			class="rounded-xl p-6 w-[480px] v-s3 v-d3 v-b3 v-g4 v-f1 v-t1 border border-[var(--border-strong)]"
+			class="rounded-xl p-6 w-[30rem] v-s3 v-d3 v-b3 v-g4 v-f1 v-t1 border border-[var(--border-strong)]"
 			data-kind="card"
 			data-slot="root"
 		>
@@ -259,7 +259,7 @@ const { Story } = defineMeta({
 	ColdLight resolves everything. Zero configuration needed.
 -->
 <Story name="Default Resolution">
-	<div class="p-12 bg-[#050708] min-h-[400px] flex flex-col gap-8">
+	<div class="p-12 bg-[var(--color-void-base)] min-h-[25rem] flex flex-col gap-8">
 		<div>
 			<p class="text-sm text-zinc-500 font-mono mb-2">Zero props — full default resolution chain</p>
 			<p class="text-xs text-zinc-600 font-mono mb-6">
@@ -285,19 +285,19 @@ const { Story } = defineMeta({
 			<div class="flex items-center gap-4">
 				<div class="flex flex-col items-center gap-2">
 					<Button intent="primary">Primary</Button>
-					<code class="text-[10px] text-zinc-600">v-s3z0d2b2g1f1m0t1</code>
+					<code class="text-[0.625rem] text-zinc-600">v-s3z0d2b2g1f1m0t1</code>
 				</div>
 				<div class="flex flex-col items-center gap-2">
 					<Button intent="secondary">Secondary</Button>
-					<code class="text-[10px] text-zinc-600">v-s2z0d1b1g0f1m0t1</code>
+					<code class="text-[0.625rem] text-zinc-600">v-s2z0d1b1g0f1m0t1</code>
 				</div>
 				<div class="flex flex-col items-center gap-2">
 					<Button intent="ghost">Ghost</Button>
-					<code class="text-[10px] text-zinc-600">v-s0z0d0b0g0f0m0t1</code>
+					<code class="text-[0.625rem] text-zinc-600">v-s0z0d0b0g0f0m0t1</code>
 				</div>
 				<div class="flex flex-col items-center gap-2">
 					<Button intent="danger">Danger</Button>
-					<code class="text-[10px] text-zinc-600">v-s3z0d2b2g4f1m0t1</code>
+					<code class="text-[0.625rem] text-zinc-600">v-s3z0d2b2g4f1m0t1</code>
 				</div>
 			</div>
 		</div>

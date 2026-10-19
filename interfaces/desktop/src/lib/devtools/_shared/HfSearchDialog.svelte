@@ -23,10 +23,10 @@
 	  on the parent surface).
 -->
 <script lang="ts">
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Spinner } from "@devpulse/coldlight/components/spinner";
+import { Text } from "@devpulse/coldlight/components/text";
 import { Search, X } from "lucide-svelte";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Spinner } from "$lib/design/components/spinner/index.js";
-import { Text } from "$lib/design/components/text/index.js";
 import { type HfSearchResultInfo, searchHuggingface } from "$lib/sys/bindings/models/index.js";
 import RepoDownloadButton from "./RepoDownloadButton.svelte";
 

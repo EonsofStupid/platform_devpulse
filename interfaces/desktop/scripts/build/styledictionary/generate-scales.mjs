@@ -12,7 +12,7 @@
  * TS barrels.
  *
  * DTCG spec reference:
- *   interfaces/desktop/src/lib/design/docs/DTCG-REFERENCE.md
+ *   packages/coldlight/docs/DTCG-REFERENCE.md
  *
  * Golden pattern reference:
  *   interfaces/desktop/scripts/build/styledictionary/dtcg-emit.mjs

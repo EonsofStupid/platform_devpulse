@@ -4,16 +4,13 @@
   @domain devpulse
 -->
 <script lang="ts">
+import { Widget } from "@devpulse/coldlight/blocks/widgets";
+import { Button } from "@devpulse/coldlight/components/button";
+import { InlineMessage } from "@devpulse/coldlight/components/inline-message";
+import { Spinner } from "@devpulse/coldlight/components/spinner";
+import { Text } from "@devpulse/coldlight/components/text";
+import { cn, container, hstack, stack } from "@devpulse/coldlight/utils";
 import { Check, Pencil, X } from "lucide-svelte";
-import { Widget } from "$lib/design/blocks/widgets/index.js";
-import { Button } from "$lib/design/components/button/index.js";
-import { InlineMessage } from "$lib/design/components/inline-message/index.js";
-import { Spinner } from "$lib/design/components/spinner/index.js";
-import { Text } from "$lib/design/components/text/index.js";
-import { cn } from "$lib/design/utils/cn.js";
-import { container } from "$lib/design/utils/container/index.js";
-import { hstack } from "$lib/design/utils/hstack/index.js";
-import { stack } from "$lib/design/utils/stack/index.js";
 import { profileSettingsState } from "$lib/domains/app/devpulse/index.js";
 
 const settingsState = profileSettingsState;

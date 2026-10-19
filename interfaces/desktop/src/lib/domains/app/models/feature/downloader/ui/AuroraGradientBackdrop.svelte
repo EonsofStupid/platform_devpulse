@@ -17,7 +17,7 @@
 	so the visual identity is preserved without animation.
 -->
 <script lang="ts">
-import { cn } from "$lib/design/utils/cn.js";
+import { cn } from "@devpulse/coldlight/utils";
 
 interface Props {
 	/** Optional class for layout positioning by the parent. */

@@ -5,13 +5,13 @@
 	@description Presets + per-field sliders driven by param meta from Rust.
 -->
 <script lang="ts">
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Callout } from "@devpulse/coldlight/components/callout";
+import { Card } from "@devpulse/coldlight/components/card";
+import { Slider } from "@devpulse/coldlight/components/slider";
+import { Text } from "@devpulse/coldlight/components/text";
 import { Settings2 } from "lucide-svelte";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Button } from "$lib/design/components/button/index.js";
-import { Callout } from "$lib/design/components/callout/index.js";
-import { Card } from "$lib/design/components/card/index.js";
-import { Slider } from "$lib/design/components/slider/index.js";
-import { Text } from "$lib/design/components/text/index.js";
 import { rroState } from "$lib/sys/data-access/rro/rro.state.svelte.js";
 import { CapabilityHeader, ErrorCallout } from "../../ui/index.js";
 import { formatField } from "../../util/rro.format.js";

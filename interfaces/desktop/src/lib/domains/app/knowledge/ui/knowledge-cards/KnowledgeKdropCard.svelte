@@ -8,10 +8,10 @@
 	a `thinking` Clyffy headshot, and a "Tip" kicker.
 -->
 <script lang="ts">
-import { ClyffyHeadshot } from "$lib/design/blocks/clyffy/index.js";
-import { KnowledgeCard } from "$lib/design/blocks/knowledge/index.js";
-import { Button } from "$lib/design/components/button/index.js";
-import { Text } from "$lib/design/components/text/index.js";
+import { ClyffyHeadshot } from "@devpulse/coldlight/blocks/clyffy";
+import { KnowledgeCard } from "@devpulse/coldlight/blocks/knowledge";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Text } from "@devpulse/coldlight/components/text";
 import type { KdropPayload, KnowledgeEntry } from "../../util/index.js";
 
 interface Props {

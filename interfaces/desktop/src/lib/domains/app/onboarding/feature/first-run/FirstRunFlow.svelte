@@ -8,11 +8,11 @@
 	(finished, or "Set up later"), the dashboard shows.
 -->
 <script lang="ts">
+import { Button } from "@devpulse/coldlight/components/button";
+import { InlineMessage } from "@devpulse/coldlight/components/inline-message";
+import { Spinner } from "@devpulse/coldlight/components/spinner";
 import { goto } from "$app/navigation";
 import { resolve } from "$app/paths";
-import { Button } from "$lib/design/components/button/index.js";
-import { InlineMessage } from "$lib/design/components/inline-message/index.js";
-import { Spinner } from "$lib/design/components/spinner/index.js";
 import { copyState, fill } from "$lib/sys/copy/index.js";
 import { onboardingState } from "../../data-access/onboarding.state.svelte.js";
 import { youForm } from "../../data-access/you-form.state.svelte.js";

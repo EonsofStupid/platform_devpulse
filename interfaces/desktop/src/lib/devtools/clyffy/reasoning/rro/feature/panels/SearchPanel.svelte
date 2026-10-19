@@ -5,18 +5,18 @@
 	@description "Try It" — encode a query, search a collection, show results with quality feedback.
 -->
 <script lang="ts">
-import { Search } from "lucide-svelte";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Button } from "$lib/design/components/button/index.js";
-import { Card } from "$lib/design/components/card/index.js";
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Card } from "@devpulse/coldlight/components/card";
 import {
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
-} from "$lib/design/components/select/index.js";
-import { Text } from "$lib/design/components/text/index.js";
-import { TextField } from "$lib/design/components/text-field/index.js";
+} from "@devpulse/coldlight/components/select";
+import { Text } from "@devpulse/coldlight/components/text";
+import { TextField } from "@devpulse/coldlight/components/text-field";
+import { Search } from "lucide-svelte";
 import { rroState } from "$lib/sys/data-access/rro/rro.state.svelte.js";
 import { CapabilityHeader, ErrorCallout } from "../../ui/index.js";
 import { bucketBgClass, formatMs, scoreBuckets, scoreVariant } from "../../util/rro.format.js";

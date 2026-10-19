@@ -18,10 +18,10 @@
 	   ships its feed surface. The text honestly says what is coming.
 -->
 <script lang="ts">
+import { Widget } from "@devpulse/coldlight/blocks/widgets";
+import { Text } from "@devpulse/coldlight/components/text";
+import { stack } from "@devpulse/coldlight/utils";
 import { onMount } from "svelte";
-import { Widget } from "$lib/design/blocks/widgets/index.js";
-import { Text } from "$lib/design/components/text/index.js";
-import { stack } from "$lib/design/utils/stack/index.js";
 import { CommunityFeedList, communityState } from "$lib/domains/app/community/index.js";
 import { KnowledgeDeck, syncKnowledgeFromRemote } from "$lib/domains/app/knowledge/index.js";
 import { LatestUpdateCard, updatesState } from "$lib/domains/app/updates/index.js";

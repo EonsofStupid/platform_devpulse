@@ -2,7 +2,7 @@
   @feature ChatActionsMenu — delete / clear / export
 -->
 <script lang="ts">
-import { Button } from "$lib/design/components/button/index.js";
+import { Button } from "@devpulse/coldlight/components/button";
 import { chatState } from "../data-access/chat.state.svelte.js";
 import { sessionsState } from "../data-access/sessions.state.svelte.js";
 import DeleteConfirmDialog from "./DeleteConfirmDialog.svelte";

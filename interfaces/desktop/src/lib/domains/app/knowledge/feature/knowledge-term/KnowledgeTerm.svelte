@@ -50,9 +50,9 @@
 	sprinkle through long-form copy without performance worry.
 -->
 <script lang="ts">
+import { Card } from "@devpulse/coldlight/components/card";
+import { Text } from "@devpulse/coldlight/components/text";
 import { onDestroy, type Snippet } from "svelte";
-import { Card } from "$lib/design/components/card/index.js";
-import { Text } from "$lib/design/components/text/index.js";
 import { knowledgeState } from "../../data-access/knowledge.state.svelte.js";
 import { isGlossary } from "../../util/index.js";
 

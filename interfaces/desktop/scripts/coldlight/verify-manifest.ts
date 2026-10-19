@@ -21,7 +21,7 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DESKTOP_ROOT = path.resolve(__dirname, "../..");
-const DESIGN_ROOT = path.resolve(DESKTOP_ROOT, "src/lib/design");
+const DESIGN_ROOT = path.resolve(DESKTOP_ROOT, "../../packages/coldlight");
 const COMPONENTS_ROOT = path.resolve(DESIGN_ROOT, "components");
 
 const EXCLUDED_DIRS = [".claude", "sprints", "_transport", "_base", "_internal"];

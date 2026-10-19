@@ -10,8 +10,8 @@
 	Sized for chat margins — narrow, single-line, dismissible.
 -->
 <script lang="ts">
+import { Text } from "@devpulse/coldlight/components/text";
 import { X } from "lucide-svelte";
-import { Text } from "$lib/design/components/text/index.js";
 import { narrationState } from "../data-access/narration.state.svelte.js";
 import { ROLE_COLORS, roleForSlot } from "../util/roles.js";
 import { getSlotLabel } from "../util/slots.js";

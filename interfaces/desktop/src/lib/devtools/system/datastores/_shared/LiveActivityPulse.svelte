@@ -25,8 +25,8 @@
 	store sits quiet between bursts.
 -->
 <script lang="ts">
+import { Text } from "@devpulse/coldlight/components/text";
 import { onDestroy } from "svelte";
-import { Text } from "$lib/design/components/text/index.js";
 
 interface Props {
 	/** Monotonically incrementing counter — every change fires a blip. */

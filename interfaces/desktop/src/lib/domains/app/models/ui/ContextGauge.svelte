@@ -6,8 +6,8 @@
   warning signal lives on intent, not color.
 -->
 <script lang="ts">
-import { RadialGauge } from "$lib/design/components/radial-gauge/index.js";
-import type { SvgAccent, SvgIntent } from "$lib/design/svg/svg-types.js";
+import { RadialGauge } from "@devpulse/coldlight/components/radial-gauge";
+import type { SvgAccent, SvgIntent } from "@devpulse/coldlight/svg";
 
 interface Props {
 	usedTokens: number | null;

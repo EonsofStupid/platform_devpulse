@@ -8,9 +8,9 @@
 	repo. Holds no text of its own.
 -->
 <script lang="ts">
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Checkbox } from "$lib/design/components/checkbox/index.js";
-import { Text } from "$lib/design/components/text/index.js";
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Checkbox } from "@devpulse/coldlight/components/checkbox";
+import { Text } from "@devpulse/coldlight/components/text";
 import type { RepoListProps } from "./repo-list.types.js";
 
 let { repos, picked, results, text, disabled = false, onToggle }: RepoListProps = $props();

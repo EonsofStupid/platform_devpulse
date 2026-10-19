@@ -23,13 +23,11 @@
 }
 -->
 <script lang="ts">
+import { Button } from "@devpulse/coldlight/components/button";
+import { Text } from "@devpulse/coldlight/components/text";
+import { box, cn, stack } from "@devpulse/coldlight/utils";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-svelte";
 import { page } from "$app/state";
-import { Button } from "$lib/design/components/button/index.js";
-import { Text } from "$lib/design/components/text/index.js";
-import { box } from "$lib/design/utils/box/index.js";
-import { cn } from "$lib/design/utils/cn.js";
-import { stack } from "$lib/design/utils/stack/index.js";
 import { copyState } from "$lib/sys/copy/index.js";
 import { hrefOf, type RouteNode, routeCopy } from "$lib/sys/routing/index.js";
 import { globalState } from "$lib/sys/runes/global.svelte";

@@ -9,11 +9,11 @@
   is the priority over strict isolation.
 -->
 <script lang="ts">
+import { Button } from "@devpulse/coldlight/components/button";
+import { Text } from "@devpulse/coldlight/components/text";
 import { Activity, ExternalLink, Grid3x3, Settings, X } from "lucide-svelte";
 import { onMount, untrack } from "svelte";
 import { page } from "$app/state";
-import { Button } from "$lib/design/components/button/index.js";
-import Text from "$lib/design/components/text/Text.svelte";
 import LiveSubsystemStrip from "$lib/devtools/_shared/LiveSubsystemStrip.svelte";
 import { devtoolNav, devtoolTiers } from "$lib/devtools/index.js";
 import { copyState } from "$lib/sys/copy/index.js";

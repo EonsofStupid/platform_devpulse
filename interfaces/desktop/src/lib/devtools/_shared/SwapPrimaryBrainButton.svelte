@@ -32,8 +32,8 @@
 	carries the final outcome.
 -->
 <script lang="ts">
+import { Button, type ButtonPreset } from "@devpulse/coldlight/components/button";
 import { BrainCog } from "lucide-svelte";
-import { Button, type ButtonPreset } from "$lib/design/components/button/index.js";
 import { modelsState } from "$lib/domains/app/models/index.js";
 import { ClyffyLoadingBlock } from "$lib/domains/clyffy/index.js";
 import { commands } from "$lib/sys/generated/bindings.js";

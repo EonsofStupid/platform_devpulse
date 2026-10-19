@@ -145,7 +145,7 @@ const tw4Remap = {
  */
 const paths = {
 	source: 'scripts/build/styledictionary/tokens/src',
-	design: 'src/lib/design',
+	design: '../../packages/coldlight',
 };
 
 // ═══════════════════════════════════════════════════════════════

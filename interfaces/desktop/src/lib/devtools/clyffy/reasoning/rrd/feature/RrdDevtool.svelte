@@ -14,11 +14,11 @@
 	pre-instantiation diagnostic surface.
 -->
 <script lang="ts">
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Text } from "@devpulse/coldlight/components/text";
 import { Activity, Trash2, Upload } from "lucide-svelte";
 import { onMount } from "svelte";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Button } from "$lib/design/components/button/index.js";
-import { Text } from "$lib/design/components/text/index.js";
 import { type HealthBadge, ScopedLogPanel, ServiceDevtoolShell } from "$lib/devtools/index.js";
 import { laymanFor } from "$lib/sys/data-access/rrd/phase-labels.js";
 import { rrdState } from "$lib/sys/data-access/rrd/rrd.state.svelte.js";

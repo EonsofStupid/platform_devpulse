@@ -41,14 +41,14 @@ const { Story } = defineMeta({
 </script>
 
 <script lang="ts">
-	import { cn } from '$lib/design/utils/cn.js';
-	import Button from '$lib/design/components/button/Button.svelte';
+	import { Button } from "@devpulse/coldlight/components/button";
+	import { cn } from "@devpulse/coldlight/utils";
 
 	const SURFACE_MAP: Record<string, string> = {
-		'glass-void': 'bg-[var(--glass-void)] backdrop-blur-[20px]',
-		'glass-deep': 'bg-[var(--glass-deep)] backdrop-blur-[16px]',
-		'glass-smoke': 'bg-[var(--glass-smoke)] backdrop-blur-[12px]',
-		'glass-frost': 'bg-[var(--glass-frost)] backdrop-blur-[20px]',
+		'glass-void': 'bg-[var(--glass-void)] backdrop-blur-[1.25rem]',
+		'glass-deep': 'bg-[var(--glass-deep)] backdrop-blur-[1rem]',
+		'glass-smoke': 'bg-[var(--glass-smoke)] backdrop-blur-[0.75rem]',
+		'glass-frost': 'bg-[var(--glass-frost)] backdrop-blur-[1.25rem]',
 		'matte-dark': 'bg-[var(--matte-dark)]',
 	};
 
@@ -83,10 +83,10 @@ const { Story } = defineMeta({
 <!-- Default — interactive glass panel with buttons -->
 <!-- @ts-ignore Storybook CSF args -->
 <Story name="Default" let:args>
-	<div class="p-16 bg-[#050708] min-h-[400px] flex items-center justify-center">
+	<div class="p-16 bg-[var(--color-void-base)] min-h-[25rem] flex items-center justify-center">
 		<div
 			class={cn(
-				'rounded-xl p-6 w-[420px]',
+				'rounded-xl p-6 w-[26.25rem]',
 				'border border-[var(--border-subtle)]',
 				'transition-all duration-250',
 				SURFACE_MAP[(args as any).surface] ?? SURFACE_MAP['glass-deep'],
@@ -130,12 +130,12 @@ const { Story } = defineMeta({
 
 <!-- Glow Variants — same panel, different glow colors -->
 <Story name="Glow Variants">
-	<div class="p-16 bg-[#050708] min-h-[400px] flex items-center gap-8 flex-wrap justify-center">
+	<div class="p-16 bg-[var(--color-void-base)] min-h-[25rem] flex items-center gap-8 flex-wrap justify-center">
 		{#each ['teal', 'purple', 'magenta', 'ember', 'cyber'] as color}
 			<div
 				class={cn(
-					'rounded-xl p-5 w-[200px]',
-					'bg-[var(--glass-deep)] backdrop-blur-[16px]',
+					'rounded-xl p-5 w-[12.5rem]',
+					'bg-[var(--glass-deep)] backdrop-blur-[1rem]',
 					'border border-[var(--border-subtle)]',
 					'shadow-[var(--shadow-z2),var(--bevel-soft)]',
 					GLOW_MAP[color],
@@ -154,12 +154,12 @@ const { Story } = defineMeta({
 
 <!-- Bevel Progression — off through deep -->
 <Story name="Bevel Progression">
-	<div class="p-16 bg-[#050708] min-h-[400px] flex items-center gap-6 flex-wrap justify-center">
+	<div class="p-16 bg-[var(--color-void-base)] min-h-[25rem] flex items-center gap-6 flex-wrap justify-center">
 		{#each ['off', 'subtle', 'soft', 'medium', 'pronounced', 'deep'] as level}
 			<div
 				class={cn(
-					'rounded-xl p-5 w-[180px] h-[120px] flex flex-col justify-between',
-					'bg-[var(--glass-deep)] backdrop-blur-[16px]',
+					'rounded-xl p-5 w-[11.25rem] h-[7.5rem] flex flex-col justify-between',
+					'bg-[var(--glass-deep)] backdrop-blur-[1rem]',
 					'border border-[var(--border-subtle)]',
 					'shadow-[var(--shadow-z2)]',
 					BEVEL_MAP[level],
@@ -177,12 +177,12 @@ const { Story } = defineMeta({
 
 <!-- Depth Scale — z0 through z4 -->
 <Story name="Depth Scale">
-	<div class="p-16 bg-[#050708] min-h-[400px] flex items-center gap-6 flex-wrap justify-center">
+	<div class="p-16 bg-[var(--color-void-base)] min-h-[25rem] flex items-center gap-6 flex-wrap justify-center">
 		{#each ['z0', 'z1', 'z2', 'z3', 'z4'] as level}
 			<div
 				class={cn(
-					'rounded-xl p-5 w-[160px] h-[100px] flex flex-col justify-between',
-					'bg-[var(--glass-smoke)] backdrop-blur-[12px]',
+					'rounded-xl p-5 w-[10rem] h-[6.25rem] flex flex-col justify-between',
+					'bg-[var(--glass-smoke)] backdrop-blur-[0.75rem]',
 					'border border-[var(--border-subtle)]',
 					DEPTH_MAP[level],
 					'transition-all duration-250',

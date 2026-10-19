@@ -3,61 +3,6 @@
 	"extends": "//",
 	"overrides": [
 		{
-			"includes": [
-				"src/routes/**/+page.svelte",
-				"src/routes/**/+page.ts",
-				"src/routes/**/+page.server.ts",
-				"src/routes/**/+layout.svelte",
-				"src/routes/**/+layout.ts"
-			],
-			"linter": {
-				"rules": {
-					"style": {
-						"noRestrictedImports": {
-							"level": "error",
-							"options": {
-								"paths": {},
-								"patterns": [
-									{
-										"group": ["**/_archive/*", "**/_archive/**"],
-										"message": "Archive imports are banned. Build from taxonomy contracts."
-									},
-									{
-										"group": ["$lib/design/recipes/*", "$lib/design/recipes/**"],
-										"message": "Routes must not import recipes directly. Use components or renderers."
-									}
-								]
-							}
-						}
-					}
-				}
-			}
-		},
-		{
-			"includes": ["src/lib/design/builders/**/*.ts", "src/lib/design/builders/**/*.svelte.ts"],
-			"linter": {
-				"rules": {
-					"style": {
-						"noRestrictedImports": {
-							"level": "error",
-							"options": {
-								"paths": {
-									"@melt-ui/svelte": "builders/ must not import third-party headless libraries. ColdLight-owned only.",
-									"@melt-ui/svelte/internal/helpers": "builders/ must not import third-party headless internals."
-								},
-								"patterns": [
-									{
-										"group": ["**/_archive/*", "**/_archive/**"],
-										"message": "Archive imports are banned. Build from taxonomy contracts."
-									}
-								]
-							}
-						}
-					}
-				}
-			}
-		},
-		{
 			"includes": ["**/DEBUG_FLAG.ts"],
 			"linter": {
 				"rules": {
@@ -68,15 +13,7 @@
 			}
 		},
 		{
-			"includes": [
-				"src/lib/design/styles/**",
-				"src/lib/design/css/**",
-				"src/lib/design/theme/**",
-				"src/lib/design/generated/**",
-				"src/lib/design/svg/**",
-				"src/lib/design/plugins/**",
-				"src/lib/sys/debug/vpb/**"
-			],
+			"includes": ["src/lib/sys/debug/vpb/**"],
 			"linter": {
 				"rules": {
 					"nursery": {
@@ -89,19 +26,8 @@
 	"files": {
 		"includes": [
 			"!**/src/lib/sys/generated",
-			"!**/src/lib/design/.cowlevel",
-			"!**/src/lib/design/style",
-			"!**/src/lib/design/styles",
-			"!**/src/lib/design/css",
-			"!**/src/lib/design/theme",
-			"!**/src/lib/design/generated",
-			"!**/src/lib/design/svg",
-			"!**/src/lib/design/plugins",
-			"!**/src/lib/design/primitives/_archive",
-			"!**/src/lib/design/primitives/tanstack/flex-render.svelte",
 			"!**/src-tauri/resources/devforge",
-			"!**/src-tauri/gen",
-			"!**/taxonomy/.generated/coldlight.manifest.json"
+			"!**/src-tauri/gen"
 		]
 	}
 }

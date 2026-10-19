@@ -41,11 +41,11 @@
 	```
 -->
 <script lang="ts">
+import { Button, type ButtonPreset } from "@devpulse/coldlight/components/button";
+import { Spinner } from "@devpulse/coldlight/components/spinner";
+import { Text } from "@devpulse/coldlight/components/text";
 import { invoke } from "@tauri-apps/api/core";
 import { Download, FileArchive, X } from "lucide-svelte";
-import { Button, type ButtonPreset } from "$lib/design/components/button/index.js";
-import { Spinner } from "$lib/design/components/spinner/index.js";
-import { Text } from "$lib/design/components/text/index.js";
 import { logInfo } from "$lib/sys/logger.js";
 import {
 	formatBytes,

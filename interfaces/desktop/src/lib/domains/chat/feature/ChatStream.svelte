@@ -2,7 +2,7 @@
   @feature ChatStream — scrollable messages
 -->
 <script lang="ts">
-import { cn } from "$lib/design/utils/cn.js";
+import { cn } from "@devpulse/coldlight/utils";
 import { chatState } from "../data-access/chat.state.svelte.js";
 import { EmptyChatState, MessageBubble, TypingIndicator } from "../ui/index.js";
 

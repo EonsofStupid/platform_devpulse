@@ -21,14 +21,11 @@
 }
 -->
 <script lang="ts">
-import { Badge, type BadgeVariant } from "$lib/design/components/badge/index.js";
-import { DynamicBackground } from "$lib/design/components/dynamic-background/index.js";
-import { Progress } from "$lib/design/components/progress/index.js";
-import { Text } from "$lib/design/components/text/index.js";
-import { box } from "$lib/design/utils/box/index.js";
-import { cn } from "$lib/design/utils/cn.js";
-import { hstack } from "$lib/design/utils/hstack/index.js";
-import { stack } from "$lib/design/utils/stack/index.js";
+import { Badge, type BadgeVariant } from "@devpulse/coldlight/components/badge";
+import { DynamicBackground } from "@devpulse/coldlight/components/dynamic-background";
+import { Progress } from "@devpulse/coldlight/components/progress";
+import { Text } from "@devpulse/coldlight/components/text";
+import { box, cn, hstack, stack } from "@devpulse/coldlight/utils";
 import { LoadingContentCard } from "$lib/domains/clyffy/index.js";
 import { DEV_MODE, devLabel, resolveLabel } from "$lib/sys/generated/terminology.js";
 import { getIcon } from "$lib/sys/generated/terminology-icons.js";

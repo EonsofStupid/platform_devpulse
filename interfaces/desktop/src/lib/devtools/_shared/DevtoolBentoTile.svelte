@@ -21,8 +21,8 @@
 	```
 -->
 <script lang="ts">
+import { Card } from "@devpulse/coldlight/components/card";
 import type { Snippet } from "svelte";
-import { Card } from "$lib/design/components/card/index.js";
 
 type Span = 1 | 2 | 3 | 4;
 

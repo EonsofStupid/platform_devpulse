@@ -11,13 +11,11 @@
 	persona, the one dashboard.
 -->
 <script lang="ts">
+import { Widget } from "@devpulse/coldlight/blocks/widgets";
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Text } from "@devpulse/coldlight/components/text";
+import { cn, hstack, stack } from "@devpulse/coldlight/utils";
 import { BookOpenCheck, Brain, Database, Layers, Users } from "lucide-svelte";
-import { Widget } from "$lib/design/blocks/widgets/index.js";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Text } from "$lib/design/components/text/index.js";
-import { cn } from "$lib/design/utils/cn.js";
-import { hstack } from "$lib/design/utils/hstack/index.js";
-import { stack } from "$lib/design/utils/stack/index.js";
 import { MinionGrid } from "$lib/domains/app/minions/index.js";
 import { ClyffyStatusOrb, clyffyStatus, ToolsBrowser } from "$lib/domains/clyffy/index.js";
 import { DEV_MODE } from "$lib/sys/generated/terminology.js";

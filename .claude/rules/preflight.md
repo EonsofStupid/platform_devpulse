@@ -41,8 +41,8 @@ In order:
 1. `CLAUDE.md` (this project's root instructions)
 2. `scripts/surrealdb/ARCHITECTURE.md` (database architecture)
 3. Active sprint doc (from `projects/devpulse/context` or ask)
-4. `interfaces/desktop/src/lib/design/MASTER-PLAN.md` (ColdLight architecture)
-5. `interfaces/desktop/src/lib/design/coldlight.config.ts` (ColdLight config)
+4. `packages/coldlight/MASTER-PLAN.md` (ColdLight architecture)
+5. `packages/coldlight/coldlight.config.ts` (ColdLight config)
 
 ### 0.3 Verify What's On Disk
 Do NOT assume files exist. Check:

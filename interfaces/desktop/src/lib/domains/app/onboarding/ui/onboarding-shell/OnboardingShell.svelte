@@ -8,9 +8,9 @@
 	Holds no text of its own.
 -->
 <script lang="ts">
-import Card from "$lib/design/components/card/Card.svelte";
-import { DynamicBackground } from "$lib/design/components/dynamic-background/index.js";
-import { Text } from "$lib/design/components/text/index.js";
+import { Card } from "@devpulse/coldlight/components/card";
+import { DynamicBackground } from "@devpulse/coldlight/components/dynamic-background";
+import { Text } from "@devpulse/coldlight/components/text";
 import { ONBOARDING_VIDEO, type OnboardingShellProps } from "./onboarding-shell.types.js";
 
 let { videoSrc = ONBOARDING_VIDEO, progress, children, actions }: OnboardingShellProps = $props();

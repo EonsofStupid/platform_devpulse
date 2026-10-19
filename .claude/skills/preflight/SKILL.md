@@ -126,7 +126,7 @@ Read these files in order (paths relative to project root):
 4. Project-specific SSOT docs (varies by project)
 
 For DevPulse specifically also read:
-- `interfaces/desktop/src/lib/design/MASTER-PLAN.md` (ColdLight architecture)
+- `packages/coldlight/MASTER-PLAN.md` (ColdLight architecture)
 - `systems/devpulse-engine/platform.default.toml` (service configuration)
 
 ## Step 3: Verify Disk State

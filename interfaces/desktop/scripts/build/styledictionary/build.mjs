@@ -12,12 +12,12 @@
  *   3. Write barrel index files (CSS, theme, types)
  *
  * Output boundary (no second token pipeline):
- * - src/lib/design/styles/  — token custom properties (@layer tokens.*)
- * - src/lib/design/theme/   — Tailwind @theme blocks
- * - src/lib/design/types/   — generated .d.ts unions
- * - src/lib/design/generated/token-manifest.json — VPB manifest
+ * - packages/coldlight/styles/  — token custom properties (@layer tokens.*)
+ * - packages/coldlight/theme/   — Tailwind @theme blocks
+ * - packages/coldlight/types/   — generated .d.ts unions
+ * - packages/coldlight/generated/token-manifest.json — VPB manifest
  * Non-token CSS (generated/*.css outside SD5, svg glue) is authored separately
- * and imported from src/lib/design/index.css — not emitted here.
+ * and imported from packages/coldlight/index.css — not emitted here.
  */
 
 import { execSync } from 'node:child_process';
@@ -25,7 +25,7 @@ import { writeFileSync } from 'node:fs';
 import StyleDictionary from 'style-dictionary';
 import config from './sd.config.mjs';
 
-const OUT = 'src/lib/design';
+const OUT = '../../packages/coldlight';
 
 // ─── Barrel: CSS imports with layer order ────────────────────────────
 

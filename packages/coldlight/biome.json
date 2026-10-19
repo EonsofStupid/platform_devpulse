@@ -1,0 +1,17 @@
+{
+	"$schema": "https://biomejs.dev/schemas/2.4.0/schema.json",
+	"extends": "//",
+	"files": {
+		"includes": [
+			"!**/coldlight/.cowlevel",
+			"!**/coldlight/styles",
+			"!**/coldlight/theme",
+			"!**/coldlight/generated",
+			"!**/coldlight/svg",
+			"!**/coldlight/plugins",
+			"!**/coldlight/primitives/_archive",
+			"!**/coldlight/primitives/tanstack/flex-render.svelte",
+			"!**/coldlight/taxonomy/.generated/coldlight.manifest.json"
+		]
+	}
+}

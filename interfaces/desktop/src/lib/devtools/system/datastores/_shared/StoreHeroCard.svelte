@@ -27,8 +27,8 @@
 	gradient on the background.
 -->
 <script lang="ts">
+import { Text } from "@devpulse/coldlight/components/text";
 import type { Snippet } from "svelte";
-import { Text } from "$lib/design/components/text/index.js";
 import { routeCopy, routeHere } from "$lib/sys/routing/index.js";
 import HealthSignal from "./HealthSignal.svelte";
 import LiveActivityPulse from "./LiveActivityPulse.svelte";

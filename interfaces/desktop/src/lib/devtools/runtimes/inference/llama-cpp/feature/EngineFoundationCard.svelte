@@ -20,11 +20,11 @@
 	clamp()-based CSS custom properties).
 -->
 <script lang="ts">
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Button } from "@devpulse/coldlight/components/button";
+import { KeyValue } from "@devpulse/coldlight/components/key-value";
+import { Text } from "@devpulse/coldlight/components/text";
 import { ExternalLink, FolderOpen, RefreshCw, Sparkles } from "lucide-svelte";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Button } from "$lib/design/components/button/index.js";
-import { KeyValue } from "$lib/design/components/key-value/index.js";
-import { Text } from "$lib/design/components/text/index.js";
 import type { LinkMode, LlamaCppBuildInfo, TargetState } from "$lib/sys/generated/bindings.js";
 
 interface Props {
