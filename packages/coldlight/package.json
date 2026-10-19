@@ -11,6 +11,11 @@
 	"type": "module",
 	"exports": {
 		"./index.css": "./index.css",
+		"./behaviors": {
+			"types": "./behaviors/index.ts",
+			"svelte": "./behaviors/index.ts",
+			"default": "./behaviors/index.ts"
+		},
 		"./blocks/*": {
 			"types": "./blocks/*/index.ts",
 			"svelte": "./blocks/*/index.ts",
@@ -20,6 +25,11 @@
 			"types": "./components/*/index.ts",
 			"svelte": "./components/*/index.ts",
 			"default": "./components/*/index.ts"
+		},
+		"./config": {
+			"types": "./coldlight.config.ts",
+			"svelte": "./coldlight.config.ts",
+			"default": "./coldlight.config.ts"
 		},
 		"./debug": {
 			"types": "./debug/index.ts",
@@ -55,6 +65,11 @@
 			"types": "./utils/index.ts",
 			"svelte": "./utils/index.ts",
 			"default": "./utils/index.ts"
+		},
+		"./utils/*": {
+			"types": "./utils/*/index.ts",
+			"svelte": "./utils/*/index.ts",
+			"default": "./utils/*/index.ts"
 		},
 		"./visual": {
 			"types": "./visual/index.ts",

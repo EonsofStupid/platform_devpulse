@@ -14,6 +14,7 @@ export {
 
 // Feature components
 export { default as KnowledgeDeck } from "./feature/knowledge-deck/KnowledgeDeck.svelte";
+export { default as ClyffyKnowledgeNudge } from "./feature/knowledge-nudge/ClyffyKnowledgeNudge.svelte";
 export { default as KnowledgeTerm } from "./feature/knowledge-term/KnowledgeTerm.svelte";
 export { default as KnowledgeTermStrip } from "./feature/knowledge-term/KnowledgeTermStrip.svelte";
 
