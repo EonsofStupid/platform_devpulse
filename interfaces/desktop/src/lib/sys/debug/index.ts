@@ -12,3 +12,4 @@
  */
 
 export { __DEV__, isDev } from "./DEBUG_FLAG";
+export { default as HfTokenPanel } from "./HfTokenPanel.svelte";

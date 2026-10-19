@@ -12,6 +12,7 @@ import { authState } from "$lib/domains/auth/index.js";
 import { clyffyStatus } from "$lib/domains/clyffy/index.js";
 import BootOverlay from "$lib/layouts/app/BootOverlay.svelte";
 import { copyState } from "$lib/sys/copy/index.js";
+import { HfTokenPanel } from "$lib/sys/debug/index.js";
 import ErrorOverlay from "$lib/sys/ErrorOverlay.svelte";
 import { fatalErrorState, setFatal } from "$lib/sys/fatal-error.svelte.js";
 import { installGlobalHandlers, logError, logInfo } from "$lib/sys/logger.js";
@@ -156,7 +157,9 @@ onMount(() => {
 	}}
 >
 	<BootOverlay />
-	<TokenDebugOverlay />
+	<TokenDebugOverlay>
+		<HfTokenPanel />
+	</TokenDebugOverlay>
 	<!--
 		Singleton Model Downloader overlay mounted at the app root.
 		Any feature surface opens it via `modelDownloaderState.open(...)`;

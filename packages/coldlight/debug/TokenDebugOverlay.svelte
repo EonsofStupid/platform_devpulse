@@ -8,10 +8,20 @@
   - Per-element breakdown of missing vars
   - Clickable to highlight the element
 
-  Usage: Drop into any layout. Toggle with Ctrl+Shift+D.
+  Usage: Drop into any layout. Toggle with Ctrl+Shift+D. The app's own dev
+  panels (e.g. the HuggingFace token panel) come in as children and render
+  under the header; ColdLight imports nothing from the app.
 -->
 <script lang="ts">
+import type { Snippet } from "svelte";
 import { onMount } from "svelte";
+
+interface Props {
+	/** App dev panels shown under the header while the debugger is open. */
+	children?: Snippet;
+}
+
+let { children }: Props = $props();
 
 interface VarReport {
 	element: string;
@@ -240,6 +250,10 @@ function runFullDiag() {
 				</button>
 			</div>
 		</div>
+
+		{#if children}
+			{@render children()}
+		{/if}
 
 		<!-- Summary -->
 		<div style="padding: 12px 16px; border-bottom: 1px solid oklch(0.2 0.02 220); display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
