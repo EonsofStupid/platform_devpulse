@@ -359,7 +359,8 @@ layer). By library type:
 | C2 | ColdLight becomes a real internal package (ruling below): `exports` with `types` / `svelte` / `default` conditions on source, its own `#coldlight/*` imports, its token pipeline and Storybook with it; the app depends on `@devpulse/coldlight: workspace:*` and imports `@devpulse/coldlight/...`; tool paths follow (Tailwind `@source`, lefthook globs, coldlight verify/docs, typedoc, Biome overrides, preflight checks) | build; svelte-check; all 44 pages load live; ColdLight cannot resolve an app import |
 | C3 | Plan 0001 L3 (SvelteKit 3) finishes on top | plan 0001 L3's checks |
 
-**Ruling needed — where ColdLight lives:**
+**Ruled 2026-10-18 (owner): option 1, a real internal package at `packages/coldlight/`.**
+Where ColdLight lives was:
 
 1. **Recommended: a real internal package at `packages/coldlight/`**, the
    standard `apps/*` + `packages/*` layout, `git mv` with history. Its own
@@ -455,3 +456,7 @@ Recorded per phase in the log below.
   0001 L3 moved to SvelteKit 3): the empty `@devpulse/coldlight` package file
   breaks `#lib`; 16 ColdLight files import the app. Research and path C0–C3
   recorded; ruling needed on where ColdLight lives.
+- 2026-10-18 — Owner ruling: ColdLight becomes a real internal package at
+  `packages/coldlight/`. C0 done: `tests/architecture/coldlight-boundary.test.ts`
+  holds the 22 imports in 16 files as the known list; it fails on a new one
+  (verified with a seeded import) and on a fixed one still listed.
