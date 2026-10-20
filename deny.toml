@@ -55,6 +55,13 @@ ignore = [
     "RUSTSEC-2026-0367", # SUID/SGID bits preserved on extract
     "RUSTSEC-2026-0368", # extract creates symlinks outside the destination
     "RUSTSEC-2026-0369", # extract applies permissions through symlinks
+    # Distrusted emSign roots (2026-10-20). rustls-webpki, webpki-roots 1 and
+    # webpki-root-certs are updated to the fixed releases (0.103.16, 1.0.10,
+    # 1.0.10). webpki-roots 0.26.11 — via ureq 2 ← hf-hub 0.4 — is the
+    # compatibility shim whose only dependency is webpki-roots 1.0.10, which it
+    # re-exports: the fixed root list, flagged by version only. No 0.26 release
+    # follows; plan 0001 Part L (L2: hf-hub 1, ureq 3) removes it.
+    "RUSTSEC-2026-0381", # webpki-roots 0.26.11 shim over the fixed 1.0.10
     # zbus's own crates marked unmaintained with no successor release
     # (2026-10-17). Pulled in via zbus 5.14 by rfd (ashpd), tauri-plugin-
     # single-instance and xcap — the Linux D-Bus backends of those crates.
