@@ -13,6 +13,7 @@
 use devpulse_engine::platform::onboarding::{
     Detected, DetectedFolder, OnboardingState, OnboardingStatus, Requirement, Stage,
 };
+use devpulse_engine::platform::projects::{Project, ProjectsState};
 use devpulse_engine::platform::{HardwareMetrics, InitEvent};
 use devpulse_engine::signals::{
     AnalyticsEventType, AnalyticsPayload, AnalyticsProperties, BootPhase, BootStatus, ChatPayload,
@@ -94,6 +95,22 @@ fn sample(kind: SignalKind) -> SignalVariant {
                     repo_count: 4,
                 }],
             },
+        }),
+        SignalKind::Projects => SignalVariant::Projects(ProjectsState {
+            projects: vec![Project {
+                id: "6f1c2a4e-0b7d-4c1e-9a3f-2d5e8b7c1a90".into(),
+                name: "analytical-engine".into(),
+                root_path: "/home/ada/code/analytical-engine".into(),
+                project_type: "personal".into(),
+                slug: None,
+                description: None,
+                tool: None,
+                tech_stack: None,
+                active: true,
+                created_at: 1_760_000_000,
+                last_active_at: Some(1_760_000_100),
+            }],
+            active_id: Some("6f1c2a4e-0b7d-4c1e-9a3f-2d5e8b7c1a90".into()),
         }),
         SignalKind::Resync => SignalVariant::Resync,
     }

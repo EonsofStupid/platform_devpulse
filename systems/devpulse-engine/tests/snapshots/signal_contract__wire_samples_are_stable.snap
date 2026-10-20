@@ -137,6 +137,27 @@ expression: "serde_json::to_string_pretty(&samples).expect(\"samples render\")"
     "type": "onboarding"
   },
   {
+    "data": {
+      "activeId": "6f1c2a4e-0b7d-4c1e-9a3f-2d5e8b7c1a90",
+      "projects": [
+        {
+          "active": true,
+          "created_at": 1760000000,
+          "description": null,
+          "id": "6f1c2a4e-0b7d-4c1e-9a3f-2d5e8b7c1a90",
+          "last_active_at": 1760000100,
+          "name": "analytical-engine",
+          "project_type": "personal",
+          "root_path": "/home/ada/code/analytical-engine",
+          "slug": null,
+          "tech_stack": null,
+          "tool": null
+        }
+      ]
+    },
+    "type": "projects"
+  },
+  {
     "type": "resync"
   }
 ]

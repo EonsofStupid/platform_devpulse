@@ -47,6 +47,10 @@ export type SignalVariant =
  */
 { type: "onboarding"; data: OnboardingState } | 
 /**
+ * Your live projects and the active one.
+ */
+{ type: "projects"; data: ProjectsState } | 
+/**
  * The bridge fell behind: windows re-read the state snapshot.
  */
 { type: "resync" }
