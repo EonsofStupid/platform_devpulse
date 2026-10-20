@@ -58,6 +58,8 @@ pub enum SignalVariant {
     Onboarding(crate::platform::onboarding::OnboardingState),
     /// Your live projects and the active one.
     Projects(crate::platform::projects::ProjectsState),
+    /// Containers for your projects: what was found, the advice, the step running.
+    Containers(Box<crate::platform::containers::ContainersState>),
     /// The bridge fell behind: windows re-read the state snapshot.
     Resync,
 }

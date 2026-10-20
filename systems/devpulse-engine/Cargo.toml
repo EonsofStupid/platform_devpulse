@@ -99,6 +99,7 @@ axum = "0.8"
 base64 = "0.22"
 async-stream = "0.3"
 futures-core = "0.3"
+futures = { workspace = true }
 
 # Config — layered defaults / overlay / env.
 # Figment owns the new per-module config loader (platform/config/loader.rs).

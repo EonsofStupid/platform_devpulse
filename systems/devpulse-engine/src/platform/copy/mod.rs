@@ -117,6 +117,104 @@ pub struct YouCopy {
     pub repo_added: String,
 }
 
+/// The "Your dev environment" stage (containers).
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+#[serde(deny_unknown_fields)]
+pub struct ContainersCopy {
+    /// Heading.
+    pub title: String,
+    /// What the stage does.
+    pub subtitle: String,
+    /// Section: what was found.
+    pub found_heading: String,
+    /// While the machine is being checked.
+    pub checking: String,
+    /// Button: check again.
+    pub check_again: String,
+    /// Engine not installed.
+    pub engine_missing: String,
+    /// "Running · {version}".
+    pub engine_running: String,
+    /// "Installed · {version}, not running".
+    pub engine_stopped: String,
+    /// "Compose {version}".
+    pub compose: String,
+    /// "Machine {name}: running".
+    pub machine_running: String,
+    /// "Machine {name}: stopped".
+    pub machine_stopped: String,
+    /// "{gb} GB memory".
+    pub host_ram: String,
+    /// "{count} CPU cores".
+    pub host_cores: String,
+    /// "GPU: {name}".
+    pub host_gpu: String,
+    /// "WSL {version}".
+    pub wsl_ok: String,
+    /// WSL not installed.
+    pub wsl_missing: String,
+    /// Virtualization switched on.
+    pub virtualization_on: String,
+    /// Virtualization switched off in the firmware.
+    pub virtualization_off: String,
+    /// Section: the questions.
+    pub questions_heading: String,
+    /// The licence question.
+    pub usage_label: String,
+    /// The GPU question.
+    pub gpu_label: String,
+    /// The desktop-app question.
+    pub app_label: String,
+    /// Yes.
+    pub yes: String,
+    /// No.
+    pub no: String,
+    /// Button: use these answers.
+    pub save_answers: String,
+    /// Section: the recommendation.
+    pub advice_heading: String,
+    /// "Keep {name}" (an engine already here).
+    pub keep: String,
+    /// "Set up {name}".
+    pub recommend: String,
+    /// Shown before the answers are given.
+    pub answer_first: String,
+    /// Sub-heading: why.
+    pub why: String,
+    /// Sub-heading: warnings.
+    pub warnings_heading: String,
+    /// Sub-heading: blockers.
+    pub blockers_heading: String,
+    /// "Source: {title}".
+    pub source: String,
+    /// Sub-heading: the steps.
+    pub steps_heading: String,
+    /// Button: run a step.
+    pub run: String,
+    /// While a step runs.
+    pub running: String,
+    /// A step finished.
+    pub done: String,
+    /// A step did not work.
+    pub failed: String,
+    /// A step to run yourself.
+    pub guided: String,
+    /// After installing WSL.
+    pub restart: String,
+    /// Under the install step: "Installing accepts {name}'s licence terms."
+    pub install_consent: String,
+    /// The way back to this stage later.
+    pub later_hint: String,
+    /// Usage answers, by `Usage` value.
+    pub usage: BTreeMap<String, String>,
+    /// Reasons, warnings and blockers, by `PointCode` (`{name}` etc. filled).
+    pub points: BTreeMap<String, String>,
+    /// Step names, by `StepKind`.
+    pub steps: BTreeMap<String, String>,
+    /// OS names, by `std::env::consts::OS`.
+    pub os: BTreeMap<String, String>,
+}
+
 /// First run.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 #[serde(deny_unknown_fields)]
@@ -127,6 +225,8 @@ pub struct OnboardingCopy {
     pub welcome: WelcomeCopy,
     /// You.
     pub you: YouCopy,
+    /// Your dev environment.
+    pub containers: ContainersCopy,
 }
 
 /// Why a form field was refused, one line per code (`{limit}` is filled).

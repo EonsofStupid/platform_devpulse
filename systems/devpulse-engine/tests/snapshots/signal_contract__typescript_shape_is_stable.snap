@@ -51,6 +51,10 @@ export type SignalVariant =
  */
 { type: "projects"; data: ProjectsState } | 
 /**
+ * Containers for your projects: what was found, the advice, the step running.
+ */
+{ type: "containers"; data: ContainersState } | 
+/**
  * The bridge fell behind: windows re-read the state snapshot.
  */
 { type: "resync" }

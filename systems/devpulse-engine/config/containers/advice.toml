@@ -1,0 +1,122 @@
+# How DevPulse recommends a container engine (plan 0001, stage 3b).
+#
+# The bundled default. A copy at `.userdata/config/containers/advice.toml`
+# replaces it; a file that does not parse is refused with the reason and
+# this one is used. Every threshold a recommendation uses, every product it
+# can recommend and every source it shows lives here — checked 2026-10-20.
+
+# ── Thresholds ─────────────────────────────────────────────────────────
+
+[licence]
+# Docker Desktop is free for personal use, education, non-commercial open
+# source, and organizations below BOTH thresholds; government always needs
+# a paid plan (Docker Subscription Service Agreement, 2026-08-26).
+docker_desktop_free_employees_below = 250
+docker_desktop_free_revenue_usd_below = 10_000_000
+
+[requirements]
+docker_desktop_min_ram_mb = 8192      # Docker: "8GB system RAM" (Windows)
+podman_desktop_min_ram_mb = 6144      # Podman Desktop: "6 GB of RAM for the Podman machine"
+docker_desktop_min_wsl = "2.1.5"      # Docker: "WSL version 2.1.5 or later"
+windows_11_min_build = 22000          # Podman 6 removed Windows 10 support
+
+# ── Products ───────────────────────────────────────────────────────────
+
+# `windows_winget` lists the winget packages installed, in order; `macos_brew`
+# lists brew argument sets, in order; `linux_install` is shown, never run
+# (it needs your password). `test_image` is the image the Test step runs.
+
+[[products]]
+id = "docker-desktop"
+engine = "docker"
+name = "Docker Desktop"
+licence = "docker_licence"
+windows_winget = ["Docker.DockerDesktop"]
+macos_brew = [["install", "--cask", "docker"]]
+linux_install = "https://docs.docker.com/desktop/setup/install/linux/"
+start = [["desktop", "start"]]
+test_image = "hello-world"
+
+[[products]]
+id = "podman"
+engine = "podman"
+name = "Podman"
+licence = "podman_licence"
+windows_winget = ["RedHat.Podman"]
+macos_brew = [["install", "podman"]]
+linux_install = "sudo apt install podman   |   sudo dnf install podman"
+test_image = "quay.io/podman/hello"
+
+[[products]]
+id = "podman-desktop"
+engine = "podman"
+name = "Podman Desktop"
+licence = "podman_licence"
+# Podman Desktop is the app; the Podman engine is installed with it.
+windows_winget = ["RedHat.Podman", "RedHat.Podman-Desktop"]
+macos_brew = [["install", "podman"], ["install", "--cask", "podman-desktop"]]
+linux_install = "https://podman-desktop.io/docs/installation/linux-install"
+test_image = "quay.io/podman/hello"
+
+# ── Sources shown with every reason ────────────────────────────────────
+
+[sources.docker_licence]
+title = "Docker Subscription Service Agreement"
+url = "https://www.docker.com/legal/docker-subscription-service-agreement/"
+
+[sources.docker_desktop_free]
+title = "Docker Desktop license"
+url = "https://docs.docker.com/subscription/desktop-license/"
+
+[sources.docker_windows]
+title = "Install Docker Desktop on Windows"
+url = "https://docs.docker.com/desktop/setup/install/windows-install/"
+
+[sources.docker_gpu]
+title = "GPU support in Docker Desktop"
+url = "https://docs.docker.com/desktop/features/gpu/"
+
+[sources.podman_licence]
+title = "Podman (Apache License 2.0)"
+url = "https://github.com/containers/podman/blob/main/LICENSE"
+
+[sources.podman_windows]
+title = "Podman for Windows"
+url = "https://github.com/containers/podman/blob/main/docs/tutorials/podman-for-windows.md"
+
+[sources.podman_6]
+title = "Podman v6.0.0 release notes"
+url = "https://github.com/podman-container-tools/podman/releases/tag/v6.0.0"
+
+[sources.podman_gpu]
+title = "GPU in Podman Desktop"
+url = "https://podman-desktop.io/docs/podman/gpu"
+
+[sources.podman_desktop]
+title = "Install Podman Desktop on Windows"
+url = "https://podman-desktop.io/docs/installation/windows-install"
+
+[sources.podman_linux]
+title = "Podman installation"
+url = "https://podman.io/docs/installation"
+
+[sources.wsl_install]
+title = "Install WSL"
+url = "https://learn.microsoft.com/en-us/windows/wsl/install"
+
+[sources.virtualization]
+title = "Hyper-V system requirements"
+url = "https://learn.microsoft.com/en-us/windows-server/virtualization/hyper-v/system-requirements-for-hyper-v-on-windows"
+
+[sources.dev_containers]
+title = "Dev Containers: alternative Docker options"
+url = "https://code.visualstudio.com/remote/advancedcontainers/docker-options"
+
+# Where to get the installers DevPulse uses, when they are missing.
+[sources.winget]
+title = "App Installer (winget)"
+url = "https://learn.microsoft.com/en-us/windows/package-manager/winget/"
+
+[sources.homebrew]
+title = "Homebrew"
+url = "https://brew.sh/"

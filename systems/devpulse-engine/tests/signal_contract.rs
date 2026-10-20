@@ -10,6 +10,7 @@
     reason = "test assertions — a failed expect is the test failure"
 )]
 
+use devpulse_engine::platform::containers::{Answers, ContainersState, Usage};
 use devpulse_engine::platform::onboarding::{
     Detected, DetectedFolder, OnboardingState, OnboardingStatus, Requirement, Stage,
 };
@@ -112,6 +113,19 @@ fn sample(kind: SignalKind) -> SignalVariant {
             }],
             active_id: Some("6f1c2a4e-0b7d-4c1e-9a3f-2d5e8b7c1a90".into()),
         }),
+        SignalKind::Containers => SignalVariant::Containers(Box::new(ContainersState {
+            checking: false,
+            report: None,
+            answers: Some(Answers {
+                usage: Usage::Personal,
+                needs_gpu: false,
+                prefers_app: true,
+            }),
+            advice: None,
+            running: None,
+            last_run: None,
+            problem: None,
+        })),
         SignalKind::Resync => SignalVariant::Resync,
     }
 }

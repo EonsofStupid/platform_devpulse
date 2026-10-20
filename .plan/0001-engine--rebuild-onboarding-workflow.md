@@ -152,6 +152,40 @@ One page with four sections.
 - xAI's docs list Grok Build as usable "through the Agent Client Protocol (ACP)
   in other apps".
 
+### Stage 3b — Your dev environment: containers (owner 2026-10-20; K8)
+
+> "clear UI that effortlessly sets up Docker or podman per real world best
+> practices by collecting the context from the user and using clear decision
+> data points to provide strong grounded real world best practices"
+> (2026-10-20); "I want docker available for the app made easy for users and so
+> it becomes portable but I wanted it properly managed, portable all within
+> devpulse" / "have it just coded so we add the requirement for them to
+> install" (K8, owner requirements).
+
+CLAUDE.md's "No Docker" governs how DevPulse itself is built and run; this
+stage sets up a container engine **for the user's projects**.
+
+One page, three sections:
+
+1. **What's on this machine** (detected, never asked): each engine in
+   `config/containers/engines.toml` — installed or not, client and engine
+   versions, whether the engine is running, compose, Podman machines — and the
+   host facts that decide what can run: OS, RAM, CPU cores, an NVIDIA GPU, and
+   on Windows WSL and virtualization. Every value comes from the tool that owns
+   it; a tool that is missing says so.
+2. **A few questions** only the person can answer (the decision data points):
+   personal or work use, and at work whether the organization is over the
+   licence threshold; whether containers need the GPU; desktop app or command
+   line. Answers are stored in Turso.
+3. **My recommendation**: Docker or Podman, desktop app or CLI, each reason
+   shown with its source; then the steps (install, initialize, start, test),
+   each run only when you click it, with its real output. An engine already
+   installed and working is kept, not replaced. **Skip** is always there.
+
+Engine: `platform::containers` (detect, advice, actions); data in
+`config/containers/` (engines, package ids, thresholds, sources). The stage is
+listed in the flow only once all three sections work end to end.
+
 ### Stage 4 — Teach Clyffy how you talk (R-A13; optional, one time)
 
 - **You see:** a few short interactive cards that Clyffy fills through the
@@ -1173,3 +1207,29 @@ queries proving what was written.
     included; (2) a re-entry point and a repeatable end-to-end first-run
     check on a backed-up DevPulse folder, projects included, run more than
     once; (3) the Account step once the identity provider is decided.
+  - 2026-10-20 — **(1) and (2) done** (`9b882375`, contract fix `ad55b66f`):
+    projects moved into the engine (`platform::projects`), one `projects`
+    state signal for every window, chat reads it (and its commands now use
+    the user database, where sessions live); Finish registers the ticked
+    repositories; Settings → "Run setup again" reopens first run after it
+    finished. Verified live (CDP). The Account step (3) waits on Nomen.
+  - 2026-10-20 — **Stage 3b "Your dev environment" built** (owner: "clear
+    UI that effortlessly sets up Docker or podman per real world best
+    practices … clear decision data points"). Engine `platform::containers`:
+    detection (engines from `config/containers/engines.toml`; host RAM,
+    cores, NVIDIA GPU, Windows WSL and virtualization), advice as a tested
+    decision function over `config/containers/advice.toml` (licence
+    thresholds, requirements, products, sources — researched 2026-10-20),
+    steps run only on click (WSL via the administrator prompt, winget /
+    Homebrew installs, engine start, test container; the Linux install is
+    shown, not run), answers in Turso, `containers` state signal. Shared
+    runner `platform::process` (git detection moved onto it). UI: the
+    containers domain and the first-run stage; the flow is now welcome →
+    you → containers. Verified: engine 157 + contract 4 + kernel 65 tests,
+    workspace clippy, svelte-check 0 errors, Biome, arch 18; live on this
+    machine — Docker 29.8.2 and Podman 5.8.6 detected running, Windows 11
+    Pro, 63 GB, 24 cores, RTX 5090, WSL 2.7.13.0, virtualization on; advice
+    "Keep Docker Desktop"; a large-organization answer shows the licence
+    warning with its source. No install, start or test step was run during
+    verification — those change the owner's machine and are the owner's to
+    click.

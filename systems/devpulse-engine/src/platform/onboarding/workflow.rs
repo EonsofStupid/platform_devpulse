@@ -136,7 +136,9 @@ impl Onboarding {
     /// What a stage still needs before you can continue.
     async fn needs(&self, stage: Stage) -> Result<Vec<Requirement>> {
         Ok(match stage {
-            Stage::Welcome => Vec::new(),
+            // Containers are optional: you can continue without one and set
+            // one up later.
+            Stage::Welcome | Stage::Containers => Vec::new(),
             Stage::You => {
                 let me = profile::ensure(self.db.as_ref()).await?;
                 if me.display_name.is_some() {
@@ -270,6 +272,9 @@ mod tests {
             .await
             .expect("name");
         assert!(ob.publish().await.expect("publish").needs.is_empty());
+        let s = ob.next().await.expect("you → containers");
+        assert_eq!(s.stage, Stage::Containers);
+        assert!(s.needs.is_empty(), "containers are optional");
         let s = ob.next().await.expect("finish");
         assert_eq!(s.status, OnboardingStatus::Complete);
         assert_eq!(published(&engine).status, OnboardingStatus::Complete);

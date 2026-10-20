@@ -2298,6 +2298,50 @@ async removeProjectReference(id: string) : Promise<Result<boolean, string>> {
 }
 },
 /**
+ * The current containers state (the same value the `containers` signal carries).
+ */
+async containersState() : Promise<Result<ContainersState, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("containers_state") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Look at this machine again and recompute the advice.
+ */
+async containersCheck() : Promise<Result<ContainersState, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("containers_check") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Store your answers and recompute the advice.
+ */
+async containersAnswer(answers: Answers) : Promise<Result<ContainersState, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("containers_answer", { answers }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Run one step of the current advice (refused if it is not one of them).
+ */
+async containersRunStep(step: Step) : Promise<Result<ContainersState, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("containers_run_step", { step }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Get a knowledge entry matching the given type and optional tool context.
  * 
  * Delegates to kernel selector — affinity-weighted, cooldown-gated.
@@ -4223,6 +4267,47 @@ label?: string | null;
  */
 kind?: string | null }
 /**
+ * The recommendation.
+ */
+export type Advice = { 
+/**
+ * The recommended product; `None` until your answers are needed and
+ * given.
+ */
+product: Product | null; 
+/**
+ * The product's licence, shown with the install step.
+ */
+licence: Source | null; 
+/**
+ * The engine already on this machine is kept.
+ */
+keep: boolean; 
+/**
+ * Your answers are needed before a product can be recommended.
+ */
+needsAnswers: boolean; 
+/**
+ * Why this product.
+ */
+reasons: Point[]; 
+/**
+ * Worth knowing, not blocking.
+ */
+warnings: Point[]; 
+/**
+ * Must be fixed first.
+ */
+blockers: Point[]; 
+/**
+ * The steps, in order.
+ */
+steps: Step[]; 
+/**
+ * Why your advice data was not used, if it wasn't.
+ */
+dataProblem: string | null }
+/**
  * How a column stores values — `SQLite`'s type affinity, derived from the
  * declared type by the rules in <https://sqlite.org/datatype3.html> §3.1.
  */
@@ -4577,6 +4662,23 @@ error_code: string | null;
  * Component or module source.
  */
 source: string | null }
+/**
+ * Your answers to the few questions the machine cannot answer.
+ */
+export type Answers = { 
+/**
+ * The licence question.
+ */
+usage: Usage; 
+/**
+ * Containers will use the GPU (AI or ML work).
+ */
+needsGpu: boolean; 
+/**
+ * A desktop app to see and manage containers, rather than the command
+ * line alone.
+ */
+prefersApp: boolean }
 /**
  * Stored-key status for a single provider — what the devtool renders.
  * 
@@ -5957,6 +6059,246 @@ launch_label: string;
  */
 hint: string }
 /**
+ * The "Your dev environment" stage (containers).
+ */
+export type ContainersCopy = { 
+/**
+ * Heading.
+ */
+title: string; 
+/**
+ * What the stage does.
+ */
+subtitle: string; 
+/**
+ * Section: what was found.
+ */
+found_heading: string; 
+/**
+ * While the machine is being checked.
+ */
+checking: string; 
+/**
+ * Button: check again.
+ */
+check_again: string; 
+/**
+ * Engine not installed.
+ */
+engine_missing: string; 
+/**
+ * "Running · {version}".
+ */
+engine_running: string; 
+/**
+ * "Installed · {version}, not running".
+ */
+engine_stopped: string; 
+/**
+ * "Compose {version}".
+ */
+compose: string; 
+/**
+ * "Machine {name}: running".
+ */
+machine_running: string; 
+/**
+ * "Machine {name}: stopped".
+ */
+machine_stopped: string; 
+/**
+ * "{gb} GB memory".
+ */
+host_ram: string; 
+/**
+ * "{count} CPU cores".
+ */
+host_cores: string; 
+/**
+ * "GPU: {name}".
+ */
+host_gpu: string; 
+/**
+ * "WSL {version}".
+ */
+wsl_ok: string; 
+/**
+ * WSL not installed.
+ */
+wsl_missing: string; 
+/**
+ * Virtualization switched on.
+ */
+virtualization_on: string; 
+/**
+ * Virtualization switched off in the firmware.
+ */
+virtualization_off: string; 
+/**
+ * Section: the questions.
+ */
+questions_heading: string; 
+/**
+ * The licence question.
+ */
+usage_label: string; 
+/**
+ * The GPU question.
+ */
+gpu_label: string; 
+/**
+ * The desktop-app question.
+ */
+app_label: string; 
+/**
+ * Yes.
+ */
+yes: string; 
+/**
+ * No.
+ */
+no: string; 
+/**
+ * Button: use these answers.
+ */
+save_answers: string; 
+/**
+ * Section: the recommendation.
+ */
+advice_heading: string; 
+/**
+ * "Keep {name}" (an engine already here).
+ */
+keep: string; 
+/**
+ * "Set up {name}".
+ */
+recommend: string; 
+/**
+ * Shown before the answers are given.
+ */
+answer_first: string; 
+/**
+ * Sub-heading: why.
+ */
+why: string; 
+/**
+ * Sub-heading: warnings.
+ */
+warnings_heading: string; 
+/**
+ * Sub-heading: blockers.
+ */
+blockers_heading: string; 
+/**
+ * "Source: {title}".
+ */
+source: string; 
+/**
+ * Sub-heading: the steps.
+ */
+steps_heading: string; 
+/**
+ * Button: run a step.
+ */
+run: string; 
+/**
+ * While a step runs.
+ */
+running: string; 
+/**
+ * A step finished.
+ */
+done: string; 
+/**
+ * A step did not work.
+ */
+failed: string; 
+/**
+ * A step to run yourself.
+ */
+guided: string; 
+/**
+ * After installing WSL.
+ */
+restart: string; 
+/**
+ * Under the install step: "Installing accepts {name}'s licence terms."
+ */
+install_consent: string; 
+/**
+ * The way back to this stage later.
+ */
+later_hint: string; 
+/**
+ * Usage answers, by `Usage` value.
+ */
+usage: Partial<{ [key in string]: string }>; 
+/**
+ * Reasons, warnings and blockers, by `PointCode` (`{name}` etc. filled).
+ */
+points: Partial<{ [key in string]: string }>; 
+/**
+ * Step names, by `StepKind`.
+ */
+steps: Partial<{ [key in string]: string }>; 
+/**
+ * OS names, by `std::env::consts::OS`.
+ */
+os: Partial<{ [key in string]: string }> }
+/**
+ * Everything detection found.
+ */
+export type ContainersReport = { 
+/**
+ * Each engine in the list.
+ */
+engines: EngineReport[]; 
+/**
+ * This machine.
+ */
+host: HostReport; 
+/**
+ * Why your engine list was not used, if it wasn't.
+ */
+listProblem: string | null; 
+/**
+ * Unix seconds when this was checked.
+ */
+checkedAt: number }
+/**
+ * The `containers` state.
+ */
+export type ContainersState = { 
+/**
+ * A check of this machine is running.
+ */
+checking: boolean; 
+/**
+ * What the last check found; `None` before the first check finishes.
+ */
+report: ContainersReport | null; 
+/**
+ * Your answers, once given.
+ */
+answers: Answers | null; 
+/**
+ * The recommendation for the report and your answers.
+ */
+advice: Advice | null; 
+/**
+ * The step running now.
+ */
+running: Step | null; 
+/**
+ * The last step that finished.
+ */
+lastRun: StepRun | null; 
+/**
+ * Why a check could not run, if it couldn't.
+ */
+problem: string | null }
+/**
  * A single context chunk from retrieval.
  */
 export type ContextChunk = { 
@@ -6714,6 +7056,46 @@ name: string;
  * Number of rows.
  */
 row_count: number }
+/**
+ * One engine, as it answered.
+ */
+export type EngineReport = { 
+/**
+ * Engine id from the list.
+ */
+id: string; 
+/**
+ * Display name.
+ */
+name: string; 
+/**
+ * The program is on this machine.
+ */
+installed: boolean; 
+/**
+ * The client's version, when it answered.
+ */
+clientVersion: string | null; 
+/**
+ * The engine's version — reported only by a running engine.
+ */
+engineVersion: string | null; 
+/**
+ * The engine answered (it is running and reachable).
+ */
+running: boolean; 
+/**
+ * Compose version, when compose is available.
+ */
+compose: string | null; 
+/**
+ * Machines (engines that run in a VM); empty when not applicable.
+ */
+machines: MachineReport[]; 
+/**
+ * Why the engine is not reachable, in the tool's own words.
+ */
+problem: string | null }
 /**
  * Why a field was refused.
  */
@@ -7840,6 +8222,47 @@ save_error_template: string;
  */
 lock_icon_aria: string }
 /**
+ * The facts about this machine that decide what can run.
+ */
+export type HostReport = { 
+/**
+ * `windows`, `macos` or `linux`.
+ */
+os: string; 
+/**
+ * CPU architecture (`x86_64`, `aarch64`).
+ */
+arch: string; 
+/**
+ * The OS's own long name and version.
+ */
+osVersion: string | null; 
+/**
+ * The OS build number (Windows: 19045 is Windows 10 22H2, 22000 and up
+ * is Windows 11), when the OS reports one.
+ */
+osBuild: number | null; 
+/**
+ * Installed memory, in MiB.
+ */
+ramTotalMb: number; 
+/**
+ * Logical CPU cores.
+ */
+cpuCores: number; 
+/**
+ * NVIDIA GPU names, as the driver reports them.
+ */
+nvidiaGpus: string[]; 
+/**
+ * WSL (Windows only).
+ */
+wsl: WslReport | null; 
+/**
+ * Virtualization (Windows only).
+ */
+virtualization: VirtualizationReport | null }
+/**
  * Identity of the local assistant.
  * 
  * `name` drives every prompt template via `{assistant_name}` and the
@@ -8710,6 +9133,22 @@ mascot_alt: string;
  */
 progress_aria_template: string }
 /**
+ * One Podman machine.
+ */
+export type MachineReport = { 
+/**
+ * Machine name.
+ */
+name: string; 
+/**
+ * It is running.
+ */
+running: boolean; 
+/**
+ * It is the default machine.
+ */
+default: boolean }
+/**
  * Snapshot of the MCP integration — what the devtool renders.
  */
 export type McpStatus = { 
@@ -9239,7 +9678,11 @@ welcome: WelcomeCopy;
 /**
  * You.
  */
-you: YouCopy }
+you: YouCopy; 
+/**
+ * Your dev environment.
+ */
+containers: ContainersCopy }
 /**
  * The first-run state published as the `onboarding` signal.
  */
@@ -9354,6 +9797,95 @@ data_dir: string;
  */
 portable: boolean }
 /**
+ * One reason, warning or blocker, with what it rests on.
+ */
+export type Point = { 
+/**
+ * What it says.
+ */
+code: PointCode; 
+/**
+ * Values for the text's placeholders (`{name}`, `{version}`, …).
+ */
+values: Partial<{ [key in string]: string }>; 
+/**
+ * Where it comes from.
+ */
+source: Source | null }
+/**
+ * What a reason, warning or blocker says (its text is in the copy catalog
+ * under `containers.points.<code>`).
+ */
+export type PointCode = 
+/**
+ * An engine already works.
+ */
+"keep_working" | 
+/**
+ * An engine is installed but not running.
+ */
+"keep_installed" | 
+/**
+ * Docker Desktop is free for your use.
+ */
+"licence_free" | 
+/**
+ * Docker Desktop needs a paid plan for your use.
+ */
+"licence_required" | 
+/**
+ * Podman is free and open source.
+ */
+"free_and_open" | 
+/**
+ * Podman installs for your user only, without administrator rights.
+ */
+"no_admin_needed" | 
+/**
+ * VS Code Dev Containers use Docker without extra settings.
+ */
+"dev_containers_ready" | 
+/**
+ * VS Code Dev Containers use Podman after one setting.
+ */
+"dev_containers_setting" | 
+/**
+ * Docker Desktop runs GPU containers on the WSL 2 backend.
+ */
+"gpu_docker" | 
+/**
+ * Podman runs GPU containers through CDI, on WSL 2 only.
+ */
+"gpu_podman" | 
+/**
+ * Linux runs an engine natively, without a VM.
+ */
+"linux_native" | 
+/**
+ * Podman 6 does not support Windows 10.
+ */
+"windows_10" | 
+/**
+ * Podman 6 does not support Intel Macs.
+ */
+"intel_mac" | 
+/**
+ * Hardware virtualization is off in the firmware.
+ */
+"virtualization_off" | 
+/**
+ * WSL is not installed.
+ */
+"wsl_missing" | 
+/**
+ * WSL is older than Docker Desktop needs.
+ */
+"wsl_old" | 
+/**
+ * Less RAM than the product asks for.
+ */
+"ram_low"
+/**
  * Real process metrics from the OS. Every field is a measurement, not a guess.
  */
 export type ProcessMetrics = { 
@@ -9378,6 +9910,47 @@ uptime_secs: number;
  * Process ID.
  */
 pid: number }
+/**
+ * A product `DevPulse` can recommend.
+ */
+export type Product = { 
+/**
+ * Stable id (`docker-desktop`, `podman`, `podman-desktop`).
+ */
+id: string; 
+/**
+ * The engine it provides (`docker`, `podman`).
+ */
+engine: string; 
+/**
+ * Display name.
+ */
+name: string; 
+/**
+ * The source naming its licence.
+ */
+licence: string; 
+/**
+ * `winget` package ids installed on Windows, in order.
+ */
+windows_winget?: string[]; 
+/**
+ * `brew` argument sets run on macOS, in order.
+ */
+macos_brew?: string[][]; 
+/**
+ * How to install it on Linux — shown, never run (it needs your password).
+ */
+linux_install: string; 
+/**
+ * Engine arguments that start it, in order; empty when starting means
+ * creating or starting a Podman machine.
+ */
+start?: string[][]; 
+/**
+ * The image the Test step runs.
+ */
+test_image: string }
 /**
  * Project setup / About You screen.
  */
@@ -10781,6 +11354,10 @@ export type SignalKind =
  */
 "projects" | 
 /**
+ * Containers for your projects: what was found, the advice, the step running.
+ */
+"containers" | 
+/**
  * The bridge fell behind: windows re-read the state snapshot.
  */
 "resync"
@@ -10852,6 +11429,10 @@ export type SignalVariant =
  * Your live projects and the active one.
  */
 { type: "projects"; data: ProjectsState } | 
+/**
+ * Containers for your projects: what was found, the advice, the step running.
+ */
+{ type: "containers"; data: ContainersState } | 
 /**
  * The bridge fell behind: windows re-read the state snapshot.
  */
@@ -10961,6 +11542,18 @@ context_length: number | null;
  */
 backend: string | null }
 /**
+ * A source shown with a reason.
+ */
+export type Source = { 
+/**
+ * Its title.
+ */
+title: string; 
+/**
+ * Where to read it.
+ */
+url: string }
+/**
  * A span trace row from `DuckDB`, serialized for the frontend.
  */
 export type SpanTraceRow = { 
@@ -11023,7 +11616,11 @@ export type Stage =
 /**
  * Your name, email and projects folder.
  */
-"you"
+"you" | 
+/**
+ * Your dev environment: a container engine for your projects.
+ */
+"containers"
 /**
  * Every state signal's latest value at one revision.
  */
@@ -11041,6 +11638,74 @@ revision: number;
  * The latest signal of every state kind, oldest revision first.
  */
 signals: Signal[] }
+/**
+ * One step of the recommendation.
+ */
+export type Step = { 
+/**
+ * What it does.
+ */
+kind: StepKind; 
+/**
+ * The product it acts on.
+ */
+product: string }
+/**
+ * A setup step, run only when you click it.
+ */
+export type StepKind = 
+/**
+ * Install WSL (Windows; administrator, then a restart).
+ */
+"install_wsl" | 
+/**
+ * Update WSL (Windows).
+ */
+"update_wsl" | 
+/**
+ * Install the product.
+ */
+"install" | 
+/**
+ * Start the engine (or create and start its machine).
+ */
+"start" | 
+/**
+ * Run a test container.
+ */
+"test"
+/**
+ * What running a step did.
+ */
+export type StepRun = { 
+/**
+ * The step.
+ */
+step: Step; 
+/**
+ * It finished successfully.
+ */
+ok: boolean; 
+/**
+ * Nothing was run: the output is what to do yourself.
+ */
+guided: boolean; 
+/**
+ * Windows must restart before the next step.
+ */
+restartNeeded: boolean; 
+/**
+ * The commands run, one per line, as typed.
+ */
+commands: string[]; 
+/**
+ * The tools' own output (the end of it, when long).
+ */
+output: string; 
+/**
+ * Unix seconds when it finished.
+ */
+finishedAt: number }
 /**
  * Result of a full STS (speech-to-speech) pipeline run.
  * 
@@ -11803,6 +12468,34 @@ allowTelemetry: boolean | null;
  */
 screenCaptureEnabled: boolean | null }
 /**
+ * What the containers will be used for — the licence question.
+ */
+export type Usage = 
+/**
+ * Your own projects.
+ */
+"personal" | 
+/**
+ * School or university.
+ */
+"education" | 
+/**
+ * A non-commercial open-source project.
+ */
+"openSource" | 
+/**
+ * Work, at an organization below both licence thresholds.
+ */
+"smallBusiness" | 
+/**
+ * Work, at an organization at or above either threshold.
+ */
+"largeOrganization" | 
+/**
+ * Work for a government body.
+ */
+"government"
+/**
  * The `preferences` row.
  */
 export type UserPreferences = { 
@@ -11956,6 +12649,19 @@ score: number;
  * JSON payload attached to this point (serialized string).
  */
 payload_json: string }
+/**
+ * Hardware virtualization on Windows, as CIM reports it.
+ */
+export type VirtualizationReport = { 
+/**
+ * The firmware has virtualization switched on (`None`: not reported —
+ * Windows hides it while a hypervisor already runs).
+ */
+firmwareEnabled: boolean | null; 
+/**
+ * A hypervisor is already running (Hyper-V / WSL 2 are active).
+ */
+hypervisorPresent: boolean | null }
 /**
  * 24/7 full-duplex voice brain (Moshi) configuration.
  * 
@@ -12496,6 +13202,26 @@ auth?: AuthCopy;
  * older overrides parsing without `[runtime_picker]`.
  */
 runtime_picker?: RuntimePickerCopy }
+/**
+ * WSL on Windows.
+ */
+export type WslReport = { 
+/**
+ * `wsl --version` answered: the WSL package is installed.
+ */
+installed: boolean; 
+/**
+ * The WSL version it reported.
+ */
+version: string | null; 
+/**
+ * Linux distributions registered.
+ */
+distributions: number; 
+/**
+ * Why WSL did not answer, in its own words.
+ */
+problem: string | null }
 /**
  * The "You" stage.
  */

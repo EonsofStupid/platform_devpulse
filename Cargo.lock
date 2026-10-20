@@ -4316,6 +4316,7 @@ dependencies = [
  "devpulse-telemetry",
  "figment",
  "flume",
+ "futures",
  "futures-core",
  "insta",
  "jsonschema",

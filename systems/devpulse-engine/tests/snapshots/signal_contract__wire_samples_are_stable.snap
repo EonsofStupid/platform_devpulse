@@ -158,6 +158,22 @@ expression: "serde_json::to_string_pretty(&samples).expect(\"samples render\")"
     "type": "projects"
   },
   {
+    "data": {
+      "advice": null,
+      "answers": {
+        "needsGpu": false,
+        "prefersApp": true,
+        "usage": "personal"
+      },
+      "checking": false,
+      "lastRun": null,
+      "problem": null,
+      "report": null,
+      "running": null
+    },
+    "type": "containers"
+  },
+  {
     "type": "resync"
   }
 ]

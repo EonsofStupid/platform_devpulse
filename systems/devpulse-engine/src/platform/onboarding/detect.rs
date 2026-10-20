@@ -14,6 +14,8 @@ use std::time::Duration;
 use anyhow::{Context, Result};
 use serde::Deserialize;
 
+use crate::platform::process::{self, Ran};
+
 /// The bundled folder candidates.
 const BUNDLED_FOLDERS: &str = include_str!("../../../config/onboarding/folders.toml");
 
@@ -42,29 +44,23 @@ pub enum GitLookup {
 }
 
 async fn git_config(key: &str) -> Result<Option<String>> {
-    let mut cmd = tokio::process::Command::new("git");
-    cmd.args(["config", "--global", "--get", key])
-        .kill_on_drop(true);
-    #[cfg(windows)]
+    let answer = match process::run(
+        "git",
+        &["config", "--global", "--get", key],
+        &[],
+        GIT_TIMEOUT,
+    )
+    .await?
     {
-        // No console window flashes up from a GUI app.
-        const CREATE_NO_WINDOW: u32 = 0x0800_0000;
-        cmd.creation_flags(CREATE_NO_WINDOW);
-    }
-    let out = tokio::time::timeout(GIT_TIMEOUT, cmd.output())
-        .await
-        .context("git did not answer in time")?
-        .context("run git")?;
+        Ran::Missing => anyhow::bail!("git is not installed"),
+        Ran::Answered(answer) => answer,
+    };
     // `git config --get` exits 1 when the key is unset.
-    if out.status.code() == Some(1) {
+    if answer.code == Some(1) {
         return Ok(None);
     }
-    anyhow::ensure!(
-        out.status.success(),
-        "git config exited with {}",
-        out.status
-    );
-    let value = unquote(String::from_utf8_lossy(&out.stdout).trim()).to_owned();
+    anyhow::ensure!(answer.ok(), "git config refused: {}", answer.reason());
+    let value = unquote(answer.stdout.trim()).to_owned();
     Ok((!value.is_empty()).then_some(value))
 }
 

@@ -23,6 +23,8 @@ pub enum Stage {
     Welcome,
     /// Your name, email and projects folder.
     You,
+    /// Your dev environment: a container engine for your projects.
+    Containers,
 }
 
 impl Stage {
@@ -32,6 +34,7 @@ impl Stage {
         match self {
             Self::Welcome => "welcome",
             Self::You => "you",
+            Self::Containers => "containers",
         }
     }
 
@@ -43,6 +46,7 @@ impl Stage {
         match id {
             "welcome" => Ok(Self::Welcome),
             "you" => Ok(Self::You),
+            "containers" => Ok(Self::Containers),
             other => bail!("unknown first-run stage {other:?}"),
         }
     }
@@ -178,10 +182,14 @@ mod tests {
     #[test]
     fn bundled_flow_is_valid_and_ordered() {
         let flow = Flow::bundled().expect("bundled");
-        assert_eq!(flow.stages(), [Stage::Welcome, Stage::You]);
+        assert_eq!(
+            flow.stages(),
+            [Stage::Welcome, Stage::You, Stage::Containers]
+        );
         assert_eq!(flow.first(), Stage::Welcome);
         assert_eq!(flow.next(Stage::Welcome), Some(Stage::You));
-        assert_eq!(flow.next(Stage::You), None);
+        assert_eq!(flow.next(Stage::You), Some(Stage::Containers));
+        assert_eq!(flow.next(Stage::Containers), None);
         assert_eq!(flow.previous(Stage::You), Some(Stage::Welcome));
         assert_eq!(flow.previous(Stage::Welcome), None);
     }

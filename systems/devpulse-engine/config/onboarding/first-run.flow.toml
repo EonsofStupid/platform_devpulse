@@ -6,4 +6,4 @@
 # its name, and the bundled list is used until it is fixed.
 #
 # A stage is listed only once it works end to end.
-stages = ["welcome", "you"]
+stages = ["welcome", "you", "containers"]

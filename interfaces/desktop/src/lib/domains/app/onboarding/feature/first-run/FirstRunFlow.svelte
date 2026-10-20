@@ -17,6 +17,7 @@ import { copyState, fill } from "$lib/sys/copy/index.js";
 import { onboardingState } from "../../data-access/onboarding.state.svelte.js";
 import { youForm } from "../../data-access/you-form.state.svelte.js";
 import { OnboardingShell } from "../../ui/onboarding-shell/index.js";
+import ContainersView from "./views/ContainersView.svelte";
 import WelcomeView from "./views/WelcomeView.svelte";
 import YouView from "./views/YouView.svelte";
 
@@ -49,6 +50,8 @@ $effect(() => {
 			<WelcomeView copy={copy.welcome} detected={state.detected} />
 		{:else if state.stage === "you" && copyState.catalog}
 			<YouView copy={copy.you} errorCopy={copyState.catalog.forms.errors} />
+		{:else if state.stage === "containers"}
+			<ContainersView copy={copy.containers} />
 		{/if}
 
 		{#if onboardingState.error}

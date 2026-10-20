@@ -10,6 +10,7 @@ import { commands } from "$lib/sys/generated/bindings.js";
 export const getCopy = commands.getCopy;
 
 export type {
+	ContainersCopy,
 	CopyCatalog,
 	FormErrorsCopy,
 	FormsCopy,

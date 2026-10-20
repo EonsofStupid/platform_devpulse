@@ -26,6 +26,7 @@
 
 mod boot;
 pub mod config;
+pub mod containers;
 pub mod copy;
 pub mod db;
 #[allow(missing_docs)]
@@ -38,6 +39,7 @@ pub mod integrations;
 pub mod metrics;
 pub mod module;
 pub mod onboarding;
+pub mod process;
 pub mod profile;
 pub mod projects;
 pub mod services;
@@ -343,6 +345,8 @@ pub struct Platform {
     onboarding: Option<Arc<onboarding::Onboarding>>,
     /// Your projects and the active one (needs the user database).
     projects: Option<Arc<projects::Projects>>,
+    /// Containers for your projects (needs the user database).
+    containers: Option<Arc<containers::Containers>>,
     user_analytics: Option<Arc<AnalyticsService>>,
     user_graph: Option<Arc<GraphService>>,
     // ── Global scope ────────────────────────────────────────────
@@ -416,20 +420,26 @@ pub struct Platform {
     data_dir: PathBuf,
 }
 
-/// Start what lives in the user database: first run and your projects.
-/// Without the user database there is nothing to start; either one failing
-/// is logged with its reason and leaves that one unavailable, never the app.
+/// What lives in the user database.
+#[derive(Default)]
+struct UserWorkflows {
+    onboarding: Option<Arc<onboarding::Onboarding>>,
+    projects: Option<Arc<projects::Projects>>,
+    containers: Option<Arc<containers::Containers>>,
+}
+
+/// Start what lives in the user database: first run, your projects, and
+/// containers for them. Without the user database there is nothing to start;
+/// any one failing is logged with its reason and leaves that one
+/// unavailable, never the app.
 async fn start_user_workflows(
     user: Option<&Arc<RelationalService>>,
     user_graph: Option<Arc<GraphService>>,
     data_dir: &std::path::Path,
     signals: &crate::Engine,
-) -> (
-    Option<Arc<onboarding::Onboarding>>,
-    Option<Arc<projects::Projects>>,
-) {
+) -> UserWorkflows {
     let Some(user) = user else {
-        return (None, None);
+        return UserWorkflows::default();
     };
     let onboarding = match onboarding::Onboarding::start(
         Arc::clone(user.adapter()),
@@ -462,7 +472,24 @@ async fn start_user_workflows(
             None
         }
     };
-    (onboarding, projects)
+    let containers = match containers::Containers::start(
+        Arc::clone(user.adapter()),
+        data_dir.to_path_buf(),
+        signals.clone(),
+    )
+    .await
+    {
+        Ok(c) => Some(c),
+        Err(e) => {
+            tracing::error!(target: "containers", error = %format!("{e:#}"), "containers could not start");
+            None
+        }
+    };
+    UserWorkflows {
+        onboarding,
+        projects,
+        containers,
+    }
 }
 
 impl Platform {
@@ -507,7 +534,7 @@ impl Platform {
         )
         .await?;
 
-        let (onboarding, projects) = start_user_workflows(
+        let user_workflows = start_user_workflows(
             booted.user_relational.as_ref(),
             booted.user_graph.clone(),
             &data_dir,
@@ -556,8 +583,9 @@ impl Platform {
             system_graph: booted.system_graph,
             system_cache: booted.system_cache,
             user_relational: booted.user_relational,
-            onboarding,
-            projects,
+            onboarding: user_workflows.onboarding,
+            projects: user_workflows.projects,
+            containers: user_workflows.containers,
             user_analytics: booted.user_analytics,
             user_graph: booted.user_graph,
             global_graph: booted.global_graph,
@@ -784,6 +812,11 @@ impl Platform {
     /// Your projects and the active one (when the user database is open).
     pub fn projects(&self) -> Option<&Arc<projects::Projects>> {
         self.projects.as_ref()
+    }
+
+    /// Containers for your projects (when the user database is open).
+    pub fn containers(&self) -> Option<&Arc<containers::Containers>> {
+        self.containers.as_ref()
     }
 
     /// Get the user relational service (if enabled and booted).

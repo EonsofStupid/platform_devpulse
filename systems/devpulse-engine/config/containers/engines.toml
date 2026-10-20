@@ -1,0 +1,30 @@
+# Container engines DevPulse detects for your projects (plan 0001, stage 3b).
+#
+# This is the bundled default. A copy at
+# `.userdata/config/containers/engines.toml` replaces the list. A file that
+# does not parse is refused with the reason, and this list is used until it
+# is fixed.
+#
+# Each engine names its program and the arguments that ask it, in a form
+# whose output DevPulse reads as JSON (versions, machines) or as one line
+# (compose). Nothing here is run except to look.
+
+[[engines]]
+id = "docker"
+name = "Docker"
+program = "docker"
+# Client and engine versions; the engine half is empty when the engine is
+# not running.
+version = ["version", "--format", "{{json .}}"]
+compose = ["compose", "version", "--short"]
+
+[[engines]]
+id = "podman"
+name = "Podman"
+program = "podman"
+version = ["version", "--format", "json"]
+compose = ["compose", "version"]
+# On Windows and macOS Podman runs its engine in a "machine" (a small VM).
+machines = ["machine", "list", "--format", "json"]
+# On Linux Podman has no daemon: a client that answers is an engine that works.
+daemonless_on_linux = true
