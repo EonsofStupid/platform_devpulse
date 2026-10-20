@@ -39,6 +39,7 @@ pub mod metrics;
 pub mod module;
 pub mod onboarding;
 pub mod profile;
+pub mod projects;
 pub mod services;
 pub mod telemetry;
 
@@ -340,6 +341,8 @@ pub struct Platform {
     user_relational: Option<Arc<RelationalService>>,
     /// First run (needs the user database).
     onboarding: Option<Arc<onboarding::Onboarding>>,
+    /// Your projects and the active one (needs the user database).
+    projects: Option<Arc<projects::Projects>>,
     user_analytics: Option<Arc<AnalyticsService>>,
     user_graph: Option<Arc<GraphService>>,
     // ── Global scope ────────────────────────────────────────────
@@ -413,6 +416,55 @@ pub struct Platform {
     data_dir: PathBuf,
 }
 
+/// Start what lives in the user database: first run and your projects.
+/// Without the user database there is nothing to start; either one failing
+/// is logged with its reason and leaves that one unavailable, never the app.
+async fn start_user_workflows(
+    user: Option<&Arc<RelationalService>>,
+    user_graph: Option<Arc<GraphService>>,
+    data_dir: &std::path::Path,
+    signals: &crate::Engine,
+) -> (
+    Option<Arc<onboarding::Onboarding>>,
+    Option<Arc<projects::Projects>>,
+) {
+    let Some(user) = user else {
+        return (None, None);
+    };
+    let onboarding = match onboarding::Onboarding::start(
+        Arc::clone(user.adapter()),
+        data_dir,
+        signals.clone(),
+    )
+    .await
+    {
+        Ok(o) => {
+            let o = Arc::new(o);
+            o.spawn_detection(data_dir.to_path_buf());
+            Some(o)
+        }
+        Err(e) => {
+            tracing::error!(target: "onboarding", error = %format!("{e:#}"), "first run could not start");
+            None
+        }
+    };
+    // The graph mirror is the user graph, best-effort.
+    let projects = match projects::Projects::start(
+        Arc::clone(user.adapter()),
+        user_graph,
+        signals.clone(),
+    )
+    .await
+    {
+        Ok(p) => Some(Arc::new(p)),
+        Err(e) => {
+            tracing::error!(target: "projects", error = %format!("{e:#}"), "projects could not start");
+            None
+        }
+    };
+    (onboarding, projects)
+}
+
 impl Platform {
     /// Boot the platform — initialize all enabled services from config.
     ///
@@ -445,7 +497,7 @@ impl Platform {
         // `SendError`, which callsites ignore.
         let (internal_tx, _) = broadcast_channel::<InternalEvent>(INTERNAL_EVENT_CAPACITY);
 
-        let onboarding_signals = signals.clone();
+        let user_signals = signals.clone();
         let booted = boot::execute(
             &data_dir,
             &boot_config,
@@ -455,30 +507,13 @@ impl Platform {
         )
         .await?;
 
-        // First run reads and writes the user database; without it there is
-        // nothing to set up, and the reason is logged.
-        let onboarding = match &booted.user_relational {
-            Some(user) => {
-                match onboarding::Onboarding::start(
-                    Arc::clone(user.adapter()),
-                    &data_dir,
-                    onboarding_signals,
-                )
-                .await
-                {
-                    Ok(o) => {
-                        let o = Arc::new(o);
-                        o.spawn_detection(data_dir.clone());
-                        Some(o)
-                    }
-                    Err(e) => {
-                        tracing::error!(target: "onboarding", error = %format!("{e:#}"), "first run could not start");
-                        None
-                    }
-                }
-            }
-            None => None,
-        };
+        let (onboarding, projects) = start_user_workflows(
+            booted.user_relational.as_ref(),
+            booted.user_graph.clone(),
+            &data_dir,
+            &user_signals,
+        )
+        .await;
 
         // Spawn telemetry handle after services boot.
         // Requires analytics service (DuckDB) for trace persistence.
@@ -522,6 +557,7 @@ impl Platform {
             system_cache: booted.system_cache,
             user_relational: booted.user_relational,
             onboarding,
+            projects,
             user_analytics: booted.user_analytics,
             user_graph: booted.user_graph,
             global_graph: booted.global_graph,
@@ -743,6 +779,11 @@ impl Platform {
     /// First run (when the user database is open).
     pub fn onboarding(&self) -> Option<&Arc<onboarding::Onboarding>> {
         self.onboarding.as_ref()
+    }
+
+    /// Your projects and the active one (when the user database is open).
+    pub fn projects(&self) -> Option<&Arc<projects::Projects>> {
+        self.projects.as_ref()
     }
 
     /// Get the user relational service (if enabled and booted).

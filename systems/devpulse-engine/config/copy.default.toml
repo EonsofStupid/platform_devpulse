@@ -22,6 +22,9 @@ finish = "Open DevPulse"
 progress = "Step {current} of {total}"
 flow_problem = "Your first-run flow file wasn't used, so the standard steps are showing."
 reopen = "Finish setting up"
+run_again_title = "First-run setup"
+run_again_hint = "Walk through setup again — your name, your projects folder and which repositories DevPulse works with. Nothing you saved is lost."
+run_again = "Run setup again"
 
 [onboarding.welcome]
 title = "Hi, I'm Clyffy."

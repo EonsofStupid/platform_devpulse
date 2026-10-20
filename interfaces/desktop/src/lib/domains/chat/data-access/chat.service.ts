@@ -3,7 +3,7 @@
  * @module @devpulse/domains/chat/data-access/chat.service
  */
 
-import { devpulseState } from "$lib/domains/app/devpulse/index.js";
+import { projectsState } from "$lib/domains/app/projects/index.js";
 import { withAction } from "$lib/sys/action-bus.svelte.js";
 import {
 	type ChatMessage,
@@ -15,8 +15,7 @@ import {
 import { logError, logInfo } from "$lib/sys/logger.js";
 
 function activeProjectId(): string | null {
-	const id = devpulseState.data.recentProjects[0]?.id ?? null;
-	return id;
+	return projectsState.activeProjectId;
 }
 
 function ok<T>(r: { status: "ok"; data: T } | { status: "error"; error: unknown }): T {

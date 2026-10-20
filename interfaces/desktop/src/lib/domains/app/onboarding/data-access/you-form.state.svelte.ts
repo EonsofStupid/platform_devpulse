@@ -18,6 +18,7 @@ import {
 } from "$lib/sys/bindings/onboarding/index.js";
 import { logError } from "$lib/sys/logger.js";
 import { onboardingState } from "./onboarding.state.svelte.js";
+import { repoScan } from "./repo-scan.state.svelte.js";
 
 function unwrap<T>(name: string, result: Result<T, string>): T {
 	if (result.status === "error") {
@@ -78,14 +79,20 @@ class YouFormStore {
 		);
 	}
 
-	/** Save; when Rust accepts it, continue to the next stage. */
+	/**
+	 * Save; when Rust accepts it, add the repositories you ticked (DevPulse
+	 * itself is ticked for you), then continue to the next stage. A repo Rust
+	 * refuses keeps you on this stage with its reason shown.
+	 */
 	saveAndContinue = async (): Promise<void> => {
 		this.saving = true;
 		this.problem = null;
 		try {
 			const outcome = unwrap("onboardingYouSubmit", await onboardingYouSubmit(this.payload()));
 			this.errors = outcome.errors;
-			if (outcome.saved) await onboardingState.next();
+			if (!outcome.saved) return;
+			if (!(await repoScan.register())) return;
+			await onboardingState.next();
 		} catch (e) {
 			this.problem = message(e);
 		} finally {

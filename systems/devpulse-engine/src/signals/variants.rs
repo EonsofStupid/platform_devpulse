@@ -56,6 +56,8 @@ pub enum SignalVariant {
     Boot(BootStatus),
     /// First run: status, stage, what the stage still needs.
     Onboarding(crate::platform::onboarding::OnboardingState),
+    /// Your live projects and the active one.
+    Projects(crate::platform::projects::ProjectsState),
     /// The bridge fell behind: windows re-read the state snapshot.
     Resync,
 }

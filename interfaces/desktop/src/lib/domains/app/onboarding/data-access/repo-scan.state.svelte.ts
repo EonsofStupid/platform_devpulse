@@ -8,7 +8,6 @@
  * results.
  */
 
-import { projectsState } from "$lib/domains/app/projects/index.js";
 import type { Result } from "$lib/sys/bindings/_shared/index.js";
 import {
 	type FoundRepo,
@@ -73,24 +72,37 @@ class RepoScanStore {
 			: [...this.picked, path];
 	}
 
-	/** Register the ticked repos in place, then rescan so the list shows what is stored. */
-	register = async (): Promise<void> => {
-		if (this.picked.length === 0 || !this.folder) return;
+	/** Repos Rust refused, with its reason (from the last registration). */
+	get failed(): RegisterResult[] {
+		return this.results.filter((r) => r.error !== null);
+	}
+
+	/**
+	 * Register the ticked repos in place. The list then shows Rust's answer
+	 * per repo — added ones marked registered and unticked, refused ones kept
+	 * ticked with the reason — without rescanning the folder (a rescan counts
+	 * every repo's languages again). The projects list and the active project
+	 * arrive on Rust's `projects` signal. Returns `true` when every ticked
+	 * repo was added.
+	 */
+	register = async (): Promise<boolean> => {
+		if (this.picked.length === 0 || !this.folder) return true;
 		this.registering = true;
 		this.problem = null;
 		try {
-			this.results = unwrap(
+			const results = unwrap(
 				"onboardingRegisterProjects",
 				await onboardingRegisterProjects(this.picked),
 			);
-			const folder = this.folder;
-			const results = this.results;
-			// The projects list and the active project live in the projects
-			// domain; it re-reads them from Rust.
-			await Promise.all([this.scan(folder), projectsState.refresh("onboarding")]);
+			const added = new Set(results.filter((r) => r.error === null).map((r) => r.path));
+			this.repos =
+				this.repos?.map((r) => (added.has(r.path) ? { ...r, registered: true } : r)) ?? null;
+			this.picked = this.picked.filter((path) => !added.has(path));
 			this.results = results;
+			return this.failed.length === 0;
 		} catch (e) {
 			this.problem = message(e);
+			return false;
 		} finally {
 			this.registering = false;
 		}

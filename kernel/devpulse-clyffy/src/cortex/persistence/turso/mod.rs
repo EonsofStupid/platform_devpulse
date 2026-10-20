@@ -228,10 +228,12 @@ impl SqlAdapter for TursoAdapter {
         // Hold the connection until the rows are consumed: a dropped
         // connection returns to the pool while the rows still read it.
         let conn = self.connect()?;
+        // The driver's reason is part of the message: callers and the
+        // `instrument(err)` log print only the outermost context.
         let mut rows = conn
             .query(sql, params)
             .await
-            .context("Failed to execute query")?;
+            .map_err(|e| anyhow::anyhow!("Failed to execute query: {e}"))?;
 
         let mut results = Vec::new();
         while let Some(row) = rows.next().await? {
@@ -250,7 +252,7 @@ impl SqlAdapter for TursoAdapter {
         self.connect()?
             .execute(sql, params)
             .await
-            .context("Failed to execute statement")
+            .map_err(|e| anyhow::anyhow!("Failed to execute statement: {e}"))
     }
 
     #[tracing::instrument(skip(self, sql), fields(sql_len = sql.len()), err)]
@@ -258,7 +260,7 @@ impl SqlAdapter for TursoAdapter {
         self.connect()?
             .execute_batch(sql)
             .await
-            .context("Failed to execute batch")
+            .map_err(|e| anyhow::anyhow!("Failed to execute batch: {e}"))
     }
 }
 

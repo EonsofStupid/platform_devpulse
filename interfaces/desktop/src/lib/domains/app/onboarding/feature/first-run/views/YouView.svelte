@@ -30,12 +30,13 @@ $effect(() => {
 
 const folder = $derived(youForm.draft.projectsRoot?.trim() ?? "");
 
-// A folder you already saved is scanned once, when the form arrives —
+// A folder you already saved is scanned once each time the form arrives
+// (also when first run is reopened, so the list shows what is stored now) —
 // not on every keystroke (typing a path scans when you ask).
 $effect(() => {
 	const view = youForm.view;
 	untrack(() => {
-		if (view && folder && repoScan.folder === null) void repoScan.scan(folder);
+		if (view && folder) void repoScan.scan(folder);
 	});
 });
 

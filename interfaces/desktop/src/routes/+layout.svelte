@@ -8,6 +8,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { onMount } from "svelte";
 import { Toaster } from "svelte-sonner";
 import { bootstrapDownloadBridge, ModelDownloaderOverlay } from "$lib/domains/app/models/index.js";
+import { projectsState } from "$lib/domains/app/projects/index.js";
 import { updatesState } from "$lib/domains/app/updates/index.js";
 import { authState } from "$lib/domains/auth/index.js";
 import { clyffyStatus } from "$lib/domains/clyffy/index.js";
@@ -80,6 +81,11 @@ onMount(() => {
 	// Owns its own $effect.root internally; returns a teardown fn.
 	const stopClyffyStatus = clyffyStatus.start();
 
+	// Projects — the list and the active project, as Rust publishes them.
+	// Every window follows it, so chat and DevForge work in the same project
+	// as the hub.
+	const stopProjects = projectsState.start();
+
 	// Auth subsystem — probes the persisted Supabase session, subscribes
 	// to onAuthStateChange so subsequent sign-in/out events propagate.
 	// `init()` is idempotent so the layout can call it freely.
@@ -133,6 +139,7 @@ onMount(() => {
 	return () => {
 		detachDownloadBridge?.();
 		stopClyffyStatus();
+		stopProjects();
 		authState.destroy();
 		updatesState.destroy();
 		document.removeEventListener("pointermove", markActive);

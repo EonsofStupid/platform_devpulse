@@ -35,6 +35,12 @@ pub struct OnboardingCommonCopy {
     pub flow_problem: String,
     /// The top-bar chip that reopens first run.
     pub reopen: String,
+    /// Settings: heading of the section that runs first run again.
+    pub run_again_title: String,
+    /// Settings: what running it again does.
+    pub run_again_hint: String,
+    /// Settings: the button that runs first run again (after it finished).
+    pub run_again: String,
 }
 
 /// The Welcome stage.

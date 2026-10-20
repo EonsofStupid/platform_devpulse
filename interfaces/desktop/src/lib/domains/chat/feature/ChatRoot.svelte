@@ -4,8 +4,8 @@
 <script lang="ts">
 import { DynamicBackground } from "@devpulse/coldlight/components/dynamic-background";
 import { Text } from "@devpulse/coldlight/components/text";
-import { devpulseState } from "$lib/domains/app/devpulse/index.js";
 import { ModelEventCard, modelsState } from "$lib/domains/app/models/index.js";
+import { projectsState } from "$lib/domains/app/projects/index.js";
 import { chatState } from "../data-access/chat.state.svelte.js";
 import { sessionsState } from "../data-access/sessions.state.svelte.js";
 import ChatActionsMenu from "./ChatActionsMenu.svelte";
@@ -29,14 +29,18 @@ const activeModelEvents = $derived.by(() => {
 	return events;
 });
 
+// Sessions and messages follow the active project; until Rust's projects
+// state has arrived and the platform answers, there is nothing to load.
 $effect(() => {
-	void devpulseState.data.recentProjects[0]?.id;
+	if (!projectsState.ready) return;
+	void projectsState.activeProjectId;
 	void sessionsState.refresh();
 });
 
 $effect(() => {
 	void chatState.activeSessionId;
-	void devpulseState.data.recentProjects[0]?.id;
+	if (!projectsState.ready) return;
+	void projectsState.activeProjectId;
 	void chatState.loadActive();
 });
 </script>

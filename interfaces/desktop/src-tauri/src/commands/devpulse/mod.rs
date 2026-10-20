@@ -102,59 +102,28 @@ pub async fn fetch_dashboard(state: State<'_, PlatformState>) -> Result<Dashboar
     let (projects, project_count, message_stats) = if let Some(svc) = platform.user_relational() {
         let adapter = svc.adapter();
 
-        // Recent projects (up to 8)
-        let project_rows = adapter
-            .query(
-                "SELECT id, name, root_path, project_type, created_at, last_active_at \
-                 FROM projects ORDER BY last_active_at DESC LIMIT 8",
-                &[],
-            )
-            .await
-            .map_err(|e| format!("Failed to query projects: {e}"))?;
-
-        let projects: Vec<ProjectRow> = project_rows
+        // Live projects from the projects service (the one source), most
+        // recently used first; the dashboard shows up to 8.
+        let live = match platform.projects() {
+            Some(service) => service
+                .list(false)
+                .await
+                .map_err(|e| format!("Failed to read projects: {e:#}"))?,
+            None => Vec::new(),
+        };
+        let project_count = i64::try_from(live.len()).unwrap_or(i64::MAX);
+        let projects: Vec<ProjectRow> = live
             .into_iter()
-            .map(|row| ProjectRow {
-                id: row
-                    .first()
-                    .map(std::string::ToString::to_string)
-                    .unwrap_or_default(),
-                name: row
-                    .get(1)
-                    .and_then(|v| v.as_text())
-                    .unwrap_or("")
-                    .to_string(),
-                root_path: row
-                    .get(2)
-                    .and_then(|v| v.as_text())
-                    .unwrap_or("")
-                    .to_string(),
-                project_type: row
-                    .get(3)
-                    .and_then(|v| v.as_text())
-                    .unwrap_or("")
-                    .to_string(),
-                created_at: row
-                    .get(4)
-                    .and_then(devpulse_engine::platform::SqlValue::as_integer)
-                    .unwrap_or(0),
-                last_accessed: row
-                    .get(5)
-                    .and_then(devpulse_engine::platform::SqlValue::as_integer)
-                    .unwrap_or(0),
+            .take(8)
+            .map(|p| ProjectRow {
+                id: p.id,
+                name: p.name,
+                root_path: p.root_path,
+                project_type: p.project_type,
+                created_at: p.created_at,
+                last_accessed: p.last_active_at.unwrap_or(0),
             })
             .collect();
-
-        // Project count
-        let count_rows = adapter
-            .query("SELECT COUNT(*) FROM projects", &[])
-            .await
-            .map_err(|e| format!("Failed to count projects: {e}"))?;
-        let project_count = count_rows
-            .first()
-            .and_then(|r| r.first())
-            .and_then(devpulse_engine::platform::SqlValue::as_integer)
-            .unwrap_or(0);
 
         // Message + session counts
         let msg_rows = adapter

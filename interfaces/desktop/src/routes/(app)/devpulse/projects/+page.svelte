@@ -4,8 +4,9 @@
   @domain devpulse
 
   Projects route — one active project at a time, with reference
-  directories linked to it. Reads from `projectsState` (Turso SSOT
-  via tauri-specta bindings), not the legacy mock `devpulseState`.
+  directories linked to it. Renders `projectsState`, which follows Rust's
+  `projects` state signal (Turso is the source), not the legacy mock
+  `devpulseState`.
 -->
 <script lang="ts">
 import { Widget } from "@devpulse/coldlight/blocks/widgets";
@@ -17,10 +18,6 @@ import {
 	ProjectSwitcher,
 	projectsState,
 } from "$lib/domains/app/projects/index.js";
-
-$effect(() => {
-	void projectsState.refresh("projects-route-mount");
-});
 </script>
 
 <div class={stack({ gap: "4" })} data-page="devpulse-projects">

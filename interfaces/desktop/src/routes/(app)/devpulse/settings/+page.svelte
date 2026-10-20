@@ -12,8 +12,11 @@ import { Text } from "@devpulse/coldlight/components/text";
 import { cn, container, hstack, stack } from "@devpulse/coldlight/utils";
 import { Check, Pencil, X } from "lucide-svelte";
 import { profileSettingsState } from "$lib/domains/app/devpulse/index.js";
+import { onboardingState } from "$lib/domains/app/onboarding/index.js";
+import { copyState } from "$lib/sys/copy/index.js";
 
 const settingsState = profileSettingsState;
+const setupCopy = $derived(copyState.catalog?.onboarding.common ?? null);
 
 $effect(() => {
 	void settingsState.load();
@@ -118,6 +121,28 @@ $effect(() => {
 		<Widget title="Integrations">
 			<Text as="p" size="sm" color="muted">GitHub, GitLab, and Bitbucket integrations will be configured here.</Text>
 		</Widget>
+
+		<!-- First run can always be walked again; Rust reopens it and the app shell shows it. -->
+		{#if setupCopy}
+			<Widget title={setupCopy.run_again_title}>
+				<div class={stack({ gap: "3" })}>
+					<Text as="p" size="sm" color="muted">{setupCopy.run_again_hint}</Text>
+					{#if onboardingState.error}
+						<InlineMessage tone="error">{onboardingState.error}</InlineMessage>
+					{/if}
+					<div class={hstack({ justify: "end" })}>
+						<Button
+							preset="secondary"
+							size="sm"
+							onclick={onboardingState.reopen}
+							disabled={onboardingState.busy || onboardingState.isOpen}
+						>
+							{setupCopy.run_again}
+						</Button>
+					</div>
+				</div>
+			</Widget>
+		{/if}
 	</div>
 </div>
 

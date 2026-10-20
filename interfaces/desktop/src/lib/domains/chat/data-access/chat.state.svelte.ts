@@ -3,13 +3,13 @@
  * @module @devpulse/domains/chat/data-access/chat.state.svelte
  */
 
-import { devpulseState } from "$lib/domains/app/devpulse/index.js";
 import {
 	generateText,
 	isInferenceReady,
 	modelsState,
 	onInferenceToken,
 } from "$lib/domains/app/models/index.js";
+import { projectsState } from "$lib/domains/app/projects/index.js";
 import type { ChatMessage } from "$lib/sys/generated/bindings.js";
 import { logError, logInfo } from "$lib/sys/logger.js";
 import { globalState } from "$lib/sys/runes/global.svelte.js";
@@ -39,8 +39,9 @@ class ChatState {
 		globalState.setMode(mode);
 	}
 
+	/** The project you are working in (Rust's active project). */
 	projectId(): string | null {
-		return devpulseState.data.recentProjects[0]?.id ?? null;
+		return projectsState.activeProjectId;
 	}
 
 	async loadActive(): Promise<void> {

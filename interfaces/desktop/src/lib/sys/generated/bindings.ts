@@ -2162,8 +2162,9 @@ async onboardingScanProjects(folder: string) : Promise<Result<FoundRepo[] | null
 },
 /**
  * Register the repositories you ticked as projects, in place (nothing is
- * written inside them). When no project is active yet, the first one
- * added becomes active.
+ * written inside them). Each folder gets its own outcome; a folder you
+ * removed earlier comes back. When no project is active yet, the first one
+ * becomes active.
  */
 async onboardingRegisterProjects(paths: string[]) : Promise<Result<RegisterResult[], string>> {
     try {
@@ -2174,13 +2175,8 @@ async onboardingRegisterProjects(paths: string[]) : Promise<Result<RegisterResul
 }
 },
 /**
- * Create a new project row in user Turso.
- * 
- * Duplicate `root_path` values are rejected at the SQL level — the
- * `projects` table schema declares `root_path TEXT NOT NULL UNIQUE`,
- * so a second attempt returns an IPC-level error containing the
- * adapter's message. The frontend should catch this and re-render
- * with "a project at this path already exists".
+ * Register a folder as a project, in place. A folder removed earlier comes
+ * back; a folder that already is a live project is refused.
  */
 async createProject(input: CreateProjectInput) : Promise<Result<Project, string>> {
     try {
@@ -2191,11 +2187,7 @@ async createProject(input: CreateProjectInput) : Promise<Result<Project, string>
 }
 },
 /**
- * List every project ordered newest-first.
- * 
- * Use `include_archived = false` (default) to match the dashboard's
- * "active projects" shape. Archived rows have `active = 0` and are
- * typically hidden from the main UI surface.
+ * Live projects, most recently used first (removed ones too when asked).
  */
 async listProjects(includeArchived: boolean | null) : Promise<Result<Project[], string>> {
     try {
@@ -2206,9 +2198,7 @@ async listProjects(includeArchived: boolean | null) : Promise<Result<Project[], 
 }
 },
 /**
- * Fetch a single project by id. Returns `None` for missing ids so the
- * frontend can render a "project not found" state without the IPC
- * boundary treating it as an error.
+ * One project by id; `None` when there is none.
  */
 async getProject(id: string) : Promise<Result<Project | null, string>> {
     try {
@@ -2219,9 +2209,8 @@ async getProject(id: string) : Promise<Result<Project | null, string>> {
 }
 },
 /**
- * Soft-delete: flip `active` to 0. Project row stays on disk and the
- * per-project `.userdata/project.db` is untouched. Reversible via
- * `restore_project`.
+ * Remove a project (its folder can be registered again). When it was the
+ * active one, the most recently used remaining project becomes active.
  */
 async deleteProject(id: string) : Promise<Result<boolean, string>> {
     try {
@@ -2232,7 +2221,7 @@ async deleteProject(id: string) : Promise<Result<boolean, string>> {
 }
 },
 /**
- * Reverse of [`delete_project`] — flip `active` back to 1.
+ * Bring a removed project back.
  */
 async restoreProject(id: string) : Promise<Result<boolean, string>> {
     try {
@@ -2243,7 +2232,7 @@ async restoreProject(id: string) : Promise<Result<boolean, string>> {
 }
 },
 /**
- * Return the currently-active project, or `None` if nothing is set.
+ * The active project, if any.
  */
 async getActiveProject() : Promise<Result<Project | null, string>> {
     try {
@@ -2254,9 +2243,7 @@ async getActiveProject() : Promise<Result<Project | null, string>> {
 }
 },
 /**
- * Set the active project by id. Validates that the project exists
- * before writing the singleton so we never end up pointing at a
- * deleted row.
+ * Make a live project the active one.
  */
 async setActiveProject(id: string) : Promise<Result<Project, string>> {
     try {
@@ -2267,8 +2254,7 @@ async setActiveProject(id: string) : Promise<Result<Project, string>> {
 }
 },
 /**
- * Clear the active-project singleton. `get_active_project` returns
- * `None` after this. Does NOT delete the project row itself.
+ * Leave no project active.
  */
 async clearActiveProject() : Promise<Result<null, string>> {
     try {
@@ -2279,9 +2265,7 @@ async clearActiveProject() : Promise<Result<null, string>> {
 }
 },
 /**
- * Link a reference directory to a project. The same `(project_id,
- * path)` pair cannot be added twice — schema UNIQUE constraint
- * enforces this and the caller gets the SQL error surfaced.
+ * Link a read-only directory to a project.
  */
 async addProjectReference(input: AddReferenceInput) : Promise<Result<ProjectReference, string>> {
     try {
@@ -2292,8 +2276,7 @@ async addProjectReference(input: AddReferenceInput) : Promise<Result<ProjectRefe
 }
 },
 /**
- * List every reference directory linked to a project, oldest first
- * (insertion order). Empty list is normal.
+ * A project's reference directories, oldest first.
  */
 async listProjectReferences(projectId: string) : Promise<Result<ProjectReference[], string>> {
     try {
@@ -2304,9 +2287,7 @@ async listProjectReferences(projectId: string) : Promise<Result<ProjectReference
 }
 },
 /**
- * Remove a reference link. Hard delete — references are cheap to
- * recreate and the RAG index for this reference can be rebuilt on
- * re-add. Returns `true` if a row was actually removed.
+ * Unlink a reference directory.
  */
 async removeProjectReference(id: string) : Promise<Result<boolean, string>> {
     try {
@@ -4222,23 +4203,23 @@ voice_enable_aria: string;
  */
 voice_disable_aria: string }
 /**
- * Input for [`add_project_reference`].
+ * What [`Projects::add_reference`] needs.
  */
 export type AddReferenceInput = { 
 /**
- * Target project id (FK to [`Project::id`]).
+ * The project to link it to.
  */
 project_id: string; 
 /**
- * Absolute path to the referenced directory. Trimmed; non-empty.
+ * The directory. Trimmed; must be non-empty.
  */
 path: string; 
 /**
- * Optional display label. UI falls back to the path basename.
+ * Display label.
  */
 label?: string | null; 
 /**
- * Defaults to `"other"`. Allowed values enforced at the command.
+ * Defaults to `"other"`.
  */
 kind?: string | null }
 /**
@@ -6030,17 +6011,16 @@ devtools: DevtoolsCopy;
  */
 nav: Partial<{ [key in string]: RouteCopy }> }
 /**
- * Input for [`create_project`]. Only `name` and `root_path` are
- * required; every other field has a sensible default or is nullable.
+ * What [`Projects::create`] needs. Only `name` and `root_path` are
+ * required.
  */
 export type CreateProjectInput = { 
 /**
- * Human-readable project name. Trimmed; must be non-empty.
+ * Display name. Trimmed; must be non-empty.
  */
 name: string; 
 /**
- * Absolute path to the project root on disk. Trimmed; must be
- * non-empty. Uniqueness is enforced at the SQL layer.
+ * The project folder. Trimmed; must be non-empty.
  */
 root_path: string; 
 /**
@@ -6048,20 +6028,20 @@ root_path: string;
  */
 project_type?: string | null; 
 /**
- * Optional one-line description. Stored as NULL when omitted.
+ * One-line description; empty is stored as NULL.
  */
 description?: string | null; 
 /**
- * Optional source-tool hint (e.g. `"vscode"`, `"cursor"`). Free-form.
+ * Source tool hint; empty is stored as NULL.
  */
 tool?: string | null; 
 /**
- * Optional JSON string. Caller is responsible for the shape.
+ * JSON array as a string; empty is stored as NULL.
  */
 tech_stack?: string | null; 
 /**
- * If `true`, the new project is immediately set as the active
- * project. Convenient for the wizard "Create + Start" flow.
+ * Make it the active project. A project is also made active when it is
+ * the first one.
  */
 set_active?: boolean }
 /**
@@ -9231,7 +9211,19 @@ flow_problem: string;
 /**
  * The top-bar chip that reopens first run.
  */
-reopen: string }
+reopen: string; 
+/**
+ * Settings: heading of the section that runs first run again.
+ */
+run_again_title: string; 
+/**
+ * Settings: what running it again does.
+ */
+run_again_hint: string; 
+/**
+ * Settings: the button that runs first run again (after it finished).
+ */
+run_again: string }
 /**
  * First run.
  */
@@ -9439,52 +9431,55 @@ continue_template: string;
  */
 back_label: string }
 /**
- * A full project row returned to the frontend.
+ * A project as stored.
  */
 export type Project = { 
 /**
- * `UUIDv4` identifier assigned at `create_project` time. Stable for
- * the life of the row.
+ * `UUIDv4` assigned when the project is first registered; stable for
+ * the life of the row, including a removal and a re-add.
  */
 id: string; 
 /**
- * Human-readable display name shown in the UI.
+ * Display name.
  */
 name: string; 
 /**
- * Absolute path to the project root on disk. `UNIQUE` at the SQL
- * level — the same directory cannot be tracked twice.
+ * The project folder on disk. Unique: a folder is one project.
  */
 root_path: string; 
 /**
- * One of: `"general" | "personal" | "team" | "archived"`.
+ * One of `general | personal | team | archived`.
  */
 project_type: string; 
 /**
- * Optional URL-safe slug derived from `name`. Populated by the UI
- * when the user customises the link path.
+ * Optional URL-safe slug.
  */
 slug: string | null; 
 /**
- * Free-form one-line description shown in project cards.
+ * One-line description.
  */
 description: string | null; 
 /**
- * Source tool hint: `"lovable" | "cursor" | "vscode" | …`. Free-form.
+ * Source tool hint (`vscode`, `cursor`, …). Free-form.
  */
 tool: string | null; 
 /**
- * JSON array serialized as a string, per the schema.
+ * JSON array, as a string.
  */
 tech_stack: string | null; 
 /**
- * Whether the project is active (soft-delete flag flipped to 0).
+ * `false` once removed (the row stays; registering the folder again
+ * brings it back).
  */
 active: boolean; 
 /**
  * Unix seconds.
  */
-created_at: number }
+created_at: number; 
+/**
+ * Unix seconds it was last made the active project; `None` if never.
+ */
+last_active_at: number | null }
 /**
  * Health of a project database.
  */
@@ -9569,34 +9564,31 @@ memory_count: number;
  */
 archive_count: number }
 /**
- * A read-only reference directory linked to a project.
+ * A read-only directory linked to a project for context.
  */
 export type ProjectReference = { 
 /**
- * `UUIDv4` identifier for this reference link.
+ * `UUIDv4` of the link.
  */
 id: string; 
 /**
- * FK to [`Project::id`] — the project this reference is attached to.
+ * The project it belongs to.
  */
 project_id: string; 
 /**
- * Absolute path to the referenced directory on disk.
+ * The directory.
  */
 path: string; 
 /**
- * Optional display label; UI falls back to the path's basename
- * when `None`.
+ * Display label; the UI falls back to the folder name.
  */
 label: string | null; 
 /**
- * `"docs" | "source" | "examples" | "other"`. Free-form; the UI
- * maps this to a color / icon and the indexer uses it to bias
- * scan depth (e.g. `source` gets AST indexing, `docs` gets text).
+ * `docs | source | examples | other`.
  */
 kind: string; 
 /**
- * Unix seconds at which the reference was linked.
+ * Unix seconds.
  */
 created_at: number }
 /**
@@ -9627,6 +9619,18 @@ created_at: number;
  * Epoch seconds. Updated on every project open; drives dashboard sort order.
  */
 last_accessed: number }
+/**
+ * The `projects` state every window renders.
+ */
+export type ProjectsState = { 
+/**
+ * Live projects, most recently used first.
+ */
+projects: Project[]; 
+/**
+ * The active project's id; when set, always one of `projects`.
+ */
+activeId: string | null }
 /**
  * Stable wire identifier for a provider.
  * 
@@ -9767,19 +9771,19 @@ lastError: string | null;
  */
 modelCount: number | null }
 /**
- * Rust's result for one repository you asked to add.
+ * The outcome for one folder you asked to register.
  */
 export type RegisterResult = { 
 /**
- * The repository folder.
+ * The folder.
  */
 path: string; 
 /**
- * The new project's id, when it was added.
+ * The project's id, when it was registered (or brought back).
  */
 projectId: string | null; 
 /**
- * Why it was not added.
+ * Why it was not.
  */
 error: string | null }
 /**
@@ -10773,6 +10777,10 @@ export type SignalKind =
  */
 "onboarding" | 
 /**
+ * Your live projects and the active one.
+ */
+"projects" | 
+/**
  * The bridge fell behind: windows re-read the state snapshot.
  */
 "resync"
@@ -10840,6 +10848,10 @@ export type SignalVariant =
  * First run: status, stage, what the stage still needs.
  */
 { type: "onboarding"; data: OnboardingState } | 
+/**
+ * Your live projects and the active one.
+ */
+{ type: "projects"; data: ProjectsState } | 
 /**
  * The bridge fell behind: windows re-read the state snapshot.
  */

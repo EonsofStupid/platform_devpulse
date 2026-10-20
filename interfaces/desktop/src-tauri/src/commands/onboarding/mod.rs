@@ -8,7 +8,7 @@ use crate::state::PlatformState;
 use devpulse_engine::platform::forms::{FormOutcome, FormView};
 use devpulse_engine::platform::onboarding::scan::{self, FoundRepo};
 use devpulse_engine::platform::onboarding::{you, Onboarding, OnboardingState};
-use devpulse_engine::platform::SqlAdapter;
+use devpulse_engine::platform::projects::RegisterResult;
 use tauri::State;
 
 fn workflow(state: &PlatformState) -> Result<Arc<Onboarding>, String> {
@@ -124,14 +124,11 @@ pub async fn onboarding_scan_projects(
     if !std::path::Path::new(&folder).is_dir() {
         return Ok(None);
     }
-    let db = crate::commands::devpulse::profile::user_db(&state).map_err(|e| format!("{e:#}"))?;
-    let registered: Vec<String> = db
-        .query("SELECT root_path FROM projects", &[])
+    // Live projects only: a folder you removed can be ticked and added again.
+    let registered = crate::commands::projects::service(&state)?
+        .registered_roots()
         .await
-        .map_err(|e| format!("{e:#}"))?
-        .into_iter()
-        .filter_map(|row| row.first().and_then(|v| v.as_text().map(str::to_owned)))
-        .collect();
+        .map_err(|e| format!("{e:#}"))?;
     devpulse_telemetry::spawn_blocking(move || {
         scan::scan(std::path::Path::new(&folder), &registered)
     })
@@ -141,21 +138,10 @@ pub async fn onboarding_scan_projects(
     .map_err(|e| format!("{e:#}"))
 }
 
-/// Rust's result for one repository you asked to add.
-#[derive(Debug, Clone, serde::Serialize, specta::Type)]
-#[serde(rename_all = "camelCase")]
-pub struct RegisterResult {
-    /// The repository folder.
-    pub path: String,
-    /// The new project's id, when it was added.
-    pub project_id: Option<String>,
-    /// Why it was not added.
-    pub error: Option<String>,
-}
-
 /// Register the repositories you ticked as projects, in place (nothing is
-/// written inside them). When no project is active yet, the first one
-/// added becomes active.
+/// written inside them). Each folder gets its own outcome; a folder you
+/// removed earlier comes back. When no project is active yet, the first one
+/// becomes active.
 #[tauri::command]
 #[specta::specta]
 #[allow(clippy::missing_errors_doc)]
@@ -163,41 +149,7 @@ pub async fn onboarding_register_projects(
     paths: Vec<String>,
     state: State<'_, PlatformState>,
 ) -> Result<Vec<RegisterResult>, String> {
-    let (platform, _) = platform_parts(&state)?;
-    let mut activate = !crate::commands::projects::has_active_project(&platform).await?;
-    let mut results = Vec::with_capacity(paths.len());
-    for path in paths {
-        let name = std::path::Path::new(&path)
-            .file_name()
-            .map_or_else(|| path.clone(), |n| n.to_string_lossy().into_owned());
-        let input = crate::commands::projects::CreateProjectInput {
-            name,
-            root_path: path.clone(),
-            project_type: None,
-            description: None,
-            tool: None,
-            tech_stack: None,
-            set_active: activate,
-        };
-        match crate::commands::projects::create(&platform, input).await {
-            Ok(project) => {
-                activate = false;
-                tracing::info!(target: "onboarding", %path, project_id = %project.id, "project registered in place");
-                results.push(RegisterResult {
-                    path,
-                    project_id: Some(project.id),
-                    error: None,
-                });
-            }
-            Err(error) => {
-                tracing::warn!(target: "onboarding", %path, %error, "project not registered");
-                results.push(RegisterResult {
-                    path,
-                    project_id: None,
-                    error: Some(error),
-                });
-            }
-        }
-    }
-    Ok(results)
+    Ok(crate::commands::projects::service(&state)?
+        .register(paths)
+        .await)
 }
