@@ -176,7 +176,17 @@ expression: "serde_json::to_string_pretty(&samples).expect(\"samples render\")"
   {
     "data": {
       "checking": false,
-      "lastAction": null,
+      "lastAction": {
+        "action": "test",
+        "agent": "Codex 2.2.2",
+        "command": "codex-acp",
+        "elapsedMs": 3200,
+        "finishedAt": 1760000100,
+        "guided": false,
+        "ok": true,
+        "output": "Hello!",
+        "providerId": "codex"
+      },
       "problem": null,
       "report": {
         "catalogProblems": [],
@@ -185,9 +195,16 @@ expression: "serde_json::to_string_pretty(&samples).expect(\"samples render\")"
           {
             "actions": [
               "signIn",
-              "update"
+              "update",
+              "test",
+              "installConnector"
             ],
             "adapter": "acp_agent",
+            "connector": {
+              "installed": true,
+              "package": "@agentclientprotocol/codex-acp",
+              "version": "2.2.2"
+            },
             "docs": "https://github.com/openai/codex",
             "id": "codex",
             "installed": true,

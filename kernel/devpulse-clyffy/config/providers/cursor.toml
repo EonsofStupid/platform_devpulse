@@ -29,3 +29,8 @@ args = ["login"]
 
 [update]
 args = ["update"]
+
+[connect]
+# Cursor's docs: `agent acp` serves ACP on stdio. Unconfirmed against a real
+# install.
+args = ["acp"]

@@ -1,10 +1,11 @@
 //! Providers — the engine facade over the kernel's provider catalog
 //! (`devpulse_clyffy::providers`, plan 0001 R11).
 //!
-//! The kernel finds each AI you bring and runs the vendor's own commands;
-//! this service holds the latest report, runs one action at a time when you
-//! click, and publishes everything as the `providers` state every window
-//! renders.
+//! The kernel finds each AI you bring, runs the vendor's own commands and
+//! asks the provider itself; this service holds the latest report, runs one
+//! action at a time when you click, and publishes everything as the
+//! `providers` state every window renders. The question Try it asks is copy
+//! (`onboarding.your_ai.test_prompt`), so you can change it.
 
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -15,11 +16,12 @@ use specta::Type;
 use tokio::sync::Mutex;
 
 // IP-NOTE: provider catalog types — vendor-neutral, layman names (provider,
-// signed in, update, sign in); no kernel vocabulary crosses.
-use devpulse_clyffy::providers::{actions, catalog, check};
+// signed in, update, sign in, try it, connector); no kernel vocabulary
+// crosses.
+use devpulse_clyffy::providers::{actions, catalog, check, ActionContext};
 pub use devpulse_clyffy::providers::{
-    AdapterKind, ProviderAction, ProviderActionRun, ProviderKind, ProviderReport, ProvidersReport,
-    SignedIn,
+    AdapterKind, ConnectorReport, ProviderAction, ProviderActionRun, ProviderKind, ProviderReport,
+    ProvidersReport, SignedIn,
 };
 
 use crate::signals::{Signal, SignalSource, SignalVariant};
@@ -112,7 +114,7 @@ impl Providers {
         self.state.lock().await.checking = true;
         self.publish().await;
         let outcome = match catalog::load(&self.data_dir) {
-            Ok(catalog) => Ok(check(&catalog).await),
+            Ok(catalog) => Ok(check(&catalog, &self.data_dir).await),
             Err(e) => Err(e),
         };
         {
@@ -136,15 +138,20 @@ impl Providers {
         outcome.map(|_| state)
     }
 
-    /// Run one action on an installed provider. After an update the
-    /// providers are checked again; after opening a sign-in, you check again
-    /// once you have finished signing in.
+    /// Run one action on an installed provider. After an update or a
+    /// connector install the providers are checked again; after opening a
+    /// sign-in, you check again once you have finished signing in.
     ///
     /// # Errors
     /// Returns an error if the provider is unknown or not installed.
     pub async fn run(&self, provider_id: &str, action: ProviderAction) -> Result<ProvidersState> {
         let _serial = self.serial.lock().await;
         let catalog = catalog::load(&self.data_dir)?;
+        let prompt = crate::platform::copy::load(&self.data_dir)?
+            .copy
+            .onboarding
+            .your_ai
+            .test_prompt;
         let Some(definition) = catalog.definitions.iter().find(|d| d.id == provider_id) else {
             bail!("{provider_id} is not a provider in the catalog");
         };
@@ -166,14 +173,30 @@ impl Providers {
         });
         self.publish().await;
         tracing::info!(target: "providers", %provider_id, ?action, "action started");
-        let result = actions::run(definition, std::path::Path::new(&location), action).await;
-        tracing::info!(target: "providers", %provider_id, ?action, ok = result.ok, "action finished");
+        let context = ActionContext {
+            data_dir: &self.data_dir,
+            prompt: &prompt,
+        };
+        let result =
+            actions::run(definition, std::path::Path::new(&location), action, context).await;
+        tracing::info!(
+            target: "providers",
+            %provider_id,
+            ?action,
+            ok = result.ok,
+            elapsed_ms = result.elapsed_ms,
+            agent = result.agent.as_deref().unwrap_or("-"),
+            "action finished"
+        );
         {
             let mut state = self.state.lock().await;
             state.running = None;
             state.last_action = Some(result);
         }
-        if action == ProviderAction::Update {
+        if matches!(
+            action,
+            ProviderAction::Update | ProviderAction::InstallConnector
+        ) {
             self.check_locked().await
         } else {
             Ok(self.publish().await)

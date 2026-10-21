@@ -4288,6 +4288,11 @@ export type AdapterKind =
  */
 "acp_agent" | 
 /**
+ * The agent's own one-shot mode: the question as an argument, the
+ * answer on stdout (for a vendor that has not confirmed an ACP route).
+ */
+"headless" | 
+/**
  * The Model Context Protocol: `DevPulse` offers context to the app.
  */
 "mcp_client"
@@ -6103,6 +6108,22 @@ launch_label: string;
  * Small hint below the launch button (e.g. reassurance that settings can be changed later).
  */
 hint: string }
+/**
+ * A provider's connector, as found.
+ */
+export type ConnectorReport = { 
+/**
+ * The npm package.
+ */
+package: string; 
+/**
+ * It is installed in the `DevPulse` folder.
+ */
+installed: boolean; 
+/**
+ * Its installed version.
+ */
+version: string | null }
 /**
  * The "Your dev environment" stage (containers).
  */
@@ -10264,7 +10285,15 @@ export type ProviderAction =
 /**
  * Open the vendor's login in a terminal window.
  */
-"signIn"
+"signIn" | 
+/**
+ * Ask it one question and show the answer.
+ */
+"test" | 
+/**
+ * Install (or update) its connector in the `DevPulse` folder.
+ */
+"installConnector"
 /**
  * An action on one provider.
  */
@@ -10294,7 +10323,8 @@ action: ProviderAction;
  */
 ok: boolean; 
 /**
- * Nothing could be opened: `output` is the command to run yourself.
+ * It could not be done from here: `command` is what to run yourself,
+ * and `output` says why.
  */
 guided: boolean; 
 /**
@@ -10302,9 +10332,18 @@ guided: boolean;
  */
 command: string; 
 /**
- * The tool's own output (the end of it, when long).
+ * The tool's own output (the end of it, when long); for Try it, the
+ * answer.
  */
 output: string; 
+/**
+ * The agent's own name and version, when it gave them (Try it).
+ */
+agent: string | null; 
+/**
+ * How long it took, in milliseconds.
+ */
+elapsedMs: number; 
 /**
  * Unix seconds when it finished.
  */
@@ -10467,9 +10506,14 @@ updateAvailable: boolean;
  */
 signedIn: SignedIn; 
 /**
- * The actions its definition offers (the vendor's own commands).
+ * The actions its definition offers (the vendor's own commands, and
+ * Try it when it says how to talk to it).
  */
 actions: ProviderAction[]; 
+/**
+ * The connector that speaks for it, when it needs one.
+ */
+connector: ConnectorReport | null; 
 /**
  * What could not be read, in the tool's own words (one per line).
  */
@@ -13635,6 +13679,46 @@ sign_in: string;
  * While the sign-in window opens.
  */
 opening: string; 
+/**
+ * Button: ask it one question.
+ */
+test: string; 
+/**
+ * While it is being asked.
+ */
+testing: string; 
+/**
+ * The question Try it asks each AI.
+ */
+test_prompt: string; 
+/**
+ * "I asked: “{prompt}”".
+ */
+asked: string; 
+/**
+ * "Answered in {seconds} s".
+ */
+answered: string; 
+/**
+ * It needs a connector that is not installed yet.
+ */
+connector_needed: string; 
+/**
+ * "Connector {version}".
+ */
+connector_installed: string; 
+/**
+ * The connector is installed, version not reported.
+ */
+connector_ready: string; 
+/**
+ * Button: install its connector.
+ */
+install_connector: string; 
+/**
+ * While the connector installs.
+ */
+installing: string; 
 /**
  * Link to the vendor's docs, for one that is not installed.
  */

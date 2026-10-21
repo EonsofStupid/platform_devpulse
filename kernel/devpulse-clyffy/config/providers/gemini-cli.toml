@@ -31,3 +31,8 @@ args = []
 # Gemini CLI has no updater command of its own.
 program = "npm"
 args = ["install", "-g", "@google/gemini-cli@latest"]
+
+[connect]
+# "Starts the agent in ACP mode" (Gemini CLI 0.65.0's own option;
+# --experimental-acp is the deprecated name).
+args = ["--acp"]

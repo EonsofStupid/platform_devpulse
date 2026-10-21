@@ -118,7 +118,7 @@ mod tests {
             definitions: bundled().expect("bundled"),
             problems: Vec::new(),
         };
-        let report = crate::providers::check(&catalog).await;
+        let report = crate::providers::check(&catalog, &std::env::temp_dir()).await;
         for p in &report.providers {
             println!(
                 "{:<15} installed={:<5} version={:<22} latest={:<12} update={:<5} signed_in={:?} at={:?} problems={:?}",

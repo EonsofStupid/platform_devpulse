@@ -28,6 +28,9 @@ pub enum ProviderKind {
 pub enum AdapterKind {
     /// The Agent Client Protocol (the agent owns its login and billing).
     AcpAgent,
+    /// The agent's own one-shot mode: the question as an argument, the
+    /// answer on stdout (for a vendor that has not confirmed an ACP route).
+    Headless,
     /// The Model Context Protocol: `DevPulse` offers context to the app.
     McpClient,
 }
@@ -125,6 +128,37 @@ pub struct SignedInSpec {
     pub absent_means_signed_out: bool,
 }
 
+/// A connector: a small program, published on npm, that speaks ACP for an
+/// agent whose own CLI does not. `DevPulse` installs it into its own folder
+/// when you click.
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ConnectorSpec {
+    /// The npm package.
+    pub npm: String,
+    /// The program the package installs.
+    pub bin: String,
+}
+
+/// How `DevPulse` talks to it (`adapter` says which protocol). In `args`
+/// and `env` values, `{program}` is the provider's own program and
+/// `{prompt}` the question.
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ConnectSpec {
+    /// `acp_agent`: the arguments that start its ACP server on stdio.
+    /// `headless`: a one-shot run that must carry `{prompt}`.
+    #[serde(default)]
+    pub args: Vec<String>,
+    /// Environment for that program.
+    #[serde(default)]
+    pub env: std::collections::BTreeMap<String, String>,
+    /// The connector that speaks ACP in its place (`acp_agent` only); it is
+    /// run instead of the provider's own program.
+    #[serde(default)]
+    pub connector: Option<ConnectorSpec>,
+}
+
 /// One provider `DevPulse` knows how to find and check.
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -160,6 +194,9 @@ pub struct ProviderDefinition {
     /// The vendor's own update command.
     #[serde(default)]
     pub update: Option<CommandSpec>,
+    /// How to talk to it; without it, it can be found but not asked.
+    #[serde(default)]
+    pub connect: Option<ConnectSpec>,
 }
 
 impl ProviderDefinition {
@@ -245,6 +282,56 @@ impl ProviderDefinition {
                 bail!("{}: {field}.args is empty", self.id);
             }
         }
+        if let Some(connect) = &self.connect {
+            self.check_connect(connect)?;
+        }
+        Ok(())
+    }
+
+    fn check_connect(&self, connect: &ConnectSpec) -> Result<()> {
+        match self.adapter {
+            AdapterKind::McpClient => {
+                bail!(
+                    "{}: connect is for acp_agent or headless, not mcp_client",
+                    self.id
+                );
+            }
+            AdapterKind::Headless => {
+                if !connect.args.iter().any(|a| a.contains("{prompt}")) {
+                    bail!(
+                        "{}: connect.args for headless must carry {{prompt}}",
+                        self.id
+                    );
+                }
+                if connect.connector.is_some() {
+                    bail!("{}: connect.connector is for acp_agent only", self.id);
+                }
+            }
+            AdapterKind::AcpAgent => {
+                if connect.args.iter().any(|a| a.contains("{prompt}")) {
+                    bail!(
+                        "{}: connect.args for acp_agent start a server; the question goes over ACP, not {{prompt}}",
+                        self.id
+                    );
+                }
+            }
+        }
+        if let Some(connector) = &connect.connector {
+            if connector.npm.trim().is_empty() || connector.bin.trim().is_empty() {
+                bail!("{}: connect.connector needs npm and bin", self.id);
+            }
+            let bin_ok = connector
+                .bin
+                .chars()
+                .all(|c| c.is_ascii_alphanumeric() || matches!(c, '-' | '_' | '.'));
+            if !bin_ok {
+                bail!(
+                    "{}: connect.connector.bin {:?} is a program name, not a path",
+                    self.id,
+                    connector.bin
+                );
+            }
+        }
         Ok(())
     }
 }
@@ -321,6 +408,22 @@ args = ["update"]
     }
 
     #[test]
+    fn connect_sections_parse() {
+        let acp = format!(
+            "{GOOD}\n[connect]\nenv = {{ AGENT_PATH = \"{{program}}\" }}\nconnector = {{ npm = \"@example/agent-acp\", bin = \"agent-acp\" }}\n"
+        );
+        let d = ProviderDefinition::parse(&acp).expect("acp");
+        let connect = d.connect.expect("connect");
+        assert_eq!(connect.env["AGENT_PATH"], "{program}");
+        assert_eq!(connect.connector.expect("connector").bin, "agent-acp");
+
+        let headless = format!("{GOOD}\n[connect]\nargs = [\"-p\", \"{{prompt}}\"]\n")
+            .replace("adapter = \"acp_agent\"", "adapter = \"headless\"");
+        let d = ProviderDefinition::parse(&headless).expect("headless");
+        assert_eq!(d.adapter, AdapterKind::Headless);
+    }
+
+    #[test]
     fn broken_definitions_name_what_is_wrong() {
         let cases = [
             (GOOD.replace("example-agent", "Example Agent"), "id"),
@@ -343,6 +446,24 @@ args = ["update"]
             (
                 GOOD.replace("kind = \"subscription_agent\"", "kind = \"magic\""),
                 "kind",
+            ),
+            (
+                format!("{GOOD}\n[connect]\nargs = [\"-p\", \"{{prompt}}\"]\n"),
+                "server",
+            ),
+            (
+                format!("{GOOD}\n[connect]\nargs = [\"-p\"]\n")
+                    .replace("adapter = \"acp_agent\"", "adapter = \"headless\""),
+                "{prompt}",
+            ),
+            (
+                format!("{GOOD}\n[connect]\nconnector = {{ npm = \"x\", bin = \"../x\" }}\n"),
+                "not a path",
+            ),
+            (
+                format!("{GOOD}\n[connect]\nargs = [\"acp\"]\n")
+                    .replace("adapter = \"acp_agent\"", "adapter = \"mcp_client\""),
+                "mcp_client",
             ),
         ];
         for (text, needle) in cases {

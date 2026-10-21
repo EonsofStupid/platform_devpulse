@@ -5,7 +5,9 @@
 id = "claude-code"
 name = "Claude Code"
 kind = "subscription_agent"
-adapter = "acp_agent"
+# Claude Code's own headless mode, until Anthropic confirms an ACP route for
+# subscription use (owner ruling 2026-10-20, plan 0001 R4).
+adapter = "headless"
 docs = "https://code.claude.com/docs/en/setup"
 
 [detect]
@@ -30,3 +32,7 @@ args = ["auth", "login"]
 
 [update]
 args = ["update"]
+
+[connect]
+# Print mode: "query via SDK, then exit"; the answer as plain text on stdout.
+args = ["-p", "{prompt}", "--output-format", "text"]

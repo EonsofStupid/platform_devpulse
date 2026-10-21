@@ -15,6 +15,7 @@ use serde::{Deserialize, Serialize};
 
 use super::actions::ProviderAction;
 use super::catalog::Catalog;
+use super::connect::connector::{self, ConnectorReport};
 use super::definition::{AdapterKind, ProviderDefinition, ProviderKind};
 pub use signed_in::SignedIn;
 
@@ -47,8 +48,11 @@ pub struct ProviderReport {
     pub update_available: bool,
     /// Signed in, as far as can be told.
     pub signed_in: SignedIn,
-    /// The actions its definition offers (the vendor's own commands).
+    /// The actions its definition offers (the vendor's own commands, and
+    /// Try it when it says how to talk to it).
     pub actions: Vec<ProviderAction>,
+    /// The connector that speaks for it, when it needs one.
+    pub connector: Option<ConnectorReport>,
     /// What could not be read, in the tool's own words (one per line).
     pub problems: Vec<String>,
 }
@@ -68,6 +72,7 @@ pub struct ProvidersReport {
 
 async fn report_one(
     definition: &ProviderDefinition,
+    data_dir: &Path,
     home: Option<&Path>,
     client: Option<&reqwest::Client>,
 ) -> ProviderReport {
@@ -109,6 +114,10 @@ async fn report_one(
     };
     let update_available =
         matches!((&latest, &version), (Some(l), Some(v)) if installed::newer(l, v));
+    let connector_spec = definition
+        .connect
+        .as_ref()
+        .and_then(|c| c.connector.as_ref());
 
     ProviderReport {
         id: definition.id.clone(),
@@ -126,16 +135,19 @@ async fn report_one(
         actions: [
             (definition.sign_in.is_some(), ProviderAction::SignIn),
             (definition.update.is_some(), ProviderAction::Update),
+            (definition.connect.is_some(), ProviderAction::Test),
+            (connector_spec.is_some(), ProviderAction::InstallConnector),
         ]
         .into_iter()
         .filter_map(|(offered, action)| offered.then_some(action))
         .collect(),
+        connector: connector_spec.map(|spec| connector::report(data_dir, &definition.id, spec)),
         problems,
     }
 }
 
-/// Look at every provider in the catalog.
-pub async fn check(catalog: &Catalog) -> ProvidersReport {
+/// Look at every provider in the catalog (connectors in `data_dir`).
+pub async fn check(catalog: &Catalog, data_dir: &Path) -> ProvidersReport {
     let home = std::env::home_dir();
     let client = match latest::client() {
         Ok(c) => Some(c),
@@ -148,7 +160,7 @@ pub async fn check(catalog: &Catalog) -> ProvidersReport {
         catalog
             .definitions
             .iter()
-            .map(|d| report_one(d, home.as_deref(), client.as_ref())),
+            .map(|d| report_one(d, data_dir, home.as_deref(), client.as_ref())),
     )
     .await;
     ProvidersReport {

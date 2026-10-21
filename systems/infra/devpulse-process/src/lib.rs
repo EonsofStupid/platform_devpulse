@@ -7,6 +7,7 @@
 //! is dropped. "The tool is not installed" and "the tool answered with an
 //! error" stay apart, because the UI says different things for each.
 
+use std::path::Path;
 use std::time::Duration;
 
 use anyhow::{Context, Result};
@@ -69,8 +70,25 @@ pub async fn run(
     env: &[(&str, &str)],
     timeout: Duration,
 ) -> Result<Ran> {
+    run_in(None, program, args, env, timeout).await
+}
+
+/// [`run`] in the folder `dir` (the caller's own folder when `None`).
+///
+/// # Errors
+/// As [`run`].
+pub async fn run_in(
+    dir: Option<&Path>,
+    program: &str,
+    args: &[&str],
+    env: &[(&str, &str)],
+    timeout: Duration,
+) -> Result<Ran> {
     let mut cmd = tokio::process::Command::new(program);
     cmd.args(args).kill_on_drop(true);
+    if let Some(dir) = dir {
+        cmd.current_dir(dir);
+    }
     for (key, value) in env {
         cmd.env(key, value);
     }
@@ -123,6 +141,26 @@ mod tests {
                 assert!(answer.stdout.starts_with("cargo "), "{answer:?}");
             }
             Ran::Missing => panic!("cargo is installed"),
+        }
+    }
+
+    #[tokio::test]
+    async fn it_runs_in_the_folder_given() {
+        let dir = std::env::temp_dir();
+        let (program, args): (&str, &[&str]) = if cfg!(windows) {
+            ("cmd", &["/c", "cd"])
+        } else {
+            ("pwd", &[])
+        };
+        match run_in(Some(&dir), program, args, &[], Duration::from_secs(10))
+            .await
+            .expect("runs")
+        {
+            Ran::Answered(answer) => assert_eq!(
+                Path::new(answer.stdout.trim()).canonicalize().unwrap(),
+                dir.canonicalize().unwrap()
+            ),
+            Ran::Missing => panic!("{program} is part of the OS"),
         }
     }
 

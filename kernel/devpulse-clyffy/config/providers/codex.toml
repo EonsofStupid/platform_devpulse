@@ -30,3 +30,11 @@ args = ["login"]
 
 [update]
 args = ["update"]
+
+[connect]
+# Codex has no ACP mode of its own. The protocol maintainers' connector
+# (github.com/agentclientprotocol/codex-acp) speaks ACP for it; CODEX_PATH
+# makes it run your Codex, under your own login, instead of the copy it
+# bundles. Checked 2026-10-20 against codex-acp 2.2.2.
+env = { CODEX_PATH = "{program}" }
+connector = { npm = "@agentclientprotocol/codex-acp", bin = "codex-acp" }

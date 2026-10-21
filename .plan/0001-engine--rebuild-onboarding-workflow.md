@@ -320,8 +320,24 @@ Facts it builds on (2026-10-20):
 | 4a.4 | Actions on click: **Update** runs the vendor's own updater; **Sign in** opens the vendor's own login in a terminal window (DevPulse never sees a token) | kernel `providers/actions.rs` | live: the Update output shown is the vendor's |
 | 4a.5 | R11: engine facade — `Providers` service, `providers` state signal (contract sample + snapshots), Tauri intents | engine `platform/providers/mod.rs`, `signals/*`, `tests/signal_contract.rs`, Tauri `commands/providers_status/*` | contract snapshots; bindings |
 | 4a.6 | U1/U7: providers domain (store from the signal) + the **Your AI** first-run stage with one card per subscription; copy catalog; flow `welcome → you → your_ai → containers` | `domains/app/providers/*`, `onboarding/feature/first-run/views/YourAiView.svelte`, engine flow + copy | live (CDP): the cards show this machine's truth |
-| 4b | R4: **Test** — one real prompt through each signed-in agent over ACP (official `agent-client-protocol` crate) | kernel `providers/acp/*`, `providers/adapters/acp_agent.rs` | tests against a scripted agent; live: a real reply |
+| 4b | R4: **Try it** — one real question through each installed agent, the way DevPulse talks to it: ACP with the official `agent-client-protocol` crate (Gemini `--acp`, Cursor `agent acp`, Grok `agent stdio`, Codex through its connector), Claude Code through its own headless mode; **Install connector** puts a connector into the DevPulse folder on click; any permission an agent asks for during the question is refused | definition `[connect]` + `headless` adapter; kernel `providers/connect/{mod,acp,connector}.rs`, `actions.rs`, discovery; engine facade (question from copy); `devpulse-process::run_in`; UI card | tests: connect validation, launch filling, connector location/version, permission refusal; live: Claude Code answers headless; Codex connector installed and Codex answers over ACP |
 | 4c | R10: engine `ai_providers` rewritten into definitions (included first, then removed with your OK) | engine `ai_providers/*`, Tauri `commands/{credentials,cloud,providers}` | the credentials UI lists the same providers |
+
+Owner rulings for 4b (2026-10-20, "lets do it please and get this properly
+implemented"):
+
+- **Claude goes through Claude Code's own headless mode** (`claude -p`) until
+  Anthropic confirms an ACP route for subscription use. The Claude ACP
+  adapter is built on the Agent SDK, and Anthropic does not allow
+  third-party products built on it to offer claude.ai logins without its
+  approval — so it is not used.
+- **Connectors install on click into the portable folder**
+  (`{data_dir}/tools/connectors/{provider}/`, `npm install --prefix`), never
+  globally and never at startup. Codex's connector runs your own Codex
+  (`CODEX_PATH`), so your Codex login and updates apply.
+- Questions are asked in an empty folder (`{data_dir}/tools/ask/`) so the
+  agent has no project to read; the question itself is copy
+  (`onboarding.your_ai.test_prompt`).
 
 ## One model: every AI you bring is a provider
 
@@ -1280,3 +1296,28 @@ queries proving what was written.
     0.163.0 (up to date, signed in), Claude Desktop installed, Gemini CLI,
     Cursor CLI and Grok Build not installed. No Update or Sign in was clicked
     during verification.
+  - 2026-10-20 — **Slice 4b done: Try it — your AI answers inside DevPulse**
+    (owner: "lets do it please and get this properly implemented"; rulings
+    under Slice 4). Definitions gained `[connect]` and the `headless`
+    adapter; kernel `providers/connect`: the ACP one-shot client on the
+    official `agent-client-protocol` 3.4.0 SDK (initialize → session in an
+    empty folder → one prompt → the agent's text; every permission it asks
+    for is refused), Claude Code's own print mode, and connectors installed
+    on click into `{data_dir}/tools/connectors/{id}` with npm. Actions Try it
+    and Install connector; reports carry the connector's state; the question
+    is copy. Fixed on the way: a definition's `program = "npm"` was run
+    without PATHEXT, so Gemini's Update would have said npm was missing on
+    Windows. The ACP SDK switches on serde_json `preserve_order` workspace-
+    wide (not optional); the signal contract snapshot now sorts keys, so it
+    pins content, not map order. Facts checked against the published
+    packages: Gemini CLI 0.65.0 `--acp` (`--experimental-acp` deprecated);
+    codex-acp 2.2.2 runs `CODEX_PATH`. Verified: kernel 85 + engine 154 +
+    contract 4 + process 4 tests, workspace clippy, cargo fmt, svelte-check 0
+    (app and ColdLight), Biome 562 / 1072, arch 18, cargo-deny advisories and
+    bans. Live on this machine (CDP): Claude Code answered headless in 9.6 s;
+    Install connector put codex-acp 2.2.2 into the DevPulse folder ("added 25
+    packages in 11s"), then Codex answered over ACP in 9 s with your own
+    Codex and login, and the connector was still there after a restart.
+    Gemini CLI, Cursor CLI and Grok Build are not installed here, so their
+    ACP commands remain unconfirmed against a real install (marked in their
+    files).

@@ -16,8 +16,8 @@ use devpulse_engine::platform::onboarding::{
 };
 use devpulse_engine::platform::projects::{Project, ProjectsState};
 use devpulse_engine::platform::providers::{
-    AdapterKind, ProviderAction, ProviderKind, ProviderReport, ProvidersReport, ProvidersState,
-    SignedIn,
+    AdapterKind, ConnectorReport, ProviderAction, ProviderActionRun, ProviderKind, ProviderReport,
+    ProvidersReport, ProvidersState, SignedIn,
 };
 use devpulse_engine::platform::{HardwareMetrics, InitEvent};
 use devpulse_engine::signals::{
@@ -146,14 +146,34 @@ fn sample(kind: SignalKind) -> SignalVariant {
                     latest: Some("0.163.0".into()),
                     update_available: false,
                     signed_in: SignedIn::Yes,
-                    actions: vec![ProviderAction::SignIn, ProviderAction::Update],
+                    actions: vec![
+                        ProviderAction::SignIn,
+                        ProviderAction::Update,
+                        ProviderAction::Test,
+                        ProviderAction::InstallConnector,
+                    ],
+                    connector: Some(ConnectorReport {
+                        package: "@agentclientprotocol/codex-acp".into(),
+                        installed: true,
+                        version: Some("2.2.2".into()),
+                    }),
                     problems: Vec::new(),
                 }],
                 catalog_problems: Vec::new(),
                 checked_at: 1_760_000_000,
             }),
             running: None,
-            last_action: None,
+            last_action: Some(ProviderActionRun {
+                provider_id: "codex".into(),
+                action: ProviderAction::Test,
+                ok: true,
+                guided: false,
+                command: "codex-acp".into(),
+                output: "Hello!".into(),
+                agent: Some("Codex 2.2.2".into()),
+                elapsed_ms: 3_200,
+                finished_at: 1_760_000_100,
+            }),
             problem: None,
         })),
         SignalKind::Resync => SignalVariant::Resync,
@@ -191,10 +211,28 @@ fn every_kind_round_trips_through_json() {
     }
 }
 
+/// The same JSON with every object's keys in sorted order. Key order carries
+/// no meaning on the wire, and `serde_json`'s own map order changes with its
+/// `preserve_order` feature (which any crate in the workspace can switch on),
+/// so the snapshot pins content, not order.
+fn sorted(value: serde_json::Value) -> serde_json::Value {
+    match value {
+        serde_json::Value::Object(map) => {
+            let mut entries: Vec<_> = map.into_iter().collect();
+            entries.sort_by(|a, b| a.0.cmp(&b.0));
+            serde_json::Value::Object(entries.into_iter().map(|(k, v)| (k, sorted(v))).collect())
+        }
+        serde_json::Value::Array(items) => {
+            serde_json::Value::Array(items.into_iter().map(sorted).collect())
+        }
+        other => other,
+    }
+}
+
 #[test]
 fn wire_samples_are_stable() {
     let samples: Vec<_> = SignalKind::iter()
-        .map(|kind| serde_json::to_value(sample(kind)).expect("sample serializes"))
+        .map(|kind| sorted(serde_json::to_value(sample(kind)).expect("sample serializes")))
         .collect();
     insta::assert_snapshot!(serde_json::to_string_pretty(&samples).expect("samples render"));
 }

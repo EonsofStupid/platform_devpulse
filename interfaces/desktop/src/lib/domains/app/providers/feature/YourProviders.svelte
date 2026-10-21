@@ -3,10 +3,11 @@
 	@module @devpulse/domains/app/providers/feature
 
 	Your AI providers, one card each: installed or not, the installed version
-	against the latest, whether you are signed in, and the vendor's own Update
-	and Sign in — each run only when you click it, with its real output.
-	Everything shown is Rust's `providers` state; text comes from the copy
-	catalog.
+	against the latest, whether you are signed in, the vendor's own Update and
+	Sign in, Install connector when one is needed, and Try it — one question
+	asked the way DevPulse talks to it, with the real answer. Each runs only
+	when you click it. Everything shown is Rust's `providers` state; text
+	comes from the copy catalog.
 -->
 <script lang="ts">
 import { Button } from "@devpulse/coldlight/components/button";
@@ -19,7 +20,11 @@ import { StatusDot } from "@devpulse/coldlight/components/status-dot";
 import { Text } from "@devpulse/coldlight/components/text";
 import type { YourAiCopy } from "$lib/sys/bindings/copy/index.js";
 import { fill } from "$lib/sys/copy/index.js";
-import type { ProviderAction, ProviderReport } from "$lib/sys/generated/bindings.js";
+import type {
+	ProviderAction,
+	ProviderActionRun,
+	ProviderReport,
+} from "$lib/sys/generated/bindings.js";
 import { providersState } from "../data-access/providers.state.svelte.js";
 
 let { copy }: { copy: YourAiCopy } = $props();
@@ -53,6 +58,12 @@ const running = (p: ProviderReport, action: ProviderAction): boolean =>
 	current?.running?.providerId === p.id && current.running.action === action;
 const lastFor = (p: ProviderReport) =>
 	current?.lastAction?.providerId === p.id ? current.lastAction : null;
+
+const secondsFormat = new Intl.NumberFormat(undefined, { maximumFractionDigits: 1 });
+const answeredText = (last: ProviderActionRun): string =>
+	fill(copy.answered, { seconds: secondsFormat.format(last.elapsedMs / 1000) });
+
+const connectorReady = (p: ProviderReport): boolean => p.connector?.installed ?? true;
 </script>
 
 {#snippet card(p: ProviderReport)}
@@ -80,6 +91,15 @@ const lastFor = (p: ProviderReport) =>
 				{#if p.kind === "subscription_agent"}
 					<Text size="sm">{signedInText(p)}</Text>
 				{/if}
+				{#if p.connector}
+					<Text size="xs" color="muted">
+						{p.connector.installed
+							? p.connector.version
+								? fill(copy.connector_installed, { version: p.connector.version })
+								: copy.connector_ready
+							: copy.connector_needed}
+					</Text>
+				{/if}
 			{:else}
 				<Text size="sm" color="muted">{copy.not_installed}</Text>
 				{#if p.latest}
@@ -102,6 +122,16 @@ const lastFor = (p: ProviderReport) =>
 						{#if running(p, "update")}<Spinner size="xs" />{copy.updating}{:else}{copy.update}{/if}
 					</Button>
 				{/if}
+				{#if p.installed && p.actions.includes("installConnector") && !connectorReady(p)}
+					<Button preset="primary" size="sm" onclick={() => providersState.act(p.id, "installConnector")} disabled={!idle}>
+						{#if running(p, "installConnector")}<Spinner size="xs" />{copy.installing}{:else}{copy.install_connector}{/if}
+					</Button>
+				{/if}
+				{#if p.installed && p.actions.includes("test") && connectorReady(p)}
+					<Button preset="secondary" size="sm" onclick={() => providersState.act(p.id, "test")} disabled={!idle}>
+						{#if running(p, "test")}<Spinner size="xs" />{copy.testing}{:else}{copy.test}{/if}
+					</Button>
+				{/if}
 				<a href={p.docs} target="_blank" rel="noreferrer"><Text size="xs" color="muted">{p.installed ? copy.help : copy.docs}</Text></a>
 			</div>
 
@@ -109,10 +139,32 @@ const lastFor = (p: ProviderReport) =>
 				<Text size="xs" color="muted">{problem}</Text>
 			{/each}
 
-			{#if last}
+			{#if last && last.action === "test"}
+				<Text size="xs" color="muted">{fill(copy.asked, { prompt: copy.test_prompt })}</Text>
 				<div class="flex items-center gap-2">
-					<StatusDot status={last.ok ? "ready" : last.guided ? "pending" : "failed"} />
-					<Text size="xs">{last.guided ? copy.guided : last.ok ? copy.done : copy.failed}</Text>
+					<StatusDot status={last.ok ? "ready" : "failed"} />
+					<Text size="xs">{last.ok ? answeredText(last) : copy.failed}</Text>
+				</div>
+				{#if last.ok}
+					<Text size="sm">{last.output}</Text>
+				{:else if last.output}
+					<CodeBlock.Root>
+						<CodeBlock.Content code={last.output} />
+					</CodeBlock.Root>
+				{/if}
+			{:else if last && last.guided}
+				<div class="flex items-center gap-2">
+					<StatusDot status="pending" />
+					<Text size="xs">{last.output}</Text>
+				</div>
+				<Text size="xs">{copy.guided}</Text>
+				<CodeBlock.Root>
+					<CodeBlock.Content code={last.command} />
+				</CodeBlock.Root>
+			{:else if last}
+				<div class="flex items-center gap-2">
+					<StatusDot status={last.ok ? "ready" : "failed"} />
+					<Text size="xs">{last.ok ? copy.done : copy.failed}</Text>
 				</div>
 				{#if last.output}
 					<CodeBlock.Root>

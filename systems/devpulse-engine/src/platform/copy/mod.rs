@@ -257,6 +257,26 @@ pub struct YourAiCopy {
     pub sign_in: String,
     /// While the sign-in window opens.
     pub opening: String,
+    /// Button: ask it one question.
+    pub test: String,
+    /// While it is being asked.
+    pub testing: String,
+    /// The question Try it asks each AI.
+    pub test_prompt: String,
+    /// "I asked: “{prompt}”".
+    pub asked: String,
+    /// "Answered in {seconds} s".
+    pub answered: String,
+    /// It needs a connector that is not installed yet.
+    pub connector_needed: String,
+    /// "Connector {version}".
+    pub connector_installed: String,
+    /// The connector is installed, version not reported.
+    pub connector_ready: String,
+    /// Button: install its connector.
+    pub install_connector: String,
+    /// While the connector installs.
+    pub installing: String,
     /// Link to the vendor's docs, for one that is not installed.
     pub docs: String,
     /// Link to the vendor's docs, for one that is installed.

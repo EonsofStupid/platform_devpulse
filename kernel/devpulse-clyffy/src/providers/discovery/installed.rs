@@ -30,7 +30,8 @@ pub fn locate(definition: &ProviderDefinition, home: Option<&Path>) -> Option<Pa
 }
 
 /// The program on `PATH` (with `PATHEXT` on Windows: `.exe`, `.cmd`, …).
-fn on_path(name: &str) -> Option<PathBuf> {
+#[must_use]
+pub fn on_path(name: &str) -> Option<PathBuf> {
     let path = std::env::var_os("PATH")?;
     let extensions: Vec<String> = if cfg!(windows) {
         std::env::var("PATHEXT")

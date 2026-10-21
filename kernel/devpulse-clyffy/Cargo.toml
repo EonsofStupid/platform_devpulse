@@ -142,6 +142,10 @@ tracing = { workspace = true }
 devpulse-telemetry = { workspace = true }
 # Asking the AI vendors' own CLIs (versions, sign-in status, updates).
 devpulse-process = { workspace = true }
+# The Agent Client Protocol (official Rust SDK): one prompt to a coding agent
+# over stdio, the agent owning its login and billing (plan 0001 R4).
+# `process` spawns the agent and speaks to it over its stdin/stdout.
+agent-client-protocol = { version = "3.4.0", features = ["process"] }
 
 # Kernel SSOT TOML loaders (interaction templates, minion routing, etc.)
 toml = "0.9"
