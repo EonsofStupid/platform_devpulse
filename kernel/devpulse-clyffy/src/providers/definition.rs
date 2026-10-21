@@ -1,14 +1,20 @@
-//! `ProviderDefinition` — one file per AI you can bring, checked on load.
+//! `ProviderDefinition` — the configurable half of a registry row, one file
+//! per provider found on your machine, checked on load.
 //!
-//! A definition says how to find the provider on this machine, how to read
-//! its installed and latest versions, how to tell whether you are signed in
-//! (its own status command, or the presence of its own login file — never
-//! its contents), and the vendor's own commands to sign in and to update.
-//! Adding a provider means adding a file that validates; nothing about a
-//! vendor lives in code.
+//! The registry row ([`super::registry`], keyed by `ProviderId`) says what
+//! the provider is: its name, vendor, docs, and how `DevPulse` talks to it.
+//! The definition says where this machine keeps it: how to find it, how to
+//! read its installed and latest versions, how to tell whether you are
+//! signed in (its own status command, or the presence of its own login file
+//! — never its contents), the vendor's own sign-in and update commands, and
+//! the arguments that start it for a conversation. Your files override the
+//! bundled ones by id.
 
-use anyhow::{bail, Context, Result};
+use anyhow::{anyhow, bail, Context, Result};
 use serde::{Deserialize, Serialize};
+
+use super::registry;
+use super::types::{AgentProtocol, AiProvider, Classification, ProviderId, Transport};
 
 /// What kind of provider this is.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -140,9 +146,9 @@ pub struct ConnectorSpec {
     pub bin: String,
 }
 
-/// How `DevPulse` talks to it (`adapter` says which protocol). In `args`
-/// and `env` values, `{program}` is the provider's own program and
-/// `{prompt}` the question.
+/// How `DevPulse` talks to it (the registry row's agent protocol says
+/// which). In `args` and `env` values, `{program}` is the provider's own
+/// program and `{prompt}` the question.
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ConnectSpec {
@@ -163,16 +169,8 @@ pub struct ConnectSpec {
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ProviderDefinition {
-    /// Stable id (`claude-code`).
-    pub id: String,
-    /// Display name.
-    pub name: String,
-    /// What it is.
-    pub kind: ProviderKind,
-    /// How `DevPulse` talks to it.
-    pub adapter: AdapterKind,
-    /// The vendor's documentation.
-    pub docs: String,
+    /// Its registry id (`claude-code`).
+    pub id: ProviderId,
     /// Something the vendor has said that you should know (shown on its
     /// card), with the date it was checked.
     #[serde(default)]
@@ -200,6 +198,59 @@ pub struct ProviderDefinition {
 }
 
 impl ProviderDefinition {
+    /// Its registry row — always there for a definition [`Self::parse`]
+    /// accepted (it refuses an id the registry does not have).
+    #[must_use]
+    pub fn row(&self) -> Option<&'static AiProvider> {
+        registry::find(self.id)
+    }
+
+    /// Display name, from the registry.
+    #[must_use]
+    pub fn name(&self) -> &'static str {
+        self.row().map_or(self.id.key(), |r| r.display_name)
+    }
+
+    /// The vendor's documentation, from the registry.
+    #[must_use]
+    pub fn docs(&self) -> &'static str {
+        self.row().map_or("", |r| r.docs_url)
+    }
+
+    /// What it is, from the registry: a desktop app, or an agent you use
+    /// through your own subscription.
+    #[must_use]
+    pub fn kind(&self) -> ProviderKind {
+        let desktop = self
+            .row()
+            .is_some_and(|r| r.classifications.contains(&Classification::DesktopApp));
+        if desktop {
+            ProviderKind::DesktopApp
+        } else {
+            ProviderKind::SubscriptionAgent
+        }
+    }
+
+    /// The agent protocol `DevPulse` talks to it with, from the registry;
+    /// `None` for a provider that is not an agent program.
+    #[must_use]
+    pub fn protocol(&self) -> Option<AgentProtocol> {
+        self.row()?.transports.iter().find_map(|t| match t {
+            Transport::AgentCli { protocol } => Some(*protocol),
+            _ => None,
+        })
+    }
+
+    /// How `DevPulse` talks to it, as the report shows it.
+    #[must_use]
+    pub fn adapter(&self) -> AdapterKind {
+        match self.protocol() {
+            Some(AgentProtocol::Acp) => AdapterKind::AcpAgent,
+            Some(AgentProtocol::Headless) => AdapterKind::Headless,
+            None => AdapterKind::McpClient,
+        }
+    }
+
     /// Parse and check one definition file.
     ///
     /// # Errors
@@ -211,19 +262,17 @@ impl ProviderDefinition {
     }
 
     fn check(&self) -> Result<()> {
-        let id_ok = !self.id.is_empty()
-            && self
-                .id
-                .chars()
-                .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '-');
-        if !id_ok {
-            bail!("id {:?}: lowercase letters, digits and '-' only", self.id);
-        }
-        if self.name.trim().is_empty() {
-            bail!("{}: name is empty", self.id);
-        }
-        if !self.docs.starts_with("https://") {
-            bail!("{}: docs must be an https:// address", self.id);
+        let id = self.id.key();
+        let row =
+            registry::find(self.id).ok_or_else(|| anyhow!("{id}: not in the provider registry"))?;
+        let found_on_this_machine = row.classifications.iter().any(|c| {
+            matches!(
+                c,
+                Classification::SubscriptionPath | Classification::DesktopApp
+            )
+        });
+        if !found_on_this_machine {
+            bail!("{id}: definitions are for subscription agents and desktop apps");
         }
         let paths = &self.detect.paths;
         if self.detect.executables.is_empty()
@@ -231,7 +280,7 @@ impl ProviderDefinition {
             && paths.macos.is_empty()
             && paths.linux.is_empty()
         {
-            bail!("{}: detect lists no executable and no path", self.id);
+            bail!("{id}: detect lists no executable and no path");
         }
         if let Some(latest) = &self.latest {
             let sources = [
@@ -240,17 +289,11 @@ impl ProviderDefinition {
                 latest.text_url.is_some(),
             ];
             if sources.iter().filter(|s| **s).count() != 1 {
-                bail!(
-                    "{}: latest names exactly one of npm, github or text_url",
-                    self.id
-                );
+                bail!("{id}: latest names exactly one of npm, github or text_url");
             }
             if let Some(repo) = &latest.github {
                 if repo.split('/').count() != 2 {
-                    bail!(
-                        "{}: latest.github must be owner/name, got {repo:?}",
-                        self.id
-                    );
+                    bail!("{id}: latest.github must be owner/name, got {repo:?}");
                 }
             }
             if latest
@@ -258,7 +301,7 @@ impl ProviderDefinition {
                 .as_ref()
                 .is_some_and(|u| !u.starts_with("https://"))
             {
-                bail!("{}: latest.text_url must be an https:// address", self.id);
+                bail!("{id}: latest.text_url must be an https:// address");
             }
         }
         if let Some(signed_in) = &self.signed_in {
@@ -266,20 +309,17 @@ impl ProviderDefinition {
             let has_files =
                 !(files.windows.is_empty() && files.macos.is_empty() && files.linux.is_empty());
             if signed_in.args.is_none() && !has_files {
-                bail!(
-                    "{}: signed_in needs a status command or login files",
-                    self.id
-                );
+                bail!("{id}: signed_in needs a status command or login files");
             }
             if signed_in.args.is_none()
                 && (signed_in.output_signed_in.is_some() || signed_in.output_signed_out.is_some())
             {
-                bail!("{}: signed_in output rules need a status command", self.id);
+                bail!("{id}: signed_in output rules need a status command");
             }
         }
         for (field, spec) in [("version", &self.version), ("update", &self.update)] {
             if spec.as_ref().is_some_and(|s| s.args.is_empty()) {
-                bail!("{}: {field}.args is empty", self.id);
+                bail!("{id}: {field}.args is empty");
             }
         }
         if let Some(connect) = &self.connect {
@@ -289,36 +329,29 @@ impl ProviderDefinition {
     }
 
     fn check_connect(&self, connect: &ConnectSpec) -> Result<()> {
-        match self.adapter {
+        let id = self.id.key();
+        match self.adapter() {
             AdapterKind::McpClient => {
-                bail!(
-                    "{}: connect is for acp_agent or headless, not mcp_client",
-                    self.id
-                );
+                bail!("{id}: connect is for acp_agent or headless, not mcp_client");
             }
             AdapterKind::Headless => {
                 if !connect.args.iter().any(|a| a.contains("{prompt}")) {
-                    bail!(
-                        "{}: connect.args for headless must carry {{prompt}}",
-                        self.id
-                    );
+                    bail!("{id}: connect.args for headless must carry {{prompt}}");
                 }
                 if connect.connector.is_some() {
-                    bail!("{}: connect.connector is for acp_agent only", self.id);
+                    bail!("{id}: connect.connector is for acp_agent only");
                 }
             }
             AdapterKind::AcpAgent => {
                 if connect.args.iter().any(|a| a.contains("{prompt}")) {
                     bail!(
-                        "{}: connect.args for acp_agent start a server; the question goes over ACP, not {{prompt}}",
-                        self.id
-                    );
+                        "{id}: connect.args for acp_agent start a server; the question goes over ACP, not {{prompt}}");
                 }
             }
         }
         if let Some(connector) = &connect.connector {
             if connector.npm.trim().is_empty() || connector.bin.trim().is_empty() {
-                bail!("{}: connect.connector needs npm and bin", self.id);
+                bail!("{id}: connect.connector needs npm and bin");
             }
             let bin_ok = connector
                 .bin
@@ -326,8 +359,7 @@ impl ProviderDefinition {
                 .all(|c| c.is_ascii_alphanumeric() || matches!(c, '-' | '_' | '.'));
             if !bin_ok {
                 bail!(
-                    "{}: connect.connector.bin {:?} is a program name, not a path",
-                    self.id,
+                    "{id}: connect.connector.bin {:?} is a program name, not a path",
                     connector.bin
                 );
             }
@@ -372,12 +404,9 @@ mod tests {
 
     use super::*;
 
+    // Codex: an ACP agent in the registry.
     const GOOD: &str = r#"
-id = "example-agent"
-name = "Example Agent"
-kind = "subscription_agent"
-adapter = "acp_agent"
-docs = "https://example.com/docs"
+id = "codex"
 
 [detect]
 executables = ["example"]
@@ -400,39 +429,71 @@ args = ["update"]
 "#;
 
     #[test]
-    fn a_complete_definition_parses() {
+    fn a_complete_definition_parses_and_reads_its_registry_row() {
         let d = ProviderDefinition::parse(GOOD).expect("good");
-        assert_eq!(d.id, "example-agent");
-        assert_eq!(d.kind, ProviderKind::SubscriptionAgent);
+        assert_eq!(d.id, ProviderId::Codex);
+        assert_eq!(d.name(), "Codex");
+        assert_eq!(d.kind(), ProviderKind::SubscriptionAgent);
+        assert_eq!(d.adapter(), AdapterKind::AcpAgent);
+        assert!(d.docs().starts_with("https://"));
         assert_eq!(d.detect.paths.windows.len(), 1);
+
+        let desktop = GOOD.replace("id = \"codex\"", "id = \"claude-desktop\"");
+        let d = ProviderDefinition::parse(&desktop).expect("desktop app");
+        assert_eq!(d.kind(), ProviderKind::DesktopApp);
+        assert_eq!(d.adapter(), AdapterKind::McpClient);
     }
 
     #[test]
     fn connect_sections_parse() {
         let acp = format!(
-            "{GOOD}\n[connect]\nenv = {{ AGENT_PATH = \"{{program}}\" }}\nconnector = {{ npm = \"@example/agent-acp\", bin = \"agent-acp\" }}\n"
+            "{GOOD}
+[connect]
+env = {{ AGENT_PATH = \"{{program}}\" }}
+connector = {{ npm = \"@example/agent-acp\", bin = \"agent-acp\" }}
+"
         );
         let d = ProviderDefinition::parse(&acp).expect("acp");
         let connect = d.connect.expect("connect");
         assert_eq!(connect.env["AGENT_PATH"], "{program}");
         assert_eq!(connect.connector.expect("connector").bin, "agent-acp");
 
-        let headless = format!("{GOOD}\n[connect]\nargs = [\"-p\", \"{{prompt}}\"]\n")
-            .replace("adapter = \"acp_agent\"", "adapter = \"headless\"");
+        let headless = format!(
+            "{GOOD}
+[connect]
+args = [\"-p\", \"{{prompt}}\"]
+"
+        )
+        .replace("id = \"codex\"", "id = \"claude-code\"");
         let d = ProviderDefinition::parse(&headless).expect("headless");
-        assert_eq!(d.adapter, AdapterKind::Headless);
+        assert_eq!(d.adapter(), AdapterKind::Headless);
     }
 
     #[test]
     fn broken_definitions_name_what_is_wrong() {
         let cases = [
-            (GOOD.replace("example-agent", "Example Agent"), "id"),
             (
-                GOOD.replace("https://example.com/docs", "example.com"),
-                "docs",
+                GOOD.replace("id = \"codex\"", "id = \"Example Agent\""),
+                "id",
             ),
             (
-                GOOD.replace("npm = \"@example/agent\"", "npm = \"a\"\ngithub = \"o/r\""),
+                GOOD.replace("id = \"codex\"", "id = \"ollama\""),
+                "subscription agents and desktop apps",
+            ),
+            (
+                GOOD.replace(
+                    "id = \"codex\"",
+                    "name = \"x\"
+id = \"codex\"",
+                ),
+                "name",
+            ),
+            (
+                GOOD.replace(
+                    "npm = \"@example/agent\"",
+                    "npm = \"a\"
+github = \"o/r\"",
+                ),
                 "exactly one",
             ),
             (
@@ -440,29 +501,50 @@ args = ["update"]
                 "text_url",
             ),
             (
-                GOOD.replace("[update]\nargs = [\"update\"]", "[update]\nargs = []"),
+                GOOD.replace(
+                    "[update]
+args = [\"update\"]",
+                    "[update]
+args = []",
+                ),
                 "update.args",
             ),
             (
-                GOOD.replace("kind = \"subscription_agent\"", "kind = \"magic\""),
-                "kind",
-            ),
-            (
-                format!("{GOOD}\n[connect]\nargs = [\"-p\", \"{{prompt}}\"]\n"),
+                format!(
+                    "{GOOD}
+[connect]
+args = [\"-p\", \"{{prompt}}\"]
+"
+                ),
                 "server",
             ),
             (
-                format!("{GOOD}\n[connect]\nargs = [\"-p\"]\n")
-                    .replace("adapter = \"acp_agent\"", "adapter = \"headless\""),
+                format!(
+                    "{GOOD}
+[connect]
+args = [\"-p\"]
+"
+                )
+                .replace("id = \"codex\"", "id = \"claude-code\""),
                 "{prompt}",
             ),
             (
-                format!("{GOOD}\n[connect]\nconnector = {{ npm = \"x\", bin = \"../x\" }}\n"),
+                format!(
+                    "{GOOD}
+[connect]
+connector = {{ npm = \"x\", bin = \"../x\" }}
+"
+                ),
                 "not a path",
             ),
             (
-                format!("{GOOD}\n[connect]\nargs = [\"acp\"]\n")
-                    .replace("adapter = \"acp_agent\"", "adapter = \"mcp_client\""),
+                format!(
+                    "{GOOD}
+[connect]
+args = [\"acp\"]
+"
+                )
+                .replace("id = \"codex\"", "id = \"claude-desktop\""),
                 "mcp_client",
             ),
         ];

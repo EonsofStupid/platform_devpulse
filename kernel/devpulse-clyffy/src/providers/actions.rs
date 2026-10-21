@@ -16,6 +16,7 @@ use serde::{Deserialize, Serialize};
 use super::connect::{self, connector};
 use super::definition::{CommandSpec, ProviderDefinition};
 use super::discovery::installed;
+use super::types::ProviderId;
 
 const UPDATE_TIMEOUT: Duration = Duration::from_secs(15 * 60);
 const OPEN_TIMEOUT: Duration = Duration::from_secs(20);
@@ -52,7 +53,7 @@ pub struct ActionContext<'a> {
 #[serde(rename_all = "camelCase")]
 pub struct ProviderActionRun {
     /// The provider.
-    pub provider_id: String,
+    pub provider_id: ProviderId,
     /// The action.
     pub action: ProviderAction,
     /// It worked (for Sign in: the terminal window opened).
@@ -126,7 +127,7 @@ pub async fn run(
 ) -> ProviderActionRun {
     let started = Instant::now();
     let mut result = ProviderActionRun {
-        provider_id: definition.id.clone(),
+        provider_id: definition.id,
         action,
         ok: false,
         guided: false,
@@ -148,12 +149,12 @@ pub async fn run(
                 if action == ProviderAction::Update {
                     update(&program, &args, &mut result).await;
                 } else {
-                    open_terminal(&definition.name, &program, &args, &mut result).await;
+                    open_terminal(definition.name(), &program, &args, &mut result).await;
                 }
             } else {
                 result.output = format!(
                     "{} has no {action:?} command in its definition.",
-                    definition.name
+                    definition.name()
                 );
             }
         }
@@ -206,10 +207,10 @@ async fn install_connector(
         .as_ref()
         .and_then(|c| c.connector.as_ref())
     else {
-        result.output = format!("{} needs no connector.", definition.name);
+        result.output = format!("{} needs no connector.", definition.name());
         return;
     };
-    let installed = connector::install(context.data_dir, &definition.id, spec).await;
+    let installed = connector::install(context.data_dir, definition.id.key(), spec).await;
     result.ok = installed.ok;
     result.guided = installed.guided;
     result.command = installed.command;

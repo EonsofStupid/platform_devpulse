@@ -2,11 +2,10 @@
 # key. Facts checked 2026-10-20 against github.com/openai/codex, the
 # developer-commands docs and the official install scripts.
 
+# What it is (name, docs, how DevPulse talks to it) is its registry row in
+# kernel/devpulse-clyffy/src/providers/registry.rs; this file is where this
+# machine keeps it.
 id = "codex"
-name = "Codex"
-kind = "subscription_agent"
-adapter = "acp_agent"
-docs = "https://github.com/openai/codex"
 
 [detect]
 executables = ["codex"]

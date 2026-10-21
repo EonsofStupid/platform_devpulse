@@ -1,9 +1,11 @@
 //! The provider catalog: the bundled definitions, plus yours.
 //!
-//! Bundled definitions ship with the kernel (`config/providers/*.toml`). Your
-//! files in `{data_dir}/config/providers/*.toml` add a provider or replace a
-//! bundled one with the same id. A file of yours that does not validate is
-//! not used, and the reason is reported — never ignored.
+//! Bundled definitions ship with the kernel (`config/providers/*.toml`), one
+//! per subscription agent and desktop app in the registry. Your files in
+//! `{data_dir}/config/providers/*.toml` replace a bundled one with the same
+//! id (a different install path, another update command). A file of yours
+//! that does not validate — or names an id the registry does not have — is
+//! not used, and the reason is reported, never ignored.
 
 use std::path::Path;
 
@@ -11,8 +13,8 @@ use anyhow::{Context, Result};
 
 use super::definition::ProviderDefinition;
 
-/// The bundled definitions, by file name.
-const BUNDLED: [(&str, &str); 6] = [
+/// The bundled definitions, by file name, in registry order.
+const BUNDLED: [(&str, &str); 8] = [
     (
         "claude-code.toml",
         include_str!("../../config/providers/claude-code.toml"),
@@ -20,6 +22,14 @@ const BUNDLED: [(&str, &str); 6] = [
     (
         "codex.toml",
         include_str!("../../config/providers/codex.toml"),
+    ),
+    (
+        "grok-build.toml",
+        include_str!("../../config/providers/grok-build.toml"),
+    ),
+    (
+        "antigravity-cli.toml",
+        include_str!("../../config/providers/antigravity-cli.toml"),
     ),
     (
         "gemini-cli.toml",
@@ -30,12 +40,12 @@ const BUNDLED: [(&str, &str); 6] = [
         include_str!("../../config/providers/cursor.toml"),
     ),
     (
-        "grok-build.toml",
-        include_str!("../../config/providers/grok-build.toml"),
-    ),
-    (
         "claude-desktop.toml",
         include_str!("../../config/providers/claude-desktop.toml"),
+    ),
+    (
+        "antigravity.toml",
+        include_str!("../../config/providers/antigravity.toml"),
     ),
 ];
 
@@ -108,6 +118,7 @@ mod tests {
     #![allow(clippy::expect_used, clippy::unwrap_used, reason = "test assertions")]
 
     use super::*;
+    use crate::providers::types::ProviderId;
 
     /// What every provider looks like on the machine running the test.
     /// Run with `--ignored --nocapture`.
@@ -122,7 +133,7 @@ mod tests {
         for p in &report.providers {
             println!(
                 "{:<15} installed={:<5} version={:<22} latest={:<12} update={:<5} signed_in={:?} at={:?} problems={:?}",
-                p.id,
+                p.id.key(),
                 p.installed,
                 p.version.as_deref().unwrap_or("-"),
                 p.latest.as_deref().unwrap_or("-"),
@@ -135,8 +146,8 @@ mod tests {
     }
 
     #[test]
-    fn every_bundled_definition_validates() {
-        let ids: Vec<String> = bundled()
+    fn every_bundled_definition_validates_in_registry_order() {
+        let ids: Vec<ProviderId> = bundled()
             .expect("bundled")
             .into_iter()
             .map(|d| d.id)
@@ -144,18 +155,30 @@ mod tests {
         assert_eq!(
             ids,
             [
-                "claude-code",
-                "codex",
-                "gemini-cli",
-                "cursor",
-                "grok-build",
-                "claude-desktop"
+                ProviderId::ClaudeCode,
+                ProviderId::Codex,
+                ProviderId::GrokBuild,
+                ProviderId::AntigravityCli,
+                ProviderId::GeminiCli,
+                ProviderId::Cursor,
+                ProviderId::ClaudeDesktop,
+                ProviderId::Antigravity,
             ]
         );
+        // Registry order: the bundled files list the registry's own rows.
+        let positions: Vec<usize> = ids
+            .iter()
+            .filter_map(|id| {
+                crate::providers::registry::PROVIDERS
+                    .iter()
+                    .position(|p| p.id == *id)
+            })
+            .collect();
+        assert_eq!(positions.len(), ids.len(), "every bundled id has a row");
     }
 
     #[test]
-    fn your_file_replaces_by_id_adds_new_ones_and_a_broken_one_is_reported() {
+    fn your_file_replaces_by_id_and_unknown_or_broken_files_are_reported() {
         let nanos = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
             .map(|d| d.as_nanos())
@@ -165,42 +188,33 @@ mod tests {
         std::fs::create_dir_all(&dir).unwrap();
         std::fs::write(
             dir.join("a-codex.toml"),
-            r#"
-id = "codex"
-name = "Codex (mine)"
-kind = "subscription_agent"
-adapter = "acp_agent"
-docs = "https://example.com"
+            "id = \"codex\"
 [detect]
-executables = ["codex"]
-"#,
+executables = [\"my-codex\"]
+",
         )
         .unwrap();
         std::fs::write(
             dir.join("b-new.toml"),
-            r#"
-id = "my-agent"
-name = "My Agent"
-kind = "subscription_agent"
-adapter = "acp_agent"
-docs = "https://example.com"
+            "id = \"my-agent\"
 [detect]
-executables = ["my-agent"]
-"#,
+executables = [\"my-agent\"]
+",
         )
         .unwrap();
-        std::fs::write(dir.join("c-broken.toml"), "id = \"x\"").unwrap();
+        std::fs::write(dir.join("c-broken.toml"), "id = \"codex\"").unwrap();
 
         let catalog = load(&data).expect("load");
         let codex = catalog
             .definitions
             .iter()
-            .find(|d| d.id == "codex")
+            .find(|d| d.id == ProviderId::Codex)
             .unwrap();
-        assert_eq!(codex.name, "Codex (mine)");
-        assert!(catalog.definitions.iter().any(|d| d.id == "my-agent"));
-        assert_eq!(catalog.problems.len(), 1);
-        assert!(catalog.problems[0].contains("c-broken.toml"));
+        assert_eq!(codex.detect.executables, ["my-codex"]);
+        assert_eq!(catalog.definitions.len(), BUNDLED.len());
+        assert_eq!(catalog.problems.len(), 2, "{:?}", catalog.problems);
+        assert!(catalog.problems.iter().any(|p| p.contains("b-new.toml")));
+        assert!(catalog.problems.iter().any(|p| p.contains("c-broken.toml")));
         let _ = std::fs::remove_dir_all(data);
     }
 }

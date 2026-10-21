@@ -3,11 +3,10 @@
 # machine this was written on: the status rule and the Windows path are
 # unconfirmed against a real install.
 
+# What it is (name, docs, how DevPulse talks to it) is its registry row in
+# kernel/devpulse-clyffy/src/providers/registry.rs; this file is where this
+# machine keeps it.
 id = "cursor"
-name = "Cursor CLI"
-kind = "subscription_agent"
-adapter = "acp_agent"
-docs = "https://cursor.com/docs/cli/overview"
 
 [detect]
 # `agent`, with the older `cursor-agent` name kept as a link.

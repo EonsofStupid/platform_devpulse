@@ -2300,7 +2300,7 @@ async providersCheck() : Promise<Result<ProvidersState, string>> {
 /**
  * Run one action (update, or open the vendor's sign-in) on an installed provider.
  */
-async providersRunAction(providerId: string, action: ProviderAction) : Promise<Result<ProvidersState, string>> {
+async providersRunAction(providerId: ProviderId, action: ProviderAction) : Promise<Result<ProvidersState, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("providers_run_action", { providerId, action }) };
 } catch (e) {
@@ -10130,7 +10130,7 @@ export type ProviderActionRef = {
 /**
  * The provider.
  */
-providerId: string; 
+providerId: ProviderId; 
 /**
  * The action.
  */
@@ -10142,7 +10142,7 @@ export type ProviderActionRun = {
 /**
  * The provider.
  */
-providerId: string; 
+providerId: ProviderId; 
 /**
  * The action.
  */
@@ -10189,12 +10189,43 @@ export type ProviderId =
  */
 "anthropic-api" | 
 /**
- * Anthropic Claude via Claude Code / Claude Desktop subprocess MCP.
- * Dev-only — release builds hide this and the lane router refuses it
- * unless the operator has prior approval from Anthropic per the Agent
- * SDK Terms of Service.
+ * Claude Code — Anthropic's coding agent on your own subscription.
+ * Reached only through Claude Code's own program: its headless mode,
+ * and as the host that spawns `DevPulse`'s MCP server. Never the Agent
+ * SDK, never a token in `DevPulse` (owner ruling 2026-10-20).
  */
-"anthropic-subscription" | 
+"claude-code" | 
+/**
+ * Claude Desktop — Anthropic's desktop app. No programmatic chat;
+ * `DevPulse` offers it context over MCP.
+ */
+"claude-desktop" | 
+/**
+ * Codex — `OpenAI`'s coding agent on your `ChatGPT` plan, through its
+ * ACP connector running your own Codex.
+ */
+"codex" | 
+/**
+ * Gemini CLI — Google's coding agent (native ACP).
+ */
+"gemini-cli" | 
+/**
+ * Cursor CLI — Cursor's coding agent (`agent acp`).
+ */
+"cursor" | 
+/**
+ * Grok Build — xAI's coding agent (`grok agent stdio`, ACP).
+ */
+"grok-build" | 
+/**
+ * Antigravity — Google's agent IDE (desktop app); hosts MCP servers.
+ */
+"antigravity" | 
+/**
+ * Antigravity CLI (`agy`) — Google's terminal agent on your Google
+ * subscription.
+ */
+"antigravity-cli" | 
 /**
  * `OpenAI` (api.openai.com).
  */
@@ -10287,9 +10318,9 @@ ownedBy: string | null }
  */
 export type ProviderReport = { 
 /**
- * Definition id.
+ * Registry id.
  */
-id: string; 
+id: ProviderId; 
 /**
  * Display name.
  */

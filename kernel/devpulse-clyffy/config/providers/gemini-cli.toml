@@ -2,11 +2,10 @@
 # github.com/google-gemini/gemini-cli (README, source) and Google's
 # 2026-05-19 announcement.
 
+# What it is (name, docs, how DevPulse talks to it) is its registry row in
+# kernel/devpulse-clyffy/src/providers/registry.rs; this file is where this
+# machine keeps it.
 id = "gemini-cli"
-name = "Gemini CLI"
-kind = "subscription_agent"
-adapter = "acp_agent"
-docs = "https://github.com/google-gemini/gemini-cli"
 note = "Since 2026-06-18 Gemini CLI no longer serves Google AI Pro or Ultra subscriptions; it works with Gemini API keys and Code Assist Standard/Enterprise. Google moved free and Google One users to Antigravity CLI. (Checked 2026-10-20.)"
 
 [detect]

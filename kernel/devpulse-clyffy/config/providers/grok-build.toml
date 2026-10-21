@@ -3,11 +3,10 @@
 # official install scripts. Not installed on the machine this was written on:
 # the Windows path is unconfirmed against a real install.
 
+# What it is (name, docs, how DevPulse talks to it) is its registry row in
+# kernel/devpulse-clyffy/src/providers/registry.rs; this file is where this
+# machine keeps it.
 id = "grok-build"
-name = "Grok Build"
-kind = "subscription_agent"
-adapter = "acp_agent"
-docs = "https://docs.x.ai/build/overview"
 
 [detect]
 executables = ["grok"]

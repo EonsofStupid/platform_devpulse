@@ -826,6 +826,118 @@ Google suspended accounts for Gemini CLI OAuth proxies.
 | B4 | DevPulse MCP server attached to every session | each agent answers with context only the MCP server has |
 | B5 | Your checkpoint | your sign-off |
 
+### Part B rewritten 2026-10-21 — built from the code you already have
+
+Owner, 2026-10-21: "codex, claude, antigravity, grok … properly bundled so as
+they update them the user gets notified … channels, roles/slots to assign …
+maximize their subscription, have agenthub properly … 80% of my code is not
+even loading … you keep just making new shit". And: local AI must be
+"properly configurable so they could have endpoints like any other tool".
+
+**What three read-only surveys found (2026-10-21):**
+
+- **Chat in DevPulse cannot answer today**, endpoints aside:
+  - the "brain ready" gate never opens (nothing sets a slot `ready`);
+  - the UI listens for `inference-token` while Rust emits
+    `inference-token-streamed` / `llama-token-streamed`;
+  - only the last message is sent;
+  - the llama-server sidecar has not spawned since `38309aaa`.
+- **What is loaded:** about 71% of the app's code is compiled and reachable,
+  but 9 recent launches invoked only **20 of 287** Tauri commands.
+  - 58 commands have no caller, including the existing `credentials`,
+    `providers`, `cloud` and `routing` surfaces.
+  - ColdLight is 60% unreachable: 53 of 94 component folders, among them
+    sidebar, popover, combobox, tree and toaster, which a channels UI needs.
+  - The MCP SSE server is configured (port 9315) but nothing starts it.
+- **Endpoint pieces already here, unconnected:**
+  - an OpenAI-compatible streaming client (`commands/llama::llama_chat`,
+    fixed to 127.0.0.1);
+  - an endpoint probe that accepts any URL and lists models
+    (`onboarding/probes::identify`, no callers);
+  - the OS keyring (`commands/credentials`);
+  - fixed seeds for Ollama :11434, LM Studio :1234 and vLLM :8000
+    (`ai_providers`);
+  - the llama-server settings card.
+- **Six overlapping "provider" concepts**, the 2026-10-20 kernel `providers`
+  module among them. This plan's R10 already says kernel definitions win
+  (old code included first).
+- **Your chat work in devpulselabs** (`D:\projects\devpulselabs`, an egui
+  content studio, chat pillar parked) is **UI-free Rust**, about 14k lines:
+  - `dpl-chat-core`: rooms/roles schemas plus a library of 11 roles and 5
+    rooms (RM1, verified);
+  - the Codex `app-server` runtime with signed adoption + update (CW1,
+    verified);
+  - the Grok ACP runtime;
+  - Claude/Codex session readers (`dpl-chat-store`);
+  - the `ProviderRuntime` interface;
+  - the tool depot.
+
+  Its plans already rule Claude Code = `claude -p` stream-json (CW2) and
+  Antigravity = `agy` headless stream-json (R280/R281). Neither is built
+  there yet. The old AgentHub (`/agent` "Council of C" console) was the
+  Tauri + React app now at `D:\localdev\review-archive\devpulse labs`.
+
+**Rulings needed:**
+
+- **D1 — where the chat engine comes from.**
+  - Recommended: DevPulse's kernel depends on the devpulselabs chat crates
+    at a pinned git rev. One source; no copies.
+  - Alternatives: copy them in, or keep building here, which duplicates them.
+- **D2 — confirm R10.** Kernel definitions plus a user store
+  (`kind = endpoint`, `adapter = openai_compatible`) are the one provider
+  model. The older pieces above are moved in and wired, not rewritten.
+
+**Phases** (each live-checked, committed, pushed):
+
+| # | Outcome | Existing code it wires in | Live check |
+| --- | --- | --- | --- |
+| B0 | Chat answers | readiness from the capability channel; the token event names Rust already emits; history through `llama_chat`'s message list; the sidecar's external-program listing restored | a streamed reply in the chat window |
+| B1 | Local AI = configurable endpoints (plan 0007 stage 2) | `llama_chat` generalized (base URL, model, key) and moved to the kernel; `identify` moved to the kernel (R5); `ai_providers` seeds become preset definitions; keyring via `credentials` (billing gate and Turso mirror fixed, `get_api_key` no longer exposed); slot → endpoint in Turso; the Ollama devtool editable | chat.brain answers through Ollama / LM Studio / your GB10 by URL |
+| B2 | Your AI notices updates, Antigravity listed | kernel provider checks at boot and on a timer → the notification centre; an Antigravity definition | a newer version shows as a notification |
+| B3 | Each subscription in chat (D1) | Codex `app-server` + adoption/update, Grok ACP, Claude Code stream-json, Antigravity `agy` headless; threads in Turso | the same question to Claude, Codex, Grok and Antigravity in one window |
+| B4 | Rooms (channels) and roles | `dpl-chat-core` rooms/roles library + your files; seats take a subscription or an endpoint; ColdLight's unused sidebar / popover / combobox / tree / toaster | a Council room with two agents in seats |
+| B5 | AgentHub | `dpl-chat-store` + the Claude / Codex decoders: every session on disk, plus live threads; the old React console's design in Svelte | your real Claude Code and Codex sessions listed |
+| B6 | Your context in every session | the configured MCP SSE server started; `session/new` `mcpServers` | an agent answers with DevPulse-only context |
+| B7 | Your checkpoint | — | your sign-off |
+
+**Owner rulings 2026-10-21:**
+
+- **D1:** "Build it here". The chat engine is built in platform_devpulse,
+  not taken from devpulselabs.
+- **D2:** "Engine `ai_providers`". The engine's `ProviderId` registry is the
+  one provider model. The 2026-10-20 kernel `providers` module's detection,
+  version, update, sign-in and Try-it fold into it. This replaces R10's
+  "kernel definitions win".
+- **Order:** "B3 subscriptions first".
+- **Location:** "Move `ai_providers` to the kernel". It moves into the
+  kernel's `providers/` with its git history. The kernel's detection, update
+  and Try-it code folds into it there. The engine keeps a thin
+  `ai_providers` re-export, and the AI-in-kernel rule holds.
+
+### B3 — each subscription in chat (first; phases)
+
+Facts it rests on (2026-10-21):
+
+- `ai_providers` has `AnthropicSubscription` (dev-only, MCP) but no Codex,
+  Grok Build, Gemini CLI, Cursor or Antigravity entry.
+- The kernel ACP client (`providers/connect/acp.rs`, official SDK 3.4.0) is
+  one-shot: one process per question.
+- Chat sessions/turns are in Turso, but a session has no agent.
+- On this machine:
+  - Claude Code 2.1.296 and Codex 0.163.0 (+ codex-acp 2.2.2 in the
+    DevPulse folder) are installed and signed in.
+  - Grok Build is not installed.
+  - Antigravity's IDE is installed (1.104.0); its headless agent CLI `agy`
+    is not.
+
+| # | Outcome | Live check |
+| --- | --- | --- |
+| B3.1 | `ProviderId` gains Claude Code, Codex, Grok Build, Gemini CLI, Cursor, Antigravity (CLI and IDE) and Claude Desktop. Each row carries how DevPulse reaches it (ACP over stdio, the vendor's headless stream-json, or a connector) and how it is found, versioned, updated and signed in, folded in from the kernel definitions. | `list_provider_status` shows this machine's truth for every row |
+| B3.2 | Agent sessions: one live process per thread (ACP `session/new` → many `session/prompt`, streamed `session/update`; Claude Code and `agy` through their stream-json mode), permission requests surfaced, cancel and close. | a two-turn conversation with Codex keeps its context |
+| B3.3 | Threads: a chat session names its agent; turns record it; prompt / cancel / close intents; streamed chunks as events. | restart DevPulse → the thread and its agent come back |
+| B3.4 | Chat window: agent picker per thread; streamed replies; the local-brain gate applies only to local threads (the token-event fix from B0 lands here). | the same question to Claude Code, Codex and Antigravity in one window (Grok once installed) |
+| B3.5 | Your checkpoint | your sign-off |
+
 ## Part C — The Model Loader maintains every capability (after Part A)
 
 Brain, Vision, Voice and Memory are maintained in the Model Loader as providers
@@ -1321,3 +1433,28 @@ queries proving what was written.
     Gemini CLI, Cursor CLI and Grok Build are not installed here, so their
     ACP commands remain unconfirmed against a real install (marked in their
     files).
+  - 2026-10-21 — **B3.1 done: one provider model, in the kernel** (owner
+    rulings D2 + Location). `ai_providers` moved with its history to
+    `kernel/devpulse-clyffy/src/providers/{types,registry}.rs`; the engine's
+    `ai_providers` is a thin re-export (its `visible()` passes the engine's
+    `kernel` feature), so `credentials`, `providers` and `cloud` compile
+    unchanged. `AnthropicSubscription` became **Claude Code** (its Claude
+    Desktop MCP transport moved to a new **Claude Desktop** row); new rows:
+    Codex, Grok Build, Antigravity CLI (`agy`), Gemini CLI, Cursor CLI,
+    Antigravity (IDE). New vocabulary: `Transport::AgentCli { protocol }`
+    (ACP or headless), `SdkBackend::{AgentClientProtocol, VendorHeadless}`,
+    `Classification::DesktopApp`, `McpClient::Antigravity`, `Vendor::Cursor`,
+    `ProviderId::key()`. Folded: definition files are keyed by `ProviderId`
+    and hold only what this machine keeps (where, versions, sign-in, update,
+    connect); name, docs, kind and protocol come from the registry row; a
+    file for an id the registry does not have is reported. Antigravity facts
+    from google-antigravity/antigravity-cli (installers, Google sign-in);
+    `agy`'s version and headless flags are unconfirmed until it is installed.
+    Verified: kernel 95 + engine 149 + contract 4 tests, workspace clippy,
+    cargo fmt, svelte-check 0, Biome 560, arch 18, bindings regenerated.
+    Live (running app): Claude Code 2.1.296 (2.1.306 out, signed in), Codex
+    0.163.0 (up to date, signed in), Claude Desktop installed, Antigravity
+    1.104.0 installed; Grok Build, Antigravity CLI, Gemini CLI, Cursor CLI
+    not installed. Noted for B3.3: the older `list_provider_status` (no UI
+    caller) reports agent rows as "not configured" — its "configured" means
+    "has an API key", as it did for the old subscription row.

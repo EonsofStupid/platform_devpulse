@@ -2,13 +2,10 @@
 # Facts checked 2026-10-20 against code.claude.com/docs (setup, cli-reference)
 # and the official install script.
 
+# What it is (name, docs, how DevPulse talks to it) is its registry row in
+# kernel/devpulse-clyffy/src/providers/registry.rs; this file is where this
+# machine keeps it.
 id = "claude-code"
-name = "Claude Code"
-kind = "subscription_agent"
-# Claude Code's own headless mode, until Anthropic confirms an ACP route for
-# subscription use (owner ruling 2026-10-20, plan 0001 R4).
-adapter = "headless"
-docs = "https://code.claude.com/docs/en/setup"
 
 [detect]
 executables = ["claude"]

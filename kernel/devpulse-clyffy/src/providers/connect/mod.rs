@@ -73,22 +73,22 @@ pub fn launch(
     let Some(connect) = &definition.connect else {
         bail!(
             "{} can't be asked yet: its definition has no connect section",
-            definition.name
+            definition.name()
         );
     };
-    let start = match (&definition.adapter, &connect.connector) {
+    let start = match (definition.adapter(), &connect.connector) {
         (AdapterKind::McpClient, _) => {
             bail!(
                 "{} is a desktop app; DevPulse offers it context, it can't be asked",
-                definition.name
+                definition.name()
             )
         }
         (AdapterKind::AcpAgent, Some(spec)) => {
-            let at = connector::program(data_dir, &definition.id, spec);
+            let at = connector::program(data_dir, definition.id.key(), spec);
             if !at.is_file() {
                 bail!(
                     "{} needs its connector ({}) — install it first",
-                    definition.name,
+                    definition.name(),
                     spec.npm
                 );
             }
@@ -97,7 +97,7 @@ pub fn launch(
         _ => program.to_path_buf(),
     };
     Ok(Launch {
-        adapter: definition.adapter,
+        adapter: definition.adapter(),
         program: start,
         args: connect
             .args
@@ -159,20 +159,18 @@ mod tests {
 
     use super::*;
 
+    // Codex: an ACP agent in the registry.
     const BASE: &str = r#"
-id = "example"
-name = "Example"
-kind = "subscription_agent"
-adapter = "acp_agent"
-docs = "https://example.com"
+id = "codex"
 [detect]
 executables = ["example"]
 "#;
 
     #[test]
     fn headless_fills_the_question_into_its_arguments() {
+        // Claude Code: headless in the registry.
         let text = format!("{BASE}[connect]\nargs = [\"-p\", \"{{prompt}}\"]\n")
-            .replace("acp_agent", "headless");
+            .replace("id = \"codex\"", "id = \"claude-code\"");
         let d = ProviderDefinition::parse(&text).unwrap();
         let l = launch(&d, Path::new("/bin/example"), Path::new("/data"), "hello?").unwrap();
         assert_eq!(l.program, PathBuf::from("/bin/example"));
@@ -198,7 +196,7 @@ executables = ["example"]
         );
 
         let spec = d.connect.as_ref().unwrap().connector.as_ref().unwrap();
-        let bin = connector::program(&data, "example", spec);
+        let bin = connector::program(&data, "codex", spec);
         std::fs::create_dir_all(bin.parent().unwrap()).unwrap();
         std::fs::write(&bin, "").unwrap();
         let l = launch(&d, Path::new("/bin/example"), &data, "q").unwrap();

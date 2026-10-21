@@ -161,11 +161,7 @@ mod tests {
     fn a_program_that_is_nowhere_is_not_located() {
         let definition = crate::providers::definition::ProviderDefinition::parse(
             r#"
-id = "nowhere"
-name = "Nowhere"
-kind = "subscription_agent"
-adapter = "acp_agent"
-docs = "https://example.com"
+id = "codex"
 [detect]
 executables = ["devpulse-no-such-cli-7c3a"]
 paths = { windows = ["~/devpulse-no-such-7c3a.exe"], macos = ["~/devpulse-no-such-7c3a"], linux = ["~/devpulse-no-such-7c3a"] }

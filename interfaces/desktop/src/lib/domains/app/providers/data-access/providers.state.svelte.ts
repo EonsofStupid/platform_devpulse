@@ -10,7 +10,12 @@
  */
 
 import { signalFabric } from "$lib/sys/events/signal-fabric.js";
-import type { ProviderAction, ProvidersState, Result } from "$lib/sys/generated/bindings.js";
+import type {
+	ProviderAction,
+	ProviderId,
+	ProvidersState,
+	Result,
+} from "$lib/sys/generated/bindings.js";
 import { commands } from "$lib/sys/generated/bindings.js";
 import { logError } from "$lib/sys/logger.js";
 
@@ -58,7 +63,7 @@ class ProvidersStore {
 
 	check = (): Promise<void> => this.run("providersCheck", () => commands.providersCheck());
 
-	act = (providerId: string, action: ProviderAction): Promise<void> =>
+	act = (providerId: ProviderId, action: ProviderAction): Promise<void> =>
 		this.run("providersRunAction", () => commands.providersRunAction(providerId, action));
 }
 

@@ -166,6 +166,12 @@ fn base_url(entry: &ai_providers::AiProvider) -> Result<&'static str, CommandErr
                     entry.display_name
                 )));
             }
+            Transport::AgentCli { .. } => {
+                return Err(CommandError::not_implemented(format!(
+                    "{} is your own subscription, reached through its own program — model listing not applicable",
+                    entry.display_name
+                )));
+            }
         }
     }
     Err(CommandError::not_configured(format!(

@@ -16,8 +16,8 @@ use devpulse_engine::platform::onboarding::{
 };
 use devpulse_engine::platform::projects::{Project, ProjectsState};
 use devpulse_engine::platform::providers::{
-    AdapterKind, ConnectorReport, ProviderAction, ProviderActionRun, ProviderKind, ProviderReport,
-    ProvidersReport, ProvidersState, SignedIn,
+    AdapterKind, ConnectorReport, ProviderAction, ProviderActionRun, ProviderId, ProviderKind,
+    ProviderReport, ProvidersReport, ProvidersState, SignedIn,
 };
 use devpulse_engine::platform::{HardwareMetrics, InitEvent};
 use devpulse_engine::signals::{
@@ -134,7 +134,7 @@ fn sample(kind: SignalKind) -> SignalVariant {
             checking: false,
             report: Some(ProvidersReport {
                 providers: vec![ProviderReport {
-                    id: "codex".into(),
+                    id: ProviderId::Codex,
                     name: "Codex".into(),
                     kind: ProviderKind::SubscriptionAgent,
                     adapter: AdapterKind::AcpAgent,
@@ -164,7 +164,7 @@ fn sample(kind: SignalKind) -> SignalVariant {
             }),
             running: None,
             last_action: Some(ProviderActionRun {
-                provider_id: "codex".into(),
+                provider_id: ProviderId::Codex,
                 action: ProviderAction::Test,
                 ok: true,
                 guided: false,

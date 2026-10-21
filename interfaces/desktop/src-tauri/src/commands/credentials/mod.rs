@@ -361,8 +361,11 @@ mod tests {
 
     #[test]
     fn subscription_path_excluded_from_status_query() {
-        let sub = ai_providers::find(ProviderId::AnthropicSubscription).unwrap();
-        assert!(!provider_takes_api_key(sub));
+        // Subscriptions are reached through the vendor's own program; none
+        // takes an API key here.
+        for sub in ai_providers::by_classification(ai_providers::Classification::SubscriptionPath) {
+            assert!(!provider_takes_api_key(sub), "{:?}", sub.id);
+        }
     }
 
     #[test]

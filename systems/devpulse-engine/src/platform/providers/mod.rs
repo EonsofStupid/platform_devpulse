@@ -20,8 +20,8 @@ use tokio::sync::Mutex;
 // crosses.
 use devpulse_clyffy::providers::{actions, catalog, check, ActionContext};
 pub use devpulse_clyffy::providers::{
-    AdapterKind, ConnectorReport, ProviderAction, ProviderActionRun, ProviderKind, ProviderReport,
-    ProvidersReport, SignedIn,
+    AdapterKind, ConnectorReport, ProviderAction, ProviderActionRun, ProviderId, ProviderKind,
+    ProviderReport, ProvidersReport, SignedIn,
 };
 
 use crate::signals::{Signal, SignalSource, SignalVariant};
@@ -31,7 +31,7 @@ use crate::signals::{Signal, SignalSource, SignalVariant};
 #[serde(rename_all = "camelCase")]
 pub struct ProviderActionRef {
     /// The provider.
-    pub provider_id: String,
+    pub provider_id: ProviderId,
     /// The action.
     pub action: ProviderAction,
 }
@@ -144,7 +144,11 @@ impl Providers {
     ///
     /// # Errors
     /// Returns an error if the provider is unknown or not installed.
-    pub async fn run(&self, provider_id: &str, action: ProviderAction) -> Result<ProvidersState> {
+    pub async fn run(
+        &self,
+        provider_id: ProviderId,
+        action: ProviderAction,
+    ) -> Result<ProvidersState> {
         let _serial = self.serial.lock().await;
         let catalog = catalog::load(&self.data_dir)?;
         let prompt = crate::platform::copy::load(&self.data_dir)?
@@ -153,7 +157,7 @@ impl Providers {
             .your_ai
             .test_prompt;
         let Some(definition) = catalog.definitions.iter().find(|d| d.id == provider_id) else {
-            bail!("{provider_id} is not a provider in the catalog");
+            bail!("{} is not a provider in the catalog", provider_id.key());
         };
         let location = {
             let state = self.state.lock().await;
@@ -164,15 +168,15 @@ impl Providers {
                 .and_then(|p| p.location.clone())
         };
         let Some(location) = location else {
-            bail!("{} is not installed", definition.name);
+            bail!("{} is not installed", definition.name());
         };
 
         self.state.lock().await.running = Some(ProviderActionRef {
-            provider_id: provider_id.to_owned(),
+            provider_id,
             action,
         });
         self.publish().await;
-        tracing::info!(target: "providers", %provider_id, ?action, "action started");
+        tracing::info!(target: "providers", provider_id = provider_id.key(), ?action, "action started");
         let context = ActionContext {
             data_dir: &self.data_dir,
             prompt: &prompt,
@@ -181,7 +185,7 @@ impl Providers {
             actions::run(definition, std::path::Path::new(&location), action, context).await;
         tracing::info!(
             target: "providers",
-            %provider_id,
+            provider_id = provider_id.key(),
             ?action,
             ok = result.ok,
             elapsed_ms = result.elapsed_ms,

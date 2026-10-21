@@ -4,7 +4,7 @@
 //! publishes the `providers` state. No logic here.
 
 use crate::state::PlatformState;
-use devpulse_engine::platform::providers::{ProviderAction, ProvidersState};
+use devpulse_engine::platform::providers::{ProviderAction, ProviderId, ProvidersState};
 use tauri::State;
 
 fn platform(
@@ -41,13 +41,13 @@ pub async fn providers_check(state: State<'_, PlatformState>) -> Result<Provider
 #[specta::specta]
 #[allow(clippy::missing_errors_doc)]
 pub async fn providers_run_action(
-    provider_id: String,
+    provider_id: ProviderId,
     action: ProviderAction,
     state: State<'_, PlatformState>,
 ) -> Result<ProvidersState, String> {
     platform(&state)?
         .providers()
-        .run(&provider_id, action)
+        .run(provider_id, action)
         .await
         .map_err(|e| format!("{e:#}"))
 }

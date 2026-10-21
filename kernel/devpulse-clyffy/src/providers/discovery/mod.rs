@@ -17,6 +17,7 @@ use super::actions::ProviderAction;
 use super::catalog::Catalog;
 use super::connect::connector::{self, ConnectorReport};
 use super::definition::{AdapterKind, ProviderDefinition, ProviderKind};
+use super::types::ProviderId;
 pub use signed_in::SignedIn;
 
 /// One provider, as found.
@@ -24,8 +25,8 @@ pub use signed_in::SignedIn;
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 #[serde(rename_all = "camelCase")]
 pub struct ProviderReport {
-    /// Definition id.
-    pub id: String,
+    /// Registry id.
+    pub id: ProviderId,
     /// Display name.
     pub name: String,
     /// What it is.
@@ -120,11 +121,11 @@ async fn report_one(
         .and_then(|c| c.connector.as_ref());
 
     ProviderReport {
-        id: definition.id.clone(),
-        name: definition.name.clone(),
-        kind: definition.kind,
-        adapter: definition.adapter,
-        docs: definition.docs.clone(),
+        id: definition.id,
+        name: definition.name().to_owned(),
+        kind: definition.kind(),
+        adapter: definition.adapter(),
+        docs: definition.docs().to_owned(),
         note: definition.note.clone(),
         installed: location.is_some(),
         location: location.map(|p| p.display().to_string()),
@@ -141,7 +142,8 @@ async fn report_one(
         .into_iter()
         .filter_map(|(offered, action)| offered.then_some(action))
         .collect(),
-        connector: connector_spec.map(|spec| connector::report(data_dir, &definition.id, spec)),
+        connector: connector_spec
+            .map(|spec| connector::report(data_dir, definition.id.key(), spec)),
         problems,
     }
 }

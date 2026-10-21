@@ -1,6 +1,7 @@
 //! Public type vocabulary for the AI provider registry.
 //!
-//! All enums and structs are `pub`, `#[derive(Serialize, Type)]`, and use
+//! All enums and structs are `pub`, `#[derive(Serialize)]` (plus `specta::Type`
+//! under the `specta` feature), and use
 //! kebab-case JSON tags so the frontend bindings stay stable. No clones,
 //! no Strings — every field is `&'static`-friendly so the registry can
 //! live in const data.
@@ -13,22 +14,39 @@
 //! - `Transport` / `SdkBackend` — drives router + client construction.
 
 use serde::{Deserialize, Serialize};
-use specta::Type;
 
 /// Stable wire identifier for a provider.
 ///
 /// Used in config files, telemetry, devtool URLs, lane router selection.
 /// Renaming a variant is a breaking change — bump the engine major version.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, Type)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 #[serde(rename_all = "kebab-case")]
 pub enum ProviderId {
     /// Anthropic Claude via the official REST API (API key billing).
     AnthropicApi,
-    /// Anthropic Claude via Claude Code / Claude Desktop subprocess MCP.
-    /// Dev-only — release builds hide this and the lane router refuses it
-    /// unless the operator has prior approval from Anthropic per the Agent
-    /// SDK Terms of Service.
-    AnthropicSubscription,
+    /// Claude Code — Anthropic's coding agent on your own subscription.
+    /// Reached only through Claude Code's own program: its headless mode,
+    /// and as the host that spawns `DevPulse`'s MCP server. Never the Agent
+    /// SDK, never a token in `DevPulse` (owner ruling 2026-10-20).
+    ClaudeCode,
+    /// Claude Desktop — Anthropic's desktop app. No programmatic chat;
+    /// `DevPulse` offers it context over MCP.
+    ClaudeDesktop,
+    /// Codex — `OpenAI`'s coding agent on your `ChatGPT` plan, through its
+    /// ACP connector running your own Codex.
+    Codex,
+    /// Gemini CLI — Google's coding agent (native ACP).
+    GeminiCli,
+    /// Cursor CLI — Cursor's coding agent (`agent acp`).
+    Cursor,
+    /// Grok Build — xAI's coding agent (`grok agent stdio`, ACP).
+    GrokBuild,
+    /// Antigravity — Google's agent IDE (desktop app); hosts MCP servers.
+    Antigravity,
+    /// Antigravity CLI (`agy`) — Google's terminal agent on your Google
+    /// subscription.
+    AntigravityCli,
     /// `OpenAI` (api.openai.com).
     OpenAi,
     /// Google Gemini (generativelanguage.googleapis.com).
@@ -59,12 +77,48 @@ pub enum ProviderId {
     Vllm,
 }
 
+impl ProviderId {
+    /// The wire id, as it appears in config files (`claude-code`) — the
+    /// same string serde writes.
+    #[must_use]
+    pub const fn key(self) -> &'static str {
+        match self {
+            Self::AnthropicApi => "anthropic-api",
+            Self::ClaudeCode => "claude-code",
+            Self::ClaudeDesktop => "claude-desktop",
+            Self::Codex => "codex",
+            Self::GeminiCli => "gemini-cli",
+            Self::Cursor => "cursor",
+            Self::GrokBuild => "grok-build",
+            Self::Antigravity => "antigravity",
+            Self::AntigravityCli => "antigravity-cli",
+            Self::OpenAi => "open-ai",
+            Self::GoogleGemini => "google-gemini",
+            Self::Mistral => "mistral",
+            Self::Cohere => "cohere",
+            Self::Xai => "xai",
+            Self::DeepSeek => "deep-seek",
+            Self::Groq => "groq",
+            Self::Together => "together",
+            Self::Fireworks => "fireworks",
+            Self::Replicate => "replicate",
+            Self::HuggingFace => "hugging-face",
+            Self::Ollama => "ollama",
+            Self::LmStudio => "lm-studio",
+            Self::Vllm => "vllm",
+        }
+    }
+}
+
 /// Vendor brand grouping for display + filtering.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, Type)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 #[serde(rename_all = "kebab-case")]
 pub enum Vendor {
     /// Anthropic (Claude).
     Anthropic,
+    /// Cursor (Anysphere).
+    Cursor,
     /// `OpenAI`.
     OpenAi,
     /// Google (Gemini).
@@ -96,7 +150,8 @@ pub enum Vendor {
 }
 
 /// How the operator pays for compute.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, Type)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 #[serde(rename_all = "kebab-case")]
 pub enum BillingModel {
     /// Pay per input/output token at request time.
@@ -110,7 +165,8 @@ pub enum BillingModel {
 }
 
 /// Where the wire calls go.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Type)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 #[serde(rename_all = "kebab-case", tag = "kind")]
 pub enum Transport {
     /// REST with bearer-style API key. `base_url` includes the API version
@@ -140,16 +196,37 @@ pub enum Transport {
         /// Conventional default port for the local server.
         default_port: u16,
     },
+    /// The vendor's own agent program, started by `DevPulse` on your
+    /// machine under your own login (its `connect` data says how).
+    AgentCli {
+        /// How `DevPulse` talks to it.
+        protocol: AgentProtocol,
+    },
+}
+
+/// How `DevPulse` talks to an agent program.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
+#[serde(rename_all = "kebab-case")]
+pub enum AgentProtocol {
+    /// The Agent Client Protocol over stdio.
+    Acp,
+    /// The agent's own headless mode (the question as an argument or on
+    /// stdin, the answer on stdout).
+    Headless,
 }
 
 /// Which subprocess-MCP host owns the spawn lifecycle.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, Type)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 #[serde(rename_all = "kebab-case")]
 pub enum McpClient {
     /// Claude Code CLI (`~/.claude/settings.json`).
     ClaudeCode,
     /// Claude Desktop native app (platform-specific config dir).
     ClaudeDesktop,
+    /// Antigravity's IDE (`~/.gemini/antigravity/mcp_config.json`).
+    Antigravity,
 }
 
 /// What a provider can do. Drives capability filters in the devtool and
@@ -160,7 +237,8 @@ pub enum McpClient {
 /// six-bool count is intentional — six independent capability axes
 /// match the published API surface, not a state machine in disguise,
 /// and the devtool filter UI binds one checkbox per field.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Type)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 #[allow(clippy::struct_excessive_bools)]
 pub struct Capabilities {
     /// Conversational completions (`/v1/chat/completions` or vendor equivalent).
@@ -183,7 +261,8 @@ pub struct Capabilities {
 /// in the registry) by parametrizing `base_url`. Native backends are
 /// hand-rolled `reqwest` because no official Rust SDKs exist for those
 /// vendors as of April 2026.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Type)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 #[serde(rename_all = "kebab-case")]
 pub enum SdkBackend {
     /// `async-openai` crate, base URL parametrized.
@@ -203,10 +282,16 @@ pub enum SdkBackend {
     OllamaNative,
     /// Not directly callable — provider spawns us. Listed for inventory.
     SubprocessMcp,
+    /// The official `agent-client-protocol` crate, talking to the agent
+    /// over stdio.
+    AgentClientProtocol,
+    /// The vendor's own program in its headless mode.
+    VendorHeadless,
 }
 
 /// Devtool tab grouping. A provider can carry several classifications.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, Type)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 #[serde(rename_all = "kebab-case")]
 pub enum Classification {
     /// Speaks the `OpenAI` Chat Completions wire format. Single client,
@@ -216,12 +301,16 @@ pub enum Classification {
     Native,
     /// Runs on the operator's machine (Ollama, LM Studio, vLLM).
     Local,
-    /// Subscription-only path that we don't drive directly.
+    /// Your own subscription, reached through the vendor's own program
+    /// (it owns the login and the billing).
     SubscriptionPath,
+    /// A desktop app: no programmatic chat; `DevPulse` can offer it context.
+    DesktopApp,
 }
 
 /// One row in the SSOT registry.
-#[derive(Debug, Clone, Copy, Serialize, Type)]
+#[derive(Debug, Clone, Copy, Serialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
 pub struct AiProvider {
     /// Stable wire identifier — used in config files, telemetry, devtool URLs.
     pub id: ProviderId,

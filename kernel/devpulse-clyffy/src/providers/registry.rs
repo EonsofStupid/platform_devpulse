@@ -16,8 +16,28 @@
 //! given task type (chat, embedding, vision, voice).
 
 use super::types::{
-    AiProvider, BillingModel, Capabilities, Classification, McpClient, ProviderId, SdkBackend,
-    Transport, Vendor,
+    AgentProtocol, AiProvider, BillingModel, Capabilities, Classification, McpClient, ProviderId,
+    SdkBackend, Transport, Vendor,
+};
+
+/// What a coding agent on your subscription offers through its own program.
+const AGENT_CAPABILITIES: Capabilities = Capabilities {
+    chat: true,
+    embedding: false,
+    tool_use: true,
+    vision: false,
+    voice: false,
+    structured_outputs: false,
+};
+
+/// A desktop app: no programmatic chat; `DevPulse` offers it context.
+const DESKTOP_APP_CAPABILITIES: Capabilities = Capabilities {
+    chat: false,
+    embedding: false,
+    tool_use: false,
+    vision: false,
+    voice: false,
+    structured_outputs: false,
 };
 
 /// Every provider `DevPulse` knows about, in display order.
@@ -26,18 +46,19 @@ use super::types::{
 /// local runtimes last. Keep entries grouped by classification so the
 /// devtool's tabbed view renders coherently when filtered.
 pub const PROVIDERS: &[AiProvider] = &[
-    // ── Subscription path (dev-only) ─────────────────────────────────
+    // ── Subscription path: your own subscriptions, through the vendor's
+    // own program (it owns the login and the billing) ──────────────────
     AiProvider {
-        id: ProviderId::AnthropicSubscription,
-        display_name: "Claude (Subscription via MCP)",
+        id: ProviderId::ClaudeCode,
+        display_name: "Claude Code",
         vendor: Vendor::Anthropic,
         billing: BillingModel::Subscription,
         transports: &[
-            Transport::SubprocessMcp {
-                client: McpClient::ClaudeCode,
+            Transport::AgentCli {
+                protocol: AgentProtocol::Headless,
             },
             Transport::SubprocessMcp {
-                client: McpClient::ClaudeDesktop,
+                client: McpClient::ClaudeCode,
             },
         ],
         capabilities: Capabilities {
@@ -48,10 +69,109 @@ pub const PROVIDERS: &[AiProvider] = &[
             voice: false,
             structured_outputs: true,
         },
-        sdk: SdkBackend::SubprocessMcp,
-        docs_url: "https://code.claude.com/docs/en/mcp",
+        sdk: SdkBackend::VendorHeadless,
+        docs_url: "https://code.claude.com/docs/en/setup",
         classifications: &[Classification::SubscriptionPath],
-        dev_only: true,
+        dev_only: false,
+    },
+    AiProvider {
+        id: ProviderId::Codex,
+        display_name: "Codex",
+        vendor: Vendor::OpenAi,
+        billing: BillingModel::Subscription,
+        transports: &[Transport::AgentCli {
+            protocol: AgentProtocol::Acp,
+        }],
+        capabilities: AGENT_CAPABILITIES,
+        sdk: SdkBackend::AgentClientProtocol,
+        docs_url: "https://github.com/openai/codex",
+        classifications: &[Classification::SubscriptionPath],
+        dev_only: false,
+    },
+    AiProvider {
+        id: ProviderId::GrokBuild,
+        display_name: "Grok Build",
+        vendor: Vendor::Xai,
+        billing: BillingModel::Subscription,
+        transports: &[Transport::AgentCli {
+            protocol: AgentProtocol::Acp,
+        }],
+        capabilities: AGENT_CAPABILITIES,
+        sdk: SdkBackend::AgentClientProtocol,
+        docs_url: "https://docs.x.ai/build/overview",
+        classifications: &[Classification::SubscriptionPath],
+        dev_only: false,
+    },
+    AiProvider {
+        id: ProviderId::AntigravityCli,
+        display_name: "Antigravity CLI",
+        vendor: Vendor::Google,
+        billing: BillingModel::Subscription,
+        transports: &[Transport::AgentCli {
+            protocol: AgentProtocol::Headless,
+        }],
+        capabilities: AGENT_CAPABILITIES,
+        sdk: SdkBackend::VendorHeadless,
+        docs_url: "https://antigravity.google/docs/cli/overview",
+        classifications: &[Classification::SubscriptionPath],
+        dev_only: false,
+    },
+    AiProvider {
+        id: ProviderId::GeminiCli,
+        display_name: "Gemini CLI",
+        vendor: Vendor::Google,
+        billing: BillingModel::Subscription,
+        transports: &[Transport::AgentCli {
+            protocol: AgentProtocol::Acp,
+        }],
+        capabilities: AGENT_CAPABILITIES,
+        sdk: SdkBackend::AgentClientProtocol,
+        docs_url: "https://github.com/google-gemini/gemini-cli",
+        classifications: &[Classification::SubscriptionPath],
+        dev_only: false,
+    },
+    AiProvider {
+        id: ProviderId::Cursor,
+        display_name: "Cursor CLI",
+        vendor: Vendor::Cursor,
+        billing: BillingModel::Subscription,
+        transports: &[Transport::AgentCli {
+            protocol: AgentProtocol::Acp,
+        }],
+        capabilities: AGENT_CAPABILITIES,
+        sdk: SdkBackend::AgentClientProtocol,
+        docs_url: "https://cursor.com/docs/cli/overview",
+        classifications: &[Classification::SubscriptionPath],
+        dev_only: false,
+    },
+    // ── Desktop apps: no programmatic chat; they host DevPulse's MCP ──
+    AiProvider {
+        id: ProviderId::ClaudeDesktop,
+        display_name: "Claude Desktop",
+        vendor: Vendor::Anthropic,
+        billing: BillingModel::Subscription,
+        transports: &[Transport::SubprocessMcp {
+            client: McpClient::ClaudeDesktop,
+        }],
+        capabilities: DESKTOP_APP_CAPABILITIES,
+        sdk: SdkBackend::SubprocessMcp,
+        docs_url: "https://claude.ai/download",
+        classifications: &[Classification::DesktopApp],
+        dev_only: false,
+    },
+    AiProvider {
+        id: ProviderId::Antigravity,
+        display_name: "Antigravity",
+        vendor: Vendor::Google,
+        billing: BillingModel::Subscription,
+        transports: &[Transport::SubprocessMcp {
+            client: McpClient::Antigravity,
+        }],
+        capabilities: DESKTOP_APP_CAPABILITIES,
+        sdk: SdkBackend::SubprocessMcp,
+        docs_url: "https://antigravity.google",
+        classifications: &[Classification::DesktopApp],
+        dev_only: false,
     },
     // ── Native API clients (hand-rolled, vendor-specific protocols) ──
     AiProvider {
@@ -397,19 +517,19 @@ pub fn by_capability(
     PROVIDERS.iter().filter(move |p| filter(&p.capabilities))
 }
 
-/// All entries visible in the current build.
-///
-/// Release builds (no `kernel` feature) hide every `dev_only = true`
-/// provider — primarily the subscription-as-MCP path which requires
-/// vendor prior approval per the Agent SDK terms of service.
-pub fn visible() -> impl Iterator<Item = &'static AiProvider> {
+/// The entries a build shows. A release build passes `false` and hides
+/// every `dev_only = true` provider; the engine decides (its `kernel`
+/// feature marks a dev build).
+pub fn visible(include_dev_only: bool) -> impl Iterator<Item = &'static AiProvider> {
     PROVIDERS
         .iter()
-        .filter(|p| !p.dev_only || cfg!(feature = "kernel"))
+        .filter(move |p| !p.dev_only || include_dev_only)
 }
 
 #[cfg(test)]
 mod tests {
+    #![allow(clippy::expect_used, clippy::unwrap_used, reason = "test assertions")]
+
     use super::*;
 
     #[test]
@@ -461,18 +581,62 @@ mod tests {
     }
 
     #[test]
-    fn subscription_path_is_dev_only() {
-        let p = find(ProviderId::AnthropicSubscription).unwrap();
-        assert!(p.dev_only, "subscription path must be dev_only");
+    fn subscriptions_are_reached_only_through_the_vendors_own_program() {
+        // A subscription never takes an API key in DevPulse: the vendor's
+        // program owns the login (owner rulings 2026-10-20).
+        for p in by_classification(Classification::SubscriptionPath) {
+            assert_eq!(p.billing, BillingModel::Subscription, "{:?}", p.id);
+            assert!(
+                p.transports.iter().all(|t| matches!(
+                    t,
+                    Transport::AgentCli { .. } | Transport::SubprocessMcp { .. }
+                )),
+                "{:?} has a transport that is not the vendor's own program",
+                p.id
+            );
+        }
+        let claude = find(ProviderId::ClaudeCode).unwrap();
+        assert!(claude.transports.contains(&Transport::AgentCli {
+            protocol: AgentProtocol::Headless
+        }));
     }
 
     #[test]
     fn capability_filter_finds_chat_providers() {
+        // Desktop apps have no programmatic chat; everything else does.
         let chat_count = by_capability(|c| c.chat).count();
+        let desktop_apps = by_classification(Classification::DesktopApp).count();
         assert_eq!(
             chat_count,
-            PROVIDERS.len(),
-            "every registered provider should advertise chat"
+            PROVIDERS.len() - desktop_apps,
+            "every provider but a desktop app should advertise chat"
         );
+    }
+
+    #[test]
+    fn every_key_is_the_wire_id_serde_writes() {
+        for p in PROVIDERS {
+            assert_eq!(
+                serde_json::to_string(&p.id).unwrap(),
+                format!("\"{}\"", p.id.key()),
+                "{:?}",
+                p.id
+            );
+        }
+    }
+
+    #[test]
+    fn every_docs_link_is_https() {
+        for p in PROVIDERS {
+            assert!(p.docs_url.starts_with("https://"), "{:?}", p.id);
+        }
+    }
+
+    #[test]
+    fn a_release_build_hides_dev_only_rows() {
+        let all = visible(true).count();
+        let release = visible(false).count();
+        let dev_only = PROVIDERS.iter().filter(|p| p.dev_only).count();
+        assert_eq!(all - release, dev_only);
     }
 }
