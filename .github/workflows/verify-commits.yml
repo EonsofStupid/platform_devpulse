@@ -45,6 +45,8 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          # Older commits in the range still compile their vendored
+          # submodules; from plan 0007 stage 1 on, nothing needs them.
           submodules: recursive
 
       - uses: pnpm/action-setup@v4

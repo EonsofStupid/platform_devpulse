@@ -26,7 +26,7 @@ pub mod model_loader;
 #[cfg(feature = "inference")]
 pub use model_loader::ModelDownloadScope;
 pub mod candle_config;
-pub mod llama_cpp_embedded_config;
+pub mod llama_server_config;
 #[cfg(feature = "inference")]
 pub mod model_loader_log;
 pub mod routing_config;

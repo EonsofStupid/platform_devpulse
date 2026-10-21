@@ -1,9 +1,9 @@
-//! Inference backends — Candle, llama.cpp, mistral.rs, ONNX Runtime, and Orpheus TTS.
+//! Inference backends — Candle, mistral.rs, ONNX Runtime, and Orpheus TTS in
+//! process; GGUF goes to llama.cpp's own server (the router decides).
 
 pub mod bridge;
 pub mod burn_adapter;
 pub mod candle;
-pub mod llamacpp;
 pub mod mistralrs;
 pub mod orpheus;
 pub mod ort;

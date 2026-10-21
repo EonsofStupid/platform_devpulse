@@ -1089,7 +1089,6 @@ impl BuildConfig {
         self.activate_msvc_env();
         self.select_generator(workspace_root);
         Self::purge_stale_cmake_dirs(workspace_root);
-        Self::export_prebuilt_llama_cpp(workspace_root);
     }
 
     /// Resolve a `[build.deps.*].path` to a real file.
@@ -1107,70 +1106,6 @@ impl BuildConfig {
         which::which(tool).ok()
     }
 
-    /// Auto-export `LLAMA_CPP_PREBUILT_LIB_DIR` when the matching prebuilt
-    /// has been fetched into `deps/llama-cpp-prebuilt/<target>/`.
-    ///
-    /// Target is derived from the detected build features + host OS:
-    ///
-    /// | feature       | target id           |
-    /// |---------------|---------------------|
-    /// | `gpu-nvidia`  | `win32-x64-cuda`    |
-    /// | `gpu-vulkan`  | `win32-x64-vulkan`  |
-    /// | (none)        | `win32-x64-cpu`     |
-    ///
-    /// When the target subdir exists and contains `lib/llama.lib`, the
-    /// env var is exported and the vendored `llama-cpp-sys-2`'s build.rs
-    /// fast-path activates — skipping the in-tree cmake build of llama.cpp
-    /// entirely. Otherwise we log a warning + the fix-it command and fall
-    /// through (the in-tree cmake build runs; on Windows with Vulkan that
-    /// usually fails `MAX_PATH`, so the operator must fetch).
-    ///
-    /// Linux and macOS dev boxes don't hit `MAX_PATH` and don't need the
-    /// prebuilt path — they fall through silently when no prebuilt is
-    /// staged.
-    fn export_prebuilt_llama_cpp(workspace_root: &Path) {
-        if !cfg!(windows) {
-            return;
-        }
-
-        // Honor an operator-set value — never override a deliberate choice.
-        if std::env::var_os("LLAMA_CPP_PREBUILT_LIB_DIR").is_some() {
-            println!(
-                "  [env] LLAMA_CPP_PREBUILT_LIB_DIR already exported by operator; \
-                 skipping auto-detection"
-            );
-            return;
-        }
-
-        let features = Self::detect_build_features().unwrap_or_default();
-        let target_id = if features.split(',').any(|f| f == "gpu-nvidia") {
-            "win32-x64-cuda"
-        } else if features.split(',').any(|f| f == "gpu-vulkan") {
-            "win32-x64-vulkan"
-        } else {
-            "win32-x64-cpu"
-        };
-
-        let prebuilt_dir = workspace_root
-            .join("deps")
-            .join("llama-cpp-prebuilt")
-            .join(target_id);
-        let validity = prebuilt_dir.join("lib").join("llama.lib");
-
-        if !validity.is_file() {
-            println!(
-                "  [warn] llama-cpp prebuilt not fetched for target `{target_id}` — \
-                 falling back to in-tree cmake build."
-            );
-            println!("  [hint] cargo xtask fetch-llama-cpp --target {target_id}");
-            return;
-        }
-
-        let abs = prebuilt_dir.to_string_lossy().into_owned();
-        std::env::set_var("LLAMA_CPP_PREBUILT_LIB_DIR", &abs);
-        println!("  [env] LLAMA_CPP_PREBUILT_LIB_DIR = {abs} (target = {target_id})");
-    }
-
     /// Detect installed acceleration SDKs and return the cargo `--features`
     /// string that activates the buildable subset. Returns `None` when no
     /// SDK is installed — caller builds with default features (pure CPU,
@@ -1178,20 +1113,17 @@ impl BuildConfig {
     ///
     /// Detection composes GPU + CPU features into one comma-joined list:
     ///   - CUDA Toolkit + NVIDIA GPU → `gpu-nvidia`
-    ///   - else Vulkan SDK installed → `gpu-vulkan`
     ///   - Intel MKL (MKLROOT or default install) → `cpu-mkl` (additive)
     ///
-    /// CUDA is preferred over Vulkan on NVIDIA (runs ~20-30% faster for
-    /// llama.cpp). MKL composes with either GPU pick — GPU handles the
-    /// heavy nets, MKL handles the remaining CPU BLAS/LAPACK.
+    /// No Vulkan or llama.cpp build: GGUF chat runs in llama-server, a
+    /// separate process (plan 0007). MKL composes with the GPU pick — GPU
+    /// handles the heavy nets, MKL the remaining CPU BLAS/LAPACK.
     pub fn detect_build_features() -> Option<String> {
         let mut features: Vec<&'static str> = Vec::new();
 
         let cuda_active = detect_and_export_cuda();
         if cuda_active {
             features.push("gpu-nvidia");
-        } else if detect_and_export_vulkan() {
-            features.push("gpu-vulkan");
         }
 
         if detect_and_export_mkl() {
@@ -1242,52 +1174,6 @@ fn detect_and_export_cuda() -> bool {
         }
     }
     cuda_active
-}
-
-/// Vulkan SDK auto-detection: prefer `VULKAN_SDK` if it points at a valid
-/// install; otherwise pick the highest versioned subdir of the default
-/// `C:/VulkanSDK/` root. Returns `true` and re-exports `VULKAN_SDK` when
-/// a usable install is found (llama-cpp-sys-2's build.rs reads it).
-fn detect_and_export_vulkan() -> bool {
-    let vulkan_sdk = std::env::var("VULKAN_SDK")
-        .ok()
-        .filter(|p| {
-            std::path::Path::new(p)
-                .join("Include")
-                .join("vulkan")
-                .join("vulkan.h")
-                .is_file()
-        })
-        .or_else(|| {
-            let candidates = ["C:/VulkanSDK", "C:/Program Files/VulkanSDK"];
-            for root in candidates {
-                let root_path = std::path::Path::new(root);
-                if !root_path.is_dir() {
-                    continue;
-                }
-                if let Ok(entries) = std::fs::read_dir(root_path) {
-                    if let Some(latest) = entries
-                        .filter_map(Result::ok)
-                        .map(|e| e.path())
-                        .filter(|p| {
-                            p.is_dir()
-                                && p.join("Include").join("vulkan").join("vulkan.h").is_file()
-                        })
-                        .max()
-                    {
-                        return Some(latest.to_string_lossy().to_string());
-                    }
-                }
-            }
-            None
-        });
-    if let Some(ref path) = vulkan_sdk {
-        std::env::set_var("VULKAN_SDK", path);
-        println!("  [env] VULKAN_SDK = {path} (auto-export for child build scripts)");
-        true
-    } else {
-        false
-    }
 }
 
 /// Intel MKL auto-detection: prefer `MKLROOT` if valid; otherwise pick the
@@ -1384,8 +1270,8 @@ impl BuildConfig {
             Some(feats) => println!("  [accel] auto-detected features = {feats}"),
             None => println!(
                 "  [accel] no SDK detected — bare CPU build. \
-                 Install Vulkan SDK (cross-vendor GPU), CUDA Toolkit 12.x \
-                 (NVIDIA peak), and/or Intel oneAPI MKL (CPU BLAS) to enable."
+                 Install CUDA Toolkit 12.x (NVIDIA) and/or Intel oneAPI MKL \
+                 (CPU BLAS) to enable."
             ),
         }
     }
@@ -2187,8 +2073,7 @@ fn build_toolchain_file_contents(cl_path: &str, ninja_path: &str) -> String {
         "# Auto-generated by xtask. Do not edit by hand.\n\
          # Pins the MSVC toolchain for every cmake invocation that\n\
          # inherits CMAKE_TOOLCHAIN_FILE — including ExternalProject_Add\n\
-         # sub-projects (ggml-vulkan's vulkan-shaders-gen, etc.) that\n\
-         # don't forward the outer cmake's `-D` args.\n\
+         # sub-projects that don't forward the outer cmake's `-D` args.\n\
          set(CMAKE_C_COMPILER \"{cl}\" CACHE FILEPATH \"\")\n\
          set(CMAKE_CXX_COMPILER \"{cl}\" CACHE FILEPATH \"\")\n\
          set(CMAKE_MAKE_PROGRAM \"{ninja}\" CACHE FILEPATH \"\")\n\
@@ -2198,22 +2083,7 @@ fn build_toolchain_file_contents(cl_path: &str, ninja_path: &str) -> String {
          # builds and cmake try_compile probes don't need a manifest.\n\
          set(CMAKE_EXE_LINKER_FLAGS_INIT \"/MANIFEST:NO\")\n\
          set(CMAKE_SHARED_LINKER_FLAGS_INIT \"/MANIFEST:NO\")\n\
-         set(CMAKE_MODULE_LINKER_FLAGS_INIT \"/MANIFEST:NO\")\n\
-         # Disable cpp-httplib's OpenSSL support. llama.cpp's vendored\n\
-         # cpp-httplib (httplib.cpp:12574) declares `X509_NAME *name =\n\
-         # X509_get_subject_name(cert)` which fails to compile against\n\
-         # modern Windows SDK / OpenSSL headers that return\n\
-         # `const X509_NAME *` (verified 2026-05-12 on Windows SDK\n\
-         # 10.0.26100.0 + VS 2022 BuildTools). The default `LLAMA_OPENSSL\n\
-         # = ON` is meant for the llama.cpp server binary, which we\n\
-         # disable via `LLAMA_BUILD_SERVER=OFF`. Without SSL, cpp-httplib\n\
-         # still compiles cleanly — just without the HTTPS code path —\n\
-         # and llama-cpp-sys-2's static-lib output doesn't reference any\n\
-         # SSL symbol. Setting FORCE because llama.cpp's CMakeLists\n\
-         # already declares this as `option(... ON)`.\n\
-         set(LLAMA_OPENSSL OFF CACHE BOOL \"Disabled by xtask — see workspace.rs\" FORCE)\n\
-         set(LLAMA_BUILD_BORINGSSL OFF CACHE BOOL \"\" FORCE)\n\
-         set(LLAMA_BUILD_LIBRESSL OFF CACHE BOOL \"\" FORCE)\n",
+         set(CMAKE_MODULE_LINKER_FLAGS_INIT \"/MANIFEST:NO\")\n",
     )
 }
 

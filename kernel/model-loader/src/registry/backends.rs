@@ -62,10 +62,10 @@ pub enum BackendId {
     SherpaOnnxStt,
     /// Sherpa-onnx keyword spotter — wake word detection for STS.
     SherpaOnnxKws,
-    /// llama.cpp FFI — GGUF inference via the llama-cpp-2 crate. Carries
-    /// archs Candle's arch-native loaders don't cover (Phi-4 vision /
-    /// phi4-siglip with mmproj projection, future fine-tune families).
-    LlamaCppFfi,
+    /// llama.cpp's own `llama-server`, a separate process: every GGUF
+    /// architecture llama.cpp loads (`router::llamacpp_supports_architecture`).
+    /// Vision GGUFs through `--mmproj` are plan 0007 phase 2.
+    LlamaServer,
 }
 
 /// Metadata for a single backend row. Field-level `pub` so specta can
@@ -259,11 +259,10 @@ const MISTRALRS_PHI4MM_SUPPORT: &[FormatSupport] = &[FormatSupport {
 }];
 const SHERPA_STT_SUPPORT: &[FormatSupport] = &[];
 const SHERPA_KWS_SUPPORT: &[FormatSupport] = &[];
-const LLAMA_CPP_FFI_SUPPORT: &[FormatSupport] = &[FormatSupport {
-    arch: ArchId::Phi4Vision,
-    format: ModelFormat::Gguf,
-    status: SupportStatus::Stable,
-}];
+// llama-server declares no per-arch rows: GGUF goes to it by the router's
+// own rule, and vision GGUF (`--mmproj`) is not wired yet, so
+// Phi-4 vision in GGUF resolves as "not wired" rather than claiming support.
+const LLAMA_SERVER_SUPPORT: &[FormatSupport] = &[];
 
 /// Candle backend rows — one entry per registered Candle loader.
 fn candle_backends(installed: bool) -> Vec<BackendInfo> {
@@ -375,12 +374,8 @@ fn ort_backends(installed: bool) -> Vec<BackendInfo> {
     ]
 }
 
-/// Auxiliary backend rows — mistral.rs, Sherpa-onnx, llama.cpp FFI.
-fn aux_backends(
-    mistralrs_installed: bool,
-    sherpa_installed: bool,
-    ffi_installed: bool,
-) -> Vec<BackendInfo> {
+/// Auxiliary backend rows — mistral.rs, Sherpa-onnx, llama-server.
+fn aux_backends(mistralrs_installed: bool, sherpa_installed: bool) -> Vec<BackendInfo> {
     vec![
         BackendInfo {
             id: BackendId::MistralRsPhi4Mm,
@@ -404,11 +399,12 @@ fn aux_backends(
             supports: SHERPA_KWS_SUPPORT,
         },
         BackendInfo {
-            id: BackendId::LlamaCppFfi,
-            display: "llama.cpp · FFI GGUF",
-            feature_flag: "llama-cpp-ffi",
-            installed: ffi_installed,
-            supports: LLAMA_CPP_FFI_SUPPORT,
+            id: BackendId::LlamaServer,
+            display: "llama.cpp · server (GGUF, separate process)",
+            // Not a Cargo feature: every build routes GGUF to the server.
+            feature_flag: "",
+            installed: true,
+            supports: LLAMA_SERVER_SUPPORT,
         },
     ]
 }
@@ -416,7 +412,7 @@ fn aux_backends(
 /// Return the installed backend matrix for this build. Installation
 /// state is derived from Cargo features evaluated at compile time.
 ///
-/// Sherpa + FFI + mistral.rs backends have their own feature flags;
+/// Sherpa + mistral.rs backends have their own feature flags;
 /// they're declared in the matrix even when their feature is off so
 /// the frontend can surface them as "available after enabling".
 #[must_use]
@@ -426,7 +422,6 @@ pub fn installed_backends() -> BackendMatrix {
     backends.extend(aux_backends(
         cfg!(feature = "mistralrs-backend"),
         cfg!(feature = "sherpa-backend"),
-        cfg!(feature = "llama-cpp-ffi"),
     ));
 
     BackendMatrix {

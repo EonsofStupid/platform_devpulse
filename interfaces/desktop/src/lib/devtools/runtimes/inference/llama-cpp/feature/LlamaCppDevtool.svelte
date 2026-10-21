@@ -2,10 +2,11 @@
 	@file LlamaCppDevtool.svelte
 	@module @devpulse/devtools/runtimes/inference/llama-cpp
 
-	Library backend — lifecycle is owned by the backend pool. This
-	devtool surfaces user-scope runtime config (context_size, gpu_layers,
-	kv_dtype, n_batch) + a live scoped log tail. Model assignment lives
-	on the Model Loader window.
+	GGUF models run in llama-server, llama.cpp's own server, started as a
+	separate process when a GGUF slot loads (plan 0007). This devtool
+	surfaces your llama-server settings (context_size, gpu_layers, kv_dtype,
+	n_batch — the server's -c, -ngl, --cache-type-k/-v and -b) + a live
+	scoped log tail. Model assignment lives on the Model Loader window.
 -->
 <script lang="ts">
 import { Badge } from "@devpulse/coldlight/components/badge";
@@ -17,19 +18,17 @@ import { onMount } from "svelte";
 import { type CapturePayload, type HealthBadge, ServiceDevtoolShell } from "$lib/devtools/index.js";
 import type {
 	BackendMatrix,
-	LlamaCppBuildInfo,
-	LlamaCppEmbeddedConfig,
+	LlamaServerConfig,
 	ModelInfo,
 	ScopedLogEntry,
 	SlotInfo,
 	VramBudgetInfo,
 } from "$lib/sys/generated/bindings.js";
 import { commands } from "$lib/sys/generated/bindings.js";
-import EngineFoundationCard from "./EngineFoundationCard.svelte";
 
 // ── Config ───────────────────────────────────────────────
-let cfg = $state<LlamaCppEmbeddedConfig | null>(null);
-let cfgDraft = $state<LlamaCppEmbeddedConfig>({
+let cfg = $state<LlamaServerConfig | null>(null);
+let cfgDraft = $state<LlamaServerConfig>({
 	context_size: 4096,
 	gpu_layers: 4294967295,
 	kv_dtype: "f16",
@@ -79,12 +78,6 @@ let testLatencyMs = $state<number | null>(null);
 let testRunning = $state(false);
 let testError = $state<string | null>(null);
 
-// ── Prebuilt foundation (LLAMA_CPP_PREBUILT_LIB_DIR pipeline) ─
-let buildInfo = $state<LlamaCppBuildInfo | null>(null);
-let buildInfoLoading = $state(false);
-let buildInfoError = $state<string | null>(null);
-let openingDir = $state<string | null>(null);
-
 // ── Logs ─────────────────────────────────────────────────
 let logEntries = $state<ScopedLogEntry[]>([]);
 let logsLoading = $state(false);
@@ -94,7 +87,7 @@ async function loadCfg(): Promise<void> {
 	cfgLoading = true;
 	cfgError = null;
 	try {
-		const r = await commands.llamaCppEmbeddedLoadConfig();
+		const r = await commands.llamaServerLoadConfig();
 		if (r.status === "error") throw new Error(r.error);
 		cfg = r.data;
 		cfgDraft = { ...r.data };
@@ -109,7 +102,7 @@ async function saveCfg(): Promise<void> {
 	cfgSaving = true;
 	cfgError = null;
 	try {
-		const r = await commands.llamaCppEmbeddedSaveConfig(cfgDraft);
+		const r = await commands.llamaServerSaveConfig(cfgDraft);
 		if (r.status === "error") throw new Error(r.error);
 		cfg = r.data;
 		cfgDraft = { ...r.data };
@@ -122,32 +115,6 @@ async function saveCfg(): Promise<void> {
 
 function resetCfg(): void {
 	if (cfg) cfgDraft = { ...cfg };
-}
-
-async function loadBuildInfo(): Promise<void> {
-	buildInfoLoading = true;
-	buildInfoError = null;
-	try {
-		const r = await commands.llamaCppBuildInfo();
-		if (r.status === "error") throw new Error(r.error);
-		buildInfo = r.data;
-	} catch (e) {
-		buildInfoError = e instanceof Error ? e.message : String(e);
-	} finally {
-		buildInfoLoading = false;
-	}
-}
-
-async function openPrebuiltDir(target: string): Promise<void> {
-	openingDir = target;
-	try {
-		const r = await commands.llamaCppOpenPrebuiltDir(target);
-		if (r.status === "error") throw new Error(r.error);
-	} catch (e) {
-		buildInfoError = e instanceof Error ? e.message : String(e);
-	} finally {
-		openingDir = null;
-	}
 }
 
 async function loadLogs(): Promise<void> {
@@ -250,7 +217,6 @@ function captureFor(tabId: string): CapturePayload | undefined {
 	}
 	if (tabId === "debug") {
 		const snapshot = {
-			buildInfo,
 			cfg,
 			slots,
 			models,
@@ -273,7 +239,6 @@ function captureFor(tabId: string): CapturePayload | undefined {
 
 // Mount-load — see ollama/+page.svelte:24 for the rationale.
 onMount(() => {
-	void loadBuildInfo();
 	void loadCfg();
 	void refreshSlots();
 });
@@ -284,7 +249,7 @@ function gpuLayersText(v: number): string {
 
 const badge = $derived<HealthBadge>(
 	llamaCppSlots.length === 0
-		? { state: "stopped", label: "Library backend — no GGUF slots assigned" }
+		? { state: "stopped", label: "No GGUF slots assigned" }
 		: {
 				state: "up",
 				label: `${llamaCppSlots.length} GGUF slot${llamaCppSlots.length === 1 ? "" : "s"} assigned`,
@@ -298,30 +263,11 @@ const badge = $derived<HealthBadge>(
 >
 	{#snippet status()}
 		<div class="space-y-4">
-			{#if buildInfoLoading && !buildInfo}
-				<Text size="sm" color="muted">Reading inference engine state…</Text>
-			{/if}
-			{#if buildInfoError}
-				<div class="error-panel">
-					<Text size="xs" weight="semibold" class="error-title">
-						Could not read engine state
-					</Text>
-					<Text size="xs" color="muted">{buildInfoError}</Text>
-				</div>
-			{/if}
-			{#if buildInfo}
-				<EngineFoundationCard
-					{buildInfo}
-					onOpenLocation={openPrebuiltDir}
-					openingTarget={openingDir}
-				/>
-			{/if}
-
 			<Text size="sm" color="muted">
-				The inference engine is woven into DevPulse — there's no separate process
-				to start or stop. When a slot is given a GGUF model, the engine loads it
-				in-place using the settings under Config. Use the Model Loader window to
-				pick which model goes where.
+				GGUF models run in llama-server, llama.cpp's own server, as a separate
+				process. Loading a slot that has a GGUF model starts it, with your
+				settings under Config once you have saved them. Use the Model Loader
+				window to pick which model goes where.
 			</Text>
 
 			<div class="flex items-center justify-between">
@@ -370,7 +316,7 @@ const badge = $derived<HealthBadge>(
 	{#snippet config()}
 		<div class="space-y-4">
 			{#if cfgLoading && !cfg}
-				<Text size="sm" color="muted">Loading llama.cpp config…</Text>
+				<Text size="sm" color="muted">Loading llama-server settings…</Text>
 			{/if}
 
 			{#if cfgError}
@@ -466,8 +412,8 @@ const badge = $derived<HealthBadge>(
 
 					<Text size="xs" color="muted">
 						Persisted in
-						<span class="font-mono text-[10px]">user/llama_cpp_embedded.toml</span>.
-						Applied at next slot-load.
+						<span class="font-mono text-[10px]">user/llama_server.toml</span>.
+						Applied the next time a GGUF slot is loaded (that restarts the server).
 					</Text>
 				</div>
 			{/if}
@@ -531,9 +477,9 @@ const badge = $derived<HealthBadge>(
 			<div class="space-y-2">
 				<Text size="sm" weight="bold">Restart backend pool</Text>
 				<Text size="xs" color="muted">
-					Unloads every loaded slot in the shared backend pool — Candle,
-					llama.cpp-embedded, ORT voice. Use this after editing config to
-					force a fresh load of currently loaded slots.
+					Unloads every loaded slot in the shared in-process backend pool —
+					Candle and ORT voice. llama-server is a separate process: it picks
+					up new settings when its GGUF slot is loaded again.
 				</Text>
 				<div class="flex items-center gap-2">
 					<Button
@@ -655,7 +601,7 @@ const badge = $derived<HealthBadge>(
 				</div>
 
 				<div class="space-y-1">
-					<Text size="xs" color="muted" weight="bold">Current llama.cpp config</Text>
+					<Text size="xs" color="muted" weight="bold">Current llama-server settings</Text>
 					<pre
 						class="text-[10px] font-mono p-2 rounded overflow-x-auto max-h-32"
 						style="background: var(--surface-base); border: 1px solid var(--border-subtle); color: var(--text-primary);">{cfg
@@ -735,18 +681,3 @@ const badge = $derived<HealthBadge>(
 	{/snippet}
 
 </ServiceDevtoolShell>
-
-<style>
-	.error-panel {
-		display: flex;
-		flex-direction: column;
-		gap: 0.25rem;
-		padding: clamp(0.625rem, 1vw, 0.875rem);
-		border-radius: 0.5rem;
-		background: color-mix(in oklch, var(--signal-error) 10%, transparent);
-		border: 1px solid color-mix(in oklch, var(--signal-error) 30%, transparent);
-	}
-	:global(.error-title) {
-		color: var(--signal-error);
-	}
-</style>

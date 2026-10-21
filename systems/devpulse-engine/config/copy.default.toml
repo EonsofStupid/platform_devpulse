@@ -454,9 +454,9 @@ description = "In-process model runtime · GGUF + SafeTensors"
 term = "Candle"
 
 [nav."/devtools/runtimes/inference/llama-cpp"]
-label = "llama.cpp (embedded)"
-blurb = "In-process GGUF runtime. Light path — CPU-friendly."
-description = "In-process GGUF runtime via llama-cpp-2"
+label = "llama.cpp (server)"
+blurb = "GGUF models, served by llama.cpp's own server as a separate process."
+description = "GGUF models served by llama-server, a supervised subprocess"
 term = "llama.cpp"
 
 [nav."/devtools/runtimes/inference/ollama"]

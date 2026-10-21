@@ -12,7 +12,7 @@
 //!   7. `CpuOnly` — Static Qwen3-VL-4B, CPU everywhere
 //!
 //! Backend routing by file format:
-//!   .gguf → llama.cpp FFI
+//!   .gguf → llama-server (llama.cpp's own server, a separate process)
 //!   .safetensors → Candle (Qwen3-TTS via `qwen3-tts` crate; mistral.rs for multimodal LMs)
 //!   .onnx → ORT (sherpa-rs for STT, kokoro for legacy TTS)
 //!   .bin (GGML) → sherpa-rs

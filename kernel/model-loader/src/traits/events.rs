@@ -25,7 +25,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 pub struct RuntimeFingerprint {
-    /// Stable runtime handle — `"candle"`, `"llama-cpp-2"`, `"ort"`,
+    /// Stable runtime handle — `"candle"`, `"llama-server"`, `"ort"`,
     /// `"sherpa-onnx-asr"`, `"qwen3-tts-candle"`, `"ollama-external"`,
     /// `"mistralrs"`, `"siglip2-onnx-fixres"`, … Matches the
     /// `runtimeId` a desktop devtool folder declares in `_devtool`.

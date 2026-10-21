@@ -1,7 +1,7 @@
 //! KV-cache and context controls for slot configuration.
 //!
-//! Strongly-typed knobs that backend adapters (llama.cpp FFI, mistral.rs,
-//! moshi) read at slot load time and apply to their context construction.
+//! Strongly-typed knobs that backend adapters (llama-server, mistral.rs)
+//! read at slot load time and apply to their context construction.
 //! Each backend honours the fields it can support and ignores the rest
 //! with a `tracing::debug!` log so misconfigurations are visible without
 //! crashing the load.

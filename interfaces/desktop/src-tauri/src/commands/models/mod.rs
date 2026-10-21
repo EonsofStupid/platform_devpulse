@@ -543,7 +543,11 @@ pub async fn load_slot(
 
     if use_sidecar {
         tracing::info!(slot = %slot_id, "cmd load_slot: routing to llama-server sidecar");
-        let result = load_via_sidecar(app.clone(), &loader, llama_state, &slot_id).await;
+        let settings = state
+            .platform
+            .load_full()
+            .and_then(|p| p.llama_server_config_saved());
+        let result = load_via_sidecar(app.clone(), &loader, llama_state, &slot_id, settings).await;
         if result.is_ok() {
             loader.publish_readiness().await;
         }
@@ -606,6 +610,7 @@ async fn load_via_sidecar(
     loader: &ModelLoaderService,
     llama_state: State<'_, crate::commands::llama::LlamaServerState>,
     slot_id: &str,
+    settings: Option<devpulse_engine::platform::LlamaServerConfig>,
 ) -> Result<(), devpulse_engine::platform::LoadError> {
     let slots = loader.list_slots().await;
     let slot = slots.iter().find(|s| s.id == slot_id).ok_or_else(|| {
@@ -630,35 +635,43 @@ async fn load_via_sidecar(
 
     let model_path = entry.path.to_string_lossy().to_string();
 
-    // Read GPU layers from slot extensions or assistant config
-    let gpu_layers = slot
+    // A slot's own GPU-layer count wins over your settings.
+    let slot_gpu_layers = slot
         .extensions
         .get("llama_cpp_ngl")
-        .and_then(|s| s.parse::<i32>().ok())
-        .unwrap_or(999); // default: all layers on GPU
+        .and_then(|s| s.parse::<i32>().ok());
 
-    let ctx_size = entry.context_length as u32;
-    let ctx_size = if ctx_size == 0 { 8192 } else { ctx_size };
+    // Your saved llama-server settings, else the defaults: every layer on
+    // the GPU and the model's own context length.
+    let mut flags = settings.map_or_else(
+        || {
+            let ctx_size = u32::try_from(entry.context_length).unwrap_or(0);
+            let ctx_size = if ctx_size == 0 { 8192 } else { ctx_size };
+            vec![
+                "-ngl".to_owned(),
+                "999".to_owned(),
+                "-c".to_owned(),
+                ctx_size.to_string(),
+            ]
+        },
+        |cfg| cfg.server_args(),
+    );
+    if let Some(layers) = slot_gpu_layers {
+        if let Some(i) = flags.iter().position(|f| f == "-ngl") {
+            if let Some(value) = flags.get_mut(i + 1) {
+                *value = layers.to_string();
+            }
+        }
+    }
 
     tracing::info!(
         slot = %slot_id,
         model = %model_path,
-        gpu_layers,
-        ctx_size,
+        flags = %flags.join(" "),
         "Starting llama-server sidecar for slot"
     );
 
-    // Start the sidecar — this calls the same function as the manual command
-    match crate::commands::llama::start_llama_server(
-        app,
-        llama_state,
-        model_path,
-        Some(8899),
-        Some(gpu_layers),
-        Some(ctx_size),
-    )
-    .await
-    {
+    match crate::commands::llama::start_server(app, llama_state, model_path, 8899, flags).await {
         Ok(info) => {
             tracing::info!(
                 slot = %slot_id,

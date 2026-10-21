@@ -939,7 +939,7 @@ fn synthesize_missing_llama_fields(
 /// metadata-rewrite llama fallback) only handle decoder-style
 /// llama-compatible tensor layouts. Vision encoders, embedders, and
 /// newer multimodal archs whose tensor names diverge must route to
-/// a different backend (llama.cpp FFI is the usual fallback).
+/// a different backend (llama-server is the usual one).
 const CANDLE_GGUF_LLM_ALLOWLIST: &[ArchId] = &[
     ArchId::Llama,
     ArchId::Mistral,
@@ -1047,7 +1047,7 @@ fn load_gguf(path: &Path, device: &Device) -> anyhow::Result<LoadedModel> {
             format: ModelFormat::Gguf,
             reason: UnsupportedReason::BackendCannotLoadArch {
                 backend: BackendId::CandleQuantizedLlama,
-                suggested_backend: Some(BackendId::LlamaCppFfi),
+                suggested_backend: Some(BackendId::LlamaServer),
             },
             alternatives,
         }));
@@ -1085,7 +1085,7 @@ fn load_gguf(path: &Path, device: &Device) -> anyhow::Result<LoadedModel> {
             // quantized Candle loader in this build and we're falling
             // back to metadata rewrite + the generic llama loader.
             // Promote to a real arch-native path or route the slot
-            // through llama.cpp FFI when this is undesirable.
+            // through llama-server when this is undesirable.
             tracing::warn!(
                 target: "candle.backup-path",
                 arch = %metadata.architecture,

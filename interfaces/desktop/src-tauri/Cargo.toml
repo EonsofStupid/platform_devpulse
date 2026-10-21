@@ -94,13 +94,10 @@ rro = ["devpulse-engine/rro"]
 # Jesse's dev build — sidecar, Claude Code, full MCP surface.
 # Compiled OUT of release binary. Passthrough to engine.
 internal = ["devpulse-engine/internal"]
-# ── GPU proxies — selected by xtask at build time based on host vendor ──
-# Pick ONE per build. `gpu-vulkan` is the cross-vendor default (AMD + NVIDIA
-# + Intel); `gpu-nvidia` is the opt-in for peak NVIDIA perf via CUDA.
-# AMD-on-Linux currently also routes through `gpu-vulkan` because
-# llama-cpp-2 0.1.145 has no hipblas/rocm feature.
+# ── GPU proxy — selected by xtask when it finds CUDA + an NVIDIA GPU ──
+# Accelerates what is compiled in (candle, the Burn encoder); GGUF chat runs
+# in llama-server, a separate process (plan 0007).
 gpu-nvidia = ["devpulse-engine/gpu-nvidia"]
-gpu-vulkan = ["devpulse-engine/gpu-vulkan"]
 # CPU Intel MKL — stands alone or composes with a GPU feature.
 cpu-mkl = ["devpulse-engine/cpu-mkl"]
 

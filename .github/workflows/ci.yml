@@ -21,7 +21,7 @@ env:
   # cargo step that links (Build + Test) ends in
   # `collect2: fatal error: ld terminated with signal 7 [Bus error]`
   # because ld mmaps every .rlib and runs out of address space against
-  # the gigabyte-scale debuginfo from llama-cpp-sys-2 + tauri + the burn
+  # the gigabyte-scale debuginfo from tauri + candle + the burn
   # cascade. CI is verifying compile/link/test success; debug symbols
   # are irrelevant for the runner's ephemeral artifacts.
   CARGO_PROFILE_DEV_DEBUG: "0"
@@ -31,7 +31,7 @@ jobs:
     name: Rust Checks
     runs-on: ubuntu-latest
     steps:
-      # libduckdb-sys + llama-cpp-sys-2 + moshi + Tauri's web stack
+      # libduckdb-sys + candle + Tauri's web stack
       # together produce ~5-7 GB of intermediate object files; combined
       # with the cargo target dir + sccache cache + apt installs, the
       # default Ubuntu runner's ~14 GB free disk is not enough and the
@@ -48,13 +48,9 @@ jobs:
           sudo docker image prune -a -f || true
           df -h
 
+      # No submodules: nothing in the build compiles deps/moshi (plan 0007,
+      # decision 5), so a plain checkout proves a clean clone builds.
       - uses: actions/checkout@v4
-        with:
-          # `deps/llama-cpp-rs` and `deps/moshi` are git submodules vendored
-          # under workspace.dependencies in Cargo.toml. Without recursive
-          # submodule checkout, the build fails with
-          # "failed to read deps/llama-cpp-rs/llama-cpp-2/Cargo.toml".
-          submodules: recursive
 
       # Tauri 2.0 needs these on Ubuntu for webkit2gtk.
       # libpipewire-0.3-dev required by libspa-sys (via rodio audio).
@@ -134,15 +130,6 @@ jobs:
             target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: ${{ runner.os }}-cargo-
-
-      # `.cargo/config.toml` sets `LLAMA_CPP_PREBUILT_LIB_DIR` for the
-      # win32-x64-vulkan prebuilt tree (only fetched on Windows dev
-      # boxes via `cargo xtask fetch-llama-cpp`). On Linux CI the tree
-      # is not fetched; if the var is set, llama-cpp-sys-2/build.rs:1195
-      # panics with "expected file lib/libllama.a not found". Override
-      # to empty so build.rs takes the from-source fallback path.
-      - name: Unset Windows-only prebuilt env var on Linux CI
-        run: echo "LLAMA_CPP_PREBUILT_LIB_DIR=" >> "$GITHUB_ENV"
 
       - name: Check formatting
         run: cargo fmt --all -- --check

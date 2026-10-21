@@ -54,7 +54,7 @@ pub enum ArchId {
     Phi3Moe,
     /// Phi-4 vision-language with bundled `SigLIP` encoder. The `phi4-siglip`
     /// arch tag — distinct from Phi3 because the projection head and
-    /// vision tower require a separate loader (llama.cpp FFI + mmproj).
+    /// vision tower require a separate loader (llama-server + mmproj).
     Phi4Vision,
     /// Phi-4 multimodal instruct (`phi4mm`). Vision + audio + text via a
     /// multi-graph ONNX bundle. Loaded through the ORT backend, not Candle.
@@ -232,7 +232,7 @@ pub const ALL: &[ArchitectureSpec] = &[
         min_vram_mb_per_b_params: 2_400,
         requires_benchmark: false,
         note: "Phi-4 reasoning + bundled SigLIP vision tower. GGUF via \
-               llama.cpp FFI; safetensors load is unsupported. Requires \
+               llama-server; safetensors load is unsupported. Requires \
                an mmproj projection file alongside the main GGUF.",
     },
     ArchitectureSpec {

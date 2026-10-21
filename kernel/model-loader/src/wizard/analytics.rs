@@ -129,7 +129,7 @@ pub enum AnalyticsEvent {
         /// (`rag.embedder`, `minion.embedder`).
         slot_id: String,
         /// Runtime that hosted the embedder
-        /// (`candle`, `burn-cpu`, `llama-cpp-2`).
+        /// (`candle`, `burn-cpu`, `llama-server`).
         runtime: String,
         /// Round-trip latency for the first query (ms).
         latency_ms: u64,

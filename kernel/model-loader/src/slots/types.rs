@@ -73,7 +73,7 @@ pub struct Slot {
     pub extensions: std::collections::HashMap<String, String>,
 
     /// KV-cache and context controls applied at backend load time.
-    /// Each backend adapter (llama.cpp FFI, mistral.rs, moshi) reads
+    /// Each backend adapter (llama-server, mistral.rs) reads
     /// the fields it can support and ignores the rest with a debug log.
     /// Defaults to "use all runtime defaults" so existing slot configs
     /// without a `kv_cache` block keep loading unchanged.

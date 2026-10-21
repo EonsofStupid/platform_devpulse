@@ -164,7 +164,7 @@ fn runtime_id_for(
 
     match (backend, capability) {
         (BackendType::Candle, _) => "candle".to_string(),
-        (BackendType::LlamaCpp, _) => "llama-cpp-2".to_string(),
+        (BackendType::LlamaCpp, _) => "llama-server".to_string(),
         (BackendType::Sherpa, _) => "sherpa-onnx".to_string(),
         (BackendType::Ort, TextToSpeech) => {
             // Voice pool's TTS dispatch picks Qwen3-TTS for

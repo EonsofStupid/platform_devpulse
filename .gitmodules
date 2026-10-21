@@ -2,7 +2,3 @@
 	path = deps/moshi
 	url = https://github.com/EonsofStupid/moshi.git
 	branch = rro-alpha-candle-0.10
-[submodule "deps/llama-cpp-rs"]
-	path = deps/llama-cpp-rs
-	url = https://github.com/utilityai/llama-cpp-rs.git
-	branch = main

@@ -151,7 +151,8 @@ device = "Cpu"
 # voice.brain — Personaplex-7B (NVIDIA, moshi-architecture, audio-to-audio).
 # 16.7 GB BF16 weights fit comfortably on 40 GB+ tier. Replaces the prior
 # Kyutai Moshi 7B entry — Personaplex is the same arch family with better
-# tuning. Loaded via the moshi-sts Candle feature.
+# tuning. Served by moshi's own server once its release lands (plan 0007
+# phase 9); nothing loads it in process.
 [[presets.slots]]
 slot_id = "voice.brain"
 model_repo_id = "nvidia/personaplex-7b-v1"

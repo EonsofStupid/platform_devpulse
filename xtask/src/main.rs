@@ -134,23 +134,6 @@ enum Commands {
         #[arg(long)]
         pin: bool,
     },
-    /// Download, verify, and extract a pinned `llama-cpp-prebuilt`
-    /// release artifact into `deps/llama-cpp-prebuilt/<target>/`. Reads
-    /// the committed manifest at `deps/llama-cpp-prebuilt/manifest.json`.
-    /// Requires `GITHUB_TOKEN` env (source repo is private). xtask's
-    /// `apply_env` auto-exports `LLAMA_CPP_PREBUILT_LIB_DIR` after this
-    /// completes, and the vendored `llama-cpp-sys-2`'s build.rs fast-path
-    /// then skips its in-tree cmake build.
-    FetchLlamaCpp {
-        /// Target platform + backend: `win32-x64-vulkan`,
-        /// `win32-x64-cuda`, or `win32-x64-cpu`. Match against the
-        /// `target` field of an entry in the manifest's `artifacts`.
-        #[arg(long)]
-        target: String,
-        /// Override the manifest path (defaults to the committed one).
-        #[arg(long)]
-        manifest: Option<PathBuf>,
-    },
     /// Download the `SurrealDB` sidecar binary into
     /// `interfaces/desktop/src-tauri/binaries/`. The release tag is
     /// pinned in `fetch_surreal.rs` to match the `surrealdb` crate
@@ -243,9 +226,6 @@ fn main() -> anyhow::Result<()> {
             kind,
             pin,
         }),
-        Commands::FetchLlamaCpp { target, manifest } => {
-            Box::new(commands::fetch_llama_cpp::FetchLlamaCpp { target, manifest })
-        }
         Commands::FetchSurreal { target, force } => {
             Box::new(commands::fetch_surreal::FetchSurreal { target, force })
         }

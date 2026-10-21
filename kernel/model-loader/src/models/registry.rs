@@ -24,7 +24,7 @@ pub enum ModelFormat {
 pub enum BackendType {
     /// Candle (canonical — Rust-native, llguidance integration).
     Candle,
-    /// llama.cpp via FFI (secondary — broader architecture support).
+    /// llama.cpp — served by `llama-server`, a separate process.
     LlamaCpp,
     /// ONNX Runtime via ort crate (SNAC, small inference models).
     Ort,

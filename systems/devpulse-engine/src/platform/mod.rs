@@ -53,7 +53,7 @@ pub use health::{HealthStatus, SubsystemHealth, SystemHealth};
 pub use init::{InitEvent, InitStatus};
 pub use metrics::ProcessMetrics;
 pub use services::candle_config::CandleConfig;
-pub use services::llama_cpp_embedded_config::LlamaCppEmbeddedConfig;
+pub use services::llama_server_config::LlamaServerConfig;
 pub use services::routing_config::{
     EscalationConfig, EscalationTier, EscalationTierId, InferenceProvider, LatencyConfig,
     RoutingConfig,
@@ -1383,25 +1383,28 @@ impl Platform {
         services::candle_config::save(&self.data_dir, cfg)
     }
 
-    // ── llama.cpp (embedded) config (user scope) ──────────────
+    // ── llama-server settings (user scope) ─────────────────────
 
-    /// Load persisted llama.cpp-embedded runtime preferences.
+    /// Your llama-server settings, or the defaults (what the devtool shows).
     #[must_use]
-    pub fn llama_cpp_embedded_config_load(&self) -> LlamaCppEmbeddedConfig {
-        services::llama_cpp_embedded_config::load(&self.data_dir)
+    pub fn llama_server_config_load(&self) -> LlamaServerConfig {
+        services::llama_server_config::load(&self.data_dir)
     }
 
-    /// Persist llama.cpp-embedded runtime preferences atomically.
-    /// Returns the clamped value.
+    /// Your saved llama-server settings; `None` when you have saved none,
+    /// so the server keeps its defaults.
+    #[must_use]
+    pub fn llama_server_config_saved(&self) -> Option<LlamaServerConfig> {
+        services::llama_server_config::load_saved(&self.data_dir)
+    }
+
+    /// Persist llama-server settings atomically. Returns the clamped value.
     ///
     /// # Errors
     /// - Creating the `user/` directory fails.
     /// - Temp-file write or rename fails.
-    pub fn llama_cpp_embedded_config_save(
-        &self,
-        cfg: &LlamaCppEmbeddedConfig,
-    ) -> Result<LlamaCppEmbeddedConfig> {
-        services::llama_cpp_embedded_config::save(&self.data_dir, cfg)
+    pub fn llama_server_config_save(&self, cfg: &LlamaServerConfig) -> Result<LlamaServerConfig> {
+        services::llama_server_config::save(&self.data_dir, cfg)
     }
 
     /// Lazy-start Ollama and return the running service.

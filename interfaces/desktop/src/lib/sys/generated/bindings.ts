@@ -1224,89 +1224,23 @@ async candleRestartPool() : Promise<Result<number, string>> {
 }
 },
 /**
- * Load the persisted llama.cpp-embedded runtime config.
+ * Your llama-server settings, or the defaults.
  */
-async llamaCppEmbeddedLoadConfig() : Promise<Result<LlamaCppEmbeddedConfig, string>> {
+async llamaServerLoadConfig() : Promise<Result<LlamaServerConfig, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("llama_cpp_embedded_load_config") };
+    return { status: "ok", data: await TAURI_INVOKE("llama_server_load_config") };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
 }
 },
 /**
- * Persist llama.cpp-embedded config atomically. Returns the clamped value.
+ * Save your llama-server settings atomically. Returns the clamped value;
+ * they apply the next time a GGUF slot is loaded.
  */
-async llamaCppEmbeddedSaveConfig(cfg: LlamaCppEmbeddedConfig) : Promise<Result<LlamaCppEmbeddedConfig, string>> {
+async llamaServerSaveConfig(cfg: LlamaServerConfig) : Promise<Result<LlamaServerConfig, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("llama_cpp_embedded_save_config", { cfg }) };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
-/**
- * Read the live FFI link state.
- * 
- * Combines three sources:
- * 1. The committed pin at `deps/llama-cpp-prebuilt/manifest.json` —
- * which release this workspace contracts to link against.
- * 2. The presence of `deps/llama-cpp-prebuilt/<target>/lib/llama.lib`
- * for each target — what's actually extracted on this box.
- * 3. The `LLAMA_CPP_PREBUILT_LIB_DIR` env var — what the running
- * process inherited (`apply_env` exports this at xtask boot).
- * 
- * The devtool's Status tab uses this to answer "is the foundation
- * healthy" without spelunking the file system or stderr.
- */
-async llamaCppBuildInfo() : Promise<Result<LlamaCppBuildInfo, string>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("llama_cpp_build_info") };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
-/**
- * Open the per-target prebuilt extract directory in the OS file
- * manager. Useful when diagnosing layout drift after a release bump.
- */
-async llamaCppOpenPrebuiltDir(target: string) : Promise<Result<null, string>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("llama_cpp_open_prebuilt_dir", { target }) };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
-/**
- * Replace `deps/llama-cpp-prebuilt/manifest.json` with a new manifest
- * after a release bump.
- * 
- * Validation gates BEFORE any write:
- * 1. JSON parses into the expected schema.
- * 2. `schema == 1`.
- * 3. Every artifact has a non-empty `sha256`.
- * 4. Every artifact's target matches the supported set
- * (`win32-x64-{vulkan,cuda,cpu}`).
- * 
- * The write itself is atomic — staged at `manifest.json.tmp` then
- * renamed.
- * 
- * **Does NOT fetch** — operator runs `cargo xtask fetch-llama-cpp
- * --target <id>` separately after the manifest lands. That's
- * deliberate: a manifest bump is a contract change; a fetch is a
- * per-machine action. Different concerns, different commands.
- * 
- * # Errors
- * Returns the formatted error string when the incoming JSON does not
- * parse, declares an unsupported schema version, has zero artifacts,
- * contains a placeholder / empty `sha256`, targets an unknown
- * platform, or the manifest cannot be written to disk.
- */
-async llamaCppBumpManifest(newManifestJson: string) : Promise<Result<BumpResult, string>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("llama_cpp_bump_manifest", { newManifestJson }) };
+    return { status: "ok", data: await TAURI_INVOKE("llama_server_save_config", { cfg }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -4584,7 +4518,7 @@ error: string } } |
 slot_id: string; 
 /**
  * Runtime that hosted the embedder
- * (`candle`, `burn-cpu`, `llama-cpp-2`).
+ * (`candle`, `burn-cpu`, `llama-server`).
  */
 runtime: string; 
 /**
@@ -4827,7 +4761,7 @@ export type ArchId =
 /**
  * Phi-4 vision-language with bundled `SigLIP` encoder. The `phi4-siglip`
  * arch tag — distinct from Phi3 because the projection head and
- * vision tower require a separate loader (llama.cpp FFI + mmproj).
+ * vision tower require a separate loader (llama-server + mmproj).
  */
 "phi-4-vision" | 
 /**
@@ -5217,11 +5151,11 @@ export type BackendId =
  */
 "sherpa-onnx-kws" | 
 /**
- * llama.cpp FFI — GGUF inference via the llama-cpp-2 crate. Carries
- * archs Candle's arch-native loaders don't cover (Phi-4 vision /
- * phi4-siglip with mmproj projection, future fine-tune families).
+ * llama.cpp's own `llama-server`, a separate process: every GGUF
+ * architecture llama.cpp loads (`router::llamacpp_supports_architecture`).
+ * Vision GGUFs through `--mmproj` are plan 0007 phase 2.
  */
-"llama-cpp-ffi"
+"llama-server"
 /**
  * Metadata for a single backend row. Field-level `pub` so specta can
  * walk the struct.
@@ -5471,34 +5405,6 @@ load_more_label: string;
  * Label shown while the next page of online search results is loading.
  */
 loading_more_label: string }
-/**
- * Returned by [`llama_cpp_bump_manifest`] after a successful write.
- * 
- * Surfaces a confirmation summary so the devtool can render
- * "manifest at $path pinned to `$new_version` (upstream $sha)" without
- * re-reading the file.
- */
-export type BumpResult = { 
-/**
- * Absolute path of the manifest that was overwritten.
- */
-manifest_path: string; 
-/**
- * New `version` field (matches sub-repo's `release.version`).
- */
-new_version: string; 
-/**
- * New `tag` field (e.g. `v0.1.2`).
- */
-new_tag: string; 
-/**
- * Upstream `ggml-org/llama.cpp` SHA the new release pins.
- */
-upstream_sha: string; 
-/**
- * Target ids the new manifest carries — operator must re-fetch each.
- */
-targets: string[] }
 /**
  * Health of the Moka cache service.
  */
@@ -8812,30 +8718,6 @@ export type LicenseTier =
  */
 "enterprise"
 /**
- * Composite link state derived from on-disk artifacts + runtime env.
- * 
- * Frontend matches this to drive the Status tab's health badge:
- * `Prebuilt` is the only green state; the other two are degraded.
- */
-export type LinkMode = 
-/**
- * `LLAMA_CPP_PREBUILT_LIB_DIR` exported AND target dir exists.
- * The fast-path is engaged.
- */
-"prebuilt" | 
-/**
- * Prebuilt staged on disk but env var unset — `apply_env` didn't
- * fire, or this dev box doesn't run through xtask. Build falls
- * through to the in-tree cmake path.
- */
-"prebuilt-staged-but-not-exported" | 
-/**
- * No prebuilt staged. Either the operator hasn't run
- * `fetch-llama-cpp` yet, or this is a Linux / macOS box where the
- * fallback works fine.
- */
-"fallback-cmake-or-unbuilt"
-/**
  * Convenience for the Config tab's model picker — same call as
  * `validate_provider`, returns just the model list (or an empty list
  * on failure, with the failure message in the Tauri error channel).
@@ -8862,79 +8744,6 @@ role: string;
  */
 content: string }
 /**
- * Composite snapshot of the FFI prebuilt-link state.
- * 
- * Returned by [`llama_cpp_build_info`]. Combines the committed
- * manifest pin, per-target extract state on disk, and the runtime
- * env var into one shape the devtool's Status tab can render.
- */
-export type LlamaCppBuildInfo = { 
-/**
- * Absolute path of the committed manifest file.
- */
-manifest_path: string; 
-/**
- * Manifest's `version` (matches sub-repo's `release.version`).
- */
-manifest_version: string; 
-/**
- * Release tag (e.g. `v0.1.1`).
- */
-manifest_tag: string; 
-/**
- * Pinned upstream `ggml-org/llama.cpp` SHA.
- */
-upstream_sha: string; 
-/**
- * Pinned upstream tag / branch label.
- */
-upstream_tag: string; 
-/**
- * Sub-repo URL.
- */
-repository: string; 
-/**
- * Browser-facing release URL (when present).
- */
-release_url: string | null; 
-/**
- * Target id currently in the process env (e.g. `win32-x64-vulkan`).
- * `None` when `LLAMA_CPP_PREBUILT_LIB_DIR` was unset at boot.
- */
-active_target: string | null; 
-/**
- * Absolute path env var value (when set).
- */
-active_lib_dir: string | null; 
-/**
- * Composite link state — what's actually true on disk + env.
- */
-link_mode: LinkMode; 
-/**
- * Per-target stage state. One entry per manifest artifact.
- */
-targets: TargetState[] }
-/**
- * Persisted llama.cpp embedded runtime preferences.
- */
-export type LlamaCppEmbeddedConfig = { 
-/**
- * Context window in tokens. Clamped to `[512, 131_072]`.
- */
-context_size: number; 
-/**
- * GPU layers to offload. `0` = CPU only, `u32::MAX` = all.
- */
-gpu_layers: number; 
-/**
- * KV-cache element type. `"f16" | "q8_0" | "q4_0"`.
- */
-kv_dtype: string; 
-/**
- * Tokens per forward pass. Clamped to `[1, 4096]`.
- */
-n_batch: number }
-/**
  * Health status of the llama-server sidecar.
  */
 export type LlamaHealthStatus = { 
@@ -8950,6 +8759,26 @@ status: string;
  * Port the server is bound to (0 if not started).
  */
 port: number }
+/**
+ * Your llama-server settings.
+ */
+export type LlamaServerConfig = { 
+/**
+ * Context window in tokens (`-c`). Clamped to `[512, 131_072]`.
+ */
+context_size: number; 
+/**
+ * GPU layers to offload (`-ngl`). `0` = CPU only, `u32::MAX` = all.
+ */
+gpu_layers: number; 
+/**
+ * KV-cache element type (`--cache-type-k/-v`). `"f16" | "q8_0" | "q4_0"`.
+ */
+kv_dtype: string; 
+/**
+ * Tokens per forward pass (`-b`). Clamped to `[1, 4096]`.
+ */
+n_batch: number }
 /**
  * Info returned when llama-server starts successfully.
  */
@@ -11079,7 +10908,7 @@ reason: string }
  */
 export type RuntimeFingerprint = { 
 /**
- * Stable runtime handle — `"candle"`, `"llama-cpp-2"`, `"ort"`,
+ * Stable runtime handle — `"candle"`, `"llama-server"`, `"ort"`,
  * `"sherpa-onnx-asr"`, `"qwen3-tts-candle"`, `"ollama-external"`,
  * `"mistralrs"`, `"siglip2-onnx-fixres"`, … Matches the
  * `runtimeId` a desktop devtool folder declares in `_devtool`.
@@ -12308,42 +12137,6 @@ rowCount: number;
  * Number of columns.
  */
 columnCount: number }
-/**
- * Per-target stage state — one entry per manifest artifact.
- * 
- * Populated even when the target is not extracted (`extracted: false`)
- * so the UI can offer "fetch this target" affordances for all three.
- */
-export type TargetState = { 
-/**
- * Full target id (e.g. `win32-x64-vulkan`).
- */
-target: string; 
-/**
- * Backend label (`vulkan` / `cuda` / `cpu`).
- */
-backend: string; 
-/**
- * First 12 chars of the artifact's sha256.
- */
-sha256_short: string; 
-/**
- * `true` if `lib/llama.lib` exists in the extract dir.
- */
-extracted: boolean; 
-/**
- * Content of `.llama-cpp-prebuilt-version` marker, if present.
- */
-cached_version: string | null; 
-/**
- * `true` when `cached_version != manifest.version` — the operator
- * bumped the manifest but didn't re-fetch.
- */
-drift: boolean; 
-/**
- * Absolute path of the per-target extract dir.
- */
-extract_dir: string }
 /**
  * Live snapshot of the telemetry pipeline for the devtool Status panel.
  * 

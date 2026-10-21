@@ -5,13 +5,12 @@
 
 use crate::backends::bridge::{InferenceBridge, InferenceHandle};
 use crate::loading::states::MemoryFootprint;
-// `LoadParams`, `BackendType`, and `Path` are referenced only by the
-// `load()` method, which is cfg-gated to the inference-backend features
-// (candle-backend + llama-cpp-ffi). Pool surface methods (get_handle,
-// is_loaded, ref_count, total_memory, …) work without either feature.
-#[cfg(any(feature = "candle-backend", feature = "llama-cpp-ffi"))]
+// `LoadParams`, `BackendType`, and `Path` are referenced only by
+// `acquire()`, which is cfg-gated to `candle-backend`. Pool surface methods
+// (get_handle, is_loaded, ref_count, total_memory, …) work without it.
+#[cfg(feature = "candle-backend")]
 use crate::loading::states::LoadParams;
-#[cfg(any(feature = "candle-backend", feature = "llama-cpp-ffi"))]
+#[cfg(feature = "candle-backend")]
 use crate::models::registry::BackendType;
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
@@ -50,17 +49,15 @@ impl BackendPool {
 
     /// Load a model and return a handle. If already loaded, bump ref count.
     ///
-    /// `backend_type` determines which inference engine is used:
-    /// - `Candle` → `SafeTensors` + supported `GGUF` architectures
-    /// - `LlamaCpp` → `GGUF` via llama.cpp FFI (broader architecture support)
-    ///
-    /// Both backends implement `InferenceBackend` and use the same
-    /// `InferenceBridge` thread pattern.
+    /// `backend_type` determines where the model runs:
+    /// - `Candle` → in process: `SafeTensors` + supported `GGUF` architectures
+    /// - `LlamaCpp` → not here: GGUF is served by llama.cpp's `llama-server`,
+    ///   a separate process the caller starts (plan 0007)
     ///
     /// # Errors
-    /// - Returns an error when spawning the inference bridge fails (thread
-    ///   spawn refusal, missing `llama-cpp-ffi` feature with no Candle
-    ///   fallback, or Candle device init failure).
+    /// - Returns an error for a `LlamaCpp` model (it is served by
+    ///   `llama-server`, not loaded in process), when spawning the inference
+    ///   bridge fails, or on Candle device init failure.
     /// - Propagates the bridge's `load()` error when the model file is
     ///   missing, malformed, or its architecture is unsupported by the
     ///   selected backend.
@@ -98,29 +95,17 @@ impl BackendPool {
             return Ok((instance.handle.clone(), instance.memory));
         }
 
-        // New instance needed — spawn the right bridge
-        let bridge = match backend_type {
-            #[cfg(feature = "llama-cpp-ffi")]
-            BackendType::LlamaCpp => {
-                tracing::info!(model = %model_id, "Spawning llama.cpp backend for GGUF");
-                InferenceBridge::spawn_llamacpp()?
-            }
-            #[cfg(not(feature = "llama-cpp-ffi"))]
-            BackendType::LlamaCpp => {
-                // No silent fallback — locked direction (`feedback_inference_runtime_direction.md`)
-                // is llama.cpp primary. If the feature is off, fail loud so the
-                // build is corrected, not papered over with Candle.
-                anyhow::bail!(
-                    "llama-cpp-ffi feature is disabled; cannot load GGUF model {model_id} — \
-                     enable the `llama-cpp-ffi` feature on the model-loader crate"
-                );
-            }
-            _ => {
-                // Candle for SafeTensors and everything else
-                let device = resolve_candle_device(&params);
-                InferenceBridge::spawn_candle(device)?
-            }
-        };
+        // New instance needed. No silent fallback to Candle for GGUF: it runs
+        // in llama.cpp's own server, started for the slot (plan 0007,
+        // decision 5).
+        if matches!(backend_type, BackendType::LlamaCpp) {
+            anyhow::bail!(
+                "GGUF model {model_id} is served by llama-server, not loaded in \
+                 process — load its slot to start the server"
+            );
+        }
+        // Candle for SafeTensors and everything else
+        let bridge = InferenceBridge::spawn_candle(resolve_candle_device(&params))?;
 
         let handle = bridge.handle();
 

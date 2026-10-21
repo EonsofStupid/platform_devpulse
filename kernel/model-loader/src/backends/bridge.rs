@@ -6,11 +6,10 @@
 //! tasks) with full `OTel` span correlation across the thread boundary.
 
 use crate::loading::states::{LoadParams, MemoryFootprint};
-// `InferenceBackend` is the trait surface every spawn_* path uses to drive
-// the inference thread. Only the cfg-gated spawn paths reference it
-// (`spawn_candle` under `candle-backend`, `spawn_llamacpp` under
-// `llama-cpp-ffi`); when neither feature is on, the trait isn't imported.
-#[cfg(any(feature = "candle-backend", feature = "llama-cpp-ffi"))]
+// `InferenceBackend` is the trait surface the spawn path uses to drive the
+// inference thread. Only `spawn_candle` (under `candle-backend`) references
+// it; without that feature the trait isn't imported.
+#[cfg(feature = "candle-backend")]
 use crate::traits::backend::InferenceBackend;
 use devpulse_telemetry::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -288,42 +287,6 @@ impl InferenceBridge {
         })
     }
 
-    /// Spawn a new llama.cpp inference bridge for GGUF models.
-    ///
-    /// # Errors
-    /// Returns error if llama.cpp init or OS thread spawn fails.
-    #[cfg(feature = "llama-cpp-ffi")]
-    pub fn spawn_llamacpp() -> anyhow::Result<Self> {
-        use crate::backends::llamacpp::LlamaCppBackend;
-
-        let (tx, rx) = unbounded::<InferenceRequest>();
-        let mut backend = LlamaCppBackend::new()?;
-
-        let thread = std::thread::Builder::new()
-            .name("inference-worker-llamacpp".into())
-            .spawn(move || {
-                let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-                    inference_thread_loop_llamacpp(&mut backend, &rx);
-                }));
-                if let Err(panic) = result {
-                    let msg = if let Some(s) = panic.downcast_ref::<&str>() {
-                        (*s).to_string()
-                    } else if let Some(s) = panic.downcast_ref::<String>() {
-                        s.clone()
-                    } else {
-                        "unknown panic".to_string()
-                    };
-                    tracing::error!(panic = %msg, "llama.cpp inference thread panicked");
-                }
-            })
-            .map_err(|e| anyhow::anyhow!("Failed to spawn llama.cpp thread: {e}"))?;
-
-        Ok(Self {
-            handle: InferenceHandle { sender: tx },
-            thread: Some(thread),
-        })
-    }
-
     /// Get a cloneable handle to this bridge.
     #[must_use]
     pub fn handle(&self) -> InferenceHandle {
@@ -434,96 +397,4 @@ fn inference_thread_loop(
     }
 
     tracing::info!("Inference worker thread exited");
-}
-
-/// The main loop running on the llama.cpp inference thread.
-///
-/// Mirrors `inference_thread_loop` but is concrete on
-/// [`crate::backends::llamacpp::LlamaCppBackend`] because `Generate`
-/// uses backend-specific sampling state. The other request variants
-/// route through the shared `InferenceBackend` trait and behave
-/// identically to the candle path.
-#[cfg(feature = "llama-cpp-ffi")]
-fn inference_thread_loop_llamacpp(
-    backend: &mut crate::backends::llamacpp::LlamaCppBackend,
-    rx: &TracedReceiver<InferenceRequest>,
-) {
-    use crate::traits::backend::InferenceBackend;
-
-    tracing::info!("llama.cpp inference worker thread started");
-
-    while let Ok(traced) = rx.recv() {
-        let (request, _cx_guard) = traced.attach();
-
-        match request {
-            InferenceRequest::Load {
-                path,
-                params,
-                reply,
-            } => {
-                let result = backend.load(&path, params);
-                if result.is_err() {
-                    let _ = backend.unload();
-                }
-                let _ = reply.send(result);
-            }
-            InferenceRequest::Unload { reply } => {
-                let _ = reply.send(backend.unload());
-            }
-            InferenceRequest::Forward {
-                tokens,
-                position,
-                reply,
-            } => {
-                let _ = reply.send(backend.forward(&tokens, position));
-            }
-            InferenceRequest::Tokenize { text, reply } => {
-                let _ = reply.send(backend.tokenize(&text));
-            }
-            InferenceRequest::Detokenize { tokens, reply } => {
-                let _ = reply.send(backend.detokenize(&tokens));
-            }
-            InferenceRequest::Generate {
-                prompt,
-                max_tokens,
-                temperature,
-                token_sink,
-                trace_id,
-            } => {
-                if !trace_id.is_empty() {
-                    tracing::debug!(
-                        trace_id = %trace_id,
-                        prompt_len = prompt.len(),
-                        max_tokens,
-                        temperature,
-                        "llama.cpp thread: generate request received"
-                    );
-                }
-                let result = backend.generate(&prompt, max_tokens, temperature, |id, text| {
-                    let _ = token_sink.send(InferenceResponse::Token {
-                        id,
-                        text: text.to_string(),
-                    });
-                });
-                match result {
-                    Ok(full_text) => {
-                        let _ = token_sink.send(InferenceResponse::Done(full_text));
-                    }
-                    Err(e) => {
-                        let _ = token_sink.send(InferenceResponse::Error(e.to_string()));
-                    }
-                }
-            }
-            InferenceRequest::MemoryUsage { reply } => {
-                let _ = reply.send(backend.memory_usage());
-            }
-            InferenceRequest::Shutdown => {
-                tracing::info!("llama.cpp inference worker thread shutting down");
-                let _ = backend.unload();
-                break;
-            }
-        }
-    }
-
-    tracing::info!("llama.cpp inference worker thread exited");
 }

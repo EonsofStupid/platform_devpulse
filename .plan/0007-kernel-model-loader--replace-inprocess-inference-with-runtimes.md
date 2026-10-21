@@ -6,10 +6,10 @@ paths:
   - kernel/model-loader/src/runtimes/
   - kernel/devpulse-clyffy/src/cortex/persistence/runtime.rs
 touches: [kernel-clyffy, engine, desktop-tauri, desktop-devtools, desktop-models, xtask, deps, config]
-status: draft
+status: in-progress
 owner: jesse
 created: 2026-10-11
-updated: 2026-10-13
+updated: 2026-10-21
 supersedes: []
 specs:
   - scripts/docs/specs/MODEL-LOADER-UX-REQUIREMENTS.md
@@ -167,6 +167,63 @@ crate), verified live, approval between phases.
 | 13 | Compiled-in engines removed | model-loader backends + features, clyffy features + `whisper.rs` / `kokoros.rs`, `deps/llama-cpp-rs` submodule, `deps/moshi` out of the Cargo workspace (root `exclude`/`[patch]`; the sub repo stays), ort fork, deps.toml cmake/ninja | `cargo tree -i candle-core / ort-sys / moshi / llama-cpp-sys-2` → no match; build time before/after |
 | 14 | Owner checkpoint | — | install → run → update → roll back → remove each runtime from the UI; one runtime used from another machine |
 
+### Stage 1 — compiled-in llama.cpp and moshi leave the build (decision 5)
+
+Owner, 2026-10-21: "yes" to starting decision 5 now, ahead of plan 0001
+slice 4c. Facts it rests on (checked 2026-10-21):
+
+- Local GGUF chat is routed to a llama-server **subprocess**:
+  `inference_generate` sends every GGUF slot to the sidecar over HTTP
+  ([commands/models/mod.rs:1801-1860](../interfaces/desktop/src-tauri/src/commands/models/mod.rs#L1801-L1860)).
+  The compiled-in `llama-cpp-2` backend is a second path that only the
+  `gpu-nvidia` / `gpu-vulkan` builds compile (last built here 2026-10-09).
+  Removing it takes no working capability away. (Found during the live
+  check: the sidecar itself has not been starting since 2026-10-09 — see
+  the log.)
+- The compiled-in moshi backend (`MoshiStsBackend`) is wired into nothing in
+  the app; only `tests/personaplex_smoke.rs` and model-loader's default
+  features (so workspace-wide checks) build it.
+- `user/llama_cpp_embedded.toml` (context size, GPU layers, KV-cache type,
+  batch) is written by the devtool and read by nothing. Each value is a
+  llama-server flag (`-c`, `-ngl`, `--cache-type-k/-v`, `-b`), so it is
+  **wired into the subprocess**, not deleted (include-before-delete).
+
+Removed with the owner's OK (decision 5 and 2026-10-21) — git history keeps them:
+
+| What | Why it goes |
+| --- | --- |
+| model-loader `backends/llamacpp/{mod,backend,mtmd}.rs`, features `llama-cpp-ffi` / `-mtmd` / `-cuda` / `-vulkan`, deps `llama-cpp-2`, `encoding_rs` | the compiled-in llama.cpp |
+| model-loader `backends/candle/{moshi,voices_archive}.rs`, `tests/personaplex_smoke.rs`, feature `moshi-sts`, deps `moshi`, `tar`, `flate2` | the compiled-in moshi (voices archive only served it) |
+| clyffy features `model-loader-llama-cuda` / `-vulkan`; engine + Tauri feature `gpu-vulkan` (it only selected llama.cpp's Vulkan build); llama from engine `gpu-nvidia` | feature plumbing for the above |
+| Tauri `commands/llama_cpp` (build info, prebuilt folder, manifest bump) and the devtool's Engine foundation card | they describe the static-library pipeline that no longer exists |
+| xtask `fetch-llama-cpp`, the prebuilt-library export, Vulkan SDK detection | same pipeline |
+| root `[patch]` for `moshi` / `llama-cpp-2` / `llama-cpp-sys-2`, the `moshi` workspace dependency, `exclude`; the `deps/llama-cpp-rs` submodule | a clean checkout builds without submodules |
+
+Kept: the `deps/moshi` submodule (decision 2 — the sub repo that will build
+and publish moshi releases, phase 9); `BackendType::LlamaCpp` (GGUF is
+served by llama.cpp — now always the server); the hand-placed llama-server
+sidecar (it serves GGUF chat until phases 4–5 replace it); candle, ort, Burn
+and mistral.rs (not part of decision 5). The registry row
+`BackendId::LlamaCppFfi` becomes `LlamaServer` ("llama.cpp · server").
+
+Wired in: `llama_cpp_embedded` → `llama_server` settings
+(`user/llama_server.toml`, engine `LlamaServerConfig`, Tauri
+`llama_server_{load,save}_config`); when you have saved settings the sidecar
+starts with them (a slot's own `llama_cpp_ngl` still wins), otherwise it keeps
+today's flags. The devtool's settings card says what it now controls.
+
+CI: `ci.yml` checks out without submodules (proving the clean checkout) and
+drops the `LLAMA_CPP_PREBUILT_LIB_DIR` override; `verify-commits.yml` keeps
+initializing submodules because it verifies older commits that need them.
+
+Check: `cargo tree -i llama-cpp-sys-2` and `-i moshi` find nothing; a fresh
+clone without submodules passes `cargo check --workspace`; the full runner
+command set; live — a GGUF chat answer through the sidecar with saved
+settings visible in its command line.
+
+Next, Stage 2 (phase 7): a chat slot can point at a remote
+OpenAI-compatible URL (your GB10, Ollama) instead of the local sidecar.
+
 Plan 0001 is amended on approval: its `onboarding/runtimes/` folder is
 dropped — onboarding's reconcile decides the desired state, the kernel
 runtime adapter runs it through the engine facade.
@@ -243,3 +300,30 @@ Owner, 2026-10-13:
   `assistant.toml` is read and written at `<repo>/config/`. Fix: pass
   `data_dir` into `new()`; the HF token (`Secrets::load(&models_dir)`) moves
   with it. Belongs with the phase that touches `service.rs`.
+- 2026-10-21 — **Stage 1 done: compiled-in llama.cpp and moshi are out of
+  the build** (owner: "yes"). Removed per the Stage 1 table; `deps/moshi`
+  stays as the build sub repo; root `[patch]`, the `moshi` workspace
+  dependency, `exclude` and the `deps/llama-cpp-rs` submodule are gone, and
+  `Cargo.lock` drops `llama-cpp-2`, `llama-cpp-sys-2`, `moshi` and
+  `find_cuda_helper`. `cargo tree -i` finds none of them. Wired in: the
+  never-read `llama_cpp_embedded` settings became `LlamaServerConfig`
+  (`user/llama_server.toml`) and start the sidecar when saved — checked live:
+  loading chat.brain asked llama-server for `-c 8192 -ngl 999
+  --cache-type-k q8_0 --cache-type-v q8_0 -b 512` (the test settings file was
+  removed afterwards; you had none). The backend matrix row is now
+  `llama-server`; the devtool's runtime id, nav copy and status text say what
+  is true. **Found, not caused by this stage:** the GGUF sidecar does not
+  start on this machine — "Failed to spawn llama-server: The system cannot
+  find the file specified". The code asks Tauri for `binaries/llama-server`,
+  which resolves to `target/debug/binaries/llama-server.exe`; the Windows
+  Tauri config that listed it as an external program was dropped by the
+  restore commit `38309aaa` (2026-10-09), and only DLLs sit in that folder. So
+  local GGUF chat has not been starting since 2026-10-09; phases 4–5 (kernel
+  supervision + install into `.userdata/global/runtimes/`) are its real fix.
+  Still open for phase 13: xtask's cmake / ninja / MSVC environment and its
+  stale-cmake-dir purge were built for `llama-cpp-sys-2`; whether anything
+  else needs them is checked there. The `slots/` path bug (2026-10-17 entry)
+  is not touched here. Verified: workspace clippy (pedantic), cargo fmt,
+  tests model-loader 173 + smoke 2, kernel 85, engine 156 + contract 4,
+  process 4; svelte-check 0 errors (app and ColdLight), Biome 560 / 1072,
+  arch 18; bindings regenerated.
