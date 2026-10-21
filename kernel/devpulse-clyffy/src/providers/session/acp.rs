@@ -60,7 +60,7 @@ struct Shared {
 pub struct AcpSession {
     commands: mpsc::UnboundedSender<Command>,
     shared: Arc<Shared>,
-    task: tokio::task::JoinHandle<()>,
+    task: Mutex<Option<tokio::task::JoinHandle<()>>>,
 }
 
 impl AcpSession {
@@ -83,7 +83,7 @@ impl AcpSession {
             Ok(Ok(Ok(()))) => Ok(Self {
                 commands,
                 shared,
-                task,
+                task: Mutex::new(Some(task)),
             }),
             Ok(Ok(Err(message))) => {
                 task.abort();
@@ -139,13 +139,16 @@ impl AcpSession {
     }
 
     /// End the conversation; the agent's process stops with the connection.
-    pub async fn close(self) {
+    pub async fn close(&self) {
         let _ = self.commands.send(Command::Close);
-        if tokio::time::timeout(Duration::from_secs(5), self.task)
-            .await
-            .is_err()
-        {
-            tracing::warn!(target: "providers", "an agent session did not close in time");
+        let task = self.task.lock().await.take();
+        if let Some(task) = task {
+            if tokio::time::timeout(Duration::from_secs(5), task)
+                .await
+                .is_err()
+            {
+                tracing::warn!(target: "providers", "an agent session did not close in time");
+            }
         }
     }
 }

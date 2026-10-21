@@ -1481,3 +1481,27 @@ queries proving what was written.
     (`two_turns_keep_their_context`, ignored by default): Claude Code
     "OK" → "marmalade" and Codex "OK" → "m","arm","alade" — both kept the
     conversation on your own subscriptions.
+  - 2026-10-21 — **B3.3 done: threads with your agents, saved** (engine
+    `platform/agents.rs`, Tauri `commands/agents`, event `AgentStreamed`).
+    - A thread is a chat `sessions` row plus a new `agent_threads` row
+      (agent, resume token). A new table, so existing databases need no
+      migration.
+    - Both sides of every turn go to the chat's existing `turns` table
+      (assistant `model_used` = the agent, `finish_reason`, latency), so the
+      chat's `load_recent` / `list_sessions` read them unchanged.
+    - One live kernel conversation per thread, started on first prompt in
+      the project's folder. Intents: `agent_threads`, `agent_thread_start`,
+      `agent_prompt` (events stream as `AgentStreamed`), `agent_cancel`,
+      `agent_answer`, `agent_close`. `Providers::location()` gives the
+      installed program.
+    - Verified: engine 150 + contract 4 tests, workspace clippy, cargo fmt,
+      svelte-check 0, bindings regenerated.
+    - Live (running app, CDP): a Codex thread in the active project;
+      "Remember the word quince" → "OK" (9 s), "Which word…?" → "quince"
+      (3 s), both saved. Streamed to the window as `text:OK`, `turnEnded`,
+      `text:qu`, `text:ince`, `turnEnded`. `agent_threads` lists "codex Codex
+      turns=4".
+    - Known limit: after a restart, a Claude Code thread resumes through
+      its saved session id, but an ACP thread (Codex) opens a new session.
+      Its history is saved, its memory is not, until ACP `session/load` is
+      used.

@@ -208,6 +208,12 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             commands::candle::candle_load_config,
             commands::candle::candle_save_config,
             commands::candle::candle_restart_pool,
+            commands::agents::agent_threads,
+            commands::agents::agent_thread_start,
+            commands::agents::agent_prompt,
+            commands::agents::agent_cancel,
+            commands::agents::agent_answer,
+            commands::agents::agent_close,
             commands::llama_server_config::llama_server_load_config,
             commands::llama_server_config::llama_server_save_config,
             commands::ollama::sidecar::ollama_start,
@@ -456,6 +462,8 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             events::UpdateAvailable,
             events::UpdateDownloadProgress,
             events::UpdateInstallFinished,
+            // Agent threads — one event of a running turn.
+            events::AgentStreamed,
         ])
 }
 

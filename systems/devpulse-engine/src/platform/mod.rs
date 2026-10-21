@@ -24,6 +24,7 @@
 //! └── logs/       Rotated log files
 //! ```
 
+pub mod agents;
 mod boot;
 pub mod config;
 pub mod containers;
@@ -349,6 +350,8 @@ pub struct Platform {
     containers: Option<Arc<containers::Containers>>,
     /// Your AI providers (subscriptions, desktop apps), checked from boot.
     providers: Arc<providers::Providers>,
+    /// Your threads with your agents (needs the user database).
+    agents: Option<Arc<agents::Agents>>,
     user_analytics: Option<Arc<AnalyticsService>>,
     user_graph: Option<Arc<GraphService>>,
     // ── Global scope ────────────────────────────────────────────
@@ -428,6 +431,7 @@ struct UserWorkflows {
     onboarding: Option<Arc<onboarding::Onboarding>>,
     projects: Option<Arc<projects::Projects>>,
     containers: Option<Arc<containers::Containers>>,
+    agents: Option<Arc<agents::Agents>>,
 }
 
 /// Start what lives in the user database: first run, your projects, and
@@ -439,6 +443,7 @@ async fn start_user_workflows(
     user_graph: Option<Arc<GraphService>>,
     data_dir: &std::path::Path,
     signals: &crate::Engine,
+    providers: &Arc<providers::Providers>,
 ) -> UserWorkflows {
     let Some(user) = user else {
         return UserWorkflows::default();
@@ -487,10 +492,17 @@ async fn start_user_workflows(
             None
         }
     };
+    let agents = Some(Arc::new(agents::Agents::new(
+        Arc::clone(user.adapter()),
+        data_dir.to_path_buf(),
+        Arc::clone(providers),
+        projects.clone(),
+    )));
     UserWorkflows {
         onboarding,
         projects,
         containers,
+        agents,
     }
 }
 
@@ -543,6 +555,7 @@ impl Platform {
             booted.user_graph.clone(),
             &data_dir,
             &user_signals,
+            &providers,
         )
         .await;
 
@@ -590,6 +603,7 @@ impl Platform {
             onboarding: user_workflows.onboarding,
             projects: user_workflows.projects,
             containers: user_workflows.containers,
+            agents: user_workflows.agents,
             providers,
             user_analytics: booted.user_analytics,
             user_graph: booted.user_graph,
@@ -827,6 +841,11 @@ impl Platform {
     /// Your AI providers.
     pub fn providers(&self) -> &Arc<providers::Providers> {
         &self.providers
+    }
+
+    /// Your threads with your agents (when the user database is open).
+    pub fn agents(&self) -> Option<&Arc<agents::Agents>> {
+        self.agents.as_ref()
     }
 
     /// Get the user relational service (if enabled and booted).

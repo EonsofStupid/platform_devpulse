@@ -92,6 +92,21 @@ impl Providers {
         self.state.lock().await.clone()
     }
 
+    /// Where an installed provider's program is, from the last check;
+    /// `None` when it was not found on this machine.
+    pub async fn location(&self, id: ProviderId) -> Option<String> {
+        self.state
+            .lock()
+            .await
+            .report
+            .as_ref()?
+            .providers
+            .iter()
+            .find(|p| p.id == id)?
+            .location
+            .clone()
+    }
+
     async fn publish(&self) -> ProvidersState {
         let state = self.state().await;
         self.signals.emit(Signal::new(

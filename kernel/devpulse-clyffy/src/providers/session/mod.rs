@@ -201,8 +201,8 @@ impl AgentSession {
     }
 
     /// End the conversation (the agent's process stops).
-    pub async fn close(self) {
-        match self.kind {
+    pub async fn close(&self) {
+        match &self.kind {
             Kind::Acp(session) => session.close().await,
             Kind::Headless(session) => session.cancel().await,
         }

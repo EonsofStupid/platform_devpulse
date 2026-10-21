@@ -435,6 +435,14 @@ CREATE TABLE IF NOT EXISTS turns (
 CREATE INDEX IF NOT EXISTS idx_turns_session ON turns(session_id, sequence_num);
 CREATE INDEX IF NOT EXISTS idx_turns_project ON turns(project_id);
 
+-- Agent threads: a session held with one of your agents (plan 0001 B3.3)
+CREATE TABLE IF NOT EXISTS agent_threads (
+    session_id TEXT PRIMARY KEY REFERENCES sessions(id) ON DELETE CASCADE,
+    provider_id TEXT NOT NULL,               -- registry id: claude-code, codex, …
+    resume_token TEXT,                       -- the agent's own id that continues it
+    created_at INTEGER DEFAULT (unixepoch())
+);
+
 -- Session anchors (facts extracted during conversation)
 CREATE TABLE IF NOT EXISTS anchors (
     id TEXT PRIMARY KEY,

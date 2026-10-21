@@ -170,3 +170,17 @@ pub struct UpdateDownloadProgress {
 /// `app.restart()`.
 #[derive(Debug, Clone, Serialize, Deserialize, Type, Event)]
 pub struct UpdateInstallFinished {}
+
+// ── Agent threads ───────────────────────────────────────────────────
+
+/// One event of an agent thread's running turn (plan 0001 B3.3): part of
+/// the answer, its reasoning, a tool it uses, a permission it asks for, the
+/// turn's end or its failure.
+#[derive(Debug, Clone, Serialize, Deserialize, Type, Event)]
+#[serde(rename_all = "camelCase")]
+pub struct AgentStreamed {
+    /// The thread (its chat session id).
+    pub session_id: String,
+    /// What happened.
+    pub event: devpulse_engine::platform::agents::AgentEvent,
+}

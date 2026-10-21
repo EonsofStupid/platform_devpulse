@@ -1224,6 +1224,74 @@ async candleRestartPool() : Promise<Result<number, string>> {
 }
 },
 /**
+ * The agent threads of a project, latest first.
+ */
+async agentThreads(projectId: string) : Promise<Result<AgentThread[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("agent_threads", { projectId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Start a thread with one of your installed agents.
+ */
+async agentThreadStart(projectId: string, providerId: ProviderId) : Promise<Result<AgentThread, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("agent_thread_start", { projectId, providerId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Send a prompt on a thread. Returns once the agent has the prompt; the
+ * turn's events follow as `AgentStreamed`.
+ */
+async agentPrompt(sessionId: string, text: string) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("agent_prompt", { sessionId, text }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Stop a thread's running turn.
+ */
+async agentCancel(sessionId: string) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("agent_cancel", { sessionId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Answer a permission request (`choice` is one of its choice ids; none
+ * refuses). Returns `false` when the request is no longer waiting.
+ */
+async agentAnswer(sessionId: string, request: string, choice: string | null) : Promise<Result<boolean, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("agent_answer", { sessionId, request, choice }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * End a thread's live conversation (its history stays).
+ */
+async agentClose(sessionId: string) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("agent_close", { sessionId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Your llama-server settings, or the defaults.
  */
 async llamaServerLoadConfig() : Promise<Result<LlamaServerConfig, string>> {
@@ -4118,6 +4186,7 @@ async setCommunityEnabledCmd(enabled: boolean) : Promise<Result<null, string>> {
 
 
 export const events = __makeEvents__<{
+agentStreamed: AgentStreamed,
 chatSessionDeleted: ChatSessionDeleted,
 cloudCompletionFinished: CloudCompletionFinished,
 cloudTokenStreamed: CloudTokenStreamed,
@@ -4130,6 +4199,7 @@ updateAvailable: UpdateAvailable,
 updateDownloadProgress: UpdateDownloadProgress,
 updateInstallFinished: UpdateInstallFinished
 }>({
+agentStreamed: "agent-streamed",
 chatSessionDeleted: "chat-session-deleted",
 cloudCompletionFinished: "cloud-completion-finished",
 cloudTokenStreamed: "cloud-token-streamed",
@@ -4316,6 +4386,76 @@ export type Affinity =
  * Numbers of either kind (`NUMERIC`, `DECIMAL`, `BOOLEAN`, `DATE`, …).
  */
 "numeric"
+/**
+ * Something that happened during a turn.
+ */
+export type AgentEvent = 
+/**
+ * Part of its answer.
+ */
+{ kind: "text"; text: string } | 
+/**
+ * Part of its reasoning, when it shares it.
+ */
+{ kind: "thought"; text: string } | 
+/**
+ * A tool it is using (reading a file, running a command, …).
+ */
+{ kind: "tool"; id: string; title: string; status: string } | 
+/**
+ * It asks for permission; answer with [`AgentSession::answer`].
+ */
+{ kind: "permissionAsked"; request: string; title: string; choices: PermissionChoice[] } | 
+/**
+ * The turn finished (`end_turn`, `cancelled`, `max_tokens`, …).
+ */
+{ kind: "turnEnded"; stop: string } | 
+/**
+ * The turn could not run or failed, in the agent's own words.
+ */
+{ kind: "failed"; message: string }
+/**
+ * One event of an agent thread's running turn (plan 0001 B3.3): part of
+ * the answer, its reasoning, a tool it uses, a permission it asks for, the
+ * turn's end or its failure.
+ */
+export type AgentStreamed = { 
+/**
+ * The thread (its chat session id).
+ */
+sessionId: string; 
+/**
+ * What happened.
+ */
+event: AgentEvent }
+/**
+ * A thread with one of your agents.
+ */
+export type AgentThread = { 
+/**
+ * The chat session it is (load its turns with the chat's history).
+ */
+sessionId: string; 
+/**
+ * The project it belongs to.
+ */
+projectId: string; 
+/**
+ * The agent.
+ */
+providerId: ProviderId; 
+/**
+ * Its title.
+ */
+title: string; 
+/**
+ * How many turns it holds.
+ */
+turnCount: number; 
+/**
+ * Unix seconds of its last turn.
+ */
+updatedAt: number }
 /**
  * A suggested alternative path the user could take. The frontend
  * renders each as a one-click action.
@@ -9627,6 +9767,22 @@ export type OnboardingStatus =
  * First run is finished.
  */
 "complete"
+/**
+ * One choice of a permission request, as the agent worded it.
+ */
+export type PermissionChoice = { 
+/**
+ * The agent's id for it.
+ */
+id: string; 
+/**
+ * What the agent calls it.
+ */
+label: string; 
+/**
+ * It allows the action (as opposed to refusing it).
+ */
+allows: boolean }
 /**
  * What the wizard / chat command sends.
  */
