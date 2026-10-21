@@ -33,3 +33,12 @@ args = ["update"]
 [connect]
 # Print mode: "query via SDK, then exit"; the answer as plain text on stdout.
 args = ["-p", "{prompt}", "--output-format", "text"]
+
+[connect.conversation]
+# A chat turn: print mode streaming its events as they happen; later turns
+# resume the session the first one reported. Checked 2026-10-21 against
+# `claude --help` and a real turn (system/init → stream_event deltas →
+# result) with Claude Code 2.1.296.
+args = ["-p", "{prompt}", "--output-format", "stream-json", "--verbose", "--include-partial-messages"]
+resume = ["--resume", "{session}"]
+output = "claude-stream-json"

@@ -32,3 +32,9 @@ args = []
 [connect]
 # Headless: one prompt, the answer printed. Unconfirmed (see above).
 args = ["-p", "{prompt}"]
+
+[connect.conversation]
+# Unconfirmed (see above): one prompt per turn as plain text. Its documented
+# conversation resumption replaces this once `agy --help` is read.
+args = ["-p", "{prompt}"]
+output = "text"

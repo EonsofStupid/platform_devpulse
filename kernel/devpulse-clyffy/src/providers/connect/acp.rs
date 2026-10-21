@@ -26,7 +26,7 @@ pub struct AcpAnswer {
 
 /// The refusal for a permission request: the agent's own "reject once"
 /// option when it offers one, else the request is cancelled.
-fn refuse(request: &RequestPermissionRequest) -> RequestPermissionResponse {
+pub(crate) fn refuse(request: &RequestPermissionRequest) -> RequestPermissionResponse {
     let reject = request
         .options
         .iter()

@@ -1458,3 +1458,26 @@ queries proving what was written.
     not installed. Noted for B3.3: the older `list_provider_status` (no UI
     caller) reports agent rows as "not configured" — its "configured" means
     "has an API key", as it did for the old subscription row.
+  - 2026-10-21 — **B3.2 done: real conversations with your agents**
+    (kernel `providers/session/`). One live session per thread:
+    - ACP agents keep one process and one ACP session (`session/new`, many
+      `session/prompt`s); updates become chat events (text, thought, tool
+      use, permission asked, turn ended, failed); `session/cancel` stops a
+      turn. Permission requests wait for your answer off the SDK's dispatch
+      loop (its documented deadlock rule) and are refused after 10 minutes.
+    - Headless agents run once per turn; the definition's new
+      `connect.conversation` (args, `resume`, `output`) says how. Claude Code
+      streams `--output-format stream-json --include-partial-messages` and
+      resumes the session id it reported (`--resume`), checked against
+      `claude --help` and a real turn's event shapes. Antigravity CLI is
+      plain text, marked unconfirmed.
+    - The live test caught two real bugs, both fixed: a finishing turn
+      cleared the next turn's stop signal (read as "cancelled"), and a stall
+      from waiting with the lock held. A turn now ends at its ending event,
+      and the next turn waits for the previous process to exit before
+      resuming.
+    Verified: kernel 100 tests (stream-json parsing, resume arguments, ACP
+    update mapping, permission answers), clippy, fmt. Live
+    (`two_turns_keep_their_context`, ignored by default): Claude Code
+    "OK" → "marmalade" and Codex "OK" → "m","arm","alade" — both kept the
+    conversation on your own subscriptions.

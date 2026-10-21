@@ -163,6 +163,37 @@ pub struct ConnectSpec {
     /// run instead of the provider's own program.
     #[serde(default)]
     pub connector: Option<ConnectorSpec>,
+    /// How a conversation runs in the agent's headless mode (headless only;
+    /// an ACP agent keeps one session open instead).
+    #[serde(default)]
+    pub conversation: Option<ConversationSpec>,
+}
+
+/// One conversation turn in an agent's headless mode.
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ConversationSpec {
+    /// Arguments for a turn; must carry `{prompt}`.
+    pub args: Vec<String>,
+    /// Added on later turns to continue the same conversation; must carry
+    /// `{session}` (the id the agent reported on its first turn). Without
+    /// it, every turn starts fresh.
+    #[serde(default)]
+    pub resume: Vec<String>,
+    /// What the agent prints.
+    pub output: StreamFormat,
+}
+
+/// What a headless agent prints during a turn.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum StreamFormat {
+    /// Claude Code's `--output-format stream-json`: one JSON event per line
+    /// (`system/init` with the session id, `stream_event` text and thinking
+    /// deltas, `assistant` tool uses, `result` at the end).
+    ClaudeStreamJson,
+    /// Plain text: every line is part of the answer.
+    Text,
 }
 
 /// One provider `DevPulse` knows how to find and check.
@@ -341,11 +372,26 @@ impl ProviderDefinition {
                 if connect.connector.is_some() {
                     bail!("{id}: connect.connector is for acp_agent only");
                 }
+                if let Some(conversation) = &connect.conversation {
+                    if !conversation.args.iter().any(|a| a.contains("{prompt}")) {
+                        bail!("{id}: connect.conversation.args must carry {{prompt}}");
+                    }
+                    if !conversation.resume.is_empty()
+                        && !conversation.resume.iter().any(|a| a.contains("{session}"))
+                    {
+                        bail!("{id}: connect.conversation.resume must carry {{session}}");
+                    }
+                }
             }
             AdapterKind::AcpAgent => {
                 if connect.args.iter().any(|a| a.contains("{prompt}")) {
                     bail!(
                         "{id}: connect.args for acp_agent start a server; the question goes over ACP, not {{prompt}}");
+                }
+                if connect.conversation.is_some() {
+                    bail!(
+                        "{id}: connect.conversation is for headless agents; an ACP agent keeps one session open"
+                    );
                 }
             }
         }
@@ -546,6 +592,20 @@ args = [\"acp\"]
                 )
                 .replace("id = \"codex\"", "id = \"claude-desktop\""),
                 "mcp_client",
+            ),
+            (
+                format!("{GOOD}\n[connect]\nargs = [\"-p\", \"{{prompt}}\"]\n[connect.conversation]\nargs = [\"-p\"]\noutput = \"text\"\n")
+                    .replace("id = \"codex\"", "id = \"claude-code\""),
+                "conversation.args",
+            ),
+            (
+                format!("{GOOD}\n[connect]\nargs = [\"-p\", \"{{prompt}}\"]\n[connect.conversation]\nargs = [\"-p\", \"{{prompt}}\"]\nresume = [\"--resume\"]\noutput = \"text\"\n")
+                    .replace("id = \"codex\"", "id = \"claude-code\""),
+                "{session}",
+            ),
+            (
+                format!("{GOOD}\n[connect]\n[connect.conversation]\nargs = [\"{{prompt}}\"]\noutput = \"text\"\n"),
+                "keeps one session open",
             ),
         ];
         for (text, needle) in cases {
