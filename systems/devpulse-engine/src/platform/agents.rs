@@ -292,6 +292,7 @@ impl Agents {
         devpulse_telemetry::spawn(async move {
             let mut answer = String::new();
             let mut stop = String::from("end_turn");
+            let mut ending = None;
             while let Some(event) = events.recv().await {
                 match &event {
                     AgentEvent::Text { text } => answer.push_str(text),
@@ -304,11 +305,16 @@ impl Agents {
                     }
                     _ => {}
                 }
-                let ends = event.ends_turn();
-                let _ = out.send(event);
-                if ends {
+                // The ending event goes out only after the turn is saved, so
+                // a window that reloads on it finds the answer.
+                if event.ends_turn() {
+                    ending = Some(event);
                     break;
                 }
+                let _ = out.send(event);
+            }
+            if ending.is_none() {
+                "failed".clone_into(&mut stop);
             }
             let latency = i64::try_from(started.elapsed().as_millis()).unwrap_or(i64::MAX);
             if let Err(e) = save_turn(
@@ -338,6 +344,9 @@ impl Agents {
                     tracing::warn!(target: "agents", %session_id, error = %e, "the conversation token was not saved");
                 }
             }
+            let _ = out.send(ending.unwrap_or(AgentEvent::Failed {
+                message: "the agent stopped without ending its turn".to_owned(),
+            }));
         });
         Ok(receiver)
     }

@@ -127,15 +127,25 @@ class SuggestState {
 		this.usedSuggestion = true;
 	}
 
-	/** Persist a committed prompt into the corpus for future recall. */
+	/**
+	 * Persist a committed prompt into the corpus for future recall.
+	 * Suggestions are optional: without the suggestion slot's embedder this
+	 * is logged and skipped (as `query` does), never thrown at the chat.
+	 */
 	async record(text: string): Promise<void> {
 		const trimmed = text.trim();
 		if (trimmed.length === 0) return;
 		const accepted = this.usedSuggestion;
-		await withAction("chat.suggest.record", "Recording prompt for recall…", async () => {
-			unwrap(await commands.suggestRecord(trimmed, DEFAULT_PERSONA, accepted));
-		});
-		this.usedSuggestion = false;
+		try {
+			await withAction("chat.suggest.record", "Recording prompt for recall…", async () => {
+				unwrap(await commands.suggestRecord(trimmed, DEFAULT_PERSONA, accepted));
+			});
+		} catch (e) {
+			const msg = e instanceof Error ? e.message : String(e);
+			logError("chat.suggest", `record failed: ${msg}`);
+		} finally {
+			this.usedSuggestion = false;
+		}
 	}
 }
 

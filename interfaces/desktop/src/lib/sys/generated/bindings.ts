@@ -4387,6 +4387,42 @@ export type Affinity =
  */
 "numeric"
 /**
+ * Threads with your agents in the chat (plan 0001 B3.4).
+ */
+export type AgentChatCopy = { 
+/**
+ * Label of the agent picker.
+ */
+new_thread: string; 
+/**
+ * Shown when no agent can hold a conversation yet.
+ */
+none_ready: string; 
+/**
+ * The local brain, as the author of its answers.
+ */
+local: string; 
+/**
+ * While the agent works and has not answered yet.
+ */
+working: string; 
+/**
+ * "Using: {title}" — a tool the agent is using.
+ */
+using_tool: string; 
+/**
+ * "{agent} asks:" — before a permission request.
+ */
+asks: string; 
+/**
+ * Button: refuse a permission request.
+ */
+refuse: string; 
+/**
+ * Button: stop the running turn.
+ */
+stop: string }
+/**
  * Something that happened during a turn.
  */
 export type AgentEvent = 
@@ -5775,6 +5811,14 @@ column: string;
  */
 value: Cell }
 /**
+ * The chat.
+ */
+export type ChatCopy = { 
+/**
+ * Threads with your agents.
+ */
+agents: AgentChatCopy }
+/**
  * A chat turn returned to the frontend (`turns.id` is a string key).
  */
 export type ChatMessage = { 
@@ -6458,6 +6502,10 @@ layout: LayoutCopy;
  * Devtools.
  */
 devtools: DevtoolsCopy; 
+/**
+ * The chat.
+ */
+chat: ChatCopy; 
 /**
  * Route names, keyed by the URL path the route folders give
  * (`/devtools/system/datastores/turso`). The desktop's architecture

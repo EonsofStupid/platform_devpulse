@@ -213,6 +213,16 @@ collapse_short = "Collapse"
 planned = "Planned"
 planned_body = "This devtool is planned and not built yet."
 
+[chat.agents]
+new_thread = "New thread with…"
+none_ready = "No agent can chat yet — install or sign in to one in Settings → Run setup again → Your AI."
+local = "Clyffy"
+working = "Working…"
+using_tool = "Using: {title}"
+asks = "{agent} asks:"
+refuse = "Don't allow"
+stop = "Stop"
+
 # ─────────────────────────────────────────────────────────────────────
 # Routes — one name per route folder, keyed by its URL path (plan 0008).
 # The desktop builds every menu, dashboard and tile from its route folders

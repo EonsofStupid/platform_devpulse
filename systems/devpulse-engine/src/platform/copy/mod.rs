@@ -371,6 +371,36 @@ pub struct SidebarCopy {
     pub collapse_short: String,
 }
 
+/// Threads with your agents in the chat (plan 0001 B3.4).
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+#[serde(deny_unknown_fields)]
+pub struct AgentChatCopy {
+    /// Label of the agent picker.
+    pub new_thread: String,
+    /// Shown when no agent can hold a conversation yet.
+    pub none_ready: String,
+    /// The local brain, as the author of its answers.
+    pub local: String,
+    /// While the agent works and has not answered yet.
+    pub working: String,
+    /// "Using: {title}" — a tool the agent is using.
+    pub using_tool: String,
+    /// "{agent} asks:" — before a permission request.
+    pub asks: String,
+    /// Button: refuse a permission request.
+    pub refuse: String,
+    /// Button: stop the running turn.
+    pub stop: String,
+}
+
+/// The chat.
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+#[serde(deny_unknown_fields)]
+pub struct ChatCopy {
+    /// Threads with your agents.
+    pub agents: AgentChatCopy,
+}
+
 /// The devtools' shared text; each devtool's own name and lines are `nav`.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 #[serde(deny_unknown_fields)]
@@ -401,6 +431,8 @@ pub struct CopyCatalog {
     pub layout: LayoutCopy,
     /// Devtools.
     pub devtools: DevtoolsCopy,
+    /// The chat.
+    pub chat: ChatCopy,
     /// Route names, keyed by the URL path the route folders give
     /// (`/devtools/system/datastores/turso`). The desktop's architecture
     /// test holds these keys equal to its route tree.

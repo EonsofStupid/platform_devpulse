@@ -10,12 +10,20 @@ import {
 	onInferenceToken,
 } from "$lib/domains/app/models/index.js";
 import { projectsState } from "$lib/domains/app/projects/index.js";
+import { providersState } from "$lib/domains/app/providers/index.js";
 import type { ChatMessage } from "$lib/sys/generated/bindings.js";
 import { logError, logInfo } from "$lib/sys/logger.js";
 import { globalState } from "$lib/sys/runes/global.svelte.js";
 import type { ChatMode } from "../util/chat.types.js";
 import { toBlockMessage } from "../util/format.js";
+import { agentsState } from "./agents.state.svelte.js";
 import * as chatService from "./chat.service.js";
+
+/** The display name of an agent that answered, from Rust's providers report. */
+function agentName(modelUsed: string | null): string | null {
+	if (!modelUsed) return null;
+	return providersState.current?.report?.providers.find((p) => p.id === modelUsed)?.name ?? null;
+}
 
 class ChatState {
 	messages = $state<ChatMessage[]>([]);
@@ -29,7 +37,14 @@ class ChatState {
 	streamingContent = $state("");
 	generatingTokens = $state(0);
 
-	blockMessages = $derived.by(() => this.messages.map(toBlockMessage));
+	/** Messages as the stream shows them; an agent's answers carry its name. */
+	blockMessages = $derived.by(() =>
+		this.messages.map((m) => {
+			const block = toBlockMessage(m);
+			const agent = m.role === "assistant" ? agentName(m.modelUsed) : null;
+			return agent ? { ...block, author: agent } : block;
+		}),
+	);
 
 	get mode(): ChatMode {
 		return globalState.chat_mode;
@@ -86,6 +101,12 @@ class ChatState {
 	async generateResponse(content: string): Promise<void> {
 		const pid = this.projectId();
 		if (!pid || !content.trim() || this.sending || this.isGenerating) return;
+
+		// A thread with one of your agents goes to that agent.
+		if (agentsState.thread(this.activeSessionId)) {
+			await this.askAgent(content.trim());
+			return;
+		}
 
 		// Check brain is loaded
 		const brainStatus = modelsState.statuses["chat.brain"];
@@ -150,6 +171,38 @@ class ChatState {
 			this.isGenerating = false;
 			this.streamingContent = "";
 			this.generatingTokens = 0;
+		}
+	}
+
+	/**
+	 * Send a message on an agent thread. Rust saves both sides of the turn;
+	 * the stream shows the turn as it runs and reloads the saved turns when
+	 * it ends.
+	 */
+	private async askAgent(content: string): Promise<void> {
+		const sessionId = this.activeSessionId;
+		if (!sessionId) return;
+		this.error = null;
+		this.isGenerating = true;
+		this.messages = [
+			...this.messages,
+			{
+				id: `pending-${Date.now()}`,
+				sessionId,
+				role: "user",
+				content,
+				createdAt: Math.floor(Date.now() / 1000),
+				tokenCount: null,
+				modelUsed: null,
+				latencyMs: null,
+			},
+		];
+		try {
+			await agentsState.prompt(sessionId, content);
+		} finally {
+			this.isGenerating = false;
+			await this.loadActive();
+			if (agentsState.error) this.error = agentsState.error;
 		}
 	}
 

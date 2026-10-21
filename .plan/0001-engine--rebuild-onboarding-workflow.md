@@ -1505,3 +1505,30 @@ queries proving what was written.
       its saved session id, but an ACP thread (Codex) opens a new session.
       Its history is saved, its memory is not, until ACP `session/load` is
       used.
+  - 2026-10-21 — **B3.4 done: your agents in the chat window.**
+    - "New thread with…" (ColdLight Select) lists the agents that can chat
+      now: installed, a way to talk to them, connector in place, from the
+      providers state.
+    - A thread's messages go to its agent (`agentsState` over the agent
+      intents and `AgentStreamed`). The reply streams under the agent's
+      name, and "Working…" / "Using: {tool}" and Stop show while it runs.
+    - A permission request shows the agent's own choices plus "Don't
+      allow". The local-brain gate applies only to non-agent threads.
+      Saved answers carry the agent's name. Text comes from a new
+      `[chat.agents]` copy section.
+    - Found and fixed on the way:
+      - The engine forwarded "turn ended" before saving the answer, so the
+        window reloaded too early and missed it. It now saves first.
+      - Every send threw an unhandled rejection when the `chat.suggest`
+        embedder was not loaded, covering the chat with the error overlay.
+        `record` now logs and skips, as `query` already did.
+      - Session rows showed raw session ids; they now show the last
+        activity time.
+    - Verified: kernel 100 + engine 150 + contract 4, workspace clippy,
+      cargo fmt, svelte-check 0, Biome 563, arch 18.
+    - Live in the chat window (CDP: pick, type, Enter): one pick made one
+      thread (6 → 7); "Remember the word fig" → "OK", "Which word…?" →
+      "fig", both under "Codex"; screenshot checked.
+    - Not yet exercised live: a permission prompt (Codex asked for none) and
+      a Claude Code thread in the app (its kernel two-turn test passes; in
+      this repo Claude Code would also run the repo's own hooks).

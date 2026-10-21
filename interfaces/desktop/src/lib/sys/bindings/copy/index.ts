@@ -10,6 +10,8 @@ import { commands } from "$lib/sys/generated/bindings.js";
 export const getCopy = commands.getCopy;
 
 export type {
+	AgentChatCopy,
+	ChatCopy,
 	ContainersCopy,
 	CopyCatalog,
 	FormErrorsCopy,

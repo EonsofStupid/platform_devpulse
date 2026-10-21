@@ -6,6 +6,7 @@ import { DynamicBackground } from "@devpulse/coldlight/components/dynamic-backgr
 import { Text } from "@devpulse/coldlight/components/text";
 import { ModelEventCard, modelsState } from "$lib/domains/app/models/index.js";
 import { projectsState } from "$lib/domains/app/projects/index.js";
+import { agentsState } from "../data-access/agents.state.svelte.js";
 import { chatState } from "../data-access/chat.state.svelte.js";
 import { sessionsState } from "../data-access/sessions.state.svelte.js";
 import ChatActionsMenu from "./ChatActionsMenu.svelte";
@@ -33,8 +34,9 @@ const activeModelEvents = $derived.by(() => {
 // state has arrived and the platform answers, there is nothing to load.
 $effect(() => {
 	if (!projectsState.ready) return;
-	void projectsState.activeProjectId;
+	const project = projectsState.activeProjectId;
 	void sessionsState.refresh();
+	if (project) void agentsState.refresh(project);
 });
 
 $effect(() => {

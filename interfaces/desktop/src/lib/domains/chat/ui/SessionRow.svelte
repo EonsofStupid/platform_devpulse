@@ -6,7 +6,7 @@ import { Text } from "@devpulse/coldlight/components/text";
 import { cssVarString, renderForge } from "@devpulse/coldlight/renderforge";
 import { cn } from "@devpulse/coldlight/utils";
 import type { ChatSession } from "$lib/sys/generated/bindings.js";
-import { previewText } from "../util/format.js";
+import { formatTime } from "../util/format.js";
 
 interface Props {
 	session: ChatSession;
@@ -33,5 +33,5 @@ const m = $derived(renderForge({ kind: "chat-sidebar", preset, state: "default" 
 	onclick={onClick}
 >
 	<Text size="xs" weight="semibold" class="truncate">{session.title ?? session.id}</Text>
-	<Text size="xs" class="text-[var(--text-muted)] truncate">{previewText(session.id, 28)}</Text>
+	<Text size="xs" class="text-[var(--text-muted)] truncate">{formatTime(session.updatedAt)}</Text>
 </button>
