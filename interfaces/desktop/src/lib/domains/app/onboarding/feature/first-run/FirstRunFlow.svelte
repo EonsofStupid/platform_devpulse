@@ -19,6 +19,7 @@ import { youForm } from "../../data-access/you-form.state.svelte.js";
 import { OnboardingShell } from "../../ui/onboarding-shell/index.js";
 import ContainersView from "./views/ContainersView.svelte";
 import WelcomeView from "./views/WelcomeView.svelte";
+import YourAiView from "./views/YourAiView.svelte";
 import YouView from "./views/YouView.svelte";
 
 const state = $derived(onboardingState.current);
@@ -50,6 +51,8 @@ $effect(() => {
 			<WelcomeView copy={copy.welcome} detected={state.detected} />
 		{:else if state.stage === "you" && copyState.catalog}
 			<YouView copy={copy.you} errorCopy={copyState.catalog.forms.errors} />
+		{:else if state.stage === "your_ai"}
+			<YourAiView copy={copy.your_ai} />
 		{:else if state.stage === "containers"}
 			<ContainersView copy={copy.containers} />
 		{/if}

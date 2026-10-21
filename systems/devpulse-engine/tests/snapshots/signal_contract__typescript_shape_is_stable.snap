@@ -55,6 +55,10 @@ export type SignalVariant =
  */
 { type: "containers"; data: ContainersState } | 
 /**
+ * Your AI providers: installed, versions, signed in, the action running.
+ */
+{ type: "providers"; data: ProvidersState } | 
+/**
  * The bridge fell behind: windows re-read the state snapshot.
  */
 { type: "resync" }

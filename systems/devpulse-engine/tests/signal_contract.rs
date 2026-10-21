@@ -15,6 +15,10 @@ use devpulse_engine::platform::onboarding::{
     Detected, DetectedFolder, OnboardingState, OnboardingStatus, Requirement, Stage,
 };
 use devpulse_engine::platform::projects::{Project, ProjectsState};
+use devpulse_engine::platform::providers::{
+    AdapterKind, ProviderAction, ProviderKind, ProviderReport, ProvidersReport, ProvidersState,
+    SignedIn,
+};
 use devpulse_engine::platform::{HardwareMetrics, InitEvent};
 use devpulse_engine::signals::{
     AnalyticsEventType, AnalyticsPayload, AnalyticsProperties, BootPhase, BootStatus, ChatPayload,
@@ -124,6 +128,32 @@ fn sample(kind: SignalKind) -> SignalVariant {
             advice: None,
             running: None,
             last_run: None,
+            problem: None,
+        })),
+        SignalKind::Providers => SignalVariant::Providers(Box::new(ProvidersState {
+            checking: false,
+            report: Some(ProvidersReport {
+                providers: vec![ProviderReport {
+                    id: "codex".into(),
+                    name: "Codex".into(),
+                    kind: ProviderKind::SubscriptionAgent,
+                    adapter: AdapterKind::AcpAgent,
+                    docs: "https://github.com/openai/codex".into(),
+                    note: None,
+                    installed: true,
+                    location: Some("/home/ada/.local/bin/codex".into()),
+                    version: Some("0.163.0".into()),
+                    latest: Some("0.163.0".into()),
+                    update_available: false,
+                    signed_in: SignedIn::Yes,
+                    actions: vec![ProviderAction::SignIn, ProviderAction::Update],
+                    problems: Vec::new(),
+                }],
+                catalog_problems: Vec::new(),
+                checked_at: 1_760_000_000,
+            }),
+            running: None,
+            last_action: None,
             problem: None,
         })),
         SignalKind::Resync => SignalVariant::Resync,

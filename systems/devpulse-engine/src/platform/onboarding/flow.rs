@@ -23,6 +23,8 @@ pub enum Stage {
     Welcome,
     /// Your name, email and projects folder.
     You,
+    /// Your AI: the subscriptions and apps you already have.
+    YourAi,
     /// Your dev environment: a container engine for your projects.
     Containers,
 }
@@ -34,6 +36,7 @@ impl Stage {
         match self {
             Self::Welcome => "welcome",
             Self::You => "you",
+            Self::YourAi => "your_ai",
             Self::Containers => "containers",
         }
     }
@@ -46,6 +49,7 @@ impl Stage {
         match id {
             "welcome" => Ok(Self::Welcome),
             "you" => Ok(Self::You),
+            "your_ai" => Ok(Self::YourAi),
             "containers" => Ok(Self::Containers),
             other => bail!("unknown first-run stage {other:?}"),
         }
@@ -184,11 +188,12 @@ mod tests {
         let flow = Flow::bundled().expect("bundled");
         assert_eq!(
             flow.stages(),
-            [Stage::Welcome, Stage::You, Stage::Containers]
+            [Stage::Welcome, Stage::You, Stage::YourAi, Stage::Containers]
         );
         assert_eq!(flow.first(), Stage::Welcome);
         assert_eq!(flow.next(Stage::Welcome), Some(Stage::You));
-        assert_eq!(flow.next(Stage::You), Some(Stage::Containers));
+        assert_eq!(flow.next(Stage::You), Some(Stage::YourAi));
+        assert_eq!(flow.next(Stage::YourAi), Some(Stage::Containers));
         assert_eq!(flow.next(Stage::Containers), None);
         assert_eq!(flow.previous(Stage::You), Some(Stage::Welcome));
         assert_eq!(flow.previous(Stage::Welcome), None);

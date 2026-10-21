@@ -1,0 +1,32 @@
+# Claude Code — Anthropic's coding agent, used through your own subscription.
+# Facts checked 2026-10-20 against code.claude.com/docs (setup, cli-reference)
+# and the official install script.
+
+id = "claude-code"
+name = "Claude Code"
+kind = "subscription_agent"
+adapter = "acp_agent"
+docs = "https://code.claude.com/docs/en/setup"
+
+[detect]
+executables = ["claude"]
+# The native installer's launcher, when it is not on PATH.
+paths = { windows = ["~/.local/bin/claude.exe"], macos = ["~/.local/bin/claude"], linux = ["~/.local/bin/claude"] }
+
+[version]
+# Prints "2.1.211 (Claude Code)".
+args = ["--version"]
+
+[latest]
+# The plain-text version the official installer reads.
+text_url = "https://downloads.claude.ai/claude-code-releases/latest"
+
+[signed_in]
+# "Exits with code 0 if logged in, 1 if not."
+args = ["auth", "status"]
+
+[sign_in]
+args = ["auth", "login"]
+
+[update]
+args = ["update"]

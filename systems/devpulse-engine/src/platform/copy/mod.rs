@@ -215,6 +215,64 @@ pub struct ContainersCopy {
     pub os: BTreeMap<String, String>,
 }
 
+/// The "Your AI" stage (subscriptions and desktop apps).
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+#[serde(deny_unknown_fields)]
+pub struct YourAiCopy {
+    /// Heading.
+    pub title: String,
+    /// What the stage does.
+    pub subtitle: String,
+    /// Section: your subscriptions.
+    pub subscriptions_heading: String,
+    /// Section: desktop apps.
+    pub apps_heading: String,
+    /// While the machine is being checked.
+    pub checking: String,
+    /// Button: check again.
+    pub check_again: String,
+    /// Not installed.
+    pub not_installed: String,
+    /// "Installed · {version}".
+    pub installed_version: String,
+    /// Installed, version not reported.
+    pub installed: String,
+    /// "Latest {version}".
+    pub latest: String,
+    /// The installed version is the latest.
+    pub up_to_date: String,
+    /// "Update available: {version}".
+    pub update_available: String,
+    /// Signed in.
+    pub signed_in: String,
+    /// Not signed in.
+    pub signed_out: String,
+    /// Sign-in state can't be told.
+    pub signed_in_unknown: String,
+    /// Button: update.
+    pub update: String,
+    /// While updating.
+    pub updating: String,
+    /// Button: sign in.
+    pub sign_in: String,
+    /// While the sign-in window opens.
+    pub opening: String,
+    /// Link to the vendor's docs, for one that is not installed.
+    pub docs: String,
+    /// Link to the vendor's docs, for one that is installed.
+    pub help: String,
+    /// A desktop app updates itself.
+    pub app_updates_itself: String,
+    /// An action finished.
+    pub done: String,
+    /// An action did not work.
+    pub failed: String,
+    /// Nothing could be opened: run this yourself.
+    pub guided: String,
+    /// The way back to this stage later.
+    pub later_hint: String,
+}
+
 /// First run.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 #[serde(deny_unknown_fields)]
@@ -225,6 +283,8 @@ pub struct OnboardingCopy {
     pub welcome: WelcomeCopy,
     /// You.
     pub you: YouCopy,
+    /// Your AI.
+    pub your_ai: YourAiCopy,
     /// Your dev environment.
     pub containers: ContainersCopy,
 }

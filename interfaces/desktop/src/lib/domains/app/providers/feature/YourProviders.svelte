@@ -1,0 +1,171 @@
+<!--
+	@file YourProviders.svelte
+	@module @devpulse/domains/app/providers/feature
+
+	Your AI providers, one card each: installed or not, the installed version
+	against the latest, whether you are signed in, and the vendor's own Update
+	and Sign in — each run only when you click it, with its real output.
+	Everything shown is Rust's `providers` state; text comes from the copy
+	catalog.
+-->
+<script lang="ts">
+import { Button } from "@devpulse/coldlight/components/button";
+import { Card } from "@devpulse/coldlight/components/card";
+import * as CodeBlock from "@devpulse/coldlight/components/code";
+import { Heading } from "@devpulse/coldlight/components/heading";
+import { InlineMessage } from "@devpulse/coldlight/components/inline-message";
+import { Spinner } from "@devpulse/coldlight/components/spinner";
+import { StatusDot } from "@devpulse/coldlight/components/status-dot";
+import { Text } from "@devpulse/coldlight/components/text";
+import type { YourAiCopy } from "$lib/sys/bindings/copy/index.js";
+import { fill } from "$lib/sys/copy/index.js";
+import type { ProviderAction, ProviderReport } from "$lib/sys/generated/bindings.js";
+import { providersState } from "../data-access/providers.state.svelte.js";
+
+let { copy }: { copy: YourAiCopy } = $props();
+
+$effect(() => providersState.start());
+
+const current = $derived(providersState.current);
+const report = $derived(current?.report ?? null);
+const subscriptions = $derived(
+	report?.providers.filter((p) => p.kind === "subscription_agent") ?? [],
+);
+const apps = $derived(report?.providers.filter((p) => p.kind === "desktop_app") ?? []);
+const idle = $derived(
+	!providersState.busy && !current?.checking && (current?.running ?? null) === null,
+);
+
+const dot = (p: ProviderReport) =>
+	!p.installed
+		? ("offline" as const)
+		: p.signedIn === "yes"
+			? ("ready" as const)
+			: ("pending" as const);
+
+function signedInText(p: ProviderReport): string {
+	if (p.signedIn === "yes") return copy.signed_in;
+	if (p.signedIn === "no") return copy.signed_out;
+	return copy.signed_in_unknown;
+}
+
+const running = (p: ProviderReport, action: ProviderAction): boolean =>
+	current?.running?.providerId === p.id && current.running.action === action;
+const lastFor = (p: ProviderReport) =>
+	current?.lastAction?.providerId === p.id ? current.lastAction : null;
+</script>
+
+{#snippet card(p: ProviderReport)}
+	{@const last = lastFor(p)}
+	<Card variant="outlined">
+		<div class="flex flex-col gap-2 p-3">
+			<div class="flex items-center gap-2">
+				<StatusDot status={dot(p)} />
+				<Text weight="semibold">{p.name}</Text>
+			</div>
+
+			{#if p.installed}
+				<Text size="sm">{p.version ? fill(copy.installed_version, { version: p.version }) : copy.installed}</Text>
+				{#if p.latest}
+					<Text size="xs" color="muted">
+						{p.updateAvailable
+							? fill(copy.update_available, { version: p.latest })
+							: p.version
+								? copy.up_to_date
+								: fill(copy.latest, { version: p.latest })}
+					</Text>
+				{:else if p.kind === "desktop_app"}
+					<Text size="xs" color="muted">{copy.app_updates_itself}</Text>
+				{/if}
+				{#if p.kind === "subscription_agent"}
+					<Text size="sm">{signedInText(p)}</Text>
+				{/if}
+			{:else}
+				<Text size="sm" color="muted">{copy.not_installed}</Text>
+				{#if p.latest}
+					<Text size="xs" color="muted">{fill(copy.latest, { version: p.latest })}</Text>
+				{/if}
+			{/if}
+
+			{#if p.note}
+				<Text size="xs" color="muted">{p.note}</Text>
+			{/if}
+
+			<div class="flex flex-wrap items-center gap-2">
+				{#if p.installed && p.actions.includes("signIn") && p.signedIn !== "yes"}
+					<Button preset="primary" size="sm" onclick={() => providersState.act(p.id, "signIn")} disabled={!idle}>
+						{#if running(p, "signIn")}<Spinner size="xs" />{copy.opening}{:else}{copy.sign_in}{/if}
+					</Button>
+				{/if}
+				{#if p.installed && p.actions.includes("update") && p.updateAvailable}
+					<Button preset="secondary" size="sm" onclick={() => providersState.act(p.id, "update")} disabled={!idle}>
+						{#if running(p, "update")}<Spinner size="xs" />{copy.updating}{:else}{copy.update}{/if}
+					</Button>
+				{/if}
+				<a href={p.docs} target="_blank" rel="noreferrer"><Text size="xs" color="muted">{p.installed ? copy.help : copy.docs}</Text></a>
+			</div>
+
+			{#each p.problems as problem (problem)}
+				<Text size="xs" color="muted">{problem}</Text>
+			{/each}
+
+			{#if last}
+				<div class="flex items-center gap-2">
+					<StatusDot status={last.ok ? "ready" : last.guided ? "pending" : "failed"} />
+					<Text size="xs">{last.guided ? copy.guided : last.ok ? copy.done : copy.failed}</Text>
+				</div>
+				{#if last.output}
+					<CodeBlock.Root>
+						<CodeBlock.Content code={last.output} />
+					</CodeBlock.Root>
+				{/if}
+			{/if}
+		</div>
+	</Card>
+{/snippet}
+
+<div class="flex flex-col gap-[clamp(1rem,2.5vh,1.75rem)]">
+	{#if providersState.error}
+		<InlineMessage tone="error">{providersState.error}</InlineMessage>
+	{/if}
+	{#if current?.problem}
+		<InlineMessage tone="error">{current.problem}</InlineMessage>
+	{/if}
+	{#each report?.catalogProblems ?? [] as problem (problem)}
+		<InlineMessage tone="warning">{problem}</InlineMessage>
+	{/each}
+
+	<section class="flex flex-col gap-3" aria-label={copy.subscriptions_heading}>
+		<div class="flex flex-wrap items-center justify-between gap-2">
+			<Heading level={2} size="lg">{copy.subscriptions_heading}</Heading>
+			<Button preset="secondary" size="sm" onclick={providersState.check} disabled={!idle}>
+				{current?.checking ? copy.checking : copy.check_again}
+			</Button>
+		</div>
+		{#if !report}
+			<div class="flex items-center gap-2">
+				<Spinner size="sm" tone="accent" />
+				<Text size="sm" color="muted">{copy.checking}</Text>
+			</div>
+		{:else}
+			<div class="grid gap-3 sm:grid-cols-2">
+				{#each subscriptions as p (p.id)}
+					{@render card(p)}
+				{/each}
+			</div>
+		{/if}
+	</section>
+
+	{#if apps.length}
+		<section class="flex flex-col gap-3" aria-label={copy.apps_heading}>
+			<Heading level={2} size="lg">{copy.apps_heading}</Heading>
+			<div class="grid gap-3 sm:grid-cols-2">
+				{#each apps as p (p.id)}
+					{@render card(p)}
+				{/each}
+			</div>
+		</section>
+	{/if}
+
+	<Text size="xs" color="muted">{copy.later_hint}</Text>
+</div>

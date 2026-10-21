@@ -39,9 +39,9 @@ pub mod integrations;
 pub mod metrics;
 pub mod module;
 pub mod onboarding;
-pub mod process;
 pub mod profile;
 pub mod projects;
+pub mod providers;
 pub mod services;
 pub mod telemetry;
 
@@ -347,6 +347,8 @@ pub struct Platform {
     projects: Option<Arc<projects::Projects>>,
     /// Containers for your projects (needs the user database).
     containers: Option<Arc<containers::Containers>>,
+    /// Your AI providers (subscriptions, desktop apps), checked from boot.
+    providers: Arc<providers::Providers>,
     user_analytics: Option<Arc<AnalyticsService>>,
     user_graph: Option<Arc<GraphService>>,
     // ── Global scope ────────────────────────────────────────────
@@ -525,6 +527,8 @@ impl Platform {
         let (internal_tx, _) = broadcast_channel::<InternalEvent>(INTERNAL_EVENT_CAPACITY);
 
         let user_signals = signals.clone();
+        // Your AI providers need no database: they are checked from boot.
+        let providers = providers::Providers::start(data_dir.clone(), signals.clone());
         let booted = boot::execute(
             &data_dir,
             &boot_config,
@@ -586,6 +590,7 @@ impl Platform {
             onboarding: user_workflows.onboarding,
             projects: user_workflows.projects,
             containers: user_workflows.containers,
+            providers,
             user_analytics: booted.user_analytics,
             user_graph: booted.user_graph,
             global_graph: booted.global_graph,
@@ -817,6 +822,11 @@ impl Platform {
     /// Containers for your projects (when the user database is open).
     pub fn containers(&self) -> Option<&Arc<containers::Containers>> {
         self.containers.as_ref()
+    }
+
+    /// Your AI providers.
+    pub fn providers(&self) -> &Arc<providers::Providers> {
+        &self.providers
     }
 
     /// Get the user relational service (if enabled and booted).

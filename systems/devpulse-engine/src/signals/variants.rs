@@ -60,6 +60,8 @@ pub enum SignalVariant {
     Projects(crate::platform::projects::ProjectsState),
     /// Containers for your projects: what was found, the advice, the step running.
     Containers(Box<crate::platform::containers::ContainersState>),
+    /// Your AI providers: installed, versions, signed in, the action running.
+    Providers(Box<crate::platform::providers::ProvidersState>),
     /// The bridge fell behind: windows re-read the state snapshot.
     Resync,
 }

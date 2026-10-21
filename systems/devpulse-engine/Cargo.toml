@@ -115,6 +115,8 @@ flume = "0.11"
 
 # Infra — telemetry primitives (Envelope<T>, spawn, channels, OTel SDK)
 devpulse-telemetry = { workspace = true }
+# Infra — asking command-line tools (first run, containers)
+devpulse-process = { workspace = true }
 
 # MCP Server — official Rust SDK for Model Context Protocol
 rmcp = { version = "1.5", features = ["server", "macros", "transport-io"] }

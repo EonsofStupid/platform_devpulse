@@ -19,4 +19,5 @@ export type {
 	OnboardingCopy,
 	WelcomeCopy,
 	YouCopy,
+	YourAiCopy,
 } from "$lib/sys/generated/bindings.js";

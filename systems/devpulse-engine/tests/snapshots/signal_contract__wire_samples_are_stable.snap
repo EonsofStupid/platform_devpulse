@@ -174,6 +174,40 @@ expression: "serde_json::to_string_pretty(&samples).expect(\"samples render\")"
     "type": "containers"
   },
   {
+    "data": {
+      "checking": false,
+      "lastAction": null,
+      "problem": null,
+      "report": {
+        "catalogProblems": [],
+        "checkedAt": 1760000000,
+        "providers": [
+          {
+            "actions": [
+              "signIn",
+              "update"
+            ],
+            "adapter": "acp_agent",
+            "docs": "https://github.com/openai/codex",
+            "id": "codex",
+            "installed": true,
+            "kind": "subscription_agent",
+            "latest": "0.163.0",
+            "location": "/home/ada/.local/bin/codex",
+            "name": "Codex",
+            "note": null,
+            "problems": [],
+            "signedIn": "yes",
+            "updateAvailable": false,
+            "version": "0.163.0"
+          }
+        ]
+      },
+      "running": null
+    },
+    "type": "providers"
+  },
+  {
     "type": "resync"
   }
 ]

@@ -102,6 +102,7 @@ pub mod onboarding;
 pub mod pixvix;
 pub mod projects;
 pub mod providers;
+pub mod providers_status;
 pub mod routing;
 pub mod sherpa;
 pub mod signals;

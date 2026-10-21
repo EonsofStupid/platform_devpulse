@@ -15,7 +15,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use specta::Type;
 
-use crate::platform::process::{self, Answer, Ran};
+use devpulse_process::{self as process, Answer, Ran};
 
 /// The bundled engine list.
 const BUNDLED_ENGINES: &str = include_str!("../../../config/containers/engines.toml");

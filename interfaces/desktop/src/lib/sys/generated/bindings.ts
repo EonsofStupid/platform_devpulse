@@ -2342,6 +2342,39 @@ async containersRunStep(step: Step) : Promise<Result<ContainersState, string>> {
 }
 },
 /**
+ * The current providers state (the same value the `providers` signal carries).
+ */
+async providersState() : Promise<Result<ProvidersState, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("providers_state") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Look at every provider again.
+ */
+async providersCheck() : Promise<Result<ProvidersState, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("providers_check") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Run one action (update, or open the vendor's sign-in) on an installed provider.
+ */
+async providersRunAction(providerId: string, action: ProviderAction) : Promise<Result<ProvidersState, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("providers_run_action", { providerId, action }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Get a knowledge entry matching the given type and optional tool context.
  * 
  * Delegates to kernel selector — affinity-weighted, cooldown-gated.
@@ -4246,6 +4279,18 @@ voice_enable_aria: string;
  * `aria-label` for the voice toggle button when voice is currently active.
  */
 voice_disable_aria: string }
+/**
+ * The protocol `DevPulse` speaks to it.
+ */
+export type AdapterKind = 
+/**
+ * The Agent Client Protocol (the agent owns its login and billing).
+ */
+"acp_agent" | 
+/**
+ * The Model Context Protocol: `DevPulse` offers context to the app.
+ */
+"mcp_client"
 /**
  * What [`Projects::add_reference`] needs.
  */
@@ -9680,6 +9725,10 @@ welcome: WelcomeCopy;
  */
 you: YouCopy; 
 /**
+ * Your AI.
+ */
+your_ai: YourAiCopy; 
+/**
  * Your dev environment.
  */
 containers: ContainersCopy }
@@ -10205,6 +10254,62 @@ projects: Project[];
  */
 activeId: string | null }
 /**
+ * Which action.
+ */
+export type ProviderAction = 
+/**
+ * Run the vendor's updater.
+ */
+"update" | 
+/**
+ * Open the vendor's login in a terminal window.
+ */
+"signIn"
+/**
+ * An action on one provider.
+ */
+export type ProviderActionRef = { 
+/**
+ * The provider.
+ */
+providerId: string; 
+/**
+ * The action.
+ */
+action: ProviderAction }
+/**
+ * What an action did.
+ */
+export type ProviderActionRun = { 
+/**
+ * The provider.
+ */
+providerId: string; 
+/**
+ * The action.
+ */
+action: ProviderAction; 
+/**
+ * It worked (for Sign in: the terminal window opened).
+ */
+ok: boolean; 
+/**
+ * Nothing could be opened: `output` is the command to run yourself.
+ */
+guided: boolean; 
+/**
+ * The command, as typed.
+ */
+command: string; 
+/**
+ * The tool's own output (the end of it, when long).
+ */
+output: string; 
+/**
+ * Unix seconds when it finished.
+ */
+finishedAt: number }
+/**
  * Stable wire identifier for a provider.
  * 
  * Used in config files, telemetry, devtool URLs, lane router selection.
@@ -10279,6 +10384,18 @@ export type ProviderId =
  */
 "vllm"
 /**
+ * What kind of provider this is.
+ */
+export type ProviderKind = 
+/**
+ * A coding agent you use through your own subscription (its CLI).
+ */
+"subscription_agent" | 
+/**
+ * A desktop app (no programmatic chat; it can be given context over MCP).
+ */
+"desktop_app"
+/**
  * One row from a `/v1/models` response — projected to what the UI shows.
  * 
  * Vendor responses include more (`created_at`, `owned_by`, capabilities,
@@ -10297,6 +10414,66 @@ id: string;
  * it as a subtitle when present.
  */
 ownedBy: string | null }
+/**
+ * One provider, as found.
+ */
+export type ProviderReport = { 
+/**
+ * Definition id.
+ */
+id: string; 
+/**
+ * Display name.
+ */
+name: string; 
+/**
+ * What it is.
+ */
+kind: ProviderKind; 
+/**
+ * How `DevPulse` talks to it.
+ */
+adapter: AdapterKind; 
+/**
+ * The vendor's documentation.
+ */
+docs: string; 
+/**
+ * The vendor's note, if any.
+ */
+note: string | null; 
+/**
+ * It is on this machine.
+ */
+installed: boolean; 
+/**
+ * Where it was found.
+ */
+location: string | null; 
+/**
+ * The installed version, as the program reports it.
+ */
+version: string | null; 
+/**
+ * The latest published version.
+ */
+latest: string | null; 
+/**
+ * A newer version is published than the one installed.
+ */
+updateAvailable: boolean; 
+/**
+ * Signed in, as far as can be told.
+ */
+signedIn: SignedIn; 
+/**
+ * The actions its definition offers (the vendor's own commands).
+ */
+actions: ProviderAction[]; 
+/**
+ * What could not be read, in the tool's own words (one per line).
+ */
+problems: string[] }
 /**
  * Aggregated row for the Status tab grid — one per visible provider.
  */
@@ -10343,6 +10520,46 @@ lastError: string | null;
  * (`None` if never validated).
  */
 modelCount: number | null }
+/**
+ * Every provider.
+ */
+export type ProvidersReport = { 
+/**
+ * One per definition, in catalog order.
+ */
+providers: ProviderReport[]; 
+/**
+ * Your definition files that were not used, and why.
+ */
+catalogProblems: string[]; 
+/**
+ * Unix seconds when this was checked.
+ */
+checkedAt: number }
+/**
+ * The `providers` state.
+ */
+export type ProvidersState = { 
+/**
+ * A check of this machine is running.
+ */
+checking: boolean; 
+/**
+ * What the last check found; `None` before the first check finishes.
+ */
+report: ProvidersReport | null; 
+/**
+ * The action running now.
+ */
+running: ProviderActionRef | null; 
+/**
+ * The last action that finished.
+ */
+lastAction: ProviderActionRun | null; 
+/**
+ * Why a check could not run, if it couldn't.
+ */
+problem: string | null }
 /**
  * The outcome for one folder you asked to register.
  */
@@ -11358,6 +11575,10 @@ export type SignalKind =
  */
 "containers" | 
 /**
+ * Your AI providers: installed, versions, signed in, the action running.
+ */
+"providers" | 
+/**
  * The bridge fell behind: windows re-read the state snapshot.
  */
 "resync"
@@ -11434,9 +11655,29 @@ export type SignalVariant =
  */
 { type: "containers"; data: ContainersState } | 
 /**
+ * Your AI providers: installed, versions, signed in, the action running.
+ */
+{ type: "providers"; data: ProvidersState } | 
+/**
  * The bridge fell behind: windows re-read the state snapshot.
  */
 { type: "resync" }
+/**
+ * Signed in, as far as can be told.
+ */
+export type SignedIn = 
+/**
+ * The vendor says so (or its login file is there).
+ */
+"yes" | 
+/**
+ * The vendor says not (or no login file is there).
+ */
+"no" | 
+/**
+ * It could not be told (not installed, or the check failed).
+ */
+"unknown"
 /**
  * A single slot's VRAM contribution.
  */
@@ -11617,6 +11858,10 @@ export type Stage =
  * Your name, email and projects folder.
  */
 "you" | 
+/**
+ * Your AI: the subscriptions and apps you already have.
+ */
+"your_ai" | 
 /**
  * Your dev environment: a container engine for your projects.
  */
@@ -13310,6 +13555,114 @@ repo_registered: string;
  * Badge on a repository just added.
  */
 repo_added: string }
+/**
+ * The "Your AI" stage (subscriptions and desktop apps).
+ */
+export type YourAiCopy = { 
+/**
+ * Heading.
+ */
+title: string; 
+/**
+ * What the stage does.
+ */
+subtitle: string; 
+/**
+ * Section: your subscriptions.
+ */
+subscriptions_heading: string; 
+/**
+ * Section: desktop apps.
+ */
+apps_heading: string; 
+/**
+ * While the machine is being checked.
+ */
+checking: string; 
+/**
+ * Button: check again.
+ */
+check_again: string; 
+/**
+ * Not installed.
+ */
+not_installed: string; 
+/**
+ * "Installed · {version}".
+ */
+installed_version: string; 
+/**
+ * Installed, version not reported.
+ */
+installed: string; 
+/**
+ * "Latest {version}".
+ */
+latest: string; 
+/**
+ * The installed version is the latest.
+ */
+up_to_date: string; 
+/**
+ * "Update available: {version}".
+ */
+update_available: string; 
+/**
+ * Signed in.
+ */
+signed_in: string; 
+/**
+ * Not signed in.
+ */
+signed_out: string; 
+/**
+ * Sign-in state can't be told.
+ */
+signed_in_unknown: string; 
+/**
+ * Button: update.
+ */
+update: string; 
+/**
+ * While updating.
+ */
+updating: string; 
+/**
+ * Button: sign in.
+ */
+sign_in: string; 
+/**
+ * While the sign-in window opens.
+ */
+opening: string; 
+/**
+ * Link to the vendor's docs, for one that is not installed.
+ */
+docs: string; 
+/**
+ * Link to the vendor's docs, for one that is installed.
+ */
+help: string; 
+/**
+ * A desktop app updates itself.
+ */
+app_updates_itself: string; 
+/**
+ * An action finished.
+ */
+done: string; 
+/**
+ * An action did not work.
+ */
+failed: string; 
+/**
+ * Nothing could be opened: run this yourself.
+ */
+guided: string; 
+/**
+ * The way back to this stage later.
+ */
+later_hint: string }
 
 /** tauri-specta globals **/
 

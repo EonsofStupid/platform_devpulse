@@ -3,6 +3,11 @@
 /// Cortex subsystem — persistence, reasoning, minions, KV cache.
 pub mod cortex;
 
+/// Providers — every AI you bring (subscription agents, desktop apps), as
+/// definition files: detection, versions, sign-in state and the vendor's own
+/// commands.
+pub mod providers;
+
 /// Clyffy interaction templates — kernel SSOT for structured,
 /// scripted exchanges between Clyffy and the user. The Setup Wizard
 /// is the canonical instance; future templates add hardware-change

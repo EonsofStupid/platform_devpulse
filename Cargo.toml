@@ -6,6 +6,7 @@ members = [
     "kernel/rrd",
     "systems/devpulse-engine",
     "systems/devpulse-media",
+    "systems/infra/devpulse-process",
     "systems/infra/devpulse-telemetry",
     "systems/infra/devpulse-telemetry-macros",
     "interfaces/desktop/src-tauri",
@@ -100,6 +101,7 @@ static_assertions = "1.1"
 tokio-util = { version = "0.7", features = ["rt"] }
 
 # Infra — telemetry primitives (Envelope<T>, spawn, channels, OTel SDK)
+devpulse-process = { path = "systems/infra/devpulse-process" }
 devpulse-telemetry = { path = "systems/infra/devpulse-telemetry" }
 
 # Error Handling

@@ -12,7 +12,7 @@ use specta::Type;
 
 use super::advice::{AdviceConfig, Product, Step, StepKind};
 use super::detect::{ContainersReport, EngineSpec};
-use crate::platform::process::{self, Answer, Ran};
+use devpulse_process::{self as process, Answer, Ran};
 
 /// The most output kept per step (the end of it, where results and errors are).
 const OUTPUT_CAP: usize = 8 * 1024;

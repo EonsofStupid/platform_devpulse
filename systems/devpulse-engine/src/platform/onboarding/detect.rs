@@ -14,7 +14,7 @@ use std::time::Duration;
 use anyhow::{Context, Result};
 use serde::Deserialize;
 
-use crate::platform::process::{self, Ran};
+use devpulse_process::{self as process, Ran};
 
 /// The bundled folder candidates.
 const BUNDLED_FOLDERS: &str = include_str!("../../../config/onboarding/folders.toml");

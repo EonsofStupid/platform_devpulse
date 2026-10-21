@@ -4265,6 +4265,7 @@ dependencies = [
  "candle-core 0.10.2",
  "candle-nn 0.10.2",
  "candle-transformers 0.10.2",
+ "devpulse-process",
  "devpulse-telemetry",
  "duckdb",
  "futures",
@@ -4313,6 +4314,7 @@ dependencies = [
  "burn",
  "chrono",
  "devpulse-clyffy",
+ "devpulse-process",
  "devpulse-telemetry",
  "figment",
  "flume",
@@ -4362,6 +4364,14 @@ dependencies = [
  "tokio-test",
  "tracing",
  "wgpu 24.0.5",
+]
+
+[[package]]
+name = "devpulse-process"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "tokio",
 ]
 
 [[package]]

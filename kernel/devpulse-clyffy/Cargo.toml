@@ -140,6 +140,8 @@ tracing = { workspace = true }
 # cortex::reasoning::state::RroStateHandle and cortex::llguidance::handle::GrammarHandle
 # to fan transition snapshots out to dev tools without losing OTel context.
 devpulse-telemetry = { workspace = true }
+# Asking the AI vendors' own CLIs (versions, sign-in status, updates).
+devpulse-process = { workspace = true }
 
 # Kernel SSOT TOML loaders (interaction templates, minion routing, etc.)
 toml = "0.9"

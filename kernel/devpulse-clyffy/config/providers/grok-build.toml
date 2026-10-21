@@ -1,0 +1,32 @@
+# Grok Build — xAI's coding agent for SuperGrok and X Premium Plus
+# subscribers. Facts checked 2026-10-20 against docs.x.ai/build and the
+# official install scripts. Not installed on the machine this was written on:
+# the Windows path is unconfirmed against a real install.
+
+id = "grok-build"
+name = "Grok Build"
+kind = "subscription_agent"
+adapter = "acp_agent"
+docs = "https://docs.x.ai/build/overview"
+
+[detect]
+executables = ["grok"]
+paths = { windows = ["~/.grok/bin/grok.exe"], macos = ["~/.grok/bin/grok"], linux = ["~/.grok/bin/grok"] }
+
+[version]
+args = ["version"]
+
+[latest]
+# The plain-text version the official installer reads.
+text_url = "https://x.ai/cli/stable"
+
+[signed_in]
+# No status command; `grok login` writes this file. XAI_API_KEY also works,
+# so a missing file means "can't tell".
+files = { windows = ["~/.grok/auth.json"], macos = ["~/.grok/auth.json"], linux = ["~/.grok/auth.json"] }
+
+[sign_in]
+args = ["login"]
+
+[update]
+args = ["update"]

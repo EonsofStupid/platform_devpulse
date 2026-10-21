@@ -1,0 +1,31 @@
+# Cursor CLI — Cursor's coding agent. Facts checked 2026-10-20 against
+# cursor.com/docs/cli and the official install scripts. Not installed on the
+# machine this was written on: the status rule and the Windows path are
+# unconfirmed against a real install.
+
+id = "cursor"
+name = "Cursor CLI"
+kind = "subscription_agent"
+adapter = "acp_agent"
+docs = "https://cursor.com/docs/cli/overview"
+
+[detect]
+# `agent`, with the older `cursor-agent` name kept as a link.
+executables = ["agent", "cursor-agent"]
+paths = { windows = ["%LOCALAPPDATA%/cursor-agent/agent.exe"], macos = ["~/.local/bin/agent"], linux = ["~/.local/bin/agent"] }
+
+[version]
+args = ["--version"]
+
+# Cursor publishes no version feed (its install scripts carry the version), so
+# the latest version is not shown.
+
+[signed_in]
+# "View authentication status".
+args = ["status"]
+
+[sign_in]
+args = ["login"]
+
+[update]
+args = ["update"]

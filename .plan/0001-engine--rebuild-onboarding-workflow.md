@@ -299,6 +299,30 @@ Facts it builds on (code map, 2026-10-12):
 | 1.10 | Repo scan with languages (tokei), DevPulse first; ticked repos registered in place | engine `platform/projects/scan.rs`, `Cargo.toml` (`tokei`), Tauri projects commands, the "You" view | live: projects in Turso, nothing written inside the repos |
 | 1.11 | Welcome chips from real detection | detection publishes into the `Onboarding` state; the Welcome view | live |
 
+### Slice 4 — phases (owner 2026-10-20: "plan and execute")
+
+Facts it builds on (2026-10-20):
+
+- The kernel has no `providers` module; the engine's `ai_providers` holds a
+  hardcoded vendor enum (R10 rewrites it, 4c).
+- On this machine `claude` (native installer, `~/.local/bin`) and `codex`
+  (`AppData/Local/Programs/OpenAI/Codex`) are on `PATH`; Gemini CLI, Cursor
+  CLI, Grok and Claude Desktop are not installed — the live check must say so.
+- The tool runner the kernel needs lived in the engine; it moved to the peer
+  infra crate `systems/infra/devpulse-process` so the kernel and the engine
+  share one runner (no copies).
+
+| # | Outcome | Files | Check |
+| --- | --- | --- | --- |
+| 4a.1 | `devpulse-process` infra crate (moved from the engine with history) | `systems/infra/devpulse-process/*`, root and engine `Cargo.toml`, engine callers | its tests; engine builds |
+| 4a.2 | R1: `ProviderDefinition` + bundled catalog for the six subscriptions; your files in `.userdata/config/providers/` add or replace by id; a broken file is refused with its reason | kernel `providers/{mod,definition,catalog}.rs`, `config/providers/*.toml` | tests: every bundled file validates; a broken one names the field; your file wins |
+| 4a.3 | R3 + R9: detection — installed (PATH or the definition's known paths), installed version, latest version (npm registry / GitHub releases, network optional), signed in (the vendor's status command, or the presence of its login file — never its contents) | kernel `providers/discovery/{mod,installed,latest,signed_in}.rs` | tests on version parsing and status rules; live: this machine's real answer for each of the six |
+| 4a.4 | Actions on click: **Update** runs the vendor's own updater; **Sign in** opens the vendor's own login in a terminal window (DevPulse never sees a token) | kernel `providers/actions.rs` | live: the Update output shown is the vendor's |
+| 4a.5 | R11: engine facade — `Providers` service, `providers` state signal (contract sample + snapshots), Tauri intents | engine `platform/providers/mod.rs`, `signals/*`, `tests/signal_contract.rs`, Tauri `commands/providers_status/*` | contract snapshots; bindings |
+| 4a.6 | U1/U7: providers domain (store from the signal) + the **Your AI** first-run stage with one card per subscription; copy catalog; flow `welcome → you → your_ai → containers` | `domains/app/providers/*`, `onboarding/feature/first-run/views/YourAiView.svelte`, engine flow + copy | live (CDP): the cards show this machine's truth |
+| 4b | R4: **Test** — one real prompt through each signed-in agent over ACP (official `agent-client-protocol` crate) | kernel `providers/acp/*`, `providers/adapters/acp_agent.rs` | tests against a scripted agent; live: a real reply |
+| 4c | R10: engine `ai_providers` rewritten into definitions (included first, then removed with your OK) | engine `ai_providers/*`, Tauri `commands/{credentials,cloud,providers}` | the credentials UI lists the same providers |
+
 ## One model: every AI you bring is a provider
 
 ```text
@@ -1233,3 +1257,26 @@ queries proving what was written.
     warning with its source. No install, start or test step was run during
     verification — those change the owner's machine and are the owner's to
     click.
+  - 2026-10-20 — **Slice 4a done: "Your AI" on screen** (owner: "plan and
+    execute"). 4a.1 runner moved to the infra crate `devpulse-process`
+    (kernel and engine share it). 4a.2–4a.4 kernel `providers`: definition
+    schema with field-named errors, six bundled definitions (Claude Code,
+    Codex, Gemini CLI, Cursor CLI, Grok Build, Claude Desktop — researched
+    2026-10-20, unconfirmed facts marked in the files), your files add or
+    replace by id; discovery (PATH or known paths, `--version`, latest from
+    npm / GitHub / the vendor's plain-text feed, signed in by the vendor's
+    status command or login-file presence — unknown when it can't be told);
+    Update runs the vendor's updater, Sign in opens the vendor's login in a
+    terminal window. 4a.5 engine `Providers` facade + `providers` state
+    signal + Tauri intents. 4a.6 providers domain + Your AI stage; flow
+    welcome → you → your_ai → containers. Findings that shaped it: Gemini
+    CLI no longer serves Google AI Pro/Ultra (2026-06-18, shown on its card);
+    Claude Code and Codex reach ACP only through adapters
+    (`@agentclientprotocol/claude-agent-acp`, `…/codex-acp`), Gemini
+    (`--acp`), Cursor (`agent acp`) and Grok (`grok agent stdio`) natively —
+    for 4b. Verified: kernel 78 + engine 154 + contract 4 + process 3 tests,
+    workspace clippy, cargo fmt, svelte-check 0, Biome 562, arch 18; live on
+    this machine — Claude Code 2.1.296 (2.1.305 available, signed in), Codex
+    0.163.0 (up to date, signed in), Claude Desktop installed, Gemini CLI,
+    Cursor CLI and Grok Build not installed. No Update or Sign in was clicked
+    during verification.

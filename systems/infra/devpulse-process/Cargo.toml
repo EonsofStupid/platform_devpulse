@@ -1,0 +1,18 @@
+[package]
+name = "devpulse-process"
+version = "0.1.0"
+edition = "2021"
+description = "Asking a command-line tool on this machine and reading its answer: no console window, a deadline, kill on drop, missing vs refused. Shared by the kernel (AI providers) and the engine (first run, containers)."
+
+# Infra-layer tag — read by preflight check.infra-layer-deps.ts to enforce
+# that crates under systems/infra/* may not depend on devpulse-engine,
+# devpulse-media, devpulse-clyffy, or model-loader.
+[package.metadata.devpulse]
+layer = "infra"
+
+[lints]
+workspace = true
+
+[dependencies]
+anyhow = { workspace = true }
+tokio = { workspace = true }

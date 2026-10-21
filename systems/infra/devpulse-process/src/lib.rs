@@ -1,7 +1,8 @@
 //! Asking a command-line tool on this machine and reading its answer.
 //!
-//! First run and the environment checks ask tools the person already has —
-//! git, container engines, WSL, the GPU driver. Every call runs with no console
+//! The engine (first run, containers) and the kernel (AI providers) ask tools
+//! the person already has — git, container engines, WSL, the GPU driver, the
+//! AI vendors' own CLIs. Every call runs with no console
 //! window (`DevPulse` is a GUI app), a deadline, and the child killed if the call
 //! is dropped. "The tool is not installed" and "the tool answered with an
 //! error" stay apart, because the UI says different things for each.

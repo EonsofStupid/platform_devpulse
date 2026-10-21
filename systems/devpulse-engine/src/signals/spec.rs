@@ -99,7 +99,8 @@ impl SignalKind {
             | Self::Boot
             | Self::Onboarding
             | Self::Projects
-            | Self::Containers => SignalSpec {
+            | Self::Containers
+            | Self::Providers => SignalSpec {
                 delivery: Delivery::State,
                 audience: Audience::All,
                 sinks: &[SinkKind::Broadcast],
