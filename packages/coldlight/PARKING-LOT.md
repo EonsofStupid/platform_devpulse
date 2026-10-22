@@ -17,7 +17,7 @@ provisional, document the parking.
 
 ## PL-001 — Two-dimensional intent model (Capability C)
 
-**Status:** PARKED — researching 2026 AI-context-aware UI / A2UI patterns.
+**Status:** UNPARKED — decided by the owner 2026-10-22 (plan 0006 §0s, D1): family comes from scope (`data-surface`), role from the component's `variant`; chat's patterns move to the chat feature.
 
 **The question.** Is intent a flat lookup (`primary` → `glass-deep` is a
 hand-authored constant), or is it dimensional — `family` chosen by
@@ -201,7 +201,7 @@ import statement.
 
 ## PL-007 — Hover/focus preset overrides not flowing through cascade
 
-**Status:** PARKED — design gap that may be intentional.
+**Status:** UNPARKED — decided by the owner 2026-10-22 (plan 0006 §0s, model point 4): states are React Aria attributes with generated attribute rules; the `-hover`/`-active` preset copies retire.
 
 **The question.** A `PresetDefinition.states.hover.backgroundColor`
 authored value gets compiled (presumably) into something like

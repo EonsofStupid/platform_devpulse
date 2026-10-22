@@ -410,6 +410,8 @@ the API. Text's 753 dead `color=` become `tone=`.
 | D5 | March per-kind looks become `<kind>.family.<family>` overrides, one kind per step, emitted only after a side-by-side OK | Yes; consistent with "looks unchanged" until each is approved |
 | D6 | RENDERFORGE.md P2/P5 and TRUTH.md §3 are rewritten to the attribute model (P2's capability is kept by family overrides) | Yes |
 
+**Owner, 2026-10-22: D1–D6 approved as recommended.**
+
 ##### Steps
 
 Each step touches ≤ 5 hand-written files; generated outputs and codemodded
@@ -958,3 +960,4 @@ Recorded per phase in the log below.
     `root`, and theirs was the app). Both were run by hand before the
     commit and passed; they now run from the repo root and fire on
     ColdLight files.
+- 2026-10-22 — Step 0s rewritten to one styling model after a full read of components, blocks and call sites; D1–D6 approved by the owner (PL-001 and PL-007 unparked). 0s.1–0s.3 done (`285224ac`, `efdd9820`, `fd8ca972`).
