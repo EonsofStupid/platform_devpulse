@@ -41,4 +41,8 @@ args = ["-p", "{prompt}", "--output-format", "text"]
 # result) with Claude Code 2.1.296.
 args = ["-p", "{prompt}", "--output-format", "stream-json", "--verbose", "--include-partial-messages"]
 resume = ["--resume", "{session}"]
+# A room seat that only talks: `--tools ""` turns every built-in tool off,
+# and `--strict-mcp-config` with no `--mcp-config` loads no MCP servers.
+# Checked 2026-10-21 against `claude --help` (2.1.296).
+talk_only = ["--tools", "", "--strict-mcp-config"]
 output = "claude-stream-json"

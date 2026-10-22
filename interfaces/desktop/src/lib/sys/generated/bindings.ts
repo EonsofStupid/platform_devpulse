@@ -1292,6 +1292,87 @@ async agentClose(sessionId: string) : Promise<Result<null, string>> {
 }
 },
 /**
+ * Your library: roles, rooms and personas, and the files that did not
+ * pass.
+ */
+async roomLibrary() : Promise<Result<Library, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("room_library") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * The rooms of a project, latest first.
+ */
+async roomThreads(projectId: string) : Promise<Result<RoomThread[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("room_threads", { projectId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Open a room of your library with your agents seated.
+ */
+async roomStart(projectId: string, roomId: string, seating: Assignment[]) : Promise<Result<RoomThread, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("room_start", { projectId, roomId, seating }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Ask a room. Returns once the room has the question; its events follow as
+ * `RoomStreamed`.
+ */
+async roomAsk(sessionId: string, text: string) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("room_ask", { sessionId, text }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Stop a room that is answering.
+ */
+async roomCancel(sessionId: string) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("room_cancel", { sessionId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Answer a permission request of a place that may use tools (`choice` is
+ * one of its choice ids; none refuses). Returns `false` when it is no
+ * longer waiting.
+ */
+async roomAnswer(sessionId: string, place: string, request: string, choice: string | null) : Promise<Result<boolean, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("room_answer", { sessionId, place, request, choice }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * End a room's live conversations (its history stays).
+ */
+async roomClose(sessionId: string) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("room_close", { sessionId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Your llama-server settings, or the defaults.
  */
 async llamaServerLoadConfig() : Promise<Result<LlamaServerConfig, string>> {
@@ -4194,6 +4275,7 @@ inferenceProviderChanged: InferenceProviderChanged,
 inferenceTokenStreamed: InferenceTokenStreamed,
 llamaServerReady: LlamaServerReady,
 llamaTokenStreamed: LlamaTokenStreamed,
+roomStreamed: RoomStreamed,
 signalBroadcast: SignalBroadcast,
 updateAvailable: UpdateAvailable,
 updateDownloadProgress: UpdateDownloadProgress,
@@ -4207,6 +4289,7 @@ inferenceProviderChanged: "inference-provider-changed",
 inferenceTokenStreamed: "inference-token-streamed",
 llamaServerReady: "llama-server-ready",
 llamaTokenStreamed: "llama-token-streamed",
+roomStreamed: "room-streamed",
 signalBroadcast: "signal-broadcast",
 updateAvailable: "update-available",
 updateDownloadProgress: "update-download-progress",
@@ -5009,6 +5092,26 @@ requires_benchmark: boolean;
  */
 note: string }
 /**
+ * Who sits in one place of a room, as you chose it.
+ */
+export type Assignment = { 
+/**
+ * The room's seat (`answerer`).
+ */
+seat: string; 
+/**
+ * Which of the seat's places, from 0.
+ */
+place: number; 
+/**
+ * The agent in it.
+ */
+provider: ProviderId; 
+/**
+ * The id of the persona it speaks as.
+ */
+persona?: string | null }
+/**
  * Built-in keyword action types the assistant can dispatch.
  * 
  * Handlers are implemented on the frontend side inside the
@@ -5582,6 +5685,18 @@ load_more_label: string;
  */
 loading_more_label: string }
 /**
+ * How much one seat may say.
+ */
+export type Budget = { 
+/**
+ * Turns it may take in a room (1–20).
+ */
+max_turns: number; 
+/**
+ * The longest answer it may give.
+ */
+max_output_tokens?: number | null }
+/**
  * Health of the Moka cache service.
  */
 export type CacheHealth = { 
@@ -5725,6 +5840,18 @@ captureMs: number;
  * PNG encode latency (ms).
  */
 encodeMs: number }
+/**
+ * What passes from one phase to the next.
+ */
+export type CarryForward = 
+/**
+ * Only each seat's structured answer.
+ */
+"structured-outputs" | 
+/**
+ * Everything said.
+ */
+"full-transcript"
 /**
  * A download catalog entry — one per slot. Each has one or more download options.
  */
@@ -7217,6 +7344,22 @@ name: string;
  */
 row_count: number }
 /**
+ * How hard the seat's agent should think.
+ */
+export type Effort = 
+/**
+ * A quick answer.
+ */
+"low" | 
+/**
+ * The agent's usual effort.
+ */
+"medium" | 
+/**
+ * Its most careful answer.
+ */
+"high"
+/**
  * One engine, as it answered.
  */
 export type EngineReport = { 
@@ -7410,6 +7553,22 @@ export type EscalationTierId =
  * External AI service (Claude / `OpenAI` / etc.).
  */
 "cloud_api"
+/**
+ * How strong the evidence behind a role or room is.
+ */
+export type Evidence = 
+/**
+ * Peer-reviewed and replicated.
+ */
+"strong" | 
+/**
+ * One or a few studies.
+ */
+"moderate" | 
+/**
+ * A long-used method with little controlled evidence.
+ */
+"practice"
 /**
  * Hardware execution lane in the inference pipeline.
  * 
@@ -8605,6 +8764,18 @@ embedding_dim: number;
  * its intelligence schema yet.
  */
 project_count: number }
+/**
+ * One problem with a library file, at a place you can find.
+ */
+export type Issue = { 
+/**
+ * `role skeptic · rubric`, or the file name.
+ */
+at: string; 
+/**
+ * What is wrong.
+ */
+problem: string }
 export type JsonValue = null | boolean | number | string | JsonValue[] | Partial<{ [key in string]: JsonValue }>
 /**
  * A named action the assistant can run when its associated phrase is
@@ -8823,6 +8994,27 @@ export type LayoutCopy = {
  * The app sidebar.
  */
 sidebar: SidebarCopy }
+/**
+ * Everything you can seat and open: the bundled roles and rooms plus your
+ * files, with every file that did not pass named.
+ */
+export type Library = { 
+/**
+ * By name.
+ */
+roles: RoleCard[]; 
+/**
+ * By name.
+ */
+rooms: RoomSpec[]; 
+/**
+ * By name. None ship; these are yours.
+ */
+personas: Persona[]; 
+/**
+ * Files that were not loaded, and why.
+ */
+rejected: Rejected[] }
 /**
  * Where the license verdict came from. Drives UX copy on the
  * "subscription" panel — `Dev` shows a "developer bypass" badge,
@@ -9311,6 +9503,18 @@ total_messages: number;
  */
 total_sessions: number }
 /**
+ * The named technique and its steps.
+ */
+export type Method = { 
+/**
+ * The technique's name.
+ */
+name: string; 
+/**
+ * What the seat does, in order.
+ */
+steps: string[] }
+/**
  * Microphone test result.
  */
 export type MicTestResult = { 
@@ -9415,6 +9619,23 @@ supported_backends: string[];
  * Which slot capabilities this model can serve.
  */
 compatible_capabilities: string[] }
+/**
+ * Which agents suit the seat.
+ */
+export type ModelPrefs = { 
+/**
+ * Vendors that suit the role, best first.
+ */
+preferred_vendors?: string[]; 
+/**
+ * Role ids whose vendor this seat must differ from (a critic never
+ * shares the author's vendor).
+ */
+avoid_same_vendor_as: string[]; 
+/**
+ * How hard the seat's agent should think.
+ */
+effort?: Effort | null }
 /**
  * Models setup screen — preset card, recommendations.
  */
@@ -9816,6 +10037,38 @@ export type OnboardingStatus =
  */
 "complete"
 /**
+ * How a run ended.
+ */
+export type Outcome = { 
+/**
+ * Rounds run.
+ */
+rounds: number; 
+/**
+ * Why they stopped.
+ */
+stopped: Stopped; 
+/**
+ * What the selector picked, in a room that picks.
+ */
+pick: Pick | null; 
+/**
+ * Authors that changed their answer (`pro-1 in round 2`).
+ */
+flips: string[] }
+/**
+ * A value a room fills in (a domain expert's domain).
+ */
+export type Parameter = { 
+/**
+ * Its `{placeholder}` name in the role's text.
+ */
+name: string; 
+/**
+ * What the room should fill in.
+ */
+description: string }
+/**
  * One choice of a permission request, as the agent worded it.
  */
 export type PermissionChoice = { 
@@ -9831,6 +10084,118 @@ label: string;
  * It allows the action (as opposed to refusing it).
  */
 allows: boolean }
+/**
+ * A character a seat speaks as (`dpl.persona/1`).
+ */
+export type Persona = { 
+/**
+ * Always [`PERSONA_SCHEMA`].
+ */
+schema: string; 
+/**
+ * Stable kebab-case key.
+ */
+id: string; 
+/**
+ * Semver; a breaking change bumps the major.
+ */
+version: string; 
+/**
+ * The character's name.
+ */
+name: string; 
+/**
+ * One line shown where you pick a persona for a seat.
+ */
+summary: string; 
+/**
+ * How the character speaks.
+ */
+tone: VoiceTone; 
+/**
+ * Who the character is.
+ */
+backstory: string; 
+/**
+ * What the character knows well.
+ */
+expertise: string[]; 
+/**
+ * Anything else about how the character answers.
+ */
+instructions?: string; 
+/**
+ * Words to find it by.
+ */
+tags?: string[] }
+/**
+ * One step of a room.
+ */
+export type Phase = { 
+/**
+ * Its kebab-case name.
+ */
+name: string; 
+/**
+ * The seats that speak in it.
+ */
+seats: string[]; 
+/**
+ * All at once, or one after another.
+ */
+mode: PhaseMode; 
+/**
+ * What each seat sees of the others in it.
+ */
+visibility: Visibility; 
+/**
+ * Turns each seat may take in it (1–10).
+ */
+max_turns: number }
+/**
+ * How a phase's seats take their turns.
+ */
+export type PhaseMode = 
+/**
+ * All at once.
+ */
+"parallel" | 
+/**
+ * One after another.
+ */
+"sequential"
+/**
+ * What the selector picked.
+ */
+export type Pick = { 
+/**
+ * The winning candidate's letter.
+ */
+winner: string | null; 
+/**
+ * The place that wrote it.
+ */
+winnerPlace: string | null; 
+/**
+ * The next best candidate's letter.
+ */
+runnerUp: string | null; 
+/**
+ * The two orders, or the panel, disagreed.
+ */
+tie: boolean; 
+/**
+ * Why it was picked.
+ */
+rationale: string[]; 
+/**
+ * Who disagreed, and why.
+ */
+dissent: string[]; 
+/**
+ * Why nothing could be picked.
+ */
+problem: string | null }
 /**
  * What the wizard / chat command sends.
  */
@@ -10308,6 +10673,22 @@ projects: Project[];
  */
 activeId: string | null }
 /**
+ * Where a role or room comes from.
+ */
+export type Provenance = { 
+/**
+ * Reference keys in the research page (`8`, `A2`…).
+ */
+sources: string[]; 
+/**
+ * How strong the evidence is.
+ */
+evidence: Evidence; 
+/**
+ * Anything the sources leave unsaid.
+ */
+note?: string | null }
+/**
  * Which action.
  */
 export type ProviderAction = 
@@ -10669,6 +11050,30 @@ lastAction: ProviderActionRun | null;
  */
 problem: string | null }
 /**
+ * What the room keeps when it ends.
+ */
+export type RecordItem = 
+/**
+ * The chosen answer.
+ */
+"winner" | 
+/**
+ * The next best.
+ */
+"runner-up" | 
+/**
+ * Why it was chosen.
+ */
+"rationale" | 
+/**
+ * Who disagreed, and why.
+ */
+"dissent" | 
+/**
+ * Who changed their answer, and why.
+ */
+"flips"
+/**
  * The outcome for one folder you asked to register.
  */
 export type RegisterResult = { 
@@ -10707,6 +11112,18 @@ url: string | null;
  * Process ID of the spawned `node.exe`, if running.
  */
 pid: number | null }
+/**
+ * A file that was not loaded, and why.
+ */
+export type Rejected = { 
+/**
+ * The file name (`bundled skeptic.json` for a bundled one).
+ */
+file: string; 
+/**
+ * Everything wrong with it.
+ */
+issues: Issue[] }
 /**
  * Single repo file entry — serializable snapshot of one sibling
  * returned by the HF Hub's repo info endpoint. Consumed by the
@@ -10808,6 +11225,94 @@ max: number;
  * Slider step increment.
  */
 step: number }
+/**
+ * One role a seat plays (`dpl.role/1`).
+ */
+export type RoleCard = { 
+/**
+ * Always [`ROLE_SCHEMA`].
+ */
+schema: string; 
+/**
+ * Stable kebab-case key.
+ */
+id: string; 
+/**
+ * Semver; a breaking change bumps the major.
+ */
+version: string; 
+/**
+ * What it is called.
+ */
+name: string; 
+/**
+ * One line a router or selector uses to pick this seat.
+ */
+summary: string; 
+/**
+ * The job.
+ */
+purpose: string; 
+/**
+ * What it does to the conversation.
+ */
+stance: Stance; 
+/**
+ * The named technique and its steps.
+ */
+method: Method; 
+/**
+ * The role's prompt.
+ */
+instructions: string; 
+/**
+ * Hard limits.
+ */
+must_not: string[]; 
+/**
+ * A JSON Schema of what the role must produce.
+ */
+output_contract: JsonValue; 
+/**
+ * Pass/fail criteria its output is scored against.
+ */
+rubric: string[]; 
+/**
+ * The room phases or triggers it answers in.
+ */
+speaks_when: string[]; 
+/**
+ * What it sees of its peers before it answers.
+ */
+visibility: Visibility; 
+/**
+ * What it may use besides talking.
+ */
+permissions: RolePermissions; 
+/**
+ * Which agents suit the seat.
+ */
+model_prefs: ModelPrefs; 
+/**
+ * How much it may say.
+ */
+budget: Budget; 
+/**
+ * Sample answers.
+ */
+examples?: string[]; 
+/**
+ * Words to find it by.
+ */
+tags: string[]; 
+/**
+ * Values a room fills in.
+ */
+parameters?: Parameter[]; 
+/**
+ * Where it comes from and how strong the evidence is.
+ */
+provenance: Provenance }
 /**
  * Copy for the four role cards (Thinking / Helpers / Searching / Talking).
  * 
@@ -10927,6 +11432,220 @@ status_error: string;
  * VRAM estimate template. Placeholder `{mb}`.
  */
 vram_estimate_template: string }
+/**
+ * What the seat may use besides talking.
+ */
+export type RolePermissions = { 
+/**
+ * No tools, no files: the role only answers.
+ */
+talk_only: boolean; 
+/**
+ * The tools it may use when it is not talk-only.
+ */
+tools_allowed: string[] }
+/**
+ * Something that happened while a room answers.
+ */
+export type RoomEvent = 
+/**
+ * Part of one place's running turn.
+ */
+{ kind: "agent"; place: string; event: AgentEvent } | 
+/**
+ * A place's turn, finished and saved.
+ */
+{ kind: "turn"; turn: RoomTurn } | 
+/**
+ * The room's answer: rounds run, why they stopped, what was picked.
+ * Saved.
+ */
+{ kind: "finished"; outcome: Outcome }
+/**
+ * A room (`dpl.room/1`).
+ */
+export type RoomSpec = { 
+/**
+ * Always [`ROOM_SCHEMA`].
+ */
+schema: string; 
+/**
+ * Stable kebab-case key.
+ */
+id: string; 
+/**
+ * Semver; a breaking change bumps the major.
+ */
+version: string; 
+/**
+ * What it is called.
+ */
+name: string; 
+/**
+ * The kind of room.
+ */
+type: RoomType; 
+/**
+ * One line on what it is for.
+ */
+summary: string; 
+/**
+ * Who sits in it.
+ */
+seats: Seat[]; 
+/**
+ * Its steps, in order.
+ */
+phases: Phase[]; 
+/**
+ * Who speaks next.
+ */
+turn_policy: TurnPolicy; 
+/**
+ * When it stops.
+ */
+stop: StopRule; 
+/**
+ * How one answer is chosen, when it chooses one.
+ */
+selection?: Selection | null; 
+/**
+ * What passes from one phase to the next.
+ */
+carry_forward: CarryForward; 
+/**
+ * What it keeps when it ends.
+ */
+record: RecordItem[]; 
+/**
+ * Where it comes from and how strong the evidence is.
+ */
+provenance: Provenance }
+/**
+ * One event of a room answering (plan 0001 B4.2): part of a place's
+ * running turn, a place's finished turn, or the room's outcome.
+ */
+export type RoomStreamed = { 
+/**
+ * The room (its chat session id).
+ */
+sessionId: string; 
+/**
+ * What happened.
+ */
+event: RoomEvent }
+/**
+ * A room of yours.
+ */
+export type RoomThread = { 
+/**
+ * The chat session it is (load its turns with the chat's history).
+ */
+sessionId: string; 
+/**
+ * The project it belongs to.
+ */
+projectId: string; 
+/**
+ * The library room it is (`council`).
+ */
+roomId: string; 
+/**
+ * Its title.
+ */
+title: string; 
+/**
+ * Who sits where.
+ */
+seating: Assignment[]; 
+/**
+ * How many turns it holds.
+ */
+turnCount: number; 
+/**
+ * Unix seconds of its last turn.
+ */
+updatedAt: number }
+/**
+ * One finished turn of a place.
+ */
+export type RoomTurn = { 
+/**
+ * Its order in this run, from 1.
+ */
+seq: number; 
+/**
+ * The round it was in, from 1.
+ */
+round: number; 
+/**
+ * The phase it was in.
+ */
+phase: string; 
+/**
+ * The place (`answerer-1`).
+ */
+place: string; 
+/**
+ * The place's seat.
+ */
+seat: string; 
+/**
+ * The seat's role id.
+ */
+role: string; 
+/**
+ * The persona's id, when the place has one.
+ */
+persona: string | null; 
+/**
+ * The agent that answered.
+ */
+provider: ProviderId; 
+/**
+ * Its letter as a candidate, when it is one.
+ */
+candidate: string | null; 
+/**
+ * The answer, as the agent gave it.
+ */
+text: string; 
+/**
+ * The JSON object the answer ended with.
+ */
+output: JsonValue | null; 
+/**
+ * How the answer broke its role's output contract.
+ */
+contractProblem: string | null; 
+/**
+ * Why the agent could not answer.
+ */
+failed: string | null }
+/**
+ * The kind of room.
+ */
+export type RoomType = 
+/**
+ * Everyone answers blind; a selector picks one answer.
+ */
+"council" | 
+/**
+ * Two sides argue; a judge selects.
+ */
+"debate" | 
+/**
+ * An author drafts; a critic from another vendor scores it.
+ */
+"author-critic" | 
+/**
+ * One seat, matched to the question.
+ */
+"router" | 
+/**
+ * Ideas first, then grouping, critique and a shortlist.
+ */
+"brainstorm"
 /**
  * A route's name and the lines shown with it.
  */
@@ -11334,6 +12053,79 @@ target: string;
  * Empty string if the entry was a span event without a message.
  */
 message: string }
+/**
+ * One seat: a role, how many sit in it, and the role's parameters filled.
+ */
+export type Seat = { 
+/**
+ * The seat's name in this room; phases refer to it.
+ */
+seat: string; 
+/**
+ * `role-id@major` (`skeptic@1`).
+ */
+role: string; 
+/**
+ * How many sit in it (1–6).
+ */
+count: number; 
+/**
+ * The role's parameters, filled.
+ */
+parameters?: Partial<{ [key in string]: string }> }
+/**
+ * How the room chooses one answer (select, never blend).
+ * 
+ * Four independent switches, field for field the `selection` object of
+ * `dpl.room/1` (as `Capabilities` mirrors its published shape). Grouping
+ * them would need serde's `flatten`, which cannot be combined with
+ * refusing unknown fields.
+ */
+export type Selection = { 
+/**
+ * Who picks.
+ */
+method: SelectionMethod; 
+/**
+ * The selector's seat.
+ */
+seat: string; 
+/**
+ * The selector does not see who wrote what.
+ */
+blind: boolean; 
+/**
+ * Judge in both orders; a disagreement is a tie or a rerun.
+ */
+swap_order: boolean; 
+/**
+ * The selector's vendor wrote none of the answers.
+ */
+exclude_author_vendors: boolean; 
+/**
+ * "None passes" is a valid outcome.
+ */
+allow_none: boolean }
+/**
+ * How one answer is chosen.
+ */
+export type SelectionMethod = 
+/**
+ * One selector picks.
+ */
+"judge" | 
+/**
+ * Several selectors pick together.
+ */
+"panel" | 
+/**
+ * The seats vote.
+ */
+"vote" | 
+/**
+ * You pick.
+ */
+"human"
 /**
  * Identifies a service's role in the platform.
  * 
@@ -11975,6 +12767,34 @@ export type Stage =
  */
 "containers"
 /**
+ * What a role does to the conversation.
+ */
+export type Stance = 
+/**
+ * Produces ideas or answers.
+ */
+"generate" | 
+/**
+ * Checks claims against sources.
+ */
+"ground" | 
+/**
+ * Finds weaknesses in an answer.
+ */
+"critique" | 
+/**
+ * Attacks an answer to make it fail.
+ */
+"adversarial" | 
+/**
+ * Turns ideas into steps.
+ */
+"plan" | 
+/**
+ * Picks one answer, never merging several.
+ */
+"select"
+/**
  * Every state signal's latest value at one revision.
  */
 export type StateSnapshot = { 
@@ -12059,6 +12879,42 @@ output: string;
  * Unix seconds when it finished.
  */
 finishedAt: number }
+/**
+ * When the room stops.
+ */
+export type StopRule = { 
+/**
+ * Rounds at most (1–10).
+ */
+max_rounds: number; 
+/**
+ * Tokens the whole room may spend.
+ */
+budget_tokens?: number | null; 
+/**
+ * Stop when no answer changed in a round.
+ */
+stability?: boolean; 
+/**
+ * Stop when the rubric passes.
+ */
+pass_threshold?: boolean }
+/**
+ * Why the rounds stopped.
+ */
+export type Stopped = 
+/**
+ * The room's last round ran.
+ */
+"rounds" | 
+/**
+ * No author changed its answer in a round.
+ */
+"stable" | 
+/**
+ * Every critique reported no defects.
+ */
+"passed"
 /**
  * Result of a full STS (speech-to-speech) pipeline run.
  * 
@@ -12584,6 +13440,26 @@ rate: number;
  */
 gain_db: number }
 /**
+ * Who speaks next.
+ */
+export type TurnPolicy = 
+/**
+ * The phases' order, as written.
+ */
+"fixed" | 
+/**
+ * Each seat in turn.
+ */
+"round-robin" | 
+/**
+ * The selector seat decides.
+ */
+"selector" | 
+/**
+ * The router matches one seat to the question.
+ */
+"router"
+/**
  * Which Turso database to target.
  */
 export type TursoDatabase = 
@@ -12980,6 +13856,22 @@ firmwareEnabled: boolean | null;
  */
 hypervisorPresent: boolean | null }
 /**
+ * What a seat sees of the others before it answers.
+ */
+export type Visibility = 
+/**
+ * No other answers.
+ */
+"none" | 
+/**
+ * Others' answers without their names.
+ */
+"anonymized" | 
+/**
+ * Everything said.
+ */
+"full"
+/**
  * 24/7 full-duplex voice brain (Moshi) configuration.
  * 
  * When `enabled_24_7 = true`, `voice.brain` stays hot and handles
@@ -13189,6 +14081,27 @@ beam_size: number;
  * VAD energy threshold in `[0.0, 1.0]`. Clamped on write.
  */
 vad_threshold: number }
+/**
+ * Defined Emotional/Tonal States. Also the tone of a persona a seat speaks
+ * as (`crate::rooms::persona`), by its lowercase name.
+ */
+export type VoiceTone = 
+/**
+ * Pure Facts (Default)
+ */
+"objective" | 
+/**
+ * Gentle/Teaching
+ */
+"empathetic" | 
+/**
+ * Warning/Safety
+ */
+"strict" | 
+/**
+ * High-Bandwidth/Expert
+ */
+"concise"
 /**
  * Persisted user TTS preferences.
  */

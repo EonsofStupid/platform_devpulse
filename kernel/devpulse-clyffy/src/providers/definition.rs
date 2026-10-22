@@ -180,6 +180,11 @@ pub struct ConversationSpec {
     /// it, every turn starts fresh.
     #[serde(default)]
     pub resume: Vec<String>,
+    /// Added on every turn of a room seat that only talks: the agent's own
+    /// switch for no tools and no MCP servers. Without it, `DevPulse` still
+    /// refuses the seat's permission requests and gives it an empty folder.
+    #[serde(default)]
+    pub talk_only: Vec<String>,
     /// What the agent prints.
     pub output: StreamFormat,
 }

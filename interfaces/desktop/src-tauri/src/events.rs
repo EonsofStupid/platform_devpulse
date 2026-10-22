@@ -184,3 +184,16 @@ pub struct AgentStreamed {
     /// What happened.
     pub event: devpulse_engine::platform::agents::AgentEvent,
 }
+
+// ── Rooms ───────────────────────────────────────────────────────────
+
+/// One event of a room answering (plan 0001 B4.2): part of a place's
+/// running turn, a place's finished turn, or the room's outcome.
+#[derive(Debug, Clone, Serialize, Deserialize, Type, Event)]
+#[serde(rename_all = "camelCase")]
+pub struct RoomStreamed {
+    /// The room (its chat session id).
+    pub session_id: String,
+    /// What happened.
+    pub event: devpulse_engine::platform::rooms::RoomEvent,
+}

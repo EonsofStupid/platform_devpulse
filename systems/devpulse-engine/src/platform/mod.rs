@@ -43,6 +43,7 @@ pub mod onboarding;
 pub mod profile;
 pub mod projects;
 pub mod providers;
+pub mod rooms;
 pub mod services;
 pub mod telemetry;
 
@@ -352,6 +353,8 @@ pub struct Platform {
     providers: Arc<providers::Providers>,
     /// Your threads with your agents (needs the user database).
     agents: Option<Arc<agents::Agents>>,
+    /// Your rooms: agents seated in roles (needs the user database).
+    rooms: Option<Arc<rooms::Rooms>>,
     user_analytics: Option<Arc<AnalyticsService>>,
     user_graph: Option<Arc<GraphService>>,
     // ── Global scope ────────────────────────────────────────────
@@ -432,6 +435,7 @@ struct UserWorkflows {
     projects: Option<Arc<projects::Projects>>,
     containers: Option<Arc<containers::Containers>>,
     agents: Option<Arc<agents::Agents>>,
+    rooms: Option<Arc<rooms::Rooms>>,
 }
 
 /// Start what lives in the user database: first run, your projects, and
@@ -498,11 +502,19 @@ async fn start_user_workflows(
         Arc::clone(providers),
         projects.clone(),
     )));
+    let rooms = agents.as_ref().map(|agents| {
+        Arc::new(rooms::Rooms::new(
+            Arc::clone(user.adapter()),
+            data_dir.to_path_buf(),
+            Arc::clone(agents),
+        ))
+    });
     UserWorkflows {
         onboarding,
         projects,
         containers,
         agents,
+        rooms,
     }
 }
 
@@ -604,6 +616,7 @@ impl Platform {
             projects: user_workflows.projects,
             containers: user_workflows.containers,
             agents: user_workflows.agents,
+            rooms: user_workflows.rooms,
             providers,
             user_analytics: booted.user_analytics,
             user_graph: booted.user_graph,
@@ -846,6 +859,11 @@ impl Platform {
     /// Your threads with your agents (when the user database is open).
     pub fn agents(&self) -> Option<&Arc<agents::Agents>> {
         self.agents.as_ref()
+    }
+
+    /// Your rooms (when the user database is open).
+    pub fn rooms(&self) -> Option<&Arc<rooms::Rooms>> {
+        self.rooms.as_ref()
     }
 
     /// Get the user relational service (if enabled and booted).

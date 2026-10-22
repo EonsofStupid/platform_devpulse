@@ -26,7 +26,7 @@ use std::fmt::Write as _;
 
 use anyhow::Result;
 use async_trait::async_trait;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use super::brief::{brief, read_output, Marker};
 use super::role::Stance;
@@ -47,7 +47,7 @@ pub trait RoomHost: Send + Sync {
 }
 
 /// One finished turn of a place.
-#[derive(Debug, Clone, PartialEq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 #[serde(rename_all = "camelCase")]
 pub struct RoomTurn {
@@ -80,7 +80,7 @@ pub struct RoomTurn {
 }
 
 /// Why the rounds stopped.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 #[serde(rename_all = "kebab-case")]
 pub enum Stopped {
@@ -93,7 +93,7 @@ pub enum Stopped {
 }
 
 /// What the selector picked.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 #[serde(rename_all = "camelCase")]
 pub struct Pick {
@@ -114,7 +114,7 @@ pub struct Pick {
 }
 
 /// How a run ended.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 #[serde(rename_all = "camelCase")]
 pub struct Outcome {

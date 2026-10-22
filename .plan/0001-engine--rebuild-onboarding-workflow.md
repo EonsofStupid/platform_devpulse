@@ -1764,3 +1764,29 @@ queries proving what was written.
       - seating refusals.
 
       Lib clippy, the specta build and cargo fmt are clean.
+  - 2026-10-21 — **B4.2b built: rooms in the engine and the window's
+    bindings.**
+    - The engine's `rooms` service is the run's host:
+      - one live agent conversation per place, opened through the agents
+        service (`conversation()`, shared with threads);
+      - your question and every turn saved in `turns`, with the place,
+        role, phase, round, candidate and output in `metadata`; the outcome
+        is saved as a `system` turn;
+      - `room_threads` keeps the room, the seating and each place's resume
+        token;
+      - the run's events (`agent`, `turn`, `finished`) are handed out;
+        cancel stops every place.
+    - Talk-only:
+      - a place works in `{data_dir}/rooms/{session}/{place}`, and every
+        permission request is refused;
+      - a headless agent's definition gains `connect.conversation.talk_only`.
+        For Claude Code it is `--tools "" --strict-mcp-config`, both
+        checked against `claude --help` 2.1.296.
+    - Tauri adds `room_library`, `room_threads`, `room_start`, `room_ask`,
+      `room_cancel`, `room_answer`, `room_close` and the `RoomStreamed`
+      event; bindings are regenerated.
+    - Verified:
+      - clippy (kernel, engine, desktop backend) and cargo fmt are clean;
+      - tests: kernel 133 (+1 talk-only), engine 150, contract 4;
+      - svelte-check: 0 errors.
+    - Live check: not yet run (next).

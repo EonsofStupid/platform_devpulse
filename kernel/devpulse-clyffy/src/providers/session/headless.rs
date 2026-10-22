@@ -29,6 +29,8 @@ pub struct HeadlessSession {
     env: Vec<(String, String)>,
     conversation: ConversationSpec,
     cwd: PathBuf,
+    /// Every turn adds the conversation's `talk_only` arguments.
+    talk_only: bool,
     /// The session id the agent reported (continues the conversation).
     session: Arc<Mutex<Option<String>>>,
     /// Stops the running turn; empty once the turn has ended.
@@ -40,7 +42,8 @@ pub struct HeadlessSession {
 
 impl HeadlessSession {
     /// A conversation with the agent at `provider_program` (its definition's
-    /// conversation spec), in `cwd`; `resume` continues an earlier one.
+    /// conversation spec), in `cwd`; `resume` continues an earlier one, and
+    /// `talk_only` turns the agent's tools off on every turn.
     #[must_use]
     pub fn new(
         launch: &Launch,
@@ -48,6 +51,7 @@ impl HeadlessSession {
         conversation: ConversationSpec,
         cwd: &Path,
         resume: Option<String>,
+        talk_only: bool,
     ) -> Self {
         Self {
             program: launch.program.clone(),
@@ -55,6 +59,7 @@ impl HeadlessSession {
             env: launch.env.clone(),
             conversation,
             cwd: cwd.to_path_buf(),
+            talk_only,
             session: Arc::new(Mutex::new(resume)),
             stop: Arc::new(Mutex::new(None)),
             previous: Mutex::new(None),
@@ -84,6 +89,9 @@ impl HeadlessSession {
         let mut args: Vec<String> = self.conversation.args.iter().map(fill).collect();
         if session.is_some() {
             args.extend(self.conversation.resume.iter().map(fill));
+        }
+        if self.talk_only {
+            args.extend(self.conversation.talk_only.iter().cloned());
         }
         args
     }
@@ -430,9 +438,8 @@ mod tests {
         );
     }
 
-    #[test]
-    fn later_turns_resume_the_reported_session() {
-        let session = HeadlessSession::new(
+    fn session(talk_only: bool) -> HeadlessSession {
+        HeadlessSession::new(
             &Launch {
                 adapter: crate::providers::definition::AdapterKind::Headless,
                 program: PathBuf::from("/bin/claude"),
@@ -443,15 +450,32 @@ mod tests {
             ConversationSpec {
                 args: vec!["-p".into(), "{prompt}".into()],
                 resume: vec!["--resume".into(), "{session}".into()],
+                talk_only: vec!["--tools".into(), String::new()],
                 output: StreamFormat::ClaudeStreamJson,
             },
             Path::new("/tmp"),
             None,
-        );
+            talk_only,
+        )
+    }
+
+    #[test]
+    fn later_turns_resume_the_reported_session() {
+        let session = session(false);
         assert_eq!(session.turn_args("hi", None), ["-p", "hi"]);
         assert_eq!(
             session.turn_args("again", Some("abc")),
             ["-p", "again", "--resume", "abc"]
+        );
+    }
+
+    #[test]
+    fn a_talk_only_seat_turns_tools_off_on_every_turn() {
+        let session = session(true);
+        assert_eq!(session.turn_args("hi", None), ["-p", "hi", "--tools", ""]);
+        assert_eq!(
+            session.turn_args("again", Some("abc")),
+            ["-p", "again", "--resume", "abc", "--tools", ""]
         );
     }
 }

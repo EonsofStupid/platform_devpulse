@@ -214,6 +214,13 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             commands::agents::agent_cancel,
             commands::agents::agent_answer,
             commands::agents::agent_close,
+            commands::rooms::room_library,
+            commands::rooms::room_threads,
+            commands::rooms::room_start,
+            commands::rooms::room_ask,
+            commands::rooms::room_cancel,
+            commands::rooms::room_answer,
+            commands::rooms::room_close,
             commands::llama_server_config::llama_server_load_config,
             commands::llama_server_config::llama_server_save_config,
             commands::ollama::sidecar::ollama_start,
@@ -464,6 +471,8 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             events::UpdateInstallFinished,
             // Agent threads — one event of a running turn.
             events::AgentStreamed,
+            // Rooms — one event of a room answering.
+            events::RoomStreamed,
         ])
 }
 

@@ -116,7 +116,10 @@ enum Kind {
 impl AgentSession {
     /// Start a conversation with an installed agent at `program`, working in
     /// `cwd`. `resume` continues a conversation a headless agent reported
-    /// earlier ([`Self::resume_token`]).
+    /// earlier ([`Self::resume_token`]). `talk_only` adds the agent's own
+    /// switch for no tools when its definition has one (a headless agent's
+    /// `connect.conversation.talk_only`); an ACP agent has none, so the
+    /// caller refuses its permission requests instead.
     ///
     /// # Errors
     /// When the definition says nothing about talking to it, it is a
@@ -128,6 +131,7 @@ impl AgentSession {
         data_dir: &Path,
         cwd: &Path,
         resume: Option<String>,
+        talk_only: bool,
     ) -> Result<Self> {
         let Some(connect_spec) = &definition.connect else {
             bail!(
@@ -151,6 +155,7 @@ impl AgentSession {
                     conversation.clone(),
                     cwd,
                     resume,
+                    talk_only,
                 )))
             }
             None => bail!(
@@ -251,7 +256,7 @@ mod tests {
                 .find(|d| d.id == id)
                 .unwrap();
             let program = installed::locate(&definition, home.as_deref()).expect("installed");
-            let session = AgentSession::start(&definition, &program, &data_dir, &cwd, None)
+            let session = AgentSession::start(&definition, &program, &data_dir, &cwd, None, false)
                 .await
                 .unwrap_or_else(|e| panic!("{}: {e:#}", id.key()));
             let first = answer(

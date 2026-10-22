@@ -8,7 +8,7 @@
 //! chat already reads), and hands each turn's events to the caller.
 
 use std::collections::HashMap;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::Instant;
 
@@ -208,41 +208,59 @@ impl Agents {
         if let Some(session) = live.get(session_id) {
             return Ok(Arc::clone(session));
         }
-        let catalog = catalog::load(&self.data_dir)?;
-        let definition = catalog
-            .definitions
-            .iter()
-            .find(|d| d.id == record.provider_id)
-            .ok_or_else(|| {
-                anyhow!(
-                    "{} is not an agent DevPulse knows",
-                    record.provider_id.key()
-                )
-            })?;
-        let location = self
-            .providers
-            .location(record.provider_id)
-            .await
-            .ok_or_else(|| anyhow!("{} is not installed", definition.name()))?;
         let cwd = self.folder(&record.project_id).await;
-        std::fs::create_dir_all(&cwd).with_context(|| format!("make {}", cwd.display()))?;
         let session = Arc::new(
-            AgentSession::start(
-                definition,
-                std::path::Path::new(&location),
-                &self.data_dir,
-                &cwd,
-                record.resume_token.clone(),
-            )
-            .await?,
+            self.conversation(record.provider_id, &cwd, record.resume_token.clone(), false)
+                .await?,
         );
         live.insert(session_id.to_owned(), Arc::clone(&session));
         tracing::info!(target: "agents", %session_id, provider = record.provider_id.key(), cwd = %cwd.display(), "conversation started");
         Ok(session)
     }
 
-    /// Where the agent works: the project's folder, or an empty one.
-    async fn folder(&self, project_id: &str) -> PathBuf {
+    /// The agent is installed on this machine.
+    pub(super) async fn installed(&self, provider_id: ProviderId) -> bool {
+        self.providers.location(provider_id).await.is_some()
+    }
+
+    /// Start a conversation with an installed agent working in `cwd` (made
+    /// if missing). `resume` continues one it reported earlier; `talk_only`
+    /// turns its tools off where it has a switch for that.
+    ///
+    /// # Errors
+    /// When the agent is unknown, not installed, or does not start.
+    pub(super) async fn conversation(
+        &self,
+        provider_id: ProviderId,
+        cwd: &Path,
+        resume: Option<String>,
+        talk_only: bool,
+    ) -> Result<AgentSession> {
+        let catalog = catalog::load(&self.data_dir)?;
+        let definition = catalog
+            .definitions
+            .iter()
+            .find(|d| d.id == provider_id)
+            .ok_or_else(|| anyhow!("{} is not an agent DevPulse knows", provider_id.key()))?;
+        let location = self
+            .providers
+            .location(provider_id)
+            .await
+            .ok_or_else(|| anyhow!("{} is not installed", definition.name()))?;
+        std::fs::create_dir_all(cwd).with_context(|| format!("make {}", cwd.display()))?;
+        AgentSession::start(
+            definition,
+            Path::new(&location),
+            &self.data_dir,
+            cwd,
+            resume,
+            talk_only,
+        )
+        .await
+    }
+
+    /// Where an agent works in a project: its folder, or an empty one.
+    pub(super) async fn folder(&self, project_id: &str) -> PathBuf {
         if let Some(projects) = &self.projects {
             if let Ok(state) = projects.state().await {
                 if let Some(project) = state.projects.into_iter().find(|p| p.id == project_id) {
@@ -281,6 +299,7 @@ impl Agents {
                 model_used: None,
                 finish_reason: None,
                 latency_ms: None,
+                metadata: None,
             },
         )
         .await?;
@@ -327,6 +346,7 @@ impl Agents {
                     model_used: Some(record.provider_id.key()),
                     finish_reason: Some(&stop),
                     latency_ms: Some(latency),
+                    metadata: None,
                 },
             )
             .await
@@ -379,21 +399,23 @@ impl Agents {
     }
 }
 
-fn parse_provider(key: &str) -> Option<ProviderId> {
+pub(super) fn parse_provider(key: &str) -> Option<ProviderId> {
     serde_json::from_value(serde_json::Value::String(key.to_owned())).ok()
 }
 
 /// One side of a turn, as the chat's `turns` table keeps it.
-struct TurnRow<'a> {
-    role: &'a str,
-    content: &'a str,
-    model_used: Option<&'a str>,
-    finish_reason: Option<&'a str>,
-    latency_ms: Option<i64>,
+pub(super) struct TurnRow<'a> {
+    pub(super) role: &'a str,
+    pub(super) content: &'a str,
+    pub(super) model_used: Option<&'a str>,
+    pub(super) finish_reason: Option<&'a str>,
+    pub(super) latency_ms: Option<i64>,
+    /// A JSON object (a room turn's place, role, phase and round).
+    pub(super) metadata: Option<&'a str>,
 }
 
 /// Save one side of a turn in the chat's `turns` table.
-async fn save_turn(
+pub(super) async fn save_turn(
     db: &TursoAdapter,
     session_id: &str,
     project_id: &str,
@@ -413,7 +435,7 @@ async fn save_turn(
     let optional_text = |v: Option<&str>| v.map_or(SqlValue::Null, SqlValue::from);
     db.execute(
         "INSERT INTO turns (id, session_id, project_id, role, content, sequence_num, model_used, \
-         finish_reason, latency_ms) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+         finish_reason, latency_ms, metadata) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         &[
             format!("turn-{}", Uuid::new_v4()).as_str().into(),
             session_id.into(),
@@ -424,6 +446,7 @@ async fn save_turn(
             optional_text(turn.model_used),
             optional_text(turn.finish_reason),
             turn.latency_ms.map_or(SqlValue::Null, SqlValue::from),
+            optional_text(turn.metadata),
         ],
     )
     .await

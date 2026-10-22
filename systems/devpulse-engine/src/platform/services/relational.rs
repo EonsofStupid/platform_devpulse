@@ -443,6 +443,15 @@ CREATE TABLE IF NOT EXISTS agent_threads (
     created_at INTEGER DEFAULT (unixepoch())
 );
 
+-- Rooms: a chat session whose seats your agents hold (plan 0001 B4.2)
+CREATE TABLE IF NOT EXISTS room_threads (
+    session_id TEXT PRIMARY KEY REFERENCES sessions(id) ON DELETE CASCADE,
+    room_id TEXT NOT NULL,                   -- library room: council, debate, …
+    seating TEXT NOT NULL,                   -- JSON [{seat, place, provider, persona}]
+    resume_tokens TEXT,                      -- JSON {place: the agent's own id that continues it}
+    created_at INTEGER DEFAULT (unixepoch())
+);
+
 -- Session anchors (facts extracted during conversation)
 CREATE TABLE IF NOT EXISTS anchors (
     id TEXT PRIMARY KEY,
