@@ -24,6 +24,7 @@ import {
 	logWarningLevels,
 	logBrokenReferenceLevels,
 } from 'style-dictionary/enums';
+import { resolveExtends } from './preprocess-extends.mjs';
 
 // ═══════════════════════════════════════════════════════════════
 // COLDLIGHT CUSTOM NAMES — constants, zero raw strings
@@ -55,6 +56,7 @@ const DP_EXT = 'com.devpulse.coldlight';
 
 /** Custom preprocessor names */
 const clPreprocessors = {
+	resolveExtends: 'coldlight/resolve-extends',
 	captureExtensions: 'coldlight/capture-extensions',
 };
 
@@ -489,6 +491,13 @@ StyleDictionary.registerTransform({
 // into the groupExtensions map so custom formats can read them.
 // ═══════════════════════════════════════════════════════════════
 
+// DTCG 2025.10 §6.4 group inheritance (`$extends`), resolved before any
+// other step so inherited groups carry their metadata too (plan 0006 0s.3).
+StyleDictionary.registerPreprocessor({
+	name: clPreprocessors.resolveExtends,
+	preprocessor: (dictionary) => resolveExtends(dictionary),
+});
+
 StyleDictionary.registerPreprocessor({
 	name: clPreprocessors.captureExtensions,
 	preprocessor: (dictionary) => {
@@ -880,6 +889,9 @@ const config = {
 		`${paths.source}/primitives/**/*.tokens.json`,
 		`${paths.source}/semantic/**/*.tokens.json`,
 		`${paths.source}/presets/**/*.tokens.json`,
+		// Colocated: each component's and SVG kind's own tokens file (plan 0006 0s).
+		`${paths.design}/components/*/*.tokens.json`,
+		`${paths.design}/svg/*/*.tokens.json`,
 	],
 	usesDtcg: true,
 	expand: (token) => {
@@ -897,7 +909,7 @@ const config = {
 		// typography, transition, border still expand into sub-properties.
 		return true;
 	},
-	preprocessors: [clPreprocessors.captureExtensions],
+	preprocessors: [clPreprocessors.resolveExtends, clPreprocessors.captureExtensions],
 	log: {
 		verbosity: logVerbosityLevels.verbose,
 		warnings: logWarningLevels.warn,
