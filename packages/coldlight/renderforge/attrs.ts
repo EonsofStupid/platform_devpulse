@@ -12,6 +12,8 @@
  * kinds not yet moved.
  */
 
+import type { SurfaceFamily } from "./generated/surfaces.js";
+
 /** What a component selects: its kind and its variant, size, tone and family. */
 export interface StyleSelection {
 	/** The kind; matches the component folder and its tokens file. */
@@ -19,8 +21,8 @@ export interface StyleSelection {
 	readonly variant?: string;
 	readonly size?: string;
 	readonly tone?: string;
-	/** A family for this element's subtree (a scope of one). */
-	readonly surface?: string;
+	/** A family for this element's subtree (a scope of one; see styles/scopes/surface.css). */
+	readonly surface?: SurfaceFamily;
 }
 
 /** The attributes a styled root spreads. */
@@ -29,7 +31,7 @@ export interface StyleAttrs {
 	readonly "data-variant"?: string;
 	readonly "data-size"?: string;
 	readonly "data-tone"?: string;
-	readonly "data-surface"?: string;
+	readonly "data-surface"?: SurfaceFamily;
 }
 
 export function styleAttrs(selection: StyleSelection): StyleAttrs {

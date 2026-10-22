@@ -43,7 +43,7 @@ export const CONCERN_AXES = {
 };
 
 /** Motion axes apply to every kind (render-base.css's universal `[data-kind]` rule). */
-const MOTION_AXES = ['opacity', 'animation', 'transition-duration', 'transition-timing-function'];
+export const MOTION_AXES = ['opacity', 'animation', 'transition-duration', 'transition-timing-function'];
 
 /** CSS for each state a kind's tokens may give. */
 export const STATE_SELECTORS = {

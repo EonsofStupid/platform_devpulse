@@ -1,7 +1,7 @@
 /* AUTO-GENERATED — DO NOT EDIT */
 
 /* ── Layer order declaration ─────────────────────────────── */
-@layer tokens.primitives, tokens.semantic, tokens.components;
+@layer tokens.primitives, tokens.semantic, tokens.components, tokens.scopes;
 
 /* ── Primitives ──────────────────────────────────────────── */
 @import "./primitives/color.css";
@@ -40,3 +40,6 @@
 
 /* ── Components ──────────────────────────────────────────── */
 @import "./components/components.generated.css";
+
+/* ── Scopes ──────────────────────────────────────────────── */
+@import "./scopes/surface.css";

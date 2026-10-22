@@ -24,7 +24,8 @@ import { execSync } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import StyleDictionary from 'style-dictionary';
 import { kindTypes } from './kind-css.mjs';
-import config, { KIND_FILES } from './sd.config.mjs';
+import config, { KIND_FILES, SURFACE_DEFAULT, SURFACE_FAMILIES } from './sd.config.mjs';
+import { surfaceTypes } from './surface-scopes.mjs';
 
 const OUT = '../../packages/coldlight';
 
@@ -39,7 +40,7 @@ const importsOf = (platform, dir) =>
 const INDEX_CSS = `/* AUTO-GENERATED — DO NOT EDIT */
 
 /* ── Layer order declaration ─────────────────────────────── */
-@layer tokens.primitives, tokens.semantic, tokens.components;
+@layer tokens.primitives, tokens.semantic, tokens.components, tokens.scopes;
 
 /* ── Primitives ──────────────────────────────────────────── */
 ${importsOf('css-primitives', 'primitives')}
@@ -49,6 +50,9 @@ ${importsOf('css-semantic', 'semantic')}
 
 /* ── Components ──────────────────────────────────────────── */
 @import "./components/components.generated.css";
+
+/* ── Scopes ──────────────────────────────────────────────── */
+${importsOf('css-scopes', 'scopes')}
 `;
 
 // ─── Barrel: Theme imports (per-domain composable) ───────────────────
@@ -166,6 +170,10 @@ async function build() {
 		['/* AUTO-GENERATED — DO NOT EDIT. One file per colocated kind tokens file. */', ...kindImports, ''].join('\n'),
 	);
 	console.log(`[SD5] Kinds: ${KIND_FILES.map(({ kind }) => kind).join(', ') || '(none yet)'}`);
+
+	// The family scope's typed families and roles, beside styleAttrs (plan 0006 0s.5).
+	writeFileSync(`${OUT}/renderforge/generated/surfaces.ts`, surfaceTypes(SURFACE_FAMILIES, SURFACE_DEFAULT));
+	console.log(`[SD5] Surface families: ${SURFACE_FAMILIES.map(({ family }) => family).join(', ')} (root: ${SURFACE_DEFAULT})`);
 
 	writeFileSync(`${OUT}/styles/index.css`, INDEX_CSS);
 	writeFileSync(`${OUT}/theme/index.css`, INDEX_THEME);

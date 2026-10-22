@@ -27,6 +27,7 @@ import {
 import { readdirSync, existsSync } from 'node:fs';
 import { kindCss, kindTokenFilter, readKindFile } from './kind-css.mjs';
 import { resolveExtends } from './preprocess-extends.mjs';
+import { readFamilies, surfaceScopesCss } from './surface-scopes.mjs';
 
 // ═══════════════════════════════════════════════════════════════
 // COLDLIGHT CUSTOM NAMES — constants, zero raw strings
@@ -36,6 +37,7 @@ import { resolveExtends } from './preprocess-extends.mjs';
 /** Custom format names — ColdLight extensions to SD5 */
 const clFormats = {
 	kindCss: 'coldlight/kind-css',
+	surfaceScopes: 'coldlight/surface-scopes',
 	css: 'coldlight/css',
 	tailwindTheme: 'coldlight/tailwind-theme',
 	types: 'coldlight/types',
@@ -167,6 +169,12 @@ export const KIND_FILES = readdirSync(`${paths.design}/components`, { withFileTy
 
 /** A token of a kind file's own group; path-based, since inherited tokens keep their family file's path. */
 const isKindToken = kindTokenFilter(new Set(KIND_FILES.map(({ kind }) => kind)));
+
+/** The families (plan 0006 §0s, D1), from the preset files. */
+export const SURFACE_FAMILIES = readFamilies();
+
+/** The family at the root until the Provider writes `data-surface` (today's `default` → neuro-elevated). */
+export const SURFACE_DEFAULT = 'neuro';
 
 // ═══════════════════════════════════════════════════════════════
 // PATH-BASED FILTERING
@@ -650,6 +658,15 @@ StyleDictionary.registerFormat({
 	},
 });
 
+// The family scope: each family's roles as --surface-role-* under [data-surface] (see surface-scopes.mjs).
+StyleDictionary.registerFormat({
+	name: clFormats.surfaceScopes,
+	format: async ({ dictionary, file, options }) => {
+		const header = await fileHeader({ file });
+		return `${header}${surfaceScopesCss(dictionary, options.families, options.surfaceDefault)}\n`;
+	},
+});
+
 StyleDictionary.registerFormat({
 	name: clFormats.css,
 	format: async ({ dictionary, file, options }) => {
@@ -1024,6 +1041,18 @@ const config = {
 				filter: (token) => token.path[0] === kind && isKindToken(token),
 				options: { kind, meta, group },
 			})),
+		},
+
+		// ── CSS: Scopes (the family scope, plan 0006 §0s) ──
+		'css-scopes': {
+			transforms: CSS_TRANSFORMS,
+			buildPath: `${paths.design}/styles/scopes/`,
+			files: [{
+				destination: 'surface.css',
+				format: clFormats.surfaceScopes,
+				filter: (token) => token.path[0] === 'preset',
+				options: { families: SURFACE_FAMILIES, surfaceDefault: SURFACE_DEFAULT },
+			}],
 		},
 
 		// ── CSS: SVG Presets ──────────────────────────────────────
