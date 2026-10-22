@@ -12,6 +12,10 @@
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
 import type { DialogPrimitiveProps } from "#coldlight/behaviors/overlays/dialog/index.js";
+import type { SurfaceFamily } from "#coldlight/renderforge/generated/surfaces.js";
+import type { DialogVariant } from "./dialog.generated.js";
+
+export type { DialogVariant } from "./dialog.generated.js";
 
 // =============================================================================
 // SHARED
@@ -68,7 +72,12 @@ interface DialogSlotProps extends Omit<HTMLAttributes<HTMLElement>, "children"> 
 
 export interface DialogTriggerProps extends DialogSlotProps {}
 export interface DialogOverlayProps extends DialogSlotProps {}
-export interface DialogContentProps extends DialogSlotProps {}
+export interface DialogContentProps extends DialogSlotProps {
+	/** Surface role, from dialog.tokens.json; the family in scope supplies it. Default: "elevated" */
+	variant?: DialogVariant;
+	/** Family for the dialog and what it holds; unset, it takes the family in scope. */
+	surface?: SurfaceFamily;
+}
 export interface DialogHeaderProps extends DialogSlotProps {}
 export interface DialogTitleProps extends DialogSlotProps {}
 export interface DialogDescriptionProps extends DialogSlotProps {}

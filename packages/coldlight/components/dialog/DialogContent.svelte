@@ -8,14 +8,20 @@
 -->
 <script lang="ts">
 import { dialogAnatomy } from "#coldlight/behaviors/overlays/dialog/index.js";
-import { cssVarString, renderForge } from "#coldlight/renderforge/index.js";
+import { styleAttrs } from "#coldlight/renderforge/index.js";
 import { cn } from "#coldlight/utils/cn.js";
 import { getDialogContext } from "./context.js";
+import { DIALOG_DEFAULTS } from "./dialog.generated.js";
 import type { DialogContentProps } from "./types.js";
 
-let { children, class: className, ...rest }: DialogContentProps = $props();
+let {
+	variant = DIALOG_DEFAULTS.variant,
+	surface,
+	children,
+	class: className,
+	...rest
+}: DialogContentProps = $props();
 const ctx = getDialogContext();
-const m = $derived(renderForge({ kind: "dialog", preset: "default" }));
 
 const SIZE_CLASSES: Record<string, string> = {
 	sm: "max-w-[var(--size-container-xs)]",
@@ -32,10 +38,9 @@ const SIZE_CLASSES: Record<string, string> = {
 			{...ctx.hook.content}
 			use:ctx.hook.attachContent
 			id={ctx.ids.content}
-			{...m.dataAttrs}
-			style={cssVarString(m.cssVars)}
-			class={cn(SIZE_CLASSES[ctx.size] ?? SIZE_CLASSES.md, className)}
 			{...rest}
+			{...styleAttrs({ kind: "dialog", variant, surface })}
+			class={cn(SIZE_CLASSES[ctx.size] ?? SIZE_CLASSES.md, className)}
 			open
 		>
 			{@render children?.()}

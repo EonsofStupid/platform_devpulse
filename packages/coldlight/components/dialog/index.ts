@@ -7,6 +7,7 @@ export { default as Header } from "./DialogHeader.svelte";
 export { default as Overlay } from "./DialogOverlay.svelte";
 export { default as Title } from "./DialogTitle.svelte";
 export { default as Trigger } from "./DialogTrigger.svelte";
+export { DIALOG_DEFAULTS, DIALOG_VARIANTS } from "./dialog.generated.js";
 export type {
 	DialogCloseProps,
 	DialogContentProps,
@@ -20,4 +21,5 @@ export type {
 	DialogSize,
 	DialogTitleProps,
 	DialogTriggerProps,
+	DialogVariant,
 } from "./types.js";
