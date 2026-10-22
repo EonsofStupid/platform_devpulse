@@ -32,7 +32,13 @@ const normalizedDirname =
 const WORKSPACE_ROOT = path.resolve(normalizedDirname, "../../..");
 // biome-ignore lint/correctness/noUnusedVariables: restored (owner rule: nothing deleted for being unused); the primitives it located now live in packages/coldlight
 const SRC_ROOT = path.join(WORKSPACE_ROOT, "src");
-const PRIMITIVES_ROOT = path.join(WORKSPACE_ROOT, "../../packages/coldlight/primitives");
+const COLDLIGHT_ROOT = path.join(WORKSPACE_ROOT, "../../packages/coldlight");
+const PRIMITIVES_ROOT = path.join(COLDLIGHT_ROOT, "primitives");
+// Since 2026-04-09 (fa3d3378) a primitive's code lives in its behavior
+// (`behaviors/<group>/<kind>/`) and its tests with its component
+// (`components/<kind>/`); its folder under primitives/ keeps the spec.
+const BEHAVIORS_ROOT = path.join(COLDLIGHT_ROOT, "behaviors");
+const COMPONENTS_ROOT = path.join(COLDLIGHT_ROOT, "components");
 const PRIMITIVES_MD = path.join(PRIMITIVES_ROOT, "PRIMITIVES.md");
 
 const _REQUIRED_FILES = ["index.ts", "types.ts", "a11y.md"];
@@ -68,12 +74,12 @@ interface AuditSummary {
 // ============================================
 
 /**
- * Count tests by parsing test file for it( calls.
+ * Count tests by parsing test file for it( / test( calls.
  */
 function countTests(testFilePath: string): number {
 	try {
 		const content = fs.readFileSync(testFilePath, "utf-8");
-		const matches = content.match(/\bit\s*\(/g);
+		const matches = content.match(/\b(?:it|test)\s*\(/g);
 		return matches?.length ?? 0;
 	} catch {
 		return 0;
@@ -120,7 +126,8 @@ function getPrimitiveFolders(): string[] {
 				// or check if folder looks like a primitive folder
 				if (
 					fs.existsSync(indexPath) ||
-					fs.existsSync(path.join(PRIMITIVES_ROOT, entry.name, "types.ts"))
+					fs.existsSync(path.join(PRIMITIVES_ROOT, entry.name, "types.ts")) ||
+					fs.existsSync(path.join(PRIMITIVES_ROOT, entry.name, `${entry.name}.spec.ts`))
 				) {
 					folders.push(entry.name);
 				}
@@ -147,27 +154,65 @@ function countMonolithicFiles(): number {
 	}
 }
 
+/** kind → its behavior folder (the one holding `<kind>.anatomy.ts`). */
+const BEHAVIOR_FOLDERS: Map<string, string> = (() => {
+	const folders = new Map<string, string>();
+	try {
+		for (const entry of fs.readdirSync(BEHAVIORS_ROOT, { recursive: true, withFileTypes: true })) {
+			const match = entry.isFile() && /^([a-z][a-z0-9-]*)\.anatomy\.ts$/.exec(entry.name);
+			if (match) folders.set(match[1], entry.parentPath);
+		}
+	} catch {
+		// No behaviors folder: every primitive is audited on its own folder.
+	}
+	return folders;
+})();
+
 /**
- * Audit a single primitive folder.
+ * Audit a single primitive: its own folder, else its behavior (code) and
+ * component (tests). The a11y contract is `a11y.md` or `<kind>.spec.ts`.
  */
 function auditPrimitive(name: string): AuditResult {
 	const folder = path.join(PRIMITIVES_ROOT, name);
+	const behavior = BEHAVIOR_FOLDERS.get(name);
+	// A primitive renders its own markup when its folder holds a .svelte;
+	// otherwise its code is its behavior's.
+	const ownCode = fs
+		.readdirSync(folder)
+		.some((f) => f.endsWith(".svelte") && !f.includes(".test."));
 
-	const hasIndex = fs.existsSync(path.join(folder, "index.ts"));
-	const hasTypes = fs.existsSync(path.join(folder, "types.ts"));
-	const hasA11y = fs.existsSync(path.join(folder, "a11y.md"));
+	const hasIndex =
+		fs.existsSync(path.join(folder, "index.ts")) ||
+		(behavior !== undefined && fs.existsSync(path.join(behavior, "index.ts")));
+	const hasTypes =
+		fs.existsSync(path.join(folder, "types.ts")) ||
+		(behavior !== undefined && fs.existsSync(path.join(behavior, `${name}.types.ts`)));
+	const hasA11y =
+		fs.existsSync(path.join(folder, "a11y.md")) ||
+		fs.existsSync(path.join(folder, `${name}.spec.ts`));
 
-	// Find test files
-	const testTsPath = path.join(folder, `${toPascalCase(name)}.test.ts`);
-	const testSveltePath = path.join(folder, `${toPascalCase(name)}.test.svelte`);
+	// Find test files: the primitive's own, else its component's
+	const pascal = toPascalCase(name);
+	const testDir = fs.existsSync(path.join(folder, `${pascal}.test.ts`))
+		? folder
+		: path.join(COMPONENTS_ROOT, name);
+	const testTsPath = path.join(testDir, `${pascal}.test.ts`);
+	const testSveltePath = path.join(testDir, `${pascal}.test.svelte`);
 	const hasTests = fs.existsSync(testTsPath);
 	const hasTestSvelte = fs.existsSync(testSveltePath);
 	const testCount = hasTests ? countTests(testTsPath) : 0;
 
-	const hasDataPrimitive = checkDataPrimitive(folder, name);
+	// A behavior-bound primitive gets data-kind from its anatomy's attrs.
+	const hasDataPrimitive = ownCode ? checkDataPrimitive(folder, name) : behavior !== undefined;
 
+	// A test harness .svelte is needed only where the primitive renders its own markup.
 	const isComplete =
-		hasIndex && hasTypes && hasA11y && hasTests && hasTestSvelte && hasDataPrimitive;
+		hasIndex &&
+		hasTypes &&
+		hasA11y &&
+		hasTests &&
+		(ownCode ? hasTestSvelte : true) &&
+		hasDataPrimitive;
 
 	return {
 		name,
@@ -222,7 +267,7 @@ function formatMarkdownTable(results: AuditResult[]): string {
 /**
  * Format full audit output for console.
  */
-function _formatConsoleOutput(summary: AuditSummary): string {
+function formatConsoleOutput(summary: AuditSummary): string {
 	const lines: string[] = [
 		"",
 		"## ColdLight Primitives Audit",
@@ -276,6 +321,7 @@ function updatePrimitivesMd(summary: AuditSummary): boolean {
 			content.slice(endIndex);
 
 		fs.writeFileSync(PRIMITIVES_MD, newContent, "utf-8");
+		console.log(`✅ Updated ${PRIMITIVES_MD}`);
 		return true;
 	} catch (err) {
 		console.error("❌ Error updating PRIMITIVES.md:", err);
@@ -310,9 +356,12 @@ function main(): void {
 
 	// Output based on flags
 	if (jsonOutput) {
+		console.log(JSON.stringify(summary, null, 2));
 	} else if (updateMd) {
 		updatePrimitivesMd(summary);
+		console.log(formatConsoleOutput(summary));
 	} else {
+		console.log(formatConsoleOutput(summary));
 	}
 
 	// CI mode: exit 1 if any incomplete
