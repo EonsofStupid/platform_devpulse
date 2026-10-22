@@ -220,7 +220,8 @@ pub struct LaneTraceConfig {
 // ═══════════════════════════════════════════════════════════════
 
 /// Embedded default config generated from repo-root platform fragments.
-const DEFAULT_CONFIG: &str = include_str!(concat!(env!("OUT_DIR"), "/platform.default.toml"));
+pub(crate) const DEFAULT_CONFIG: &str =
+    include_str!(concat!(env!("OUT_DIR"), "/platform.default.toml"));
 
 /// Root boot configuration deserialized from TOML.
 #[derive(Debug, Clone, Deserialize, Default)]
@@ -243,6 +244,12 @@ pub struct PlatformBootConfig {
     /// `[signals]` section keeps the shipped default suggestions.
     #[serde(default = "SignalsConfig::shipped")]
     pub signals: SignalsConfig,
+    /// Log organization and retention (`[logs]`). Kept as written here and
+    /// checked against its schema by
+    /// [`super::runtime::logs::LogsPolicy`], so a policy below its floors is
+    /// refused by name instead of failing the whole config.
+    #[serde(default)]
+    pub logs: Option<toml::Value>,
 }
 
 /// Signal delivery tuning from `config/platform/signals.toml`.

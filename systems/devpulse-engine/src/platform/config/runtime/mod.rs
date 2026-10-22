@@ -11,5 +11,8 @@
 //! - `telemetry` — trace enablement and lane configuration
 //! - `network` — dev-server and graph-API port bindings
 //! - `windows` — Windows-specific path/filesystem quirks
+//! - [`logs`] — how long each run's logs stay (`[logs]`, master plan M8)
 //!
 //! See `config/platform/runtime/` for the TOML layout.
+
+pub mod logs;

@@ -15,3 +15,20 @@ enabled = true
 preset = "standard"
 verbose = false
 persist_to_duckdb = true
+
+[logs]
+# How long logs stay (master plan M8). Each boot writes its logs into a
+# folder of its own, logs/runs/<run id>/. A run with a crash, a panic or a
+# boot that never got ready is "failed" and is kept longer than the rest.
+# No value may go below its floor; the floors are the schema of LogsPolicy
+# (systems/devpulse-engine/src/platform/config/runtime/logs.rs), and a value
+# below one is refused at boot, by name, and these shipped values are used.
+keep_runs = 10          # the newest runs kept
+keep_failed_runs = 20   # failed runs kept besides those
+failed_run_days = 30    # days a failed run is kept
+max_total_mb = 1024     # the whole logs folder; oldest unpinned runs go first
+keep_free_mb = 1024     # below this much free disk, verbose logging drops to info
+max_file_mb = 256       # one log file rolls over past this
+# Off until you have read the first retention report: what would go is
+# reported, nothing is removed.
+prune = false
