@@ -25,7 +25,7 @@ import {
 	logBrokenReferenceLevels,
 } from 'style-dictionary/enums';
 import { readdirSync, existsSync } from 'node:fs';
-import { isKindToken, kindCss, readKindFile } from './kind-css.mjs';
+import { kindCss, kindTokenFilter, readKindFile } from './kind-css.mjs';
 import { resolveExtends } from './preprocess-extends.mjs';
 
 // ═══════════════════════════════════════════════════════════════
@@ -164,6 +164,9 @@ export const KIND_FILES = readdirSync(`${paths.design}/components`, { withFileTy
 		const read = readKindFile(path, d.name);
 		return read ? [{ kind: d.name, path, ...read }] : [];
 	});
+
+/** A token of a kind file's own group; path-based, since inherited tokens keep their family file's path. */
+const isKindToken = kindTokenFilter(new Set(KIND_FILES.map(({ kind }) => kind)));
 
 // ═══════════════════════════════════════════════════════════════
 // PATH-BASED FILTERING
@@ -643,7 +646,7 @@ StyleDictionary.registerFormat({
 	name: clFormats.kindCss,
 	format: async ({ dictionary, file, options }) => {
 		const header = await fileHeader({ file });
-		return `${header}${kindCss(dictionary, options.kind, options.meta)}\n`;
+		return `${header}${kindCss(dictionary, options.kind, options.meta, options.group)}\n`;
 	},
 });
 
@@ -1015,11 +1018,11 @@ const config = {
 		'css-kinds': {
 			transforms: CSS_TRANSFORMS,
 			buildPath: `${paths.design}/styles/components/kinds/`,
-			files: KIND_FILES.map(({ kind, meta }) => ({
+			files: KIND_FILES.map(({ kind, meta, group }) => ({
 				destination: `${kind}.css`,
 				format: clFormats.kindCss,
 				filter: (token) => token.path[0] === kind && isKindToken(token),
-				options: { kind, meta },
+				options: { kind, meta, group },
 			})),
 		},
 
@@ -1127,6 +1130,8 @@ const config = {
 			files: [{
 				destination: 'token-manifest.json',
 				format: clFormats.manifest,
+				// Kind tokens are not :root variables; they set `--<kind>-*` per selector (css-kinds).
+				filter: (token) => !isKindToken(token),
 			}],
 		},
 	},
