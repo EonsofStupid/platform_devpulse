@@ -6,17 +6,21 @@
 
 import type { Snippet } from "svelte";
 import type { SheetPrimitiveProps } from "#coldlight/behaviors/overlays/sheet/index.js";
+import type { SurfaceFamily } from "#coldlight/renderforge/generated/surfaces.js";
+import type { SheetVariant } from "./sheet.generated.js";
 
 export type { SheetSide } from "#coldlight/behaviors/overlays/sheet/index.js";
+export type { SheetVariant } from "./sheet.generated.js";
 
 export type SheetSize = "sm" | "md" | "lg" | "xl" | "full";
-export type SheetPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
 export interface SheetComponentProps extends SheetPrimitiveProps {
 	/** Trigger snippet rendered as a button that opens the sheet */
 	trigger?: Snippet;
-	/** Visual preset — selects style configuration. Default: "default" */
-	preset?: SheetPreset;
+	/** Panel surface role, from sheet.tokens.json; the family in scope supplies it. Default: "elevated" */
+	variant?: SheetVariant;
+	/** Family for the panel and what it holds; unset, it takes the family in scope. */
+	surface?: SurfaceFamily;
 	/** Sheet width/height. Default: "md" */
 	size?: SheetSize;
 	/** Accessible label for the sheet */

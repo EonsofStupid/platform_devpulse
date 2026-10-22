@@ -25,8 +25,9 @@
 <script lang="ts">
 import { sheetAnatomy } from "#coldlight/behaviors/overlays/sheet/index.js";
 import { useSheet } from "#coldlight/behaviors/overlays/sheet/use-sheet.svelte.js";
-import { cssVarString, renderForge } from "#coldlight/renderforge/index.js";
+import { styleAttrs } from "#coldlight/renderforge/index.js";
 import { cn } from "#coldlight/utils/cn.js";
+import { SHEET_DEFAULTS } from "./sheet.generated.js";
 import type { SheetComponentProps, SheetSide, SheetSize } from "./types.js";
 
 const SIZE_CLASSES: Record<SheetSide, Record<SheetSize, string>> = {
@@ -51,7 +52,8 @@ let {
 	label,
 	closeOnEscape = true,
 	closeOnOutsideClick = true,
-	preset = "default",
+	variant = SHEET_DEFAULTS.variant,
+	surface,
 	trigger,
 	children,
 	class: className,
@@ -73,8 +75,6 @@ const hook = useSheet({
 		return closeOnOutsideClick;
 	},
 });
-
-const m = $derived(renderForge({ kind: "sheet", preset }));
 </script>
 
 {#if trigger}
@@ -82,7 +82,6 @@ const m = $derived(renderForge({ kind: "sheet", preset }));
 		{...sheetAnatomy.attrs.trigger}
 		{...hook.trigger}
 		use:hook.attachTrigger
-		{...m.dataAttrs}
 	>
 		{@render trigger()}
 	</button>
@@ -93,7 +92,6 @@ const m = $derived(renderForge({ kind: "sheet", preset }));
 			{...sheetAnatomy.attrs.overlay}
 			{...hook.overlay}
 			use:hook.attachOverlay
-			{...m.dataAttrs}
 			class="fixed inset-0 z-50"
 		></div>
 		<div
@@ -101,21 +99,18 @@ const m = $derived(renderForge({ kind: "sheet", preset }));
 			{...hook.content}
 			use:hook.attachContent
 			{...rest}
-			{...m.dataAttrs}
-			style={cssVarString(m.cssVars)}
+			{...styleAttrs({ kind: "sheet", variant, surface })}
 			data-side={side}
 			class={cn(
 				"fixed z-50 flex flex-col",
 				SIDE_CLASSES[side],
 				SIZE_CLASSES[side]?.[size] ?? SIZE_CLASSES.right.md,
 				className)}
-			{...rest}
 		>
 			{@render children?.()}
 			<button
 				{...sheetAnatomy.attrs.close}
 				{...hook.close}
-				{...m.dataAttrs}
 				class="absolute top-4 end-4 cursor-pointer opacity-70 hover:opacity-100"
 			>
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
