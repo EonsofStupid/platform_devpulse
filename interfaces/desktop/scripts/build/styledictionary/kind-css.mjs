@@ -6,7 +6,8 @@
  * from the kind's colocated tokens file, `components/<kind>/<kind>.tokens.json`
  * (plan 0006 §0s). The file's top group is the kind:
  *
- *   <kind>.$extensions["com.coldlight"]  { accepts: [concern…], defaults: { variant, size, tone } }
+ *   <kind>.$extensions["com.coldlight"]  { accepts: [concern…], defaults: { variant, size, tone }, slot? }
+ *                                        `slot` scopes every rule to that part, [data-slot="<slot>"]
  *   <kind>.base.<property>               every element of the kind
  *   <kind>.variant.<name>.<property>     [data-variant="<name>"]; may `$extends` a preset, or name a
  *                                        surface role in its `$extensions["com.coldlight"].role`
@@ -111,8 +112,7 @@ function cssValue(token, nameByPath) {
 }
 
 /** The selector a section's token is set under. */
-function selectorOf(kind, token) {
-	const sel = `[data-kind="${kind}"]`;
+function selectorOf(sel, kind, token) {
 	const [, section, name] = token.path;
 	const expected = section === 'base' ? 3 : 4;
 	if (token.path.length !== expected) {
@@ -158,7 +158,8 @@ export function kindCss(dictionary, kind, meta, group, scope) {
 	const everything = dictionary.unfilteredAllTokens ?? dictionary.allTokens;
 	const nameByPath = new Map(everything.map((t) => [t.path.join('.'), t.name]));
 	const accepted = acceptedAxes(kind, meta);
-	const sel = `[data-kind="${kind}"]`;
+	// A multi-part kind styles the part its file names (anatomy's data-slot); the others are untouched.
+	const sel = `[data-kind="${kind}"]${meta?.slot ? `[data-slot="${meta.slot}"]` : ''}`;
 	/** selector → [custom property, value][] in source order */
 	const blocks = new Map([[sel, []]]);
 	/** properties the kind sets anywhere, in first-seen order */
@@ -174,7 +175,7 @@ export function kindCss(dictionary, kind, meta, group, scope) {
 		const property = token.path.at(-1);
 		// Inherited from a family role and outside the kind's concerns.
 		if (!accepted.has(property) && !declares(group, token.path.slice(1))) return;
-		set(selectorOf(kind, token), property, cssValue(token, nameByPath));
+		set(selectorOf(sel, kind, token), property, cssValue(token, nameByPath));
 	};
 	const variants = keys(group?.variant);
 	for (const token of tokens.filter((t) => t.path[1] === 'variant' && !variants.includes(t.path[2]))) {

@@ -135,6 +135,20 @@ test('a variant naming a role reads the family scope, except what the kind decla
 	);
 });
 
+test('a slot scopes every rule to that part', () => {
+	const group = { base: { color: { $value: 'red' } }, state: { hover: { color: { $value: 'blue' } } } };
+	const css = kindCss(
+		dictionary([token('menu.base.color', 'red'), token('menu.state.hover.color', 'blue')]),
+		'menu',
+		{ slot: 'content', accepts: ['interactive'] },
+		group,
+	);
+	assert.match(css, /^\[data-kind="menu"\]\[data-slot="content"\] \{\n\t--menu-color: red;/);
+	assert.match(css, /\[data-kind="menu"\]\[data-slot="content"\]:hover \{\n\t--menu-color: blue;/);
+	assert.match(css, /\[data-kind="menu"\]\[data-slot="content"\]:focus-visible \{/);
+	assert.doesNotMatch(css, /\[data-kind="menu"\] \{/);
+});
+
 test('kind tokens are found by path, not by file', () => {
 	const isKind = kindTokenFilter(new Set(['button']));
 	assert.equal(isKind(token('button.variant.primary.color', 'x')), true);
