@@ -59,13 +59,16 @@ describe("toggle-group component — ARIA", () => {
 });
 
 describe("toggle-group component — composition", () => {
-	test("applies composition base classes", async () => {
+	test("applies layout classes; its look comes from the kind's attributes", async () => {
 		const { container } = render(ToggleGroup, {
 			items: [{ value: "a", label: "A" }],
+			surface: "glass",
 		});
 		const root = container.querySelector("[data-kind='toggle-group']");
 		expect(root?.className).toContain("inline-flex");
-		expect(root?.className).toContain("rounded-md");
+		expect(root?.getAttribute("data-variant")).toBe("elevated");
+		expect(root?.getAttribute("data-surface")).toBe("glass");
+		expect(root?.hasAttribute("style")).toBe(false);
 	});
 
 	test("applies horizontal orientation classes", async () => {

@@ -13,11 +13,13 @@
 import type { Snippet } from "svelte";
 import type { SvelteSet } from "svelte/reactivity";
 import type { ToggleGroupPrimitiveProps } from "#coldlight/behaviors/inputs/toggle-group/index.js";
+import type { SurfaceFamily } from "#coldlight/renderforge/generated/surfaces.js";
+import type { ToggleGroupVariant } from "./toggle-group.generated.js";
 
 export type ToggleGroupSize = "sm" | "md" | "lg";
 
-export type ToggleGroupPreset = "default" | "stark" | "glass" | "flat" | "matte";
 export type { ToggleGroupOrientation } from "#coldlight/behaviors/inputs/toggle-group/index.js";
+export type { ToggleGroupVariant } from "./toggle-group.generated.js";
 
 /** Item definition for toggle group */
 export interface ToggleGroupItem {
@@ -42,6 +44,8 @@ export interface ToggleGroupComponentProps
 	multiple?: boolean;
 	/** Whether arrow keys loop. @default true */
 	loop?: boolean;
-	/** Style preset. Default: "default". */
-	preset?: ToggleGroupPreset;
+	/** Surface role, from toggle-group.tokens.json; the family in scope supplies it. Default: "elevated" */
+	variant?: ToggleGroupVariant;
+	/** Family for this group (a scope of one); unset, it takes the family in scope. */
+	surface?: SurfaceFamily;
 }

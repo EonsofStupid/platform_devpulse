@@ -26,8 +26,9 @@ import {
 	toggleGroupAnatomy,
 	useToggleGroup,
 } from "#coldlight/behaviors/inputs/toggle-group/index.js";
-import { cssVarString, renderForge } from "#coldlight/renderforge/index.js";
+import { styleAttrs } from "#coldlight/renderforge/index.js";
 import { cn } from "#coldlight/utils/cn.js";
+import { TOGGLE_GROUP_DEFAULTS } from "./toggle-group.generated.js";
 import type { ToggleGroupComponentProps } from "./types.js";
 
 let {
@@ -38,12 +39,23 @@ let {
 	disabled = false,
 	orientation = "horizontal",
 	loop = true,
-	preset = "default",
+	variant = TOGGLE_GROUP_DEFAULTS.variant,
+	surface,
 	children,
 	class: className,
 	...rest
 }: ToggleGroupComponentProps = $props();
 const tg = $derived(useToggleGroup({ disabled, orientation }));
-const m = $derived(renderForge({ kind: "toggle-group", preset }));
 </script>
-<div {...toggleGroupAnatomy.attrs.root} {...tg.root as any} {...m.dataAttrs} style={cssVarString(m.cssVars)} data-orientation={orientation} class={cn("inline-flex items-center rounded-md", className)} {...rest}>{@render children?.()}</div>
+
+<!-- Its look is toggle-group.tokens.json's generated CSS: the variant's role from the family in scope. class is layout. -->
+<div
+	{...toggleGroupAnatomy.attrs.root}
+	{...tg.root}
+	{...rest}
+	{...styleAttrs({ kind: "toggle-group", variant, surface })}
+	data-orientation={orientation}
+	class={cn("inline-flex items-center", className)}
+>
+	{@render children?.()}
+</div>

@@ -1,6 +1,8 @@
+import type { ToggleGroupOrientation } from "./primitive-props.js";
+
 export interface UseToggleGroupOptions {
 	disabled?: boolean;
-	orientation?: string;
+	orientation?: ToggleGroupOrientation;
 }
 export function useToggleGroup(opts: UseToggleGroupOptions) {
 	return {
