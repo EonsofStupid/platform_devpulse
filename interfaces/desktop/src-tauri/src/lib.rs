@@ -24,6 +24,7 @@ pub mod bindings;
 pub mod commands;
 pub mod crash_safety;
 pub mod events;
+pub mod log_runs;
 pub mod logging;
 pub mod paths;
 pub mod routes;
@@ -684,6 +685,20 @@ pub fn run() {
                 data_dir.join("bootstrap.log"),
             ));
 
+            // ── This boot's run folder (master plan M8) ─────────
+            // Every log of this boot lives in logs/runs/<run id>/. Files
+            // from before runs existed are moved into run folders first
+            // (nothing deleted); the retention policy runs once logging is
+            // up, so its report lands in the session log.
+            let run = match log_runs::Run::start(&data_dir, chrono::Utc::now()) {
+                Ok(run) => Some(run),
+                Err(e) => {
+                    eprintln!("devpulse: the run's log folder could not be made: {e}");
+                    None
+                }
+            };
+            let adopted = log_runs::adopt_legacy(&data_dir);
+
             // ── Stderr → file (Windows release safety net) ───────
             // Production runs `windows_subsystem = "windows"` so the
             // OS detaches stderr at process start; any default-panic-
@@ -693,31 +708,43 @@ pub fn run() {
             // subsequent byte. Runs BEFORE the tracing subscriber so
             // the file also catches stderr lines emitted between here
             // and `logging::init` completing.
-            match crash_safety::redirect_stderr_to_file(&data_dir.join("logs")) {
-                Ok(Some(path)) => {
-                    eprintln!("devpulse: stderr captured to {}", path.display());
-                }
-                Ok(None) => {}
-                Err(e) => {
-                    eprintln!("devpulse: stderr redirect failed: {e}");
+            if let Some(run) = &run {
+                match crash_safety::redirect_stderr_to_file(&run.file(log_runs::LogFile::Stderr)) {
+                    Ok(Some(path)) => {
+                        eprintln!("devpulse: stderr captured to {}", path.display());
+                    }
+                    Ok(None) => {}
+                    Err(e) => {
+                        eprintln!("devpulse: stderr redirect failed: {e}");
+                    }
                 }
             }
 
             // ── Logging: stderr + file + DuckDB + OTel ────────────
             let _ = logging::rotate_logs(&data_dir);
-            let mut span_rx = match logging::init(&data_dir, otel_layer) {
-                Ok(handle) => {
+            let init = run
+                .as_ref()
+                .map(|run| logging::init(run, otel_layer));
+            let mut span_rx = match init {
+                Some(Ok(handle)) => {
                     // Leak the file guard so file logging lives for the entire process
                     std::mem::forget(handle.file_guard);
                     Some(handle.span_rx)
                 }
-                Err(e) => {
+                Some(Err(e)) => {
                     eprintln!("[FATAL] logging::init failed: {e:?}");
                     logging::init_stderr_only();
                     None
                 }
+                None => {
+                    logging::init_stderr_only();
+                    None
+                }
             };
-            tracing::info!(data_dir = %data_dir.display(), "DevPulse Desktop starting");
+            if let Some(run) = &run {
+                report_retention(&data_dir, run, adopted);
+            }
+            tracing::info!(data_dir = %data_dir.display(), run = run.as_ref().map_or("none", log_runs::Run::id), "DevPulse Desktop starting");
 
             // ── Bindings: keep TypeScript in step with Rust in dev ──
             #[cfg(debug_assertions)]
@@ -1331,8 +1358,8 @@ fn panic_message(payload: &Box<dyn std::any::Any + Send>) -> String {
 /// at all of "did Rust even start". `bootstrap.log` is the one place
 /// the user can look: "file exists with fresh timestamp → process
 /// started, at least through data-dir resolution". Failures AFTER this
-/// land in `boot.log` (authored at `platform/boot/log.rs:43`) or
-/// `crash-{ts}.json` (authored by the panic hook at `logging.rs:179`).
+/// land in `boot.log` (authored at `platform/boot/log.rs:43`) or the run's
+/// `crash.jsonl` (appended by the panic hook in `logging.rs`).
 ///
 /// All writes use synchronous `std::fs::write` — tracing-appender's
 /// background worker hasn't been spawned yet, and synchronous is what
@@ -1340,6 +1367,50 @@ fn panic_message(payload: &Box<dyn std::any::Any + Send>) -> String {
 ///
 /// Best-effort: errors are swallowed because this log is an aide, not
 /// a precondition. If we can't write it, boot still proceeds.
+/// Judge the earlier runs against the retention policy (`[logs]`) and log
+/// the decision; the full report is the run's `retention.json`.
+fn report_retention(data_dir: &std::path::Path, run: &log_runs::Run, adopted: Vec<String>) {
+    use devpulse_engine::platform::config::runtime::logs::LogsPolicy;
+
+    let loaded = match LogsPolicy::load(data_dir) {
+        Ok(loaded) => loaded,
+        Err(e) => {
+            tracing::error!(target: "logs", error = %format!("{e:#}"), "no retention policy; every run is kept");
+            return;
+        }
+    };
+    for problem in &loaded.refused {
+        tracing::warn!(target: "logs", %problem, "your [logs] was not used; the shipped policy applies");
+    }
+    let report = log_runs::retain(data_dir, run, loaded, adopted, chrono::Utc::now());
+    let gone = report
+        .gone
+        .iter()
+        .map(|v| format!("{} ({:?})", v.run, v.reason))
+        .collect::<Vec<_>>()
+        .join(", ");
+    let outcome = if report.policy.prune {
+        "removed"
+    } else {
+        "would go (prune is off, nothing removed)"
+    };
+    tracing::info!(
+        target: "logs",
+        run = %report.run,
+        kept = report.kept.len(),
+        gone = report.gone.len(),
+        adopted = report.adopted.len(),
+        prune = report.policy.prune,
+        runs_gone = %gone,
+        "log retention: {} runs kept; {} {outcome}",
+        report.kept.len(),
+        report.gone.len(),
+    );
+    for error in &report.errors {
+        tracing::warn!(target: "logs", %error, "a run could not be removed");
+    }
+}
+
 fn write_bootstrap_log(data_dir: &std::path::Path) {
     use std::fs;
 
@@ -1360,15 +1431,14 @@ fn write_bootstrap_log(data_dir: &std::path::Path) {
          data_dir:    {data_dir}\n\
          logs_dir:    {logs_dir}\n\
          boot_log:    {boot_log}\n\
-         session_log: {logs_dir}/session-<timestamp>.jsonl\n\
-         crash_dumps: {logs_dir}/crash-<timestamp>.json\n\
+         runs:        {logs_dir}/runs/<run id>/ (session.jsonl, stderr.log, crash.jsonl, retention.json)\n\
          ---\n\
          If you are reading this, Rust reached the data-dir resolution step.\n\
-         If session-*.jsonl or boot.log have fresher timestamps than this\n\
-         file, boot progressed further. If not, a panic or DLL load error\n\
+         If the newest run folder or boot.log is fresher than this file,\n\
+         boot progressed further. If not, a panic or DLL load error\n\
          happened between data-dir resolution and the logging subscriber\n\
          init — check Windows Event Viewer for the exe name or look for\n\
-         a crash-*.json in logs_dir.\n",
+         crash.jsonl and stderr.log in the newest run folder.\n",
         version = env!("CARGO_PKG_VERSION"),
         data_dir = data_dir.display(),
         logs_dir = logs_dir.display(),

@@ -2,7 +2,7 @@
 //!
 //! `commands::sys::action_log` tails the operator-facing
 //! `action-YYYY-MM-DD.jsonl`. This module reads the developer-facing
-//! `session-YYYY-MM-DD-HHMMSS.jsonl` written by the file-tracing layer
+//! newest run's `logs/runs/<run id>/session.jsonl` written by the file-tracing layer
 //! and returns the last N lines whose `target` field starts with a
 //! caller-supplied prefix.
 //!
@@ -14,11 +14,10 @@
     reason = "Tauri command macro injects `AppHandle` by value and deserializes `String` args from JSON; commands cannot take `&AppHandle` / `&str` and remain `#[tauri::command]`-compatible."
 )]
 
-use std::path::{Path, PathBuf};
-
 use serde::{Deserialize, Serialize};
 use specta::Type;
 
+use crate::log_runs::{self, LogFile};
 use crate::paths;
 
 /// One parsed JSONL log line, projected to the fields the devtool renders.
@@ -50,8 +49,7 @@ pub struct ScopedLogEntry {
 ///
 /// # Errors
 /// - Data dir resolution failed.
-/// - Log directory listing failed (IO error).
-/// - Most-recent session file could not be read.
+/// - The newest run's session file could not be read.
 #[tauri::command]
 #[specta::specta]
 pub fn query_scoped_log(
@@ -60,12 +58,9 @@ pub fn query_scoped_log(
     limit: u32,
 ) -> Result<Vec<ScopedLogEntry>, String> {
     let data_dir = paths::resolve_data_dir(&app)?;
-    let logs_dir = data_dir.join("logs");
-    if !logs_dir.exists() {
-        return Ok(Vec::new());
-    }
-
-    let Some(session_path) = newest_session_file(&logs_dir)? else {
+    // The newest run's session log (master plan M8: each boot's logs are
+    // in their own run folder).
+    let Some(session_path) = log_runs::newest_run_file(&data_dir, LogFile::Session) else {
         return Ok(Vec::new());
     };
 
@@ -73,31 +68,6 @@ pub fn query_scoped_log(
         .map_err(|e| format!("read {} failed: {e}", session_path.display()))?;
 
     Ok(filter_lines(&raw, &target_prefix, limit as usize))
-}
-
-/// Return the most recent `session-*.jsonl` file in `logs_dir`, by name.
-///
-/// Filename convention is `session-YYYY-MM-DD-HHMMSS.jsonl`, so a string
-/// sort works without parsing the timestamp.
-fn newest_session_file(logs_dir: &Path) -> Result<Option<PathBuf>, String> {
-    let mut sessions: Vec<PathBuf> = std::fs::read_dir(logs_dir)
-        .map_err(|e| format!("readdir {} failed: {e}", logs_dir.display()))?
-        .filter_map(Result::ok)
-        .map(|e| e.path())
-        .filter(|p| {
-            p.file_name().and_then(|n| n.to_str()).is_some_and(|n| {
-                n.starts_with("session-")
-                    && Path::new(n)
-                        .extension()
-                        .is_some_and(|ext| ext.eq_ignore_ascii_case("jsonl"))
-            })
-        })
-        .collect();
-    if sessions.is_empty() {
-        return Ok(None);
-    }
-    sessions.sort();
-    Ok(sessions.pop())
 }
 
 /// Parse + filter + tail. Pure for unit testing.

@@ -21,7 +21,7 @@
 //!    is resolved later and may not even be writable on a fresh launch).
 //!
 //! 2. [`redirect_stderr_to_file`] — Windows-only. Rebinds the OS-level
-//!    `STD_ERROR_HANDLE` to `<data_dir>/logs/stderr-<ts>.log` so every
+//!    `STD_ERROR_HANDLE` to the run's `<data_dir>/logs/runs/<run id>/stderr.log` so every
 //!    subsequent `eprintln!`, default-panic-handler stderr printout,
 //!    libc `abort()` message, or third-party crate that writes to fd 2
 //!    lands in a captured file instead of evaporating. Called from
@@ -173,12 +173,11 @@ fn write_early_crash_json(info: &std::panic::PanicHookInfo<'_>) {
 /// worse than two explicit unsafe blocks documented in one place.
 ///
 /// # Errors
-/// Returns `io::Error` if creating `logs_dir` fails, the bootstrap log
-/// file cannot be opened, or the Win32 `SetStdHandle` call returns
-/// failure.
+/// Returns `io::Error` if the file's folder cannot be made, the file
+/// cannot be opened, or the Win32 `SetStdHandle` call returns failure.
 #[cfg(windows)]
 #[allow(unsafe_code)]
-pub fn redirect_stderr_to_file(logs_dir: &Path) -> std::io::Result<Option<PathBuf>> {
+pub fn redirect_stderr_to_file(stderr_path: &Path) -> std::io::Result<Option<PathBuf>> {
     use std::os::windows::io::IntoRawHandle;
 
     // Raw FFI to avoid pulling `windows-sys` as a direct dep; the
@@ -190,14 +189,14 @@ pub fn redirect_stderr_to_file(logs_dir: &Path) -> std::io::Result<Option<PathBu
     // STD_ERROR_HANDLE = (DWORD)-12 per <winbase.h>.
     const STD_ERROR_HANDLE: u32 = 0xFFFF_FFF4;
 
-    std::fs::create_dir_all(logs_dir)?;
-    let timestamp = chrono::Local::now().format("%Y-%m-%d-%H%M%S");
-    let stderr_path = logs_dir.join(format!("stderr-{timestamp}.log"));
+    if let Some(dir) = stderr_path.parent() {
+        std::fs::create_dir_all(dir)?;
+    }
 
     let file = std::fs::OpenOptions::new()
         .create(true)
         .append(true)
-        .open(&stderr_path)?;
+        .open(stderr_path)?;
     let handle = file.into_raw_handle();
 
     // SAFETY: `handle` is a valid HANDLE owned by us (we just opened it
@@ -212,7 +211,7 @@ pub fn redirect_stderr_to_file(logs_dir: &Path) -> std::io::Result<Option<PathBu
         // caller knows the redirect didn't take.
         return Err(std::io::Error::last_os_error());
     }
-    Ok(Some(stderr_path))
+    Ok(Some(stderr_path.to_path_buf()))
 }
 
 /// Non-Windows no-op. Production target is Windows; macOS + Linux land
@@ -223,6 +222,6 @@ pub fn redirect_stderr_to_file(logs_dir: &Path) -> std::io::Result<Option<PathBu
 /// return type is kept for signature parity with the Windows
 /// implementation so callers don't need `#[cfg]` branches.
 #[cfg(not(windows))]
-pub fn redirect_stderr_to_file(_logs_dir: &Path) -> std::io::Result<Option<PathBuf>> {
+pub fn redirect_stderr_to_file(_stderr_path: &Path) -> std::io::Result<Option<PathBuf>> {
     Ok(None)
 }
