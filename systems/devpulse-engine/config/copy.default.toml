@@ -274,6 +274,13 @@ label = "DevForge"
 [nav."/clyffy"]
 label = "Clyffy"
 
+[nav."/model-loader"]
+label = "Model Loader"
+blurb = "Your brain, vision, voice and memory models."
+
+[nav."/cortex"]
+label = "Cortex"
+
 [nav."/onboarding"]
 label = "First run"
 

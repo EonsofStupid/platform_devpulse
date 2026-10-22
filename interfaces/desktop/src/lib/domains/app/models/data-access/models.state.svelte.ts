@@ -23,11 +23,13 @@ import {
 	getSlots,
 	loadSlot as loadSlotCmd,
 	scanModels,
+	swapSlotModel as swapSlotModelCmd,
 	unloadSlot as unloadSlotCmd,
+	warmSlot as warmSlotCmd,
 } from "$lib/sys/bindings/models/index.js";
 import { signalFabric } from "$lib/sys/events/signal-fabric.js";
 import type { ModelInfo, SlotInfo } from "$lib/sys/generated/bindings.js";
-import type { ModelLoadStatus } from "../util/types.js";
+import type { ModelStatus } from "../util/models.types.js";
 
 class ModelsState {
 	slots = $state<SlotInfo[]>([]);
@@ -37,7 +39,8 @@ class ModelsState {
 	 * signal re-reads it from the loader so the UI never lags Rust.
 	 */
 	models = $state<ModelInfo[]>([]);
-	statuses = $state<Record<string, ModelLoadStatus>>({});
+	/** Each slot's lifecycle (cold, warm, standby, hot, loading, failed, unloading). */
+	statuses = $state<Record<string, ModelStatus>>({});
 	private booted = false;
 	private platformReady = false;
 	private listsStale = false;
@@ -121,7 +124,7 @@ class ModelsState {
 	async load(slotId: string): Promise<void> {
 		this.statuses = {
 			...this.statuses,
-			[slotId]: { type: "loading", progressPct: 0 },
+			[slotId]: { type: "loading", stage: "verifying", progressPct: 0 },
 		};
 		const r = await loadSlotCmd(slotId);
 		if (r.status === "error") {
@@ -131,6 +134,52 @@ class ModelsState {
 			};
 			throw new Error(`load(${slotId}): ${r.error}`);
 		}
+		this.statuses = {
+			...this.statuses,
+			[slotId]: { type: "hot", footprint: { ramBytes: 0, vramBytes: 0 } },
+		};
+	}
+
+	/**
+	 * Warm the slot: weights into RAM, not yet on the GPU, so activating it
+	 * later is fast (restored from the May model cards, `2035d613^`).
+	 */
+	async warm(slotId: string): Promise<void> {
+		this.statuses = {
+			...this.statuses,
+			[slotId]: { type: "loading", stage: "loading_weights", progressPct: 0 },
+		};
+		const r = await warmSlotCmd(slotId);
+		if (r.status === "error") {
+			this.statuses = { ...this.statuses, [slotId]: { type: "failed", error: String(r.error) } };
+			throw new Error(`warm(${slotId}): ${r.error}`);
+		}
+		this.statuses = { ...this.statuses, [slotId]: { type: "warm" } };
+	}
+
+	/** Swap the model on a slot (restored from the May model cards). */
+	async swap(slotId: string, newModelId: string): Promise<void> {
+		const r = await swapSlotModelCmd(slotId, newModelId);
+		if (r.status === "error") {
+			throw new Error(`swap(${slotId} ← ${newModelId}): ${r.error}`);
+		}
+	}
+
+	/** The models that can serve a capability (`chat`, `vision`, …). */
+	modelsForCapability(capability: string): ModelInfo[] {
+		return this.models.filter((m) => m.compatible_capabilities.includes(capability));
+	}
+
+	/** The model assigned to a slot, if any. */
+	assignedModel(slotId: string): ModelInfo | null {
+		const slot = this.slots.find((s) => s.id === slotId);
+		if (!slot?.assigned_model_id) return null;
+		return this.models.find((m) => m.id === slot.assigned_model_id) ?? null;
+	}
+
+	/** The slots you configure (not the ones bundled into DevPulse). */
+	get userSlots(): SlotInfo[] {
+		return this.slots.filter((s) => !s.embedded);
 	}
 
 	/**
@@ -185,11 +234,10 @@ class ModelsState {
 		};
 		const r = await unloadSlotCmd(slotId);
 		if (r.status === "error") {
+			this.statuses = { ...this.statuses, [slotId]: { type: "failed", error: String(r.error) } };
 			throw new Error(`unload(${slotId}): ${r.error}`);
 		}
-		const next = { ...this.statuses };
-		delete next[slotId];
-		this.statuses = next;
+		this.statuses = { ...this.statuses, [slotId]: { type: "cold" } };
 	}
 }
 

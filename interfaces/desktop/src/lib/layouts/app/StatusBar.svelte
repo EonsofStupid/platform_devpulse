@@ -30,7 +30,12 @@
 import { Badge } from "@devpulse/coldlight/components/badge";
 import { Text } from "@devpulse/coldlight/components/text";
 import { hstack } from "@devpulse/coldlight/utils";
-import { formatMb, hardwareState, modelsState } from "$lib/domains/app/models/index.js";
+import {
+	formatMb,
+	hardwareState,
+	isInferenceReady,
+	modelsState,
+} from "$lib/domains/app/models/index.js";
 import { DEV_MODE } from "$lib/sys/generated/terminology.js";
 import { platformState } from "$lib/sys/runes/platformState.svelte.js";
 import { groupSubsystems } from "./StatusBar.types.js";
@@ -39,7 +44,8 @@ import SubsystemBadge from "./SubsystemBadge.svelte";
 const APP_VERSION = "0.1.0";
 
 const subsystems = $derived(platformState.subsystemList());
-const brainLoaded = $derived(modelsState.statuses["chat.brain"]?.type === "ready");
+const brainStatus = $derived(modelsState.statuses["chat.brain"]);
+const brainLoaded = $derived(brainStatus !== undefined && isInferenceReady(brainStatus));
 const subsystemGroups = $derived(groupSubsystems(subsystems));
 
 // Subscribe to live hardware telemetry so the VRAM badge has real data.

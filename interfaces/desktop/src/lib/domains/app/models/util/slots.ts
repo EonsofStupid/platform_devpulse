@@ -10,8 +10,6 @@
  * card / row / badge says the same thing.
  */
 
-import type { ModelLoadStatus } from "./types.js";
-
 /**
  * Layman-friendly display data for a slot. Used by the slot row in
  * `SlotsDevtool`, the chat-side `CortexMemoryStrip`, and the dashboard.
@@ -88,15 +86,4 @@ const SLOT_LABELS: Record<string, SlotLabel> = {
  */
 export function getSlotLabel(slotId: string): SlotLabel | undefined {
 	return SLOT_LABELS[slotId];
-}
-
-/**
- * Whether a slot's current load status means it can serve inference.
- *
- * Maps the three-state frontend status onto a single boolean — used by
- * the slot-row "Ready" badge, the chat readiness check, and the voice
- * lab's gate before hitting `inferenceGenerate`.
- */
-export function isInferenceReady(status: ModelLoadStatus): boolean {
-	return status.type === "ready";
 }

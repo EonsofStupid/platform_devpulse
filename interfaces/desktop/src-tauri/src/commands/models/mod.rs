@@ -2116,3 +2116,103 @@ pub async fn encoder_embed(
     let loader = get_loader(&state).await?;
     loader.burn_embed(texts).await.map_err(|e| format!("{e:#}"))
 }
+
+// ── Model setup (restored from e0b576ff^, master plan R4) ──────────
+
+/// Check if this is the first run (no models configured).
+#[tauri::command]
+#[specta::specta]
+pub async fn is_first_run(state: State<'_, PlatformState>) -> Result<bool, String> {
+    let loader = get_loader(&state).await?;
+    Ok(loader.is_first_run().await)
+}
+
+/// Mark the setup wizard as complete. Persists to `LibSQL`.
+/// Called by the frontend when the user finishes the wizard.
+#[tauri::command]
+#[specta::specta]
+#[allow(clippy::missing_errors_doc)]
+pub async fn mark_setup_complete(state: State<'_, PlatformState>) -> Result<(), String> {
+    let loader = get_loader(&state).await?;
+    loader
+        .mark_setup_complete()
+        .await
+        .map_err(|e| e.to_string())?;
+    loader.publish_readiness().await;
+    Ok(())
+}
+
+/// Check if the setup wizard was previously completed.
+/// Used at boot to decide whether to show the wizard overlay.
+#[tauri::command]
+#[specta::specta]
+#[allow(clippy::missing_errors_doc)]
+pub async fn is_setup_complete(state: State<'_, PlatformState>) -> Result<bool, String> {
+    let loader = get_loader(&state).await?;
+    Ok(loader.is_setup_complete().await)
+}
+
+/// Called when the setup wizard finishes.
+///
+/// 1. Re-scans the model registry to pick up any newly downloaded/imported models.
+/// 2. Auto-assigns unassigned models to matching slots by capability.
+/// 3. Verifies at least the chat.brain slot has an assigned model.
+/// 4. Only THEN emits the models-ready signal and opens the chat window.
+///
+/// Returns error if no text-generation model is available for chat.brain.
+#[tauri::command]
+#[specta::specta]
+pub async fn complete_model_setup(
+    app: tauri::AppHandle,
+    state: State<'_, PlatformState>,
+) -> Result<(), String> {
+    let loader = get_loader(&state).await?;
+
+    // Re-scan to pick up anything downloaded/imported during wizard
+    if let Err(e) = loader.scan_models().await {
+        tracing::warn!(error = %e, "Post-wizard scan failed (non-fatal)");
+    }
+
+    // Auto-assign loop REMOVED — wizard handles explicit per-slot assignment.
+    // complete_model_setup() now only verifies and signals.
+
+    // Verify: chat.brain MUST have a model assigned
+    let slots_after = loader.list_slots().await;
+    let brain = slots_after.iter().find(|s| s.id == "chat.brain");
+    let brain_assigned = brain.is_some_and(|s| s.assigned_model.is_some());
+
+    let assigned_count = slots_after
+        .iter()
+        .filter(|s| s.assigned_model.is_some())
+        .count();
+    let registry_count = loader.get_registry().await.len();
+
+    if !brain_assigned {
+        tracing::warn!(
+            models = registry_count,
+            assigned = assigned_count,
+            "Model setup incomplete — no chat brain model available"
+        );
+        crate::commands::emit_status(
+            &app,
+            "models",
+            crate::commands::StatusKind::Error,
+            &"No AI brain model found. Import or download a text-generation model (.gguf) to get started.",
+        );
+        return Err("No AI brain model available. Import or download a GGUF model first.".into());
+    }
+
+    tracing::info!(
+        models = registry_count,
+        assigned = assigned_count,
+        "Model setup verified — chat brain assigned, signaling ready"
+    );
+
+    // Push full state snapshot — frontend sets $state directly
+    loader.publish_readiness().await;
+
+    // The chat window opens only when you open it (owner ruling 2026-10-12,
+    // plan 0001 A0); this command no longer opens it.
+
+    Ok(())
+}

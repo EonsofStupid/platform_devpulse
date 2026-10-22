@@ -380,6 +380,10 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             commands::models::inference_generate,
             commands::models::test_inference,
             commands::models::get_vram_budget,
+            commands::models::is_first_run,
+            commands::models::mark_setup_complete,
+            commands::models::is_setup_complete,
+            commands::models::complete_model_setup,
             // Capability backends — embedder, reranker, vision encoder
             commands::models::embed_text,
             commands::models::embed_batch,

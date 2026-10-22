@@ -296,8 +296,7 @@ async openActionLogsFolder() : Promise<Result<null, string>> {
  * 
  * # Errors
  * - Data dir resolution failed.
- * - Log directory listing failed (IO error).
- * - Most-recent session file could not be read.
+ * - The newest run's session file could not be read.
  */
 async queryScopedLog(targetPrefix: string, limit: number) : Promise<Result<ScopedLogEntry[], string>> {
     try {
@@ -3341,6 +3340,59 @@ async testInference(slotId: string, prompt: string) : Promise<Result<string, str
 async getVramBudget() : Promise<Result<VramBudgetInfo, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("get_vram_budget") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Check if this is the first run (no models configured).
+ */
+async isFirstRun() : Promise<Result<boolean, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("is_first_run") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Mark the setup wizard as complete. Persists to `LibSQL`.
+ * Called by the frontend when the user finishes the wizard.
+ */
+async markSetupComplete() : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("mark_setup_complete") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Check if the setup wizard was previously completed.
+ * Used at boot to decide whether to show the wizard overlay.
+ */
+async isSetupComplete() : Promise<Result<boolean, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("is_setup_complete") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Called when the setup wizard finishes.
+ * 
+ * 1. Re-scans the model registry to pick up any newly downloaded/imported models.
+ * 2. Auto-assigns unassigned models to matching slots by capability.
+ * 3. Verifies at least the chat.brain slot has an assigned model.
+ * 4. Only THEN emits the models-ready signal and opens the chat window.
+ * 
+ * Returns error if no text-generation model is available for chat.brain.
+ */
+async completeModelSetup() : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("complete_model_setup") };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };

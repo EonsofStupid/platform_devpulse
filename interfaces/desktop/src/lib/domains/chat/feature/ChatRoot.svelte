@@ -4,7 +4,7 @@
 <script lang="ts">
 import { DynamicBackground } from "@devpulse/coldlight/components/dynamic-background";
 import { Text } from "@devpulse/coldlight/components/text";
-import { ModelEventCard, modelsState } from "$lib/domains/app/models/index.js";
+import { isInferenceReady, ModelEventCard, modelsState } from "$lib/domains/app/models/index.js";
 import { projectsState } from "$lib/domains/app/projects/index.js";
 import { agentsState } from "../data-access/agents.state.svelte.js";
 import { chatState } from "../data-access/chat.state.svelte.js";
@@ -23,7 +23,7 @@ const activeModelEvents = $derived.by(() => {
 	for (const [slotId, status] of Object.entries(modelsState.statuses)) {
 		if (!status) continue;
 		if (dismissedEvents.has(slotId)) continue;
-		if (status.type === "loading" || status.type === "ready" || status.type === "failed") {
+		if (status.type === "loading" || isInferenceReady(status) || status.type === "failed") {
 			events.push({ slotId, status });
 		}
 	}

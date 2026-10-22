@@ -24,8 +24,10 @@
  */
 
 import { signalFabric } from "$lib/sys/events/signal-fabric.js";
-import type { HardwareMetrics } from "$lib/sys/generated/bindings.js";
-import { logDebug } from "$lib/sys/logger.js";
+import { commands, type HardwareInfo, type HardwareMetrics } from "$lib/sys/generated/bindings.js";
+import { logDebug, logError, logInfo } from "$lib/sys/logger.js";
+import { calculateFit, type FitIndicator, type HardwareTier } from "../util/models.types.js";
+import { fetchHardwareMetrics } from "./hardware.service.js";
 
 class HardwareState {
 	/** System-wide CPU load, 0–100. */
@@ -41,9 +43,22 @@ class HardwareState {
 	vramTotalMb = $state<number | null>(null);
 	hasGpu = $state<boolean>(false);
 	gpuError = $state<string | null>(null);
+	/**
+	 * The full snapshot — disk free, CPU name and cores, VRAM free — read by
+	 * `refresh` (restored from the May model cards, `2035d613^`).
+	 */
+	metrics = $state<HardwareInfo | null>(null);
+	/** The tier the kernel detected for this machine (its presets config). */
+	tier = $state<HardwareTier | null>(null);
+	/** A `refresh` is running. */
+	loading = $state(false);
+	/** Why the last `refresh` failed. */
+	error = $state<string | null>(null);
 
 	private refCount = 0;
 	private off: (() => void) | null = null;
+	private offBoot: (() => void) | null = null;
+	private refreshing: Promise<void> | null = null;
 
 	/**
 	 * Subscribe to live hardware metrics. Returns a teardown fn that
@@ -57,15 +72,84 @@ class HardwareState {
 				this.apply(metrics);
 			});
 			logDebug("hardwareState", `attached (reason: ${reason})`);
+			// The full snapshot needs the platform: read it once boot is ready
+			// (the fabric replays boot's current phase to a late subscriber).
+			this.offBoot = signalFabric.on("boot", (status) => {
+				if (status.phase === "ready" && !this.metrics) void this.refresh(`subscribe:${reason}`);
+			});
 		}
 		return () => {
 			this.refCount -= 1;
 			if (this.refCount === 0) {
 				this.off?.();
 				this.off = null;
+				this.offBoot?.();
+				this.offBoot = null;
 				logDebug("hardwareState", "detached (refs: 0)");
 			}
 		};
+	}
+
+	/**
+	 * Read the full snapshot and the kernel's tier for this machine. Calls
+	 * made while one is running share it.
+	 */
+	async refresh(reason = "manual"): Promise<void> {
+		if (this.refreshing) return this.refreshing;
+		this.loading = true;
+		this.refreshing = (async () => {
+			try {
+				const metrics = await fetchHardwareMetrics();
+				this.metrics = metrics;
+				this.apply(metrics);
+				const config = await commands.autoConfigure();
+				if (config.status === "ok") {
+					const parsed: { tier?: HardwareTier } = JSON.parse(config.data);
+					this.tier = parsed.tier ?? null;
+				}
+				this.error = null;
+				logInfo("hardwareState", `refreshed (reason: ${reason}) — tier=${this.tier ?? "unknown"}`);
+			} catch (e) {
+				this.error = e instanceof Error ? e.message : String(e);
+				logError("hardwareState", `refresh failed (reason: ${reason}): ${this.error}`);
+			} finally {
+				this.loading = false;
+				this.refreshing = null;
+			}
+		})();
+		return this.refreshing;
+	}
+
+	/** A full snapshot has been read. */
+	get hasSnapshot(): boolean {
+		return this.metrics !== null;
+	}
+
+	/** VRAM free, MB (from the snapshot, else total minus used). */
+	get vramFreeMb(): number {
+		return (
+			this.metrics?.gpu_vram_free_mb ??
+			Math.max(0, (this.vramTotalMb ?? 0) - (this.vramUsedMb ?? 0))
+		);
+	}
+
+	/** The CPU's name, when the snapshot has one. */
+	get cpuName(): string | null {
+		return this.metrics?.cpu_name?.trim() || null;
+	}
+
+	/** Disk free where the models live, MB. */
+	get diskFreeMb(): number | null {
+		return this.metrics?.disk_free_mb ?? null;
+	}
+
+	/** How well a model of this VRAM size fits this machine. */
+	fitForModel(vramEstimateMb: number): FitIndicator {
+		return calculateFit(
+			vramEstimateMb,
+			this.metrics?.gpu_vram_free_mb ?? null,
+			this.metrics?.gpu_vram_total_mb ?? this.vramTotalMb,
+		);
 	}
 
 	private apply(m: HardwareMetrics): void {

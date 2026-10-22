@@ -39,6 +39,7 @@ export { modelsState } from "./data-access/models.state.svelte.js";
 export { narrationState } from "./data-access/narration.state.svelte.js";
 
 // ── In-flight install/swap overlay ───────────────────────
+export { default as ModelLoaderPanel } from "./feature/components/ModelLoaderPanel.svelte";
 export { default as SwapOverlay } from "./feature/components/SwapOverlay.svelte";
 // ── Reusable Model Downloader overlay ────────────────────
 // One singleton; mount `ModelDownloaderOverlay` once at the app root
@@ -66,6 +67,7 @@ export { default as VramBar } from "./ui/VramBar.svelte";
 export { default as VramGauge } from "./ui/VramGauge.svelte";
 // ── Helpers + role metadata ──────────────────────────────
 export { formatBytes, formatLoadError, formatMb } from "./util/format.js";
+export { isInferenceReady, type ModelStatus } from "./util/models.types.js";
 export {
 	ROLE_COLORS,
 	ROLE_FRAMES,
@@ -73,13 +75,12 @@ export {
 	type RoleId,
 	roleForSlot,
 } from "./util/roles.js";
-export { getSlotLabel, isInferenceReady, type SlotLabel } from "./util/slots.js";
+export { getSlotLabel, type SlotLabel } from "./util/slots.js";
 // ── Types ────────────────────────────────────────────────
 export type {
 	HardwareInfo,
 	LoadError,
 	ModelInfo,
-	ModelLoadStatus,
 	ModelsReadiness,
 	SlotInfo,
 	SlotNarration,

@@ -16,19 +16,6 @@ export type {
 } from "$lib/sys/generated/bindings.js";
 
 /**
- * Per-slot frontend load status, derived from `model:slot-status` events.
- * Discriminator on `.type` so consumers can `switch (status.type)` cleanly.
- *
- * The kernel emits one of these per slot when the slot's lifecycle state
- * changes; the rune store buckets them by slot id.
- */
-export type ModelLoadStatus =
-	| { type: "loading"; progressPct: number; stage?: string }
-	| { type: "ready" }
-	| { type: "failed"; error: string }
-	| { type: "unloading" };
-
-/**
  * Narration record for a single slot — short Clyffy-voice line surfaced
  * in the chat margin / model event card while the slot transitions.
  */
