@@ -20,6 +20,11 @@
 
 **There is NO `ui/` folder. NO dumb middle layer. The component IS the product.**
 
+**Primitives** (`primitives/{kind}/`) hold the kind's a11y spec and anatomy, and may ship a
+headless `.svelte` where the primitive renders markup: semantic element + ARIA, no styling
+(owner, 2026-10-22). The preflight checks enforce ARIA (`aria-primitives`) and no `<style>`
+(`no-style-primitives`).
+
 ### Component Pattern
 
 ```svelte
@@ -67,7 +72,6 @@ Motion axes are universal (not family-gated).
 - Zod component schemas — deleted, use const literal + ComponentDef
 - `.schema.ts` files in components — deleted
 - `.props.ts` files in primitives — deleted
-- `.svelte` components in primitives — deleted, hooks only
 - JS `recipe.ts` in component folders — deleted
 - `ColdLightProps` / `PreparedComponentProps` — deleted
 - Hardcoded colors in components — never

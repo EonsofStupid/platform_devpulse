@@ -16,7 +16,7 @@ neuromorphic results from DTCG-aligned style tokens and recipes.
 - [ ] `primitives/{kind}/{kind}.a11y.ts` — WAI-ARIA APG reference, keyboard, roles
 - [ ] `primitives/{kind}/use-{kind}.svelte.ts` — $state + $derived, ARIA attrs, keyboard handlers
 - [ ] `primitives/{kind}/index.ts` — barrel: hook, anatomy, a11y, types ONLY
-- [ ] NO .svelte components in primitive folder
+- [ ] Any .svelte in the primitive folder is headless: semantic element + ARIA, no styling (owner, 2026-10-22)
 - [ ] NO .props.ts in primitive folder
 - [ ] NO visual concerns
 
