@@ -27,7 +27,7 @@ import {
 import { readdirSync, existsSync } from 'node:fs';
 import { kindCss, kindTokenFilter, readKindFile } from './kind-css.mjs';
 import { resolveExtends } from './preprocess-extends.mjs';
-import { readFamilies, surfaceScopesCss } from './surface-scopes.mjs';
+import { readFamilies, scopeOf, surfaceScopesCss } from './surface-scopes.mjs';
 
 // ═══════════════════════════════════════════════════════════════
 // COLDLIGHT CUSTOM NAMES — constants, zero raw strings
@@ -172,6 +172,9 @@ const isKindToken = kindTokenFilter(new Set(KIND_FILES.map(({ kind }) => kind)))
 
 /** The families (plan 0006 §0s, D1), from the preset files. */
 export const SURFACE_FAMILIES = readFamilies();
+
+/** The roles and axes a kind's variant can read from the family in scope. */
+const SURFACE_SCOPE = scopeOf(SURFACE_FAMILIES);
 
 /** The family at the root until the Provider writes `data-surface` (today's `default` → neuro-elevated). */
 export const SURFACE_DEFAULT = 'neuro';
@@ -654,7 +657,7 @@ StyleDictionary.registerFormat({
 	name: clFormats.kindCss,
 	format: async ({ dictionary, file, options }) => {
 		const header = await fileHeader({ file });
-		return `${header}${kindCss(dictionary, options.kind, options.meta, options.group)}\n`;
+		return `${header}${kindCss(dictionary, options.kind, options.meta, options.group, options.scope)}\n`;
 	},
 });
 
@@ -1039,7 +1042,7 @@ const config = {
 				destination: `${kind}.css`,
 				format: clFormats.kindCss,
 				filter: (token) => token.path[0] === kind && isKindToken(token),
-				options: { kind, meta, group },
+				options: { kind, meta, group, scope: SURFACE_SCOPE },
 			})),
 		},
 

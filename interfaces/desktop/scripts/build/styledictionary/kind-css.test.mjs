@@ -87,6 +87,36 @@ test('a token at the wrong depth or an unknown reference throws', () => {
 	assert.throws(() => kindCss(dictionary([]), 'chip', { accepts: ['sparkle'] }, {}), /unknown concern "sparkle"/);
 });
 
+test('a variant naming a role reads the family scope, except what the kind declares itself', () => {
+	const group = {
+		base: { 'border-radius': { $value: '0.375rem' } },
+		size: { md: { 'font-size': { $value: '0.875rem' } } },
+		variant: {
+			deep: { $extensions: { 'com.coldlight': { role: 'deep' } }, color: { $value: 'white' } },
+			plain: { 'background-color': { $value: 'red' } },
+		},
+	};
+	const tokens = [
+		token('chip.base.border-radius', '0.375rem'),
+		token('chip.size.md.font-size', '0.875rem'),
+		token('chip.variant.deep.color', 'white'),
+		token('chip.variant.plain.background-color', 'red'),
+	];
+	const scope = { roles: ['deep', 'glow'], axes: ['background-color', 'border-radius', 'color', 'font-size', 'backdrop-filter', 'opacity'] };
+	const css = kindCss(dictionary(tokens), 'chip', { accepts: ['surface', 'text', 'frame'] }, group, scope);
+	const deep = css.slice(css.indexOf('[data-variant="deep"]'), css.indexOf('[data-variant="plain"]'));
+	assert.match(deep, /--chip-background-color: var\(--surface-role-deep-background-color\);/);
+	assert.match(deep, /--chip-opacity: var\(--surface-role-deep-opacity\);/, 'motion is universal');
+	assert.doesNotMatch(deep, /border-radius|font-size/, 'base and size own these');
+	assert.doesNotMatch(deep, /backdrop-filter/, 'overlay is not accepted');
+	assert.match(deep, /--chip-color: white;/, "the variant's own token wins");
+	assert.doesNotMatch(deep, /surface-role-deep-color/);
+	assert.throws(
+		() => kindCss(dictionary([]), 'chip', {}, { variant: { x: { $extensions: { 'com.coldlight': { role: 'shiny' } } } } }, scope),
+		/unknown role "shiny"/,
+	);
+});
+
 test('kind tokens are found by path, not by file', () => {
 	const isKind = kindTokenFilter(new Set(['button']));
 	assert.equal(isKind(token('button.variant.primary.color', 'x')), true);

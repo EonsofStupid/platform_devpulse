@@ -28,8 +28,11 @@ export const SURFACE_ROLES = ['elevated', 'deep', 'minimal', 'solid', 'glow', 'm
 const ROLE_AXES = new Set([...Object.values(CONCERN_AXES).flat(), ...MOTION_AXES]);
 
 /**
- * The families in the preset files, in file order: `{ family, roles: { <role>: <preset id> } }`.
- * A file that defines some surface roles must define all of them, for one family.
+ * The families in the preset files, in file order:
+ * `{ family, roles: { <role>: <preset id> }, axes: [<axis>…] }`.
+ * A file that defines some surface roles must define all of them, for one
+ * family, and every role of every family carries the same axes, so a nested
+ * scope never lets an outer family's value through.
  * @param {string} [dir]
  */
 export function readFamilies(dir = SOURCES) {
@@ -38,20 +41,32 @@ export function readFamilies(dir = SOURCES) {
 		const { preset = {} } = JSON.parse(readFileSync(join(dir, file), 'utf-8'));
 		const roles = {};
 		const names = new Set();
+		const axesOf = {};
 		for (const [id, group] of Object.entries(preset)) {
 			const meta = group?.$extensions?.[EXT];
 			if (!meta || !SURFACE_ROLES.includes(meta.variant)) continue;
 			roles[meta.variant] = id;
 			names.add(meta.family);
+			axesOf[id] = Object.keys(group).filter((k) => !k.startsWith('$') && ROLE_AXES.has(k));
 		}
 		if (names.size === 0) continue;
 		if (names.size > 1) throw new Error(`${file}: one family per file, found ${[...names].join(', ')}`);
 		const missing = SURFACE_ROLES.filter((role) => !(role in roles));
 		if (missing.length > 0) throw new Error(`${file}: family ${[...names][0]} lacks the roles ${missing.join(', ')}`);
-		families.push({ family: [...names][0], roles });
+		families.push({ family: [...names][0], roles, axes: axesOf[roles[SURFACE_ROLES[0]]], axesOf });
 	}
-	return families;
+	const reference = families[0]?.axes ?? [];
+	for (const { axesOf } of families) {
+		for (const [id, axes] of Object.entries(axesOf)) {
+			const differs = axes.length !== reference.length || axes.some((a) => !reference.includes(a));
+			if (differs) throw new Error(`preset ${id}: role axes [${axes.join(', ')}] differ from [${reference.join(', ')}]`);
+		}
+	}
+	return families.map(({ axesOf, ...family }) => family);
 }
+
+/** The family scope as kind files see it: the roles, and the axes each role defines. */
+export const scopeOf = (families) => ({ roles: SURFACE_ROLES, axes: families[0]?.axes ?? [] });
 
 /**
  * The scope CSS.

@@ -8,7 +8,9 @@
  *
  *   <kind>.$extensions["com.coldlight"]  { accepts: [concern…], defaults: { variant, size, tone } }
  *   <kind>.base.<property>               every element of the kind
- *   <kind>.variant.<name>.<property>     [data-variant="<name>"]; may `$extends` a family role
+ *   <kind>.variant.<name>.<property>     [data-variant="<name>"]; may `$extends` a preset, or name a
+ *                                        surface role in its `$extensions["com.coldlight"].role`
+ *                                        to read the family in scope (`--surface-role-<role>-*`)
  *   <kind>.size.<name>.<property>        [data-size="<name>"]
  *   <kind>.tone.<name>.<property>        [data-tone="<name>"]
  *   <kind>.state.<state>.<property>      hover, active, focus-visible, pressed, selected, open, disabled
@@ -125,13 +127,33 @@ function selectorOf(kind, token) {
 }
 
 /**
+ * What a variant that names a role reads from the family scope: each accepted
+ * axis the scope defines, except properties the kind file declares itself
+ * (in base, in any size, or in this variant), which are the kind's own.
+ */
+function roleReads(kind, group, name, accepted, scope) {
+	const role = group.variant[name]?.$extensions?.[EXT]?.role;
+	if (role === undefined) return [];
+	if (!scope?.roles?.includes(role)) {
+		throw new Error(`${kind}.variant.${name}: unknown role "${role}" (roles: ${scope?.roles?.join(', ') ?? 'none'})`);
+	}
+	const own = new Set([
+		...keys(group.base),
+		...keys(group.size).flatMap((size) => keys(group.size[size])),
+		...keys(group.variant[name]),
+	]);
+	return scope.axes.filter((axis) => accepted.has(axis) && !own.has(axis)).map((axis) => [axis, `var(--surface-role-${role}-${axis})`]);
+}
+
+/**
  * The CSS for one kind.
  * @param {{ allTokens: Array<Record<string, any>>, unfilteredAllTokens?: Array<Record<string, any>> }} dictionary Style Dictionary's dictionary
  * @param {string} kind
  * @param {{ accepts?: string[] }} meta the kind's `$extensions["com.coldlight"]`
- * @param {Record<string, unknown>} group the kind's group as its file declares it (before `$extends`)
+ * @param {Record<string, any>} group the kind's group as its file declares it (before `$extends`)
+ * @param {{ roles: string[], axes: string[] }} [scope] the family scope's roles and the axes it defines (surface-scopes.mjs)
  */
-export function kindCss(dictionary, kind, meta, group) {
+export function kindCss(dictionary, kind, meta, group, scope) {
 	// A file's filter narrows `allTokens`; references may point anywhere.
 	const everything = dictionary.unfilteredAllTokens ?? dictionary.allTokens;
 	const nameByPath = new Map(everything.map((t) => [t.path.join('.'), t.name]));
@@ -141,17 +163,33 @@ export function kindCss(dictionary, kind, meta, group) {
 	const blocks = new Map([[sel, []]]);
 	/** properties the kind sets anywhere, in first-seen order */
 	const consumed = [];
+	const set = (selector, property, value) => {
+		if (!blocks.has(selector)) blocks.set(selector, []);
+		blocks.get(selector).push([`--${kind}-${property}`, value]);
+		if (!consumed.includes(property)) consumed.push(property);
+	};
 
 	const tokens = dictionary.allTokens.filter((t) => t.path[0] === kind && SECTIONS.includes(t.path[1]));
+	const emit = (token) => {
+		const property = token.path.at(-1);
+		// Inherited from a family role and outside the kind's concerns.
+		if (!accepted.has(property) && !declares(group, token.path.slice(1))) return;
+		set(selectorOf(kind, token), property, cssValue(token, nameByPath));
+	};
+	const variants = keys(group?.variant);
+	for (const token of tokens.filter((t) => t.path[1] === 'variant' && !variants.includes(t.path[2]))) {
+		throw new Error(`${token.path.join('.')}: its variant is not in the kind file`);
+	}
 	for (const section of SECTIONS) {
-		for (const token of tokens.filter((t) => t.path[1] === section)) {
-			const property = token.path.at(-1);
-			// Inherited from a family role and outside the kind's concerns.
-			if (!accepted.has(property) && !declares(group, token.path.slice(1))) continue;
-			const selector = selectorOf(kind, token);
-			if (!blocks.has(selector)) blocks.set(selector, []);
-			blocks.get(selector).push([`--${kind}-${property}`, cssValue(token, nameByPath)]);
-			if (!consumed.includes(property)) consumed.push(property);
+		if (section !== 'variant') {
+			tokens.filter((t) => t.path[1] === section).forEach(emit);
+			continue;
+		}
+		// A variant's role reads come first; its own tokens follow.
+		for (const name of variants) {
+			const selector = `${sel}[data-variant="${name}"]`;
+			for (const [property, value] of roleReads(kind, group, name, accepted, scope)) set(selector, property, value);
+			tokens.filter((t) => t.path[1] === 'variant' && t.path[2] === name).forEach(emit);
 		}
 	}
 

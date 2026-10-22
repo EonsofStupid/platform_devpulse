@@ -41,6 +41,20 @@ test('a family must define every role, for one family', () => {
 	assert.throws(() => readFamilies(presetsDir({ 'mixed.tokens.json': mixed })), /one family per file/);
 });
 
+test('every role of every family carries the same axes', () => {
+	const withAxes = (family, extra = {}) => {
+		const file = familyFile(family);
+		for (const g of Object.values(file.preset)) Object.assign(g, { 'background-color': { $value: 'x' }, opacity: { $value: '1' } });
+		Object.assign(file.preset[`${family}-deep`], extra);
+		return file;
+	};
+	const ok = readFamilies(presetsDir({ 'a.tokens.json': withAxes('a'), 'b.tokens.json': withAxes('b') }));
+	assert.deepEqual(ok[0].axes, ['background-color', 'opacity']);
+	assert.equal('axesOf' in ok[0], false);
+	const bad = presetsDir({ 'a.tokens.json': withAxes('a'), 'b.tokens.json': withAxes('b', { color: { $value: 'y' } }) });
+	assert.throws(() => readFamilies(bad), /preset b-deep: role axes/);
+});
+
 test('each family sets --surface-role-* to its presets; the default is also :root and comes first', () => {
 	const families = [
 		{ family: 'glass', roles: Object.fromEntries(SURFACE_ROLES.map((r) => [r, `glass-${r}`])) },
