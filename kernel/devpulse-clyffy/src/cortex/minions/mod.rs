@@ -7,3 +7,5 @@ pub mod guardian;
 /// Core minion types and traits.
 #[allow(clippy::module_inception)]
 pub mod minions;
+/// Minion roles, voice tones and the minion persona.
+pub mod types;

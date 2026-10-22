@@ -4364,6 +4364,7 @@ dependencies = [
  "duckdb",
  "futures",
  "hf-hub",
+ "jsonschema",
  "llguidance",
  "model-loader",
  "moka",

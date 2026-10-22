@@ -8,6 +8,10 @@ pub mod cortex;
 /// commands.
 pub mod providers;
 
+/// Rooms, roles and personas as data: who sits in a room, the job each seat
+/// does, and the character it speaks as.
+pub mod rooms;
+
 /// Clyffy interaction templates — kernel SSOT for structured,
 /// scripted exchanges between Clyffy and the user. The Setup Wizard
 /// is the canonical instance; future templates add hardware-change

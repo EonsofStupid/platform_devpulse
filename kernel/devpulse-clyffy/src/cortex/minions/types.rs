@@ -1,31 +1,48 @@
+//! Minion roles, voice tones and the minion persona.
+
 use serde::{Deserialize, Serialize};
 
 /// Strict Taxonomy of System Roles
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub enum MinionRole {
-    SystemKernel,   // The Core/Root - High Privilege
-    Guardian,       // Safety/Verification
-    Diary,          // Logging/Observation
-    Specialist(String), // Custom Task Agents
+    /// The Core/Root - High Privilege
+    SystemKernel,
+    /// Safety/Verification
+    Guardian,
+    /// Logging/Observation
+    Diary,
+    /// Custom Task Agents
+    Specialist(String),
 }
 
-/// Defined Emotional/Tonal States
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+/// Defined Emotional/Tonal States. Also the tone of a persona a seat speaks
+/// as (`crate::rooms::persona`), by its lowercase name.
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
+#[serde(rename_all = "lowercase")]
 pub enum VoiceTone {
-    Objective,  // Pure Facts (Default)
-    Empathetic, // Gentle/Teaching
-    Strict,     // Warning/Safety
-    Concise,    // High-Bandwidth/Expert
+    /// Pure Facts (Default)
+    Objective,
+    /// Gentle/Teaching
+    Empathetic,
+    /// Warning/Safety
+    Strict,
+    /// High-Bandwidth/Expert
+    Concise,
 }
 
 /// The Persona Data Structure
 /// Strongly typed configuration for Minions.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Persona {
+    /// The minion's name.
     pub name: String,
+    /// Its system role.
     pub role: MinionRole,
+    /// How it speaks.
     pub voice_tone: VoiceTone,
-    pub instructions: String, // Prompt/Context is still text
+    /// Prompt/Context is still text
+    pub instructions: String,
 }
 
 impl Default for Persona {

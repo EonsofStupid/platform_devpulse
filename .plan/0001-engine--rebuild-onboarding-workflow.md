@@ -914,6 +914,37 @@ even loading … you keep just making new shit". And: local AI must be
   and Try-it code folds into it there. The engine keeps a thin
   `ai_providers` re-export, and the AI-in-kernel rule holds.
 
+### Owner vision, 2026-10-21 (verbatim) and where each part stands
+
+> "devpulse is suppose to be my portable devspace for vibecoders that want
+> to truly learn terminology, and receive a2ui experiences and see what the
+> really really smart people are doing. That means we need to make it
+> effortless for them and my schemas and how I envision is the best
+> solution for this. we ask clear questions; we make it effortless to add
+> connectors, we ask if they already have github if not we offer to get
+> them started on that. When a new project is being created we use the
+> answers to configure RRFLOW the reasoning engine i.e if project X must
+> never share context with project Z to ensure it we spin down the instance
+> in the reasoning engine, if they do share they all stay up; if they want
+> it to be deployable we recommend docker or podman, and if they need a
+> true kernel access we recommend docker, if its just a service we offer
+> podman; codex, claude, muse, grok, custom providers, and the other big
+> frontierAI can easily be added and then agenthub board makes it easy to
+> share state and have AI work with other. Chat is suppose to make it easy
+> to assign roles and personas and mix subscriptions in unique shared state
+> chat environments"
+
+| Part | Today (checked 2026-10-21) | Gap |
+| --- | --- | --- |
+| Clear questions | First run asks You, Your AI, Your dev environment | — |
+| GitHub: have it? else get started | Only detects `~/Documents/GitHub` | No GitHub question, no `gh` sign-in check, no "get started" offer |
+| New project → RRFlow: isolated projects spin their instance down, sharing ones stay up | Projects exist; no new-project questions; **no RRFlow code in this repo at all** | New-project questions; RRFlow supervised, one instance per project, up or down by your sharing answers |
+| Deployable → Docker or Podman; true kernel access → Docker; just a service → Podman | Containers stage advises per machine (usage, GPU, desktop app) | Your rule, asked per project: deployable? needs kernel access? |
+| Codex, Claude, Muse, Grok, custom, other frontier AI easily added | Registry has Claude Code, Codex, Grok Build, Antigravity (CLI + IDE), Gemini CLI, Cursor CLI, Claude Desktop | Muse not identified yet; adding a custom provider from the UI; endpoints (B1) |
+| AgentHub board: shared state, AI working with each other | — | B5 |
+| Chat: roles, personas, mixed subscriptions in shared-state rooms | Threads with one agent each work (B3) | Rooms with seats (role + persona + agent), shared state between them (B4) |
+| Learn terminology; A2UI experiences | Layman/advanced term list (owner 2026-10-19); `a2ui` signal family | Not yet in chat or project flows |
+
 ### B3 — each subscription in chat (first; phases)
 
 Facts it rests on (2026-10-21):
@@ -937,6 +968,151 @@ Facts it rests on (2026-10-21):
 | B3.3 | Threads: a chat session names its agent; turns record it; prompt / cancel / close intents; streamed chunks as events. | restart DevPulse → the thread and its agent come back |
 | B3.4 | Chat window: agent picker per thread; streamed replies; the local-brain gate applies only to local threads (the token-event fix from B0 lands here). | the same question to Claude Code, Codex and Antigravity in one window (Grok once installed) |
 | B3.5 | Your checkpoint | your sign-off |
+
+### B4 — rooms, roles and personas (phases)
+
+Owner rulings 2026-10-21: "Rooms, roles, personas" next, then the AgentHub
+board. **Persona = full character**: a persona carries its own backstory
+and expertise, added to the role's prompt. Your research found this adds
+nothing to accuracy; the choice is recorded as yours.
+
+Facts it rests on (2026-10-21):
+
+- **Your design, in devpulselabs** (read-only; built here per D1):
+  - `schemas/role.v1.schema.json` (`dpl.role/1`) and
+    `schemas/room.v1.schema.json` (`dpl.room/1`).
+  - 11 roles and 5 rooms in `crates/chat/core/library/`, commit 4ee638b.
+  - The rules a schema cannot say are in `crates/chat/core/src/rooms.rs`:
+    - a seat names a real role, and fills that role's parameters;
+    - a selection seat is a selecting role, and a selecting role forbids
+      merging (select, never blend);
+    - a user file replaces a bundled one only with a higher version.
+  - The evidence every entry cites: `docs/research/chat-rooms-and-roles.md`.
+  - None of this text hits the vocabulary lint.
+- **Persona code in this repo:**
+  - `cortex/minions/types.rs` holds `Persona { name, role, voice_tone,
+    instructions }` and `VoiceTone`. The file is in no module tree.
+  - `cortex/persona/mod.rs` points at a `persona.rs` that no longer exists.
+  - The `devpulse-persona-mcp` crate removed in c6ce222c held memory blocks
+    (what Clyffy keeps about you and a project), not seat characters. It
+    belongs to B6, your context in every session.
+  - No persona character files exist in either repo, so none ship. You
+    write yours.
+- **The room's shared state is its chat session.** `turns` already carries
+  `model_used` and a JSON `metadata`. Each seat's answer is a turn saved
+  with:
+  - its seat, role, persona, phase and round;
+  - its structured output.
+
+  Each seat keeps its own B3 agent thread, so a subscription keeps its own
+  context.
+
+**B4.1 — the library in the kernel (`rooms/`).**
+
+- Your role and room types and rules. Your 11 roles and 5 rooms are bundled
+  as JSON under `config/`, with your research in `docs/research/`.
+- `Persona` and `VoiceTone` move into `rooms/persona.rs`, extended with id,
+  version, name, summary, tone, backstory and expertise.
+- Your files in `{data_dir}/config/{roles,rooms,personas}/` are validated,
+  and problems are reported.
+- Live check (kernel tests):
+  - every bundled file passes its schema and its rules;
+  - every cited source is in the research;
+  - a broken or same-version file of yours is named and skipped.
+
+**B4.2 — room runs.**
+
+- A room is a chat session with seats. Each seat is a role (parameters
+  filled), an optional persona and an agent.
+- Phases run parallel or sequential, each with its own visibility.
+- Each seat answers to its role's output contract.
+- The selector seat picks one answer, or none. The run records winner,
+  runner-up, rationale and dissent.
+- The room's vendor rules are enforced when you seat agents:
+  - a critic never shares the author's vendor;
+  - the selector excludes the authors' vendors.
+- A talk-only seat refuses tool permission requests.
+- Seat turns stream as one event kind.
+- Live check: a Council with Claude Code and Codex seated. Both answer
+  blind, a selector picks, and all turns are saved.
+- Split:
+  - **B4.2a** is the kernel: seating rules, each seat's brief, output
+    parsing, and the run.
+  - **B4.2b** is the engine and Tauri: one live agent session per seat,
+    turns saved, events streamed, and the live check.
+
+**B4.2 run rules.** The library does not spell these out; they are my
+reading of your design and research, open to your correction.
+
+- **Places.** A seat with `count` 3 is three places, each seated with its
+  own agent and its own session. The same agent may take several places;
+  that gives independent samples.
+- **Vendor rules** are checked when you seat a room:
+  - `avoid_same_vendor_as`: a seat's vendor differs from those of the
+    listed roles' places.
+  - `exclude_author_vendors`: the selector's vendor wrote no candidate.
+  - Example: with only Claude Code and Codex installed, a Council is three
+    Claude Code answerers and a Codex selector.
+- **Authors and candidates.** Places whose role generates or argues
+  (stance `generate` or `adversarial`) are authors. Every author turn is a
+  candidate the selector can pick.
+- **Rounds** repeat the phases before the selection phase, up to
+  `max_rounds`.
+  - From round 2 on, phases with visibility `none` are skipped: first
+    answers are collected independently, once.
+  - Inside a phase, each place takes `max_turns` turns. A sequential phase
+    interleaves them (pro, con, pro, con).
+  - The selection phase runs once, at the end.
+- **Early stops:**
+  - `stability`: a round where no author changed its answer. The
+    advocate's `changed` field says so; otherwise the text is compared.
+  - `pass_threshold`: a round where every critique seat reports no
+    defects.
+- **What each place sees.** It sees the question, then what is new since
+  it last spoke, filtered by the phase's visibility:
+  - `none`: nothing of the others;
+  - `anonymized`: candidates by letter;
+  - `full`: seat, role and agent.
+
+  `structured-outputs` passes each answer's JSON; `full-transcript` passes
+  the whole text. Others' words arrive datamarked
+  (`<msg-{room nonce} …>`), and only your words are instructions.
+- **Briefs** go in the first prompt for every agent. ACP has no
+  system-prompt field, and Grok takes the role in the first prompt. Claude
+  Code's `--append-system-prompt` can come later. A brief holds:
+  - the room;
+  - the role, with its parameters filled, method, limits, rubric and
+    output contract;
+  - the persona, which never overrides the role's limits or contract.
+- **Output.** Each answer ends with a fenced JSON block that the contract
+  checks. An answer that breaks its contract is kept as text and marked.
+  If the selector breaks its contract, nothing is picked, and that is said
+  plainly.
+- **Selection.**
+  - Blind means candidates appear by letter only.
+  - With `swap_order`, the selector judges in both orders; a different
+    pick is recorded as a tie.
+  - The record keeps winner, runner-up, rationale, dissent and flips.
+- **Talk-only.** The agent works in a scratch folder
+  (`{data_dir}/rooms/{room}/{place}`), and every permission request is
+  refused. The agent's own off switch is used when its definition has one
+  (Claude Code `--tools ""`).
+- **Router** does not run yet. Its router seat is the Planner, whose output
+  (`agenda`) names no expert. It runs once you rule how a router chooses: a
+  router role with a `route` field, or matching the experts' summaries.
+
+**B4.3 — the chat window.**
+
+- Start a room from the library.
+- Seat your agents and personas, and fill parameters.
+- Each answer appears under "seat · role · agent (persona)", and the winner
+  is marked.
+- A library view shows each role's method and evidence in plain words, with
+  advanced terms one step away.
+- A new-persona form.
+- Live check: you run a Council from the chat window.
+
+**B4.4 — your checkpoint.** Your sign-off.
 
 ## Part C — The Model Loader maintains every capability (after Part A)
 
@@ -1532,3 +1708,31 @@ queries proving what was written.
     - Not yet exercised live: a permission prompt (Codex asked for none) and
       a Claude Code thread in the app (its kernel two-turn test passes; in
       this repo Claude Code would also run the repo's own hooks).
+  - 2026-10-21 — **B4 planned** (rooms, roles, personas). Your
+    `dpl.role/1` / `dpl.room/1` design and library are rebuilt in the
+    kernel (D1), and "Persona = full character" is recorded. The kernel's
+    unwired `Persona` / `VoiceTone` are the persona's starting point. The
+    removed persona MCP crate is memory blocks and is noted for B6.
+  - 2026-10-21 — **B4.1 done: your library in the kernel.**
+    - `rooms/` holds the role, room and persona types and your rules.
+    - Your 11 roles, 5 rooms and both schemas are under `config/`, copied
+      from devpulselabs 4ee638b's committed tree, with the research in
+      `docs/research/`.
+    - `dpl.persona/1` is a new schema in the same shape. Its tone is the
+      minions' `VoiceTone`: `minions/types.rs` was in no module tree and
+      now compiles, with nothing in it removed.
+    - Your files in `{data_dir}/config/{roles,rooms,personas}/` load on top.
+    - Verified:
+      - kernel tests 117 (17 new): every bundled file passes its JSON
+        Schema and its rules, every cited source is in the research, and
+        your files are checked;
+      - kernel lib clippy and the specta build are clean; cargo fmt is
+        clean.
+    - **One lint exemption:** `Selection` keeps the schema's four switches,
+      with `#[expect(clippy::struct_excessive_bools)]` and a stated
+      reason. That is the precedent of `Capabilities`; grouping them would
+      need serde `flatten`, which cannot refuse unknown fields.
+    - Seen, not changed: `--all-targets` clippy fails on existing
+      `unwrap`/`expect` in older kernel tests (intelligence/pipeline,
+      llguidance/handle, duckdb/diagnostics, reasoning/state,
+      knowledge/tests).
