@@ -384,6 +384,7 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             commands::models::mark_setup_complete,
             commands::models::is_setup_complete,
             commands::models::complete_model_setup,
+            commands::interactions::get_interaction_template,
             // Capability backends — embedder, reranker, vision encoder
             commands::models::embed_text,
             commands::models::embed_batch,

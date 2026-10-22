@@ -93,6 +93,7 @@ pub mod devclyffy;
 pub mod devforge;
 pub mod devpulse;
 pub mod intelligence;
+pub mod interactions;
 pub mod knowledge;
 pub mod llama;
 pub mod llama_server_config;

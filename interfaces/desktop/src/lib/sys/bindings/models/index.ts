@@ -16,6 +16,10 @@ export const scanModels = commands.scanModels;
 export const getSlots = commands.getSlots;
 export const getModelsStatus = commands.getModelsStatus;
 export const getModelCatalog = commands.getModelCatalog;
+export const isFirstRun = commands.isFirstRun;
+export const markSetupComplete = commands.markSetupComplete;
+export const isSetupComplete = commands.isSetupComplete;
+export const completeModelSetup = commands.completeModelSetup;
 
 // ── Slot lifecycle ──────────────────────────────────────────────
 export const assignModelToSlot = commands.assignModelToSlot;
