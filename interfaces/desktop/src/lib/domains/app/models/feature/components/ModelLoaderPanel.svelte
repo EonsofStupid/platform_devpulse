@@ -15,14 +15,21 @@ import type { Snippet } from "svelte";
 import { hardwareState } from "../../data-access/hardware.state.svelte.js";
 import { modelLoaderPanelState } from "../../data-access/model-loader-panel.state.svelte.js";
 import { modelsState } from "../../data-access/models.state.svelte.js";
+import { setupWizardOverlayState } from "../../data-access/setup-wizard-overlay.state.svelte.js";
 import VramGauge from "../../ui/VramGauge.svelte";
 import { friendlySlotLabel, slotDescription } from "../../util/models.types.js";
+import WizardHelpTip from "../setup-wizard/components/WizardHelpTip.svelte";
+import LoadStageOverlay from "../setup-wizard/overlays/LoadStageOverlay.svelte";
+import ApiKeyPanel from "../setup-wizard/panels/ApiKeyPanel.svelte";
+import EscalationConfigPanel from "../setup-wizard/panels/EscalationConfigPanel.svelte";
+import LatencyTuningPanel from "../setup-wizard/panels/LatencyTuningPanel.svelte";
 import BrainCard from "./BrainCard.svelte";
 import MemoryCard from "./MemoryCard.svelte";
 import ModelSearch from "./ModelSearch.svelte";
 import SubsystemGroup from "./SubsystemGroup.svelte";
 import VisionCard from "./VisionCard.svelte";
 import VoiceCard from "./VoiceCard.svelte";
+import VramBudgetPlanner from "./VramBudgetPlanner.svelte";
 
 // ── Props ─────────────────────────────────────────────────────
 
@@ -42,6 +49,12 @@ $effect(() => {
 	return () => {
 		panelState.stop();
 	};
+});
+
+// The routing panels (restored from the May wizard's Config step) read
+// their drafts from the overlay state; load them when Advanced opens.
+$effect(() => {
+	if (panelState.advancedMode) void setupWizardOverlayState.start();
 });
 
 const subsystemLabels: Record<string, string> = {
@@ -108,6 +121,7 @@ const subsystemLabels: Record<string, string> = {
 			});
 			return groups;
 		})()}
+		<VramBudgetPlanner />
 		<div class="flex flex-col gap-3">
 			{#each [...subsystems.entries()] as [prefix, slots] (prefix)}
 				<SubsystemGroup
@@ -118,6 +132,36 @@ const subsystemLabels: Record<string, string> = {
 				/>
 			{/each}
 		</div>
+
+		<!-- Routing: API keys + escalation chain + latency tuning (the May wizard's Config step) -->
+		<div class="flex flex-col gap-3">
+			<div class={hstack({ gap: "2", align: "center" })}>
+				<Text size="xs" weight="bold" color="muted">Cloud providers</Text>
+				<WizardHelpTip
+					tip="Optional. Local-only stays fully on your machine. Adding API keys lets the escalation chain reach a cloud provider when local can't answer."
+					label="Do I need cloud providers?"
+				/>
+			</div>
+			<ApiKeyPanel />
+
+			<div class={hstack({ gap: "2", align: "center" })}>
+				<Text size="xs" weight="bold" color="muted">Escalation chain</Text>
+				<WizardHelpTip
+					tip="The order Clyffy tries when answering. Voice Brain (CPU) handles fast turns, Main AI (GPU) takes complex questions, Cloud API kicks in when both can't keep up."
+					label="What's an escalation chain?"
+				/>
+			</div>
+			<EscalationConfigPanel />
+
+			<div class={hstack({ gap: "2", align: "center" })}>
+				<Text size="xs" weight="bold" color="muted">Latency tuning</Text>
+				<WizardHelpTip
+					tip="Controls how fast Clyffy responds versus how thorough she is. Defaults work for most setups; tune buffer / silence / chunk size only if you notice lag."
+					label="Should I change these?"
+				/>
+			</div>
+			<LatencyTuningPanel />
+		</div>
 	{:else}
 		<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 			<BrainCard advanced={panelState.advancedMode} />
@@ -126,6 +170,9 @@ const subsystemLabels: Record<string, string> = {
 			<MemoryCard advanced={panelState.advancedMode} />
 		</div>
 	{/if}
+
+	<!-- Load narration: appears while any slot is loading -->
+	<LoadStageOverlay />
 
 	<!-- Platform Status Bar -->
 	{#if panelState.health.length > 0}
