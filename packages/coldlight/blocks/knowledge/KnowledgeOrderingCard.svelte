@@ -189,7 +189,7 @@ function keyHandler(e: KeyboardEvent, index: number): void {
 					</span>
 					<span class="knowledge-order__controls">
 						<Button
-							preset="ghost"
+							variant="ghost"
 							size="sm"
 							aria-label={`${resolved.moveUpAria}: ${item.label}`}
 							disabled={index === 0}
@@ -198,7 +198,7 @@ function keyHandler(e: KeyboardEvent, index: number): void {
 							↑
 						</Button>
 						<Button
-							preset="ghost"
+							variant="ghost"
 							size="sm"
 							aria-label={`${resolved.moveDownAria}: ${item.label}`}
 							disabled={index === order.length - 1}
@@ -218,7 +218,7 @@ function keyHandler(e: KeyboardEvent, index: number): void {
 		<div style="flex: 1;"></div>
 		{#if onDismiss}
 			<Button
-				preset="ghost"
+				variant="ghost"
 				size="sm"
 				aria-label={resolved.dismissAria}
 				onclick={onDismiss}
@@ -227,7 +227,7 @@ function keyHandler(e: KeyboardEvent, index: number): void {
 			</Button>
 		{/if}
 		{#if onAccept}
-			<Button preset="primary" size="sm" onclick={() => onAccept(order.map((i) => i.id))}>
+			<Button variant="primary" size="sm" onclick={() => onAccept(order.map((i) => i.id))}>
 				{resolved.acceptLabel}
 			</Button>
 		{/if}

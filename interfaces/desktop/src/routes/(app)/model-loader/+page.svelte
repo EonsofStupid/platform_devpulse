@@ -22,7 +22,7 @@ const cortexCopy = $derived(cortex ? routeCopy(cortex) : undefined);
 		{#if cortex && cortexCopy}
 			{@const Icon = cortex.nav.icon}
 			<Button
-				preset="secondary"
+				variant="secondary"
 				size="sm"
 				title={cortexCopy.blurb ?? undefined}
 				onclick={() => goto(hrefOf(cortex))}

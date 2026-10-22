@@ -206,7 +206,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 						bind:value={projectId}
 					/>
 				</div>
-				<Button preset="ghost" size="sm" onclick={refreshHealth} disabled={busy}>
+				<Button variant="ghost" size="sm" onclick={refreshHealth} disabled={busy}>
 					<RefreshCw size={12} aria-hidden="true" />
 					Refresh
 				</Button>
@@ -283,7 +283,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 				/>
 				<TextField label="Display name" bind:value={projectName} placeholder="My Project" />
 				<Button
-					preset="primary"
+					variant="primary"
 					size="sm"
 					onclick={handleInit}
 					disabled={busy || !projectId || !projectRoot}
@@ -294,11 +294,11 @@ function captureFor(tabId: string): CapturePayload | undefined {
 			</div>
 
 			<div class="project-db__button-row">
-				<Button preset="ghost" size="sm" onclick={refreshHealth} disabled={busy || !projectId}>
+				<Button variant="ghost" size="sm" onclick={refreshHealth} disabled={busy || !projectId}>
 					<Database size={12} aria-hidden="true" />
 					Check health
 				</Button>
-				<Button preset="ghost" size="sm" onclick={refreshTables} disabled={busy || !projectId}>
+				<Button variant="ghost" size="sm" onclick={refreshTables} disabled={busy || !projectId}>
 					<RefreshCw size={12} aria-hidden="true" />
 					List tables
 				</Button>
@@ -318,7 +318,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 				<div class="project-db__panel-header">
 					<Text size="sm" weight="bold" as="p">Sanity probe</Text>
 					<Button
-						preset="primary"
+						variant="primary"
 						size="sm"
 						onclick={async () => {
 							querySql = "SELECT 1 AS probe;";
@@ -364,7 +364,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 					aria-label="SQL to run against the per-project database"
 				/>
 				<Button
-					preset="primary"
+					variant="primary"
 					size="sm"
 					onclick={runQuery}
 					disabled={busy || !projectId}

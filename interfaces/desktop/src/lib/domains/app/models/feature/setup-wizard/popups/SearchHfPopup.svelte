@@ -115,7 +115,7 @@ const filteredResults = $derived.by(() => {
 	<div class="popup-panel" onclick={(e) => e.stopPropagation()} onkeydown={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label="Search HuggingFace — {slotLabel}">
 		<div class="popup-header">
 			<Heading level={3} size="lg">Search HuggingFace — {slotLabel}</Heading>
-			<Button preset="ghost" size="sm" onclick={onClose} aria-label="Close">
+			<Button variant="ghost" size="sm" onclick={onClose} aria-label="Close">
 				<X size={16} />
 			</Button>
 		</div>
@@ -129,7 +129,7 @@ const filteredResults = $derived.by(() => {
 				onkeydown={handleInputKeydown}
 				aria-label="Search HuggingFace for models"
 			/>
-			<Button preset="primary" size="sm" onclick={handleSearch} disabled={searchState.searching}>
+			<Button variant="primary" size="sm" onclick={handleSearch} disabled={searchState.searching}>
 				{#if searchState.searching}
 					<Spinner size="xs" />
 				{:else}
@@ -172,7 +172,7 @@ const filteredResults = $derived.by(() => {
 			{:else if searchState.error}
 				<div class="centered-state">
 					<Text size="sm" class="error-text">{searchState.error}</Text>
-					<Button preset="secondary" size="sm" onclick={handleSearch}>Retry</Button>
+					<Button variant="secondary" size="sm" onclick={handleSearch}>Retry</Button>
 				</div>
 			{:else if searchState.query && filteredResults.length === 0 && !searchState.searching}
 				<div class="centered-state">
@@ -219,7 +219,7 @@ const filteredResults = $derived.by(() => {
 											</div>
 										</div>
 										<Button
-											preset="primary"
+											variant="primary"
 											size="sm"
 											onclick={() => handleDownload(result.repo_id, file.filename)}
 											disabled={isDownloading}
@@ -244,7 +244,7 @@ const filteredResults = $derived.by(() => {
 										<Text size="xs" class="file-name">{result.repo_id} (all shards)</Text>
 									</div>
 									<Button
-										preset="primary"
+										variant="primary"
 										size="sm"
 										onclick={() => handleDownload(result.repo_id, "model.safetensors")}
 										disabled={downloadingFile === `${result.repo_id}/safetensors`}
@@ -264,7 +264,7 @@ const filteredResults = $derived.by(() => {
 
 				{#if searchState.hasMore}
 					<div class="load-more">
-						<Button preset="secondary" size="sm" onclick={() => searchState.loadMore()} disabled={searchState.loadingMore}>
+						<Button variant="secondary" size="sm" onclick={() => searchState.loadMore()} disabled={searchState.loadingMore}>
 							{#if searchState.loadingMore}
 								<Spinner size="xs" />
 								Loading more...
@@ -281,7 +281,7 @@ const filteredResults = $derived.by(() => {
 					<Text size="sm" weight="bold" class="assigned-text">
 						✓ {assignedFile} assigned to {slotLabel}
 					</Text>
-					<Button preset="primary" size="sm" onclick={onClose}>
+					<Button variant="primary" size="sm" onclick={onClose}>
 						Done
 					</Button>
 				</div>

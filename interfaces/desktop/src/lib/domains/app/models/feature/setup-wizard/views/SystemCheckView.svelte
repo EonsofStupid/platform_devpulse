@@ -154,7 +154,7 @@ function handleSkip(): void {
 				tip="Detected at boot. Each row is read-only — change hardware via your OS, Clyffy re-detects on next launch."
 				label="What is this?"
 			/>
-			<Button preset="ghost" size="sm" onclick={() => (showTierInfo = true)}>
+			<Button variant="ghost" size="sm" onclick={() => (showTierInfo = true)}>
 				What tier means
 			</Button>
 		</div>
@@ -206,13 +206,13 @@ function handleSkip(): void {
 	{/if}
 
 	<div class="sc-actions">
-		<Button preset="ghost" size="md" onclick={handleBack}>
+		<Button variant="ghost" size="md" onclick={handleBack}>
 			<ArrowLeft size={14} />
 			Back
 		</Button>
 		<div class="sc-actions-right">
 			<button class="sc-skip-link" onclick={handleSkip}>Skip — I'll set up later</button>
-			<Button preset="primary" size="md" onclick={handleContinue}>
+			<Button variant="primary" size="md" onclick={handleContinue}>
 				Continue
 				<ArrowRight size={14} />
 			</Button>

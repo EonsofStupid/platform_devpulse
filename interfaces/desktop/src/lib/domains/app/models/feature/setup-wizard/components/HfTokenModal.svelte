@@ -241,7 +241,7 @@ async function handleClear(): Promise<void> {
 		>
 			<div class="head">
 				<Heading level={2} size="md" id="hf-token-title">{copy.title}</Heading>
-				<Button preset="ghost" size="sm" onclick={onClose} aria-label={copy.close_aria}>
+				<Button variant="ghost" size="sm" onclick={onClose} aria-label={copy.close_aria}>
 					<X size={16} aria-hidden="true" />
 				</Button>
 			</div>
@@ -322,7 +322,7 @@ async function handleClear(): Promise<void> {
 
 			<div class="actions">
 				<Button
-					preset="secondary"
+					variant="secondary"
 					size="md"
 					onclick={onClose}
 					disabled={saving}
@@ -331,7 +331,7 @@ async function handleClear(): Promise<void> {
 				</Button>
 				{#if initiallyHasToken}
 					<Button
-						preset="danger"
+						variant="danger"
 						size="md"
 						onclick={handleClear}
 						disabled={saving}
@@ -341,7 +341,7 @@ async function handleClear(): Promise<void> {
 					</Button>
 				{/if}
 				<Button
-					preset="primary"
+					variant="primary"
 					size="md"
 					onclick={handleSave}
 					disabled={saving || token.trim().length === 0}

@@ -674,7 +674,7 @@ const extraTabs: ExtraTab[] = [{ id: "profiles", label: "Profiles", Icon: UserCi
 
 					<div class="flex items-center gap-2 pt-2">
 						<Button
-							preset="primary"
+							variant="primary"
 							size="sm"
 							onclick={() => void ttsConfigState.save()}
 							disabled={ttsConfigState.saving || !ttsConfigState.dirty}
@@ -687,7 +687,7 @@ const extraTabs: ExtraTab[] = [{ id: "profiles", label: "Profiles", Icon: UserCi
 							{/if}
 						</Button>
 						<Button
-							preset="ghost"
+							variant="ghost"
 							size="sm"
 							onclick={() => ttsConfigState.reset()}
 							disabled={!ttsConfigState.dirty || ttsConfigState.saving}
@@ -714,7 +714,7 @@ const extraTabs: ExtraTab[] = [{ id: "profiles", label: "Profiles", Icon: UserCi
 				<Text size="sm" weight="semibold">
 					Scoped log — <span class="font-mono text-xs">devtools.tts</span>
 				</Text>
-				<Button preset="ghost" size="sm" onclick={loadLogs} disabled={logsLoading}>
+				<Button variant="ghost" size="sm" onclick={loadLogs} disabled={logsLoading}>
 					{#if logsLoading}
 						<Spinner size="xs" tone="accent" />
 					{:else}
@@ -781,13 +781,13 @@ const extraTabs: ExtraTab[] = [{ id: "profiles", label: "Profiles", Icon: UserCi
 				<!-- Slot load / unload -->
 				<div class="flex flex-wrap items-center gap-2">
 					{#if !ttsReady && ttsSlot?.assigned_model_id}
-						<Button preset="primary" size="sm" onclick={loadTts}>
+						<Button variant="primary" size="sm" onclick={loadTts}>
 							<Play size={12} />
 							Load Qwen3-TTS
 						</Button>
 					{/if}
 					{#if ttsReady}
-						<Button preset="ghost" size="sm" onclick={unloadTts}>
+						<Button variant="ghost" size="sm" onclick={unloadTts}>
 							<PowerOff size={12} />
 							Unload
 						</Button>
@@ -805,7 +805,7 @@ const extraTabs: ExtraTab[] = [{ id: "profiles", label: "Profiles", Icon: UserCi
 						<Text size="sm" weight="bold">Voice mode</Text>
 						<div class="flex flex-wrap gap-2">
 							<Button
-								preset={mode === "default" ? "primary" : "ghost"}
+								variant={mode === "default" ? "primary" : "ghost"}
 								size="sm"
 								onclick={() => {
 									mode = "default";
@@ -814,7 +814,7 @@ const extraTabs: ExtraTab[] = [{ id: "profiles", label: "Profiles", Icon: UserCi
 								Default
 							</Button>
 							<Button
-								preset={mode === "qwen3" ? "primary" : "ghost"}
+								variant={mode === "qwen3" ? "primary" : "ghost"}
 								size="sm"
 								onclick={() => {
 									mode = "qwen3";
@@ -823,7 +823,7 @@ const extraTabs: ExtraTab[] = [{ id: "profiles", label: "Profiles", Icon: UserCi
 								Preset speaker
 							</Button>
 							<Button
-								preset={mode === "custom" ? "primary" : "ghost"}
+								variant={mode === "custom" ? "primary" : "ghost"}
 								size="sm"
 								onclick={() => {
 									mode = "custom";
@@ -1003,7 +1003,7 @@ const extraTabs: ExtraTab[] = [{ id: "profiles", label: "Profiles", Icon: UserCi
 								style="accent-color: var(--accent-service-main);"
 							/>
 							<Button
-								preset="ghost"
+								variant="ghost"
 								size="sm"
 								onclick={() => {
 									testSpeed = 1.0;
@@ -1014,7 +1014,7 @@ const extraTabs: ExtraTab[] = [{ id: "profiles", label: "Profiles", Icon: UserCi
 							</Button>
 						</div>
 						<Button
-							preset="primary"
+							variant="primary"
 							size="md"
 							onclick={handleSpeak}
 							disabled={speaking || !testText.trim() || (mode === "custom" && !cloneName)}
@@ -1037,7 +1037,7 @@ const extraTabs: ExtraTab[] = [{ id: "profiles", label: "Profiles", Icon: UserCi
 						<div class="flex items-center justify-between gap-2">
 							<Text size="sm" weight="bold">Voice cloning</Text>
 							<Button
-								preset="primary"
+								variant="primary"
 								size="sm"
 								onclick={pickAndUploadSample}
 								disabled={pickingFile || pendingClone !== null}
@@ -1110,7 +1110,7 @@ const extraTabs: ExtraTab[] = [{ id: "profiles", label: "Profiles", Icon: UserCi
 
 								<div class="flex items-center gap-2">
 									<Button
-										preset="primary"
+										variant="primary"
 										size="sm"
 										onclick={registerPendingClone}
 										disabled={registeringClone || !pendingClone.name.trim()}
@@ -1124,7 +1124,7 @@ const extraTabs: ExtraTab[] = [{ id: "profiles", label: "Profiles", Icon: UserCi
 										{/if}
 									</Button>
 									<Button
-										preset="ghost"
+										variant="ghost"
 										size="sm"
 										onclick={cancelPendingClone}
 										disabled={registeringClone}
@@ -1151,7 +1151,7 @@ const extraTabs: ExtraTab[] = [{ id: "profiles", label: "Profiles", Icon: UserCi
 										</div>
 										<div class="flex items-center gap-1">
 											<Button
-												preset="ghost"
+												variant="ghost"
 												size="sm"
 												aria-label={`Preview clone ${c.name}`}
 												onclick={() => previewClone(c.name)}
@@ -1159,7 +1159,7 @@ const extraTabs: ExtraTab[] = [{ id: "profiles", label: "Profiles", Icon: UserCi
 												<Play size={12} />
 											</Button>
 											<Button
-												preset="ghost"
+												variant="ghost"
 												size="sm"
 												aria-label={`Delete clone ${c.name}`}
 												aria-busy={removingCloneName === c.name}
@@ -1225,7 +1225,7 @@ const extraTabs: ExtraTab[] = [{ id: "profiles", label: "Profiles", Icon: UserCi
 						voice_clones (live snapshot · {clones.length})
 					</Text>
 					<Button
-						preset="ghost"
+						variant="ghost"
 						size="sm"
 						onclick={loadClones}
 						disabled={clonesLoading}
@@ -1258,7 +1258,7 @@ const extraTabs: ExtraTab[] = [{ id: "profiles", label: "Profiles", Icon: UserCi
 					<Text size="sm" weight="bold">Voice profiles</Text>
 					<div class="flex items-center gap-2">
 						<Button
-							preset="ghost"
+							variant="ghost"
 							size="sm"
 							onclick={() => void profilesState.load()}
 							disabled={profilesState.loading}
@@ -1270,7 +1270,7 @@ const extraTabs: ExtraTab[] = [{ id: "profiles", label: "Profiles", Icon: UserCi
 							{/if}
 						</Button>
 						<Button
-							preset="primary"
+							variant="primary"
 							size="sm"
 							onclick={() => profilesState.startNew(voiceSelectionState.selectedVoice)}
 							disabled={profilesState.draft !== null || profilesState.mutating}
@@ -1345,7 +1345,7 @@ const extraTabs: ExtraTab[] = [{ id: "profiles", label: "Profiles", Icon: UserCi
 
 						<div class="flex items-center gap-2">
 							<Button
-								preset="primary"
+								variant="primary"
 								size="sm"
 								onclick={() => void profilesState.commitDraft()}
 								disabled={profilesState.mutating || !profilesState.draft.name.trim()}
@@ -1359,7 +1359,7 @@ const extraTabs: ExtraTab[] = [{ id: "profiles", label: "Profiles", Icon: UserCi
 								{/if}
 							</Button>
 							<Button
-								preset="ghost"
+								variant="ghost"
 								size="sm"
 								onclick={() => profilesState.cancelDraft()}
 								disabled={profilesState.mutating}
@@ -1399,7 +1399,7 @@ const extraTabs: ExtraTab[] = [{ id: "profiles", label: "Profiles", Icon: UserCi
 								<div class="flex items-center gap-1">
 									{#if !p.active}
 										<Button
-											preset="ghost"
+											variant="ghost"
 											size="sm"
 											aria-label={`Activate profile ${p.name || "(unnamed)"}`}
 											onclick={() => void profilesState.activate(p.id)}
@@ -1409,7 +1409,7 @@ const extraTabs: ExtraTab[] = [{ id: "profiles", label: "Profiles", Icon: UserCi
 										</Button>
 									{/if}
 									<Button
-										preset="ghost"
+										variant="ghost"
 										size="sm"
 										aria-label={`Edit profile ${p.name || "(unnamed)"}`}
 										onclick={() => profilesState.startEdit(p.id)}
@@ -1419,7 +1419,7 @@ const extraTabs: ExtraTab[] = [{ id: "profiles", label: "Profiles", Icon: UserCi
 									</Button>
 									{#if p.id !== "default"}
 										<Button
-											preset="ghost"
+											variant="ghost"
 											size="sm"
 											aria-label={`Delete profile ${p.name || "(unnamed)"}`}
 											onclick={() => void profilesState.remove(p.id)}

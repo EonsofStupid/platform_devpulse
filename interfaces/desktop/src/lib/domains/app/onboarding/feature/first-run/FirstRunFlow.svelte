@@ -63,23 +63,23 @@ $effect(() => {
 
 		{#snippet actions()}
 			{#if state.stage === "welcome"}
-				<Button preset="ghost" size="md" onclick={onboardingState.later} disabled={onboardingState.busy}>
+				<Button variant="ghost" size="md" onclick={onboardingState.later} disabled={onboardingState.busy}>
 					{copy.common.later}
 				</Button>
-				<Button preset="primary" size="lg" onclick={onboardingState.next} disabled={onboardingState.busy}>
+				<Button variant="primary" size="lg" onclick={onboardingState.next} disabled={onboardingState.busy}>
 					{copy.welcome.cta}
 				</Button>
 			{:else}
-				<Button preset="ghost" size="md" onclick={onboardingState.later} disabled={onboardingState.busy}>
+				<Button variant="ghost" size="md" onclick={onboardingState.later} disabled={onboardingState.busy}>
 					{copy.common.later}
 				</Button>
-				<Button preset="secondary" size="md" onclick={onboardingState.back} disabled={onboardingState.busy}>
+				<Button variant="secondary" size="md" onclick={onboardingState.back} disabled={onboardingState.busy}>
 					{copy.common.back}
 				</Button>
 				{#if state.stage === "you"}
 					<!-- Saving is the gate: Rust validates, writes, then continues. -->
 					<Button
-						preset="primary"
+						variant="primary"
 						size="lg"
 						onclick={youForm.saveAndContinue}
 						disabled={onboardingState.busy || youForm.saving || !youForm.view}
@@ -88,7 +88,7 @@ $effect(() => {
 					</Button>
 				{:else}
 					<Button
-						preset="primary"
+						variant="primary"
 						size="lg"
 						onclick={onboardingState.next}
 						disabled={onboardingState.busy || state.needs.length > 0}

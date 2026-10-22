@@ -242,7 +242,7 @@ function handleVerbKeydown(event: KeyboardEvent): void {
 					<div class="subsystem-tile__verbs">
 						{#each verbs as verb (verb.id)}
 							<Button
-								preset={verb.tone ?? "primary"}
+								variant={verb.tone ?? "primary"}
 								size="sm"
 								disabled={verb.disabled || verb.busy}
 								aria-label={verb.ariaLabel ?? verb.label}

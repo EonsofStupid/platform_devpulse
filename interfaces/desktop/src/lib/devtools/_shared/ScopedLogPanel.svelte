@@ -67,7 +67,7 @@ import { ScopedLogPanel } from "$lib/devtools/index.js";
 		<Text size="sm" weight="semibold">
 			Scoped log — <span class="font-mono text-xs">{target}</span>
 		</Text>
-		<Button preset="ghost" size="sm" onclick={load} disabled={loading}>
+		<Button variant="ghost" size="sm" onclick={load} disabled={loading}>
 			{#if loading}
 				<Spinner size="xs" tone="accent" />
 			{:else}

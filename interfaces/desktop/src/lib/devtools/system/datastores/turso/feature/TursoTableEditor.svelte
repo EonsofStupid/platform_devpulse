@@ -84,7 +84,7 @@ async function confirmDelete(): Promise<void> {
 		<div class="flex items-center justify-between gap-[var(--space-2)]">
 			<Text size="xs" weight="semibold" style="color: var(--text-secondary);">Tables</Text>
 			<Button
-				preset="ghost"
+				variant="ghost"
 				size="sm"
 				onclick={() => tursoState.refreshTables()}
 				disabled={tursoState.tablesLoading}
@@ -98,7 +98,7 @@ async function confirmDelete(): Promise<void> {
 		{/if}
 		{#each tursoState.tables as table (table.name)}
 			<Button
-				preset={page?.table === table.name ? "secondary" : "ghost"}
+				variant={page?.table === table.name ? "secondary" : "ghost"}
 				size="sm"
 				class="w-full !justify-between"
 				onclick={() => tursoState.openTable(table.name)}
@@ -123,7 +123,7 @@ async function confirmDelete(): Promise<void> {
 						{page.total} {page.total === 1 ? "row" : "rows"} · {page.columns.length} columns
 					</Text>
 				</div>
-				<Button preset="primary" size="sm" onclick={() => openEditor(null)}>
+				<Button variant="primary" size="sm" onclick={() => openEditor(null)}>
 					<Plus size={14} /> Add row
 				</Button>
 			</div>
@@ -156,7 +156,7 @@ async function confirmDelete(): Promise<void> {
 							{#each page.rows as row (row.rowid)}
 								<tr style="border-top: 1px solid var(--border-subtle);">
 									<td class="px-[var(--space-1)] py-[var(--space-1)]">
-										<Button preset="ghost" size="sm" onclick={() => openEditor(row)}>Edit</Button>
+										<Button variant="ghost" size="sm" onclick={() => openEditor(row)}>Edit</Button>
 									</td>
 									{#each row.cells as cell, i (page.columns[i]?.name ?? i)}
 										<td

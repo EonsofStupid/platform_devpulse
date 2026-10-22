@@ -341,7 +341,7 @@ function capture(tabId: string): CapturePayload | undefined {
 				<Text size="sm" weight="semibold">
 					Scoped log — <span class="font-mono text-xs">devtools.runtimes</span>
 				</Text>
-				<Button preset="ghost" size="sm" onclick={loadLogs} disabled={logsLoading}>
+				<Button variant="ghost" size="sm" onclick={loadLogs} disabled={logsLoading}>
 					{#if logsLoading}
 						<Spinner size="xs" tone="accent" />
 					{:else}
@@ -396,7 +396,7 @@ function capture(tabId: string): CapturePayload | undefined {
 	{#snippet actions()}
 		<div class="flex flex-col gap-4">
 			<div class="flex items-center gap-2">
-				<Button preset="primary" size="sm" onclick={refresh} disabled={loading}>
+				<Button variant="primary" size="sm" onclick={refresh} disabled={loading}>
 					{#if loading}
 						<Spinner size="xs" />
 						Refreshing…
@@ -429,7 +429,7 @@ function capture(tabId: string): CapturePayload | undefined {
 						<Text size="xs" color="muted">{statusLabel(check)}</Text>
 					</div>
 					<Button
-						preset="ghost"
+						variant="ghost"
 						size="sm"
 						onclick={() => checkUpdates(group.runtime_id)}
 						disabled={checkingRuntime === group.runtime_id}

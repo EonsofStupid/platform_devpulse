@@ -191,14 +191,14 @@ function hint(column: Column): string {
 	>
 		<div>
 			{#if row && onDelete}
-				<Button preset="danger" size="sm" type="button" onclick={onDelete} disabled={busy}>
+				<Button variant="danger" size="sm" type="button" onclick={onDelete} disabled={busy}>
 					Delete row
 				</Button>
 			{/if}
 		</div>
 		<div class="flex items-center gap-[var(--space-2)]">
-			<Button preset="ghost" size="sm" type="button" onclick={onCancel} disabled={busy}>Cancel</Button>
-			<Button preset="primary" size="sm" type="submit" disabled={busy || changes.length === 0}>
+			<Button variant="ghost" size="sm" type="button" onclick={onCancel} disabled={busy}>Cancel</Button>
+			<Button variant="primary" size="sm" type="submit" disabled={busy || changes.length === 0}>
 				{busy ? "Saving…" : row ? "Save changes" : "Add row"}
 			</Button>
 		</div>

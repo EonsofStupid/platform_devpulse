@@ -171,7 +171,7 @@ const zoneBadgeVariant = $derived(proximityVariant(zone));
 		<div class="grid grid-cols-3 gap-2">
 			{#each DEPTHS as d}
 				<Button
-					preset={snapshot?.depth === d.value ? "primary" : "secondary"}
+					variant={snapshot?.depth === d.value ? "primary" : "secondary"}
 					size="sm"
 					onclick={() => rroState.setDepth(d.value)}
 					disabled={rroState.rroActionLoading.depth}
@@ -279,7 +279,7 @@ const zoneBadgeVariant = $derived(proximityVariant(zone));
 					/>
 				</div>
 				<Button
-					preset="primary"
+					variant="primary"
 					size="sm"
 					onclick={() => rroState.triggerGather()}
 					disabled={rroState.rroActionLoading.gather}
@@ -310,7 +310,7 @@ const zoneBadgeVariant = $derived(proximityVariant(zone));
 					/>
 				</div>
 				<Button
-					preset="danger"
+					variant="danger"
 					size="sm"
 					onclick={() => rroState.triggerPurge()}
 					disabled={rroState.rroActionLoading.purge}
@@ -343,7 +343,7 @@ const zoneBadgeVariant = $derived(proximityVariant(zone));
 					/>
 				</div>
 				<Button
-					preset="secondary"
+					variant="secondary"
 					size="sm"
 					onclick={() => rroState.triggerFork()}
 					disabled={rroState.rroActionLoading.fork}

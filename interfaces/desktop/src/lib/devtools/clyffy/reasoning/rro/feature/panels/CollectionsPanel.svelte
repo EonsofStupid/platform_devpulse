@@ -32,7 +32,7 @@ $effect(() => {
 		{/snippet}
 		{#snippet actions()}
 			<Button
-				preset="ghost"
+				variant="ghost"
 				size="sm"
 				onclick={() => rroState.loadHealth()}
 				disabled={rroState.healthLoading}
@@ -80,7 +80,7 @@ $effect(() => {
 										{col.point_count.toLocaleString()} items
 									</Badge>
 									<Button
-										preset={rroState.deleteConfirm === col.name ? "danger" : "ghost"}
+										variant={rroState.deleteConfirm === col.name ? "danger" : "ghost"}
 										size="sm"
 										onclick={() => rroState.deleteCollection(col.name)}
 									>
@@ -134,7 +134,7 @@ $effect(() => {
 			<ErrorCallout prefix="Couldn't create store" message={rroState.createError} />
 			<ErrorCallout prefix="Couldn't delete store" message={rroState.deleteError} />
 			<Button
-				preset="primary"
+				variant="primary"
 				size="sm"
 				onclick={() => rroState.createCollection()}
 				disabled={rroState.createLoading || !rroState.newCollectionName.trim()}

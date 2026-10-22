@@ -63,12 +63,12 @@ const m = $derived(renderForge({ kind: "chat-topbar", preset: "default" }));
 			{@render children()}
 		{/if}
 		{#if onMinimize}
-			<Button preset="ghost" size="sm" onclick={onMinimize}>
+			<Button variant="ghost" size="sm" onclick={onMinimize}>
 				<Minus class="size-icon-xs" />
 			</Button>
 		{/if}
 		{#if onClose}
-			<Button preset="ghost" size="sm" onclick={onClose}>
+			<Button variant="ghost" size="sm" onclick={onClose}>
 				<X class="size-icon-xs" />
 			</Button>
 		{/if}

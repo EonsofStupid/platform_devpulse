@@ -128,13 +128,13 @@ async function handleConfirm(): Promise<void> {
 
 		<div class="confirm-dialog__footer">
 			<AlertDialog.Cancel>
-				<Button preset="ghost" size="md" disabled={busy} onclick={handleCancel}>
+				<Button variant="ghost" size="md" disabled={busy} onclick={handleCancel}>
 					{cancelLabel}
 				</Button>
 			</AlertDialog.Cancel>
 			<AlertDialog.Action>
 				<Button
-					preset={destructive ? "danger" : "primary"}
+					variant={destructive ? "danger" : "primary"}
 					size="md"
 					disabled={busy}
 					onclick={handleConfirm}

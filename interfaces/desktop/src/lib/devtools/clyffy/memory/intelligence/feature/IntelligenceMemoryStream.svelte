@@ -188,7 +188,7 @@ function formatAge(createdAt: number): string {
 			</Text>
 		</div>
 		{#if cards.length > 0}
-			<Button preset="ghost" size="sm" onclick={clearStream}>Clear</Button>
+			<Button variant="ghost" size="sm" onclick={clearStream}>Clear</Button>
 		{/if}
 	</header>
 

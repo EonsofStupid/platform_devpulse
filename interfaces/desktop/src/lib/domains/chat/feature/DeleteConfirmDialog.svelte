@@ -47,8 +47,8 @@ async function confirm() {
 				<TextField value={phrase} onValueChange={(v) => (phrase = v)} placeholder="CLEAR" />
 			{/if}
 			<div class="flex justify-end gap-2">
-				<Button preset="ghost" size="sm" onclick={onClose}>Cancel</Button>
-				<Button preset="danger" size="sm" onclick={() => void confirm()}>
+				<Button variant="ghost" size="sm" onclick={onClose}>Cancel</Button>
+				<Button variant="danger" size="sm" onclick={() => void confirm()}>
 					{step === 1 ? "Continue" : "Confirm"}
 				</Button>
 			</div>

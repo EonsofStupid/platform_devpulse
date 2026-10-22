@@ -453,7 +453,7 @@ async function handleEncodeFile(event: Event): Promise<void> {
 						</Text>
 						<div class="flex flex-wrap items-center gap-[var(--space-2)]">
 							{#if !visionReady && visionSlot?.assigned_model_id}
-								<Button preset="primary" size="sm" onclick={loadVision}>
+								<Button variant="primary" size="sm" onclick={loadVision}>
 									<Play size={12} />
 									Load
 								</Button>
@@ -461,7 +461,7 @@ async function handleEncodeFile(event: Event): Promise<void> {
 							{#if visionReady}
 								<Tooltip>
 									<TooltipTrigger>
-										<Button preset="ghost" size="sm" onclick={requestUnload}>
+										<Button variant="ghost" size="sm" onclick={requestUnload}>
 											<PowerOff size={12} />
 											{unloadConfirm ? "Confirm — unload now" : "Unload"}
 										</Button>

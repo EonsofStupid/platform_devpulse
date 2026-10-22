@@ -40,7 +40,7 @@ const m = $derived(renderForge({ kind: "chat-sidebar", preset: "default" }));
 >
 	{#each modes as option (option.id)}
 		<Button
-			preset={mode === option.id ? "primary" : "ghost"}
+			variant={mode === option.id ? "primary" : "ghost"}
 			size="sm"
 			aria-pressed={mode === option.id}
 			onclick={() => onModeChange?.(option.id)}

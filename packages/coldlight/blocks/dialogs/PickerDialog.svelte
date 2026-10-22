@@ -201,7 +201,7 @@ const headingId = `picker-dialog-${Math.random().toString(36).slice(2, 9)}`;
 
 		<Dialog.Footer class="picker-dialog__footer">
 			<Dialog.Close>
-				<Button preset="ghost" size="md" disabled={busy} onclick={handleClose}>
+				<Button variant="ghost" size="md" disabled={busy} onclick={handleClose}>
 					Close
 				</Button>
 			</Dialog.Close>

@@ -58,11 +58,11 @@ $effect(() => {
 							<InlineMessage tone="error">{settingsState.saveError}</InlineMessage>
 						{/if}
 						<div class={hstack({ gap: "2", justify: "end" })}>
-							<Button preset="ghost" size="sm" onclick={() => settingsState.cancelEdit()} disabled={settingsState.saving}>
+							<Button variant="ghost" size="sm" onclick={() => settingsState.cancelEdit()} disabled={settingsState.saving}>
 								<X size={14} />
 								Cancel
 							</Button>
-							<Button preset="primary" size="sm" onclick={() => settingsState.save()} disabled={settingsState.saving}>
+							<Button variant="primary" size="sm" onclick={() => settingsState.save()} disabled={settingsState.saving}>
 								{#if settingsState.saving}
 									<Spinner size="xs" />
 								{:else}
@@ -83,7 +83,7 @@ $effect(() => {
 							<Text>{settingsState.profile.email ?? "Not set"}</Text>
 						</div>
 						<div class={hstack({ justify: "end" })}>
-							<Button preset="ghost" size="sm" onclick={() => settingsState.startEdit()}>
+							<Button variant="ghost" size="sm" onclick={() => settingsState.startEdit()}>
 								<Pencil size={14} />
 								Edit
 							</Button>
@@ -132,7 +132,7 @@ $effect(() => {
 					{/if}
 					<div class={hstack({ justify: "end" })}>
 						<Button
-							preset="secondary"
+							variant="secondary"
 							size="sm"
 							onclick={onboardingState.reopen}
 							disabled={onboardingState.busy || onboardingState.isOpen}

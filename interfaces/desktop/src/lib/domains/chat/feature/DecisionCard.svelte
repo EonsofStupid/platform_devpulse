@@ -33,8 +33,8 @@ const lockedPulse = $derived(
 	<Text size="xs" weight="semibold">{title}</Text>
 	<Text size="sm" class="text-[var(--text-muted)] whitespace-pre-wrap">{body}</Text>
 	<div class="flex flex-wrap gap-2">
-		<Button preset="ghost" size="sm">Edit</Button>
-		<Button preset="primary" size="sm">Approve</Button>
-		<Button preset="danger" size="sm">Decline</Button>
+		<Button variant="ghost" size="sm">Edit</Button>
+		<Button variant="primary" size="sm">Approve</Button>
+		<Button variant="danger" size="sm">Decline</Button>
 	</div>
 </div>

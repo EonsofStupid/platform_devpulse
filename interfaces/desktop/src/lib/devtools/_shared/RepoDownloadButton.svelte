@@ -41,7 +41,7 @@
 	```
 -->
 <script lang="ts">
-import { Button, type ButtonPreset } from "@devpulse/coldlight/components/button";
+import { Button, type ButtonSize, type ButtonVariant } from "@devpulse/coldlight/components/button";
 import { Spinner } from "@devpulse/coldlight/components/spinner";
 import { Text } from "@devpulse/coldlight/components/text";
 import { invoke } from "@tauri-apps/api/core";
@@ -68,9 +68,9 @@ interface Props {
 	/** Button label shown before click. */
 	label?: string;
 	/** Size forwarded to the inner Button. */
-	size?: "sm" | "md" | "lg";
-	/** Preset forwarded to the inner Button. */
-	preset?: ButtonPreset;
+	size?: ButtonSize;
+	/** Variant forwarded to the inner Button. */
+	variant?: ButtonVariant;
 	/** Disable the button (e.g. while a parent download is active). */
 	disabled?: boolean;
 	/**
@@ -85,7 +85,7 @@ let {
 	slotId,
 	label = "Install",
 	size = "sm",
-	preset = "primary",
+	variant = "primary",
 	disabled = false,
 	onComplete,
 }: Props = $props();
@@ -234,7 +234,7 @@ const hasKnownSize = $derived(siblings.some((s) => typeof s.size === "number"));
 
 <!-- Trigger button -->
 <Button
-	{preset}
+	{variant}
 	{size}
 	onclick={handleClick}
 	disabled={disabled || stage === "listing" || stage === "starting"}
@@ -356,12 +356,12 @@ const hasKnownSize = $derived(siblings.some((s) => typeof s.size === "number"));
 
 			<!-- Actions -->
 			<div class="flex justify-end gap-2">
-				<Button preset="ghost" size="sm" onclick={cancel}>
+				<Button variant="ghost" size="sm" onclick={cancel}>
 					{stage === "done" ? "Close" : "Cancel"}
 				</Button>
 				{#if stage === "confirming"}
 					<Button
-						preset="primary"
+						variant="primary"
 						size="sm"
 						onclick={confirm}
 						disabled={!selectedPrimary}
@@ -370,7 +370,7 @@ const hasKnownSize = $derived(siblings.some((s) => typeof s.size === "number"));
 						{slotId ? "Install" : "Download"}
 					</Button>
 				{:else if stage === "starting"}
-					<Button preset="primary" size="sm" disabled>
+					<Button variant="primary" size="sm" disabled>
 						<Spinner size="xs" />
 						Starting…
 					</Button>

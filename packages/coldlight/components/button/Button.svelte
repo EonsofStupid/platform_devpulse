@@ -23,19 +23,14 @@
 -->
 <script lang="ts">
 import { buttonAnatomy, useButton } from "#coldlight/behaviors/inputs/button/index.js";
-import { cssVarString, renderForge } from "#coldlight/renderforge/index.js";
+import { styleAttrs } from "#coldlight/renderforge/index.js";
 import { cn } from "#coldlight/utils/cn.js";
-import type { ButtonProps, ButtonSize } from "./button.types.js";
-
-const SIZE: Record<ButtonSize, string> = {
-	sm: "h-8 px-3 text-sm gap-1.5",
-	md: "h-10 px-4 text-sm gap-2",
-	lg: "h-12 px-6 text-base gap-2.5",
-};
+import { BUTTON_DEFAULTS } from "./button.generated.js";
+import type { ButtonProps } from "./button.types.js";
 
 let {
-	preset = "primary",
-	size = "md",
+	variant = BUTTON_DEFAULTS.variant,
+	size = BUTTON_DEFAULTS.size,
 	disabled = false,
 	loading = false,
 	pressed,
@@ -48,22 +43,15 @@ let {
 }: ButtonProps = $props();
 
 const button = $derived(useButton({ disabled, loading, pressed, onPressedChange, expanded, type }));
-
-const m = $derived(renderForge({ kind: "button", preset }));
 </script>
 
+<!-- Its look is button.tokens.json's generated CSS, selected by these attributes; class is layout. -->
 <button
 	{...buttonAnatomy.attrs.root}
 	{...button.root}
 	{...rest}
-	{...m.dataAttrs}
-	style={cssVarString(m.cssVars)}
-	class={cn(
-		"inline-flex items-center justify-center font-medium cursor-pointer select-none",
-		"focus-visible:outline-2 focus-visible:outline-offset-2",
-		"disabled:pointer-events-none disabled:opacity-50",
-		SIZE[size] ?? SIZE.md,
-		className)}
+	{...styleAttrs({ kind: "button", variant, size })}
+	class={cn("inline-flex items-center justify-center select-none", className)}
 >
 	{@render children?.()}
 </button>

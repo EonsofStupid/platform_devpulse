@@ -113,22 +113,22 @@ const connectorReady = (p: ProviderReport): boolean => p.connector?.installed ??
 
 			<div class="flex flex-wrap items-center gap-2">
 				{#if p.installed && p.actions.includes("signIn") && p.signedIn !== "yes"}
-					<Button preset="primary" size="sm" onclick={() => providersState.act(p.id, "signIn")} disabled={!idle}>
+					<Button variant="primary" size="sm" onclick={() => providersState.act(p.id, "signIn")} disabled={!idle}>
 						{#if running(p, "signIn")}<Spinner size="xs" />{copy.opening}{:else}{copy.sign_in}{/if}
 					</Button>
 				{/if}
 				{#if p.installed && p.actions.includes("update") && p.updateAvailable}
-					<Button preset="secondary" size="sm" onclick={() => providersState.act(p.id, "update")} disabled={!idle}>
+					<Button variant="secondary" size="sm" onclick={() => providersState.act(p.id, "update")} disabled={!idle}>
 						{#if running(p, "update")}<Spinner size="xs" />{copy.updating}{:else}{copy.update}{/if}
 					</Button>
 				{/if}
 				{#if p.installed && p.actions.includes("installConnector") && !connectorReady(p)}
-					<Button preset="primary" size="sm" onclick={() => providersState.act(p.id, "installConnector")} disabled={!idle}>
+					<Button variant="primary" size="sm" onclick={() => providersState.act(p.id, "installConnector")} disabled={!idle}>
 						{#if running(p, "installConnector")}<Spinner size="xs" />{copy.installing}{:else}{copy.install_connector}{/if}
 					</Button>
 				{/if}
 				{#if p.installed && p.actions.includes("test") && connectorReady(p)}
-					<Button preset="secondary" size="sm" onclick={() => providersState.act(p.id, "test")} disabled={!idle}>
+					<Button variant="secondary" size="sm" onclick={() => providersState.act(p.id, "test")} disabled={!idle}>
 						{#if running(p, "test")}<Spinner size="xs" />{copy.testing}{:else}{copy.test}{/if}
 					</Button>
 				{/if}
@@ -190,7 +190,7 @@ const connectorReady = (p: ProviderReport): boolean => p.connector?.installed ??
 	<section class="flex flex-col gap-3" aria-label={copy.subscriptions_heading}>
 		<div class="flex flex-wrap items-center justify-between gap-2">
 			<Heading level={2} size="lg">{copy.subscriptions_heading}</Heading>
-			<Button preset="secondary" size="sm" onclick={providersState.check} disabled={!idle}>
+			<Button variant="secondary" size="sm" onclick={providersState.check} disabled={!idle}>
 				{current?.checking ? copy.checking : copy.check_again}
 			</Button>
 		</div>

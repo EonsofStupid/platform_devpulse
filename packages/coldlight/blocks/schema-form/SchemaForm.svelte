@@ -55,7 +55,7 @@ const fields = $derived(readFields(schema, order));
 					{disabled}
 				/>
 				{#if field.input === "folder" && onBrowse}
-					<Button preset="secondary" size="md" type="button" onclick={() => onBrowse(field.name)} {disabled}>
+					<Button variant="secondary" size="md" type="button" onclick={() => onBrowse(field.name)} {disabled}>
 						{browseLabel}
 					</Button>
 				{/if}
@@ -64,7 +64,7 @@ const fields = $derived(readFields(schema, order));
 				<div class="flex flex-wrap gap-[var(--space-2)]">
 					{#each suggestions[field.name] as suggestion (suggestion.value)}
 						<Button
-							preset="ghost"
+							variant="ghost"
 							size="sm"
 							type="button"
 							aria-pressed={values[field.name] === suggestion.value}

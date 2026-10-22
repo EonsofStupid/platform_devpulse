@@ -167,12 +167,12 @@ function keyHandler(e: KeyboardEvent, index: number): void {
 	{#snippet actions()}
 		<div style="flex: 1;"></div>
 		{#if selected && onDismiss}
-			<Button preset="primary" size="sm" onclick={onDismiss}>
+			<Button variant="primary" size="sm" onclick={onDismiss}>
 				{resolved.continueLabel}
 			</Button>
 		{:else if onDismiss}
 			<Button
-				preset="ghost"
+				variant="ghost"
 				size="sm"
 				aria-label={resolved.dismissAria}
 				onclick={onDismiss}

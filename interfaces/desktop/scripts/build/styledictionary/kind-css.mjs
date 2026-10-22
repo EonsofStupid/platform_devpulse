@@ -59,7 +59,7 @@ export const STATE_SELECTORS = {
 /** Rules a kind gets for accepting the interactive concern (render-base's former `[data-cl-interactive]`). */
 function interactiveRules(sel) {
 	return [
-		`${sel} {\n\tcursor: pointer;\n\t-webkit-tap-highlight-color: transparent;\n}`,
+		`${sel} {\n\tcursor: pointer;\n\toutline-offset: var(--focus-offset, 2px);\n\t-webkit-tap-highlight-color: transparent;\n}`,
 		`${sel}:focus-visible {\n\toutline: 2px solid var(--focus-ring, currentColor);\n\toutline-offset: var(--focus-offset, 2px);\n}`,
 		`${sel}${STATE_SELECTORS.disabled} {\n\tcursor: not-allowed;\n\tpointer-events: none;\n}`,
 		`${sel}:hover {\n\tfilter: var(--hover-filter, brightness(1.1));\n}`,

@@ -151,7 +151,7 @@ function handleBack(): void {
 				tip="Clicking Start Chatting marks setup complete and opens the main app. The wizard won't auto-open again unless you reset onboarding."
 				label="What happens next?"
 			/>
-			<Button preset="ghost" size="sm" onclick={() => (showSettingsInfo = true)}>
+			<Button variant="ghost" size="sm" onclick={() => (showSettingsInfo = true)}>
 				Change later
 			</Button>
 		</div>
@@ -215,16 +215,16 @@ function handleBack(): void {
 	</div>
 
 	<div class="d-actions">
-		<Button preset="ghost" size="md" onclick={handleBack}>
+		<Button variant="ghost" size="md" onclick={handleBack}>
 			<ArrowLeft size={14} />
 			Back
 		</Button>
 		<div class="d-actions-right">
-			<Button preset="ghost" size="md" onclick={handleClose} disabled={launching} aria-label="Close without launching chat">
+			<Button variant="ghost" size="md" onclick={handleClose} disabled={launching} aria-label="Close without launching chat">
 				<X size={14} />
 				Close
 			</Button>
-			<Button preset="primary" size="lg" onclick={handleLaunch} disabled={launching}>
+			<Button variant="primary" size="lg" onclick={handleLaunch} disabled={launching}>
 				<Sparkles size={16} />
 				{launching ? "Launching…" : "Start Chatting"}
 			</Button>

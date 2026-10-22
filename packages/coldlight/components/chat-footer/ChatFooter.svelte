@@ -90,12 +90,12 @@ const m = $derived(renderForge({ kind: "chat-footer", preset: "default" }));
 		onkeydown={handleKeydown}
 		class="flex-1"
 	/>
-	<Button preset="primary" size="sm" onclick={handleSend} {disabled}>
+	<Button variant="primary" size="sm" onclick={handleSend} {disabled}>
 		<Send class="size-icon-sm" />
 	</Button>
 	{#if onVoice}
 		<Button
-			preset={voiceActive ? "primary" : "ghost"}
+			variant={voiceActive ? "primary" : "ghost"}
 			size="sm"
 			aria-pressed={voiceActive}
 			onclick={onVoice}

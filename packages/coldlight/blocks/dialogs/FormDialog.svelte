@@ -165,7 +165,7 @@ async function handleSubmit(event: SubmitEvent): Promise<void> {
 			<Dialog.Footer class="form-dialog__footer">
 				{#if cancelLabel}
 					<Button
-						preset="ghost"
+						variant="ghost"
 						size="md"
 						type="button"
 						disabled={busy}
@@ -174,7 +174,7 @@ async function handleSubmit(event: SubmitEvent): Promise<void> {
 						{cancelLabel}
 					</Button>
 				{/if}
-				<Button preset="primary" size="md" type="submit" disabled={busy}>
+				<Button variant="primary" size="md" type="submit" disabled={busy}>
 					{#if busy}
 						<Spinner size="xs" />
 					{/if}

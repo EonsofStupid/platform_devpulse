@@ -190,7 +190,7 @@ async function stopMic(): Promise<void> {
 					<span class="font-mono text-[10px]">{sherpaState.modelsDir ?? "—"}</span>
 				</Text>
 				<Button
-					preset="ghost"
+					variant="ghost"
 					size="sm"
 					onclick={() => void sherpaState.loadModels()}
 					disabled={sherpaState.modelsLoading}
@@ -240,7 +240,7 @@ async function stopMic(): Promise<void> {
 									>
 									<td class="px-3 py-2 text-right">
 										<Button
-											preset="ghost"
+											variant="ghost"
 											size="sm"
 											onclick={() => void sherpaState.deleteModel(m.id)}
 											disabled={!sherpaState.featureEnabled ||
@@ -282,7 +282,7 @@ async function stopMic(): Promise<void> {
 					<div class="flex flex-wrap items-center gap-2">
 						{#each sherpaState.models as m (m.id)}
 							<Button
-								preset="primary"
+								variant="primary"
 								size="sm"
 								onclick={() => void startMic(m.id)}
 								disabled={!sherpaState.featureEnabled || sherpaState.starting}
@@ -300,7 +300,7 @@ async function stopMic(): Promise<void> {
 				{:else if sherpaState.streaming}
 					<div class="flex items-center gap-2">
 						<Button
-							preset="ghost"
+							variant="ghost"
 							size="sm"
 							onclick={() => void stopMic()}
 							disabled={sherpaState.stopping}

@@ -56,7 +56,7 @@ const headingId = $derived(`kc-gloss-${entry.id}`);
 		{#if onDismiss}
 			<div style="flex: 1;"></div>
 			<Button
-				preset="ghost"
+				variant="ghost"
 				size="sm"
 				aria-label={resolved.dismissAria}
 				onclick={onDismiss}

@@ -68,7 +68,7 @@ const isExpanded = $derived(globalState.sidebar_mode === "expanded");
 	{@const Icon = node.nav.icon}
 	<a href={hrefOf(node)} {onclick} class="contents">
 		<Button
-			preset={isActive(node) ? "primary" : "ghost"}
+			variant={isActive(node) ? "primary" : "ghost"}
 			size="sm"
 			class={cn(
 				"relative",
@@ -113,7 +113,7 @@ const isExpanded = $derived(globalState.sidebar_mode === "expanded");
 
 	<div class={`${stack({ gap: "1" })} pb-1`}>
 		<Button
-			preset="ghost"
+			variant="ghost"
 			size="sm"
 			class={isExpanded
 				? "w-full justify-start gap-3 px-3 py-2"
@@ -143,7 +143,7 @@ const isExpanded = $derived(globalState.sidebar_mode === "expanded");
 			{#each submenu as child (child.path)}
 				<a href={hrefOf(child)} onclick={handleSubmenuNav} class="contents">
 					<Button
-						preset="ghost"
+						variant="ghost"
 						size="sm"
 						class="w-full justify-start px-3 py-2"
 						aria-current={isActive(child) ? "page" : undefined}

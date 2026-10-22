@@ -206,7 +206,7 @@ const ctaLabel = $derived(
 	<footer class="relative z-1 flex flex-wrap items-center justify-between gap-2">
 		<div class="flex flex-wrap items-center gap-2">
 			{#if onPickDifferent && state !== "saving"}
-				<Button preset="ghost" size="sm" onclick={onPickDifferent}>
+				<Button variant="ghost" size="sm" onclick={onPickDifferent}>
 					<Pencil size={12} />
 					Pick a different one
 				</Button>
@@ -218,7 +218,7 @@ const ctaLabel = $derived(
 			{/if}
 		</div>
 		<Button
-			preset={state === "saved" ? "ghost" : "primary"}
+			variant={state === "saved" ? "ghost" : "primary"}
 			size="md"
 			onclick={onApply}
 			disabled={state === "saving" || state === "saved"}

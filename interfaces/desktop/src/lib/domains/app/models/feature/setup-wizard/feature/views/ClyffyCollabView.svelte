@@ -145,7 +145,7 @@ async function saveKey(): Promise<void> {
 					autocomplete="off"
 				/>
 				<Button
-					preset="primary"
+					variant="primary"
 					size="md"
 					onclick={saveKey}
 					disabled={working || busy || keyInput.trim().length === 0}
@@ -196,11 +196,11 @@ async function saveKey(): Promise<void> {
 	</div>
 
 	{#snippet footer()}
-		<Button preset="ghost" size="sm" onclick={callbacks.onBack} disabled={busy}>
+		<Button variant="ghost" size="sm" onclick={callbacks.onBack} disabled={busy}>
 			Back
 		</Button>
 		<Button
-			preset="ghost"
+			variant="ghost"
 			size="sm"
 			onclick={callbacks.onSkip}
 			disabled={busy}
@@ -208,7 +208,7 @@ async function saveKey(): Promise<void> {
 			Skip — set it up later
 		</Button>
 		<div class="footer-spacer"></div>
-		<Button preset="primary" size="md" onclick={callbacks.onNext} disabled={busy}>
+		<Button variant="primary" size="md" onclick={callbacks.onNext} disabled={busy}>
 			Continue
 		</Button>
 	{/snippet}

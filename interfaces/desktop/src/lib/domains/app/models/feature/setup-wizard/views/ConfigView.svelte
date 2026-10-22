@@ -211,7 +211,7 @@ const totalSlots = $derived(modelsState.slots.length);
 				tip="Each tab groups related slots. Per-slot Browse + Activate — you control what loads, when. 'Save & Continue' just commits drafts; cards handle loads."
 				label="How do tabs work?"
 			/>
-			<Button preset="ghost" size="sm" onclick={() => (showTabsInfo = true)}>
+			<Button variant="ghost" size="sm" onclick={() => (showTabsInfo = true)}>
 				All slots
 			</Button>
 		</div>
@@ -359,7 +359,7 @@ const totalSlots = $derived(modelsState.slots.length);
 
 	<!-- Footer: Save & Continue -->
 	<div class="cv-footer">
-		<Button preset="primary" size="lg" onclick={handleSaveAndContinue} disabled={overlayState.applying}>
+		<Button variant="primary" size="lg" onclick={handleSaveAndContinue} disabled={overlayState.applying}>
 			{#if overlayState.applying}
 				<Spinner size="xs" />
 				Saving…

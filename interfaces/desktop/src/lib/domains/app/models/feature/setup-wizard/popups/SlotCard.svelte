@@ -88,11 +88,11 @@ const statusTone = $derived.by((): "positive" | "negative" | "informative" | "ne
 	</div>
 
 	<div class="card-actions">
-		<Button preset="secondary" size="sm" onclick={onBrowseLocal}>
+		<Button variant="secondary" size="sm" onclick={onBrowseLocal}>
 			<FolderSearch size={14} />
 			Browse Local
 		</Button>
-		<Button preset="secondary" size="sm" onclick={onSearchHF}>
+		<Button variant="secondary" size="sm" onclick={onSearchHF}>
 			<Search size={14} />
 			Search HuggingFace
 		</Button>

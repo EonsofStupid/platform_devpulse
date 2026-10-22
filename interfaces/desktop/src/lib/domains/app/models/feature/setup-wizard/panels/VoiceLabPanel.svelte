@@ -283,7 +283,7 @@ function isCustom(v: VoiceInfo): boolean {
 					placeholder="Click Pick to choose an MP3, WAV, or FLAC file"
 				/>
 				<Button
-					preset="secondary"
+					variant="secondary"
 					size="sm"
 					onclick={handlePickAudio}
 					disabled={pickingAudio}
@@ -322,7 +322,7 @@ function isCustom(v: VoiceInfo): boolean {
 
 		<div class="vl-actions">
 			<Button
-				preset="secondary"
+				variant="secondary"
 				size="sm"
 				onclick={handleUpload}
 				disabled={!cloneName.trim() || !pickedPath || uploading}
@@ -336,7 +336,7 @@ function isCustom(v: VoiceInfo): boolean {
 				{/if}
 			</Button>
 			<Button
-				preset="primary"
+				variant="primary"
 				size="sm"
 				onclick={handleRegister}
 				disabled={!cloneName.trim() || !pickedPath || registering}
@@ -378,7 +378,7 @@ function isCustom(v: VoiceInfo): boolean {
 							<Badge variant="positive" size="sm">Custom</Badge>
 						{/if}
 						<Button
-							preset="ghost"
+							variant="ghost"
 							size="sm"
 							onclick={() => void handlePreview(v.id)}
 							disabled={previewing === v.id}
@@ -392,7 +392,7 @@ function isCustom(v: VoiceInfo): boolean {
 						</Button>
 						{#if custom}
 							<Button
-								preset="ghost"
+								variant="ghost"
 								size="sm"
 								onclick={() => void handleRemove(v.id)}
 								disabled={removing === v.id}

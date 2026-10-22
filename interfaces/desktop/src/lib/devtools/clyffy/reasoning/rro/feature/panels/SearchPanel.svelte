@@ -75,7 +75,7 @@ const totalLatency = $derived(
 						/>
 					</div>
 					<Button
-						preset="primary"
+						variant="primary"
 						size="sm"
 						onclick={() => rroState.runSearch()}
 						disabled={rroState.searchLoading}

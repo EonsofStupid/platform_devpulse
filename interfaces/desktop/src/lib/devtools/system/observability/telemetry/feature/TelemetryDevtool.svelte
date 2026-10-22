@@ -122,7 +122,7 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 				<div class="flex items-center justify-between">
 					<Text size="sm" weight="semibold">Pipeline</Text>
 					<Button
-						preset="ghost"
+						variant="ghost"
 						size="sm"
 						onclick={() => telemetryState.refreshStatus()}
 						disabled={telemetryState.pipelineLoading}
@@ -216,7 +216,7 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 					<div class="p-3 space-y-2">
 						<div class="flex items-center justify-between">
 							<Text size="sm" weight="semibold">Storage</Text>
-							<Button preset="ghost" size="sm" onclick={() => telemetryState.revealFolder()}>
+							<Button variant="ghost" size="sm" onclick={() => telemetryState.revealFolder()}>
 								<Folder size={14} />
 								Reveal
 							</Button>
@@ -288,7 +288,7 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 						<div class="flex items-center justify-between">
 							<Text size="sm" weight="semibold">Session files</Text>
 							<Button
-								preset="ghost"
+								variant="ghost"
 								size="sm"
 								onclick={() => telemetryState.loadSessions()}
 								disabled={telemetryState.sessionsLoading}
@@ -364,13 +364,13 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 							Pick how much detail to record. "Standard" is good for most sessions.
 						</Text>
 						<div class="flex items-center gap-2 pt-1">
-							<Button preset="ghost" size="sm" onclick={() => telemetryState.applyPreset("off")}>
+							<Button variant="ghost" size="sm" onclick={() => telemetryState.applyPreset("off")}>
 								Off
 							</Button>
-							<Button preset="primary" size="sm" onclick={() => telemetryState.applyPreset("standard")}>
+							<Button variant="primary" size="sm" onclick={() => telemetryState.applyPreset("standard")}>
 								Standard
 							</Button>
-							<Button preset="ghost" size="sm" onclick={() => telemetryState.applyPreset("debug")}>
+							<Button variant="ghost" size="sm" onclick={() => telemetryState.applyPreset("debug")}>
 								Debug (everything)
 							</Button>
 						</div>
@@ -471,12 +471,12 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 						if (e.key === "Enter") handleSpanQuery();
 					}}
 				/>
-				<Button preset="primary" size="sm" onclick={handleSpanQuery}>
+				<Button variant="primary" size="sm" onclick={handleSpanQuery}>
 					{#if telemetryState.spansLoading}<Spinner size="xs" tone="accent" />{:else}<RefreshCw size={12} />{/if}
 					Load
 				</Button>
 				{#if telemetryState.spans.length > 0}
-					<Button preset="ghost" size="sm" onclick={() => telemetryState.clearSpans()}>
+					<Button variant="ghost" size="sm" onclick={() => telemetryState.clearSpans()}>
 						Clear
 					</Button>
 				{/if}
@@ -550,7 +550,7 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 					</Text>
 					<div class="pt-1">
 						<Button
-							preset="primary"
+							variant="primary"
 							size="sm"
 							onclick={() => telemetryState.revealFolder()}
 							disabled={!telemetryState.pipeline?.telemetry_dir}
@@ -571,7 +571,7 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 					</Text>
 					<div class="flex gap-2 pt-1">
 						<Button
-							preset="primary"
+							variant="primary"
 							size="sm"
 							onclick={() => telemetryState.refreshStatus()}
 							disabled={telemetryState.pipelineLoading}
@@ -584,7 +584,7 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 							Refresh pipeline status
 						</Button>
 						<Button
-							preset="ghost"
+							variant="ghost"
 							size="sm"
 							onclick={() => telemetryState.loadRowCounts()}
 							disabled={telemetryState.rowCountsLoading}
@@ -622,7 +622,7 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 				<div class="flex items-center justify-between mb-2">
 					<Text size="sm" weight="semibold">Force exporter flush</Text>
 					<Button
-						preset="ghost"
+						variant="ghost"
 						size="sm"
 						onclick={async () => {
 							await Promise.all([
@@ -697,7 +697,7 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 				</Text>
 			</div>
 			<Button
-				preset="ghost"
+				variant="ghost"
 				size="sm"
 				onclick={() => telemetryState.loadSpans(undefined, 100)}
 			>
@@ -765,7 +765,7 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 				</Text>
 			</div>
 			<Button
-				preset="ghost"
+				variant="ghost"
 				size="sm"
 				onclick={() => telemetryState.loadBaselines()}
 				disabled={telemetryState.baselinesLoading}

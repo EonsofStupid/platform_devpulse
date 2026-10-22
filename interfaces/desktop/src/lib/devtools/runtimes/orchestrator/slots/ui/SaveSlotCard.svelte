@@ -159,7 +159,7 @@ const buttonLabel = $derived(
 		<footer class="slot-footer">
 			<div class="footer-left">
 				{#if onPickDifferent && state !== "saving"}
-					<Button preset="ghost" size="sm" onclick={onPickDifferent}>
+					<Button variant="ghost" size="sm" onclick={onPickDifferent}>
 						<Pencil size={12} />
 						Pick a different one
 					</Button>
@@ -171,7 +171,7 @@ const buttonLabel = $derived(
 				{/if}
 			</div>
 			<Button
-				preset={state === "saved" ? "ghost" : "primary"}
+				variant={state === "saved" ? "ghost" : "primary"}
 				size="md"
 				onclick={onSave}
 				disabled={state === "saving" || state === "saved"}

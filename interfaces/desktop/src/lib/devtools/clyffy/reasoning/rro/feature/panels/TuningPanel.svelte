@@ -46,7 +46,7 @@ function fieldValue(field: string): number {
 		<div class="grid grid-cols-2 gap-2">
 			{#each RRO_PRESETS as p}
 				<Button
-					preset={rroState.config?.preset === p.name ? "primary" : "secondary"}
+					variant={rroState.config?.preset === p.name ? "primary" : "secondary"}
 					size="sm"
 					onclick={() => rroState.applyPreset(p.name)}
 				>

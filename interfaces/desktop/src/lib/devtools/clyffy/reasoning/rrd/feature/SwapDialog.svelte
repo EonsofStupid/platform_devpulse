@@ -388,7 +388,7 @@ function fmtTime(ms: number): string {
 					{/if}
 				</Text>
 				<Button
-					preset="ghost"
+					variant="ghost"
 					size="sm"
 					onclick={handleClose}
 					disabled={inFlight}
@@ -397,7 +397,7 @@ function fmtTime(ms: number): string {
 				</Button>
 				{#if !swapResult}
 					<Button
-						preset="primary"
+						variant="primary"
 						size="sm"
 						onclick={handleConfirm}
 						disabled={!pickedPath || !pickedChecksum || inFlight}

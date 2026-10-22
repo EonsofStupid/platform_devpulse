@@ -31,7 +31,7 @@ interface Props {
 let { query, label = "Refresh" }: Props = $props();
 </script>
 
-<Button preset="ghost" size="sm" onclick={() => query.refresh()} disabled={query.loading}>
+<Button variant="ghost" size="sm" onclick={() => query.refresh()} disabled={query.loading}>
 	{#if query.loading}
 		<Spinner size="xs" />
 	{:else if query.error !== null}

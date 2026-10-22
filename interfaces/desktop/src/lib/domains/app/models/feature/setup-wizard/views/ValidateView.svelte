@@ -181,11 +181,11 @@ function handleBack(): void {
 				download a recommended one, then click Activate to load it.
 			</Text>
 			<div class="v-card-actions">
-				<Button preset="secondary" size="sm" onclick={handleBack}>
+				<Button variant="secondary" size="sm" onclick={handleBack}>
 					<ArrowLeft size={14} />
 					Back to Config
 				</Button>
-				<Button preset="ghost" size="sm" onclick={() => (showWhyInfo = true)}>
+				<Button variant="ghost" size="sm" onclick={() => (showWhyInfo = true)}>
 					Why this is required
 				</Button>
 			</div>
@@ -202,11 +202,11 @@ function handleBack(): void {
 				with the current stage (reading file → allocating memory → warming up → ready).
 			</Text>
 			<div class="v-card-actions">
-				<Button preset="secondary" size="sm" onclick={handleBack}>
+				<Button variant="secondary" size="sm" onclick={handleBack}>
 					<ArrowLeft size={14} />
 					Back to Config
 				</Button>
-				<Button preset="ghost" size="sm" onclick={() => (showWhyInfo = true)}>
+				<Button variant="ghost" size="sm" onclick={() => (showWhyInfo = true)}>
 					Why activate separately?
 				</Button>
 			</div>
@@ -272,7 +272,7 @@ function handleBack(): void {
 
 			<div class="v-pipeline-actions">
 				<Button
-					preset="primary"
+					variant="primary"
 					size="sm"
 					onclick={handleRunPipeline}
 					disabled={overlayState.pipelineRunning}
@@ -289,7 +289,7 @@ function handleBack(): void {
 					{/if}
 				</Button>
 				{#if overlayState.pipelineAllDone}
-					<Button preset="ghost" size="sm" onclick={handleResetPipeline}>
+					<Button variant="ghost" size="sm" onclick={handleResetPipeline}>
 						Reset
 					</Button>
 				{/if}
@@ -356,7 +356,7 @@ function handleBack(): void {
 				onkeydown={handleKeydown}
 				disabled={!brainReady || overlayState.testChatSending}
 			/>
-			<Button preset="primary" size="md" onclick={handleSend} disabled={!canSend}>
+			<Button variant="primary" size="md" onclick={handleSend} disabled={!canSend}>
 				<Send size={14} />
 				Send
 			</Button>
@@ -364,13 +364,13 @@ function handleBack(): void {
 	{/if}
 
 	<div class="v-actions">
-		<Button preset="ghost" size="md" onclick={handleBack}>
+		<Button variant="ghost" size="md" onclick={handleBack}>
 			<ArrowLeft size={14} />
 			Back
 		</Button>
 		<div class="v-actions-right">
 			<button class="v-skip-link" onclick={handleSkip}>Skip test</button>
-			<Button preset="primary" size="md" onclick={handleContinue} disabled={!overlayState.testChatComplete}>
+			<Button variant="primary" size="md" onclick={handleContinue} disabled={!overlayState.testChatComplete}>
 				Continue
 				<ArrowRight size={14} />
 			</Button>

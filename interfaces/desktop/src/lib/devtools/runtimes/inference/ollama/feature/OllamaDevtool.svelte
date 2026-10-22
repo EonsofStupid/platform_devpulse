@@ -117,7 +117,7 @@ function prettySize(bytes: number): string {
 			<div class="flex items-center justify-between">
 				<Text size="sm" weight="semibold">Runtime Status</Text>
 				<Button
-					preset="ghost"
+					variant="ghost"
 					size="sm"
 					onclick={() => {
 						void ollamaSidecarState.loadStatus();
@@ -267,7 +267,7 @@ function prettySize(bytes: number): string {
 			<div class="flex flex-wrap items-center gap-2">
 				{#if !ollamaSidecarState.running}
 					<Button
-						preset="primary"
+						variant="primary"
 						size="sm"
 						onclick={() => void ollamaSidecarState.start()}
 						disabled={ollamaSidecarState.starting}
@@ -282,7 +282,7 @@ function prettySize(bytes: number): string {
 					</Button>
 				{:else}
 					<Button
-						preset="ghost"
+						variant="ghost"
 						size="sm"
 						onclick={() => void ollamaSidecarState.stop()}
 						disabled={ollamaSidecarState.stopping}
@@ -296,7 +296,7 @@ function prettySize(bytes: number): string {
 						{/if}
 					</Button>
 					<Button
-						preset="secondary"
+						variant="secondary"
 						size="sm"
 						onclick={() => void ollamaSidecarState.restart()}
 						disabled={ollamaSidecarState.restarting}
@@ -344,7 +344,7 @@ function prettySize(bytes: number): string {
 							disabled={ollamaSidecarState.pullingName !== null}
 						/>
 						<Button
-							preset="primary"
+							variant="primary"
 							size="sm"
 							onclick={() => void ollamaSidecarState.pullModel()}
 							disabled={ollamaSidecarState.pullingName !== null ||
@@ -368,7 +368,7 @@ function prettySize(bytes: number): string {
 							Models ({ollamaSidecarState.models.length})
 						</Text>
 						<Button
-							preset="ghost"
+							variant="ghost"
 							size="sm"
 							onclick={() => void ollamaSidecarState.loadModels()}
 							disabled={ollamaSidecarState.modelsLoading}
@@ -431,7 +431,7 @@ function prettySize(bytes: number): string {
 											>
 											<td class="px-3 py-2 text-right">
 												<Button
-													preset="ghost"
+													variant="ghost"
 													size="sm"
 													onclick={() =>
 														void ollamaSidecarState.deleteModel(m.name)}
@@ -472,7 +472,7 @@ function prettySize(bytes: number): string {
 						a bug or sanity-checking what the platform sees.
 					</Text>
 				</div>
-				<Button preset="ghost" size="sm" onclick={refreshAllProbes} disabled={debugRefreshing}>
+				<Button variant="ghost" size="sm" onclick={refreshAllProbes} disabled={debugRefreshing}>
 					{#if debugRefreshing}
 						<Spinner size="xs" tone="accent" />
 					{:else}

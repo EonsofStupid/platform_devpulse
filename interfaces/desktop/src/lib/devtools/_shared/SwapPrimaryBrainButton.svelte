@@ -32,7 +32,7 @@
 	carries the final outcome.
 -->
 <script lang="ts">
-import { Button, type ButtonPreset } from "@devpulse/coldlight/components/button";
+import { Button, type ButtonSize, type ButtonVariant } from "@devpulse/coldlight/components/button";
 import { BrainCog } from "lucide-svelte";
 import { modelsState } from "$lib/domains/app/models/index.js";
 import { ClyffyLoadingBlock } from "$lib/domains/clyffy/index.js";
@@ -47,9 +47,9 @@ interface Props {
 	/** Button label. Default: "Make primary brain". */
 	label?: string;
 	/** Size of the inner Button. */
-	size?: "sm" | "md" | "lg";
-	/** Visual preset forwarded to the inner Button. */
-	preset?: ButtonPreset;
+	size?: ButtonSize;
+	/** Variant forwarded to the inner Button. */
+	variant?: ButtonVariant;
 	/** Disable the button (e.g. when the target model is already primary). */
 	disabled?: boolean;
 	/**
@@ -65,7 +65,7 @@ let {
 	slotId = "chat.brain",
 	label = "Make primary brain",
 	size = "sm",
-	preset = "primary",
+	variant = "primary",
 	disabled = false,
 	onComplete,
 }: Props = $props();
@@ -132,7 +132,7 @@ async function handleClick(): Promise<void> {
 }
 </script>
 
-<Button {preset} {size} onclick={handleClick} disabled={disabled || pending}>
+<Button {variant} {size} onclick={handleClick} disabled={disabled || pending}>
 	<BrainCog size={14} />
 	{label}
 </Button>

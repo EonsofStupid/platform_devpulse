@@ -178,7 +178,7 @@ function appliedAt(seconds: number): string {
 				<Text size="sm" weight="semibold">Check databases</Text>
 				<Text size="xs" style="color: var(--text-secondary);">Ping each database and refresh its round-trip time.</Text>
 				<Button
-					preset="primary"
+					variant="primary"
 					size="sm"
 					onclick={() => tursoState.refreshHealth()}
 					disabled={tursoState.healthLoading}
@@ -194,7 +194,7 @@ function appliedAt(seconds: number): string {
 				<Text size="sm" weight="semibold">Reload tables</Text>
 				<Text size="xs" style="color: var(--text-secondary);">Re-read the tables and row counts of the selected database.</Text>
 				<Button
-					preset="primary"
+					variant="primary"
 					size="sm"
 					onclick={() => tursoState.refreshTables()}
 					disabled={tursoState.tablesLoading}
@@ -224,7 +224,7 @@ function appliedAt(seconds: number): string {
 	<div class="flex items-center gap-[var(--space-2)]" role="group" aria-label="Database">
 		{#each DATABASES as db (db.value)}
 			<Button
-				preset={tursoState.database === db.value ? "secondary" : "ghost"}
+				variant={tursoState.database === db.value ? "secondary" : "ghost"}
 				size="sm"
 				aria-pressed={tursoState.database === db.value}
 				onclick={() => tursoState.selectDatabase(db.value)}
@@ -285,7 +285,7 @@ function appliedAt(seconds: number): string {
 		<div class="flex items-center justify-between gap-[var(--space-2)]">
 			<Text size="xs" style="color: var(--text-muted);">Ctrl+Enter runs it. Changes made here are logged.</Text>
 			<Button
-				preset="primary"
+				variant="primary"
 				size="sm"
 				onclick={() => tursoState.runConsole()}
 				disabled={tursoState.running || !tursoState.sql.trim()}
@@ -297,7 +297,7 @@ function appliedAt(seconds: number): string {
 		{#if tursoState.sqlHistory.length > 0}
 			<div class="flex flex-wrap gap-[var(--space-1)]">
 				{#each tursoState.sqlHistory.slice(0, 8) as q (q)}
-					<Button preset="ghost" size="sm" class="font-mono max-w-[16rem] truncate" onclick={() => (tursoState.sql = q)}>
+					<Button variant="ghost" size="sm" class="font-mono max-w-[16rem] truncate" onclick={() => (tursoState.sql = q)}>
 						{q}
 					</Button>
 				{/each}

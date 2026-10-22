@@ -26,19 +26,19 @@ const copy = $derived(copyState.catalog?.chat.agents ?? null);
 				{#each turn.permission.choices as choice (choice.id)}
 					<Button
 						size="sm"
-						preset={choice.allows ? "primary" : "secondary"}
+						variant={choice.allows ? "primary" : "secondary"}
 						onclick={() => void agentsState.answer(choice.id)}
 					>
 						{choice.label}
 					</Button>
 				{/each}
-				<Button size="sm" preset="ghost" onclick={() => void agentsState.answer(null)}>{copy.refuse}</Button>
+				<Button size="sm" variant="ghost" onclick={() => void agentsState.answer(null)}>{copy.refuse}</Button>
 			</div>
 		{:else}
 			<div class="flex items-center gap-2">
 				<Spinner size="xs" />
 				<Text size="xs" color="muted">{turn.tool ? fill(copy.using_tool, { title: turn.tool }) : copy.working}</Text>
-				<Button size="sm" preset="ghost" onclick={() => void agentsState.cancel()}>{copy.stop}</Button>
+				<Button size="sm" variant="ghost" onclick={() => void agentsState.cancel()}>{copy.stop}</Button>
 			</div>
 		{/if}
 	</div>

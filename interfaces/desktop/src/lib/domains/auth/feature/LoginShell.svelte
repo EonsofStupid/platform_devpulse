@@ -213,7 +213,7 @@ function emptyAuthCopy(): AuthCopy {
 
 				<div class="login-shell__actions">
 					<Button
-						preset="primary"
+						variant="primary"
 						size="md"
 						type="submit"
 						aria-label={submitAria}
@@ -222,7 +222,7 @@ function emptyAuthCopy(): AuthCopy {
 						{submitLabel}
 					</Button>
 
-					<Button preset="ghost" size="sm" type="button" onclick={swapMode}>
+					<Button variant="ghost" size="sm" type="button" onclick={swapMode}>
 						{mode === "sign-in" ? copy.to_sign_up_link_label : copy.to_sign_in_link_label}
 					</Button>
 				</div>

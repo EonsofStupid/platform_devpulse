@@ -129,7 +129,7 @@ const suggestions = $derived(
 					<Text size="xs" style="color: var(--text-muted);">{copy.repos_hint}</Text>
 				</div>
 				<Button
-					preset="secondary"
+					variant="secondary"
 					size="sm"
 					type="button"
 					onclick={() => repoScan.scan(folder)}
@@ -160,7 +160,7 @@ const suggestions = $derived(
 					{#if repoScan.picked.length > 0}
 						<div class="flex justify-end">
 							<Button
-								preset="primary"
+								variant="primary"
 								size="md"
 								type="button"
 								onclick={repoScan.register}

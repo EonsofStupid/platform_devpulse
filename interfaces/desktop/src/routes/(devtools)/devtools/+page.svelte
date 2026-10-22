@@ -288,7 +288,7 @@ let laneGroups = $derived<LaneGroup[]>(
 		<div class="flex items-center gap-2" data-tauri-drag-region>
 			<Text size="xs" weight="semibold" preset="default">DEVPULSE TOOLS</Text>
 		</div>
-		<Button preset="ghost" size="sm" onclick={handleClose}>
+		<Button variant="ghost" size="sm" onclick={handleClose}>
 			<X size={12} />
 		</Button>
 	</header>

@@ -69,7 +69,7 @@ onMount(() => {
 				<Text size="sm" weight="bold">
 					{health?.reachable ? "Service booted" : "Service down"}
 				</Text>
-				<Button preset="ghost" size="sm" onclick={refresh} disabled={refreshing}>
+				<Button variant="ghost" size="sm" onclick={refresh} disabled={refreshing}>
 					<RefreshCw size={12} />
 					Refresh
 				</Button>
@@ -120,7 +120,7 @@ onMount(() => {
 			<div class="rounded-lg p-3" style="background: var(--surface-base); border: 1px solid var(--border-subtle);">
 				<div class="flex items-center justify-between mb-2">
 					<Text size="sm" weight="bold">Re-ping cache</Text>
-					<Button preset="primary" size="sm" onclick={refresh} disabled={refreshing}>
+					<Button variant="primary" size="sm" onclick={refresh} disabled={refreshing}>
 						<RefreshCw size={12} />
 						Re-ping
 					</Button>

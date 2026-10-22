@@ -156,7 +156,7 @@ function formatTime(iso: string): string {
 				</div>
 				<div class={hstack({ gap: "2" })}>
 					<Button
-						preset="ghost"
+						variant="ghost"
 						size="md"
 						onclick={refreshAll}
 						disabled={devforgeState.statusLoading || lifecycleLoading}
@@ -169,7 +169,7 @@ function formatTime(iso: string): string {
 						Refresh
 					</Button>
 					<Button
-						preset="primary"
+						variant="primary"
 						size="md"
 						onclick={openDevForgeWindow}
 						disabled={opening || !devforgeState.installed}
@@ -178,7 +178,7 @@ function formatTime(iso: string): string {
 						{opening ? "Opening…" : devforgeState.running ? "Focus DevForge" : "Open DevForge"}
 					</Button>
 					{#if devforgeState.running}
-						<Button preset="ghost" size="md" onclick={() => devforgeState.closeWindow()}>
+						<Button variant="ghost" size="md" onclick={() => devforgeState.closeWindow()}>
 							<Power size={14} />
 							Close window
 						</Button>

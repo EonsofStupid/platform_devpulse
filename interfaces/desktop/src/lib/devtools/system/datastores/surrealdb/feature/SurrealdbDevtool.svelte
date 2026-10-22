@@ -169,7 +169,7 @@ function handleKeydown(e: KeyboardEvent): void {
 				<div class="flex items-center justify-between mb-2">
 					<Text size="sm" weight="semibold">Runtime</Text>
 					<Button
-						preset="ghost"
+						variant="ghost"
 						size="sm"
 						onclick={() => {
 							void surrealdbSidecar.loadStatus();
@@ -259,7 +259,7 @@ function handleKeydown(e: KeyboardEvent): void {
 						<span></span>
 					{/if}
 					<Button
-						preset="ghost"
+						variant="ghost"
 						size="sm"
 						onclick={() => surrealState.loadHealth()}
 						disabled={surrealState.healthLoading}
@@ -386,7 +386,7 @@ function handleKeydown(e: KeyboardEvent): void {
 						Re-poll the sidecar liveness and ping every namespace.
 					</Text>
 					<Button
-						preset="primary"
+						variant="primary"
 						size="sm"
 						onclick={() => {
 							void surrealdbSidecar.loadStatus();
@@ -410,7 +410,7 @@ function handleKeydown(e: KeyboardEvent): void {
 						Refresh the table catalog for the active namespace.
 					</Text>
 					<Button
-						preset="primary"
+						variant="primary"
 						size="sm"
 						onclick={() => surrealState.loadTables()}
 						disabled={surrealState.browserLoading}
@@ -441,7 +441,7 @@ function handleKeydown(e: KeyboardEvent): void {
 				<div class="flex items-center justify-between mb-2">
 					<Text size="sm" weight="semibold">Sanity probe</Text>
 					<Button
-						preset="primary"
+						variant="primary"
 						size="sm"
 						onclick={async () => {
 							surrealState.queryInput = "INFO FOR DB;";
@@ -558,7 +558,7 @@ function handleKeydown(e: KeyboardEvent): void {
 				</select>
 			</div>
 			<Button
-				preset="ghost"
+				variant="ghost"
 				size="sm"
 				onclick={() => surrealState.loadTables()}
 				disabled={surrealState.browserLoading}
@@ -677,7 +677,7 @@ function handleKeydown(e: KeyboardEvent): void {
 			<div class="absolute bottom-2 right-2 flex items-center gap-2">
 				<span class="text-[10px] text-[var(--text-secondary)]">Ctrl+Enter to run</span>
 				<Button
-					preset="primary"
+					variant="primary"
 					size="sm"
 					onclick={handleQuerySubmit}
 					disabled={surrealState.queryLoading || !surrealState.queryInput.trim()}

@@ -304,11 +304,11 @@ function handleKeydown(e: KeyboardEvent): void {
 				<div class="ak-key-info">
 					<code class="ak-key-mask">{status.maskedPreview ?? "••••••••"}</code>
 					<div class="ak-key-actions">
-						<Button preset="secondary" size="sm" onclick={() => startEditing(status.provider)}>
+						<Button variant="secondary" size="sm" onclick={() => startEditing(status.provider)}>
 							Update key
 						</Button>
 						<Button
-							preset="ghost"
+							variant="ghost"
 							size="sm"
 							disabled={isDeleting}
 							onclick={() => deleteKey(status.provider)}
@@ -326,7 +326,7 @@ function handleKeydown(e: KeyboardEvent): void {
 
 			{#if !status.stored && !isEditing}
 				<div class="ak-add-row">
-					<Button preset="primary" size="sm" onclick={() => startEditing(status.provider)}>
+					<Button variant="primary" size="sm" onclick={() => startEditing(status.provider)}>
 						<Plus size={14} />
 						Add API key
 					</Button>
@@ -345,7 +345,7 @@ function handleKeydown(e: KeyboardEvent): void {
 							aria-label="Enter {status.displayName} API key"
 						/>
 						<Button
-							preset="ghost"
+							variant="ghost"
 							size="sm"
 							onclick={() => (showInput = !showInput)}
 							aria-label={showInput ? "Hide key" : "Show key"}
@@ -362,7 +362,7 @@ function handleKeydown(e: KeyboardEvent): void {
 					{/if}
 					<div class="ak-edit-actions">
 						<Button
-							preset="primary"
+							variant="primary"
 							size="sm"
 							disabled={saving || !inputValue.trim()}
 							onclick={saveKey}
@@ -375,7 +375,7 @@ function handleKeydown(e: KeyboardEvent): void {
 								Save key
 							{/if}
 						</Button>
-						<Button preset="ghost" size="sm" onclick={cancelEditing}>
+						<Button variant="ghost" size="sm" onclick={cancelEditing}>
 							<X size={14} />
 							Cancel
 						</Button>

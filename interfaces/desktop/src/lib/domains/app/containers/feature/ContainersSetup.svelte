@@ -115,7 +115,7 @@ const same = (a: Step | null | undefined, b: Step): boolean =>
 		<div class="flex flex-wrap items-center justify-between gap-2">
 			<Heading level={2} size="lg">{copy.found_heading}</Heading>
 			<Button
-				preset="secondary"
+				variant="secondary"
 				size="sm"
 				onclick={containersState.check}
 				disabled={containersState.busy || current?.checking || current?.running !== null}
@@ -224,7 +224,7 @@ const same = (a: Step | null | undefined, b: Step): boolean =>
 
 		<div class="flex justify-end">
 			<Button
-				preset="primary"
+				variant="primary"
 				size="md"
 				onclick={save}
 				disabled={!answered || unchanged || containersState.busy}
@@ -308,7 +308,7 @@ const same = (a: Step | null | undefined, b: Step): boolean =>
 										<Text size="sm">{last.guided ? copy.guided : last.ok ? copy.done : copy.failed}</Text>
 									{/if}
 									<Button
-										preset={last?.ok ? "secondary" : "primary"}
+										variant={last?.ok ? "secondary" : "primary"}
 										size="sm"
 										onclick={() => containersState.runStep(step)}
 										disabled={containersState.busy || current?.running !== null || current?.checking}

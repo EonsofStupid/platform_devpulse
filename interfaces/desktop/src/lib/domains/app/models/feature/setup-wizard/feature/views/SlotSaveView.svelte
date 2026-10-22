@@ -92,20 +92,20 @@ const anyUnsaved = $derived(slotSaves.some((s) => s.state !== "saved"));
 	</div>
 
 	{#snippet footer()}
-		<Button preset="ghost" size="sm" onclick={callbacks.onBack} disabled={busy}>
+		<Button variant="ghost" size="sm" onclick={callbacks.onBack} disabled={busy}>
 			Back
 		</Button>
-		<Button preset="ghost" size="sm" onclick={callbacks.onSkip} disabled={busy}>
+		<Button variant="ghost" size="sm" onclick={callbacks.onSkip} disabled={busy}>
 			Skip — assign manually later
 		</Button>
 		<div class="footer-spacer"></div>
 		{#if anyUnsaved}
-			<Button preset="ghost" size="sm" onclick={onSaveAll} disabled={busy}>
+			<Button variant="ghost" size="sm" onclick={onSaveAll} disabled={busy}>
 				{#if busy}<Spinner size="xs" tone="accent" />{/if}
 				Save all
 			</Button>
 		{/if}
-		<Button preset="primary" size="md" onclick={callbacks.onNext} disabled={busy || !allSaved}>
+		<Button variant="primary" size="md" onclick={callbacks.onNext} disabled={busy || !allSaved}>
 			{#if busy}<Spinner size="xs" tone="accent" />{/if}
 			Continue
 			<ChevronRight size={14} />

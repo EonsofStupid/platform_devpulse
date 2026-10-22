@@ -69,7 +69,7 @@ const totalRecords = $derived(
 			<div class="flex items-center justify-between">
 				<Text size="sm" weight="semibold">{BRAIN_NARRATION.headline}</Text>
 				<Button
-					preset="ghost"
+					variant="ghost"
 					size="sm"
 					onclick={() => rroState.loadBrain()}
 					disabled={rroState.brainLoading}

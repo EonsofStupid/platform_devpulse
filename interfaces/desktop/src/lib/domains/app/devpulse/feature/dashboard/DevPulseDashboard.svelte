@@ -67,7 +67,7 @@ $effect(() => {
 	<div class="flex flex-col items-center justify-center gap-2 py-12">
 		<Text size="sm" preset="default">Failed to load dashboard</Text>
 		<Text size="xs" preset="default">{devpulseState.error}</Text>
-		<Button preset="ghost" size="sm" onclick={() => devpulseState.refresh()}>
+		<Button variant="ghost" size="sm" onclick={() => devpulseState.refresh()}>
 			Retry
 		</Button>
 	</div>

@@ -101,7 +101,7 @@ const extraTabs: ExtraTab[] = [{ id: "collections", label: "Collections", Icon: 
 			<div class="flex items-center justify-between">
 				<Text size="sm" weight="semibold">Vector store health</Text>
 				<Button
-					preset="ghost"
+					variant="ghost"
 					size="sm"
 					onclick={() => rroState.loadHealth()}
 					disabled={rroState.healthLoading}
@@ -200,7 +200,7 @@ const extraTabs: ExtraTab[] = [{ id: "collections", label: "Collections", Icon: 
 						Re-ping the vector store and reload the collections list.
 					</Text>
 					<Button
-						preset="primary"
+						variant="primary"
 						size="sm"
 						onclick={() => rroState.loadHealth()}
 						disabled={rroState.healthLoading}
@@ -283,7 +283,7 @@ const extraTabs: ExtraTab[] = [{ id: "collections", label: "Collections", Icon: 
 		<div class="flex items-center justify-between">
 			<Text size="sm" weight="semibold">All collections</Text>
 			<Button
-				preset="ghost"
+				variant="ghost"
 				size="sm"
 				onclick={() => rroState.loadHealth()}
 				disabled={rroState.healthLoading}

@@ -57,7 +57,7 @@ function onKey(e: KeyboardEvent): void {
 	<!-- Left: hamburger + brand -->
 	<div class={hstack({ gap: "3", align: "center" })}>
 		<Button
-			preset="ghost"
+			variant="ghost"
 			size="sm"
 			class="h-9 w-9"
 			title="Toggle sidebar"
@@ -74,7 +74,7 @@ function onKey(e: KeyboardEvent): void {
 		<ProjectSwitcher />
 		<!-- First run was set for later: the way back in (Rust reopens it). -->
 		{#if onboardingState.current?.status === "later" && copyState.catalog}
-			<Button preset="secondary" size="sm" onclick={onboardingState.reopen} disabled={onboardingState.busy}>
+			<Button variant="secondary" size="sm" onclick={onboardingState.reopen} disabled={onboardingState.busy}>
 				{copyState.catalog.onboarding.common.reopen}
 			</Button>
 		{/if}
@@ -91,15 +91,15 @@ function onKey(e: KeyboardEvent): void {
 
 	<!-- Right: actions + clyffy + avatar -->
 	<div class={hstack({ gap: "2", align: "center" })}>
-		<Button preset="ghost" size="sm" class="h-9 w-9 rounded-full" title="Search" aria-label="Search" onclick={toggleSearch}>
+		<Button variant="ghost" size="sm" class="h-9 w-9 rounded-full" title="Search" aria-label="Search" onclick={toggleSearch}>
 			<Search size={16} />
 		</Button>
 
-		<Button preset="ghost" size="sm" class="h-9 w-9 rounded-full" title="Notifications" aria-label="Notifications">
+		<Button variant="ghost" size="sm" class="h-9 w-9 rounded-full" title="Notifications" aria-label="Notifications">
 			<Bell size={16} />
 		</Button>
 
-		<Button preset="ghost" size="sm" class="h-9 w-9 rounded-full" title="Open Chat" aria-label="Open Chat" onclick={openChat}>
+		<Button variant="ghost" size="sm" class="h-9 w-9 rounded-full" title="Open Chat" aria-label="Open Chat" onclick={openChat}>
 			<MessageCircle size={16} />
 		</Button>
 

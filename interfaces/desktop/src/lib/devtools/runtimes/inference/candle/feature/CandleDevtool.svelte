@@ -271,7 +271,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 				<Text size="sm" weight="bold">
 					{assignedCount} of {totalCount} slots assigned · {candleSlots.length} Candle-compatible
 				</Text>
-				<Button preset="ghost" size="sm" onclick={refresh} disabled={refreshing}>
+				<Button variant="ghost" size="sm" onclick={refresh} disabled={refreshing}>
 					<RefreshCw size={12} />
 					Refresh
 				</Button>
@@ -369,7 +369,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 
 					<div class="flex items-center gap-2 pt-2">
 						<Button
-							preset="primary"
+							variant="primary"
 							size="sm"
 							onclick={saveCfg}
 							disabled={cfgSaving || !cfgDirty}
@@ -382,7 +382,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 							{/if}
 						</Button>
 						<Button
-							preset="ghost"
+							variant="ghost"
 							size="sm"
 							onclick={resetCfg}
 							disabled={!cfgDirty || cfgSaving}
@@ -410,7 +410,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 				<Text size="sm" weight="semibold">
 					Scoped log — <span class="font-mono text-xs">devtools.candle</span>
 				</Text>
-				<Button preset="ghost" size="sm" onclick={loadLogs} disabled={logsLoading}>
+				<Button variant="ghost" size="sm" onclick={loadLogs} disabled={logsLoading}>
 					{#if logsLoading}
 						<Spinner size="xs" tone="accent" />
 					{:else}
@@ -472,7 +472,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 				</Text>
 				<div class="flex items-center gap-2">
 					<Button
-						preset="primary"
+						variant="primary"
 						size="sm"
 						onclick={restartPool}
 						disabled={restarting}
@@ -517,7 +517,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 							backend than you expected.
 						</Text>
 					</div>
-					<Button preset="ghost" size="sm" onclick={runProbes} disabled={probing}>
+					<Button variant="ghost" size="sm" onclick={runProbes} disabled={probing}>
 						{#if probing}
 							<Spinner size="xs" tone="accent" />
 						{:else}
@@ -599,7 +599,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 						disabled={testRunning}
 					/>
 					<Button
-						preset="primary"
+						variant="primary"
 						size="sm"
 						onclick={runTest}
 						disabled={testRunning || !testSlotId || !testPrompt.trim()}

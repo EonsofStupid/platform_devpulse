@@ -108,7 +108,7 @@ function statusTone(
 								{/if}
 							</div>
 						</div>
-						<Button preset="ghost" size="sm" onclick={() => handleCancel(dl.downloadId)} aria-label="Cancel download">
+						<Button variant="ghost" size="sm" onclick={() => handleCancel(dl.downloadId)} aria-label="Cancel download">
 							<X size={14} />
 						</Button>
 					{:else}
@@ -118,7 +118,7 @@ function statusTone(
 						{#if dl.error}
 							<Text size="xs" class="dl-error">{dl.error}</Text>
 						{/if}
-						<Button preset="ghost" size="sm" onclick={() => downloadState.dismiss(dl.downloadId)} aria-label="Dismiss">
+						<Button variant="ghost" size="sm" onclick={() => downloadState.dismiss(dl.downloadId)} aria-label="Dismiss">
 							<X size={12} />
 						</Button>
 					{/if}

@@ -39,11 +39,11 @@ let { copy, busy, callbacks }: PresetViewProps = $props();
 	{/if}
 
 	{#snippet footer()}
-		<Button preset="ghost" size="sm" onclick={callbacks.onBack}>
+		<Button variant="ghost" size="sm" onclick={callbacks.onBack}>
 			Back
 		</Button>
 		<Button
-			preset="ghost"
+			variant="ghost"
 			size="sm"
 			onclick={callbacks.onSkip}
 			disabled={busy}
@@ -52,7 +52,7 @@ let { copy, busy, callbacks }: PresetViewProps = $props();
 		</Button>
 		<div class="flex-1"></div>
 		<Button
-			preset="primary"
+			variant="primary"
 			size="sm"
 			onclick={callbacks.onApplyAutoConfig}
 			disabled={!copy || busy}

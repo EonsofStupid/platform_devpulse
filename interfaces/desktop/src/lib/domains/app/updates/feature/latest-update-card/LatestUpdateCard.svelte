@@ -134,10 +134,10 @@ async function onInstall(): Promise<void> {
 			{/if}
 
 			<div class="flex flex-wrap gap-2">
-				<Button preset="primary" size="md" onclick={onInstall}>
+				<Button variant="primary" size="md" onclick={onInstall}>
 					Install and restart
 				</Button>
-				<Button preset="ghost" size="md" onclick={onCheck}>
+				<Button variant="ghost" size="md" onclick={onCheck}>
 					<RefreshCcw size={14} class="mr-1" /> Re-check
 				</Button>
 			</div>
@@ -179,7 +179,7 @@ async function onInstall(): Promise<void> {
 			<InlineMessage tone="error">
 				Update check failed: {updatesState.error ?? "unknown error"}
 			</InlineMessage>
-			<Button preset="ghost" size="sm" onclick={onCheck}>
+			<Button variant="ghost" size="sm" onclick={onCheck}>
 				<RefreshCcw size={14} class="mr-1" /> Try again
 			</Button>
 		</div>
@@ -194,7 +194,7 @@ async function onInstall(): Promise<void> {
 				{/if}
 			</Text>
 			<div>
-				<Button preset="primary" size="md" onclick={onCheck}>
+				<Button variant="primary" size="md" onclick={onCheck}>
 					<RefreshCcw size={14} class="mr-2" />
 					Check for updates
 				</Button>

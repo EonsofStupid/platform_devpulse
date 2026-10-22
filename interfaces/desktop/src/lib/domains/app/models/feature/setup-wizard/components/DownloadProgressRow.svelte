@@ -139,7 +139,7 @@ const isComplete = $derived(tracker.status === "complete");
 		<div class="dpr-actions">
 			{#if isInFlight}
 				<Button
-					preset="ghost"
+					variant="ghost"
 					size="sm"
 					onclick={() => onCancel(tracker.downloadId)}
 					aria-label={copy.cancel_aria}
@@ -149,7 +149,7 @@ const isComplete = $derived(tracker.status === "complete");
 				</Button>
 			{:else if isFailed}
 				<Button
-					preset="secondary"
+					variant="secondary"
 					size="sm"
 					onclick={() => onRetry(tracker)}
 					aria-label={copy.retry_aria}
@@ -158,7 +158,7 @@ const isComplete = $derived(tracker.status === "complete");
 					{copy.retry_label}
 				</Button>
 				<Button
-					preset="ghost"
+					variant="ghost"
 					size="sm"
 					onclick={() => onDismiss(tracker.downloadId)}
 					aria-label={copy.dismiss_aria}
@@ -167,7 +167,7 @@ const isComplete = $derived(tracker.status === "complete");
 				</Button>
 			{:else if isComplete}
 				<Button
-					preset="ghost"
+					variant="ghost"
 					size="sm"
 					onclick={() => onDismiss(tracker.downloadId)}
 					aria-label={copy.dismiss_aria}

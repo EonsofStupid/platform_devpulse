@@ -126,14 +126,14 @@ function handleKeydown(e: KeyboardEvent): void {
 	<div class="popup-panel" onclick={(e) => e.stopPropagation()} onkeydown={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label="Local Models — {slotLabel}">
 		<div class="popup-header">
 			<Heading level={3} size="lg">Local Models — {slotLabel}</Heading>
-			<Button preset="ghost" size="sm" onclick={onClose} aria-label="Close">
+			<Button variant="ghost" size="sm" onclick={onClose} aria-label="Close">
 				<X size={16} />
 			</Button>
 		</div>
 
 		<div class="popup-toolbar">
 			<div class="popup-import-group">
-				<Button preset="secondary" size="sm" onclick={handleImport} disabled={importing}>
+				<Button variant="secondary" size="sm" onclick={handleImport} disabled={importing}>
 					{#if importing}
 						<Spinner size="xs" />
 						Importing...
@@ -188,7 +188,7 @@ function handleKeydown(e: KeyboardEvent): void {
 		{#if error}
 			<div class="error-banner">
 				<Text size="sm" class="error-text">{error}</Text>
-				<Button preset="ghost" size="sm" onclick={() => (error = null)}>Dismiss</Button>
+				<Button variant="ghost" size="sm" onclick={() => (error = null)}>Dismiss</Button>
 			</div>
 		{/if}
 
@@ -222,7 +222,7 @@ function handleKeydown(e: KeyboardEvent): void {
 						</div>
 
 						<Button
-							preset="primary"
+							variant="primary"
 							size="sm"
 							onclick={() => handleSelect(model.id)}
 							disabled={isAssigning}

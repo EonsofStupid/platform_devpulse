@@ -680,7 +680,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 								<div class="slot-actions">
 									{#if !model}
 										<Button
-											preset="secondary"
+											variant="secondary"
 											size="sm"
 											onclick={() => openLocalPicker(slotId)}
 											disabled={modelsState.models.length === 0}
@@ -692,7 +692,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 											Pick local
 										</Button>
 										<Button
-											preset="primary"
+											variant="primary"
 											size="sm"
 											onclick={(e: MouseEvent) => openDownloader(slotId, e)}
 										>
@@ -701,21 +701,21 @@ function captureFor(tabId: string): CapturePayload | undefined {
 										</Button>
 									{/if}
 									{#if model && !ready}
-										<Button preset="ghost" size="sm" onclick={() => openLocalPicker(slotId)} disabled={isActing}>
+										<Button variant="ghost" size="sm" onclick={() => openLocalPicker(slotId)} disabled={isActing}>
 											<FolderOpen size={12} />
 											Swap
 										</Button>
-										<Button preset="ghost" size="sm" onclick={() => clearSlot(slotId)} disabled={isActing}>
+										<Button variant="ghost" size="sm" onclick={() => clearSlot(slotId)} disabled={isActing}>
 											<X size={12} />
 											Clear
 										</Button>
-										<Button preset="secondary" size="sm" onclick={() => loadSlot(slotId)} disabled={isActing}>
+										<Button variant="secondary" size="sm" onclick={() => loadSlot(slotId)} disabled={isActing}>
 											{#if isActing}<Spinner size="xs" />{:else}<Play size={12} />{/if}
 											Load
 										</Button>
 									{/if}
 									{#if ready}
-										<Button preset="ghost" size="sm" onclick={() => unloadSlot(slotId)} disabled={isActing}>
+										<Button variant="ghost" size="sm" onclick={() => unloadSlot(slotId)} disabled={isActing}>
 											<Square size={12} />
 											Unload
 										</Button>
@@ -768,7 +768,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 					<div class="flex items-center justify-between mb-2">
 						<Text size="sm" weight="bold">Save every recommended slot</Text>
 						<Button
-							preset="primary"
+							variant="primary"
 							size="sm"
 							onclick={() => slotsBootstrapState.saveAllSlots()}
 							disabled={installsRunning > 0
@@ -789,7 +789,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 						<div class="flex items-center justify-between mb-2">
 							<Text size="sm" weight="bold">Mark setup complete</Text>
 							<Button
-								preset="secondary"
+								variant="secondary"
 								size="sm"
 								onclick={markBootstrapComplete}
 								disabled={markCompleteBusy}
@@ -812,7 +812,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 			<div class="rounded-lg p-3" style="background: var(--surface-raised); border: 1px solid var(--border-subtle);">
 				<div class="flex items-center justify-between mb-2">
 					<Text size="sm" weight="bold">Rescan models on disk</Text>
-					<Button preset="secondary" size="sm" onclick={rescan} disabled={loading}>
+					<Button variant="secondary" size="sm" onclick={rescan} disabled={loading}>
 						{#if loading}
 							<Spinner size="xs" />
 						{:else}
@@ -954,7 +954,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 						<span class="picker-slot-raw">({pickLocalSlot})</span>
 					</Text>
 				</div>
-				<Button preset="ghost" size="sm" onclick={closeLocalPicker}>
+				<Button variant="ghost" size="sm" onclick={closeLocalPicker}>
 					<X size={14} />
 				</Button>
 			</div>
@@ -1056,7 +1056,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 
 		<div class="encoder-actions">
 			<Button
-				preset="primary"
+				variant="primary"
 				size="sm"
 				onclick={runEncoderEmbed}
 				disabled={!encoderReady || encoderBusy || encoderText.length === 0}

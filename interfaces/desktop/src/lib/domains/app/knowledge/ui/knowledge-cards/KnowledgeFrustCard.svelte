@@ -60,7 +60,7 @@ const headingId = $derived(`kc-frust-${entry.id}`);
 	{#snippet actions()}
 		{#if onHelpful}
 			<Button
-				preset="ghost"
+				variant="ghost"
 				size="sm"
 				aria-label={resolved.helpful}
 				onclick={onHelpful}
@@ -70,7 +70,7 @@ const headingId = $derived(`kc-frust-${entry.id}`);
 		{/if}
 		{#if onNotHelpful}
 			<Button
-				preset="ghost"
+				variant="ghost"
 				size="sm"
 				aria-label={resolved.notHelpful}
 				onclick={onNotHelpful}
@@ -81,7 +81,7 @@ const headingId = $derived(`kc-frust-${entry.id}`);
 		<div style="flex: 1;"></div>
 		{#if onDismiss}
 			<Button
-				preset="ghost"
+				variant="ghost"
 				size="sm"
 				aria-label={resolved.dismissAria}
 				onclick={onDismiss}

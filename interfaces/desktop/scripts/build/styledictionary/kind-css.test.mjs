@@ -72,6 +72,7 @@ test('states come last and match the behavior attributes; interactive adds its r
 	);
 	const disabled = css.indexOf('[data-kind="chip"]:is(:disabled, [data-disabled], [aria-disabled="true"]) {\n\t--chip-opacity');
 	assert.ok(disabled > css.indexOf('[data-variant="bold"]'), 'state after variant');
+	assert.match(css, /\[data-kind="chip"\] \{\n\tcursor: pointer;\n\toutline-offset: var\(--focus-offset, 2px\);/);
 	assert.match(css, /cursor: not-allowed;/);
 	assert.match(css, /filter: var\(--hover-filter, brightness\(1\.1\)\);/);
 });

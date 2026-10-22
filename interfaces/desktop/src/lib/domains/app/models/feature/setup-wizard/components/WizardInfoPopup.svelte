@@ -61,7 +61,7 @@ function handleOverlayClick(event: MouseEvent): void {
 						<Text size="base" weight="bold">{title}</Text>
 					</div>
 				</div>
-				<Button preset="ghost" size="sm" onclick={onClose} aria-label="Close help">
+				<Button variant="ghost" size="sm" onclick={onClose} aria-label="Close help">
 					<X size={14} />
 				</Button>
 			</div>
@@ -77,7 +77,7 @@ function handleOverlayClick(event: MouseEvent): void {
 			</ul>
 
 			<div class="popup-actions">
-				<Button preset="primary" size="sm" onclick={onClose}>Got it</Button>
+				<Button variant="primary" size="sm" onclick={onClose}>Got it</Button>
 			</div>
 		</div>
 	</div>

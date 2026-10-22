@@ -96,7 +96,7 @@ onMount(refresh);
 	{#snippet status()}
 		<div class="space-y-4">
 			<div class="flex items-center gap-2">
-				<Button onclick={refresh} preset="ghost" size="sm" disabled={loading}>
+				<Button onclick={refresh} variant="ghost" size="sm" disabled={loading}>
 					{#if loading}
 						<Spinner size="xs" />
 					{:else}
@@ -257,7 +257,7 @@ onMount(refresh);
 						placeholder="bge-reranker-v2-m3.gguf"
 						class="flex-1 px-2 py-1 rounded border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-sm font-mono"
 					/>
-					<Button onclick={probe} preset="primary" size="sm">Probe</Button>
+					<Button onclick={probe} variant="primary" size="sm">Probe</Button>
 				</div>
 
 				{#if probeError}

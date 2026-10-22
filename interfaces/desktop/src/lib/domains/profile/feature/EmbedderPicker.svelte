@@ -132,7 +132,7 @@ function emptyCopy(): RuntimePickerCopy {
 
 			<div class="embedder-picker__actions">
 				<Button
-					preset="primary"
+					variant="primary"
 					size="md"
 					type="submit"
 					aria-label={copy.apply_aria}

@@ -275,7 +275,7 @@ const badge = $derived<HealthBadge>(
 					{llamaCppSlots.length} GGUF slot{llamaCppSlots.length === 1 ? "" : "s"} assigned
 				</Text>
 				<Button
-					preset="ghost"
+					variant="ghost"
 					size="sm"
 					onclick={refreshSlots}
 					disabled={slotRefreshing}
@@ -385,7 +385,7 @@ const badge = $derived<HealthBadge>(
 
 					<div class="flex items-center gap-2 pt-2">
 						<Button
-							preset="primary"
+							variant="primary"
 							size="sm"
 							onclick={saveCfg}
 							disabled={cfgSaving || !cfgDirty}
@@ -398,7 +398,7 @@ const badge = $derived<HealthBadge>(
 							{/if}
 						</Button>
 						<Button
-							preset="ghost"
+							variant="ghost"
 							size="sm"
 							onclick={resetCfg}
 							disabled={!cfgDirty || cfgSaving}
@@ -426,7 +426,7 @@ const badge = $derived<HealthBadge>(
 				<Text size="sm" weight="semibold">
 					Scoped log — <span class="font-mono text-xs">devtools.llama_cpp</span>
 				</Text>
-				<Button preset="ghost" size="sm" onclick={loadLogs} disabled={logsLoading}>
+				<Button variant="ghost" size="sm" onclick={loadLogs} disabled={logsLoading}>
 					{#if logsLoading}
 						<Spinner size="xs" tone="accent" />
 					{:else}
@@ -483,7 +483,7 @@ const badge = $derived<HealthBadge>(
 				</Text>
 				<div class="flex items-center gap-2">
 					<Button
-						preset="primary"
+						variant="primary"
 						size="sm"
 						onclick={restartPool}
 						disabled={restarting}
@@ -511,7 +511,7 @@ const badge = $derived<HealthBadge>(
 					if a download finished outside the app or a slot was changed elsewhere.
 				</Text>
 				<Button
-					preset="ghost"
+					variant="ghost"
 					size="sm"
 					onclick={refreshSlots}
 					disabled={slotRefreshing}
@@ -549,7 +549,7 @@ const badge = $derived<HealthBadge>(
 							different backend.
 						</Text>
 					</div>
-					<Button preset="ghost" size="sm" onclick={runProbes} disabled={probing}>
+					<Button variant="ghost" size="sm" onclick={runProbes} disabled={probing}>
 						{#if probing}
 							<Spinner size="xs" tone="accent" />
 						{:else}
@@ -640,7 +640,7 @@ const badge = $derived<HealthBadge>(
 						disabled={testRunning}
 					/>
 					<Button
-						preset="primary"
+						variant="primary"
 						size="sm"
 						onclick={runTest}
 						disabled={testRunning || !testSlotId || !testPrompt.trim()}

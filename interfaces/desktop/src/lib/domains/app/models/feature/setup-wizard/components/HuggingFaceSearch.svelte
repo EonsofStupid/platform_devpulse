@@ -231,7 +231,7 @@ function isSafetensorFile(filename: string): boolean {
 			onkeydown={handleInputKeydown}
 		/>
 		<Button
-			preset="primary"
+			variant="primary"
 			size="md"
 			class="search-submit"
 			onclick={() => void handleSearch()}

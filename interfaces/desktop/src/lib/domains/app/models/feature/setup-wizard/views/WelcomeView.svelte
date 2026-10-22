@@ -267,7 +267,7 @@ const modelCount = $derived(modelsState.models.length);
 				tip="DevPulse scans your hardware, recommends a local-first model plan, verifies chat, and only then hands you the full app."
 				label="What is first-run setup?"
 			/>
-			<Button preset="ghost" size="md" onclick={() => (showInfoPopup = true)}>
+			<Button variant="ghost" size="md" onclick={() => (showInfoPopup = true)}>
 				See what happens next
 			</Button>
 		</div>
@@ -356,7 +356,7 @@ const modelCount = $derived(modelsState.models.length);
 					readonly
 					class="wv-input wv-input-readonly"
 				/>
-				<Button preset="secondary" size="md" onclick={handleBrowseFolder} disabled={pickingFolder}>
+				<Button variant="secondary" size="md" onclick={handleBrowseFolder} disabled={pickingFolder}>
 					{#if pickingFolder}
 						<Spinner size="xs" />
 					{:else}
@@ -385,7 +385,7 @@ const modelCount = $derived(modelsState.models.length);
 						class="wv-input"
 					/>
 					<Button
-						preset="primary"
+						variant="primary"
 						size="md"
 						onclick={handleSaveProject}
 						disabled={savingProject || projectName.trim().length === 0 || projectSaved}
@@ -523,7 +523,7 @@ const modelCount = $derived(modelsState.models.length);
 
 	<!-- Action bar -->
 	<div class="wv-actions">
-		<Button preset="primary" size="lg" onclick={handleLetsGo} disabled={!overlayState.canContinue || savingProfile}>
+		<Button variant="primary" size="lg" onclick={handleLetsGo} disabled={!overlayState.canContinue || savingProfile}>
 			{#if savingProfile}
 				<Spinner size="xs" />
 				Saving…
@@ -532,7 +532,7 @@ const modelCount = $derived(modelsState.models.length);
 				Let's Go
 			{/if}
 		</Button>
-		<Button preset="secondary" size="lg" onclick={handleJesseConfig} disabled={overlayState.loadingPreset}>
+		<Button variant="secondary" size="lg" onclick={handleJesseConfig} disabled={overlayState.loadingPreset}>
 			{#if overlayState.loadingPreset}
 				<Spinner size="xs" />
 			{:else}

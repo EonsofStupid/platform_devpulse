@@ -4,10 +4,7 @@
   Demonstrates structureless primitives, styled components, recipes, and tokens.
 -->
 <script lang="ts">
-import { Button, type ButtonPreset, type ButtonSize } from "@devpulse/coldlight/components/button";
-
-const presets: ButtonPreset[] = ["primary", "secondary", "ghost", "danger"];
-const sizes: ButtonSize[] = ["sm", "md", "lg"];
+import { BUTTON_SIZES, BUTTON_VARIANTS, Button } from "@devpulse/coldlight/components/button";
 </script>
 
 <div class="min-h-screen bg-surface-base p-8 text-text-primary">
@@ -24,10 +21,10 @@ const sizes: ButtonSize[] = ["sm", "md", "lg"];
 		<div class="mb-8">
 			<h3 class="text-sm font-medium text-text-muted mb-4 uppercase tracking-wider">Intents</h3>
 			<div class="flex flex-wrap gap-4">
-				<Button preset="primary" size="md">Primary</Button>
-				<Button preset="secondary" size="md">Secondary</Button>
-				<Button preset="ghost" size="md">Ghost</Button>
-				<Button preset="danger" size="md">Danger</Button>
+				<Button variant="primary" size="md">Primary</Button>
+				<Button variant="secondary" size="md">Secondary</Button>
+				<Button variant="ghost" size="md">Ghost</Button>
+				<Button variant="danger" size="md">Danger</Button>
 			</div>
 		</div>
 
@@ -35,9 +32,9 @@ const sizes: ButtonSize[] = ["sm", "md", "lg"];
 		<div class="mb-8">
 			<h3 class="text-sm font-medium text-text-muted mb-4 uppercase tracking-wider">Sizes</h3>
 			<div class="flex flex-wrap items-center gap-4">
-				<Button preset="primary" size="sm">Small</Button>
-				<Button preset="primary" size="md">Medium</Button>
-				<Button preset="primary" size="lg">Large</Button>
+				<Button variant="primary" size="sm">Small</Button>
+				<Button variant="primary" size="md">Medium</Button>
+				<Button variant="primary" size="lg">Large</Button>
 			</div>
 		</div>
 
@@ -45,10 +42,10 @@ const sizes: ButtonSize[] = ["sm", "md", "lg"];
 		<div class="mb-8">
 			<h3 class="text-sm font-medium text-text-muted mb-4 uppercase tracking-wider">States</h3>
 			<div class="flex flex-wrap items-center gap-4">
-				<Button preset="primary" size="md" disabled>Disabled</Button>
-				<Button preset="primary" size="md" loading>Loading</Button>
-				<Button preset="primary" size="md" pressed={true}>Pressed</Button>
-				<Button preset="primary" size="md" pressed={false}>Unpressed</Button>
+				<Button variant="primary" size="md" disabled>Disabled</Button>
+				<Button variant="primary" size="md" loading>Loading</Button>
+				<Button variant="primary" size="md" pressed={true}>Pressed</Button>
+				<Button variant="primary" size="md" pressed={false}>Unpressed</Button>
 			</div>
 		</div>
 
@@ -56,9 +53,9 @@ const sizes: ButtonSize[] = ["sm", "md", "lg"];
 		<div class="mb-8">
 			<h3 class="text-sm font-medium text-text-muted mb-4 uppercase tracking-wider">Intent x Size Matrix</h3>
 			<div class="grid grid-cols-4 gap-4">
-				{#each presets as preset}
-					{#each sizes as size}
-						<Button {preset} {size}>{preset} {size}</Button>
+				{#each BUTTON_VARIANTS as variant}
+					{#each BUTTON_SIZES as size}
+						<Button {variant} {size}>{variant} {size}</Button>
 					{/each}
 				{/each}
 			</div>
@@ -68,8 +65,8 @@ const sizes: ButtonSize[] = ["sm", "md", "lg"];
 		<div class="mb-8">
 			<h3 class="text-sm font-medium text-text-muted mb-4 uppercase tracking-wider">Data Attributes (inspect in DevTools)</h3>
 			<div class="flex flex-wrap gap-4">
-				<Button preset="primary" size="md" data-id="test-button">data-id="test-button"</Button>
-				<Button preset="secondary" size="md" pressed={true} data-id="toggle-btn">Toggle (pressed)</Button>
+				<Button variant="primary" size="md" data-id="test-button">data-id="test-button"</Button>
+				<Button variant="secondary" size="md" pressed={true} data-id="toggle-btn">Toggle (pressed)</Button>
 			</div>
 			<p class="text-xs text-text-muted mt-2">
 				Inspect elements: data-kind="button", data-slot="root", data-state, data-id

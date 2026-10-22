@@ -11,11 +11,14 @@
 // ============================================
 
 export {
+	BUTTON_DEFAULTS,
+	BUTTON_SIZES,
+	BUTTON_VARIANTS,
 	Button,
-	type ButtonPreset,
 	type ButtonProps,
 	type ButtonSize,
 	type ButtonType,
+	type ButtonVariant,
 } from "./button/index.js";
 
 // ============================================

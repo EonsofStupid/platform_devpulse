@@ -37,10 +37,10 @@ async function open(role: WindowRole): Promise<void> {
 <ChatFrame state="open" engaged={true}>
 	<ChatTopBar hubLabel={globalState.current_domain.toUpperCase()} title="CORTEX MEMORY">
 		{#snippet children()}
-			<Button preset="ghost" size="sm" onclick={() => open("KnowledgeViewer")} title="Knowledge Viewer" aria-label="Open Knowledge Viewer">
+			<Button variant="ghost" size="sm" onclick={() => open("KnowledgeViewer")} title="Knowledge Viewer" aria-label="Open Knowledge Viewer">
 				<Brain size={14} />
 			</Button>
-			<Button preset="ghost" size="sm" onclick={() => open("ModelLoader")} title="Model Control" aria-label="Open Model Control">
+			<Button variant="ghost" size="sm" onclick={() => open("ModelLoader")} title="Model Control" aria-label="Open Model Control">
 				<Cpu size={14} />
 			</Button>
 		{/snippet}

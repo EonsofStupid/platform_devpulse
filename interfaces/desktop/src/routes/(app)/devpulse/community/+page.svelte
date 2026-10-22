@@ -60,7 +60,7 @@ async function onRefresh(): Promise<void> {
 				{/if}
 			</Text>
 		</div>
-		<Button preset="ghost" size="sm" onclick={onRefresh}>
+		<Button variant="ghost" size="sm" onclick={onRefresh}>
 			<RefreshCcw size={14} class="mr-1" /> Refresh
 		</Button>
 	</header>
