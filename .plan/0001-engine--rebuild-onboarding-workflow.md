@@ -1333,8 +1333,22 @@ sign-in, sign-up and sign-out, plus `LoginShell.svelte`. The project URL is in
 
 ### B1 addendum — OpenRouter (master plan H5)
 
-- An OpenRouter registry row (`OpenAiCompatible`); the key is pasted by you and
-  kept in the OS keyring. DevPulse never takes payment (master plan Q46).
+- An OpenRouter registry row (`OpenAiCompatible`). Your ruling 2026-10-21:
+  "make it easy to access their credits on openrouter and have ui show status"
+  (master plan Q46).
+  - **Connect** with OpenRouter's OAuth PKCE: system browser to
+    `https://openrouter.ai/auth` with a loopback `callback_url` and an S256
+    challenge, then `POST /api/v1/auth/keys`. The key goes into the OS keyring
+    and nothing is copied by hand. A pasted key stays possible.
+  - **Status in the UI:** from `GET /api/v1/key`, the usage and limit
+    remaining, refreshed on focus. "Add credits" opens OpenRouter's credits
+    page; DevPulse never takes payment.
+  - **Attribution:** DevPulse's attribution headers on every request, with
+    devpulse.app as the origin.
+  - The fields and headers are checked against OpenRouter's docs at
+    implementation.
+  - Offering credits directly (management keys with limits under DevPulse's
+    account) waits for a partnership.
 - Endpoints (local by URL, OpenRouter) become seatable in rooms beside
   subscriptions.
 - Live: one room with a subscription, an OpenRouter model and a local endpoint,
