@@ -194,11 +194,20 @@ export function kindCss(dictionary, kind, meta, group, scope) {
 	}
 
 	const block = (selector, decls) => `${selector} {\n${decls.map(([p, v]) => `\t${p}: ${v};`).join('\n')}\n}`;
-	const reads = consumed.map((property) => [PROPERTY_ALIAS[property] ?? property, `var(--${kind}-${property})`]);
-	const rules = [block(sel, [...blocks.get(sel), ...reads])];
+	const read = (property) => [PROPERTY_ALIAS[property] ?? property, `var(--${kind}-${property})`];
+	// A property only states set is read only in those states: read on the kind, its
+	// unset variable would override lower styles outside the state.
+	const stateSelectors = new Set(Object.values(STATE_SELECTORS).map((s) => `${sel}${s}`));
+	const persistent = new Set();
+	for (const [selector, decls] of blocks) {
+		if (!stateSelectors.has(selector)) decls.forEach(([custom]) => persistent.add(custom.slice(kind.length + 3)));
+	}
+	const rules = [block(sel, [...blocks.get(sel), ...consumed.filter((p) => persistent.has(p)).map(read)])];
 	if (meta?.accepts?.includes('interactive')) rules.push(...interactiveRules(sel));
 	for (const [selector, decls] of blocks) {
-		if (selector !== sel) rules.push(block(selector, decls));
+		if (selector === sel) continue;
+		const stateOnly = stateSelectors.has(selector) ? decls.map(([custom]) => custom.slice(kind.length + 3)).filter((p) => !persistent.has(p)) : [];
+		rules.push(block(selector, [...decls, ...stateOnly.map(read)]));
 	}
 	return rules.join('\n\n');
 }

@@ -77,6 +77,24 @@ test('states come last and match the behavior attributes; interactive adds its r
 	assert.match(css, /filter: var\(--hover-filter, brightness\(1\.1\)\);/);
 });
 
+test('a property only states set is read only in those states', () => {
+	const group = {
+		variant: { bold: { opacity: { $value: '1' } } },
+		state: { 'focus-visible': { 'outline-style': { $value: 'solid' } }, disabled: { opacity: { $value: '0.5' } } },
+	};
+	const css = kindCss(
+		dictionary([token('chip.variant.bold.opacity', '1'), token('chip.state.focus-visible.outline-style', 'solid'), token('chip.state.disabled.opacity', '0.5')]),
+		'chip',
+		{},
+		group,
+	);
+	const base = css.slice(0, css.indexOf('}'));
+	assert.match(base, /opacity: var\(--chip-opacity\);/);
+	assert.doesNotMatch(base, /outline-style/);
+	assert.match(css, /\[data-kind="chip"\]:focus-visible \{\n\t--chip-outline-style: solid;\n\toutline-style: var\(--chip-outline-style\);\n\}/);
+	assert.match(css, /:is\(:disabled, \[data-disabled\], \[aria-disabled="true"\]\) \{\n\t--chip-opacity: 0\.5;\n\}/, 'opacity is read on the kind already');
+});
+
 test('a token at the wrong depth or an unknown reference throws', () => {
 	const group = { variant: { 'background-color': { $value: 'red' } } };
 	assert.throws(() => kindCss(dictionary([token('chip.variant.background-color', 'red')]), 'chip', {}, group), /a variant token sits at/);
