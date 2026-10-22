@@ -348,6 +348,41 @@ Supersedes 0c.2, 0c.3 and 0d.1, and the collector deletion in 0a.1.
 | 0s.6 | **SVG kinds.** `svg-presets.json` splits into `svg/<kind>/<kind>.tokens.json`. | 2 kind files, `SD/sd.config.mjs` | `--svg-style-*` diff empty |
 | 0s.7 | **Retire what the one source replaced,** each with proof and the owner's OK (2026-10-19 rule): the three collector stubs, `enrich-presets.mjs`, `generate-style-presets.ts`, `style-presets.json`, `visual/presets/*.ts` values, `tokens.ts`, and the duplicate `CL/presets/` or `CL/visual/` modules. ADR-001, `TOKEN_PIPELINE.md` and `PRESET_SYSTEM.md` are rewritten to the one source. | — | Each token has one definition site (grep gate in `verify-tokens.mjs`) |
 
+#### 0s.1 report — March per-kind looks (measured 2026-10-22)
+
+Source: `component.json` → `style` at `1f85fe35^` (398 entries). For each family intent: the look most kinds shared, and each kind that had its own, with the axes that differ from the shared look.
+
+- **`default`**: 61 of 77 kinds share one look; 16 differ.
+- **`glass`**: 59 of 77 kinds share one look; 18 differ.
+- **`flat`**: 64 of 77 kinds share one look; 13 differ.
+- **`matte`**: 60 of 77 kinds share one look; 17 differ.
+- **`stark`**: 79 of 79 kinds share one look; 0 differ.
+
+**Kinds with a look of their own** (intent and the axes that differ):
+
+- `accordion`: default (backgroundBlur, backgroundColor, border, borderRadius, color, shadow, transition)
+- `alert`: glass (backgroundBlur, backgroundColor, color); flat (backgroundColor, border, color); matte (backgroundBlur, backgroundColor, borderRadius, transition)
+- `alert-dialog`: default (shadow); glass (backgroundBlur, backgroundColor, color, shadow); flat (backgroundColor, border, color, shadow, transition); matte (backgroundBlur, backgroundColor, border, borderRadius, shadow, transition)
+- `avatar`: default (shadow); glass (backgroundBlur, backgroundColor, color); flat (backgroundColor, border, color); matte (backgroundBlur, backgroundColor, border, borderRadius, transition)
+- `badge`: default (shadow); glass (backgroundBlur, backgroundColor); flat (backgroundColor); matte (backgroundBlur, backgroundColor, borderRadius, transition)
+- `calendar`: glass (backgroundBlur, backgroundColor, color); flat (backgroundColor, border, color); matte (backgroundBlur, backgroundColor, border, borderRadius, transition)
+- `callout`: default (shadow); glass (backgroundBlur, backgroundColor, color); flat (backgroundColor, border, color); matte (backgroundBlur, backgroundColor, borderRadius, transition)
+- `card`: glass (backgroundBlur, backgroundColor, color, shadow); flat (backgroundColor, border, color); matte (backgroundBlur, backgroundColor, border, borderRadius, shadow, transition)
+- `checkbox`: default (backgroundBlur, backgroundColor, borderRadius, color, shadow); glass (backgroundBlur, backgroundColor, color); flat (backgroundColor, border, color); matte (backgroundColor, border, color, transition)
+- `code`: default (backgroundBlur, backgroundColor, borderRadius, color); glass (backgroundBlur, backgroundColor, color, shadow); flat (backgroundColor, border); matte (backgroundColor, border, color, transition)
+- `collapsible`: default (backgroundBlur, backgroundColor, border, borderRadius, color, shadow); glass (backgroundColor); flat (backgroundColor, color); matte (backgroundBlur, backgroundColor, borderRadius, transition)
+- `combobox`: default (backgroundBlur, backgroundColor, borderRadius, color); glass (backgroundBlur, backgroundColor, color, shadow); flat (backgroundColor, border, color); matte (backgroundColor, border, color, transition)
+- `contextual-help`: glass (backgroundBlur, backgroundColor, color, shadow); flat (backgroundColor, border, color, shadow); matte (backgroundBlur, backgroundColor, borderRadius, transition)
+- `dialog`: default (shadow); glass (backgroundBlur, backgroundColor, color, shadow); flat (backgroundColor, border, color, shadow, transition); matte (backgroundBlur, backgroundColor, border, borderRadius, shadow, transition)
+- `heading`: default (border, shadow, transition); glass (border, shadow, transition); matte (border, shadow, transition)
+- `kbd`: default (shadow)
+- `label`: default (backgroundBlur, backgroundColor, border, borderRadius, color, shadow, transition); glass (backgroundBlur, backgroundColor, border, borderRadius, color, shadow, transition); matte (backgroundColor, border, color, shadow, transition)
+- `link-preview`: default (shadow); glass (shadow); matte (shadow)
+- `loading-overlay`: default (border, shadow); glass (backgroundBlur, backgroundColor, border, color, shadow); matte (border)
+- `toaster`: default (shadow); glass (shadow)
+
+**One-off intents:** `badge-ember-glow`, `badge-glass-label`, `button-danger`, `button-ghost`, `button-primary`, `button-secondary`, `button-voice-active`, `chat-bubble-ai`, `chat-bubble-system`, `chat-bubble-user`, `tabs-chrome`.
+
 #### 0e — Tailwind back to layout only
 
 | Step | Change | Done when |
