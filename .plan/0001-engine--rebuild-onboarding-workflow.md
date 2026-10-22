@@ -861,7 +861,10 @@ even loading … you keep just making new shit". And: local AI must be
 - **Six overlapping "provider" concepts**, the 2026-10-20 kernel `providers`
   module among them. This plan's R10 already says kernel definitions win
   (old code included first).
-- **Your chat work in devpulselabs** (`D:\projects\devpulselabs`, an egui
+- **Your chat work in devpulselabs** (superseded 2026-10-21, your rule:
+  nothing outside the DevPulse folder is read or used; owner material is
+  copied in once, as the B4.1 library was. Kept here as history.)
+  (`D:\projects\devpulselabs`, an egui
   content studio, chat pillar parked) is **UI-free Rust**, about 14k lines:
   - `dpl-chat-core`: rooms/roles schemas plus a library of 11 roles and 5
     rooms (RM1, verified);
@@ -1134,8 +1137,15 @@ reading of your design and research, open to your correction.
   - Check (live): `Get-CimInstance Win32_Process -Filter "Name='claude.exe'"`
     during a turn shows `--tools "" --strict-mcp-config`; the init line shows
     no tools.
-- **c4 Router rooms** per your ruling (master plan Q42; recommended: a
-  `router` role whose contract is `{place, rationale, escalate}`).
+- **c4 Router rooms: a new `router` role** (your ruling 2026-10-21, master plan
+  Q42).
+  - Its contract is `{place, rationale, escalate}`: it names one place, and
+    `escalate` opens a Council on the same question.
+  - `router.json` seats it instead of the Planner, and its three experts get
+    distinct `domain` parameters, so they can be told apart.
+  - Seating's "router room does not run yet" refusal goes.
+  - Check: kernel tests for a named place, an unknown place and escalation;
+    live, a Router room answers through the place it named.
 
 **B4.3 — the chat window, built the ColdLight way** (master plan H2–H3).
 
@@ -1230,18 +1240,22 @@ Each phase passes:
 
 **B4.4 — your checkpoint.** Your sign-off.
 
-### B5 — AgentHub board (master plan H4)
+### B5 — AgentHub board, its own module (master plan H4)
 
 Owner: "agenthub board makes it easy to share state and have AI work with
-other".
+other". Also: "the agenthub/board is its own module that our evolved chat will
+be able to easily integrate with" (2026-10-21).
 
-Before the design is fixed, these are read:
+Built here from this repo alone (nothing outside the DevPulse folder is read
+or used), every visual in the B4.3 order.
 
-- the archived agent console (`D:/localdev/review-archive/devpulse labs/src/domains/agent/*`
-  and its `docs/plans/chat-agent-console-plan.md`);
-- devpulselabs `crates/chat/store` (history discovery).
-
-Built here (D1), with every visual in the B4.3 order.
+- **The module:**
+  - `interfaces/desktop/src/lib/domains/agenthub/` (`data-access/`,
+    `feature/`, `ui/`, `index.ts`);
+  - an engine `platform/agenthub.rs` facade;
+  - its kernel parts.
+  - Its public interface is the `index.ts` exports and typed events. Chat
+    integrates through them, and neither reaches into the other.
 
 - **B5.1 Your sessions, found.** A kernel history reader lists your Claude Code
   and Codex sessions on disk (bounded, read-only): project, title, last
@@ -1267,6 +1281,55 @@ Built here (D1), with every visual in the B4.3 order.
   `--mcp-config` for non-talk-only seats.
 - **Live:** an agent answers with a fact that only DevPulse's memory blocks
   hold.
+
+### B7 — the Social tab (master plan H9)
+
+Owner 2026-10-21: "people to people will be made effortless as chat is suppose
+to have a social tab and we will have clear UI that lets them default invisible
+or appear in the general channel that will parallel to discord devpulse dev
+channel where users can message from devpulse to discord".
+
+The spec is already in the repo: `alpha/docs/PLATFORM_ARCHITECTURE.md`:
+
+- `:98-110`: chat has two tabs, DEFAULT and SOCIAL;
+- `:180-240`: the SOCIAL tab is contacts with online/away/offline and a
+  conversation;
+- `:525-545`: `friends` and `social_messages`, separate from AI chat.
+
+Every visual follows the B4.3 order.
+
+- **B7.1 The tabs.** Chat gains DEFAULT (your AI, threads, rooms, with the
+  AgentHub module beside it) and SOCIAL. `friends` and `social_messages` go
+  into Turso.
+- **B7.2 Presence.** Invisible by default; one clear control to appear. People
+  come from the existing login.
+- **B7.3 Direct messages** between DevPulse users. The transport is designed
+  here, inside DevPulse.
+- **B7.4 The general channel**, which parallels the DevPulse Discord dev
+  channel: a message sent from DevPulse reaches Discord. How it posts (a
+  webhook or bot owned by DevPulse) is designed here. Posting waits for your OK
+  at the time, since it is outward-facing.
+
+### Account step — the login you have, required (master plan H8)
+
+Owner 2026-10-21: "THE LOGIN IS FUCKING DONE CHECK FIRST".
+
+The login exists: `domains/auth` (`9a170b88`, `55f56e8a`) holds Supabase
+sign-in, sign-up and sign-out, plus `LoginShell.svelte`. The project URL is in
+`commands/cloud/secrets.rs:38`, and `authState.init()` runs at boot
+(`routes/+layout.svelte:92`). Today it is reached only from settings (`:183`).
+
+- `first-run.flow.toml` gains an `account` stage right after `welcome`:
+  required, email required, no skip.
+- Offline: it explains that a connection is needed and retries.
+- `LoginShell` is mounted there. Its visuals are rebuilt in the B4.3 order
+  (`ui/` adapter, presets, copy); the auth logic stays.
+- Then the shippin.cloud question (master plan P3b): "Also create your
+  shippin.cloud instance?". It is opt-in, and no changes nothing.
+- The license comes from the account; the `license.rs` Pro stub goes only once
+  that works.
+- Live: a fresh portable copy → first run → sign up with a test account →
+  signed in on the next start.
 
 ### B1 addendum — OpenRouter (master plan H5)
 
@@ -2022,3 +2085,17 @@ queries proving what was written.
       Overmind's arena, team channels, A2UI and Chatmaton are in master plan
       Stage H (`~/.claude/plans/devpulse-done-right.md`), with rulings
       Q42–Q49.
+  - 2026-10-21 — **Your answers applied.**
+    - **Router:** a new `router` role (B4.2c c4).
+    - **Chatmaton and everything else:** "DFEVPULSE IS PORTABLE SELF RELIANT
+      ALL DEPS INCLUDED EVERYTHING RUNS RELIABLY AND WELL ORGANIZED INSIDE THE
+      DEVPULSE FOLDER STOP FUCKING REACHING OUTSIDE OF DEVPULSE". B5 no longer
+      reads anything outside the repo; Chatmaton and RRFlow come into the
+      folder (master plan H11, H12).
+    - **Login:** "THE LOGIN IS FUCKING DONE CHECK FIRST". The existing Supabase
+      login becomes the required Account step; the Nomen and ZITADEL steps are
+      withdrawn.
+    - **Bypassing Slack** means DevPulse's own shared-state components. B5 is
+      its own module (`domains/agenthub`), and B7, the Social tab, is from
+      `alpha/docs/PLATFORM_ARCHITECTURE.md`: presence invisible by default, and
+      a general channel that parallels the Discord dev channel.
