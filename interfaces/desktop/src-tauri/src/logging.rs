@@ -40,6 +40,13 @@ use tracing_subscriber::EnvFilter;
 use devpulse_engine::platform::services::rrd_translator::RrdLifecycleTranslator;
 use devpulse_engine::platform::telemetry::{DuckDbLayer, SpanRecord, SPAN_CHANNEL_CAPACITY};
 
+/// Libraries held at INFO in the session JSONL whatever its level. In a
+/// debug build their DEBUG/TRACE output was ~280 MB per boot: `surrealkv`'s
+/// WAL recovery (~406k "Replayed batch" lines, ~247 MB), `turso_core`
+/// (26–37 MB) and the ACP SDK (up to 6 MB), burying `DevPulse`'s own lines
+/// (master plan M7, measured 2026-10-21).
+const JSONL_QUIET_TARGETS: &str = "surrealkv=info,turso_core=info,agent_client_protocol=info";
+
 /// Result of logging initialization — holds non-blocking writer guards and
 /// the span receiver that must be connected to `SpanTraceWriter` after
 /// analytics boots.
@@ -116,15 +123,15 @@ pub fn init(
     // volume bounded.
     let faithful = std::env::var("DEVPULSE_LOG_FAITHFUL").is_ok() || cfg!(debug_assertions);
     let jsonl_filter = if faithful {
-        EnvFilter::new("trace")
+        EnvFilter::new(format!("trace,{JSONL_QUIET_TARGETS}"))
     } else {
         // Default JSONL is verbose-but-readable: all debug globally, trace
         // for devpulse crates. Users don't need DEVPULSE_LOG_FAITHFUL unless
         // they want third-party crates at trace level too.
         EnvFilter::try_from_default_env().unwrap_or_else(|_| {
-            EnvFilter::new(
-                "debug,devpulse=trace,devpulse_desktop_backend=trace,devpulse_clyffy=trace",
-            )
+            EnvFilter::new(format!(
+                "debug,devpulse=trace,devpulse_desktop_backend=trace,devpulse_clyffy=trace,{JSONL_QUIET_TARGETS}"
+            ))
         })
     };
 
