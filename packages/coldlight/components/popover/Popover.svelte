@@ -24,9 +24,10 @@
 <script lang="ts">
 import { popoverAnatomy } from "#coldlight/behaviors/overlays/popover/index.js";
 import { usePopover } from "#coldlight/behaviors/overlays/popover/use-popover.svelte.js";
-import { cssVarString, renderForge } from "#coldlight/renderforge/index.js";
+import { styleAttrs } from "#coldlight/renderforge/index.js";
 import { cn } from "#coldlight/utils/cn.js";
 import { setPopoverContext } from "./context.js";
+import { POPOVER_DEFAULTS } from "./popover.generated.js";
 import type { PopoverProps } from "./types.js";
 
 let {
@@ -34,7 +35,8 @@ let {
 	onOpenChange,
 	closeOnEscape = true,
 	closeOnOutsideClick = true,
-	preset = "default",
+	variant = POPOVER_DEFAULTS.variant,
+	surface,
 	trigger,
 	content,
 	children,
@@ -59,8 +61,6 @@ setPopoverContext({
 		return hook;
 	},
 });
-
-const m = $derived(renderForge({ kind: "popover", preset }));
 </script>
 
 <div data-kind="popover" class={cn("relative inline-block", className)}>
@@ -75,10 +75,9 @@ const m = $derived(renderForge({ kind: "popover", preset }));
 				{...popoverAnatomy.attrs.content}
 				{...hook.content}
 				use:hook.attachContent
-				{...m.dataAttrs}
-				style={cssVarString(m.cssVars)}
+				{...styleAttrs({ kind: "popover", variant, surface })}
 				data-state="open"
-				class="absolute z-50 mt-2 rounded-md border"
+				class="absolute z-50 mt-2"
 			>
 				{#if content}
 					{@render content()}
