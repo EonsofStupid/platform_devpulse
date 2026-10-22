@@ -1,0 +1,73 @@
+/*
+ * VPB palette — the Visual Page Builder's own tokens.
+ *
+ * Restored from the design tokens (deleted in a75b0332) and scoped to the
+ * VPB shell so they never reach the app. Built on ColdLight tokens where
+ * one exists; `--border-divider-faint` is gone, `--border-subtle` stands in.
+ */
+
+.vpb-shell {
+	--vpb-bg: oklch(0.08 0.02 220 / 0.95);
+	--vpb-panel-bg: oklch(0.1 0.02 220 / 0.9);
+	--vpb-border: var(--border-divider);
+	--vpb-border-faint: var(--border-subtle);
+	--vpb-label-color: var(--text-muted);
+	--vpb-label-dim: var(--color-neutral-500);
+	--vpb-value-color: var(--text-secondary);
+	--vpb-text-bright: var(--text-primary);
+	--vpb-text-dim: var(--color-neutral-600);
+	--vpb-btn-bg: var(--interaction-hover);
+	--vpb-btn-border: var(--border-divider);
+	--vpb-btn-hover: oklch(1 0 0 / 0.08);
+	--vpb-btn-active-bg: oklch(0.5 0.15 180 / 0.2);
+	--vpb-btn-active-border: oklch(0.6 0.15 180 / 0.4);
+	--vpb-btn-active-color: var(--color-teal-300);
+	--vpb-accent-teal: var(--color-teal-600);
+	--vpb-accent-teal-bright: var(--color-teal-300);
+	--vpb-accent-ember: oklch(0.8 0.2 60);
+	--vpb-accent-warning: oklch(0.7 0.08 20);
+	--vpb-swatch-bg: var(--interaction-hover);
+	--vpb-swatch-hover-border: var(--interaction-selected);
+	--vpb-swatch-active-border: var(--text-primary);
+	--vpb-tick-color: var(--color-neutral-500);
+	--vpb-tick-active: var(--color-teal-700);
+	--vpb-slider-accent: var(--color-teal-600);
+	--vpb-tag-teal-bg: oklch(0.5 0.12 180 / 0.2);
+	--vpb-tag-teal-color: var(--color-teal-300);
+	--vpb-tag-teal-border: oklch(0.5 0.12 180 / 0.3);
+	--vpb-tag-ember-bg: oklch(0.5 0.15 20 / 0.1);
+	--vpb-tag-ember-color: oklch(0.75 0.12 20);
+	--vpb-tag-ember-border: oklch(0.5 0.15 20 / 0.3);
+	--vpb-tag-purple-bg: oklch(0.5 0.1 290 / 0.15);
+	--vpb-tag-purple-color: oklch(0.7 0.1 290);
+	--vpb-tag-gold-bg: oklch(0.5 0.15 60 / 0.15);
+	--vpb-tag-gold-color: oklch(0.7 0.12 60);
+	--vpb-tag-neutral-bg: var(--interaction-hover);
+	--vpb-tag-neutral-color: var(--text-muted);
+	--vpb-tag-green-bg: oklch(0.5 0.1 150 / 0.15);
+	--vpb-tag-green-border: oklch(0.5 0.1 150 / 0.25);
+	--vpb-tag-green-color: oklch(0.75 0.08 150);
+	--vpb-code-bg: oklch(1 0 0 / 0.08);
+	--vpb-code-border: oklch(1 0 0 / 0.12);
+	--vpb-code-color: var(--color-teal-300);
+	--vpb-encoding-teal: var(--color-teal-300);
+	--vpb-encoding-purple: oklch(0.6 0.06 280);
+	--vpb-encoding-green: oklch(0.7 0.08 140);
+	--vpb-graph-bg: oklch(0.06 0.01 220);
+	--vpb-graph-node-color: oklch(0.3 0.1 180);
+	--vpb-graph-node-bg: oklch(0.12 0.02 220 / 0.95);
+	--vpb-graph-node-border: oklch(1 0 0 / 0.12);
+	--vpb-graph-node-hover-border: oklch(0.5 0.1 180 / 0.4);
+	--vpb-graph-node-selected-border: var(--color-teal-600);
+	--vpb-graph-node-selected-glow: oklch(0.5 0.15 180 / 0.25);
+	--vpb-graph-node-kind-color: oklch(0.85 0.08 180);
+	--vpb-graph-node-slot-color: var(--text-muted);
+	--vpb-graph-node-type-color: oklch(0.5 0.1 290);
+	--vpb-graph-edge-stroke: oklch(0.4 0.1 180);
+	--vpb-graph-edge-label-color: oklch(0.6 0.08 180);
+	--vpb-graph-edge-label-bg: oklch(0.1 0.02 220 / 0.85);
+	--vpb-error-bg: oklch(0.4 0.15 30 / 0.9);
+	--vpb-error-color: oklch(0.9 0.1 50);
+	--vpb-error-border: oklch(0.5 0.15 30 / 0.5);
+	--vpb-error-dot: oklch(0.7 0.2 30);
+}

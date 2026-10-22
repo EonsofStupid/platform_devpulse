@@ -1,0 +1,45 @@
+/**
+ * @file VPB Palette State — Svelte 5 Rune Class
+ * @layer vpb
+ * @package @devpulse/sys
+ *
+ * Palette state for the VPB component picker.
+ * Reads from BLOCK_CATEGORIES and the VPB recipe list.
+ */
+
+import { BLOCK_CATEGORIES, type BlockCategory } from "@devpulse/coldlight/blocks";
+import { recipesForKind, type VpbRecipe } from "../registry/vpb-recipes.js";
+
+class VpbPaletteState {
+	searchQuery = $state<string>("");
+	activeCategory = $state<BlockCategory>("surfaces");
+
+	get categories(): BlockCategory[] {
+		return Object.keys(BLOCK_CATEGORIES) as BlockCategory[];
+	}
+
+	get kindsInCategory(): readonly string[] {
+		return BLOCK_CATEGORIES[this.activeCategory] ?? [];
+	}
+
+	get filteredKinds(): string[] {
+		const kinds = this.kindsInCategory;
+		if (!this.searchQuery) return [...kinds];
+		const q = this.searchQuery.toLowerCase();
+		return kinds.filter((k) => k.toLowerCase().includes(q));
+	}
+
+	getRecipesForKind(kind: string): readonly VpbRecipe[] {
+		return recipesForKind(kind);
+	}
+
+	setCategory(category: BlockCategory): void {
+		this.activeCategory = category;
+	}
+
+	setSearch(query: string): void {
+		this.searchQuery = query;
+	}
+}
+
+export const vpbPalette = new VpbPaletteState();

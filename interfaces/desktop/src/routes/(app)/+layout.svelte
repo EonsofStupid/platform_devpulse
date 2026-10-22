@@ -16,8 +16,29 @@ $effect(() => {
 		void goto(onboardingHref, { replaceState: true });
 	}
 });
+
+// The Visual Page Builder is a dev tool (Ctrl+Shift+B). Its import sits
+// behind `import.meta.env.DEV`, which Vite replaces with `false` in a
+// production build, so the build drops it.
+const vpb = import.meta.env.DEV ? import("$lib/sys/debug/vpb/index.js") : null;
+let vpbOpen = $state(false);
+
+function onKeydown(e: KeyboardEvent) {
+	if (vpb && e.ctrlKey && e.shiftKey && e.key === "B") {
+		e.preventDefault();
+		vpbOpen = !vpbOpen;
+	}
+}
 </script>
+
+<svelte:window onkeydown={onKeydown} />
 
 <Frame>
 	{@render children()}
 </Frame>
+
+{#if vpb}
+	{#await vpb then { Vpb }}
+		<Vpb bind:open={vpbOpen} />
+	{/await}
+{/if}

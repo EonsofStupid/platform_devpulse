@@ -16,6 +16,11 @@
 			"svelte": "./behaviors/index.ts",
 			"default": "./behaviors/index.ts"
 		},
+		"./blocks": {
+			"types": "./blocks/index.ts",
+			"svelte": "./blocks/index.ts",
+			"default": "./blocks/index.ts"
+		},
 		"./blocks/*": {
 			"types": "./blocks/*/index.ts",
 			"svelte": "./blocks/*/index.ts",
@@ -36,6 +41,7 @@
 			"svelte": "./debug/index.ts",
 			"default": "./debug/index.ts"
 		},
+		"./generated/*": "./generated/*",
 		"./overlays": {
 			"types": "./overlays/index.ts",
 			"svelte": "./overlays/index.ts",
@@ -48,6 +54,11 @@
 		},
 		"./primitives/*": {
 			"svelte": "./primitives/*/index.ts"
+		},
+		"./presets": {
+			"types": "./presets/index.ts",
+			"svelte": "./presets/index.ts",
+			"default": "./presets/index.ts"
 		},
 		"./renderforge": {
 			"types": "./renderforge/index.ts",

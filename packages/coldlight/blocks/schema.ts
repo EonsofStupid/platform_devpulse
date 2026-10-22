@@ -11,7 +11,7 @@
  */
 
 import { type } from "arktype";
-import type { VisualAxisProps } from "#coldlight/components/types.js";
+import type { ComponentSurfaceProps } from "#coldlight/components/types.js";
 
 /** ArkType schema for visual axis props — validated at VPB boundaries */
 const VisualAxisPropsSchema = type({
@@ -44,7 +44,8 @@ export interface BlockNode {
 	id: string;
 	kind: string;
 	recipe: string;
-	props: Partial<VisualAxisProps>;
+	/** The eight visual axis props + `preset`, as `VisualAxisPropsSchema` validates. */
+	props: ComponentSurfaceProps;
 	slots?: Record<string, BlockNode[]>;
 	binds?: Record<string, string>;
 	meta?: BlockNodeMeta;
@@ -71,7 +72,8 @@ export const BlockNodeSchema = blockNodeDef.node;
 
 export const BlockDocumentSchema = type({
 	id: "string > 0",
-	version: "'1'",
+	// The number 1, as `createBlockDocument` writes it (`"'1'"` would be the string).
+	version: "1",
 	label: "string > 0",
 	root: BlockNodeSchema.array(),
 	createdAt: "string.date.iso",
