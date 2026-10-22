@@ -15,6 +15,8 @@
  *   <kind>.size.<name>.<property>        [data-size="<name>"]
  *   <kind>.tone.<name>.<property>        [data-tone="<name>"]
  *   <kind>.state.<state>.<property>      hover, active, focus-visible, pressed, selected, open, disabled
+ *   <kind>.part.<slot>.<property>        another part of the kind, [data-slot="<slot>"]; its own
+ *                                        custom properties `--<kind>-<slot>-<property>`
  *
  * Token names are CSS property names; `gradient` means `background-image`.
  * Each becomes the kind's custom property `--<kind>-<property>`, set by its
@@ -32,8 +34,9 @@
 import { readFileSync } from 'node:fs';
 
 const EXT = 'com.coldlight';
-const SECTIONS = ['base', 'variant', 'size', 'tone', 'state'];
+const SECTIONS = ['base', 'variant', 'size', 'tone', 'state', 'part'];
 const PROPERTY_ALIAS = { gradient: 'background-image' };
+const CSS_WIDE = new Set(['inherit', 'initial', 'unset', 'revert', 'revert-layer']);
 
 /** The preset axes each concern takes from a family role (render-base.css's family split). */
 export const CONCERN_AXES = {
@@ -119,6 +122,7 @@ function selectorOf(sel, kind, token) {
 		throw new Error(`${token.path.join('.')}: a ${section} token sits at <kind>.${section}${section === 'base' ? '' : '.<name>'}.<property>`);
 	}
 	if (section === 'base') return sel;
+	if (section === 'part') return `[data-kind="${kind}"][data-slot="${name}"]`;
 	if (section === 'state') {
 		if (!(name in STATE_SELECTORS)) throw new Error(`${kind}: unknown state "${name}"`);
 		return `${sel}${STATE_SELECTORS[name]}`;
@@ -181,7 +185,23 @@ export function kindCss(dictionary, kind, meta, group, scope) {
 	for (const token of tokens.filter((t) => t.path[1] === 'variant' && !variants.includes(t.path[2]))) {
 		throw new Error(`${token.path.join('.')}: its variant is not in the kind file`);
 	}
+	/** Other parts' rules (`part` section): their own custom properties, read in place. */
+	const partRules = new Map();
 	for (const section of SECTIONS) {
+		if (section === 'part') {
+			for (const token of tokens.filter((t) => t.path[1] === 'part')) {
+				const selector = selectorOf(sel, kind, token);
+				const [, , slot, property] = token.path;
+				const custom = `--${kind}-${slot}-${property}`;
+				const value = cssValue(token, nameByPath);
+				const target = PROPERTY_ALIAS[property] ?? property;
+				if (!partRules.has(selector)) partRules.set(selector, []);
+				// A CSS-wide keyword means the property itself; through a custom property it would mean the variable.
+				if (CSS_WIDE.has(value)) partRules.get(selector).push([target, value]);
+				else partRules.get(selector).push([custom, value], [target, `var(${custom})`]);
+			}
+			continue;
+		}
 		if (section !== 'variant') {
 			tokens.filter((t) => t.path[1] === section).forEach(emit);
 			continue;
@@ -210,6 +230,7 @@ export function kindCss(dictionary, kind, meta, group, scope) {
 		const stateOnly = stateSelectors.has(selector) ? decls.map(([custom]) => custom.slice(kind.length + 3)).filter((p) => !persistent.has(p)) : [];
 		rules.push(block(selector, [...decls, ...stateOnly.map(read)]));
 	}
+	for (const [selector, decls] of partRules) rules.push(block(selector, decls));
 	return rules.join('\n\n');
 }
 

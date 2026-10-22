@@ -149,6 +149,21 @@ test('a slot scopes every rule to that part', () => {
 	assert.doesNotMatch(css, /\[data-kind="menu"\] \{/);
 });
 
+test('a part section styles another part with its own custom properties', () => {
+	const group = { base: { color: { $value: 'red' } }, part: { overlay: { 'background-color': { $value: 'transparent' } } } };
+	const css = kindCss(
+		dictionary([token('sheet.base.color', 'red'), token('sheet.part.overlay.background-color', 'transparent')]),
+		'sheet',
+		{ slot: 'content' },
+		group,
+	);
+	assert.match(css, /\[data-kind="sheet"\]\[data-slot="overlay"\] \{\n\t--sheet-overlay-background-color: transparent;\n\tbackground-color: var\(--sheet-overlay-background-color\);\n\}/);
+	const content = css.slice(0, css.indexOf('}'));
+	assert.doesNotMatch(content, /overlay/, 'the main part does not read it');
+	const keyword = kindCss(dictionary([token('sheet.part.overlay.color', 'inherit')]), 'sheet', {}, { part: { overlay: { color: { $value: 'inherit' } } } });
+	assert.match(keyword, /\[data-slot="overlay"\] \{\n\tcolor: inherit;\n\}/, 'a CSS-wide keyword goes straight to the property');
+});
+
 test('kind tokens are found by path, not by file', () => {
 	const isKind = kindTokenFilter(new Set(['button']));
 	assert.equal(isKind(token('button.variant.primary.color', 'x')), true);
