@@ -183,13 +183,15 @@ macos = "macOS"
 linux = "Linux"
 
 # ─────────────────────────────────────────────────────────────────────
-# Forms — why a field was refused. `{limit}` is the length limit.
+# Forms — why a field was refused. `{limit}` is the length limit, or the
+# floor a number may not go below.
 # ─────────────────────────────────────────────────────────────────────
 
 [forms.errors]
 required = "This one is needed."
 too_short = "Needs at least {limit} characters."
 too_long = "Keep it under {limit} characters."
+below_minimum = "Needs to be at least {limit}."
 email = "That doesn't look like an email address."
 not_a_folder = "That folder doesn't exist on this machine."
 unknown = "This form doesn't have that field."

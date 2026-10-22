@@ -319,6 +319,8 @@ pub struct FormErrorsCopy {
     pub too_short: String,
     /// Too long.
     pub too_long: String,
+    /// A number below its floor.
+    pub below_minimum: String,
     /// Not an email.
     pub email: String,
     /// Folder does not exist.

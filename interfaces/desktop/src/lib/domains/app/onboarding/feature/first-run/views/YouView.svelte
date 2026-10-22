@@ -61,6 +61,7 @@ const ERROR_KEY: Record<FieldError["code"], keyof FormErrorsCopy> = {
 	required: "required",
 	tooShort: "too_short",
 	tooLong: "too_long",
+	belowMinimum: "below_minimum",
 	email: "email",
 	notAFolder: "not_a_folder",
 	unknown: "unknown",

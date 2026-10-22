@@ -7416,6 +7416,10 @@ export type ErrorCode =
  */
 "tooLong" | 
 /**
+ * A number below its floor, `limit`.
+ */
+"belowMinimum" | 
+/**
  * Not an email address.
  */
 "email" | 
@@ -7741,7 +7745,8 @@ field: string;
  */
 code: ErrorCode; 
 /**
- * The length limit, for `tooShort` / `tooLong`.
+ * The limit: the length for `tooShort` / `tooLong`, the floor for
+ * `belowMinimum`.
  */
 limit: number | null }
 /**
@@ -7788,6 +7793,10 @@ too_short: string;
  * Too long.
  */
 too_long: string; 
+/**
+ * A number below its floor.
+ */
+below_minimum: string; 
 /**
  * Not an email.
  */

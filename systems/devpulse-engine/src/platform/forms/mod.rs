@@ -27,6 +27,8 @@ pub enum ErrorCode {
     TooShort,
     /// Longer than `limit`.
     TooLong,
+    /// A number below its floor, `limit`.
+    BelowMinimum,
     /// Not an email address.
     Email,
     /// Not a folder that exists.
@@ -45,7 +47,8 @@ pub struct FieldError {
     pub field: String,
     /// Why.
     pub code: ErrorCode,
-    /// The length limit, for `tooShort` / `tooLong`.
+    /// The limit: the length for `tooShort` / `tooLong`, the floor for
+    /// `belowMinimum`.
     pub limit: Option<u64>,
 }
 
@@ -165,6 +168,11 @@ fn to_field_error(error: &jsonschema::ValidationError<'_>) -> FieldError {
             code: ErrorCode::TooLong,
             limit: Some(*limit),
         },
+        ValidationErrorKind::Minimum { limit } => FieldError {
+            field: at,
+            code: ErrorCode::BelowMinimum,
+            limit: limit.as_u64(),
+        },
         ValidationErrorKind::Format { format } if format == "email" => {
             FieldError::new(&at, ErrorCode::Email)
         }
@@ -272,5 +280,30 @@ mod tests {
         let schema = schema_of::<Sample>().unwrap();
         assert_eq!(schema["properties"]["displayName"]["maxLength"], 5);
         assert_eq!(schema["properties"]["email"]["format"], "email");
+    }
+
+    #[derive(Debug, Deserialize, JsonSchema, PartialEq)]
+    #[serde(deny_unknown_fields)]
+    struct Floored {
+        #[schemars(range(min = 5))]
+        keep: u32,
+    }
+
+    #[test]
+    fn a_number_below_its_floor_names_the_floor() {
+        let refused = validate::<Floored>(&json!({ "keep": 3 }))
+            .expect("machinery")
+            .expect_err("below the floor");
+        assert_eq!(
+            refused,
+            [FieldError {
+                field: "keep".into(),
+                code: ErrorCode::BelowMinimum,
+                limit: Some(5),
+            }]
+        );
+        assert!(validate::<Floored>(&json!({ "keep": 5 }))
+            .expect("machinery")
+            .is_ok());
     }
 }
