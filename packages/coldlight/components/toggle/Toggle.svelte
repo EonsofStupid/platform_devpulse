@@ -24,23 +24,19 @@
 <script lang="ts">
 import { toggleAnatomy } from "#coldlight/behaviors/inputs/toggle/index.js";
 import { useToggle } from "#coldlight/behaviors/inputs/toggle/use-toggle.svelte.js";
-import { cssVarString, renderForge } from "#coldlight/renderforge/index.js";
+import { styleAttrs } from "#coldlight/renderforge/index.js";
 import { cn } from "#coldlight/utils/cn.js";
-import type { ToggleProps, ToggleSize } from "./types.js";
-
-const SIZE: Record<ToggleSize, string> = {
-	sm: "h-8 px-2 text-sm",
-	md: "h-10 px-3 text-sm",
-	lg: "h-12 px-4 text-base",
-};
+import { TOGGLE_DEFAULTS } from "./toggle.generated.js";
+import type { ToggleProps } from "./types.js";
 
 let {
-	size = "md",
+	variant = TOGGLE_DEFAULTS.variant,
+	size = TOGGLE_DEFAULTS.size,
+	surface,
 	pressed = false,
 	onPressedChange,
 	disabled = false,
 	children,
-	preset = "default",
 	class: className,
 	...rest
 }: ToggleProps = $props();
@@ -54,22 +50,15 @@ const toggle = useToggle({
 	},
 	onPressedChange: (v) => onPressedChange?.(v),
 });
-
-const m = $derived(renderForge({ kind: "toggle", preset }));
 </script>
 
+<!-- Its look is toggle.tokens.json's generated CSS: the variant's role from the family in scope. class is layout. -->
 <button
-		{...toggleAnatomy.attrs.root}
-		{...toggle.root}
-		{...rest}
-		{...m.dataAttrs}
-		style={cssVarString(m.cssVars)}
-		class={cn(
-			"inline-flex items-center justify-center rounded-md font-medium cursor-pointer",
-			"focus-visible:outline-2 focus-visible:outline-offset-2",
-			"disabled:pointer-events-none disabled:opacity-50",
-			SIZE[size] ?? SIZE.md,
-			className)}
-	>
-		{@render children?.()}
-	</button>
+	{...toggleAnatomy.attrs.root}
+	{...toggle.root}
+	{...rest}
+	{...styleAttrs({ kind: "toggle", variant, size, surface })}
+	class={cn("inline-flex items-center justify-center", className)}
+>
+	{@render children?.()}
+</button>
