@@ -110,8 +110,8 @@ impl SpanTraceWriter {
             .map(|s| {
                 json!({
                     "trace_id": s.trace_id,
-                    "span_id": s.span_id,
-                    "parent_span_id": s.parent_span_id,
+                    "span_id": stored_id(s.span_id),
+                    "parent_span_id": s.parent_span_id.map(stored_id),
                     "name": s.name,
                     "target": s.target,
                     "level": s.level,
@@ -133,8 +133,30 @@ impl SpanTraceWriter {
                 tracing::debug!(count, inserted, "Flushed span traces to DuckDB");
             }
             Err(e) => {
-                tracing::warn!(count, error = %e, "Failed to flush span traces to DuckDB");
+                tracing::warn!(count, error = %format!("{e:#}"), "Failed to flush span traces to DuckDB");
             }
         }
+    }
+}
+
+/// A span id as `span_traces` stores it: the same 64 bits in its `BIGINT`
+/// columns. Tracing packs a generation into an id's high bits, so ids can
+/// exceed `i64::MAX`; kept bit for bit they still insert and still match
+/// their children's `parent_span_id`, and the telemetry devtool reads them
+/// back as the `i64` it already expects.
+fn stored_id(id: u64) -> i64 {
+    i64::from_ne_bytes(id.to_ne_bytes())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::stored_id;
+
+    #[test]
+    fn a_span_id_keeps_its_bits() {
+        assert_eq!(stored_id(42), 42);
+        let high = u64::MAX - 7;
+        assert_eq!(stored_id(high), -8);
+        assert_eq!(u64::from_ne_bytes(stored_id(high).to_ne_bytes()), high);
     }
 }

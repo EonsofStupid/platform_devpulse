@@ -193,14 +193,20 @@ impl AnalyticsAdapter for DuckDbAdapter {
         Ok(results)
     }
 
+    /// Insert JSON objects as rows, each key a column. Values are bound with
+    /// their own types (null as NULL, numbers as numbers), and the whole
+    /// batch is one transaction: a row that does not fit fails the batch and
+    /// none of it is kept.
     async fn append(&self, table: &str, data: &[serde_json::Value]) -> Result<u64> {
         if data.is_empty() {
             return Ok(0);
         }
 
-        let conn = self.conn.lock().await;
+        let mut conn = self.conn.lock().await;
+        let tx = conn
+            .transaction()
+            .with_context(|| format!("begin the append to {table}"))?;
 
-        // For each JSON object, insert into the table
         let mut count = 0u64;
         for item in data {
             if let serde_json::Value::Object(map) = item {
@@ -214,25 +220,38 @@ impl AnalyticsAdapter for DuckDbAdapter {
                     placeholders.join(", ")
                 );
 
-                // Convert values to strings for simplicity
-                let values: Vec<String> = map
-                    .values()
-                    .map(|v| match v {
-                        serde_json::Value::String(s) => s.clone(),
-                        other => other.to_string(),
-                    })
-                    .collect();
-
+                let values: Vec<duckdb::types::Value> = map.values().map(bound).collect();
                 let params: Vec<&dyn duckdb::ToSql> =
-                    values.iter().map(|s| s as &dyn duckdb::ToSql).collect();
+                    values.iter().map(|v| v as &dyn duckdb::ToSql).collect();
 
-                conn.execute(&sql, params.as_slice())
-                    .context("Failed to append data")?;
+                tx.execute(&sql, params.as_slice())
+                    .with_context(|| format!("Failed to append data to {table}"))?;
                 count += 1;
             }
         }
+        tx.commit()
+            .with_context(|| format!("commit the append to {table}"))?;
 
         Ok(count)
+    }
+}
+
+/// A JSON value as `DuckDB` binds it: null as NULL, a boolean, an integer or
+/// a float as itself, text as text, and an array or object as its JSON text
+/// (which `DuckDB` casts to `JSON` or list columns).
+fn bound(value: &serde_json::Value) -> duckdb::types::Value {
+    use duckdb::types::Value as Bound;
+    match value {
+        serde_json::Value::Null => Bound::Null,
+        serde_json::Value::Bool(b) => Bound::Boolean(*b),
+        serde_json::Value::Number(n) => n
+            .as_i64()
+            .map(Bound::BigInt)
+            .or_else(|| n.as_u64().map(Bound::UBigInt))
+            .or_else(|| n.as_f64().map(Bound::Double))
+            .unwrap_or(Bound::Null),
+        serde_json::Value::String(s) => Bound::Text(s.clone()),
+        other => Bound::Text(other.to_string()),
     }
 }
 
@@ -308,3 +327,55 @@ CREATE TABLE IF NOT EXISTS span_traces (
     created_at TIMESTAMP DEFAULT now()
 );
 ";
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::expect_used, clippy::unwrap_used, reason = "test assertions")]
+
+    use super::*;
+
+    const SCHEMA: &str = "CREATE TABLE spans (id BIGINT NOT NULL, parent BIGINT, \
+                          name VARCHAR NOT NULL, fields VARCHAR);";
+
+    fn adapter() -> DuckDbAdapter {
+        let conn = duckdb::Connection::open_in_memory().expect("in-memory");
+        let adapter = DuckDbAdapter {
+            conn: Arc::new(Mutex::new(conn)),
+        };
+        adapter.init_schema_sync(SCHEMA).expect("schema");
+        adapter
+    }
+
+    /// A null lands as NULL in a BIGINT column — it used to be bound as the
+    /// text "null" and fail the insert (master plan M9).
+    #[tokio::test]
+    async fn null_and_numbers_bind_with_their_own_types() {
+        let db = adapter();
+        let rows = [
+            serde_json::json!({"id": 1, "parent": null, "name": "root", "fields": null}),
+            serde_json::json!({"id": 2, "parent": 1, "name": "child", "fields": "{\"a\":1}"}),
+        ];
+        assert_eq!(db.append("spans", &rows).await.expect("append"), 2);
+        let roots = db
+            .analytics_query("SELECT count(*) FROM spans WHERE parent IS NULL")
+            .await
+            .expect("query");
+        assert_eq!(roots[0].first(), Some(&SqlValue::Integer(1)));
+    }
+
+    /// A row that does not fit fails the batch, and none of it is kept.
+    #[tokio::test]
+    async fn a_bad_row_fails_the_whole_batch() {
+        let db = adapter();
+        let rows = [
+            serde_json::json!({"id": 1, "name": "fine"}),
+            serde_json::json!({"id": "not a number", "name": "bad"}),
+        ];
+        assert!(db.append("spans", &rows).await.is_err());
+        let count = db
+            .analytics_query("SELECT count(*) FROM spans")
+            .await
+            .expect("query");
+        assert_eq!(count[0].first(), Some(&SqlValue::Integer(0)));
+    }
+}

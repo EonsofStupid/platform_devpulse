@@ -381,7 +381,7 @@ impl LaneTraceWriter {
             Err(e) => {
                 tracing::warn!(
                     count,
-                    error = %e,
+                    error = %format!("{e:#}"),
                     "Failed to flush lane traces to DuckDB"
                 );
             }
