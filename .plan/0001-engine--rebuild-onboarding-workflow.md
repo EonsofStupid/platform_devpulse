@@ -1101,18 +1101,200 @@ reading of your design and research, open to your correction.
   (`agenda`) names no expert. It runs once you rule how a router chooses: a
   router role with a `route` field, or matching the experts' summaries.
 
-**B4.3 — the chat window.**
+**B4.2c — rooms finished** (kernel + engine; master plan H1; no UI).
 
-- Start a room from the library.
-- Seat your agents and personas, and fill parameters.
-- Each answer appears under "seat · role · agent (persona)", and the winner
-  is marked.
-- A library view shows each role's method and evidence in plain words, with
-  advanced terms one step away.
-- A new-persona form.
-- Live check: you run a Council from the chat window.
+- **c1 Answers checked against the whole contract.**
+  - `jsonschema` 0.58 (`default-features = false`, as the engine has it) moves
+    from kernel dev-dependency to dependency.
+  - Each role's `output_contract` compiles once at library load; a role whose
+    contract does not compile is rejected there, named.
+  - `read_output` reports each violation at its path; the answer is kept and
+    marked, as today.
+  - Files: `kernel/devpulse-clyffy/{Cargo.toml, src/rooms/{brief.rs, role.rs, mod.rs}}`.
+  - Check: kernel tests for a wrong enum, a wrong type, and a broken contract.
+- **c2 Talk-only Codex.**
+  - `ConnectSpec` gains `talk_only_env`; `AgentSession::start(.., talk_only)`
+    applies it to an ACP agent's launch.
+  - `codex.toml`: `talk_only_env = { INITIAL_AGENT_MODE = "read-only" }`, from
+    codex-acp 2.2.2 `dist/index.js:34362-34368`, checked again at
+    implementation.
+  - Files: `providers/{definition.rs, session/mod.rs, session/acp.rs,
+    connect/mod.rs}`, `config/providers/codex.toml`.
+  - Check (live, CDP): a Council whose Codex selector is asked by a test room
+    prompt to create `hello.txt`; the log shows the refusal; the place's folder
+    stays empty.
+- **c3 Evidence and limits.**
+  - Claude Code's `system/init` `tools` and `mcp_servers` are logged at the
+    seat start (`session/headless.rs:298`).
+  - A definition may pass the prompt on stdin (`prompt_via = "stdin"`) instead
+    of `{prompt}`, which avoids the 32,767-character Windows command line.
+    Claude Code `-p` reads stdin, checked again at implementation.
+  - `Selection`'s four switches become newtype flags (Q48 in the master plan):
+    the exception is gone, and the JSON, schema and TypeScript stay boolean.
+  - Check (live): `Get-CimInstance Win32_Process -Filter "Name='claude.exe'"`
+    during a turn shows `--tools "" --strict-mcp-config`; the init line shows
+    no tools.
+- **c4 Router rooms** per your ruling (master plan Q42; recommended: a
+  `router` role whose contract is `{place, rationale, escalate}`).
+
+**B4.3 — the chat window, built the ColdLight way** (master plan H2–H3).
+
+The order for every visual, with no exceptions:
+
+- `COMPOSITION-CONTRACT.md` `:25-30`, `:110-112`, `:204-211`, `:267-269`;
+- `docs/platform/Desktop.md` §1.1.1;
+- plan 0006 `:22-27`;
+- curator Rules 6 and 28.
+
+The steps:
+
+0. Reuse what ColdLight has.
+1. A library component in `packages/coldlight/components/<kind>/` with its
+   `behaviors/<group>/<kind>/<kind>.anatomy.ts` and DTCG `tokens.ts`, only when
+   more than one feature uses it.
+2. Presets in `tokens/src/presets/chat.tokens.json`, mirrored in
+   `visual/presets/chat.ts` until 0006 0c.2.
+3. `domains/chat/ui/<name>/` (`Name.svelte`, `name.types.ts`, `index.ts`):
+   props in, callbacks out, no runes.
+4. `feature/` wiring `data-access` to `ui/` with layout classes only.
+5. `data-access/<x>.state.svelte.ts` + `<x>.service.ts` (the only IPC).
+6. Strings in `copy.default.toml` (`[chat.agents]`, `[chat.rooms]`).
+
+Each phase passes:
+
+- `pnpm ds:tokens:build`;
+- `pnpm check`;
+- `scripts/hooks/coldlight-boundary.mjs` at or below its baseline;
+- a coldlight-curator audit;
+- CDP screenshots at 1440 and 1024 wide.
+
+- **B4.3a — the B3.4 UI rebuilt to the rules** (the 2026-10-21 audit, master
+  plan §3F). Nothing new is built on the broken pattern.
+  - `data-access/agents.service.ts` holds every `commands.*`/`events.*` call;
+    `agents.state.svelte.ts` keeps only state.
+  - `ui/agent-picker/` (ColdLight Select, `text-sm`, an error through the
+    `inline-message` component) and `ui/agent-turn/`. The permission choices
+    use `DecisionCard` and the `chat-decision-card` preset, both already
+    there.
+  - `feature/ChatAgentPicker.svelte` and `feature/ChatAgentTurn.svelte` keep
+    only wiring.
+  - The "ready to chat" rule moves to `providers` `util`.
+  - The shared `providersState.start()` handle is reference-counted, so the
+    picker unmounting no longer stops ChatStream's updates.
+  - `SessionRow.svelte`'s active state uses `chat-session-row-active` and
+    `data-state`, not Tailwind visuals; its sizes are `text-sm`.
+  - The literals in `ChatSessionList.svelte` and `ChatStream.svelte` move to
+    copy.
+  - One copy template replaces the two-fragment sentence.
+  - Live: the B3.4 check again (a two-turn Codex thread from the window),
+    screenshots, and an audit with zero findings.
+- **B4.3b — the library pieces.**
+  - Inventory first: which of the 93 components, `blocks/` and the 7 preset
+    families cover a seat, a turn, an outcome and a role card. The list is
+    written into this plan before code.
+  - New kinds only where none fits and the board (B5) also needs them. The
+    expected ones are `seat-card` (a role, an agent, a persona, a state) and
+    `board-column`.
+  - Each new kind gets anatomy, component, types, tokens, schema and index,
+    plus `chat` presets: `chat-seat`, `chat-seat-winner`,
+    `chat-room-outcome`.
+  - Live: each kind's Storybook-style fixture renders (plan 0006 S0 when it
+    lands) and passes the curator audit.
+- **B4.3c — the room's `ui/` adapters.** In `domains/chat/ui/`:
+  - `room-picker` (the library's rooms, in plain words);
+  - `room-seating` (each place: an agent from the ready ones, an optional
+    persona, the room's parameters; the vendor rules' refusals shown as the
+    engine words them);
+  - `room-turn` (seat · role · agent (persona), streaming text,
+    working/using-tool, the candidate letter hidden while blind);
+  - `room-outcome` (winner, runner-up, reasons, dissent, flips, as the room's
+    `record` lists);
+  - `role-browser` (a role's purpose, method, limits and evidence; layman
+    labels first, advanced terms one step away, from the term list);
+  - `persona-form` (writes `{data_dir}/config/personas/<id>.json` through the
+    engine, validated by the kernel).
+- **B4.3d — wiring.**
+  - `data-access/rooms.service.ts` (the `room_*` commands, `roomStreamed`) and
+    `rooms.state.svelte.ts`.
+  - `feature/` files compose the adapters into ChatRoot: the room list beside
+    the threads, and a room's stream.
+  - New engine command: `room_save_persona`, kernel-validated.
+- **B4.3e — live.** From the chat window:
+  - seat a Council (three Claude Code answerers, a Codex selector);
+  - ask it; watch the three answers stream; see the pick marked;
+  - restart and reopen the room with its history;
+  - write a persona and seat it;
+  - the vendor rule refuses a same-vendor selector, in the engine's words.
+
+  Screenshots are checked.
 
 **B4.4 — your checkpoint.** Your sign-off.
+
+### B5 — AgentHub board (master plan H4)
+
+Owner: "agenthub board makes it easy to share state and have AI work with
+other".
+
+Before the design is fixed, these are read:
+
+- the archived agent console (`D:/localdev/review-archive/devpulse labs/src/domains/agent/*`
+  and its `docs/plans/chat-agent-console-plan.md`);
+- devpulselabs `crates/chat/store` (history discovery).
+
+Built here (D1), with every visual in the B4.3 order.
+
+- **B5.1 Your sessions, found.** A kernel history reader lists your Claude Code
+  and Codex sessions on disk (bounded, read-only): project, title, last
+  activity, and resume where the vendor allows it.
+- **B5.2 The board.** Every live thread and room, plus each found session, as a
+  card in a column by state: working, waiting for you (a permission, a pick),
+  done. The cards come from `seat-card`, the columns from `board-column`.
+- **B5.3 Hand-offs.** Send a card's answer (or a room's winner) into another
+  thread or room as context, datamarked like room turns, with your words as
+  the only instructions.
+- **Live:** your real sessions listed; a Codex answer handed to a Claude Code
+  thread, which uses it.
+
+### B6 — your context in every session (master plan H4)
+
+- **B6.1 Memory blocks restored.** `systems/devpulse-persona-mcp/` from
+  `c6ce222c^` (load, save, recall and list memory blocks; idempotency), on
+  Turso instead of libSQL. It was deleted in the kernel cut, and the
+  include-before-delete rule applies.
+- **B6.2 Served.** The kernel MCP SSE server (configured, never started:
+  `engine/src/claude/mod.rs:349`, port 9315) starts with the app. ACP
+  `session/new` passes it in `mcpServers`, and Claude Code gets an
+  `--mcp-config` for non-talk-only seats.
+- **Live:** an agent answers with a fact that only DevPulse's memory blocks
+  hold.
+
+### B1 addendum — OpenRouter (master plan H5)
+
+- An OpenRouter registry row (`OpenAiCompatible`); the key is pasted by you and
+  kept in the OS keyring. DevPulse never takes payment (master plan Q46).
+- Endpoints (local by URL, OpenRouter) become seatable in rooms beside
+  subscriptions.
+- Live: one room with a subscription, an OpenRouter model and a local endpoint,
+  all answering.
+
+### Part N — New project, rolled out (master plan H7)
+
+Each phase uses the B4.3 UI order, and each outward action waits for your OK at
+the time.
+
+- **N1 The questions** at project creation: deployable? needs kernel access?
+  shares context with which projects?
+- **N2 Containers per project** by your rule: kernel access → Docker, a service
+  → Podman. Stage 3b's detection and install buttons are reused, not rebuilt.
+- **N3 A Makefile** from the answers (build, run, test, container targets),
+  shown before it is written.
+- **N4 GitHub.**
+  - Have it? Else get started (sign-in Y2).
+  - Create the repo.
+  - Write an Actions CI workflow for the project's stack, explained in plain
+    words.
+  - Gates: master plan Q32 (OAuth client id) and your OK at the time.
+- **N5 RRFlow isolation** from N1's sharing answer, once master plan K4 lands.
 
 ## Part C — The Model Loader maintains every capability (after Part A)
 
@@ -1823,3 +2005,20 @@ queries proving what was written.
       - "Failed to flush span traces to DuckDB" repeats; it predates rooms
         (in earlier session logs) and is not part of B4.
       - The outcome log line printed `Some(…)`; it now names the place.
+  - 2026-10-21 — **Planned after your review** ("get this fully planned out …
+    you establish the raw first under design/components/compname and then you
+    have the actual rendered version authored colocated under the ui folder").
+    - Three research passes found:
+      - the B3.4 chat UI breaks the ColdLight rules (audit in master plan §3F);
+      - Codex's default mode never asks for permission;
+      - log size comes from surrealkv WAL replay at boot;
+      - the DuckDB span flush writes `'null'` into `BIGINT`.
+    - Added: B4.2c (the whole contract checked, talk-only Codex, evidence,
+      stdin prompts, newtype flags, Router per ruling); B4.3 rewritten to the
+      ColdLight order, with B4.3a rebuilding the B3.4 UI first; B5 AgentHub
+      board; B6 memory blocks restored and served; the B1 OpenRouter addendum;
+      Part N (new project: containers, Makefile, GitHub, Actions).
+    - Cross-plan sequencing, the identity steps (P3b: shippin.cloud opt-in),
+      Overmind's arena, team channels, A2UI and Chatmaton are in master plan
+      Stage H (`~/.claude/plans/devpulse-done-right.md`), with rulings
+      Q42–Q49.
