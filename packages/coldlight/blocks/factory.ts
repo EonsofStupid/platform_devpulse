@@ -5,10 +5,13 @@
  *
  * Factory function for creating new BlockNode instances.
  * Looks up the catalog for default style IDs, generates unique IDs.
+ *
+ * Block and document IDs are persisted (saved documents, exports), so they
+ * are random UUIDs: `idGen` counts per page load, and a saved `blk-2` met a
+ * fresh `blk-2` after a reload.
  * Style presets are resolved at build time (SD5 DTCG pipeline), not here.
  */
 
-import { idGen } from "#coldlight/utils/idGen.js";
 import type { BlockNode } from "./schema.js";
 
 /**
@@ -19,7 +22,7 @@ export function createBlockNode(kind: string, presetId?: string): BlockNode {
 	const styleId = presetId ?? `${kind}-default`;
 
 	return {
-		id: idGen("blk"),
+		id: `blk-${crypto.randomUUID()}`,
 		kind,
 		recipe: styleId,
 		props: {},
@@ -39,7 +42,7 @@ export function createBlockDocument(label = "Untitled"): {
 } {
 	const now = new Date().toISOString();
 	return {
-		id: idGen("doc"),
+		id: `doc-${crypto.randomUUID()}`,
 		version: 1,
 		label,
 		root: [],

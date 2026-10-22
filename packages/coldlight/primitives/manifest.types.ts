@@ -1,16 +1,15 @@
 /**
- * @file Manifest entry types — what the VPB reads from a scanned manifest
- * @layer vpb
- * @package @devpulse/sys
+ * @file Manifest entry types — a primitive's and a component's contract as data
+ * @package @devpulse/coldlight
+ * @layer primitive
  *
  * The entries ColdLight's contract scanner wrote into
  * `coldlight.manifest.json`: primitives (ARIA, slots), components (focus,
  * keyboard, interactions), recipes, effects and SVG filters. Taken from
  * `$lib/design/scanner.types.ts` (deleted in 31dfab89) with the primitive
  * schema types it imported (`primitives/_schema/types.ts`, deleted in
- * c7a10cad) inlined, since neither the scanner nor the primitives are
- * restored yet. The manifest generated today has none of these sections,
- * so the VPB's A11y, SEO and Contract tabs say so until the scanner returns.
+ * c7a10cad) inlined. `contracts.ts` builds the primitive and component
+ * entries from today's specs and anatomies.
  */
 
 /** ARIA requirements for a slot */

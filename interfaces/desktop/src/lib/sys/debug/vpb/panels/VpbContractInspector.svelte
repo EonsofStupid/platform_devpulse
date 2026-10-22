@@ -7,7 +7,7 @@
 	Pulled from manifest data.
 -->
 <script lang="ts">
-import type { ManifestComponent, ManifestPrimitive } from "../manifest/manifest.types.js";
+import type { ManifestComponent, ManifestPrimitive } from "@devpulse/coldlight/primitives";
 
 let {
 	primitive,

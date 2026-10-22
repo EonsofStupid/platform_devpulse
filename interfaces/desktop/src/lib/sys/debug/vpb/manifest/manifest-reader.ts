@@ -1,39 +1,43 @@
 /**
- * @file Manifest Reader — Loads ColdLight Unified Manifest for VPB
+ * @file Manifest Reader — ColdLight contracts for the VPB
  * @layer vpb
  * @package @devpulse/sys
  *
- * Loads ColdLight's generated `coldlight.manifest.json`. The scanned
- * manifest holds primitives, components, recipes, effects and SVG —
- * produced by `pnpm ds:build:full` while the contract scanner existed.
- *
- * Returns null when the manifest lacks the scanned sections (the one
- * generated today does: the scanner was deleted in 31dfab89).
+ * The scanned manifest (`coldlight.manifest.json`, written by the contract
+ * scanner deleted in 31dfab89) held primitives, components, recipes,
+ * effects and SVG. Its primitive and component entries now come straight
+ * from ColdLight's primitive catalog (spec + anatomy per kind), so they are
+ * never stale. Recipes, effects, SVG and the token encoding have no source
+ * today; those sections stay empty.
  * Provides typed accessors for VPB panels.
  */
 
-import type {
-	ManifestComponent,
-	ManifestEffect,
-	ManifestPrimitive,
-	ManifestRecipe,
-	ManifestSvgFilter,
-} from "./manifest.types.js";
+import {
+	type ManifestComponent,
+	type ManifestEffect,
+	type ManifestPrimitive,
+	type ManifestRecipe,
+	type ManifestSvgFilter,
+	PRIMITIVES,
+	toManifestComponent,
+	toManifestPrimitive,
+} from "@devpulse/coldlight/primitives";
 
 /**
- * Unified manifest shape — produced by ds:build:full.
- * Combines token data (from SD5) + scanner data (primitives, components, recipes, effects, SVG).
+ * Unified manifest shape — as ds:build:full produced it. Primitives and
+ * components are always present (from the catalog); the other sections
+ * only when something produces them.
  */
 export interface UnifiedManifest {
-	readonly $schema: string;
-	readonly version: string;
+	readonly $schema?: string;
+	readonly version?: string;
 	readonly generatedAt: string;
-	readonly config: {
+	readonly config?: {
 		readonly framework: string;
 		readonly adapter: string;
 		readonly ariaStateProvider: string;
 	};
-	readonly tokens: {
+	readonly tokens?: {
 		readonly pipeline: string;
 		readonly encodingCategories: readonly {
 			readonly code: string;
@@ -69,15 +73,15 @@ export interface UnifiedManifest {
 	readonly components: {
 		readonly kinds: readonly ManifestComponent[];
 	};
-	readonly recipes: {
+	readonly recipes?: {
 		readonly entries: readonly ManifestRecipe[];
 	};
-	readonly effects: {
+	readonly effects?: {
 		readonly definitions: readonly ManifestEffect[];
 		readonly categories: readonly string[];
 		readonly conflictGroups: Record<string, readonly string[]>;
 	};
-	readonly svg: {
+	readonly svg?: {
 		readonly filters: readonly ManifestSvgFilter[];
 		readonly blanks: readonly { shape: string; availableFilters: readonly string[] }[];
 	};
@@ -86,32 +90,17 @@ export interface UnifiedManifest {
 let cachedManifest: UnifiedManifest | null = null;
 
 /**
- * Load the scanned ColdLight manifest.
- * Returns null if it is missing or lacks the scanned sections.
+ * Build the manifest from ColdLight's primitive catalog (cached).
+ * Async and nullable as the scanned manifest's loader was.
  */
 export async function loadManifest(): Promise<UnifiedManifest | null> {
 	if (cachedManifest) return cachedManifest;
-
-	try {
-		const mod = await import("@devpulse/coldlight/generated/coldlight.manifest.json");
-		const manifest: unknown = mod.default;
-		if (!isUnifiedManifest(manifest)) return null;
-		cachedManifest = manifest;
-		return cachedManifest;
-	} catch {
-		return null;
-	}
-}
-
-/** Whether a manifest carries the sections the contract scanner wrote. */
-function isUnifiedManifest(value: unknown): value is UnifiedManifest {
-	const m = value as Partial<UnifiedManifest> | null;
-	return (
-		m !== null &&
-		typeof m === "object" &&
-		Array.isArray(m.primitives?.kinds) &&
-		Array.isArray(m.components?.kinds)
-	);
+	cachedManifest = {
+		generatedAt: new Date().toISOString(),
+		primitives: { kinds: PRIMITIVES.map(toManifestPrimitive) },
+		components: { kinds: PRIMITIVES.map(toManifestComponent) },
+	};
+	return cachedManifest;
 }
 
 /**
@@ -145,7 +134,7 @@ export function getComponentFromManifest(
  * Get all recipes for a given kind from the manifest.
  */
 export function getRecipesFromManifest(manifest: UnifiedManifest, kind: string): ManifestRecipe[] {
-	return manifest.recipes.entries.filter((r) => r.kind === kind);
+	return manifest.recipes?.entries.filter((r) => r.kind === kind) ?? [];
 }
 
 /**
@@ -155,7 +144,7 @@ export function getEffectsFromManifest(
 	manifest: UnifiedManifest,
 	category: string,
 ): ManifestEffect[] {
-	return manifest.effects.definitions.filter((e) => e.category === category);
+	return manifest.effects?.definitions.filter((e) => e.category === category) ?? [];
 }
 
 /**
@@ -164,6 +153,6 @@ export function getEffectsFromManifest(
 export function getEncodingCategory(
 	manifest: UnifiedManifest,
 	code: string,
-): UnifiedManifest["tokens"]["encodingCategories"][number] | undefined {
-	return manifest.tokens.encodingCategories.find((c) => c.code === code);
+): NonNullable<UnifiedManifest["tokens"]>["encodingCategories"][number] | undefined {
+	return manifest.tokens?.encodingCategories.find((c) => c.code === code);
 }

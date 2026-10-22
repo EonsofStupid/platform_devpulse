@@ -52,6 +52,11 @@
 			"svelte": "./plugins/*/index.ts",
 			"default": "./plugins/*/index.ts"
 		},
+		"./primitives": {
+			"types": "./primitives/index.ts",
+			"svelte": "./primitives/index.ts",
+			"default": "./primitives/index.ts"
+		},
 		"./primitives/*": {
 			"svelte": "./primitives/*/index.ts"
 		},

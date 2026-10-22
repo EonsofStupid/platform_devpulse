@@ -35,6 +35,16 @@ const component = $derived(
 	manifest && node ? getComponentFromManifest(manifest, node.kind) : undefined,
 );
 
+/** The element of the slot that carries the primitive's role (`root` when there is one). */
+const semanticElement = $derived(
+	primitive
+		? (primitive.slotSpec.root?.element ??
+				Object.values(primitive.slotSpec).find((s) => s.aria.role === primitive.aria.role)
+					?.element ??
+				"div")
+		: "div",
+);
+
 let inspectorTab = $state<
 	"presets" | "props" | "output" | "contract" | "recipes" | "accessibility" | "seo" | "style"
 >("props");
@@ -201,7 +211,7 @@ function formatKindName(kind: string): string {
 			<div class="vpb-props__section">
 				{#if primitive}
 					<span class="vpb-props__label">Semantic Element</span>
-					<div class="vpb-props__value">&lt;{primitive.slotSpec?.root?.element ?? "div"}&gt;</div>
+					<div class="vpb-props__value">&lt;{semanticElement}&gt;</div>
 
 					<span class="vpb-props__label">ARIA Landmark</span>
 					<div class="vpb-props__value">{primitive.aria?.role ?? "none"}</div>
