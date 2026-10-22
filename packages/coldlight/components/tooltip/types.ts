@@ -9,8 +9,10 @@
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
 import type { TooltipPrimitiveProps } from "#coldlight/behaviors/overlays/tooltip/index.js";
+import type { SurfaceFamily } from "#coldlight/renderforge/generated/surfaces.js";
+import type { TooltipVariant } from "./tooltip.generated.js";
 
-export type TooltipPreset = "default" | "stark" | "glass" | "flat" | "matte";
+export type { TooltipVariant } from "./tooltip.generated.js";
 
 // =============================================================================
 // ROOT PROPS
@@ -41,6 +43,8 @@ export interface TooltipTriggerProps extends Omit<HTMLAttributes<HTMLSpanElement
 export interface TooltipContentProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
 	children?: Snippet;
 	class?: string;
-	/** Visual preset — selects style configuration. Default: "default" */
-	preset?: TooltipPreset;
+	/** Surface role, from tooltip.tokens.json; the family in scope supplies it. Default: "elevated" */
+	variant?: TooltipVariant;
+	/** Family for the bubble and what it holds; unset, it takes the family in scope. */
+	surface?: SurfaceFamily;
 }

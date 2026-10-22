@@ -8,15 +8,20 @@
 -->
 <script lang="ts">
 import { tooltipAnatomy } from "#coldlight/behaviors/overlays/tooltip/index.js";
-import { cssVarString, renderForge } from "#coldlight/renderforge/index.js";
+import { styleAttrs } from "#coldlight/renderforge/index.js";
 import { cn } from "#coldlight/utils/cn.js";
 import { getTooltipContext } from "./context.js";
+import { TOOLTIP_DEFAULTS } from "./tooltip.generated.js";
 import type { TooltipContentProps } from "./types.js";
 
-let { preset = "default", children, class: className, ...rest }: TooltipContentProps = $props();
+let {
+	variant = TOOLTIP_DEFAULTS.variant,
+	surface,
+	children,
+	class: className,
+	...rest
+}: TooltipContentProps = $props();
 const ctx = getTooltipContext();
-
-const m = $derived(renderForge({ kind: "tooltip", preset }));
 </script>
 
 {#if ctx.hook.open}
@@ -24,9 +29,8 @@ const m = $derived(renderForge({ kind: "tooltip", preset }));
 			{...tooltipAnatomy.attrs.content}
 			{...ctx.hook.content}
 			{...rest}
-			{...m.dataAttrs}
-			style={cssVarString(m.cssVars)}
-			class={cn("absolute z-50 px-3 py-1.5 text-sm rounded-md", className)}
+			{...styleAttrs({ kind: "tooltip", variant, surface })}
+			class={cn("absolute z-50 px-3 py-1.5", className)}
 		>
 			{@render children?.()}
 		</div>

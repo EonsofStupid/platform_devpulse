@@ -1,0 +1,27 @@
+{
+	"$description": "Tooltip's tokens (plan 0006 §0s). The build generates styles/components/kinds/tooltip.css and tooltip.generated.ts from the tooltip group.",
+	"tooltip": {
+		"$description": "Styles the content bubble. Each variant is a surface role read from the family in scope; the old presets map to: default → elevated; glass → glass + deep; stark → stark + glow; flat → flat + minimal; matte → neuro + solid. The kind owns its radius and label size (the class map's rounded-md and text-sm); padding and position stay as layout.",
+		"$extensions": {
+			"com.coldlight": {
+				"slot": "content",
+				"accepts": ["surface", "text", "frame"],
+				"defaults": { "variant": "elevated" }
+			}
+		},
+		"base": {
+			"border-style": { "$value": "solid", "$type": "strokeStyle" },
+			"border-radius": { "$value": "{radius.md}", "$type": "dimension" },
+			"font-size": { "$value": "0.875rem", "$type": "dimension" },
+			"line-height": { "$value": "1.25rem", "$type": "dimension" }
+		},
+		"variant": {
+			"elevated": { "$extensions": { "com.coldlight": { "role": "elevated" } } },
+			"deep": { "$extensions": { "com.coldlight": { "role": "deep" } } },
+			"minimal": { "$extensions": { "com.coldlight": { "role": "minimal" } } },
+			"solid": { "$extensions": { "com.coldlight": { "role": "solid" } } },
+			"glow": { "$extensions": { "com.coldlight": { "role": "glow" } } },
+			"muted": { "$extensions": { "com.coldlight": { "role": "muted" } } }
+		}
+	}
+}

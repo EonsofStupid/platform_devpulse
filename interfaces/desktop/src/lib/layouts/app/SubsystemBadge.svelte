@@ -83,7 +83,7 @@ const clyffyLine = $derived.by<string | null>(() => {
 		</Badge>
 	</TooltipTrigger>
 
-	<TooltipContent preset="glass" class="max-w-xs">
+	<TooltipContent surface="glass" variant="deep" class="max-w-xs">
 		<div class={stack({ gap: "2" })}>
 			<div class={hstack({ gap: "2", align: "baseline", justify: "between" })}>
 				<Text size="sm" weight="semibold" preset="default">
