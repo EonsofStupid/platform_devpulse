@@ -1790,3 +1790,36 @@ queries proving what was written.
       - tests: kernel 133 (+1 talk-only), engine 150, contract 4;
       - svelte-check: 0 errors.
     - Live check: not yet run (next).
+  - 2026-10-21 — **B4.2 live check passed: a Council in the running app.**
+    - Through the app's own IPC (CDP), the Council
+    (`sess-0adbd837-07d8-489e-9b56-0a2a65bed38b`) was seated with three
+    Claude Code answerers and a Codex selector, then asked "In one short
+    sentence: why do databases use indexes?".
+    - The three answers came in parallel at 12 s, each blind (candidates A,
+      B and C). Every answer followed the domain expert's contract
+      (`answer`, `confidence: "high"`, `out_of_domain`).
+    - At 42 s the Codex selector picked C (`answerer-3`, the book-index
+      analogy) with A as runner-up. It gave four reasons, one per candidate
+      including why B lost, and no dissent.
+    - Saved:
+      - turns: user, three assistant turns (claude-code), one assistant turn
+        (codex), and the system outcome;
+      - `room_threads` lists "council Council turns=6";
+      - 536 streamed agent events.
+    - Talk-only, from the app's log and on disk:
+      - all four places joined `talk_only=true`;
+      - each worked in its own empty folder under
+        `.userdata/rooms/{session}/`, and none wrote a file;
+      - no permission was asked, so the refusal path is still unexercised
+        live.
+      - Claude Code receiving `--tools ""` is covered by its unit test and
+        the code path, not observed in a process listing.
+    - Found:
+      - The kernel reads an answer's JSON for its required fields only, not
+        the contract's types or enums. Full JSON Schema validation of
+        answers is a follow-up.
+      - The session log grows about 270 MB in 20 minutes from the ACP
+        library's trace output (known).
+      - "Failed to flush span traces to DuckDB" repeats; it predates rooms
+        (in earlier session logs) and is not part of B4.
+      - The outcome log line printed `Some(…)`; it now names the place.

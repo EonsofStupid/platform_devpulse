@@ -432,7 +432,12 @@ impl Host {
         if let Err(e) = saved {
             tracing::warn!(target: "rooms", session_id = %self.session_id, error = %format!("{e:#}"), "the room's outcome was not saved");
         }
-        tracing::info!(target: "rooms", session_id = %self.session_id, rounds = outcome.rounds, winner = ?outcome.pick.as_ref().and_then(|p| p.winner_place.clone()), "room answered");
+        let winner = outcome
+            .pick
+            .as_ref()
+            .and_then(|p| p.winner_place.as_deref())
+            .unwrap_or("none");
+        tracing::info!(target: "rooms", session_id = %self.session_id, rounds = outcome.rounds, winner, "room answered");
         let _ = self.out.send(RoomEvent::Finished { outcome });
     }
 }
