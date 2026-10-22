@@ -7,6 +7,11 @@
 //! - A persona (`dpl.persona/1`, [`persona`]) is a character a seat can
 //!   speak as, added to its role's prompt.
 //!
+//! A room runs in three parts: [`seating`] puts an agent (and a persona) in
+//! every place and checks the room's vendor rules; [`brief`] says what each
+//! place is told; [`run`] takes the phases round after round and picks one
+//! answer, over a host that talks to the agents.
+//!
 //! The design and the bundled roles and rooms are the owner's, brought from
 //! devpulselabs at 4ee638b. The schemas are under `config/schemas/`, and the
 //! research every bundled role and room cites is
@@ -17,9 +22,12 @@
 //! with a higher version. A file that does not pass is never loaded half-way:
 //! it is named with its problems.
 
+pub mod brief;
 pub mod persona;
 pub mod role;
 pub mod room;
+pub mod run;
+pub mod seating;
 
 use std::fmt;
 use std::path::Path;
@@ -29,6 +37,8 @@ use serde::{Deserialize, Serialize};
 pub use persona::{Persona, PERSONA_SCHEMA};
 pub use role::{RoleCard, Stance, ROLE_SCHEMA};
 pub use room::{resolve_role, RoomSpec, RoomType, ROOM_SCHEMA};
+pub use run::{Outcome, Pick, RoomHost, RoomRun, RoomTurn, Stopped};
+pub use seating::{seat, Assignment, Place, SeatedRoom};
 
 /// The bundled roles, by file name.
 const BUNDLED_ROLES: [(&str, &str); 11] = [

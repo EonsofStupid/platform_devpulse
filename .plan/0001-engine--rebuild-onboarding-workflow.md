@@ -1736,3 +1736,31 @@ queries proving what was written.
       `unwrap`/`expect` in older kernel tests (intelligence/pipeline,
       llguidance/handle, duckdb/diagnostics, reasoning/state,
       knowledge/tests).
+  - 2026-10-21 — **B4.2a done: rooms run in the kernel**, by the run rules
+    above.
+    - `rooms/seating.rs` seats a room from your library and checks:
+      - every place has one agent;
+      - every persona exists;
+      - both vendor rules;
+      - what cannot run yet: Router, a selector picking the next speaker,
+        selection by vote or by you.
+    - `rooms/brief.rs` writes each place's first prompt, datamarks others'
+      words with a per-room nonce (a forged closing tag is broken up), and
+      reads an answer's final JSON block against its contract.
+    - `rooms/run.rs` (`RoomRun` over a `RoomHost` the engine will provide)
+      runs:
+      - parallel and sequential phases, `max_turns` and rounds;
+      - the `stability` and `pass_threshold` stops, and flips;
+      - blind selection by letter, `none`, `tie`, and a panel's majority.
+
+      A failed agent is kept but is no candidate. A selector that breaks
+      its form picks nothing and says why. A later question does not repeat
+      the briefs.
+    - Verified: kernel tests 132 (15 new, scripted agents):
+      - a blind Council;
+      - a Debate interleaving rebuttals and stopping when stable;
+      - Author + Critic stopping on a clean critique with both drafts as
+        candidates;
+      - seating refusals.
+
+      Lib clippy, the specta build and cargo fmt are clean.
