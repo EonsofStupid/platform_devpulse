@@ -277,76 +277,161 @@ source covers all of it, and the owner OKs that removal (owner rule
 | 0d.2 | The status bar becomes `layouts/app/status-bar/`: a `StatusBar.svelte` shell plus `status-bar.tokens.ts`, and `segments/<name>/` folders holding a `Segment.svelte` and its own `tokens.ts`. Variants are `data-state` (ready, loading, failed, pending). Each segment's `<style>` reads only its generated variables, with no literal values. First step: the shell plus the subsystem segment. | shell, its tokens, subsystem segment and tokens, `Frame.svelte` | One line at 1280 and 1920 px (no "Turso (system)" wrap); `scrollWidth <= clientWidth` (no scrollbar); VRAM text not clipped; when space runs out, groups collapse to dot + icon (container query), with the full detail in the existing tooltip |
 | 0d.3 | The remaining segments (connection, brain, VRAM, uptime/version), in batches of 5 or fewer. The old `StatusBar.svelte` and `SubsystemBadge.svelte` are deleted. | segment folders | Zero literal colors or sizes in `status-bar/`; screenshots |
 
-#### 0s — One styling source, colocated *(owner ruling 2026-10-22)*
+#### 0s — The styling model, rewritten *(owner rulings 2026-10-22)*
 
 > "we merge them to one clear source that is grounded in advance best
 > practices for colocated styling and svelte"
+>
+> "rewrite it while in pre-release to align with best practices and how real
+> world advance senior dev would approach this ensuring consistency and
+> extending what is right and reading the full code to rewrite and align"
 
-Supersedes 0c.2, 0c.3 and 0d.1, and the collector deletion in 0a.1.
+Supersedes 0c.2, 0c.3, 0d.1 and 0a.1's collector deletion. It realises
+§1–§6 and Phases 1, 3 and 5 as one model, and it unparks PL-001 and PL-007
+(`packages/coldlight/PARKING-LOT.md`).
 
-**What exists (measured 2026-10-22; `SD/`, `CL/` = `packages/coldlight/`):**
+##### What the full read found (2026-10-22)
 
-- **Family presets, three copies of one dataset.**
-  - `CL/visual/presets/*.ts` is the origin (50 presets with chat).
-  - `SD/generate-style-presets.ts` writes `SD/tokens/src/style-presets.json` from it. It is run by hand and is not in the build. 156 of the file's 166 entries are byte-identical to what it generates.
-  - `SD/tokens/src/presets/*.tokens.json` is a hand split of that JSON, identical entry for entry, with no generator.
-  - Both JSON copies are build sources (`sd.config.mjs:878-883`), so every preset loads twice.
-  - Ten `button-*` entries (06de6cc5) exist only in `style-presets.json`.
-  - Two catalogs disagree: `CL/visual/presets/index.ts` lists 50 presets; `CL/presets/catalog.ts` lists 36 and omits chat. The VPB reads the second.
-- **Per kind, nothing reaches CSS.**
-  - Nothing produces the `--style-<kind>-<id>-*` layer that `render.ts:87` reads.
-  - The 10 `components/<kind>/tokens.ts` are read by no build step.
-  - The `@defaults` / `@styleIds` / `@defaultStyle` annotations in 84 `.svelte` files are read by nothing (75 are identical).
-  - Variant maps live inside components: `ChatBubble.svelte:40-47`, `alert/types.ts:23-28` (imported but unused), `Skeleton.svelte:29`.
-  - `variant` props are declared and unused (`card/schema.ts:17`).
-  - `ButtonPreset` says `danger`, the tokens say `destructive`, so the button tokens are skipped.
-  - `derive-kind-families.mjs` assumes `<kind>-<variant>` keys. Today's keys are `<family>-<variant>`, so `kind-families.ts` lists `neuro` and `glass-deep` as kinds, and `card` falls back.
-- **The March generation** (`1f85fe35^`), all per kind:
-  - `presets/<kind>.json`: 79 kinds, 398 intents, 6-axis shorthand.
-  - `component.json` `style.<kind>-<intent>`: 398 hand-tuned 11-axis entries, emitted as `--style-<kind>-<intent>-*`.
-  - `component-tokens.json`, collected from `tokens.ts`. Size tokens became empty groups.
-  - Collectors:
-    - shorthand → 11 axes (bevel and glow read but dropped);
-    - element seeds (`@` annotations → `ui-catalog.json`).
-- **SVG:** `svg-presets.json` (`svg-style.<kind>-<preset>`) is per kind and alive, but kept centrally.
+These come from two inventories: every component folder (93) and block (21),
+and every call site in the app (2,579 ColdLight tags in 193 files).
 
-**The one source:**
+- **Most look props do nothing.**
+  - Text `color` is used 753 times but is not a prop, so it lands as an HTML attribute.
+  - Badge `variant` (180) and `fillStyle` (41): every badge renders the same `neuro-elevated` look.
+  - InlineMessage `tone` (35): `TONE_PRESETS` is declared and unused, so 29 error messages look like info.
+  - Also inert: Callout `variant` (25), Card `variant` (9), Widget's six axis props (24 widgets), the stories' Button `intent` (27).
+  - Only `preset`, Spinner `tone`, StatusDot `status` and the SVG/Stat `accent` change anything.
+- **Five names for "which look":** `preset`, `variant`, `tone`, `intent`, and a `style` string (7 chat components).
+  - `variant` means eight unrelated things: severity, surface, role, layout, marker, shape, line, brand.
+  - `preset` mixes intents (`primary`, `danger`) and materials (`glass`, `flat`), which collapse onto about five looks through `INTENT_MAP`. Unknown values fall back silently.
+- **Size:** 27 of 57 components declare `size` and ignore it. Where it works, it is a per-file Tailwind class map, on six different scales.
+- **State:**
+  - No component passes `state`. Hover, disabled, selected and open are Tailwind patches or missing.
+  - The generated `-hover` / `-active` / `-disabled` preset tokens are unreachable, and `RenderState` has no `hover`.
+- **Families are looked up by preset id, not by kind.** As a result:
+  - no component gets the overlay family, so glass never blurs;
+  - only Button gets the interactive family.
+- **Parts and layers:**
+  - One `renderForge` call per component; parts carry `data-kind` without styling, so opacity compounds down the tree.
+  - Floating parts (select, combobox, menus, date pickers) have no surface.
+  - Hard-coded Tailwind visuals inside components override presets, because utilities outrank `layer(components)`.
+- **How the app compensates:**
+  - 455 inline visual styles;
+  - 101 visual `:global` rules;
+  - 69 visual Tailwind classes on ColdLight components;
+  - 88 variable names defined nowhere.
+  - `{...rest}` order differs: Text, Button and Badge drop a caller's `style`, while Card and the message components let it wipe the preset.
+- **The dependency runs both ways, and theming is ad hoc.**
+  - ColdLight reads tokens and attributes the app defines (`--accent-primary-*`, `--accent-service-*`, `[data-layout="chat"]`).
+  - The Provider is mounted nowhere.
+  - Theming is per-route CSS in `app.css` plus about ten private local-accent properties.
+- **Dead metadata:**
+  - the `@defaults` / `@styleIds` annotations (84 files);
+  - schemas that contradict the props (Button and Card `variant`);
+  - `KindName`, which misses 35 rendered kinds;
+  - `VisualAxisProps`, which no component reads.
 
-| Concern | One source | Lives with | Emitted as |
+##### The model
+
+**1. Two dimensions of look (PL-001 unparked).** A *family* is a visual
+language: neuro, glass, retro, chrome, flat, stark. A *role* is what the
+element is for.
+
+- **Family is a scope.**
+  - `data-surface="<family>"` is set by the Provider at the root and by any container (§4, decision 2), and a component may set it on itself through its `surface` prop.
+  - Switching a family restyles a whole subtree consistently. This is the pattern of Radix Themes (`<Theme>`) and Spectrum (`Provider`) nesting.
+- **Role is the component's prop.**
+  - A family defines every role: today's six family variants elevated / deep / minimal / solid / glow / muted are the surface roles.
+  - The component's `variant` picks a role, and the family in scope supplies its values.
+- **Chat is not a family.** Its 14 golden patterns are the chat feature's own looks, colocated with it (§5).
+
+**2. One prop vocabulary for every component.** These are the only props
+that select a look:
+
+| Prop | Means | Values | Applies to |
 | --- | --- | --- | --- |
-| Family preset (a shared look) | `tokens/src/presets/<family>.tokens.json` | ColdLight's token sources | `--preset-<family>-<variant>-*` (unchanged) |
-| A kind's anatomy tokens | `components/<kind>/<kind>.tokens.json`, group `<kind>.<part>` | the component | `--<kind>-<part>-<prop>` |
-| A kind's variants | same file, group `<kind>.variant.<name>`: `$extends` a family preset and overrides only what differs | the component | `--style-<kind>-<name>-*` (the layer `renderForge` already reads) |
-| A feature's one-offs | `<feature>/<feature>.tokens.json` (§5) | the feature | `@layer coldlight.overrides [data-feature]` |
-| An SVG kind's looks | `svg/<kind>/<kind>.tokens.json`, same rules | the SVG kind | `--svg-style-*` (unchanged) |
+| `variant` | role / emphasis | actions: `primary` `secondary` `ghost` `danger`; surfaces: `elevated` `deep` `minimal` `solid` `glow` `muted` | per category, closed per kind |
+| `tone` | status colour | `neutral` `accent` `informative` `positive` `notice` `negative` (Spectrum's six, already Badge's) | badge, alert, callout, inline message, banner, toast, spinner, status dot, text |
+| `fillStyle` | how a tone fills | `bold` `subtle` `outline` (Spectrum) | status kinds |
+| `size` | dimensions | `xs` `sm` `md` `lg` `xl` (`visual/sizes.ts`) | sized kinds; pixel-geometry kinds (avatar, gauges) keep numbers |
+| `role` | type role (decision 1) | Material 3 display / headline / title / body / label × L/M/S, plus `code` and `stat` | text, heading, label |
+| `surface` | family for this subtree | the six families | any kind (a scope of one) |
 
-**Why this shape (established practice):**
+`preset`, `intent`, the chat `style` string and the eight axis props leave
+the API. Text's 753 dead `color=` become `tone=`.
 
-- **Format.** DTCG 2025.10 (final CG report, 2025-10-28): §4.2 recommends the `.tokens.json` extension. §6.4 defines `$extends`, group inheritance in which local tokens replace inherited ones at the same path. A variant is then a family preset plus its differences, never a copy.
-- **Colocation.** The component folder owns everything about the component: the `.svelte`, types, tests and its tokens. Moving or deleting a component takes its styling with it, and the VPB edits one file per kind. Per-component token files are common practice (Style Dictionary per-component source globs; Carta's ink keeps a token file per component).
-- **JSON authored, TS generated.** DTCG JSON is what every token tool reads and writes (Style Dictionary, Figma variables / Tokens Studio, and the VPB, which writes JSON per §5). TypeScript gets typed access from Style Dictionary's generated `types/`, including each kind's variant union. Prop types then come from the one source and cannot drift (`danger` / `destructive`).
-- **Svelte.** A component maps its `variant` prop to a variant id from its own tokens file. It reads only generated custom properties through `data-kind` / `data-variant` / `data-slot`, with no inline visual styles (§6).
+**3. One colocated source per kind.**
 
-**The build:**
+- `components/<kind>/<kind>.tokens.json` (DTCG 2025.10) holds the kind's parts (from its anatomy) and, per part, the properties that alias semantic roles: `card.root.background = {surface.role.background}`. It also holds:
+  - **variants** (role per variant),
+  - **sizes** (dimension tokens per size),
+  - **tones** (semantic tone tokens per part),
+  - **defaults** (`$extensions["com.coldlight"].defaults`),
+  - **accepted concerns** (§3).
+- Per-family overrides for a kind live in the same file, as `<kind>.family.<family>.<part>.<prop>`. This is how RENDERFORGE.md P2, "fork one (kind, preset, axis)", stays possible without inline chains. It is also where the March per-kind looks go (decision D5).
+- Variants share values through `$extends` (§6.4, `SD/preprocess-extends.mjs`).
+- **The build generates both outputs from that file:**
+  - CSS: `styles/components/<kind>.css` in `@layer coldlight.components`, selectors on `[data-kind][data-slot][data-variant][data-size][data-tone]`, scoped per family with `@scope ([data-surface="<f>"])`;
+  - TypeScript: the kind's variant, size and tone unions and defaults, which the component's props use. Nothing is hand-declared twice.
+- **Families:** `tokens/src/presets/<family>.tokens.json` define each family's roles. They are emitted as role custom properties under `[data-surface="<family>"]`, with neuro as the root default (today's `default` → neuro-elevated).
+- **The pattern is recipes:** Panda / Chakra slot recipes (base + variants + sizes + defaultVariants + compoundVariants, one per part) and Spectrum S2's style macros. Unlike those, which are TS, ColdLight authors them as DTCG, so the VPB and token tools read and write them.
 
-- Style Dictionary globs the colocated files directly, with no conversion step.
-- One preprocessor resolves `$extends` per §6.4. Style Dictionary 5.3.1 (installed) does not, so the preprocessor is removed once it does.
-- The jobs of the three collector stubs are absorbed:
-  - collecting component tokens → the glob;
-  - shorthand expansion → `$extends`;
-  - element seeds → the kind's tokens file plus `CL/primitives/catalog.ts`.
-- A kind's families come from its tokens file (`$extensions["com.coldlight"].accepts`, §3), not from guessing at preset key names.
-- **ADR-001:** its `tokens/src/component.json` → `style.{kind}-{variant}` becomes the colocated file. The emitted name `--style-{kind}-{variant}-{axis}` and the component-owned intent → style-id mapping stay.
+**4. States are attributes.**
 
-| Step | Change | Files | Done when |
-| --- | --- | --- | --- |
-| 0s.1 | **Measure, no changes.** For each of the 79 March kinds, compare every `style.<kind>-<intent>` with the family preset today's code maps that intent to, and list the axes that differ. For every component, list today's styling sources (`tokens.ts`, annotations, variant maps, unused props). The owner picks which March per-kind differences come back; nothing changes a look without that OK (non-goal above). | report appended here | report reviewed |
-| 0s.2 | *Done 2026-10-22: each preset group carries its label/family/variant (`$extensions["com.coldlight"]`); `generate-preset-catalog.mjs` (run by the build) writes `presets/generated/catalog.ts`; `PresetFamily` includes chat; the 10 `button-*` entries sit verbatim in `components/button/button.tokens.json`. Emitted variables 1297 = 1297, identical; manifest 2610 tokens identical as a set.* **Family presets, one source.** The family `.tokens.json` files become the source. `style-presets.json` leaves the build sources; its 10 `button-*` entries go to 0s.4. The catalog reads ids, labels and values from the generated manifest, so the VPB lists all 50 presets, chat included. | `SD/sd.config.mjs`, `CL/presets/catalog.ts`, `CL/visual/presets/index.ts` | Emitted `--preset-*` diff empty; VPB lists 50 |
-| 0s.3 | **The build reads colocated files.** Add the `$extends` preprocessor (§6.4 deep merge; a group target only; a cycle fails the build) and the globs `CL/components/*/*.tokens.json` and `CL/svg/*/*.tokens.json`. *Done 2026-10-22.* Kind families move to 0s.4: read from `accepts` before a kind has its file, button would lose its families and change. | `SD/sd.config.mjs`, new `SD/preprocess-extends.mjs` (+ `.test.mjs`) | §6.4 cases pass (5/5, `node --test`); build output byte-identical |
-| 0s.4 | **Button first.** `components/button/button.tokens.json` gets the anatomy from `tokens.ts` (sizes included, which fixes March's empty `sm`/`md`/`lg` groups) and variants primary / secondary / ghost / danger / voice-active. Each variant `$extends` the family preset `INTENT_MAP` picks today, plus the 10 hand entries' differences. `danger` is the one name. The variant union is generated, and `Button.svelte` and `button.types.ts` use it. `derive-kind-families.mjs` reads a kind's families from its file's `accepts` (falling back to today's derivation for kinds without one). | `button.tokens.json`, `Button.svelte`, `button.types.ts`, `SD/derive-kind-families.mjs` | Snapshot unchanged for all four variants; `--style-button-*` emitted |
-| 0s.5 | **Every other kind, ≤ 5 per batch.** First the other 9 `tokens.ts` kinds, then the kinds with variants (card, chat-bubble, alert, skeleton, …), each carrying the differences the owner kept in 0s.1. A migrated component's `@defaults` / `@styleIds` annotations go, since their content now lives in its tokens file. | per batch | Snapshot unchanged apart from the OK'd differences |
-| 0s.6 | **SVG kinds.** `svg-presets.json` splits into `svg/<kind>/<kind>.tokens.json`. | 2 kind files, `SD/sd.config.mjs` | `--svg-style-*` diff empty |
-| 0s.7 | **Retire what the one source replaced,** each with proof and the owner's OK (2026-10-19 rule): the three collector stubs, `enrich-presets.mjs`, `generate-style-presets.ts`, `style-presets.json`, `visual/presets/*.ts` values, `tokens.ts`, and the duplicate `CL/presets/` or `CL/visual/` modules. ADR-001, `TOKEN_PIPELINE.md` and `PRESET_SYSTEM.md` are rewritten to the one source. | — | Each token has one definition site (grep gate in `verify-tokens.mjs`) |
+- Behaviors set React Aria's state attributes: `data-hovered`, `data-pressed`, `data-focus-visible`, `data-selected`, `data-disabled`, `data-open`.
+- The kind's tokens file gives state deltas, emitted as attribute rules (§2, Phase 3).
+- Interaction colour comes from Material 3 state layers (0b.3). This fixes PL-007 and the dead `-hover` / `-active` copies.
+
+**5. The renderer emits attributes only (§6, Phase 5).**
+
+- `renderForge` stays a pure, framework-free function (RENDERFORGE.md P1). It returns `data-kind`, `data-variant`, `data-size`, `data-tone` and, when given, `data-surface`.
+- Generated CSS does the rest:
+  - no inline custom properties;
+  - no `KIND_FAMILIES`, no `data-cl-*` family markers;
+  - no `INTENT_MAP` (a component's roles are its tokens file).
+- TRUTH.md §3 moves `data-variant` / `data-size` / `data-tone` from Tier 3 (component-private) to Tier 1 (framework vocabulary).
+
+**6. Component rules, all kinds.**
+
+- **Parts:** every part is styled by `data-slot` rules from its kind's file, with no Tailwind visuals in components. Floating parts get the surface their tokens give.
+- **Overrides:** `class` is layout only (Tailwind boundary, 0e). Each component spreads `{...rest}` before its own attributes, so a caller cannot replace its visuals; looks change through props and tokens.
+- **Kind names:** `KindName` is generated from the component folders.
+- **The folder is the component:** `Kind.svelte` + parts, `kind.tokens.json`, `kind.types.ts` (imports the generated unions), `index.ts`, `Kind.test.ts`, `Kind.stories.svelte`.
+- **Direction:** ColdLight reads nothing the app defines. App accents such as `--accent-service-*` become a `data-accent` scope (§4).
+
+##### Decisions for the owner
+
+| # | Decision | Recommendation |
+| --- | --- | --- |
+| D1 | PL-001: family from scope, role from the component | Yes (above) |
+| D2 | `tone` uses Spectrum's six for every status kind | Yes; Badge already does. InlineMessage's info/success/warning/error/help and Spinner's default/muted/… map onto them. |
+| D3 | Dead props start working (Text `color`→`tone` 753, Badge 180, InlineMessage 35, Callout 25) | Yes: the intended look appears; each batch is shown before/after |
+| D4 | One size scale `xs`–`xl`; Text and Heading move from `size`/`weight` to type roles, mapped from what they render today | Yes |
+| D5 | March per-kind looks become `<kind>.family.<family>` overrides, one kind per step, emitted only after a side-by-side OK | Yes; consistent with "looks unchanged" until each is approved |
+| D6 | RENDERFORGE.md P2/P5 and TRUTH.md §3 are rewritten to the attribute model (P2's capability is kept by family overrides) | Yes |
+
+##### Steps
+
+Each step touches ≤ 5 hand-written files; generated outputs and codemodded
+call sites count as one batch. Every step runs the Phase 0 checks plus a
+computed-style snapshot against a saved baseline (Button's:
+`scratchpad/button-baseline.json`, 4 presets × 3 states).
+
+| Step | Change | Done when |
+| --- | --- | --- |
+| 0s.1 | Measure the March per-kind looks | *Done:* report below |
+| 0s.2 | Family DTCG files are the one preset source; the catalog is generated from them | *Done:* `efdd9820`; 1297 variables identical; VPB lists 50 |
+| 0s.3 | The build resolves `$extends` and reads colocated files | *Done:* `fd8ca972`; output byte-identical |
+| 0s.4 | **The kind-file contract and its generator.** A schema for `<kind>.tokens.json` (parts, variants, sizes, tones, states, defaults, accepts, family overrides) validated at build; a Style Dictionary format emitting `styles/components/<kind>.css` and the kind's TS unions. Proven on Button: `button.tokens.json` reproduces today's four looks as variants (each `$extends` its family role plus its own differences; `danger` keeps today's stark-glow look; the unused hand-made `destructive` look stays as data), sizes from `tokens.ts` replace `Button.svelte`'s class map, states from its behavior. | Button snapshot = baseline in all 12 cases; `--button-*` emitted; `ButtonVariant` generated |
+| 0s.5 | **Attributes-only renderer and the family scope.** `renderForge` returns attributes; Button switches to them and its generated CSS; `[data-surface]` role properties are generated; the root carries `data-surface="neuro"` (Provider P0 writes it once it exists). Other kinds keep the inline chain until their batch. | Button snapshot = baseline; every other kind unchanged |
+| 0s.6 | **Kinds by category, ≤ 5 per batch, with their call sites.** Actions (button done, toggle, link); surfaces (card, widget, dialog, popover, sheet, tooltip); status (badge, alert, callout, inline message, banner, spinner, status dot); text (text, heading, label: roles, `tone`); inputs; navigation; data display. Each batch: the kind file (from `tokens.ts` + today's computed look), props to the vocabulary, a codemod for its call sites (e.g. Button `preset=`→`variant=`; Card `preset="glass"` → `surface="glass" variant="deep"`), annotations removed. | Snapshot unchanged except D3's intended looks, shown before/after |
+| 0s.7 | **Feature looks to their features.** Chat's 14 patterns → `domains/chat/**/<feature>.tokens.json` (§5); blocks (Widget, KnowledgeCard, SubsystemTile) on the vocabulary; the app accents → `data-accent` | Chat snapshot unchanged; zero `chat-*` presets in the global set |
+| 0s.8 | **March looks (D5),** one kind per step, side by side | Owner OK per kind |
+| 0s.9 | **Retire what the model replaced,** each with proof and the owner's OK (2026-10-19 rule): the inline chain, `KIND_FAMILIES`, `derive-kind-families.mjs`, `INTENT_MAP`, `visual/presets/*.ts`, `style-presets.json`, `generate-style-presets.ts`, `enrich-presets.mjs`, the three collector stubs, `tokens.ts`, `VisualAxisProps`, the duplicate `CL/presets/` / `CL/visual/` modules. ADR-001, RENDERFORGE.md, TRUTH.md, `PRESET_SYSTEM.md` and `TOKEN_PIPELINE.md` rewritten to this model. | Zero inline visual custom properties in the live DOM; each token has one definition site (`verify-tokens.mjs`) |
+
+App-side cleanup (the 455 inline styles, 101 `:global` rules, 88 undefined
+names, native controls) follows kind by kind as each ColdLight kind can
+express what the app hand-rolled. It is tracked in 0d / 0e and plan 0004.
 
 #### 0s.1 report — March per-kind looks (measured 2026-10-22)
 
@@ -383,9 +468,7 @@ Source: `component.json` → `style` at `1f85fe35^` (398 entries). For each fami
 
 **One-off intents:** `badge-ember-glow`, `badge-glass-label`, `button-danger`, `button-ghost`, `button-primary`, `button-secondary`, `button-voice-active`, `chat-bubble-ai`, `chat-bubble-system`, `chat-bubble-user`, `tabs-chrome`.
 
-**Owner decision (2026-10-22): variants, looks unchanged.** Every March look above becomes a named variant in its kind's tokens file (`$extends` the family preset plus its own differences). Today's defaults render exactly as now; a kind switches to its March look by name or in the VPB.
-
-**Run order inside 0s:** 0s.1 → 0s.3 → 0s.2 → 0s.4 … 0s.7. 0s.2 moves the 10 `button-*` entries into `components/button/button.tokens.json`, which needs 0s.3's glob.
+**Owner decisions on this report (2026-10-22):** first "variants, looks unchanged"; then, when asked how to name them, "rewrite it … to align with best practices". The rewritten model above places the March looks as per-kind family overrides (D5), each emitted only after a side-by-side OK, so today's looks stay unchanged until then.
 
 #### 0e — Tailwind back to layout only
 
@@ -393,9 +476,10 @@ Source: `component.json` → `style` at `1f85fe35^` (398 entries). For each fami
 | --- | --- | --- |
 | 0e | `@theme` emits only layout namespaces (spacing, breakpoints, containers). This fixes `--text-primary` landing in Tailwind's font-size namespace. The 43 visual utility classes in markup (`bg-teal-…`, `text-purple-…` and similar) move to ColdLight tokens and attributes, in batches of 5 or fewer. | Zero visual Tailwind classes (grep gate); snapshot unchanged |
 
-**Order:** 0a.1 → 0a.2 → 0b.1 → 0b.2 → 0b.3 → 0c.1 → 0s.1 … 0s.7 → 0c.4 →
-0d.2 → 0d.3 → 0e. 0s.1 only measures and can run any time; 0s.3 edits
-`sd.config.mjs`, so it follows 0b.1 to avoid redoing that file's routing. Then Phases 1–5 below. The dashboard rebuild (plan
+**Order:** 0a.1 → 0a.2 → 0b.1 → 0b.2 → 0b.3 → 0c.1 → 0s.1 … 0s.9 → 0c.4 →
+0d.2 → 0d.3 → 0e. 0s.1–0s.3 are done (2026-10-22). 0s.4 onward can run before 0a/0b (their
+generated CSS is per kind), except state colours, which wait for 0b.3's
+interaction tokens; until then a kind's states keep today's values. Then Phases 1–5 below. The dashboard rebuild (plan
 0001, slice 2) starts after 0c, on the cleaned tokens. Out of scope:
 `modes/light.tokens.json` (light theme is its own later phase).
 
@@ -635,6 +719,11 @@ Order: F0 → P0 → S0 → S1 → S2…; L1 and Phase 2 when the owner orders t
 (they give the Provider's visual props their effect).
 
 ## Phases (approval between each)
+
+*2026-10-22: Phases 1 (type roles, per-kind defaults), 3 (states as attribute
+deltas) and 5 (attributes-only renderer) are carried out inside 0s, per kind;
+Phase 2's scope layer starts in 0s.5 (`data-surface`) and Phase 4's feature
+overrides in 0s.7 (chat). The table stays as the outcome each must reach.*
 
 | # | Outcome | Files (≤5 unless generated) | Verification |
 | --- | --- | --- | --- |
