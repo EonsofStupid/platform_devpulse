@@ -11,6 +11,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@devpulse/coldlight/com
 import { hstack } from "@devpulse/coldlight/utils/hstack";
 import { stack } from "@devpulse/coldlight/utils/stack";
 import { FolderOpen, Search, Settings, X, Zap } from "lucide-svelte";
+import type { Snippet } from "svelte";
 import { hardwareState } from "../../data-access/hardware.state.svelte.js";
 import { modelLoaderPanelState } from "../../data-access/model-loader-panel.state.svelte.js";
 import { modelsState } from "../../data-access/models.state.svelte.js";
@@ -27,9 +28,11 @@ import VoiceCard from "./VoiceCard.svelte";
 
 interface Props {
 	onComplete?: () => void;
+	/** Header actions the composing route adds (links to related pages). */
+	actions?: Snippet;
 }
 
-let { onComplete }: Props = $props();
+let { onComplete, actions }: Props = $props();
 const panelState = modelLoaderPanelState;
 
 // ── Init ──────────────────────────────────────────────────────
@@ -62,6 +65,7 @@ const subsystemLabels: Record<string, string> = {
 			<Text size="xs" color="muted">Choose what Clyffy can do on your PC</Text>
 		</div>
 		<div class={hstack({ gap: "3", align: "center" })}>
+			{@render actions?.()}
 			<Tooltip openDelay={500}>
 				<TooltipTrigger>
 					<VramGauge

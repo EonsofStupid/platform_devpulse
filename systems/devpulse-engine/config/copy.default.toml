@@ -280,6 +280,7 @@ blurb = "Your brain, vision, voice and memory models."
 
 [nav."/cortex"]
 label = "Cortex"
+blurb = "Clyffy's eyes, ears, mouth, sparkles and brain, set up on one screen."
 
 [nav."/onboarding"]
 label = "First run"

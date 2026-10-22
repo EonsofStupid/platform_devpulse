@@ -58,6 +58,13 @@ export {
 	type TagConfidence,
 	topSuggestion,
 } from "./feature/downloader/index.js";
+// ── Setup wizard (restored from e0b576ff^) ───────────────
+// The single-screen cortex wizard; `/cortex` mounts it on its cortex view.
+export {
+	SetupWizardOverlay,
+	type WizardView,
+	wizardState,
+} from "./feature/setup-wizard/index.js";
 // ── UI components ────────────────────────────────────────
 export { default as ClyffyNarration } from "./ui/ClyffyNarration.svelte";
 export { default as ContextGauge } from "./ui/ContextGauge.svelte";

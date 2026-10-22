@@ -35,7 +35,7 @@ export {
 } from "./wizard.service.js";
 
 // State
-export { wizardState } from "./wizard.state.svelte.js";
+export { type WizardView, wizardState } from "./wizard.state.svelte.js";
 
 // Types
 export type {

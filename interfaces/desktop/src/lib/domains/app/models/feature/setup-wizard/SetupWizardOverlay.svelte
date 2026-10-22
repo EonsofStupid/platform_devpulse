@@ -1,262 +1,605 @@
 <!--
-  @file SetupWizardOverlay — 5-view model configuration overlay.
-  @domain models/setup-wizard
+	@file SetupWizardOverlay.svelte
+	@module @devpulse/domains/app/models/feature/setup-wizard
 
-  Mounted in `layouts/app/Frame.svelte` as a sibling of `SwapOverlay`.
-  `wizardState.isOpen` controls visibility.
+	Thin dispatcher — maps `wizardState.view` to one of the five
+	per-step view files under `feature/views/`. NO inline view bodies,
+	NO direct `<div class="card">` chrome (that lives in
+	`feature/OverlayShell.svelte`). This file:
 
-  ┌──────────────────────────────────────────────────────────┐
-  │ welcome → system-check → config → validate → done        │
-  │                                                           │
-  │  • welcome: profile form + Jesse Config preset button    │
-  │  • system-check: hardware detection + tier badge         │
-  │  • config: 4 slot cards (Brain/Memory/Vision/Voice)      │
-  │  • validate: 3-exchange test chat with the brain         │
-  │  • done: celebration + Start Chatting CTA                │
-  │                                                           │
-  │  + HfTokenModal: HF token entry (top-right pill)         │
-  │  + LoadStageOverlay: mounts when ANY slot is loading     │
-  │  + SlotSwapOverlay: mounts when ANY slot is swapping     │
-  └──────────────────────────────────────────────────────────┘
+	1. Loads `WizardCopy` + `TierDisplay` once on open.
+	2. Subscribes to `hardwareState` for live VRAM.
+	3. Owns the install-chain dispatch (`applyAutoConfig`).
+	4. Auto-advances from `installing` to `complete` once every
+	   dispatched install terminates.
+	5. Wires the bundled MP4 backdrop snippet — `MP4_BACKDROP_URL`
+	   points at the asset that ships with the desktop binary; the
+	   dispatcher renders a `<video>` element behind every view so
+	   the wizard has a consistent atmospheric backdrop. A later
+	   batch lands `cargo xtask optimize-media` to emit AV1/WebM +
+	   H.264/MP4 variants for multi-source playback.
+	6. Routes `Skip → assign manually` to the Slot Orchestrator
+	   devtool (where Pick-local + Clear-assignment already work).
 
-  ColdLight teal glass chrome. Rust pushes all state via
-  `platform:models-status`. Frontend never triggers scans.
+	The active overlay is provided BY THE VIEW FILE itself
+	(each view wraps `OverlayShell` internally) — the dispatcher
+	only switches which view file mounts.
 -->
 <script lang="ts">
-import { Badge } from "@devpulse/coldlight/components/badge";
-import { Button } from "@devpulse/coldlight/components/button";
-import { DynamicBackground } from "@devpulse/coldlight/components/dynamic-background";
-import { Text } from "@devpulse/coldlight/components/text";
-import { KeyRound, Lock, X } from "lucide-svelte";
-import { logInfo } from "$lib/sys/logger.js";
-import { setupWizardOverlayState } from "../../data-access/setup-wizard-overlay.state.svelte.js";
-import HfTokenModal from "./components/HfTokenModal.svelte";
-import LoadStageOverlay from "./overlays/LoadStageOverlay.svelte";
-import ConfigView from "./views/ConfigView.svelte";
-import DoneView from "./views/DoneView.svelte";
-import SystemCheckView from "./views/SystemCheckView.svelte";
-import ValidateView from "./views/ValidateView.svelte";
-import WelcomeView from "./views/WelcomeView.svelte";
+import { goto } from "$app/navigation";
+import { resolve } from "$app/paths";
+import { KnowledgeDeck } from "$lib/domains/app/knowledge/index.js";
+import { installState } from "$lib/sys/activity-hud/install.state.svelte.js";
+import {
+	autoConfigure,
+	getTierDisplay,
+	getWizardCopy,
+	installToSlot,
+} from "$lib/sys/bindings/models/index.js";
+import type { TierDisplay, WizardCopy } from "$lib/sys/generated/bindings.js";
+import { platformState } from "$lib/sys/runes/platformState.svelte.js";
+import { hardwareState } from "../../data-access/hardware.state.svelte.js";
+import ClyffyCollabView from "./feature/views/ClyffyCollabView.svelte";
+import CompleteView from "./feature/views/CompleteView.svelte";
+import CortexView from "./feature/views/CortexView.svelte";
+import HardwareView from "./feature/views/HardwareView.svelte";
+import InstallingView from "./feature/views/InstallingView.svelte";
+import PresetView from "./feature/views/PresetView.svelte";
+import WelcomeView from "./feature/views/WelcomeView.svelte";
+import type {
+	SlotRecommendation,
+	SlotSaveEntryProps,
+	WizardCallbacks,
+} from "./util/wizard.types.js";
 import { wizardState } from "./wizard.state.svelte.js";
 
-const overlayState = setupWizardOverlayState;
+/**
+ * Animated MP4 backdrop for the wizard. Bundled with the desktop
+ * binary — Tauri serves `static/` at the app root so this URL
+ * resolves locally without a network round-trip.
+ *
+ * Optimization pipeline lands in a separate batch:
+ * `cargo xtask optimize-media` will scan
+ * `interfaces/desktop/static/imgs/backgrounds/` and emit per-source
+ * AV1/WebM + H.264/MP4 variants (`ffmpeg` system-detected with a
+ * portable fallback under `deps/ffmpeg-prebuilt/`). When that ships
+ * the `<video>` below switches to a multi-source element so modern
+ * WebView2 picks AV1 and falls back to H.264 on older runtimes.
+ */
+const MP4_BACKDROP_URL = "/imgs/backgrounds/bganimation_loop.mp4";
 
-function handleClose(): void {
-	logInfo("wizard.overlay", "Close (X) clicked");
-	wizardState.close();
+interface AutoConfigPayload {
+	tier: string;
+	preset_name: string;
+	recommendations: SlotRecommendation[];
+	total_vram_needed_mb: number;
+	total_download_size_mb: number;
 }
 
-function handleBackToWelcome(): void {
-	logInfo("wizard.overlay", "Back to welcome clicked");
-	overlayState.showWelcome();
+let copy = $state<WizardCopy | null>(null);
+let tierDisplay = $state<TierDisplay | null>(null);
+let copyError = $state<string | null>(null);
+/** Recommendation failures — separate from copy load failures. */
+let recommendationsError = $state<string | null>(null);
+let busy = $state(false);
+
+let recommendations = $state<SlotRecommendation[]>([]);
+let dispatchedInstallIds = $state<string[]>([]);
+let dispatchErrors = $state<Record<string, string>>({});
+
+/**
+ * Per-slot save state for the cortex view. Keyed by
+ * `SlotRecommendation.slot_id`. Drives the SaveSlotCard's lifecycle
+ * badge + button label per row.
+ */
+let slotSaveStates = $state<Record<string, "ready" | "saving" | "saved" | "error">>({});
+let slotSaveErrors = $state<Record<string, string>>({});
+
+/**
+ * Translation table — kernel `slot_id` → layman card copy. Foundation
+ * baseline today (SigLIP HD / Harrier 0.6B / Nemotron 7.6B); extends
+ * naturally as the kernel adds slots. Anything missing from this map
+ * falls through with the kernel slot_id rendered as the title, which
+ * is visible enough to surface the gap during dev review.
+ */
+/**
+ * Anatomy-only translation table — kernel `slot_id` → wizard tile's
+ * **anatomy** identity (icon, accent color, role copy). Strictly
+ * frontend-owned because anatomy ↔ slot mapping is a UI-side design
+ * decision; the kernel doesn't know what an "Eye" is.
+ *
+ * The model NAME + model TAGLINE are NOT in this table — they live
+ * on each [`SlotRecommendation`] (`display_name`, `display_tagline`)
+ * so the preset author owns them in
+ * `kernel/model-loader/config/presets.default.toml`. Tier-swapping a
+ * model in the preset immediately reflects in the wizard tile, no
+ * frontend edit. This matches the agnostic / format-driven recommender
+ * pattern the kernel already uses for HF file picks.
+ *
+ * Slot ids MUST match `kernel/model-loader/config/slots.default.toml`
+ * verbatim. `accentVar` must reference a generated token from
+ * `interfaces/desktop/src/lib/design/generated/token-manifest.json`
+ * (the real names carry `-main` / `-fill` / `-glow` suffixes; cards
+ * point at `-main` because the surface gradient mixes the main hue).
+ */
+const SLOT_LAYMAN: Record<
+	string,
+	{
+		purpose: string;
+		tagline: string;
+		iconName: "Eye" | "Ear" | "Mic" | "Sparkles" | "BrainCircuit";
+		accentVar: string;
+		aboutHref?: string;
+	}
+> = {
+	"vision.embedder": {
+		purpose: "Eyes · what Clyffy sees",
+		tagline: "Encodes screenshots and uploads so Clyffy can reason about images.",
+		iconName: "Eye",
+		accentVar: "--accent-cyan-main",
+	},
+	"voice.stt": {
+		purpose: "Ears · what Clyffy hears",
+		tagline: "Listens to your microphone and turns speech into text.",
+		iconName: "Ear",
+		accentVar: "--accent-purple-main",
+	},
+	"voice.tts": {
+		purpose: "Mouth · how Clyffy speaks",
+		tagline: "Turns Clyffy's replies into natural-sounding speech.",
+		iconName: "Mic",
+		accentVar: "--accent-hotpink-main",
+	},
+	"rag.embedder": {
+		purpose: "Sparkles · Clyffy's indexing brain",
+		tagline:
+			"Encodes + embeds every project file so retrieval finds the right chunks before the long-think wakes.",
+		iconName: "Sparkles",
+		accentVar: "--accent-teal-main",
+	},
+	"chat.brain": {
+		purpose: "Brain · the long-think reasoner",
+		tagline: "Handles the heavy reasoning once the indexing brain has set the table.",
+		iconName: "BrainCircuit",
+		accentVar: "--accent-blue-main",
+	},
+};
+
+/**
+ * Derive a customer-facing model name from a kernel recommendation.
+ * Preset author's `display_name` wins; absent, falls back to a clean
+ * derivation of the HF repo id last segment (drops `-GGUF`,
+ * `-Instruct`, version-and-quant suffixes). Never throws — worst case
+ * returns the raw `model_repo_id` which is still recognizable.
+ */
+function deriveModelName(rec: SlotRecommendation): string {
+	if (rec.display_name && rec.display_name.length > 0) return rec.display_name;
+	const lastSeg = rec.model_repo_id.split("/").pop() ?? rec.model_repo_id;
+	return lastSeg
+		.replace(/-GGUF$/i, "")
+		.replace(/-Instruct(-\d+)?$/i, "")
+		.replace(/-v\d+(\.\d+)*$/i, "")
+		.replace(/-Base$/i, "")
+		.replace(/-/g, " ");
 }
 
-// ── Top bar title per view ─────────────────────────────
-const topbarTitle = $derived(
-	overlayState.view === "welcome"
-		? "DevPulse Setup"
-		: overlayState.view === "system-check"
-			? "System Check"
-			: overlayState.view === "config"
-				? "Model Configuration"
-				: overlayState.view === "validate"
-					? "Test Your Setup"
-					: "All Set",
+/**
+ * Derive a one-line layman tagline. Preset author's `display_tagline`
+ * wins; absent, falls back to a format-driven sentence
+ * ("Runs through llama.cpp." for `.gguf`, "Through Candle." for
+ * `.safetensors`, etc.) so the customer always sees engine context.
+ */
+function deriveModelTagline(rec: SlotRecommendation): string {
+	if (rec.display_tagline && rec.display_tagline.length > 0) return rec.display_tagline;
+	const fn = rec.model_filename.toLowerCase();
+	if (fn.endsWith(".gguf")) return "Runs through llama.cpp.";
+	if (fn.endsWith(".safetensors") || fn.endsWith(".safetensors.index.json")) {
+		return "Runs through the matching native backend.";
+	}
+	if (fn.endsWith(".onnx") || fn.endsWith(".bin")) return "Runs through Sherpa / ONNX.";
+	return "";
+}
+
+function formatSizeHint(mb: number): string {
+	if (mb >= 1024) return `~${(mb / 1024).toFixed(1)} GB`;
+	return `~${mb} MB`;
+}
+
+const slotSaveEntries = $derived<SlotSaveEntryProps[]>(
+	recommendations.flatMap((rec) => {
+		const layman = SLOT_LAYMAN[rec.slot_id];
+		if (!layman) return [];
+		const state = slotSaveStates[rec.slot_id] ?? "ready";
+		return [
+			{
+				kernelSlotId: rec.slot_id,
+				purpose: layman.purpose,
+				tagline: layman.tagline,
+				// Model name + tagline come from the kernel recommendation
+				// (preset author owns them via `display_name` /
+				// `display_tagline` in `presets.default.toml`); never
+				// hardcoded in this UI layer. See deriveModelName /
+				// deriveModelTagline for the fallback behavior.
+				modelName: deriveModelName(rec),
+				modelTagline: deriveModelTagline(rec),
+				sizeHint: formatSizeHint(rec.model_size_mb),
+				tierLabel: rec.already_downloaded ? "Already on disk" : "Recommended for this machine",
+				iconName: layman.iconName,
+				accentVar: layman.accentVar,
+				aboutHref: layman.aboutHref,
+				state,
+				errorText: slotSaveErrors[rec.slot_id],
+			},
+		];
+	}),
 );
 
-// ── Init ────────────────────────────────────────────────
+/**
+ * Slots that ship paired and must save together. Clicking Save on the
+ * Sparkles tile (`rag.embedder`) fires the install chain for BOTH
+ * `rag.embedder` and `rag.encoder` — Harrier 0.6B ref-counts on the
+ * BackendPool so memory + disk hold ONE copy, but each kernel slot
+ * needs its own symlink for `Path::exists` probes by the retrieval
+ * consumer.
+ */
+const PAIRED_SLOTS: Record<string, string[]> = {
+	"rag.embedder": ["rag.embedder", "rag.encoder"],
+};
+
+async function saveOneSlot(slotId: string): Promise<void> {
+	const slotsToSave = PAIRED_SLOTS[slotId] ?? [slotId];
+	// Mark the customer-facing slot as saving up front so the tile
+	// reflects the state change immediately, then drive each paired
+	// install in parallel.
+	slotSaveStates = { ...slotSaveStates, [slotId]: "saving" };
+	slotSaveErrors = { ...slotSaveErrors, [slotId]: "" };
+
+	const results = await Promise.all(
+		slotsToSave.map(async (target) => {
+			const rec = recommendations.find((r) => r.slot_id === target);
+			if (!rec) {
+				return { target, ok: false, error: `No recommendation for ${target}` };
+			}
+			const ir = await installToSlot(rec.model_repo_id, rec.model_filename, rec.slot_id, null);
+			if (ir.status === "ok") {
+				dispatchedInstallIds = [...dispatchedInstallIds, ir.data];
+				return { target, ok: true, error: "" };
+			}
+			return { target, ok: false, error: String(ir.error) };
+		}),
+	);
+
+	const allOk = results.every((r) => r.ok);
+	if (allOk) {
+		slotSaveStates = { ...slotSaveStates, [slotId]: "saved" };
+	} else {
+		const firstError = results.find((r) => !r.ok)?.error ?? "unknown";
+		slotSaveStates = { ...slotSaveStates, [slotId]: "error" };
+		slotSaveErrors = { ...slotSaveErrors, [slotId]: firstError };
+	}
+}
+
+async function saveAllSlots(): Promise<void> {
+	busy = true;
+	try {
+		const unsaved = slotSaveEntries.filter((e) => e.state !== "saved");
+		await Promise.all(unsaved.map((e) => saveOneSlot(e.kernelSlotId)));
+	} finally {
+		busy = false;
+	}
+}
+
 $effect(() => {
-	if (wizardState.isOpen) {
-		logInfo("wizard.overlay", "overlay opening → start()");
-		void overlayState.start();
-		return () => {
-			logInfo("wizard.overlay", "overlay closing → stop()");
-			overlayState.stop();
-		};
+	if (!wizardState.isOpen) return;
+	void loadCopy();
+});
+
+/**
+ * Load recommendations the first time the customer reaches the
+ * cortex view (so each anatomy tile can render with real model
+ * metadata). The autoConfigure call here POPULATES recommendations
+ * without firing installs — the installs only run when the customer
+ * clicks Apply on a tile. Compare with applyAutoConfig() (preset
+ * view's "Install all") which both populates AND dispatches.
+ */
+$effect(() => {
+	if (wizardState.view !== "cortex") return;
+	// Recommendations are computed by the model loader, which exists only
+	// once the platform has booted. Reading `isReady` here makes this
+	// effect re-run when boot completes instead of failing once and
+	// never retrying.
+	if (!platformState.isReady) return;
+	if (recommendations.length > 0) return;
+	void loadRecommendations();
+});
+
+async function loadRecommendations(): Promise<void> {
+	busy = true;
+	recommendationsError = null;
+	try {
+		const r = await autoConfigure();
+		if (r.status === "error") {
+			recommendationsError = `Couldn't compute recommendations: ${r.error}`;
+			return;
+		}
+		try {
+			const payload = JSON.parse(r.data) as AutoConfigPayload;
+			recommendations = payload.recommendations;
+		} catch (e) {
+			recommendationsError = `Couldn't parse auto-config response: ${(e as Error).message}`;
+		}
+	} finally {
+		busy = false;
+	}
+}
+
+$effect(() => {
+	if (!wizardState.isOpen) return;
+	return hardwareState.subscribe("SetupWizardOverlay");
+});
+
+async function loadCopy() {
+	const [copyR, tierR] = await Promise.all([getWizardCopy(), getTierDisplay()]);
+	if (copyR.status === "ok") copy = copyR.data;
+	else copyError = String(copyR.error);
+	if (tierR.status === "ok") tierDisplay = tierR.data;
+}
+
+/**
+ * Kick off the kernel-side auto-config + install chain. Per slot:
+ * download → scan → assign → load. Already-downloaded models pass
+ * through the chain with the download step as a HF cache hit.
+ */
+async function applyAutoConfig() {
+	if (!tierDisplay) return;
+	busy = true;
+	dispatchErrors = {};
+	dispatchedInstallIds = [];
+
+	recommendationsError = null;
+	try {
+		const r = await autoConfigure();
+		if (r.status === "error") {
+			recommendationsError = `Couldn't compute recommendations: ${r.error}`;
+			return;
+		}
+
+		let payload: AutoConfigPayload;
+		try {
+			payload = JSON.parse(r.data) as AutoConfigPayload;
+		} catch (e) {
+			recommendationsError = `Couldn't parse auto-config response: ${(e as Error).message}`;
+			return;
+		}
+
+		recommendations = payload.recommendations;
+		wizardState.goTo("installing");
+
+		await Promise.all(
+			recommendations.map(async (rec) => {
+				const ir = await installToSlot(rec.model_repo_id, rec.model_filename, rec.slot_id, null);
+				if (ir.status === "ok") {
+					dispatchedInstallIds = [...dispatchedInstallIds, ir.data];
+				} else {
+					dispatchErrors = {
+						...dispatchErrors,
+						[rec.slot_id]: String(ir.error),
+					};
+				}
+			}),
+		);
+	} finally {
+		busy = false;
+	}
+}
+
+const dispatchedInstalls = $derived(
+	installState.list
+		.filter((i) => dispatchedInstallIds.includes(i.installId))
+		.map((i) => ({
+			installId: i.installId,
+			slotId: i.slotId,
+			status: i.status,
+			error: i.error,
+		})),
+);
+const installsRunning = $derived(dispatchedInstalls.filter((i) => i.status === "running").length);
+const installsComplete = $derived(dispatchedInstalls.filter((i) => i.status === "complete").length);
+const installsFailed = $derived(dispatchedInstalls.filter((i) => i.status === "failed").length);
+const installsTotal = $derived(recommendations.length);
+const installsCachedSkippedDownload = $derived(
+	recommendations.filter((r) => r.already_downloaded).length,
+);
+
+// Auto-advance: every dispatched install has terminated.
+$effect(() => {
+	if (wizardState.view !== "installing") return;
+	if (installsTotal === 0) return;
+	if (dispatchedInstallIds.length < installsTotal - Object.keys(dispatchErrors).length) return;
+	if (installsRunning > 0) return;
+	if (installsComplete + installsFailed === dispatchedInstallIds.length) {
+		wizardState.goTo("complete");
 	}
 });
+
+async function finish() {
+	busy = true;
+	try {
+		await wizardState.finish();
+	} finally {
+		busy = false;
+	}
+}
+
+/**
+ * Mark setup complete + route to the Slot Orchestrator devtool.
+ * Users who already have GGUFs on disk skip the download chain
+ * entirely — Pick-local + Clear-assignment over there already work.
+ */
+async function skipToSlotOrchestrator() {
+	busy = true;
+	try {
+		await wizardState.finish();
+		await goto(resolve("/devtools/runtimes/orchestrator/slots"));
+	} catch (e) {
+		copyError = `Couldn't skip wizard: ${(e as Error).message}`;
+	} finally {
+		busy = false;
+	}
+}
+
+const callbacks: WizardCallbacks = {
+	onNext: () => wizardState.next(),
+	onBack: () => wizardState.back(),
+	onSkip: skipToSlotOrchestrator,
+	onApplyAutoConfig: applyAutoConfig,
+	onFinish: finish,
+};
 </script>
 
 {#if wizardState.isOpen}
-	<div class="wizard-overlay">
-		<DynamicBackground
-			variant="primary"
-			videoSrc="/imgs/backgrounds/bganimation_loop.mp4"
-			animated={true}
-			class="wizard-bg"
-		/>
+	{#if copyError}
 		<!--
-		  The old `.wizard-backdrop` (0.5rem backdrop-filter blur over a
-		  0.55-alpha void layer) sat on top of DynamicBackground and
-		  flattened the animation into a static dark pane. DynamicBackground
-		  already ships its own overlay layer (`.dynamic-background__overlay`)
-		  for tinting, so a second full-viewport backdrop here was pure
-		  visual tax. Content readability is preserved by per-surface
-		  tinting on `.wizard-topbar` and the content cards inside each
-		  view, not by nuking the base animation.
+			Dispatcher-level error overlay — view files don't get to
+			render until copy loads (Layer 2 "no hardcoded English"
+			contract). This banner is the one exception.
 		-->
-
-		<div class="wizard-chrome">
-			<!-- Top bar -->
-			<div class="wizard-topbar">
-				<div class="topbar-left">
-					{#if overlayState.view !== "welcome" && overlayState.view !== "done"}
-						<Button preset="ghost" size="sm" onclick={handleBackToWelcome}>
-							← Back
-						</Button>
-					{/if}
-					<Text size="sm" weight="bold" class="topbar-title">{topbarTitle}</Text>
-				</div>
-
-				<div class="topbar-right">
-					<button class="hf-pill" onclick={() => overlayState.openHfModal()}>
-						{#if overlayState.hfHasToken}
-							<Lock size={12} />
-							<Text size="xs">HF Token</Text>
-							<Badge variant="positive" size="sm">Set</Badge>
-						{:else}
-							<KeyRound size={12} />
-							<Text size="xs">HF Token</Text>
-						{/if}
-					</button>
-					<Button preset="ghost" size="sm" onclick={handleClose} aria-label="Close">
-						<X size={16} />
-					</Button>
-				</div>
-			</div>
-
-			<!-- Content — one view at a time -->
-			<div class="wizard-content">
-				{#if overlayState.copyError}
-					<div class="state-msg">
-						<Text size="sm">Failed to load: {overlayState.copyError}</Text>
-						<Button preset="secondary" size="sm" onclick={() => overlayState.retryCopy()}>Retry</Button>
-					</div>
-
-				{:else if overlayState.view === "welcome"}
-					<!-- ═══ VIEW 1 — WELCOME (rich profile + snapshot) ═══ -->
-					<WelcomeView />
-
-				{:else if overlayState.view === "system-check"}
-					<!-- ═══ VIEW 2 — SYSTEM CHECK ═══ -->
-					<SystemCheckView />
-
-				{:else if overlayState.view === "config"}
-					<!-- ═══ VIEW 3 — CONFIG (tabbed: Brain / Encoder / Voice / Helpers) ═══ -->
-					<ConfigView />
-
-				{:else if overlayState.view === "validate"}
-					<!-- ═══ VIEW 4 — VALIDATE (test chat) ═══ -->
-					<ValidateView />
-
-				{:else}
-					<!-- ═══ VIEW 5 — DONE ═══ -->
-					<DoneView />
-				{/if}
-			</div>
+		<div class="dispatcher-error" role="alert">
+			Couldn't load wizard copy: {copyError}
 		</div>
-	</div>
-
-	<!-- Sub-overlays — mount when their state is active -->
-	{#if overlayState.copy}
-		<HfTokenModal
-			open={overlayState.showHfModal}
-			copy={overlayState.copy.hf_token}
-			initiallyHasToken={overlayState.hfHasToken}
-			onClose={() => overlayState.closeHfModal()}
-			onSaved={(has) => overlayState.handleHfSaved(has)}
-		/>
+	{/if}
+	{#if recommendationsError}
+		<div class="dispatcher-error" role="alert">{recommendationsError}</div>
 	{/if}
 
-	<LoadStageOverlay />
+	{#if wizardState.view === "welcome"}
+		<WelcomeView copy={copy?.greeting ?? null} {busy} {callbacks} />
+	{:else if wizardState.view === "hardware"}
+		<HardwareView
+			copy={copy?.hardware ?? null}
+			tier={tierDisplay}
+			gpuName={hardwareState.gpuName}
+			hasGpu={hardwareState.hasGpu}
+			vramTotalMb={hardwareState.vramTotalMb}
+			{busy}
+			{callbacks}
+		/>
+	{:else if wizardState.view === "preset"}
+		<PresetView copy={copy?.profile ?? null} {busy} {callbacks} />
+	{:else if wizardState.view === "cortex"}
+		<CortexView
+			title="Clyffy's cortex — five pieces, one mind"
+			subtitle="Each tile maps to a sense or thought layer. Hit Apply on the ones you want now — every slot is pre-selected, so you can just click through."
+			slotSaves={slotSaveEntries}
+			{busy}
+			onApplySlot={saveOneSlot}
+			onApplyAll={saveAllSlots}
+			{callbacks}
+		/>
+	{:else if wizardState.view === "installing"}
+		<InstallingView
+			copy={copy?.downloads ?? null}
+			{recommendations}
+			{dispatchedInstalls}
+			{dispatchErrors}
+			{installsRunning}
+			{installsComplete}
+			{installsFailed}
+			{installsTotal}
+			{installsCachedSkippedDownload}
+		/>
+	{:else if wizardState.view === "clyffy-collab"}
+		<ClyffyCollabView {busy} {callbacks} />
+	{:else if wizardState.view === "complete"}
+		<CompleteView copy={copy?.completion ?? null} {busy} {callbacks} />
+	{/if}
+
+	<!--
+		Per-phase knowledge chip — pinned bottom-right, doesn't
+		compete with the phase content. `{#key view}` re-mounts the
+		deck each phase transition so the context frame reflects
+		"wizard:<phase>" — kernel selector then biases toward
+		entries whose `tool` tag matches `wizard` and (when the
+		catalog grows scope tags) the active phase. Ambient rotation
+		every 45s so a user sitting on a phase sees variety.
+	-->
+	{#key wizardState.view}
+		<div class="dispatcher-knowledge-chip">
+			<KnowledgeDeck
+				context={{
+					id: `wizard-overlay-${wizardState.view}`,
+					tool: "wizard",
+					scope: `wizard:${wizardState.view}`,
+					preferred: "dyk",
+				}}
+				refreshIntervalMs={45000}
+			/>
+		</div>
+	{/key}
+
+	{#if MP4_BACKDROP_URL}
+		<!--
+			Supabase-hosted MP4 backdrop. The video element lives at the
+			document root so it draws once and persists across view
+			switches — DOM-cheap, no decode restart on every navigation.
+			z-index sits below the OverlayShell card (z 9000) and above
+			the body bg so the grid pattern still reads through.
+		-->
+		<video
+			class="dispatcher-backdrop"
+			src={MP4_BACKDROP_URL}
+			autoplay
+			loop
+			muted
+			playsinline
+			preload="auto"
+			aria-hidden="true"
+		></video>
+	{/if}
 {/if}
 
 <style>
-	.wizard-overlay {
+	.dispatcher-error {
+		position: fixed;
+		top: 1rem;
+		left: 50%;
+		transform: translateX(-50%);
+		z-index: 9100;
+		padding: 0.5rem 1rem;
+		background: var(--surface-inset);
+		border: 0.0625rem solid var(--accent-danger-main);
+		border-radius: 0.375rem;
+		color: var(--accent-danger-main);
+		font-size: 0.8125rem;
+	}
+
+	.dispatcher-backdrop {
 		position: fixed;
 		inset: 0;
-		z-index: 50;
-		display: flex;
-		flex-direction: column;
-	}
-
-	:global(.wizard-bg) {
-		position: absolute;
-		inset: 0;
-		z-index: 0;
-	}
-
-	.wizard-chrome {
-		position: relative;
-		z-index: 1;
-		display: flex;
-		flex-direction: column;
+		z-index: 8999;
 		width: 100%;
 		height: 100%;
-		overflow: hidden;
+		object-fit: cover;
+		opacity: 0.35;
+		pointer-events: none;
 	}
 
-	.wizard-topbar {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		padding: clamp(0.5rem, 1.5vw, 0.875rem) clamp(0.75rem, 2vw, 1.5rem);
-		border-bottom: 1px solid color-mix(in oklch, var(--accent-primary-main) 10%, var(--border-soft));
-		flex-shrink: 0;
-		background: color-mix(in oklch, var(--surface-base) 60%, transparent);
-		backdrop-filter: blur(0.75rem);
+	/* Per-phase knowledge chip. Pinned bottom-right above the
+	   backdrop (z 8999) but below the dispatcher-error banner
+	   (z 9100). The KnowledgeDeck inside has its own ColdLight
+	   surface — this slot just owns positioning. */
+	.dispatcher-knowledge-chip {
+		position: fixed;
+		bottom: clamp(0.75rem, 1.5vw, 1.25rem);
+		right: clamp(0.75rem, 1.5vw, 1.25rem);
+		z-index: 9050;
+		max-width: clamp(18rem, 30vw, 26rem);
+		pointer-events: auto;
 	}
 
-	.topbar-left {
-		display: flex;
-		align-items: center;
-		gap: 0.75rem;
+	@media (prefers-reduced-motion: reduce) {
+		.dispatcher-backdrop {
+			display: none;
+		}
 	}
-
-	:global(.topbar-title) {
-		color: var(--accent-primary-main);
-	}
-
-	.topbar-right {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-	}
-
-	.hf-pill {
-		display: flex;
-		align-items: center;
-		gap: 0.375rem;
-		padding: 0.25rem 0.625rem;
-		border-radius: 999px;
-		border: 1px solid var(--border-soft);
-		background: transparent;
-		color: var(--text-muted);
-		cursor: pointer;
-		transition: all 150ms ease-out;
-	}
-	.hf-pill:hover {
-		border-color: var(--accent-primary-main);
-		color: var(--text-secondary);
-	}
-
-	.wizard-content {
-		flex: 1;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		overflow-y: auto;
-		padding: 1.5rem;
-	}
-
-	.state-msg {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 0.75rem;
-		padding: 3rem;
-	}
-
-	/* Config view + hardware summary + card grid styles moved to
-	   views/ConfigView.svelte — the overlay is a pure view router. */
 </style>

@@ -2,10 +2,19 @@
  * @file Wizard State Rune
  * @module @devpulse/domains/app/models/feature/setup-wizard/runes
  *
- * Svelte 5 rune state for the 8-phase dev onboarding wizard.
+ * Svelte 5 rune state for the setup wizard. Two generations live here:
+ *
+ * - **View navigation** (`view`, `next`, `back`, `goTo`, `finish`) drives
+ *   `SetupWizardOverlay`, the single-screen cortex wizard (restored from
+ *   e0b576ff^). The kernel-side copy lives in `kernel/model-loader/src/wizard/`.
+ * - **Phase navigation + trackers** (`currentPhase`, downloads, loads,
+ *   recommendations) from the 8-phase wizard (restored from 2035d613^); the
+ *   Model Loader cards read the trackers.
+ *
  * Follows 10 Commandments: preset-first, layman names, background downloads.
  */
 
+import { isFirstRun, markSetupComplete } from "$lib/sys/bindings/models/index.js";
 import { logInfo, logWarn } from "$lib/sys/logger.js";
 import { hardwareState } from "../../data-access/hardware.state.svelte.js";
 import type { AutoConfig, HardwareTier, SlotId } from "../../util/models.types.js";
@@ -21,6 +30,38 @@ import {
 	type WizardPhase,
 } from "./wizard.types.js";
 
+export type WizardView =
+	| "welcome"
+	| "hardware"
+	| "preset"
+	| "cortex"
+	| "slot-save"
+	| "installing"
+	| "clyffy-collab"
+	| "complete";
+
+/**
+ * Order in which views advance via `next()` / `back()`. `cortex`
+ * replaces `slot-save` as the primary per-slot step (anatomy-tile
+ * constellation). `slot-save` stays in the type union so the older
+ * `SlotSaveView.svelte` file still type-checks against direct
+ * `goTo("slot-save")` callers, but it's no longer reachable through
+ * `next()`/`back()` — the cortex view is the wizard surface customers
+ * actually see. `clyffy-collab` sits between installing and complete
+ * so the customer sees the Claude collab option AFTER models have
+ * finished landing — easier to make the "do you also want Claude?"
+ * decision when the local setup is visibly in place.
+ */
+const VIEW_ORDER: readonly WizardView[] = [
+	"welcome",
+	"hardware",
+	"preset",
+	"cortex",
+	"installing",
+	"clyffy-collab",
+	"complete",
+] as const;
+
 class WizardState {
 	// ── Overlay open/close ───────────────────────────────
 	/**
@@ -35,6 +76,21 @@ class WizardState {
 	 * component mounted over whatever (app) view the user is on.
 	 */
 	isOpen = $state(false);
+
+	// ── View Navigation (SetupWizardOverlay) ─────────────
+	/**
+	 * Current view.
+	 *
+	 * The wizard collapses to a single-screen experience anchored on the
+	 * `cortex` view — five anatomy tiles + Clyffy mascot, per the locked
+	 * "one clear screen" customer requirement. The welcome / hardware /
+	 * preset / installing / clyffy-collab / complete views remain
+	 * reachable destinations (per-view `goTo()`) but the overlay lands
+	 * the customer on cortex directly.
+	 */
+	view = $state<WizardView>("cortex");
+	/** Whether the platform reports this is the user's first launch. */
+	firstRun = $state<boolean | null>(null);
 
 	// ── Phase Navigation ─────────────────────────────────
 	currentPhase = $state<WizardPhase>("welcome");
@@ -269,9 +325,57 @@ class WizardState {
 		}
 	}
 
-	goTo(phase: WizardPhase): void {
-		logInfo("wizard.state", `goTo: ${this.currentPhase} → ${phase}`);
+	goToPhase(phase: WizardPhase): void {
+		logInfo("wizard.state", `goToPhase: ${this.currentPhase} → ${phase}`);
 		this.currentPhase = phase;
+	}
+
+	/** Jump to a specific view. */
+	goTo(view: WizardView): void {
+		logInfo("wizard.state", `goTo: ${this.view} → ${view}`);
+		this.view = view;
+	}
+
+	/** Advance to the next view. No-op past `complete`. */
+	next(): void {
+		const i = VIEW_ORDER.indexOf(this.view);
+		if (i >= 0 && i < VIEW_ORDER.length - 1) {
+			this.view = VIEW_ORDER[i + 1] as WizardView;
+		}
+	}
+
+	/** Step back one view. No-op before `welcome`. */
+	back(): void {
+		const i = VIEW_ORDER.indexOf(this.view);
+		if (i > 0) {
+			this.view = VIEW_ORDER[i - 1] as WizardView;
+		}
+	}
+
+	/** Refresh `firstRun` from the kernel. */
+	async refreshFirstRun(): Promise<void> {
+		const r = await isFirstRun();
+		if (r.status === "ok") {
+			this.firstRun = r.data;
+		} else {
+			logWarn("wizard.state", `refreshFirstRun failed: ${r.error}`);
+			this.firstRun = false;
+		}
+	}
+
+	/**
+	 * Mark setup complete with the kernel + close the overlay. Called
+	 * from the `complete` view's "Finish" button and the cortex view's
+	 * "Done".
+	 */
+	async finish(): Promise<void> {
+		const r = await markSetupComplete();
+		if (r.status === "error") {
+			logWarn("wizard.state", `finish failed: ${r.error}`);
+			throw new Error(`markSetupComplete failed: ${r.error}`);
+		}
+		this.firstRun = false;
+		this.close();
 	}
 
 	// ── Overlay lifecycle ─────────────���──────────────────

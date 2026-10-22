@@ -1,40 +1,36 @@
 <!--
-  @file Cortex Viewer
-  @route /cortex
-  @domain cortex
+	@file Cortex — Clyffy's five pieces on one screen
+	@route /cortex
+	@domain models
 
-  Telemetry and devtools window.
-  Rendered in a separate Tauri child window via open_window(CortexViewer).
-  Shows network graph, model telemetry, session health.
+	Mounts the setup wizard (restored from e0b576ff^) on its cortex view:
+	Eyes, Ears, Mouth, Sparkles and Brain as anatomy tiles, each with its
+	recommended model and its own Apply. Done marks setup complete and
+	returns to the Model Loader; Skip goes to the Slot Orchestrator.
+	Replaces the "Cortex Viewer" placeholder (master plan R3).
 -->
 <script lang="ts">
-import { Button } from "@devpulse/coldlight/components/button";
-import { Card } from "@devpulse/coldlight/components/card";
-import { Text } from "@devpulse/coldlight/components/text";
-import { invoke } from "@tauri-apps/api/core";
-import { X } from "lucide-svelte";
+import { onMount } from "svelte";
+import { goto } from "$app/navigation";
+import { SetupWizardOverlay, wizardState } from "$lib/domains/app/models/index.js";
+import { hrefOf, routeAt } from "$lib/sys/routing/index.js";
 
-function handleClose(): void {
-	invoke("close_window", { label: "cortex-viewer" });
-}
+const modelLoader = routeAt("/model-loader");
+let opened = $state(false);
+
+onMount(() => {
+	wizardState.goTo("cortex");
+	wizardState.open();
+	opened = true;
+	return () => wizardState.close();
+});
+
+// Done closes the wizard; this page has nothing else to show.
+$effect(() => {
+	if (opened && !wizardState.isOpen && modelLoader) {
+		void goto(hrefOf(modelLoader), { replaceState: true });
+	}
+});
 </script>
 
-<div class="flex flex-col h-full">
-	<header
-		class="flex items-center justify-between h-10 px-4 border-b border-[var(--border-subtle)]"
-		data-tauri-drag-region
-	>
-		<Text size="sm" weight="semibold" preset="default">CORTEX VIEWER</Text>
-		<Button preset="ghost" size="sm" onclick={handleClose}>
-			<X size={14} />
-		</Button>
-	</header>
-
-	<main class="flex-1 overflow-y-auto p-4">
-		<Card preset="glass-deep" class="p-6 flex flex-col items-center justify-center gap-4 h-full">
-			<Text size="lg" weight="bold" preset="default">Cortex Network</Text>
-			<Text size="sm" preset="default">Model telemetry, session health, and signal routing visualization.</Text>
-			<Text size="xs" preset="default">Connect to the EventBridge to see live signals.</Text>
-		</Card>
-	</main>
-</div>
+<SetupWizardOverlay />
