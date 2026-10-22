@@ -128,9 +128,9 @@ function plainValue(value: unknown): string | null {
 }
 
 /**
- * A `var()` for a token, falling back on the token's own value. Some token
- * groups (`animation`, `borderWidth`) are in the manifest but not emitted
- * as CSS variables, so the fallback is what makes them render.
+ * A `var()` for a token, falling back on the token's own value, so a token
+ * renders even when its group is in the manifest but not emitted as CSS
+ * (as `animation` and `borderWidth` were until the token routing fix).
  */
 function tokenRef(token: Pick<AxisOption, "cssVar" | "fallback">): string {
 	return token.fallback ? `var(${token.cssVar}, ${token.fallback})` : `var(${token.cssVar})`;

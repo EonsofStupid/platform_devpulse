@@ -919,11 +919,18 @@ const config = {
 				cssFile('blur.css', pathFilter('blur'), layers.primitives),
 				cssFile('surface.css', pathFilter('glass', 'matte'), layers.primitives),
 				cssFile('radius.css', pathFilter('radius'), layers.primitives),
-				cssFile('spacing.css', pathFilter('space', 'padding', 'size', 'breakpoint', 'zIndex'), layers.primitives),
+				// borderWidth/outlineOffset were classified in tiers.primitive but
+				// emitted NOWHERE (silent drop) while 11+ components consumed the
+				// vars — reconciled 2026-07-07. Do not remove without re-checking
+				// `var(--border-width-` / `var(--outline-offset-` consumers.
+				cssFile('border-width.css', pathFilter('borderWidth', 'outlineOffset'), layers.primitives),
+				cssFile('spacing.css', pathFilter('space', 'padding', 'size', 'breakpoint', 'zIndex', 'z-index'), layers.primitives),
 				cssFile('typography.css', pathFilter('font', 'fontFeatureSettings', 'fontVariationSettings', 'textSize', 'font-size', 'leading', 'tracking'), layers.primitives),
-				cssFile('motion.css', pathFilter('motion', 'duration', 'easing'), layers.primitives),
+				cssFile('motion.css', pathFilter('motion', 'duration', 'easing', 'animation'), layers.primitives),
 				cssFile('gradient.css', pathFilter('gradient'), layers.primitives),
 				cssFile('layout.css', pathFilter('layout'), layers.primitives),
+				// Every primitive-tier group lands in a file (`tiers.primitive`); this was in none.
+				cssFile('opacity.css', pathFilter('opacity'), layers.primitives),
 			],
 		},
 
@@ -933,12 +940,12 @@ const config = {
 			buildPath: `${paths.design}/styles/${layers.semantic}/`,
 			files: [
 				cssFile('elevation.css', pathFilter('elevation'), layers.semantic),
-				cssFile('surface.css', pathFilter('surface'), layers.semantic),
+				cssFile('surface.css', pathFilter('surface', 'glass-blur'), layers.semantic),
 				cssFile('border.css', pathFilter('border', 'borderPreset'), layers.semantic),
-				cssFile('transition.css', pathFilter('transition'), layers.semantic),
+				cssFile('transition.css', pathFilter('transition', 'gradient-duration'), layers.semantic),
 				cssFile('interaction.css', pathFilter('interaction'), layers.semantic),
 				cssFile('overlay.css', pathFilter('overlay'), layers.semantic),
-				cssFile('scrollbar.css', pathFilter('scrollbar'), layers.semantic),
+				cssFile('scrollbar.css', pathFilter('scrollbar', 'scrollbar-size'), layers.semantic),
 				cssFile('backdrop.css', pathFilter('backdrop-glow', 'backdrop-grid', 'backdrop-grid-size', 'backdrop-grid-line'), layers.semantic),
 				cssFile('text-styles.css', pathFilter('textStyle'), layers.semantic),
 			cssFile('text.css', pathFilter('text'), layers.semantic),
@@ -947,6 +954,9 @@ const config = {
 			cssFile('role.css', pathFilter('primary', 'secondary', 'danger', 'success', 'warning', 'info', 'muted'), layers.semantic),
 			cssFile('claude.css', pathFilter('claude'), layers.semantic),
 			cssFile('icon.css', pathFilter('iconSize'), layers.semantic),
+			// Every semantic-tier group lands in a file (`tiers.semantic`); these were in none.
+			cssFile('chat.css', pathFilter('chat'), layers.semantic),
+			cssFile('wizard.css', pathFilter('wizard'), layers.semantic),
 			],
 		},
 
@@ -1034,7 +1044,7 @@ const config = {
 				typesFile('shadow.d.ts', pathFilter('shadow', 'bevel', 'glow', 'glowSpread')),
 				typesFile('blur.d.ts', pathFilter('blur')),
 				typesFile('surface.d.ts', pathFilter('glass', 'matte', 'surface')),
-				typesFile('spacing.d.ts', pathFilter('radius', 'space', 'padding', 'size', 'breakpoint', 'zIndex', 'z-index')),
+				typesFile('spacing.d.ts', pathFilter('radius', 'space', 'padding', 'size', 'breakpoint', 'zIndex', 'z-index', 'borderWidth', 'outlineOffset')),
 				typesFile('typography.d.ts', pathFilter('font', 'textSize', 'font-size', 'textStyle')),
 				typesFile('motion.d.ts', pathFilter('motion', 'transition')),
 				typesFile('gradient.d.ts', pathFilter('gradient')),

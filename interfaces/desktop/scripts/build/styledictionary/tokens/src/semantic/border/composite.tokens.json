@@ -49,7 +49,7 @@
 		"default": {
 			"$value": {
 				"color": "{border.subtle}",
-				"width": "{borderWidth.thin}",
+				"width": "{borderWidth.hairline}",
 				"style": "solid"
 			},
 			"$description": "Standard container border."
@@ -57,7 +57,7 @@
 		"strong": {
 			"$value": {
 				"color": "{border.strong}",
-				"width": "{borderWidth.thin}",
+				"width": "{borderWidth.hairline}",
 				"style": "solid"
 			},
 			"$description": "Emphasised container border."
@@ -65,7 +65,7 @@
 		"focus": {
 			"$value": {
 				"color": "{border.focus}",
-				"width": "{borderWidth.medium}",
+				"width": "{borderWidth.thin}",
 				"style": "solid"
 			},
 			"$description": "Focus ring."
@@ -73,7 +73,7 @@
 		"divider": {
 			"$value": {
 				"color": "{border.divider}",
-				"width": "{borderWidth.thin}",
+				"width": "{borderWidth.hairline}",
 				"style": "solid"
 			},
 			"$description": "Section separator."

@@ -4,6 +4,9 @@
 
 @layer tokens.semantic {
   :root {
+  --gradient-duration-slow: 25000ms; /** Background ambient gradient — 25 s cycle. */
+  --gradient-duration-medium: 15000ms; /** Mid-speed gradient — 15 s cycle. */
+  --gradient-duration-fast: 8000ms; /** Active gradient — 8 s cycle. */
   --transition-fade-duration-value: 150; /** Opacity fade for show / hide. */
   --transition-fade-duration-unit: ms; /** Opacity fade for show / hide. */
   --transition-fade-delay-value: 0; /** Opacity fade for show / hide. */

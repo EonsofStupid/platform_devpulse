@@ -32507,6 +32507,20 @@
 		"extensions": {},
 		"tokens": [
 			{
+				"name": "border-width-hairline",
+				"path": [
+					"borderWidth",
+					"hairline"
+				],
+				"cssVar": "--border-width-hairline",
+				"value": {
+					"value": 0.0625,
+					"unit": "rem"
+				},
+				"type": "dimension",
+				"extensions": null
+			},
+			{
 				"name": "border-width-thin",
 				"path": [
 					"borderWidth",
@@ -32514,7 +32528,7 @@
 				],
 				"cssVar": "--border-width-thin",
 				"value": {
-					"value": 0.0625,
+					"value": 0.125,
 					"unit": "rem"
 				},
 				"type": "dimension",
@@ -32527,20 +32541,6 @@
 					"medium"
 				],
 				"cssVar": "--border-width-medium",
-				"value": {
-					"value": 0.125,
-					"unit": "rem"
-				},
-				"type": "dimension",
-				"extensions": null
-			},
-			{
-				"name": "border-width-thick",
-				"path": [
-					"borderWidth",
-					"thick"
-				],
-				"cssVar": "--border-width-thick",
 				"value": {
 					"value": 0.1875,
 					"unit": "rem"

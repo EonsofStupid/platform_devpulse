@@ -11,11 +11,13 @@
 @import "./primitives/blur.css";
 @import "./primitives/surface.css";
 @import "./primitives/radius.css";
+@import "./primitives/border-width.css";
 @import "./primitives/spacing.css";
 @import "./primitives/typography.css";
 @import "./primitives/motion.css";
 @import "./primitives/gradient.css";
 @import "./primitives/layout.css";
+@import "./primitives/opacity.css";
 
 /* ── Semantic ────────────────────────────────────────────── */
 @import "./semantic/elevation.css";
@@ -31,7 +33,10 @@
 @import "./semantic/signal.css";
 @import "./semantic/accent.css";
 @import "./semantic/role.css";
+@import "./semantic/claude.css";
 @import "./semantic/icon.css";
+@import "./semantic/chat.css";
+@import "./semantic/wizard.css";
 
 /* ── Components ──────────────────────────────────────────── */
 @import "./components/components.generated.css";

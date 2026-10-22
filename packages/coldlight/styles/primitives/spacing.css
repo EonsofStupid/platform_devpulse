@@ -70,5 +70,14 @@
   --space-96: 24rem; /** space 96 — min 384px, max 384px. */
   --space-112: 28rem; /** space 112 — min 448px, max 448px. */
   --space-128: 32rem; /** space 128 — min 512px, max 512px. */
+  --z-index-base: 0; /** Default in-flow content. */
+  --z-index-raised: 10; /** Slightly elevated surfaces — cards, panels. */
+  --z-index-dropdown: 100; /** Dropdown menus and selects. */
+  --z-index-sticky: 200; /** Sticky headers and side panels. */
+  --z-index-overlay: 300; /** Non-modal overlay surfaces. */
+  --z-index-modal: 400; /** Modal dialogs. */
+  --z-index-popover: 500; /** Popovers, comboboxes. */
+  --z-index-toast: 600; /** Toast notifications. */
+  --z-index-tooltip: 700; /** Tooltips — highest priority, never obstructed. */
   }
 }

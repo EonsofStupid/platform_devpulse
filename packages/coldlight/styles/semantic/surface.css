@@ -4,6 +4,12 @@
 
 @layer tokens.semantic {
   :root {
+  --glass-blur-void: 1.25rem; /** Maximum blur — near-opaque surfaces. 20 px. */
+  --glass-blur-deep: 1rem; /** Heavy blur — overlays, deep panels. 16 px. */
+  --glass-blur-smoke: 0.875rem; /** Strong blur — raised surfaces. 14 px. */
+  --glass-blur-standard: 0.75rem; /** Default blur — most containers. 12 px. */
+  --glass-blur-light: 0.5rem; /** Light blur — secondary surfaces. 8 px. */
+  --glass-blur-frost: 0.375rem; /** Gentle blur — frosted glass. 6 px. */
   --surface-base: var(--glass-void); /** App background — the deepest surface in the stacking order. */
   --surface-raised: var(--glass-smoke); /** Card, panel on top of base. */
   --surface-overlay: var(--glass-deep); /** Dialog, popover, dropdown — surfaces that hover above the main flow. */

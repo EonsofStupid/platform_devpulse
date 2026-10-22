@@ -29,40 +29,22 @@ const OUT = '../../packages/coldlight';
 
 // ─── Barrel: CSS imports with layer order ────────────────────────────
 
+/** `@import` lines for a platform's files, in the order the config lists them. */
+const importsOf = (platform, dir) =>
+	config.platforms[platform].files.map((file) => `@import "./${dir}/${file.destination}";`).join('\n');
+
+// The imports come from the config's file lists, so a file the config emits
+// is always imported (claude.css was emitted and never imported).
 const INDEX_CSS = `/* AUTO-GENERATED — DO NOT EDIT */
 
 /* ── Layer order declaration ─────────────────────────────── */
 @layer tokens.primitives, tokens.semantic, tokens.components;
 
 /* ── Primitives ──────────────────────────────────────────── */
-@import "./primitives/color.css";
-@import "./primitives/shadow.css";
-@import "./primitives/bevel.css";
-@import "./primitives/glow.css";
-@import "./primitives/blur.css";
-@import "./primitives/surface.css";
-@import "./primitives/radius.css";
-@import "./primitives/spacing.css";
-@import "./primitives/typography.css";
-@import "./primitives/motion.css";
-@import "./primitives/gradient.css";
-@import "./primitives/layout.css";
+${importsOf('css-primitives', 'primitives')}
 
 /* ── Semantic ────────────────────────────────────────────── */
-@import "./semantic/elevation.css";
-@import "./semantic/surface.css";
-@import "./semantic/border.css";
-@import "./semantic/transition.css";
-@import "./semantic/interaction.css";
-@import "./semantic/overlay.css";
-@import "./semantic/scrollbar.css";
-@import "./semantic/backdrop.css";
-@import "./semantic/text-styles.css";
-@import "./semantic/text.css";
-@import "./semantic/signal.css";
-@import "./semantic/accent.css";
-@import "./semantic/role.css";
-@import "./semantic/icon.css";
+${importsOf('css-semantic', 'semantic')}
 
 /* ── Components ──────────────────────────────────────────── */
 @import "./components/components.generated.css";

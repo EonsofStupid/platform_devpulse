@@ -1,0 +1,29 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+@layer tokens.semantic {
+  :root {
+  --chat-z-index: 1000; /** Chat window z-index layer. */
+  --chat-overlay-z: 1001; /** Chat overlay z-index (above chat frame). */
+  --chat-idle-opacity: 0.35; /** Opacity when not engaged. */
+  --chat-engaged-opacity: 1; /** Opacity when engaged. */
+  --chat-width: 25rem; /** Default chat window width. 400 px. */
+  --chat-min-width: 20rem; /** Minimum chat window width. 320 px. */
+  --chat-max-width: 37.5rem; /** Maximum chat window width. 600 px. */
+  --chat-height: 60rem; /** Default chat window height. Authoritative DTCG value is 60 rem; the CSS transform reads the viewport-percent extension and emits `60vh`. */
+  --chat-min-height: 25rem; /** Minimum chat window height. 400 px. */
+  --chat-topbar-height: 2.5rem; /** Chat topbar row height. 40 px. */
+  --chat-footer-height: 3.5rem; /** Chat footer row height. 56 px. */
+  --chat-sidebar-width: 3.5rem; /** Chat mode selector column width. 56 px. */
+  --chat-context-width: 12rem; /** Chat context panel column width. 192 px. */
+  --chat-grid-gap: 0.25rem; /** Gap between chat grid zones. 4 px. */
+  --chat-transition-duration: 300ms; /** State change transition duration. */
+  --chat-mode-developer: oklch(0.7 0.15 173); /** Developer mode accent colour — teal. */
+  --chat-mode-planning: oklch(0.65 0.15 300); /** Planning mode accent colour — purple. */
+  --chat-mode-image: oklch(0.7 0.15 60); /** Image mode accent colour — orange. */
+  --chat-mode-general: oklch(0.6 0.02 224); /** General mode accent colour — muted. */
+  --chat-voice-active: oklch(0.7 0.18 145); /** Voice-active indicator colour. */
+  --chat-voice-pulse: 0rem 0rem 0.75rem 0rem #45ba50; /** Voice-active pulse glow. */
+  }
+}
