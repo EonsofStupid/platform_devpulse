@@ -89,7 +89,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "chrome-elevated: Polished chrome — specular gradient, sharp highlight, steel surface"
+			"$description": "chrome-elevated: Polished chrome — specular gradient, sharp highlight, steel surface",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Chrome Elevated",
+					"family": "chrome",
+					"variant": "elevated"
+				}
+			}
 		},
 		"chrome-elevated-hover": {
 			"$description": "chrome-elevated hover overrides",
@@ -225,7 +232,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "chrome-deep: Dark chrome — gunmetal surface, deep reflections, heavy metal"
+			"$description": "chrome-deep: Dark chrome — gunmetal surface, deep reflections, heavy metal",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Chrome Deep",
+					"family": "chrome",
+					"variant": "deep"
+				}
+			}
 		},
 		"chrome-deep-hover": {
 			"$description": "chrome-deep hover overrides",
@@ -349,7 +363,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "chrome-minimal: Brushed aluminum — subtle directional grain, matte metal"
+			"$description": "chrome-minimal: Brushed aluminum — subtle directional grain, matte metal",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Chrome Minimal",
+					"family": "chrome",
+					"variant": "minimal"
+				}
+			}
 		},
 		"chrome-minimal-hover": {
 			"$description": "chrome-minimal hover overrides",
@@ -473,7 +494,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "chrome-solid: Cast metal — dense, opaque, industrial steel plate"
+			"$description": "chrome-solid: Cast metal — dense, opaque, industrial steel plate",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Chrome Solid",
+					"family": "chrome",
+					"variant": "solid"
+				}
+			}
 		},
 		"chrome-solid-hover": {
 			"$description": "chrome-solid hover overrides",
@@ -597,7 +625,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "chrome-glow: Plasma chrome — ice-blue emission, electrified metal edge"
+			"$description": "chrome-glow: Plasma chrome — ice-blue emission, electrified metal edge",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Chrome Glow",
+					"family": "chrome",
+					"variant": "glow"
+				}
+			}
 		},
 		"chrome-glow-hover": {
 			"$description": "chrome-glow hover overrides",
@@ -725,7 +760,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "chrome-muted: Tarnished metal — oxidized, desaturated, weathered chrome"
+			"$description": "chrome-muted: Tarnished metal — oxidized, desaturated, weathered chrome",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Chrome Muted",
+					"family": "chrome",
+					"variant": "muted"
+				}
+			}
 		},
 		"chrome-muted-hover": {
 			"$description": "chrome-muted hover overrides",

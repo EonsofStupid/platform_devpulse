@@ -89,7 +89,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "flat-elevated: Bright flat — solid color fill, no depth, clean edges"
+			"$description": "flat-elevated: Bright flat — solid color fill, no depth, clean edges",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Flat Elevated",
+					"family": "flat",
+					"variant": "elevated"
+				}
+			}
 		},
 		"flat-elevated-hover": {
 			"$description": "flat-elevated hover overrides",
@@ -197,7 +204,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "flat-deep: Dark flat — deep solid color, no frills, reading-focused"
+			"$description": "flat-deep: Dark flat — deep solid color, no frills, reading-focused",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Flat Deep",
+					"family": "flat",
+					"variant": "deep"
+				}
+			}
 		},
 		"flat-deep-hover": {
 			"$description": "flat-deep hover overrides",
@@ -305,7 +319,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "flat-minimal: Near-invisible — transparent bg, content only, ghost mode"
+			"$description": "flat-minimal: Near-invisible — transparent bg, content only, ghost mode",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Flat Minimal",
+					"family": "flat",
+					"variant": "minimal"
+				}
+			}
 		},
 		"flat-minimal-hover": {
 			"$description": "flat-minimal hover overrides",
@@ -409,7 +430,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "flat-solid: Dense flat — opaque fill, strong color, no transparency"
+			"$description": "flat-solid: Dense flat — opaque fill, strong color, no transparency",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Flat Solid",
+					"family": "flat",
+					"variant": "solid"
+				}
+			}
 		},
 		"flat-solid-hover": {
 			"$description": "flat-solid hover overrides",
@@ -525,7 +553,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "flat-glow: Flat with accent color — tinted fill, no depth but colorful"
+			"$description": "flat-glow: Flat with accent color — tinted fill, no depth but colorful",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Flat Glow",
+					"family": "flat",
+					"variant": "glow"
+				}
+			}
 		},
 		"flat-glow-hover": {
 			"$description": "flat-glow hover overrides",
@@ -633,7 +668,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "flat-muted: Dimmed flat — faded background for disabled/secondary states"
+			"$description": "flat-muted: Dimmed flat — faded background for disabled/secondary states",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Flat Muted",
+					"family": "flat",
+					"variant": "muted"
+				}
+			}
 		},
 		"flat-muted-hover": {
 			"$description": "flat-muted hover overrides",

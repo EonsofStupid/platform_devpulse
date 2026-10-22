@@ -89,7 +89,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "retro-elevated: Raised retro widget — thick double border, CRT glow, bold color"
+			"$description": "retro-elevated: Raised retro widget — thick double border, CRT glow, bold color",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Retro Elevated",
+					"family": "retro",
+					"variant": "elevated"
+				}
+			}
 		},
 		"retro-elevated-hover": {
 			"$description": "retro-elevated hover overrides",
@@ -209,7 +216,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "retro-deep: Inset retro — sunken pixel well, terminal green on black"
+			"$description": "retro-deep: Inset retro — sunken pixel well, terminal green on black",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Retro Deep",
+					"family": "retro",
+					"variant": "deep"
+				}
+			}
 		},
 		"retro-deep-hover": {
 			"$description": "retro-deep hover overrides",
@@ -321,7 +335,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "retro-minimal: Clean pixel — single solid border, flat color, no shadows"
+			"$description": "retro-minimal: Clean pixel — single solid border, flat color, no shadows",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Retro Minimal",
+					"family": "retro",
+					"variant": "minimal"
+				}
+			}
 		},
 		"retro-minimal-hover": {
 			"$description": "retro-minimal hover overrides",
@@ -429,7 +450,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "retro-solid: Heavy retro block — saturated fill, thick border, hard pixel shadow"
+			"$description": "retro-solid: Heavy retro block — saturated fill, thick border, hard pixel shadow",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Retro Solid",
+					"family": "retro",
+					"variant": "solid"
+				}
+			}
 		},
 		"retro-solid-hover": {
 			"$description": "retro-solid hover overrides",
@@ -541,7 +569,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "retro-glow: Neon CRT — glowing text, buzzing border, scanline energy"
+			"$description": "retro-glow: Neon CRT — glowing text, buzzing border, scanline energy",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Retro Glow",
+					"family": "retro",
+					"variant": "glow"
+				}
+			}
 		},
 		"retro-glow-hover": {
 			"$description": "retro-glow hover overrides",
@@ -657,7 +692,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "retro-muted: Faded retro — desaturated CRT, ghosted pixels, worn terminal"
+			"$description": "retro-muted: Faded retro — desaturated CRT, ghosted pixels, worn terminal",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Retro Muted",
+					"family": "retro",
+					"variant": "muted"
+				}
+			}
 		},
 		"retro-muted-hover": {
 			"$description": "retro-muted hover overrides",

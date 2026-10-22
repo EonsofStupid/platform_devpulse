@@ -89,7 +89,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "stark-elevated: Command presence — high contrast, bold border, heavy shadow lift"
+			"$description": "stark-elevated: Command presence — high contrast, bold border, heavy shadow lift",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Stark Elevated",
+					"family": "stark",
+					"variant": "elevated"
+				}
+			}
 		},
 		"stark-elevated-hover": {
 			"$description": "stark-elevated hover overrides",
@@ -217,7 +224,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "stark-deep: Void authority — near-black with bright accent border, severe"
+			"$description": "stark-deep: Void authority — near-black with bright accent border, severe",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Stark Deep",
+					"family": "stark",
+					"variant": "deep"
+				}
+			}
 		},
 		"stark-deep-hover": {
 			"$description": "stark-deep hover overrides",
@@ -345,7 +359,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "stark-minimal: Clean authority — thin bright border, dark field, precise"
+			"$description": "stark-minimal: Clean authority — thin bright border, dark field, precise",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Stark Minimal",
+					"family": "stark",
+					"variant": "minimal"
+				}
+			}
 		},
 		"stark-minimal-hover": {
 			"$description": "stark-minimal hover overrides",
@@ -465,7 +486,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "stark-solid: Monolith — dense opaque block, ultra-bold, imposing"
+			"$description": "stark-solid: Monolith — dense opaque block, ultra-bold, imposing",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Stark Solid",
+					"family": "stark",
+					"variant": "solid"
+				}
+			}
 		},
 		"stark-solid-hover": {
 			"$description": "stark-solid hover overrides",
@@ -593,7 +621,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "stark-glow: Alert presence — danger/warning accent glow, demands attention"
+			"$description": "stark-glow: Alert presence — danger/warning accent glow, demands attention",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Stark Glow",
+					"family": "stark",
+					"variant": "glow"
+				}
+			}
 		},
 		"stark-glow-hover": {
 			"$description": "stark-glow hover overrides",
@@ -725,7 +760,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "stark-muted: Dimmed authority — faded border, reduced contrast, secondary"
+			"$description": "stark-muted: Dimmed authority — faded border, reduced contrast, secondary",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Stark Muted",
+					"family": "stark",
+					"variant": "muted"
+				}
+			}
 		},
 		"stark-muted-hover": {
 			"$description": "stark-muted hover overrides",

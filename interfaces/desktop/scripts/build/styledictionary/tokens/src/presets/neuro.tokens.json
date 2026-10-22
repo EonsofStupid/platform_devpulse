@@ -89,7 +89,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "neuro-elevated: Raised neumorphic surface — carved out of the void with teal accent glow"
+			"$description": "neuro-elevated: Raised neumorphic surface — carved out of the void with teal accent glow",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Neuro Elevated",
+					"family": "neuro",
+					"variant": "elevated"
+				}
+			}
 		},
 		"neuro-elevated-hover": {
 			"$description": "neuro-elevated hover overrides",
@@ -201,7 +208,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "neuro-deep: Deeply recessed surface — sunken into the void with heavy inset shadows"
+			"$description": "neuro-deep: Deeply recessed surface — sunken into the void with heavy inset shadows",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Neuro Deep",
+					"family": "neuro",
+					"variant": "deep"
+				}
+			}
 		},
 		"neuro-deep-hover": {
 			"$description": "neuro-deep hover overrides",
@@ -305,7 +319,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "neuro-minimal: Subtle neumorphic — barely raised, whisper shadows, restrained"
+			"$description": "neuro-minimal: Subtle neumorphic — barely raised, whisper shadows, restrained",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Neuro Minimal",
+					"family": "neuro",
+					"variant": "minimal"
+				}
+			}
 		},
 		"neuro-minimal-hover": {
 			"$description": "neuro-minimal hover overrides",
@@ -409,7 +430,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "neuro-solid: Dense neumorphic — opaque surface, heavy shadows, no translucency"
+			"$description": "neuro-solid: Dense neumorphic — opaque surface, heavy shadows, no translucency",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Neuro Solid",
+					"family": "neuro",
+					"variant": "solid"
+				}
+			}
 		},
 		"neuro-solid-hover": {
 			"$description": "neuro-solid hover overrides",
@@ -513,7 +541,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "neuro-glow: Neumorphic with teal emission — glowing borders and accent shadow layers"
+			"$description": "neuro-glow: Neumorphic with teal emission — glowing borders and accent shadow layers",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Neuro Glow",
+					"family": "neuro",
+					"variant": "glow"
+				}
+			}
 		},
 		"neuro-glow-hover": {
 			"$description": "neuro-glow hover overrides",
@@ -629,7 +664,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "neuro-muted: Desaturated neumorphic — dimmed surface for secondary/disabled states"
+			"$description": "neuro-muted: Desaturated neumorphic — dimmed surface for secondary/disabled states",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Neuro Muted",
+					"family": "neuro",
+					"variant": "muted"
+				}
+			}
 		},
 		"neuro-muted-hover": {
 			"$description": "neuro-muted hover overrides",

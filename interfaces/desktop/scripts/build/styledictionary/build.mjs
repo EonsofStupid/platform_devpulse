@@ -147,6 +147,12 @@ async function build() {
 	const sd = new StyleDictionary(config);
 	await sd.buildAllPlatforms();
 
+	// The preset catalog, from the one preset source (plan 0006 0s.2)
+	execSync('node scripts/build/styledictionary/generate-preset-catalog.mjs', {
+		cwd: process.cwd(),
+		stdio: 'inherit',
+	});
+
 	writeFileSync(`${OUT}/styles/index.css`, INDEX_CSS);
 	writeFileSync(`${OUT}/theme/index.css`, INDEX_THEME);
 	writeFileSync(`${OUT}/types/index.d.ts`, INDEX_DTS);

@@ -89,7 +89,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "glass-elevated: Raised frosted glass — bright blur, teal-tinted border, floating"
+			"$description": "glass-elevated: Raised frosted glass — bright blur, teal-tinted border, floating",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Glass Elevated",
+					"family": "glass",
+					"variant": "elevated"
+				}
+			}
 		},
 		"glass-elevated-hover": {
 			"$description": "glass-elevated hover overrides",
@@ -213,7 +220,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "glass-deep: Deep frosted glass — heavy blur, dark tint, submerged look"
+			"$description": "glass-deep: Deep frosted glass — heavy blur, dark tint, submerged look",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Glass Deep",
+					"family": "glass",
+					"variant": "deep"
+				}
+			}
 		},
 		"glass-deep-hover": {
 			"$description": "glass-deep hover overrides",
@@ -333,7 +347,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "glass-minimal: Whisper glass — barely visible surface, light blur, nearly transparent"
+			"$description": "glass-minimal: Whisper glass — barely visible surface, light blur, nearly transparent",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Glass Minimal",
+					"family": "glass",
+					"variant": "minimal"
+				}
+			}
 		},
 		"glass-minimal-hover": {
 			"$description": "glass-minimal hover overrides",
@@ -445,7 +466,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "glass-solid: Opaque glass — frosted texture but no see-through, dense blur"
+			"$description": "glass-solid: Opaque glass — frosted texture but no see-through, dense blur",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Glass Solid",
+					"family": "glass",
+					"variant": "solid"
+				}
+			}
 		},
 		"glass-solid-hover": {
 			"$description": "glass-solid hover overrides",
@@ -565,7 +593,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "glass-glow: Glowing glass — teal emission through frosted surface, ethereal"
+			"$description": "glass-glow: Glowing glass — teal emission through frosted surface, ethereal",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Glass Glow",
+					"family": "glass",
+					"variant": "glow"
+				}
+			}
 		},
 		"glass-glow-hover": {
 			"$description": "glass-glow hover overrides",
@@ -689,7 +724,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "glass-muted: Dimmed glass — faded frost for disabled/secondary states"
+			"$description": "glass-muted: Dimmed glass — faded frost for disabled/secondary states",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Glass Muted",
+					"family": "glass",
+					"variant": "muted"
+				}
+			}
 		},
 		"glass-muted-hover": {
 			"$description": "glass-muted hover overrides",

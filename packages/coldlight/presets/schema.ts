@@ -89,3 +89,17 @@ export interface PresetDefinition {
 		readonly disabled?: StateOverrides;
 	};
 }
+
+/**
+ * A preset as the catalog lists it: generated from the one preset source,
+ * the DTCG family files (plan 0006 0s.2). Its values live in those files and
+ * reach components as `--preset-<id>-*` custom properties.
+ */
+export interface PresetEntry {
+	readonly id: string;
+	readonly family: PresetFamily;
+	/** The id without its family prefix (`elevated`, `bubble-user`). */
+	readonly variant: string;
+	readonly label: string;
+	readonly description: string;
+}

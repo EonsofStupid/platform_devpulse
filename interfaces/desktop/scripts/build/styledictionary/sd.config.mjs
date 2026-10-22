@@ -885,7 +885,9 @@ const typesFile = (dest, filter) => ({
 
 const config = {
 	source: [
-		`${paths.source}/*.json`,
+		// style-presets.json is no longer read: the family files below are the one
+		// preset source (plan 0006 0s.2). svg-presets.json splits per SVG kind in 0s.6.
+		`${paths.source}/svg-presets.json`,
 		`${paths.source}/primitives/**/*.tokens.json`,
 		`${paths.source}/semantic/**/*.tokens.json`,
 		`${paths.source}/presets/**/*.tokens.json`,

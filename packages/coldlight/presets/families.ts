@@ -6,7 +6,7 @@
  * platform preset catalog.
  */
 
-export type PresetFamily = "neuro" | "glass" | "retro" | "chrome" | "flat" | "stark";
+export type PresetFamily = "neuro" | "glass" | "retro" | "chrome" | "flat" | "stark" | "chat";
 
 export const PRESET_FAMILIES: readonly PresetFamily[] = [
 	"neuro",
@@ -15,6 +15,7 @@ export const PRESET_FAMILIES: readonly PresetFamily[] = [
 	"chrome",
 	"flat",
 	"stark",
+	"chat",
 ] as const;
 
 export const FAMILY_LABELS: Record<PresetFamily, string> = {
@@ -24,6 +25,7 @@ export const FAMILY_LABELS: Record<PresetFamily, string> = {
 	chrome: "Chrome Metal",
 	flat: "Flat Minimal",
 	stark: "Stark Bold",
+	chat: "Chat (Golden)",
 } as const;
 
 export const FAMILY_DESCRIPTIONS: Record<PresetFamily, string> = {
@@ -33,4 +35,5 @@ export const FAMILY_DESCRIPTIONS: Record<PresetFamily, string> = {
 	chrome: "Liquid metal, specular highlights, mercury reflections, cool-toned",
 	flat: "Zero depth, solid backgrounds, clean geometry, fastest rendering",
 	stark: "Maximum contrast, bold shadows, thick borders, commanding presence",
+	chat: "Golden chat reference — token-driven bubbles, pills, voice, cortex",
 } as const;

@@ -31,6 +31,7 @@ export type {
 	BorderValue,
 	PresetAxes,
 	PresetDefinition,
+	PresetEntry,
 	ShadowLayer,
 	StateOverrides,
 	TransitionValue,
