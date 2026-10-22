@@ -21,9 +21,10 @@
  */
 
 import { execSync } from 'node:child_process';
-import { writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import StyleDictionary from 'style-dictionary';
-import config from './sd.config.mjs';
+import { kindTypes } from './kind-css.mjs';
+import config, { KIND_FILES } from './sd.config.mjs';
 
 const OUT = '../../packages/coldlight';
 
@@ -152,6 +153,19 @@ async function build() {
 		cwd: process.cwd(),
 		stdio: 'inherit',
 	});
+
+	// Kinds (plan 0006 §0s): each kind file's typed unions beside it, and the
+	// barrel importing every kind's generated CSS.
+	for (const { kind, group, meta } of KIND_FILES) {
+		writeFileSync(`${OUT}/components/${kind}/${kind}.generated.ts`, kindTypes(kind, group, meta));
+	}
+	mkdirSync(`${OUT}/styles/components/kinds`, { recursive: true });
+	const kindImports = KIND_FILES.map(({ kind }) => `@import "./${kind}.css";`);
+	writeFileSync(
+		`${OUT}/styles/components/kinds/index.css`,
+		['/* AUTO-GENERATED — DO NOT EDIT. One file per colocated kind tokens file. */', ...kindImports, ''].join('\n'),
+	);
+	console.log(`[SD5] Kinds: ${KIND_FILES.map(({ kind }) => kind).join(', ') || '(none yet)'}`);
 
 	writeFileSync(`${OUT}/styles/index.css`, INDEX_CSS);
 	writeFileSync(`${OUT}/theme/index.css`, INDEX_THEME);

@@ -13,6 +13,8 @@
  * ```
  */
 
+// The attributes that select a kind's generated CSS (plan 0006 §0s)
+export { type StyleAttrs, type StyleSelection, styleAttrs } from "./attrs.js";
 // The format helper — the ONLY bridge to DOM
 export { cssVarString } from "./css-var-string.js";
 // Shared intent resolution — Law 6

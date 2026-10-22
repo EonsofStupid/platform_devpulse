@@ -24,6 +24,8 @@ import {
 	logWarningLevels,
 	logBrokenReferenceLevels,
 } from 'style-dictionary/enums';
+import { readdirSync, existsSync } from 'node:fs';
+import { isKindToken, kindCss, readKindFile } from './kind-css.mjs';
 import { resolveExtends } from './preprocess-extends.mjs';
 
 // ═══════════════════════════════════════════════════════════════
@@ -33,6 +35,7 @@ import { resolveExtends } from './preprocess-extends.mjs';
 
 /** Custom format names — ColdLight extensions to SD5 */
 const clFormats = {
+	kindCss: 'coldlight/kind-css',
 	css: 'coldlight/css',
 	tailwindTheme: 'coldlight/tailwind-theme',
 	types: 'coldlight/types',
@@ -153,6 +156,15 @@ const paths = {
 	design: '../../packages/coldlight',
 };
 
+/** Every component folder with a `<kind>.tokens.json` whose top group is the kind (plan 0006 §0s). */
+export const KIND_FILES = readdirSync(`${paths.design}/components`, { withFileTypes: true })
+	.filter((d) => d.isDirectory() && existsSync(`${paths.design}/components/${d.name}/${d.name}.tokens.json`))
+	.flatMap((d) => {
+		const path = `${paths.design}/components/${d.name}/${d.name}.tokens.json`;
+		const read = readKindFile(path, d.name);
+		return read ? [{ kind: d.name, path, ...read }] : [];
+	});
+
 // ═══════════════════════════════════════════════════════════════
 // PATH-BASED FILTERING
 // ═══════════════════════════════════════════════════════════════
@@ -165,7 +177,9 @@ const pathFilter =
 const isPrimitive = pathFilter(...tiers.primitive);
 const isSemantic = pathFilter(...tiers.semantic);
 const isSvgPreset = pathFilter('svg-style');
-const isComponent = (token) => !isPrimitive(token) && !isSemantic(token) && !isSvgPreset(token);
+// A kind file's own group becomes that kind's CSS (css-kinds), not :root variables.
+const isComponent = (token) =>
+	!isPrimitive(token) && !isSemantic(token) && !isSvgPreset(token) && !isKindToken(token);
 
 // ═══════════════════════════════════════════════════════════════
 // $EXTENSIONS HELPERS
@@ -624,6 +638,15 @@ function toTw4VarName(token) {
 // CSS custom properties wrapped in @layer tokens.{sublayer}.
 // ═══════════════════════════════════════════════════════════════
 
+// One kind's CSS from its colocated tokens file (plan 0006 §0s; see kind-css.mjs).
+StyleDictionary.registerFormat({
+	name: clFormats.kindCss,
+	format: async ({ dictionary, file, options }) => {
+		const header = await fileHeader({ file });
+		return `${header}${kindCss(dictionary, options.kind, options.meta)}\n`;
+	},
+});
+
 StyleDictionary.registerFormat({
 	name: clFormats.css,
 	format: async ({ dictionary, file, options }) => {
@@ -986,6 +1009,18 @@ const config = {
 					options: { outputReferences: false },
 				},
 			],
+		},
+
+		// ── CSS: Kinds (one file per colocated kind tokens file) ──
+		'css-kinds': {
+			transforms: CSS_TRANSFORMS,
+			buildPath: `${paths.design}/styles/components/kinds/`,
+			files: KIND_FILES.map(({ kind, meta }) => ({
+				destination: `${kind}.css`,
+				format: clFormats.kindCss,
+				filter: (token) => token.path[0] === kind && isKindToken(token),
+				options: { kind, meta },
+			})),
 		},
 
 		// ── CSS: SVG Presets ──────────────────────────────────────

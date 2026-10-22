@@ -39,6 +39,10 @@
  *    the preset default. Unlayered, it overrode every one of them. */
 @import "./generated/render-base.css" layer(components);
 
+/* Kinds: one generated file per colocated kind tokens file (plan 0006 §0s),
+   in the same layer as render-base and after it, so a kind's own rules win. */
+@import "./styles/components/kinds/index.css" layer(components);
+
 /* 10. Non-token: SVG RenderForge glue — maps --svg-* vars to SVG elements on [data-svg-kind] */
 @import "./svg/svg-macro-base.css";
 
