@@ -2,13 +2,13 @@
 id: 0006
 boundary: desktop-coldlight
 paths:
-  - interfaces/desktop/src/lib/design/
+  - packages/coldlight/
   - interfaces/desktop/scripts/build/styledictionary/
 touches: [desktop-models, desktop-chat, desktop-devtools]
 status: draft
 owner: Jesse Hades Hall
 created: 2026-10-10
-updated: 2026-10-18
+updated: 2026-10-22
 supersedes: []
 specs:
   - interfaces/desktop/src/lib/design/MASTER-PLAN.md
@@ -249,14 +249,14 @@ source covers all of it, and the owner OKs that removal (owner rule
 
 | Step | Change | Files | Done when |
 | --- | --- | --- | --- |
-| 0a.1 | The generator runs as the build's first step. Composites stop going through hex: shadow and gradient transforms emit `oklch(L C H / a)` from the token's components. Numeric gradient angles get `deg`, and radial gradients are emitted as `radial-gradient`. The hex fallback uses real CSS Color 4 gamut mapping (binary search on chroma, lightness and hue kept, ΔE_OK 0.02), never C = 0. The two no-op collector steps are deleted. | `SD/build.mjs`, `SD/dtcg-emit.mjs`, `SD/sd.config.mjs`; delete `collect-element-seed-defs.mjs`, `collect-preset-styles.mjs` | Zero hex values in `styles/`; all 54 gradients parse (lightningcss 1.30.2, already installed); live shadow and gradient computed values are `oklch(...)` |
+| 0a.1 | The generator runs as the build's first step. Composites stop going through hex: shadow and gradient transforms emit `oklch(L C H / a)` from the token's components. Numeric gradient angles get `deg`, and radial gradients are emitted as `radial-gradient`. The hex fallback uses real CSS Color 4 gamut mapping (binary search on chroma, lightness and hue kept, ΔE_OK 0.02), never C = 0. The two no-op collector steps stay until 0s.7 retires them (their jobs move into the one source). | `SD/build.mjs`, `SD/dtcg-emit.mjs`, `SD/sd.config.mjs` | Zero hex values in `styles/`; all 54 gradients parse (lightningcss 1.30.2, already installed); live shadow and gradient computed values are `oklch(...)` |
 | 0a.2 | **The wheel.** Each hue's `chroma` becomes its peak. Each step takes `min(peak, the largest chroma sRGB can show at that L and H)`. A per-hue `chromaCurve` override is data in the hue table, for tuning without code. The generator prints a gamut report: per ramp, the stops fitted and how far chroma moved. | `SD/generate-scales.mjs` | Report: 440/440 stops in sRGB; a before/after diff proves every stop that was already displayable is byte-identical |
 
 #### 0b — Clear categories, everything emitted
 
 | Step | Change | Files | Done when |
 | --- | --- | --- | --- |
-| 0b.1 | Tier comes from the source's top folder (`primitives/`, `semantic/`, `presets/`, `components/`). Category comes from the second folder, through one table. Output is generated per category as `styles/{tier}/{category}.css`, replacing the hand-kept prefix lists, and the CSS barrel is generated from the same table. A token in an unmapped folder fails the build. New gate `verify-tokens.mjs`, run by the build: (1) source leaves = emitted variables; (2) every `var(--x)` without a fallback in `src/**` resolves to an emitted or locally declared property; (3) every emitted declaration parses; (4) the gamut report. Stale `elevation` outputs deleted. | `SD/sd.config.mjs`, `SD/build.mjs`, new `SD/verify-tokens.mjs` | The 132 missing tokens are emitted; `--border-width-thin`, `--chat-*` and `--outline-offset-md` resolve live; `--hover-filter`, `--active-filter` and `--focus-ring` are reported, and 0b.3 removes them |
+| 0b.1 | *Partly done 2026-10-22 (`e65ee444`): the groups no file took are routed (border widths per main `d432e775`, animation, opacity, z-index, glass-blur, gradient-duration, scrollbar-size, chat, wizard), and the CSS barrel is generated from the config's file lists (`claude.css` is now imported). Remaining:* Tier comes from the source's top folder (`primitives/`, `semantic/`, `presets/`, `components/`). Category comes from the second folder, through one table. Output is generated per category as `styles/{tier}/{category}.css`, replacing the hand-kept prefix lists, and the CSS barrel is generated from the same table. A token in an unmapped folder fails the build. New gate `verify-tokens.mjs`, run by the build: (1) source leaves = emitted variables; (2) every `var(--x)` without a fallback in `src/**` resolves to an emitted or locally declared property; (3) every emitted declaration parses; (4) the gamut report. Stale `elevation` outputs deleted. | `SD/sd.config.mjs`, `SD/build.mjs`, new `SD/verify-tokens.mjs` | The 132 missing tokens are emitted; `--border-width-thin`, `--chat-*` and `--outline-offset-md` resolve live; `--hover-filter`, `--active-filter` and `--focus-ring` are reported, and 0b.3 removes them |
 | 0b.2 | **Color semantics alias primitives.** In text, signal and accent, a literal equal to a ramp stop becomes that alias. A literal within ΔE_OK 0.02 of one becomes its alias, and each such change is listed in the log. Any other literal becomes a named primitive in the generator, then is aliased. The gate gains: zero literal values in the semantic tier. | `semantic/text`, `semantic/signal`, `semantic/accent` token files, `SD/generate-scales.mjs`, `SD/verify-tokens.mjs` | Semantic color is 100% aliases; the computed-style snapshot is unchanged, apart from the logged ≤0.02 moves |
 | 0b.3 | **Interaction and motion.** State-layer color aliases `color.white` (fixes the corrupt pink L 1.0032). Opacities become `opacity` primitives with ColdLight's existing values: hover 0.059, pressed 0.102, selected 0.149, disabled 0.031; focus is new and takes 0.102, matching pressed, as Material 3 does. Focus-ring tokens (width, offset, color) alias the existing border-width, outline-offset and accent primitives. `render-base.css` reads these tokens in place of the undefined `--hover-filter` and `--active-filter`. Semantic transitions alias the `duration` and `easing` primitives. | `semantic/interaction`, `semantic/motion` token files, `SD/generate-scales.mjs` (opacity), `renderforge/render-base.css` | Live: computed hover, focus-visible and pressed values on a button; zero undefined variables reported by the gate |
 
@@ -265,17 +265,88 @@ source covers all of it, and the owner OKs that removal (owner rule
 | Step | Change | Files | Done when |
 | --- | --- | --- | --- |
 | 0c.1 | `typography`, `border` and `transition` stop expanding. They use Style Dictionary 5's built-in `typography/css/shorthand`, `border/css/shorthand`, `transition/css/shorthand` and `strokeStyle/css/shorthand`. The 104 split properties (`…-duration-value`, `…-components`) become one shorthand each, and their consumers are renamed, in batches if more than 5. | `SD/sd.config.mjs` + consumers | Zero variables ending `-value`, `-unit` or `-components`; every shorthand parses |
-| 0c.2 | **One preset source:** `tokens/src/presets/*.tokens.json` (DTCG, one file per family, as in the tier table). Measured: those files hold 1211 leaves, identical to `style-presets.json` with zero value conflicts; only the 86 `button-*` leaves are missing. Those move into a new `presets/button.tokens.json`. `style-presets.json`, `generate-style-presets.ts` and `enrich-presets.mjs` are deleted. | new `presets/button.tokens.json`; delete the 3 | The emitted `--preset-*` set is identical (diff) |
-| 0c.3 | The third copy, `visual/presets/*.ts`, is read only by `presets/catalog.ts`. The catalog reads ids and labels from the generated manifest instead, and the TS value modules are deleted. | `presets/catalog.ts`; delete `visual/presets/*` | `pnpm check` 0 errors; catalog lists the same ids |
+| 0c.2 | *Superseded by 0s (owner 2026-10-22).* **One preset source:** `tokens/src/presets/*.tokens.json` (DTCG, one file per family, as in the tier table). Measured: those files hold 1211 leaves, identical to `style-presets.json` with zero value conflicts; only the 86 `button-*` leaves are missing. Those move into a new `presets/button.tokens.json`. `style-presets.json`, `generate-style-presets.ts` and `enrich-presets.mjs` are deleted. | new `presets/button.tokens.json`; delete the 3 | The emitted `--preset-*` set is identical (diff) |
+| 0c.3 | *Superseded by 0s.2.* The third copy, `visual/presets/*.ts`, is read only by `presets/catalog.ts`. The catalog reads ids and labels from the generated manifest instead, and the TS value modules are deleted. | `presets/catalog.ts`; delete `visual/presets/*` | `pnpm check` 0 errors; catalog lists the same ids |
 | 0c.4 | **`app.css` hand-written layer out.** The `--accent-{role}-*` aliases (33 uses) are generated as semantic color role aliases, so consumers don't change. The 7 button-primary shim values move into `presets/button.tokens.json`. The `:root` block is deleted, leaving `app.css` with imports and layout only. | `src/app.css`, the semantic role token file, `presets/button.tokens.json` | Snapshot unchanged for the primary button and accent consumers |
 
 #### 0d — Component tokens; the status bar as an app-shell component
 
 | Step | Change | Files | Done when |
 | --- | --- | --- | --- |
-| 0d.1 | `collect-component-tokens.ts` reads every `src/lib/design/components/*/tokens.ts` and `src/lib/layouts/**/tokens.ts` and writes `tokens/src/components/<kind>.tokens.json`. Style Dictionary emits `styles/components/<kind>.css` with `--<kind>-<part>-<prop>` in `@layer tokens.components`, which brings the 10 existing files to life. `Badge.svelte` is the first consumer. | `SD/collect-component-tokens.ts`, `SD/sd.config.mjs`, `components/badge/Badge.svelte` | Every key in every `tokens.ts` is emitted; badge computed values come from `--badge-*` |
+| 0d.1 | *Superseded by 0s.3–0s.5: component tokens are colocated `.tokens.json` files the build globs.* `collect-component-tokens.ts` reads every `src/lib/design/components/*/tokens.ts` and `src/lib/layouts/**/tokens.ts` and writes `tokens/src/components/<kind>.tokens.json`. Style Dictionary emits `styles/components/<kind>.css` with `--<kind>-<part>-<prop>` in `@layer tokens.components`, which brings the 10 existing files to life. `Badge.svelte` is the first consumer. | `SD/collect-component-tokens.ts`, `SD/sd.config.mjs`, `components/badge/Badge.svelte` | Every key in every `tokens.ts` is emitted; badge computed values come from `--badge-*` |
 | 0d.2 | The status bar becomes `layouts/app/status-bar/`: a `StatusBar.svelte` shell plus `status-bar.tokens.ts`, and `segments/<name>/` folders holding a `Segment.svelte` and its own `tokens.ts`. Variants are `data-state` (ready, loading, failed, pending). Each segment's `<style>` reads only its generated variables, with no literal values. First step: the shell plus the subsystem segment. | shell, its tokens, subsystem segment and tokens, `Frame.svelte` | One line at 1280 and 1920 px (no "Turso (system)" wrap); `scrollWidth <= clientWidth` (no scrollbar); VRAM text not clipped; when space runs out, groups collapse to dot + icon (container query), with the full detail in the existing tooltip |
 | 0d.3 | The remaining segments (connection, brain, VRAM, uptime/version), in batches of 5 or fewer. The old `StatusBar.svelte` and `SubsystemBadge.svelte` are deleted. | segment folders | Zero literal colors or sizes in `status-bar/`; screenshots |
+
+#### 0s — One styling source, colocated *(owner ruling 2026-10-22)*
+
+> "we merge them to one clear source that is grounded in advance best
+> practices for colocated styling and svelte"
+
+Supersedes 0c.2, 0c.3 and 0d.1, and the collector deletion in 0a.1.
+
+**What exists (measured 2026-10-22; `SD/`, `CL/` = `packages/coldlight/`):**
+
+- **Family presets, three copies of one dataset.**
+  - `CL/visual/presets/*.ts` is the origin (50 presets with chat).
+  - `SD/generate-style-presets.ts` writes `SD/tokens/src/style-presets.json` from it. It is run by hand and is not in the build. 156 of the file's 166 entries are byte-identical to what it generates.
+  - `SD/tokens/src/presets/*.tokens.json` is a hand split of that JSON, identical entry for entry, with no generator.
+  - Both JSON copies are build sources (`sd.config.mjs:878-883`), so every preset loads twice.
+  - Ten `button-*` entries (06de6cc5) exist only in `style-presets.json`.
+  - Two catalogs disagree: `CL/visual/presets/index.ts` lists 50 presets; `CL/presets/catalog.ts` lists 36 and omits chat. The VPB reads the second.
+- **Per kind, nothing reaches CSS.**
+  - Nothing produces the `--style-<kind>-<id>-*` layer that `render.ts:87` reads.
+  - The 10 `components/<kind>/tokens.ts` are read by no build step.
+  - The `@defaults` / `@styleIds` / `@defaultStyle` annotations in 84 `.svelte` files are read by nothing (75 are identical).
+  - Variant maps live inside components: `ChatBubble.svelte:40-47`, `alert/types.ts:23-28` (imported but unused), `Skeleton.svelte:29`.
+  - `variant` props are declared and unused (`card/schema.ts:17`).
+  - `ButtonPreset` says `danger`, the tokens say `destructive`, so the button tokens are skipped.
+  - `derive-kind-families.mjs` assumes `<kind>-<variant>` keys. Today's keys are `<family>-<variant>`, so `kind-families.ts` lists `neuro` and `glass-deep` as kinds, and `card` falls back.
+- **The March generation** (`1f85fe35^`), all per kind:
+  - `presets/<kind>.json`: 79 kinds, 398 intents, 6-axis shorthand.
+  - `component.json` `style.<kind>-<intent>`: 398 hand-tuned 11-axis entries, emitted as `--style-<kind>-<intent>-*`.
+  - `component-tokens.json`, collected from `tokens.ts`. Size tokens became empty groups.
+  - Collectors:
+    - shorthand → 11 axes (bevel and glow read but dropped);
+    - element seeds (`@` annotations → `ui-catalog.json`).
+- **SVG:** `svg-presets.json` (`svg-style.<kind>-<preset>`) is per kind and alive, but kept centrally.
+
+**The one source:**
+
+| Concern | One source | Lives with | Emitted as |
+| --- | --- | --- | --- |
+| Family preset (a shared look) | `tokens/src/presets/<family>.tokens.json` | ColdLight's token sources | `--preset-<family>-<variant>-*` (unchanged) |
+| A kind's anatomy tokens | `components/<kind>/<kind>.tokens.json`, group `<kind>.<part>` | the component | `--<kind>-<part>-<prop>` |
+| A kind's variants | same file, group `<kind>.variant.<name>`: `$extends` a family preset and overrides only what differs | the component | `--style-<kind>-<name>-*` (the layer `renderForge` already reads) |
+| A feature's one-offs | `<feature>/<feature>.tokens.json` (§5) | the feature | `@layer coldlight.overrides [data-feature]` |
+| An SVG kind's looks | `svg/<kind>/<kind>.tokens.json`, same rules | the SVG kind | `--svg-style-*` (unchanged) |
+
+**Why this shape (established practice):**
+
+- **Format.** DTCG 2025.10 (final CG report, 2025-10-28): §4.2 recommends the `.tokens.json` extension. §6.4 defines `$extends`, group inheritance in which local tokens replace inherited ones at the same path. A variant is then a family preset plus its differences, never a copy.
+- **Colocation.** The component folder owns everything about the component: the `.svelte`, types, tests and its tokens. Moving or deleting a component takes its styling with it, and the VPB edits one file per kind. Per-component token files are common practice (Style Dictionary per-component source globs; Carta's ink keeps a token file per component).
+- **JSON authored, TS generated.** DTCG JSON is what every token tool reads and writes (Style Dictionary, Figma variables / Tokens Studio, and the VPB, which writes JSON per §5). TypeScript gets typed access from Style Dictionary's generated `types/`, including each kind's variant union. Prop types then come from the one source and cannot drift (`danger` / `destructive`).
+- **Svelte.** A component maps its `variant` prop to a variant id from its own tokens file. It reads only generated custom properties through `data-kind` / `data-variant` / `data-slot`, with no inline visual styles (§6).
+
+**The build:**
+
+- Style Dictionary globs the colocated files directly, with no conversion step.
+- One preprocessor resolves `$extends` per §6.4. Style Dictionary 5.3.1 (installed) does not, so the preprocessor is removed once it does.
+- The jobs of the three collector stubs are absorbed:
+  - collecting component tokens → the glob;
+  - shorthand expansion → `$extends`;
+  - element seeds → the kind's tokens file plus `CL/primitives/catalog.ts`.
+- A kind's families come from its tokens file (`$extensions["com.coldlight"].accepts`, §3), not from guessing at preset key names.
+- **ADR-001:** its `tokens/src/component.json` → `style.{kind}-{variant}` becomes the colocated file. The emitted name `--style-{kind}-{variant}-{axis}` and the component-owned intent → style-id mapping stay.
+
+| Step | Change | Files | Done when |
+| --- | --- | --- | --- |
+| 0s.1 | **Measure, no changes.** For each of the 79 March kinds, compare every `style.<kind>-<intent>` with the family preset today's code maps that intent to, and list the axes that differ. For every component, list today's styling sources (`tokens.ts`, annotations, variant maps, unused props). The owner picks which March per-kind differences come back; nothing changes a look without that OK (non-goal above). | report appended here | report reviewed |
+| 0s.2 | **Family presets, one source.** The family `.tokens.json` files become the source. `style-presets.json` leaves the build sources; its 10 `button-*` entries go to 0s.4. The catalog reads ids, labels and values from the generated manifest, so the VPB lists all 50 presets, chat included. | `SD/sd.config.mjs`, `CL/presets/catalog.ts`, `CL/visual/presets/index.ts` | Emitted `--preset-*` diff empty; VPB lists 50 |
+| 0s.3 | **The build reads colocated files.** Add the `$extends` preprocessor (§6.4 deep merge; a group target only; a cycle fails the build) and the globs `CL/components/*/*.tokens.json` and `CL/svg/*/*.tokens.json`. Kind families are read from each file's `accepts`. | `SD/sd.config.mjs`, new `SD/preprocess-extends.mjs`, `SD/derive-kind-families.mjs` | §6.4 cases pass; build output unchanged |
+| 0s.4 | **Button first.** `components/button/button.tokens.json` gets the anatomy from `tokens.ts` (sizes included, which fixes March's empty `sm`/`md`/`lg` groups) and variants primary / secondary / ghost / danger / voice-active. Each variant `$extends` the family preset `INTENT_MAP` picks today, plus the 10 hand entries' differences. `danger` is the one name. The variant union is generated, and `Button.svelte` and `button.types.ts` use it. | `button.tokens.json`, `Button.svelte`, `button.types.ts` | Snapshot unchanged for all four variants; `--style-button-*` emitted |
+| 0s.5 | **Every other kind, ≤ 5 per batch.** First the other 9 `tokens.ts` kinds, then the kinds with variants (card, chat-bubble, alert, skeleton, …), each carrying the differences the owner kept in 0s.1. A migrated component's `@defaults` / `@styleIds` annotations go, since their content now lives in its tokens file. | per batch | Snapshot unchanged apart from the OK'd differences |
+| 0s.6 | **SVG kinds.** `svg-presets.json` splits into `svg/<kind>/<kind>.tokens.json`. | 2 kind files, `SD/sd.config.mjs` | `--svg-style-*` diff empty |
+| 0s.7 | **Retire what the one source replaced,** each with proof and the owner's OK (2026-10-19 rule): the three collector stubs, `enrich-presets.mjs`, `generate-style-presets.ts`, `style-presets.json`, `visual/presets/*.ts` values, `tokens.ts`, and the duplicate `CL/presets/` or `CL/visual/` modules. ADR-001, `TOKEN_PIPELINE.md` and `PRESET_SYSTEM.md` are rewritten to the one source. | — | Each token has one definition site (grep gate in `verify-tokens.mjs`) |
 
 #### 0e — Tailwind back to layout only
 
@@ -283,8 +354,9 @@ source covers all of it, and the owner OKs that removal (owner rule
 | --- | --- | --- |
 | 0e | `@theme` emits only layout namespaces (spacing, breakpoints, containers). This fixes `--text-primary` landing in Tailwind's font-size namespace. The 43 visual utility classes in markup (`bg-teal-…`, `text-purple-…` and similar) move to ColdLight tokens and attributes, in batches of 5 or fewer. | Zero visual Tailwind classes (grep gate); snapshot unchanged |
 
-**Order:** 0a.1 → 0a.2 → 0b.1 → 0b.2 → 0b.3 → 0c.1 → 0c.2 → 0c.3 → 0c.4 →
-0d.1 → 0d.2 → 0d.3 → 0e. Then Phases 1–5 below. The dashboard rebuild (plan
+**Order:** 0a.1 → 0a.2 → 0b.1 → 0b.2 → 0b.3 → 0c.1 → 0s.1 … 0s.7 → 0c.4 →
+0d.2 → 0d.3 → 0e. 0s.1 only measures and can run any time; 0s.3 edits
+`sd.config.mjs`, so it follows 0b.1 to avoid redoing that file's routing. Then Phases 1–5 below. The dashboard rebuild (plan
 0001, slice 2) starts after 0c, on the cleaned tokens. Out of scope:
 `modes/light.tokens.json` (light theme is its own later phase).
 
