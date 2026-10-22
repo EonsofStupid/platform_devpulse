@@ -33,7 +33,7 @@ let {
 }: ChatPanelProps = $props();
 </script>
 
-<Card preset="default" class={cn("flex flex-col h-full", className)}>
+<Card class={cn("flex flex-col h-full", className)}>
 	{#if title}
 		<div class="px-4 pt-3 pb-2">
 			<Heading level={3} size="sm">{title}</Heading>

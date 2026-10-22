@@ -1,0 +1,144 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+[data-kind="card"] {
+	--card-border-style: solid;
+	border-style: var(--card-border-style);
+	background-color: var(--card-background-color);
+	border-radius: var(--card-border-radius);
+	box-shadow: var(--card-box-shadow);
+	color: var(--card-color);
+	border-color: var(--card-border-color);
+	border-width: var(--card-border-width);
+	opacity: var(--card-opacity);
+	animation: var(--card-animation);
+	transition-duration: var(--card-transition-duration);
+	transition-timing-function: var(--card-transition-timing-function);
+	background-image: var(--card-gradient);
+	font-family: var(--card-font-family);
+	font-size: var(--card-font-size);
+	font-weight: var(--card-font-weight);
+	letter-spacing: var(--card-letter-spacing);
+	line-height: var(--card-line-height);
+}
+
+[data-kind="card"][data-variant="elevated"] {
+	--card-background-color: var(--surface-role-elevated-background-color);
+	--card-border-radius: var(--surface-role-elevated-border-radius);
+	--card-box-shadow: var(--surface-role-elevated-box-shadow);
+	--card-color: var(--surface-role-elevated-color);
+	--card-border-color: var(--surface-role-elevated-border-color);
+	--card-border-width: var(--surface-role-elevated-border-width);
+	--card-opacity: var(--surface-role-elevated-opacity);
+	--card-animation: var(--surface-role-elevated-animation);
+	--card-transition-duration: var(--surface-role-elevated-transition-duration);
+	--card-transition-timing-function: var(--surface-role-elevated-transition-timing-function);
+	--card-gradient: var(--surface-role-elevated-gradient);
+	--card-font-family: var(--surface-role-elevated-font-family);
+	--card-font-size: var(--surface-role-elevated-font-size);
+	--card-font-weight: var(--surface-role-elevated-font-weight);
+	--card-letter-spacing: var(--surface-role-elevated-letter-spacing);
+	--card-line-height: var(--surface-role-elevated-line-height);
+}
+
+[data-kind="card"][data-variant="deep"] {
+	--card-background-color: var(--surface-role-deep-background-color);
+	--card-border-radius: var(--surface-role-deep-border-radius);
+	--card-box-shadow: var(--surface-role-deep-box-shadow);
+	--card-color: var(--surface-role-deep-color);
+	--card-border-color: var(--surface-role-deep-border-color);
+	--card-border-width: var(--surface-role-deep-border-width);
+	--card-opacity: var(--surface-role-deep-opacity);
+	--card-animation: var(--surface-role-deep-animation);
+	--card-transition-duration: var(--surface-role-deep-transition-duration);
+	--card-transition-timing-function: var(--surface-role-deep-transition-timing-function);
+	--card-gradient: var(--surface-role-deep-gradient);
+	--card-font-family: var(--surface-role-deep-font-family);
+	--card-font-size: var(--surface-role-deep-font-size);
+	--card-font-weight: var(--surface-role-deep-font-weight);
+	--card-letter-spacing: var(--surface-role-deep-letter-spacing);
+	--card-line-height: var(--surface-role-deep-line-height);
+}
+
+[data-kind="card"][data-variant="minimal"] {
+	--card-background-color: var(--surface-role-minimal-background-color);
+	--card-border-radius: var(--surface-role-minimal-border-radius);
+	--card-box-shadow: var(--surface-role-minimal-box-shadow);
+	--card-color: var(--surface-role-minimal-color);
+	--card-border-color: var(--surface-role-minimal-border-color);
+	--card-border-width: var(--surface-role-minimal-border-width);
+	--card-opacity: var(--surface-role-minimal-opacity);
+	--card-animation: var(--surface-role-minimal-animation);
+	--card-transition-duration: var(--surface-role-minimal-transition-duration);
+	--card-transition-timing-function: var(--surface-role-minimal-transition-timing-function);
+	--card-gradient: var(--surface-role-minimal-gradient);
+	--card-font-family: var(--surface-role-minimal-font-family);
+	--card-font-size: var(--surface-role-minimal-font-size);
+	--card-font-weight: var(--surface-role-minimal-font-weight);
+	--card-letter-spacing: var(--surface-role-minimal-letter-spacing);
+	--card-line-height: var(--surface-role-minimal-line-height);
+}
+
+[data-kind="card"][data-variant="solid"] {
+	--card-background-color: var(--surface-role-solid-background-color);
+	--card-border-radius: var(--surface-role-solid-border-radius);
+	--card-box-shadow: var(--surface-role-solid-box-shadow);
+	--card-color: var(--surface-role-solid-color);
+	--card-border-color: var(--surface-role-solid-border-color);
+	--card-border-width: var(--surface-role-solid-border-width);
+	--card-opacity: var(--surface-role-solid-opacity);
+	--card-animation: var(--surface-role-solid-animation);
+	--card-transition-duration: var(--surface-role-solid-transition-duration);
+	--card-transition-timing-function: var(--surface-role-solid-transition-timing-function);
+	--card-gradient: var(--surface-role-solid-gradient);
+	--card-font-family: var(--surface-role-solid-font-family);
+	--card-font-size: var(--surface-role-solid-font-size);
+	--card-font-weight: var(--surface-role-solid-font-weight);
+	--card-letter-spacing: var(--surface-role-solid-letter-spacing);
+	--card-line-height: var(--surface-role-solid-line-height);
+}
+
+[data-kind="card"][data-variant="glow"] {
+	--card-background-color: var(--surface-role-glow-background-color);
+	--card-border-radius: var(--surface-role-glow-border-radius);
+	--card-box-shadow: var(--surface-role-glow-box-shadow);
+	--card-color: var(--surface-role-glow-color);
+	--card-border-color: var(--surface-role-glow-border-color);
+	--card-border-width: var(--surface-role-glow-border-width);
+	--card-opacity: var(--surface-role-glow-opacity);
+	--card-animation: var(--surface-role-glow-animation);
+	--card-transition-duration: var(--surface-role-glow-transition-duration);
+	--card-transition-timing-function: var(--surface-role-glow-transition-timing-function);
+	--card-gradient: var(--surface-role-glow-gradient);
+	--card-font-family: var(--surface-role-glow-font-family);
+	--card-font-size: var(--surface-role-glow-font-size);
+	--card-font-weight: var(--surface-role-glow-font-weight);
+	--card-letter-spacing: var(--surface-role-glow-letter-spacing);
+	--card-line-height: var(--surface-role-glow-line-height);
+}
+
+[data-kind="card"][data-variant="muted"] {
+	--card-background-color: var(--surface-role-muted-background-color);
+	--card-border-radius: var(--surface-role-muted-border-radius);
+	--card-box-shadow: var(--surface-role-muted-box-shadow);
+	--card-color: var(--surface-role-muted-color);
+	--card-border-color: var(--surface-role-muted-border-color);
+	--card-border-width: var(--surface-role-muted-border-width);
+	--card-opacity: var(--surface-role-muted-opacity);
+	--card-animation: var(--surface-role-muted-animation);
+	--card-transition-duration: var(--surface-role-muted-transition-duration);
+	--card-transition-timing-function: var(--surface-role-muted-transition-timing-function);
+	--card-gradient: var(--surface-role-muted-gradient);
+	--card-font-family: var(--surface-role-muted-font-family);
+	--card-font-size: var(--surface-role-muted-font-size);
+	--card-font-weight: var(--surface-role-muted-font-weight);
+	--card-letter-spacing: var(--surface-role-muted-letter-spacing);
+	--card-line-height: var(--surface-role-muted-line-height);
+}
+
+[data-kind="card"]:is(:disabled, [data-disabled], [aria-disabled="true"]) {
+	--card-opacity: 0.6;
+	--card-pointer-events: none;
+	pointer-events: var(--card-pointer-events);
+}

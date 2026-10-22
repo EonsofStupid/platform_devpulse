@@ -26,7 +26,7 @@ function fieldValue(field: string): number {
 
 <ErrorCallout prefix="Tuning error" message={rroState.configError} />
 
-<Card preset="glass">
+<Card surface="glass" variant="deep">
 	<div class="p-3 space-y-3">
 		{#snippet icon()}
 			<Settings2 size={14} class="text-[var(--accent-service-main)]" />
@@ -61,7 +61,7 @@ function fieldValue(field: string): number {
 </Card>
 
 {#if rroState.paramMeta.length > 0 && rroState.config}
-	<Card preset="glass">
+	<Card surface="glass" variant="deep">
 		<div class="p-3 space-y-4">
 			<Text size="sm" weight="semibold">Fine-tune</Text>
 			{#each rroState.paramMeta as param}
@@ -89,7 +89,7 @@ function fieldValue(field: string): number {
 {/if}
 
 <!-- Educational narration from signals catalog -->
-<Card preset="flat">
+<Card surface="flat" variant="minimal">
 	<div class="p-3 space-y-2">
 		<Text size="sm" weight="semibold">Why this matters</Text>
 		{#each RRO_STATE_NARRATIONS.ruminating.learning ?? [] as line}

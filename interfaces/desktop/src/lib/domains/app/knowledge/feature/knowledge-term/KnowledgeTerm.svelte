@@ -136,7 +136,7 @@ const popoverId = $derived(`kt-${term.replace(/\s+/g, "-").toLowerCase()}`);
 			class="knowledge-term__popover"
 			role="tooltip"
 		>
-			<Card preset="glass" class="knowledge-term__card">
+			<Card surface="glass" variant="deep" class="knowledge-term__card">
 				<Text size="xs" weight="semibold" color="muted" as="p">Glossary</Text>
 				<Text size="sm" weight="semibold" as="p">{entry.payload.term}</Text>
 				<Text size="sm" as="p">{entry.payload.definition}</Text>

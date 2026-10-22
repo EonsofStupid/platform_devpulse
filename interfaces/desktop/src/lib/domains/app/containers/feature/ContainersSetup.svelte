@@ -132,7 +132,7 @@ const same = (a: Step | null | undefined, b: Step): boolean =>
 		{:else}
 			<div class="grid gap-3 sm:grid-cols-2">
 				{#each report.engines as engine (engine.id)}
-					<Card variant="outlined">
+					<Card>
 						<div class="flex flex-col gap-1 p-3">
 							<div class="flex items-center gap-2">
 								<StatusDot status={dot(engine)} />
@@ -298,7 +298,7 @@ const same = (a: Step | null | undefined, b: Step): boolean =>
 				{#each advice.steps as step, i (`${step.kind}-${step.product}`)}
 					{@const isRunning = same(current?.running, step)}
 					{@const last = same(current?.lastRun?.step, step) ? current?.lastRun : null}
-					<Card variant="outlined">
+					<Card>
 						<div class="flex flex-col gap-2 p-3">
 							<div class="flex flex-wrap items-center justify-between gap-2">
 								<Text weight="semibold">{i + 1}. {stepName(step.kind)}</Text>

@@ -25,7 +25,7 @@ $effect(() => {
 });
 </script>
 
-<Card preset="glass">
+<Card surface="glass" variant="deep">
 	<div class="p-3 space-y-3">
 		{#snippet icon()}
 			<Database size={14} class="text-[var(--accent-service-main)]" />
@@ -69,7 +69,7 @@ $effect(() => {
 			{:else}
 				<div class="space-y-1.5">
 					{#each rroState.health.collections as col}
-						<Card preset="flat">
+						<Card surface="flat" variant="minimal">
 							<div class="flex items-center justify-between p-2 gap-2">
 								<div class="flex items-center gap-2 min-w-0">
 									<Database size={12} class="text-[var(--accent-service-main)] shrink-0" />
@@ -100,7 +100,7 @@ $effect(() => {
 	</div>
 </Card>
 
-<Card preset="glass">
+<Card surface="glass" variant="deep">
 	<div class="p-3 space-y-3">
 		{#snippet icon()}
 			<Plus size={14} class="text-[var(--accent-service-main)]" />

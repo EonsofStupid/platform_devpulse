@@ -84,7 +84,8 @@
 -->
 <script lang="ts">
 import type { Snippet } from "svelte";
-import { Card } from "#coldlight/components/card/index.js";
+import { Card, type CardVariant } from "#coldlight/components/card/index.js";
+import type { SurfaceFamily } from "#coldlight/renderforge/generated/surfaces.js";
 
 /** Accent token family driving strip + heading kicker color. */
 export type KnowledgeCardAccent = "cyan" | "teal" | "blue" | "purple" | "hotpink" | "positive";
@@ -110,11 +111,13 @@ interface Props {
 	 */
 	live?: "off" | "polite" | "assertive";
 	/**
-	 * Card visual preset. Defaults to `glass` (semi-transparent
-	 * surface that floats over the page). Pass `default` for an
+	 * Card family. Defaults to `glass` (semi-transparent surface that
+	 * floats over the page); pass `neuro` with variant `elevated` for an
 	 * opaque card that sits as a primary surface.
 	 */
-	preset?: "glass" | "default" | "elevated" | "outlined";
+	surface?: SurfaceFamily;
+	/** Card surface role. Defaults to `deep`. */
+	variant?: CardVariant;
 	/** Mascot slot — typically `<ClyffyHeadshot ... />`. */
 	mascot?: Snippet;
 	/** Heading slot — kicker + title. */
@@ -129,7 +132,8 @@ let {
 	accent = "cyan",
 	headingId,
 	live,
-	preset = "glass",
+	surface = "glass",
+	variant = "deep",
 	mascot,
 	heading,
 	body,
@@ -144,7 +148,7 @@ let {
 	aria-labelledby={headingId}
 	aria-live={live}
 >
-	<Card {preset} class="knowledge-card__surface">
+	<Card {surface} {variant} class="knowledge-card__surface">
 		<div class="knowledge-card__strip" aria-hidden="true"></div>
 		<div class="knowledge-card__body">
 			{#if mascot}

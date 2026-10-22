@@ -5,7 +5,7 @@
   @package @devpulse/coldlight
 
   COMPOSITION of library components: Card (root), Heading (title), Tabs (tabs).
-  Visual treatment flows through Card → StyleMacro → preset pipeline.
+  Visual treatment is Card's: its family (`surface`) and role (`variant`).
   Block = composition of components. No duplicate markup. No hardcoded CSS.
 
 	@defaults {
@@ -38,26 +38,22 @@ let {
 	actions,
 	footer,
 	class: className,
-	intent = "default",
-	// Visual axis props — forwarded to Card
+	// The look: Card's family and role.
 	surface,
+	variant,
+	// Accepted, not drawn yet (see WidgetProps); held here so they stay off the DOM.
 	depth,
 	bevel,
 	glow,
 	frame,
 	radius,
-	preset,
 	...rest
 }: WidgetProps = $props();
-
-// Intent flows through to Card's StyleMacro
-const resolvedIntent = $derived(
-	(preset ?? intent ?? "default") as import("#coldlight/components/card/card.types.js").CardPreset,
-);
 </script>
 
 <Card
-	preset={resolvedIntent}
+	{surface}
+	{variant}
 	class={cn("flex flex-col", className)}
 	{...rest}
 >

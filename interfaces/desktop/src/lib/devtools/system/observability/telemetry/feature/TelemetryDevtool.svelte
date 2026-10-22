@@ -137,7 +137,7 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 				</div>
 
 				<div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-					<Card preset="glass">
+					<Card surface="glass" variant="deep">
 						<div class="p-3 space-y-1">
 							<Text size="xs" weight="semibold">Recording</Text>
 							<div class="flex items-center gap-2">
@@ -158,7 +158,7 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 						</div>
 					</Card>
 
-					<Card preset="glass">
+					<Card surface="glass" variant="deep">
 						<Stat
 							label="Uptime"
 							value={formatUptime(uptimeMs)}
@@ -167,7 +167,7 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 						/>
 					</Card>
 
-					<Card preset="glass">
+					<Card surface="glass" variant="deep">
 						<Stat
 							label="Watched lanes"
 							value={telemetryState.enabledLaneCount}
@@ -179,7 +179,7 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 				</div>
 
 				<!-- Service identity -->
-				<Card preset="glass">
+				<Card surface="glass" variant="deep">
 					<div class="p-3 space-y-2">
 						<Text size="sm" weight="semibold">Service identity</Text>
 						<div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
@@ -212,7 +212,7 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 				</Card>
 
 				<!-- Storage -->
-				<Card preset="glass">
+				<Card surface="glass" variant="deep">
 					<div class="p-3 space-y-2">
 						<div class="flex items-center justify-between">
 							<Text size="sm" weight="semibold">Storage</Text>
@@ -255,7 +255,7 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 
 				<!-- DuckDB stats -->
 				{#if telemetryState.rowCounts}
-					<Card preset="glass">
+					<Card surface="glass" variant="deep">
 						<div class="p-3 space-y-2">
 							<Text size="sm" weight="semibold">Recorded to database</Text>
 							<div class="grid grid-cols-3 gap-3">
@@ -283,7 +283,7 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 				{/if}
 
 				<!-- Session files -->
-				<Card preset="glass">
+				<Card surface="glass" variant="deep">
 					<div class="p-3 space-y-2">
 						<div class="flex items-center justify-between">
 							<Text size="sm" weight="semibold">Session files</Text>
@@ -357,7 +357,7 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 				<Callout variant="error">{telemetryState.laneError}</Callout>
 			{:else if telemetryState.laneConfig}
 				<!-- Quick presets -->
-				<Card preset="glass">
+				<Card surface="glass" variant="deep">
 					<div class="p-3 space-y-2">
 						<Text size="sm" weight="semibold">Quick presets</Text>
 						<Text size="xs">
@@ -378,7 +378,7 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 				</Card>
 
 				<!-- Global toggles — GUARDRAILED -->
-				<Card preset="glass">
+				<Card surface="glass" variant="deep">
 					<div class="p-3 space-y-3">
 						<Text size="sm" weight="semibold">Recording options</Text>
 
@@ -430,7 +430,7 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 
 				<!-- Per-lane toggles, grouped -->
 				{#each telemetryState.laneGroups as group}
-					<Card preset="glass">
+					<Card surface="glass" variant="deep">
 						<div class="p-3 space-y-1">
 							<Text size="sm" weight="semibold">{group.label}</Text>
 							{#each group.lanes as lane}
@@ -492,7 +492,7 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 				</Callout>
 			{:else}
 				<Text size="xs">{telemetryState.spans.length} events</Text>
-				<Card preset="flat">
+				<Card surface="flat" variant="minimal">
 					<table class="w-full text-xs">
 						<thead>
 							<tr class="border-b border-[var(--border-subtle)]">
@@ -541,7 +541,7 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 	<!-- ══════════════════ ACTIONS ══════════════════ -->
 	{#snippet actions()}
 		<div class="space-y-3">
-			<Card preset="glass">
+			<Card surface="glass" variant="deep">
 				<div class="p-3 space-y-2">
 					<Text size="sm" weight="semibold">Storage</Text>
 					<Text size="xs">
@@ -562,7 +562,7 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 				</div>
 			</Card>
 
-			<Card preset="glass">
+			<Card surface="glass" variant="deep">
 				<div class="p-3 space-y-2">
 					<Text size="sm" weight="semibold">Reload data</Text>
 					<Text size="xs">
@@ -595,7 +595,7 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 				</div>
 			</Card>
 
-			<Card preset="glass">
+			<Card surface="glass" variant="deep">
 				<div class="p-3 space-y-2">
 					<Text size="sm" weight="semibold">Rotation</Text>
 					<Text size="xs">
@@ -717,7 +717,7 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 				No activity yet. Use the app for a moment, then come back.
 			</Callout>
 		{:else}
-			<Card preset="flat">
+			<Card surface="flat" variant="minimal">
 				<table class="w-full text-xs">
 					<thead>
 						<tr class="border-b border-[var(--border-subtle)]">
@@ -788,7 +788,7 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 		{:else}
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
 				{#each telemetryState.baselines as baseline}
-					<Card preset="glass">
+					<Card surface="glass" variant="deep">
 						<div class="p-3 space-y-2">
 							<div class="flex items-center justify-between">
 								<div class="min-w-0">

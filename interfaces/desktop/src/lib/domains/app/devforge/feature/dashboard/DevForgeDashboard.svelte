@@ -131,7 +131,7 @@ function formatTime(iso: string): string {
 		<Widget
 			title="DevForge IDE"
 			icon={ServerCog}
-			surface="glass-deep"
+			surface="glass" variant="deep"
 			depth="z2"
 			bevel="soft"
 			glow="teal"
@@ -193,7 +193,7 @@ function formatTime(iso: string): string {
 		<Widget
 			title="Runtime"
 			icon={Activity}
-			surface="glass-deep"
+			surface="glass" variant="deep"
 			depth="z2"
 			bevel="soft"
 			frame="soft"
@@ -224,7 +224,7 @@ function formatTime(iso: string): string {
 		<Widget
 			title="Connection"
 			icon={Terminal}
-			surface="glass-deep"
+			surface="glass" variant="deep"
 			depth="z2"
 			bevel="soft"
 			frame="soft"
@@ -260,7 +260,7 @@ function formatTime(iso: string): string {
 		<Widget
 			title="Recent activity"
 			icon={Activity}
-			surface="glass-deep"
+			surface="glass" variant="deep"
 			depth="z1"
 			bevel="subtle"
 			frame="soft"
@@ -296,7 +296,7 @@ function formatTime(iso: string): string {
 		<Widget
 			title="Recent projects"
 			icon={FolderOpen}
-			surface="glass-deep"
+			surface="glass" variant="deep"
 			depth="z1"
 			bevel="subtle"
 			frame="soft"

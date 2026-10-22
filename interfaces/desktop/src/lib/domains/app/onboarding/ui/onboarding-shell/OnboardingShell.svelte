@@ -20,7 +20,7 @@ let { videoSrc = ONBOARDING_VIDEO, progress, children, actions }: OnboardingShel
 	<DynamicBackground variant="clyffy" {videoSrc} animated />
 	<!-- The panel scrolls inside; the stage's buttons stay in view. -->
 	<Card
-		preset="glass-deep"
+		surface="glass" variant="deep"
 		class="relative flex max-h-full w-full max-w-[clamp(28rem,60vw,52rem)] flex-col overflow-hidden"
 	>
 		<div class="flex min-h-0 flex-1 flex-col gap-[clamp(1rem,3vh,2rem)] overflow-y-auto p-[clamp(1.25rem,3vw,3rem)]">

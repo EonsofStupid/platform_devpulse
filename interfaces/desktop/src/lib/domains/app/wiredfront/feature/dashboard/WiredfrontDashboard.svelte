@@ -26,7 +26,7 @@ import {
 		<Widget
 			title="Storage"
 			icon={HardDrive}
-			surface="glass-deep"
+			surface="glass" variant="deep"
 			depth="z2"
 			bevel="subtle"
 			glow="teal"
@@ -54,7 +54,7 @@ import {
 		<Widget
 			title="Screenshots"
 			icon={Camera}
-			surface="glass-deep"
+			surface="glass" variant="deep"
 			depth="z2"
 			bevel="soft"
 			glow="purple"
@@ -76,7 +76,7 @@ import {
 		<Widget
 			title="Video Editor"
 			icon={Video}
-			surface="glass-deep"
+			surface="glass" variant="deep"
 			depth="z1"
 			bevel="subtle"
 			frame="soft"
@@ -95,7 +95,7 @@ import {
 		<Widget
 			title="Audio Editor"
 			icon={AudioLines}
-			surface="glass-deep"
+			surface="glass" variant="deep"
 			depth="z1"
 			bevel="subtle"
 			frame="soft"
@@ -110,7 +110,7 @@ import {
 		<Widget
 			title="Image Editor"
 			icon={ImagePlus}
-			surface="glass-deep"
+			surface="glass" variant="deep"
 			depth="z1"
 			bevel="subtle"
 			frame="soft"
@@ -124,7 +124,7 @@ import {
 		<Widget
 			title="Streaming"
 			icon={Radio}
-			surface="glass-deep"
+			surface="glass" variant="deep"
 			depth="z1"
 			bevel="subtle"
 			glow="ember"
@@ -155,7 +155,7 @@ import {
 		<Widget
 			title="Notes"
 			icon={StickyNote}
-			surface="glass-deep"
+			surface="glass" variant="deep"
 			depth="z1"
 			bevel="subtle"
 			frame="soft"
@@ -169,7 +169,7 @@ import {
 		<Widget
 			title="Voice"
 			icon={Mic}
-			surface="glass-deep"
+			surface="glass" variant="deep"
 			depth="z1"
 			bevel="subtle"
 			frame="soft"

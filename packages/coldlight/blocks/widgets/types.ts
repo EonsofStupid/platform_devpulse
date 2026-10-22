@@ -9,7 +9,9 @@
  */
 
 import type { Component, Snippet, SvelteComponent } from "svelte";
+import type { CardVariant } from "#coldlight/components/card/card.types.js";
 import type { ComponentSurfaceProps } from "#coldlight/components/types.js";
+import type { SurfaceFamily } from "#coldlight/renderforge/generated/surfaces.js";
 
 // Accepts both Svelte 5 Component and Svelte 4 class components (lucide-svelte)
 // biome-ignore lint/suspicious/noExplicitAny: Svelte 5 Component + Svelte 4 class component union requires any
@@ -22,9 +24,16 @@ export interface WidgetTab {
 	readonly label: string;
 }
 
-export interface WidgetProps extends ComponentSurfaceProps {
-	/** Semantic intent — resolved by StyleMacro to visual preset */
-	intent?: string;
+/**
+ * The remaining visual axis props (depth, bevel, glow, frame, radius, motion,
+ * transition) are accepted and not yet drawn (owner, 2026-10-22: kept until the
+ * model draws them; glow → data-accent in plan 0006 0s.7).
+ */
+export interface WidgetProps extends Omit<ComponentSurfaceProps, "surface" | "preset"> {
+	/** Family for this widget and what it contains; unset, it takes the family in scope. */
+	surface?: SurfaceFamily;
+	/** The card's surface role. Default: "elevated" */
+	variant?: CardVariant;
 	/** Widget title displayed in header */
 	title?: string;
 	/** Lucide icon component rendered before the title */

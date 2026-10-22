@@ -101,18 +101,19 @@ function checkFile(filePath: string, kind: string, fileName: string): Violation[
 		}
 	}
 
-	// Rule 2: Must have data-kind attribute (via spread or direct)
+	// Rule 2: Must have data-kind attribute (via styleAttrs, a spread, or direct)
 	if (needsResolver) {
 		if (
 			!content.includes("data-kind") &&
 			!content.includes("dataAttrs") &&
+			!content.includes("styleAttrs(") &&
 			!content.includes("Anatomy")
 		) {
 			violations.push({
 				file: rel,
 				rule: "macro-law-2",
 				message:
-					"Missing data-kind attribute on semantic root. Spread m.dataAttrs or set data-kind directly.",
+					"Missing data-kind attribute on semantic root. Spread styleAttrs({ kind, … }) (plan 0006 §0s) or set data-kind directly.",
 			});
 		}
 	}

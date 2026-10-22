@@ -49,7 +49,7 @@ import {
 		<Widget title="All Projects">
 			<div class={gridLayout({ columns: "3", gap: "3" })}>
 				{#each projectsState.projects as project (project.id)}
-					<Card preset="default">
+					<Card>
 						<div class={stack({ gap: "2" })}>
 							<Text weight="semibold">{project.name}</Text>
 							<Text size="xs">{project.root_path}</Text>

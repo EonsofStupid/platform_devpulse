@@ -29,7 +29,7 @@ const totalLatency = $derived(
 );
 </script>
 
-<Card preset="glass">
+<Card surface="glass" variant="deep">
 	<div class="p-3 space-y-3">
 		{#snippet icon()}
 			<Search size={14} class="text-[var(--accent-service-main)]" />
@@ -131,7 +131,7 @@ const totalLatency = $derived(
 				<!-- Results list -->
 				<div class="space-y-1 max-h-80 overflow-y-auto">
 					{#each rroState.searchResults as result}
-						<Card preset="flat">
+						<Card surface="flat" variant="minimal">
 							<div class="flex items-center gap-2 p-2">
 								<Badge variant={scoreVariant(result.score)} size="sm" fillStyle="bold">
 									{result.score.toFixed(2)}

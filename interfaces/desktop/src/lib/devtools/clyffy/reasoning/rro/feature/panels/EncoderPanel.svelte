@@ -35,7 +35,7 @@ const encoderTier = $derived((): { label: string; description: string } => {
 const isBurnBackend = $derived((rroState.encoder?.backend ?? "").toLowerCase() === "burn");
 </script>
 
-<Card preset="glass">
+<Card surface="glass" variant="deep">
 	<div class="p-3 space-y-3">
 		{#snippet icon()}
 			<Shapes size={14} class="text-[var(--accent-service-main)]" />
@@ -99,7 +99,7 @@ const isBurnBackend = $derived((rroState.encoder?.backend ?? "").toLowerCase() =
 </Card>
 
 {#if rroState.health}
-	<Card preset="glass">
+	<Card surface="glass" variant="deep">
 		<div class="p-3 space-y-2">
 			<Text size="sm" weight="semibold">Overview</Text>
 			<div class="flex items-center justify-between">

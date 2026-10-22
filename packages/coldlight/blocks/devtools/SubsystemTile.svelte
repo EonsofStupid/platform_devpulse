@@ -229,7 +229,7 @@ function handleVerbKeydown(event: KeyboardEvent): void {
 			onmouseenter={openNow}
 			onmouseleave={scheduleClose}
 		>
-			<Card preset="glass" class="subsystem-tile__overlay-card">
+			<Card surface="glass" variant="deep" class="subsystem-tile__overlay-card">
 				<header class="subsystem-tile__overlay-header">
 					<StatusDot status={toneToDotState[status.tone]} />
 					<Text size="sm" weight="semibold" as="span">{status.label}</Text>

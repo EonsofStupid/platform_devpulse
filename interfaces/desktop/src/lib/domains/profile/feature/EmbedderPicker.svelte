@@ -112,7 +112,7 @@ function emptyCopy(): RuntimePickerCopy {
 </script>
 
 <div class={className ? `embedder-picker ${className}` : "embedder-picker"}>
-	<Card preset="glass" class="embedder-picker__primary" labelledBy="embedder-heading">
+	<Card surface="glass" variant="deep" class="embedder-picker__primary" labelledBy="embedder-heading">
 		<header class="embedder-picker__header">
 			<Heading level={2} size="md">
 				<span id="embedder-heading">{copy.heading}</span>
@@ -148,7 +148,7 @@ function emptyCopy(): RuntimePickerCopy {
 		</form>
 	</Card>
 
-	<Card preset="matte" class="embedder-picker__minion" labelledBy="minion-heading">
+	<Card surface="neuro" variant="solid" class="embedder-picker__minion" labelledBy="minion-heading">
 		<header class="embedder-picker__header embedder-picker__header--minor">
 			<Heading level={2} size="sm">
 				<span id="minion-heading">{copy.minion_section_heading}</span>

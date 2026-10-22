@@ -155,7 +155,7 @@ function emptyAuthCopy(): AuthCopy {
 {/snippet}
 
 <main class={className ? `login-shell ${className}` : "login-shell"}>
-	<Card preset="glass" class="login-shell__card" label={heading || "Sign in"}>
+	<Card surface="glass" variant="deep" class="login-shell__card" label={heading || "Sign in"}>
 		{#if authState.phase === "not-configured"}
 			<header class="login-shell__header">
 				<Settings class="login-shell__settings-icon" aria-hidden="true" />

@@ -299,7 +299,7 @@ async function handleEncodeFile(event: Event): Promise<void> {
 			</DevtoolBentoGrid>
 
 			{#if assignedModel}
-				<Card preset="glass">
+				<Card surface="glass" variant="deep">
 					<div
 						class="p-[var(--space-3)] flex flex-col gap-[var(--space-2)]"
 						style="border-left: var(--border-width-thin) solid var(--accent-electric-main);"
@@ -339,7 +339,7 @@ async function handleEncodeFile(event: Event): Promise<void> {
 			{/if}
 
 			{#if lastResult}
-				<Card preset="glass">
+				<Card surface="glass" variant="deep">
 					<div
 						class="p-[var(--space-3)] flex gap-[var(--space-3)]"
 						style="border-left: var(--border-width-thin) solid var(--accent-teal-main);"
@@ -414,7 +414,7 @@ async function handleEncodeFile(event: Event): Promise<void> {
 				</div>
 			</Callout>
 
-			<Card preset="glass">
+			<Card surface="glass" variant="deep">
 				<div class="p-[var(--space-3)] flex flex-col gap-[var(--space-2)]">
 					<Text size="xs" weight="bold">Slot reference (SigLIP2-SO400M-384)</Text>
 					<Text size="xs" color="muted">Slot id: <span class="font-mono">vision.embedder</span></Text>
@@ -440,7 +440,7 @@ async function handleEncodeFile(event: Event): Promise<void> {
 			/>
 		{:else}
 			<div class="flex flex-col gap-[var(--space-4)]">
-				<Card preset="glass">
+				<Card surface="glass" variant="deep">
 					<div
 						class="p-[var(--space-3)] flex flex-col gap-[var(--space-2)]"
 						style="border-left: var(--border-width-thin) solid var(--accent-salmon-main);"
@@ -487,7 +487,7 @@ async function handleEncodeFile(event: Event): Promise<void> {
 				</Card>
 
 				{#if visionReady}
-					<Card preset="glass">
+					<Card surface="glass" variant="deep">
 						<div
 							class="p-[var(--space-3)] flex flex-col gap-[var(--space-2)]"
 							style="border-left: var(--border-width-thin) solid var(--accent-teal-main);"

@@ -37,14 +37,14 @@ let { copy, tier, gpuName, hasGpu, vramTotalMb, busy, callbacks }: HardwareViewP
 		<Text size="sm" class="text-frost-300">{tier.description}</Text>
 
 		<div class="metrics">
-			<Card preset="matte" class="hardware-view__well">
+			<Card surface="neuro" variant="solid" class="hardware-view__well">
 				<Text size="xs" class="text-frost-500">{copy.gpu_label}</Text>
 				<Text size="xs">
 					{gpuName ?? (hasGpu ? "Detecting…" : "—")}
 				</Text>
 			</Card>
 			{#if hasGpu}
-				<Card preset="matte" class="hardware-view__well">
+				<Card surface="neuro" variant="solid" class="hardware-view__well">
 					<Text size="xs" class="text-frost-500">{copy.vram_label}</Text>
 					<Text size="xs">
 						{vramTotalMb !== null ? formatMb(vramTotalMb) : "—"}

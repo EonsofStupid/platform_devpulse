@@ -272,7 +272,7 @@ onMount(() => {
 				</EmptyState>
 			{:else}
 				<div class="grid grid-cols-1 sm:grid-cols-2 gap-[var(--space-3)]">
-					<Card preset="glass">
+					<Card surface="glass" variant="deep">
 						<div
 							class="p-[var(--space-3)] flex flex-col gap-[var(--space-2)]"
 							style="border-left: var(--border-width-thin) solid var(--accent-purple-main);"
@@ -306,7 +306,7 @@ onMount(() => {
 						</div>
 					</Card>
 
-					<Card preset="glass">
+					<Card surface="glass" variant="deep">
 						<div
 							class="p-[var(--space-3)] flex flex-col gap-[var(--space-2)]"
 							style="border-left: var(--border-width-thin) solid var(--accent-cyan-main);"
@@ -344,7 +344,7 @@ onMount(() => {
 
 			<!-- Tool list — glass card with badge cluster -->
 			{#if toolNames.length > 0}
-				<Card preset="glass">
+				<Card surface="glass" variant="deep">
 					<div class="p-[var(--space-3)] flex flex-col gap-[var(--space-2)]">
 						<div class="flex items-center gap-[var(--space-2)]">
 							<Wrench size={12} style="color: var(--accent-teal-main);" />
@@ -381,7 +381,7 @@ onMount(() => {
 			</Text>
 
 			<!-- Subscription lane (purple accent) -->
-			<Card variant="outlined">
+			<Card>
 				<div class="p-4 flex flex-col gap-3" style="border-left: 3px solid var(--accent-purple-main);">
 					<div class="flex items-center gap-2">
 						<Bot size={14} style="color: var(--accent-purple-main);" />
@@ -411,7 +411,7 @@ onMount(() => {
 			</Card>
 
 			<!-- API lane (cyan accent) -->
-			<Card variant="outlined">
+			<Card>
 				<div class="p-4 flex flex-col gap-3" style="border-left: 3px solid var(--accent-cyan-main);">
 					<div class="flex items-center gap-2">
 						<Key size={14} style="color: var(--accent-cyan-main);" />
@@ -473,7 +473,7 @@ onMount(() => {
 				</Text>
 
 				<!-- Claude Code actions -->
-				<Card variant="outlined">
+				<Card>
 					<div class="p-4 flex flex-col gap-3" style="border-left: 3px solid var(--accent-purple-main);">
 						<div class="flex items-center gap-2">
 							<Terminal size={14} style="color: var(--accent-purple-main);" />
@@ -509,7 +509,7 @@ onMount(() => {
 				</Card>
 
 				<!-- Claude Desktop actions -->
-				<Card variant="outlined">
+				<Card>
 					<div class="p-4 flex flex-col gap-3" style="border-left: 3px solid var(--accent-cyan-main);">
 						<div class="flex items-center gap-2">
 							<Cpu size={14} style="color: var(--accent-cyan-main);" />
@@ -544,7 +544,7 @@ onMount(() => {
 					</div>
 				</Card>
 
-				<Card variant="outlined">
+				<Card>
 					<div class="p-4 flex flex-col gap-3" style="border-left: 3px solid var(--accent-ember-main);">
 						<Text size="sm" weight="bold">Auto-register on every boot</Text>
 						<Text size="xs" color="muted">

@@ -92,7 +92,7 @@ const totalRecords = $derived(
 			{/if}
 
 			{#if rroState.brainHealth}
-				<Card preset="flat">
+				<Card surface="flat" variant="minimal">
 					<div class="p-3 flex items-center justify-between">
 						<div class="flex items-center gap-2">
 							<StatusDot
@@ -117,7 +117,7 @@ const totalRecords = $derived(
 					{@const copy =
 						BRAIN_NARRATION.namespaces[ns as keyof typeof BRAIN_NARRATION.namespaces]}
 					{@const stats = rroState.brainStats[ns]}
-					<Card preset="glass">
+					<Card surface="glass" variant="deep">
 						<div class="p-3 space-y-2">
 							<div class="flex items-center justify-between">
 								<div>
@@ -192,7 +192,7 @@ const totalRecords = $derived(
 					</Card>
 				{/each}
 
-				<Card preset="flat">
+				<Card surface="flat" variant="minimal">
 					<div class="p-3 flex items-center justify-between">
 						<Text size="sm" weight="medium">Total knowledge</Text>
 						<Text size="sm" weight="semibold">

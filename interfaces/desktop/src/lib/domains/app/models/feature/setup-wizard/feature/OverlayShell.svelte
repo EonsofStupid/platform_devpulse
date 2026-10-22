@@ -102,7 +102,7 @@ const cardClass = $derived(
 	<!-- Tier 2: card outer shell — ColdLight glass preset. `m-auto` inside
 	     the scrolling flex root centers the card when it fits and lets it
 	     scroll (instead of clipping top + bottom) when it is taller. -->
-	<Card preset="glass" class={cardClass}>
+	<Card surface="glass" variant="deep" class={cardClass}>
 		<header class="shell-head">
 			<div class="shell-head-left">
 				{#if mascot}
@@ -116,7 +116,7 @@ const cardClass = $derived(
 		</header>
 
 		<!-- Tier 3: inner content panel — ColdLight stark preset. -->
-		<Card preset="stark" class="shell-body">
+		<Card surface="stark" variant="glow" class="shell-body">
 			{@render children()}
 		</Card>
 

@@ -84,7 +84,7 @@ $effect(() => {
 		<Widget
 			title="Clyffy Control"
 			icon={Gauge}
-			preset="glass-deep"
+			surface="glass" variant="deep"
 		>
 			<div class="flex items-center justify-center py-4">
 				<RadialGauge
@@ -104,7 +104,7 @@ $effect(() => {
 		<Widget
 			title="System Overview"
 			icon={Activity}
-			preset="glass-minimal"
+			surface="glass" variant="minimal"
 		>
 			<div class="flex items-center justify-center gap-6 py-2">
 				<RadialGauge
@@ -125,7 +125,7 @@ $effect(() => {
 		<Widget
 			title="Developer Stats"
 			icon={TrendingUp}
-			preset="neuro-elevated"
+			surface="neuro" variant="elevated"
 		>
 			<div class={stack({ gap: "3" })}>
 				<div class={hstack({ justify: "between", align: "baseline" })}>
@@ -142,7 +142,7 @@ $effect(() => {
 						<Text size="xl" weight="bold" preset="default" class="tabular-nums font-display drop-shadow-[0_0_0.5rem_var(--accent-teal-glow)]">{devpulseState.data.user.totalSessions}</Text>
 					</div>
 				</div>
-				<Card preset="neuro-deep" class="flex items-center gap-2 px-3 py-2">
+				<Card surface="neuro" variant="deep" class="flex items-center gap-2 px-3 py-2">
 					<span class="inline-block h-2 w-2 rounded-full animate-pulse" style="background: var(--accent-teal-main); box-shadow: var(--glow-dot-md);"></span>
 					<Text size="sm" weight="semibold" preset="default">Up {devpulseState.data.user.uptime}</Text>
 				</Card>
@@ -155,7 +155,7 @@ $effect(() => {
 		<Widget
 			title="AI Models"
 			icon={Gauge}
-			preset="glass-minimal"
+			surface="glass" variant="minimal"
 		>
 			<div class="flex items-center justify-center gap-8 py-2">
 				<VramGauge
@@ -181,7 +181,7 @@ $effect(() => {
 		<Widget
 			title="Activity Timeline"
 			icon={BarChart3}
-			preset="glass-deep"
+			surface="glass" variant="deep"
 		>
 			<div class={stack({ gap: "3" })}>
 				<SparkLine
@@ -227,7 +227,7 @@ $effect(() => {
 		<Widget
 			title="Store Health"
 			icon={HeartPulse}
-			preset="neuro-deep"
+			surface="neuro" variant="deep"
 		>
 			<div class={stack({ gap: "3" })}>
 				{#if platformState.health && healthGroups.length > 0}
@@ -235,7 +235,7 @@ $effect(() => {
 						<div class={stack({ gap: "1" })}>
 							<Text size="xs" weight="semibold" preset="default" class="uppercase tracking-wider opacity-60 px-1">{group.label}</Text>
 							{#each group.subs as sub}
-								<Card preset="neuro-minimal" class="flex items-center justify-between px-3 py-2">
+								<Card surface="neuro" variant="minimal" class="flex items-center justify-between px-3 py-2">
 									<div class={stack({ gap: "0" })}>
 										<Text size="sm" weight="semibold" preset="default">{sub.name}</Text>
 										{#if sub.latency_us != null}
@@ -273,7 +273,7 @@ $effect(() => {
 		<Widget
 			title="Recent Projects"
 			icon={FolderGit2}
-			preset="neuro-minimal"
+			surface="neuro" variant="minimal"
 			tabs={[
 				{ id: "all", label: "All" },
 				{ id: "active", label: "Active" },
@@ -284,7 +284,7 @@ $effect(() => {
 			<div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
 				{#each devpulseState.recentProjects as project (project.id)}
 					{@const accentName = langColors[project.language] ?? "teal"}
-					<Card preset="neuro-deep" class="p-3">
+					<Card surface="neuro" variant="deep" class="p-3">
 						<div class={stack({ gap: "2" })}>
 							<div class={hstack({ gap: "2", align: "center" })}>
 								<span

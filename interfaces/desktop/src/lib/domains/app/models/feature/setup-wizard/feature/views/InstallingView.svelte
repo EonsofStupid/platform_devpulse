@@ -65,7 +65,7 @@ let {
 				{@const label = getSlotLabel(rec.slot_id)}
 				{@const live = dispatchedInstalls.find((i) => i.slotId === rec.slot_id)}
 				{@const dispatchErr = dispatchErrors[rec.slot_id]}
-				<Card preset="matte" class="installing-view__row">
+				<Card surface="neuro" variant="solid" class="installing-view__row">
 					<div class="row-info">
 						<Text size="xs" weight="bold">
 							{label?.name ?? rec.slot_id}

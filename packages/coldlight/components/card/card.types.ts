@@ -5,10 +5,10 @@
 
 import type { HTMLAnchorAttributes, HTMLAttributes } from "svelte/elements";
 import type { UIBaseProps } from "#coldlight/components/_base/types.js";
-import type { PresetId, SemanticIntent } from "#coldlight/visual/preset-id.js";
+import type { SurfaceFamily } from "#coldlight/renderforge/generated/surfaces.js";
+import type { CardVariant } from "./card.generated.js";
 
-export type CardVariant = "default" | "outlined" | "elevated" | "ghost" | "glow";
-export type CardPreset = SemanticIntent | PresetId | (string & {});
+export type { CardVariant } from "./card.generated.js";
 export type CardOrientation = "vertical" | "horizontal";
 export type CardAs = "div" | "a" | "button";
 
@@ -19,10 +19,10 @@ export interface CardProps
 	as?: CardAs;
 	/** Layout direction. Default: "vertical". */
 	orientation?: CardOrientation;
-	/** Visual variant — maps to styleId. Default: "default". */
+	/** Surface role, from card.tokens.json; the family in scope supplies it. Default: "elevated" */
 	variant?: CardVariant;
-	/** Visual preset — maps to style preset. Default: "default". */
-	preset?: CardPreset;
+	/** Family for this card and what it contains; unset, it takes the family in scope. */
+	surface?: SurfaceFamily;
 	/** Optional accessible label. */
 	label?: string;
 	/** ID of element that labels this card. */
@@ -31,6 +31,6 @@ export interface CardProps
 	href?: string;
 	/** When as="a" — link target. */
 	target?: HTMLAnchorAttributes["target"];
-	/** When as="a" or as="button" — disabled state. */
+	/** Disabled state: dims the card and stops pointer events. */
 	disabled?: boolean;
 }

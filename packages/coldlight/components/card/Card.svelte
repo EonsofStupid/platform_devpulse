@@ -22,15 +22,16 @@
 }
 -->
 <script lang="ts">
-import { cssVarString, renderForge } from "#coldlight/renderforge/index.js";
+import { styleAttrs } from "#coldlight/renderforge/index.js";
 import { cn } from "#coldlight/utils/cn.js";
+import { CARD_DEFAULTS } from "./card.generated.js";
 import type { CardProps } from "./card.types.js";
 
 let {
 	as = "div",
 	orientation = "vertical",
-	variant = "default",
-	preset = "default",
+	variant = CARD_DEFAULTS.variant,
+	surface,
 	label,
 	labelledBy,
 	href,
@@ -41,16 +42,11 @@ let {
 	...rest
 }: CardProps = $props();
 
+// Layout only; the look is card.tokens.json's generated CSS, selected by these attributes.
 const rootClasses = $derived(
-	cn(
-		"flex overflow-hidden",
-		orientation === "horizontal" ? "flex-row" : "flex-col",
-		disabled && "pointer-events-none opacity-60",
-		className,
-	),
+	cn("flex overflow-hidden", orientation === "horizontal" ? "flex-row" : "flex-col", className),
 );
-
-const m = $derived(renderForge({ kind: "card", preset }));
+const look = $derived(styleAttrs({ kind: "card", variant, surface }));
 </script>
 
 {#if as === "a"}
@@ -60,12 +56,12 @@ const m = $derived(renderForge({ kind: "card", preset }));
 		aria-label={label || undefined}
 		aria-labelledby={labelledBy || undefined}
 		aria-disabled={disabled || undefined}
-		{...m.dataAttrs}
+		{...rest}
+		{...look}
 		data-slot="root"
 		data-orientation={orientation}
-		style={cssVarString(m.cssVars)}
+		data-disabled={disabled || undefined}
 		class={rootClasses}
-		{...rest}
 	>
 		{@render children?.()}
 	</a>
@@ -75,12 +71,12 @@ const m = $derived(renderForge({ kind: "card", preset }));
 		{disabled}
 		aria-label={label || undefined}
 		aria-labelledby={labelledBy || undefined}
-		{...m.dataAttrs}
+		{...rest}
+		{...look}
 		data-slot="root"
 		data-orientation={orientation}
-		style={cssVarString(m.cssVars)}
+		data-disabled={disabled || undefined}
 		class={rootClasses}
-		{...rest}
 	>
 		{@render children?.()}
 	</button>
@@ -89,12 +85,12 @@ const m = $derived(renderForge({ kind: "card", preset }));
 		role={label || labelledBy ? "group" : undefined}
 		aria-label={label || undefined}
 		aria-labelledby={labelledBy || undefined}
-		{...m.dataAttrs}
+		{...rest}
+		{...look}
 		data-slot="root"
 		data-orientation={orientation}
-		style={cssVarString(m.cssVars)}
+		data-disabled={disabled || undefined}
 		class={rootClasses}
-		{...rest}
 	>
 		{@render children?.()}
 	</div>

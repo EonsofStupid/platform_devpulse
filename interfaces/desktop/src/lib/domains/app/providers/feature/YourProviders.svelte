@@ -68,7 +68,7 @@ const connectorReady = (p: ProviderReport): boolean => p.connector?.installed ??
 
 {#snippet card(p: ProviderReport)}
 	{@const last = lastFor(p)}
-	<Card variant="outlined">
+	<Card>
 		<div class="flex flex-col gap-2 p-3">
 			<div class="flex items-center gap-2">
 				<StatusDot status={dot(p)} />

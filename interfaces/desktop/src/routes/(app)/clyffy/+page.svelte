@@ -28,7 +28,7 @@ const activity = $derived(clyffyStatus.activity);
 	<div class="col-span-12 lg:col-span-5">
 		<Widget
 			title="Clyffy"
-			surface="glass-deep"
+			surface="glass" variant="deep"
 			depth="z2"
 			bevel="subtle"
 			glow="teal"
@@ -47,7 +47,7 @@ const activity = $derived(clyffyStatus.activity);
 	<div class="col-span-12 lg:col-span-7">
 		<Widget
 			title="What I can do"
-			surface="glass-deep"
+			surface="glass" variant="deep"
 			depth="z1"
 			bevel="subtle"
 			frame="soft"
@@ -63,7 +63,7 @@ const activity = $derived(clyffyStatus.activity);
 			<Widget
 				title="Orchestrator"
 				icon={Brain}
-				surface="glass-deep"
+				surface="glass" variant="deep"
 				depth="z2"
 				bevel="soft"
 				glow="purple"
@@ -95,7 +95,7 @@ const activity = $derived(clyffyStatus.activity);
 			<Widget
 				title="Minion Fleet"
 				icon={Users}
-				surface="glass-deep"
+				surface="glass" variant="deep"
 				depth="z2"
 				bevel="subtle"
 				glow="teal"
@@ -117,7 +117,7 @@ const activity = $derived(clyffyStatus.activity);
 			<Widget
 				title="Knowledge Base"
 				icon={BookOpenCheck}
-				surface="glass-deep"
+				surface="glass" variant="deep"
 				depth="z2"
 				bevel="soft"
 				glow="teal"
@@ -173,7 +173,7 @@ const activity = $derived(clyffyStatus.activity);
 			<Widget
 				title="Inference Cache"
 				icon={Database}
-				surface="glass-deep"
+				surface="glass" variant="deep"
 				depth="z1"
 				bevel="subtle"
 				frame="soft"
@@ -204,7 +204,7 @@ const activity = $derived(clyffyStatus.activity);
 			<Widget
 				title="Context Window"
 				icon={Layers}
-				surface="glass-deep"
+				surface="glass" variant="deep"
 				depth="z1"
 				bevel="subtle"
 				frame="soft"

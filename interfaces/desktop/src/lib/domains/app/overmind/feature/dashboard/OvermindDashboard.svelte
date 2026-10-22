@@ -17,7 +17,7 @@ import { Activity, FlaskConical, FlaskRound } from "lucide-svelte";
 		<Widget
 			title="Prompt Playground"
 			icon={FlaskConical}
-			surface="glass-deep"
+			surface="glass" variant="deep"
 			depth="z2"
 			bevel="subtle"
 			glow="purple"
@@ -36,7 +36,7 @@ import { Activity, FlaskConical, FlaskRound } from "lucide-svelte";
 			<Widget
 				title="System Status"
 				icon={Activity}
-				surface="glass-deep"
+				surface="glass" variant="deep"
 				depth="z2"
 				bevel="subtle"
 				glow="teal"
@@ -62,7 +62,7 @@ import { Activity, FlaskConical, FlaskRound } from "lucide-svelte";
 			<Widget
 				title="Playground"
 				icon={FlaskConical}
-				surface="glass-deep"
+				surface="glass" variant="deep"
 				depth="z1"
 				bevel="soft"
 				glow="purple"
@@ -81,7 +81,7 @@ import { Activity, FlaskConical, FlaskRound } from "lucide-svelte";
 		<Widget
 			title="Experiments"
 			icon={FlaskRound}
-			surface="glass-deep"
+			surface="glass" variant="deep"
 			depth="z1"
 			bevel="subtle"
 			frame="soft"

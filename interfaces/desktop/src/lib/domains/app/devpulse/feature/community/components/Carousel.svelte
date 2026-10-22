@@ -57,7 +57,6 @@ function select(index: number) {
 	<div class="flex gap-[var(--space-16)] transform-gpu" style="transform-style: preserve-3d;">
 		{#each items as item, i}
 			<Card
-				variant={i === activeIndex ? "elevated" : "default"}
 				class={cn(
 					"w-[12.5rem] h-[18.75rem] flex flex-col items-center justify-center cursor-pointer",
 					"backdrop-blur-[var(--blur-md)]",

@@ -28,7 +28,7 @@ let {
 }: GovernanceControlsProps = $props();
 </script>
 
-<Card preset="default" class={cn("flex flex-col gap-4 p-4", className)}>
+<Card class={cn("flex flex-col gap-4 p-4", className)}>
 	<Heading level={4} size="xs" class="uppercase tracking-widest text-[var(--text-muted)]">
 		{title}
 	</Heading>

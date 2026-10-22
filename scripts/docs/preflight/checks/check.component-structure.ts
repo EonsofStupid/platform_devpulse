@@ -8,7 +8,9 @@
  * - At least one .svelte file exists
  *
  * Macro Law checks (per .svelte file):
- * - Root component: must import renderForge + have data-kind
+ * - Root component: must import from renderforge + have data-kind — through
+ *   `styleAttrs({ kind })` (the attribute model, plan 0006 §0s) or, for kinds
+ *   not yet moved, `renderForge` dataAttrs
  * - Sub-component with context: exempt from renderForge (inherits from parent)
  * - Renderless root (no DOM output): exempt from data-kind
  * - No "intent" prop (use "preset" instead)
@@ -125,6 +127,7 @@ function checkMacroLaw(
 		needsDataKind &&
 		!content.includes("data-kind") &&
 		!content.includes("dataAttrs") &&
+		!content.includes("styleAttrs(") &&
 		!content.includes("Anatomy")
 	) {
 		results.push({
@@ -134,8 +137,8 @@ function checkMacroLaw(
 			message: `${rel} — missing data-kind on semantic root`,
 			file: rel,
 			suggestion: [
-				"Spread anatomy attrs or m.dataAttrs on your root element",
-				"This adds data-kind and data-cl-* family markers automatically",
+				`Spread styleAttrs({ kind: "${kind}", variant, size }) on your root element (plan 0006 §0s)`,
+				"It adds data-kind and the attributes that select the kind's generated CSS",
 			].join("\n  "),
 		});
 	}

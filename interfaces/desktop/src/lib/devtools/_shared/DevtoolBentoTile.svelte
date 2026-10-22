@@ -42,6 +42,6 @@ const SPAN_CLASS: Record<Span, string> = {
 };
 </script>
 
-<Card preset="glass" class={`p-[var(--space-3)] ${SPAN_CLASS[span]} ${className ?? ""}`}>
+<Card surface="glass" variant="deep" class={`p-[var(--space-3)] ${SPAN_CLASS[span]} ${className ?? ""}`}>
 	{@render children()}
 </Card>
