@@ -720,6 +720,56 @@ Rewriting the two stories in place would be the shortcut. The path:
 Order: F0 → P0 → S0 → S1 → S2…; L1 and Phase 2 when the owner orders them
 (they give the Provider's visual props their effect).
 
+### Tests and behaviour contracts (owner 2026-10-22: "fix the errors and not take shortcuts")
+
+**Measured 2026-10-22.**
+
+- ColdLight: 379 tests, 106 failing in 31 files.
+- 42 `primitives/*/*.spec.ts` (the primitives' `definePrimitive` specs) were collected as suites; fixed `d3c82a3c` (runner includes `*.test.ts`, no pinned port).
+- svelte-check warnings 4 → 0 (`d3c82a3c`, `1b109bce`).
+- App: 17/17 pass; Storybook's two stories error (S0/S1 rebuild them, not patched in place).
+
+**Triage.** Every failing test was read against, in order: the primitive spec, then the anatomy and hook, then the APG pattern, then the props, then §0s. No test is skipped or deleted. Each is either:
+
+- fixed in the component, when the test encodes the spec; or
+- rewritten to the current contract, when it asserts something the spec or model rules out.
+
+Causes found:
+
+| # | Cause | Where |
+| --- | --- | --- |
+| C1 | Hooks drifted from spec and anatomy (roles, ARIA) | Table `grid` (spec: native `<table>`); Steps `group` (anatomy: `<nav>`); Badge `presentation` (spec: no role); Form `aria-disabled`; Heading `aria-level`; Progress null → 0 (indeterminate lost); Sheet close label, unrendered labelledby; InputGroup no `data-disabled` |
+| C2 | Components ignore or stub their hook | Toolbar never calls `useToolbar`; ToggleGroup, ScrollArea, FormField hooks are stubs (the March builder deletions `c172b6b4`, `ddf975f0`); Stat has no behaviour; InlineMessage's hook ignores `tone` |
+| C3 | One attribute per state (§4); tests used a catch-all `data-state` | Checkbox, Switch, Textarea, Form (`data-disabled`, `data-invalid`, `data-readonly`, `data-submitting`) |
+| C4 | Dead props | `size` on Sidebar, Steps, Table, Toolbar, InputGroup, Prose, ScrollArea, DescriptionList, Form, FormField, ToggleGroup; DescriptionList `variant`; Steps `linear`, `onActiveStepChange`; Sidebar `onExpandedChange`; Progress `indeterminate`. Each emits its selection attribute (`data-size`); layout-only sizes keep a layout map |
+| C5 | Tests assert visual Tailwind classes or old names | Kbd, InputGroup, List, Prose, InlineMessage, Spinner, Sheet `border-l`, Callout `data-state`, chat `-bg`. They assert the selection attributes or layout classes |
+| C6 | Harness | `expect(locator).toBeTruthy()` always passes; required snippets missing (ChatFrame `children`, Sheet `trigger`); role locators for roles the spec does not give |
+| C7 | Controlled props copied into `$state` once (≈25 hooks) | toggle, switch, checkbox, button, radio-group, select, tabs, combobox, sliders, fields, menu, dialog, alert-dialog, popover, sheet …; only Disclosure does controlled + uncontrolled right |
+| C8 | `{...rest}` after the component's own attributes (callers replace `data-kind`, `data-slot`, `role`) | Banner, Callout, ChatFooter, ChatFrame, DescriptionList, EmptyState, Form, FormField, Badge, Checkbox |
+| C9 | Props dropped | Progress and Textarea spread no `rest`; Spinner's labelled branch; ChatFooter/ChatFrame drop `style`; InputGroup leaks `invalid` to the DOM |
+| C10 | Wiring broken | FormField's label points at an id nothing has, `aria-describedby` always set; Sheet's overlay `popover` never shown (no backdrop), no focus trap; Progress labelled by an unrendered id; Toolbar unreachable by Tab; `aria-expanded` on Sidebar's navigation; `aria-busy` on aria-hidden Skeleton; Switch/Checkbox lack native `disabled`; SkipLink lost its focus target |
+
+**Phases.** Each phase touches ≤ 5 hand-written files plus their tests. It is done when the family's suite is green, svelte-check reports 0/0 and the live check holds; one commit per phase.
+
+- **T1 shared test conventions.** A `_testing` helper locates a kind's part by `[data-kind][data-slot]`. Existence is asserted with `expect.element(…).toBeInTheDocument()`. Required snippets come from `createRawSnippet`.
+- **T2 controlled state (C7).** One primitive in `behaviors/_internal`, then adopted by the hooks, ≤ 5 per phase.
+- **T3… one family per phase:**
+  - status: badge, banner, callout, inline-message, spinner, skeleton, loading-overlay, progress;
+  - inputs: checkbox, switch, textarea, input-group, form, form-field;
+  - navigation and structure: steps, sidebar, toolbar, toggle-group, skip-link, scroll-area;
+  - content and data: heading, kbd, prose, stat, empty-state, list, description-list, table;
+  - ColdLight's generic chat components: chat-frame, chat-footer;
+  - overlays: sheet.
+
+  Each family fixes C1–C6 and C8–C10 for its kinds; each kind's tokens file follows when its 0s.6 batch comes.
+
+**Decided by rule (logged):**
+
+- The field error is polite (primitive spec and `useField`) over the anatomy's "assertive"; the anatomy text is corrected.
+- Prose typography comes from a `prose.tokens.json` with child-element rules (Tailwind = layout only), not the typography plugin.
+
+**For the owner:** the controlled-state model (C7); ToggleGroup's root role (`toolbar` vs `group`); Callout's parts; Heading's `aria-level` on native h1–h6 (spec lists it, anatomy says conditional).
+
 ## Phases (approval between each)
 
 *2026-10-22: Phases 1 (type roles, per-kind defaults), 3 (states as attribute
