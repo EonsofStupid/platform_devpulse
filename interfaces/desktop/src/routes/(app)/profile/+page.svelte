@@ -1,10 +1,10 @@
 <!--
 	@route /profile
-	@description Post-login profile screen — the embedder picker UI plus
-	             a read-only helper-status section. Reachable from the
-	             post-login surfaces (header link, dashboard CTA, etc.
-	             — those wire in follow-up slices). Today the operator
-	             types the URL or navigates programmatically.
+	@description Profile — the embedder picker plus a read-only helper-status
+	             section. Opened from the top bar's avatar (plan 0008 R18);
+	             it renders in the app frame, which supplies the page's
+	             landmark, padding and surface, and is not a sidebar hub
+	             (`_nav.placement: "hidden"`).
 
 	The route is auth-gated via the root layout's `authState.phase`
 	check, so this file doesn't need to re-implement the gate — by
@@ -14,17 +14,4 @@
 import { EmbedderPicker } from "$lib/domains/profile/index.js";
 </script>
 
-<main class="profile-route">
-	<EmbedderPicker />
-</main>
-
-<style>
-	.profile-route {
-		display: flex;
-		flex-direction: column;
-		align-items: stretch;
-		min-height: 100vh;
-		padding: var(--space-24) var(--space-16);
-		background: var(--surface-base);
-	}
-</style>
+<EmbedderPicker />

@@ -291,9 +291,6 @@ label = "Profile"
 [nav."/chat"]
 label = "Clyffy Chat"
 
-[nav."/logs"]
-label = "Action log"
-
 # Devtools — tier folders, bucket folders, then each devtool.
 
 [nav."/devtools"]
@@ -394,6 +391,11 @@ term = "Moka cache"
 label = "Telemetry"
 blurb = "OTel spans, lane baselines, exporter config."
 description = "OTel pipeline — traces, spans, baselines"
+
+[nav."/devtools/system/observability/logs"]
+label = "Action log"
+blurb = "Every wrapped app action as it happens, filterable."
+description = "Live tail of today's action log"
 
 [nav."/devtools/system/ide/devforge"]
 label = "DevForge"

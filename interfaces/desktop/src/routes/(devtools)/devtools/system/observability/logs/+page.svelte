@@ -1,6 +1,9 @@
 <!--
-  @file +page.svelte (devtools /logs)
-  @description Live tail of action.jsonl with filter + open folder.
+  @file /devtools/system/observability/logs — the Action log devtool.
+  @route /devtools/system/observability/logs
+  @description Live tail of action.jsonl with filter + open folder. A
+  System › Observability devtool (plan 0008 R19), so its dashboard tile
+  comes from this folder.
 -->
 <script lang="ts">
 import { onDestroy, onMount } from "svelte";
