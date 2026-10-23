@@ -215,6 +215,15 @@ collapse_short = "Collapse"
 planned = "Planned"
 planned_body = "This devtool is planned and not built yet."
 
+[devtools.action_log]
+filter_label = "Filter"
+filter_placeholder = "Words to find, e.g. models.refresh or error"
+log_label = "Today's actions"
+empty = "No actions yet today. They appear here as you use the app."
+no_match = "No actions match the filter."
+open_folder = "Open the logs folder"
+open_folder_body = "Every day's action log is a file in your DevPulse logs folder."
+
 [chat.agents]
 new_thread = "New thread with…"
 none_ready = "No agent can chat yet — install or sign in to one in Settings → Run setup again → Your AI."

@@ -411,6 +411,28 @@ pub struct DevtoolsCopy {
     pub planned: String,
     /// What a planned devtool's page says.
     pub planned_body: String,
+    /// The Action log devtool's own text (its name and lines are `nav`).
+    pub action_log: ActionLogCopy,
+}
+
+/// The Action log devtool: today's wrapped app actions, tailed live.
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+#[serde(deny_unknown_fields)]
+pub struct ActionLogCopy {
+    /// Label of the filter field.
+    pub filter_label: String,
+    /// Hint inside the empty filter field.
+    pub filter_placeholder: String,
+    /// Accessible name of the list of log lines.
+    pub log_label: String,
+    /// Shown while today's log has no lines yet.
+    pub empty: String,
+    /// Shown when lines exist but none match the filter.
+    pub no_match: String,
+    /// Button: open the folder that holds every day's action log.
+    pub open_folder: String,
+    /// What that folder holds, beside the button.
+    pub open_folder_body: String,
 }
 
 /// Text owned by the app's layouts.

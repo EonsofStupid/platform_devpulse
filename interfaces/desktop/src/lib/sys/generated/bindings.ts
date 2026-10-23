@@ -267,7 +267,7 @@ async log(level: string, target: string, message: string, runId: string | null) 
 /**
  * Read new lines from the action log starting at `from_offset` (byte offset).
  */
-async tailActionLog(fromOffset: number) : Promise<Result<ActionLogTail, string>> {
+async tailActionLog(fromOffset: number) : Promise<Result<ActionLogTail, CommandError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("tail_action_log", { fromOffset }) };
 } catch (e) {
@@ -278,7 +278,7 @@ async tailActionLog(fromOffset: number) : Promise<Result<ActionLogTail, string>>
 /**
  * Open the `logs` directory under the portable data dir in the OS file manager.
  */
-async openActionLogsFolder() : Promise<Result<null, string>> {
+async openActionLogsFolder() : Promise<Result<null, CommandError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("open_action_logs_folder") };
 } catch (e) {
@@ -4378,6 +4378,38 @@ updateInstallFinished: "update-install-finished"
 /** user-defined types **/
 
 /**
+ * The Action log devtool: today's wrapped app actions, tailed live.
+ */
+export type ActionLogCopy = { 
+/**
+ * Label of the filter field.
+ */
+filter_label: string; 
+/**
+ * Hint inside the empty filter field.
+ */
+filter_placeholder: string; 
+/**
+ * Accessible name of the list of log lines.
+ */
+log_label: string; 
+/**
+ * Shown while today's log has no lines yet.
+ */
+empty: string; 
+/**
+ * Shown when lines exist but none match the filter.
+ */
+no_match: string; 
+/**
+ * Button: open the folder that holds every day's action log.
+ */
+open_folder: string; 
+/**
+ * What that folder holds, beside the button.
+ */
+open_folder_body: string }
+/**
  * Incremental tail of today's action JSONL file.
  */
 export type ActionLogTail = { 
@@ -7058,7 +7090,11 @@ planned: string;
 /**
  * What a planned devtool's page says.
  */
-planned_body: string }
+planned_body: string; 
+/**
+ * The Action log devtool's own text (its name and lines are `nav`).
+ */
+action_log: ActionLogCopy }
 /**
  * Where on disk a downloaded model lands.
  */
