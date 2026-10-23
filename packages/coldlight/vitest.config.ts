@@ -17,7 +17,9 @@ const isCI = !!process.env.CI;
 export default defineConfig({
 	plugins: [svelte()],
 	test: {
-		include: ["**/*.{test,spec}.{js,ts}"],
+		// Tests are `*.test.ts`. `primitives/<kind>/<kind>.spec.ts` are the primitives' a11y
+		// specs (`definePrimitive`), not test suites.
+		include: ["**/*.test.{js,ts}"],
 		exclude: ["**/node_modules/**", ".cowlevel/**"],
 		setupFiles: ["vitest-browser-svelte"],
 		// V8 coverage — AST-aware remapping (Vitest 4 default)
@@ -39,9 +41,10 @@ export default defineConfig({
 			trace: isCI ? "retain-on-failure" : "off",
 			// Screenshot on test failure in CI
 			screenshotFailures: isCI,
+			// No pinned port: Vitest takes the next free one. A pinned start inside a range the
+			// OS refuses (51205–54179 on the dev machine) scanned ~3000 ports before starting.
 			api: {
 				host: "127.0.0.1",
-				port: 51205,
 			},
 		},
 	},

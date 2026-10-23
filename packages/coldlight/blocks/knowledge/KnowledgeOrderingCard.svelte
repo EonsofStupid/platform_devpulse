@@ -109,8 +109,13 @@ const headingId = $derived(`kc-order-${id}`);
 const listboxLabelId = $derived(`kc-order-${id}-prompt`);
 const statusId = $derived(`kc-order-${id}-status`);
 
-let order = $state<KnowledgeOrderingItem[]>([...initialItems]);
-let focusedIndex = $state(0);
+// Seeded from the prop, reordered locally, reset when a new list arrives (writable derived).
+let order = $derived<KnowledgeOrderingItem[]>([...initialItems]);
+// Back to the first item when a new list arrives.
+let focusedIndex = $derived.by(() => {
+	void initialItems;
+	return 0;
+});
 let lastMoveMessage = $state("");
 
 function move(index: number, direction: -1 | 1): void {
@@ -165,12 +170,9 @@ function keyHandler(e: KeyboardEvent, index: number): void {
 		<Text id={listboxLabelId} size="sm" weight="semibold" as="p">{prompt}</Text>
 	{/snippet}
 	{#snippet body()}
-		<ol
-			class="knowledge-order__list"
-			role="listbox"
-			aria-labelledby={listboxLabelId}
-			aria-activedescendant={`kc-order-${id}-item-${focusedIndex}`}
-		>
+		<!-- Roving tabindex: focus moves between the options themselves, so the listbox
+		     carries no aria-activedescendant (APG: one focus pattern per widget). -->
+		<ol class="knowledge-order__list" role="listbox" aria-labelledby={listboxLabelId}>
 			{#each order as item, index (item.id)}
 				<li
 					id={`kc-order-${id}-item-${index}`}

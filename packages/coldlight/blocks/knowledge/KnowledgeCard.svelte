@@ -141,10 +141,10 @@ let {
 }: Props = $props();
 </script>
 
+<!-- A <section> with an accessible name is a region; no explicit role. -->
 <section
 	class="knowledge-card"
 	data-accent={accent}
-	role="region"
 	aria-labelledby={headingId}
 	aria-live={live}
 >
