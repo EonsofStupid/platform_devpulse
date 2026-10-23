@@ -19,9 +19,11 @@ export interface TogglePrimitiveProps extends Omit<HTMLButtonAttributes, "childr
 	children?: Snippet;
 	/** Additional CSS classes */
 	class?: string;
-	/** Whether the toggle is currently pressed/on */
+	/** Whether the toggle is pressed, when the owner controls it; omit to let the toggle hold it */
 	pressed?: boolean;
-	/** Callback when pressed state changes */
+	/** Whether the toggle starts pressed, when it holds its state. Default: false */
+	defaultPressed?: boolean;
+	/** Called with every change the user asks for (controlled or not) */
 	onPressedChange?: (pressed: boolean) => void;
 	/** Disabled state — prevents interaction */
 	disabled?: boolean;

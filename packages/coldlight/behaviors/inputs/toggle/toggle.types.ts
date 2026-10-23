@@ -1,7 +1,10 @@
 import type { HTMLButtonAttributes } from "svelte/elements";
 
 export interface UseToggleProps {
+	/** Controlled value; `undefined` leaves the state to the toggle. */
 	pressed?: boolean;
+	/** Starting value when uncontrolled. */
+	defaultPressed?: boolean;
 	onPressedChange?: (pressed: boolean) => void;
 	disabled?: boolean;
 	"aria-label"?: string;

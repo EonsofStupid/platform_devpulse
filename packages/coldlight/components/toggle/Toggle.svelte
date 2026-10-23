@@ -33,7 +33,8 @@ let {
 	variant = TOGGLE_DEFAULTS.variant,
 	size = TOGGLE_DEFAULTS.size,
 	surface,
-	pressed = false,
+	pressed,
+	defaultPressed,
 	onPressedChange,
 	disabled = false,
 	children,
@@ -41,9 +42,13 @@ let {
 	...rest
 }: ToggleProps = $props();
 
+// Controlled when `pressed` is given, otherwise the toggle holds its state (from `defaultPressed`).
 const toggle = useToggle({
 	get pressed() {
 		return pressed;
+	},
+	get defaultPressed() {
+		return defaultPressed;
 	},
 	get disabled() {
 		return disabled;

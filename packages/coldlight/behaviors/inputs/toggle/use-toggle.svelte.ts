@@ -7,6 +7,7 @@
  * @see https://www.w3.org/WAI/ARIA/apg/patterns/button/
  */
 
+import { controllable } from "../../_internal/utils/controllable.svelte.js";
 import { disabledAttr } from "../../_internal/utils/data-attr.js";
 import { kbd } from "../../_internal/utils/kbd.js";
 import { uid } from "../../_internal/utils/uid.js";
@@ -16,13 +17,16 @@ import type { UseToggleProps, UseToggleReturn } from "./toggle.types.js";
 export function useToggle(props: UseToggleProps = {}): UseToggleReturn {
 	const id = uid("toggle");
 
-	let pressed = $state(props.pressed ?? false);
+	const state = controllable({
+		value: () => props.pressed,
+		defaultValue: () => props.defaultPressed ?? false,
+		onChange: (next) => props.onPressedChange?.(next),
+	});
+	const pressed = $derived(state.current);
 	const disabled = $derived(props.disabled ?? false);
 
 	function doToggle(): void {
-		if (disabled) return;
-		pressed = !pressed;
-		props.onPressedChange?.(pressed);
+		if (!disabled) state.set(!pressed);
 	}
 
 	const root = $derived({
