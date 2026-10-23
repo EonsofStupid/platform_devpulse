@@ -152,3 +152,25 @@ describe("checkbox component — composition", () => {
 		await expect.element(el).toHaveClass("my-custom");
 	});
 });
+
+// =============================================================================
+// EVENTS
+// =============================================================================
+
+describe("checkbox component — events", () => {
+	test("a caller's onclick runs alongside the checkbox, not instead of it", async () => {
+		const onclick = vi.fn();
+		const { getByRole } = render(Checkbox, { props: { onclick } });
+		const el = getByRole("checkbox");
+		await el.click();
+		expect(onclick).toHaveBeenCalledOnce();
+		await expect.element(el).toHaveAttribute("aria-checked", "true");
+	});
+
+	test("disabled: a caller's onclick does not run", async () => {
+		const onclick = vi.fn();
+		const { getByRole } = render(Checkbox, { props: { disabled: true, onclick } });
+		(getByRole("checkbox").element() as HTMLElement).click();
+		expect(onclick).not.toHaveBeenCalled();
+	});
+});

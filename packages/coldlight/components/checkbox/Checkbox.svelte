@@ -26,6 +26,7 @@ import { checkboxAnatomy } from "#coldlight/behaviors/inputs/checkbox/index.js";
 import { useCheckbox } from "#coldlight/behaviors/inputs/checkbox/use-checkbox.svelte.js";
 import { cssVarString, renderForge } from "#coldlight/renderforge/index.js";
 import { cn } from "#coldlight/utils/cn.js";
+import { mergeProps } from "#coldlight/utils/merge-props.js";
 import type { CheckboxProps, CheckboxSize } from "./types.js";
 
 const SIZE: Record<CheckboxSize, string> = {
@@ -44,6 +45,7 @@ let {
 	disabled = false,
 	onCheckedChange,
 	onIndeterminateChange,
+	onclick,
 	children,
 	class: className,
 	...rest
@@ -71,12 +73,18 @@ const checkbox = useCheckbox({
 });
 
 const m = $derived(renderForge({ kind: "checkbox", preset }));
+
+// The caller's handlers add to the behavior's (mergeProps chains them); its click runs after the
+// behavior's and not while disabled.
+const attrs = $derived(
+	mergeProps(checkboxAnatomy.attrs.root, checkbox.root, rest, {
+		onclick: disabled ? undefined : onclick,
+	}),
+);
 </script>
 
 <button
-	{...checkboxAnatomy.attrs.root}
-	{...checkbox.root}
-	{...rest}
+	{...attrs}
 	{...m.dataAttrs}
 	style={cssVarString(m.cssVars)}
 	class={cn(
