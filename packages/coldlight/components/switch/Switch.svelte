@@ -26,6 +26,7 @@ import { switchAnatomy } from "#coldlight/behaviors/inputs/switch/index.js";
 import { useSwitch } from "#coldlight/behaviors/inputs/switch/use-switch.svelte.js";
 import { cssVarString, renderForge } from "#coldlight/renderforge/index.js";
 import { cn } from "#coldlight/utils/cn.js";
+import { mergeProps } from "#coldlight/utils/merge-props.js";
 import type { SwitchProps, SwitchSize } from "./types.js";
 
 const SIZE: Record<SwitchSize, { track: string; thumb: string }> = {
@@ -40,6 +41,7 @@ let {
 	defaultChecked,
 	disabled = false,
 	onCheckedChange,
+	onclick,
 	children,
 	preset = "default",
 	class: className,
@@ -62,12 +64,18 @@ const sw = useSwitch({
 
 const sizeClasses = $derived(SIZE[size] ?? SIZE.md);
 const m = $derived(renderForge({ kind: "switch", preset }));
+
+// The caller's handlers add to the behavior's (mergeProps chains them); its click runs after the
+// behavior's and not while disabled.
+const attrs = $derived(
+	mergeProps(switchAnatomy.attrs.root, sw.root, rest, {
+		onclick: disabled ? undefined : onclick,
+	}),
+);
 </script>
 
 <button
-		{...switchAnatomy.attrs.root}
-		{...sw.root}
-		{...rest}
+		{...attrs}
 		{...m.dataAttrs}
 		style={cssVarString(m.cssVars)}
 		class={cn(

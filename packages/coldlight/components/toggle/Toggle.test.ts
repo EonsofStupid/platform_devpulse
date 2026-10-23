@@ -79,3 +79,21 @@ describe("toggle — controlled and uncontrolled state", () => {
 		await expect.element(root).toHaveAttribute("data-state", "on");
 	});
 });
+
+describe("toggle — events", () => {
+	test("a caller's onclick runs alongside the toggle, not instead of it", async () => {
+		const onclick = vi.fn();
+		const { container } = render(Toggle, { props: { children: label, onclick } });
+		const root = locatePart(container, "toggle");
+		await root.click();
+		expect(onclick).toHaveBeenCalledOnce();
+		await expect.element(root).toHaveAttribute("aria-pressed", "true");
+	});
+
+	test("disabled: a caller's onclick does not run", async () => {
+		const onclick = vi.fn();
+		const { container } = render(Toggle, { props: { children: label, disabled: true, onclick } });
+		(locatePart(container, "toggle").element() as HTMLElement).click();
+		expect(onclick).not.toHaveBeenCalled();
+	});
+});

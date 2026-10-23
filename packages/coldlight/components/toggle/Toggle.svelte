@@ -26,6 +26,7 @@ import { toggleAnatomy } from "#coldlight/behaviors/inputs/toggle/index.js";
 import { useToggle } from "#coldlight/behaviors/inputs/toggle/use-toggle.svelte.js";
 import { styleAttrs } from "#coldlight/renderforge/index.js";
 import { cn } from "#coldlight/utils/cn.js";
+import { mergeProps } from "#coldlight/utils/merge-props.js";
 import { TOGGLE_DEFAULTS } from "./toggle.generated.js";
 import type { ToggleProps } from "./types.js";
 
@@ -37,6 +38,7 @@ let {
 	defaultPressed,
 	onPressedChange,
 	disabled = false,
+	onclick,
 	children,
 	class: className,
 	...rest
@@ -55,13 +57,19 @@ const toggle = useToggle({
 	},
 	onPressedChange: (v) => onPressedChange?.(v),
 });
+
+// The caller's handlers add to the behavior's (mergeProps chains them); its click runs after the
+// behavior's and not while disabled.
+const attrs = $derived(
+	mergeProps(toggleAnatomy.attrs.root, toggle.root, rest, {
+		onclick: disabled ? undefined : onclick,
+	}),
+);
 </script>
 
 <!-- Its look is toggle.tokens.json's generated CSS: the variant's role from the family in scope. class is layout. -->
 <button
-	{...toggleAnatomy.attrs.root}
-	{...toggle.root}
-	{...rest}
+	{...attrs}
 	{...styleAttrs({ kind: "toggle", variant, size, surface })}
 	class={cn("inline-flex items-center justify-center", className)}
 >
