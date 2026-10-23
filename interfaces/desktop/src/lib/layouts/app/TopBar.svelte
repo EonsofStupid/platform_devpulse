@@ -3,7 +3,9 @@
   @module @devpulse/layouts/app/TopBar
 
   Top navigation bar. Reference: refernece-dashboard3.png / dashboard4.png
-  Layout: [hamburger + brand] — [center: PULSE FEED pill] — [right: search + notifications + chat + clyffy + avatar]
+  Layout: [hamburger + brand] — [center: PULSE FEED pill] — [right: search + notifications + chat + DevPulse Tools + clyffy + avatar]
+  The DevPulse Tools button and the avatar (→ Profile) take their names and
+  icon from the route folders they open (plan 0008 R18).
   Height: 4.125rem (set by Frame.svelte topbar slot)
 
   @defaults {
@@ -27,6 +29,7 @@ import { ClyffyStatusOrb } from "$lib/domains/clyffy/index.js";
 import { openWindow } from "$lib/sys/bindings/window/index.js";
 import { copyState } from "$lib/sys/copy/index.js";
 import { logError } from "$lib/sys/logger.js";
+import { hrefOf, routeAt, routeCopy } from "$lib/sys/routing/index.js";
 import { globalState } from "$lib/sys/runes/global.svelte";
 
 let searchOpen = $state(false);
@@ -43,6 +46,20 @@ async function openChat(): Promise<void> {
 		logError("layouts.app.TopBar", `open chat window failed: ${result.error}`);
 	}
 }
+
+/** The DevPulse Tools window: opened, or brought forward if it is already open. */
+const tools = routeAt("/devtools");
+const toolsLabel = $derived(tools ? routeCopy(tools)?.label : undefined);
+
+async function openTools(): Promise<void> {
+	const result = await openWindow("DevTools");
+	if (result.status === "error") {
+		logError("layouts.app.TopBar", `open devtools window failed: ${result.error}`);
+	}
+}
+
+const profile = routeAt("/profile");
+const profileLabel = $derived(profile ? routeCopy(profile)?.label : undefined);
 
 $effect(() => {
 	void copyState.load();
@@ -103,6 +120,15 @@ function onKey(e: KeyboardEvent): void {
 			<MessageCircle size={16} />
 		</Button>
 
+		{#if tools}
+			{@const ToolsIcon = tools.nav.icon}
+			<Button variant="ghost" size="sm" class="h-9 w-9 rounded-full" title={toolsLabel} aria-label={toolsLabel} onclick={openTools}>
+				{#if ToolsIcon}
+					<ToolsIcon size={16} />
+				{/if}
+			</Button>
+		{/if}
+
 		{#if searchOpen}
 			<div class={cn("absolute right-4 top-16 z-50 rounded-lg border p-2")} style="background: var(--background-color); border-color: var(--border-color);">
 				<Input
@@ -119,6 +145,12 @@ function onKey(e: KeyboardEvent): void {
 		<!-- Clyffy presence orb -->
 		<ClyffyStatusOrb size="sm" />
 
-		<Avatar size={32} alt="User avatar" fallback="DP" />
+		{#if profile}
+			<a href={hrefOf(profile)} class="rounded-full" title={profileLabel} aria-label={profileLabel}>
+				<Avatar size={32} alt="User avatar" fallback="DP" />
+			</a>
+		{:else}
+			<Avatar size={32} alt="User avatar" fallback="DP" />
+		{/if}
 	</div>
 </div>
