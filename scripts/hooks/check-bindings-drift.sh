@@ -27,6 +27,11 @@
 # Performance: export-bindings is a tooling binary that's already
 # built whenever the desktop crate is built (cargo xtask regen-bindings
 # builds it). Running it takes well under a second.
+#
+# A binary older than the sources it reads is refused, never run: it
+# would "regenerate" an old command surface over the real bindings.ts
+# (2026-10-23: a debug build from the day before wrote two committed
+# changes out of the working tree and reported them as drift).
 
 set -euo pipefail
 
@@ -71,6 +76,31 @@ if [ -z "${EXPORT_BIN}" ]; then
         echo ""
     } >&2
     exit 0
+fi
+
+# The binary must be newer than every Rust source whose types the specta
+# builder exports: the desktop backend, the engine and the kernel crates.
+STALE_SOURCE=$(
+    find "${REPO_ROOT}/interfaces/desktop/src-tauri/src" \
+         "${REPO_ROOT}/interfaces/desktop/src-tauri/bin" \
+         "${REPO_ROOT}/systems" \
+         "${REPO_ROOT}/kernel" \
+         -path '*/target' -prune -o \
+         -name '*.rs' -newer "${EXPORT_BIN}" -print -quit 2>/dev/null || true
+)
+
+if [ -n "${STALE_SOURCE}" ]; then
+    {
+        echo ""
+        echo "ERROR: export-bindings is older than the sources it reads"
+        echo "       (${STALE_SOURCE#"${REPO_ROOT}"/} is newer), so it cannot tell"
+        echo "       whether bindings.ts has drifted. Nothing was written."
+        echo "      Fix:"
+        echo "        cargo xtask regen-bindings"
+        echo "        git add ${BINDINGS_REL}"
+        echo ""
+    } >&2
+    exit 1
 fi
 
 "${EXPORT_BIN}" >/dev/null 2>&1 || {
