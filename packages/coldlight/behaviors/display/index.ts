@@ -37,6 +37,9 @@ export { labelAnatomy, useLabel } from "./label/index.js";
 export { useList } from "./list/index.js";
 // --- loading-overlay ---
 export { useLoadingOverlay } from "./loading-overlay/index.js";
+export type * from "./log/index.js";
+// --- log ---
+export { logAnatomy, logLevelTone, useLog } from "./log/index.js";
 export type * from "./meter/index.js";
 // --- meter ---
 export { meterAnatomy, useMeter } from "./meter/index.js";
