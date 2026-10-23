@@ -1,9 +1,14 @@
 import type { HTMLAttributes, HTMLInputAttributes, HTMLLabelAttributes } from "svelte/elements";
 
 export interface UseFieldProps {
+	/** The label text, when one is rendered: the group and control are labelled by it. */
+	label?: string;
+	/** The description text, when one is rendered (it is hidden while an error shows). */
+	description?: string;
 	invalid?: boolean;
 	required?: boolean;
 	disabled?: boolean;
+	/** The error text, rendered while invalid. */
 	error?: string;
 }
 

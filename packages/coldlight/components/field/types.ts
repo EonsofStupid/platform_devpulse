@@ -4,7 +4,6 @@
  * @layer components
  */
 
-import type { Snippet } from "svelte";
 import type { FieldPrimitiveProps } from "#coldlight/behaviors/inputs/field/index.js";
 
 export type FieldPreset = "default" | "stark" | "glass" | "flat" | "matte";
@@ -24,6 +23,4 @@ export interface FieldProps extends FieldPrimitiveProps {
 	disabled?: boolean;
 	/** Visual preset */
 	preset?: FieldPreset;
-	/** Content rendered inside the field (the control) */
-	children?: Snippet;
 }

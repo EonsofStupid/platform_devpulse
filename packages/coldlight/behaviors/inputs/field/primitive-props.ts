@@ -1,5 +1,6 @@
 import type { Snippet } from "svelte";
 import type { HTMLAttributes } from "svelte/elements";
+import type { FieldControlAttrs } from "./field.types.js";
 
 /** Field orientation — controls label/control layout direction */
 export type FieldOrientation = "vertical" | "horizontal";
@@ -29,8 +30,9 @@ export type FieldOrientation = "vertical" | "horizontal";
  * ```
  */
 export interface FieldPrimitiveProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
-	/** Snippet content rendered inside the field */
-	children?: Snippet;
+	/** The control. It receives the attributes that link it to the label, description and error:
+	 * `{#snippet children(control)}<input {...control} />{/snippet}` */
+	children?: Snippet<[FieldControlAttrs]>;
 	/** Additional CSS classes */
 	class?: string;
 	/** Label/control layout direction. Default: "vertical" */

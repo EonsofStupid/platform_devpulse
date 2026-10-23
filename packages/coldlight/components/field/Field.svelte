@@ -37,6 +37,12 @@ let {
 }: FieldProps = $props();
 
 const hook = useField({
+	get label() {
+		return labelText;
+	},
+	get description() {
+		return descriptionText;
+	},
 	get invalid() {
 		return invalid;
 	},
@@ -69,7 +75,8 @@ const m = $derived(renderForge({ kind: "field", preset }));
 		</label>
 	{/if}
 
-	{@render children?.()}
+	<!-- The control takes the attributes that link it (id, aria-describedby, state). -->
+	{@render children?.(hook.control)}
 
 	{#if descriptionText && !invalid}
 		<div {...fieldAnatomy.attrs.description} {...hook.description} class="text-xs opacity-70">
