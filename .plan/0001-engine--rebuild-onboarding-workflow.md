@@ -18,7 +18,7 @@ touches: [kernel-clyffy, kernel-model-loader, desktop-tauri, desktop-onboarding,
 status: draft
 owner: Jesse Hades Hall
 created: 2026-10-10
-updated: 2026-10-18
+updated: 2026-10-23
 supersedes: [0002]   # reserved for "user-managed AI endpoints", never written; folded in here
 specs:
   # Research for this revision, read in full before writing (2026-10-12):
@@ -1317,7 +1317,9 @@ Owner 2026-10-21: "THE LOGIN IS FUCKING DONE CHECK FIRST".
 The login exists: `domains/auth` (`9a170b88`, `55f56e8a`) holds Supabase
 sign-in, sign-up and sign-out, plus `LoginShell.svelte`. The project URL is in
 `commands/cloud/secrets.rs:38`, and `authState.init()` runs at boot
-(`routes/+layout.svelte:92`). Today it is reached only from settings (`:183`).
+(`routes/+layout.svelte:92`). **Corrected 2026-10-23:** `LoginShell` is mounted
+nowhere. The "settings" mention at `:183` is only a comment. Git shows it was
+mounted once, in the root layout (`9a170b88`), and removed by `cecd61b5`.
 
 - `first-run.flow.toml` gains an `account` stage right after `welcome`:
   required, email required, no skip.
@@ -1330,6 +1332,67 @@ sign-in, sign-up and sign-out, plus `LoginShell.svelte`. The project URL is in
   that works.
 - Live: a fresh portable copy → first run → sign up with a test account →
   signed in on the next start.
+
+#### Wiring the login — grounded 2026-10-23
+
+Owner 2026-10-23: "plan the loginshell wiring". The rulings above stand:
+- required, right after Welcome;
+- email required, no skip, free users included;
+- sign-up creates the account and a free subscription;
+- sign-up by email code by default, with a password as an option ("Both", 2026-10-15);
+- offline, it explains that a connection is needed and retries;
+- shippin.cloud is opt-in.
+
+What the code has, read 2026-10-23:
+
+| Fact | Evidence |
+| --- | --- |
+| Auth logic works and stays: sign-in, sign-up, sign-out, a session refreshed by supabase-js, analytics events | `domains/auth/data-access/auth.state.svelte.ts:70-219` |
+| Sign-up is email + password only; no email code. The copy sends a confirmation *link* | `auth.state.svelte.ts:116,146`; `config/wizard_copy.default.toml:403-404` |
+| The anon key is read from the OS keychain, filled only by `set_supabase_anon_key`, which nothing calls. A fresh install reports `not-configured`, so a required sign-up cannot work | `commands/cloud/secrets.rs:29-32,111`; `supabase.client.ts:8-11,51-53` |
+| The project URL is a constant in Rust, not configuration | `secrets.rs:38` |
+| The session is in the webview's localStorage. WebView2 keeps that in `%LOCALAPPDATA%\com.devpulse.desktop\EBWebView`, outside the DevPulse folder (there is also a `logs` folder there) | `supabase.client.ts:56-61`; checked on disk |
+| Auth text is in the model-loader **wizard** copy (`get_wizard_copy().auth`), a kernel catalog; auth is not AI | `LoginShell.svelte:46-52`; `wizard_copy.default.toml:388-430` |
+| `LoginShell` has a `<main>`, a raw `<style>` with colours, an unused confirmation copy and sign-out copy, and a "go to settings" state that links nowhere | `LoginShell.svelte:157,234-292,5-12` |
+| The root layout's contract is the opposite of the rulings: signed-out "is the DEFAULT working state, never a blocking screen" | `routes/+layout.svelte:178-189` |
+| First run has `welcome, you, your_ai, containers`; the stage enum refuses unknown ids. The only gate is a name on You; "Set up later" leaves from any stage | `config/onboarding/first-run.flow.toml:9`; `onboarding/flow.rs:21-55`; `workflow.rs:137-151,206-215` |
+| The profile has `email TEXT UNIQUE` and no account identity (subject, issuer). You's email is optional ("from GitHub") | `services/relational.rs:232`; `onboarding/you.rs:34`; `copy.default.toml:47` |
+| The license is a stub that always answers Pro, release builds included; nothing calls it | `commands/cloud/license.rs:103-111` |
+
+How Rust learns you are signed in: the first-run buttons are intents and Rust decides (`FirstRunFlow.svelte:3-6`). So the Account view sends the session's access token to Rust. Rust confirms it with Supabase's user endpoint (`GET {url}/auth/v1/user`, anon key + bearer token), records who you are, and opens the gate. The frontend's word alone does not.
+
+Phases (each ≤ 5 files, checked, committed with hooks):
+
+| # | Outcome | Files | Verification |
+| --- | --- | --- | --- |
+| A1 | The auth endpoint is configuration. `config/platform/cloud.toml` holds `[cloud.auth] url` and the public `anon_key`; the keychain entry stays as an override for a self-hosted project. You supply the key's value (decision D2); I never enter it | `config/platform/cloud.toml`, engine `platform/config/loader.rs`, `commands/cloud/secrets.rs` | `cargo test` config; `get_supabase_credentials` returns the configured URL and a key without the keychain |
+| A2 | Auth text moves to the engine copy catalog (`[auth]` in `copy.default.toml`, `CopyCatalog.auth`), with text added for the email code, offline and account stage. `LoginShell` reads `copyState`; wizard copy loses `[auth]` (moved, not dropped) | engine `platform/copy/mod.rs`, `config/copy.default.toml`, `config/wizard_copy.default.toml` (+ its kernel struct), `LoginShell.svelte`, `bindings.ts` | cargo test copy; svelte-check |
+| A3a | The `account` stage: `Stage::Account`, `first-run.flow.toml` = `welcome, account, you, your_ai, containers`. The stage needs an account until the profile holds one. "Set up later" is refused until the account exists (no skip), and the Welcome view hides it until then | `onboarding/{flow,workflow,state}.rs`, `first-run.flow.toml`, `FirstRunFlow.svelte` | engine tests: `next` refused without an account, `later` refused before it; live: Welcome → Account, no later |
+| A3b | Rust verifies the session and records the account. A Tauri intent `onboarding_account(access_token)` checks it with Supabase and writes `account_subject`, `account_issuer` and the account's email to the profile; the You stage shows that email | `commands/onboarding/mod.rs`, engine `onboarding/{workflow,you}.rs`, `services/relational.rs` (migration) | engine tests (fake verifier); live: a signed-in session opens the gate |
+| A4 | The Account view. `LoginShell` is mounted at the stage, rebuilt in the B4.3 order (a `ui/` adapter, ColdLight only, no `<main>`, no raw colours). Email code is the default (`signInWithOtp` / `verifyOtp`), with a password option and sign-in for existing users. Offline: an explanation and a Retry button | `onboarding/feature/first-run/views/AccountView.svelte`, `auth.state.svelte.ts`, `LoginShell.svelte` (+ `ui/`), `onboarding.service.ts` | svelte-check; Biome; live up to the sign-up itself (D5) |
+| A5 | Where the session lives (decision D1): supabase-js `auth.storage` is a Tauri-backed adapter. Moving WebView2's own data folder into `.userdata` is listed under "Found" | `supabase.client.ts`, `auth/data-access/session-storage.service.ts`, `commands/cloud/session.rs`, `lib.rs`, `bindings.ts` | restart keeps the session; the session is no longer in webview storage |
+| A6 | After first run. With no session (signed out or expired), the root layout shows `LoginShell` (sign-in) over the app. A network failure while holding a session keeps you working, local-first. The layout's contract comment is rewritten. Profile gets Sign out (the copy exists) | `routes/+layout.svelte`, `routes/(app)/profile/+page.svelte` (+ a profile `ui/` part), auth copy | live: sign out → sign-in screen; offline restart with a session → app works |
+| A7 | The license comes from the verified account, Free by default. The Pro stub goes only once that works. Its source (decision D3) depends on the Supabase project's schema, which this repo does not hold | `commands/cloud/license.rs` (+ the verifier's response) | a free account reads Free |
+| A8 | The shippin.cloud question after the account (decision D4). Shippin has no API yet (master plan P3b) | waits on Shippin's API | — |
+
+Live check, end to end: a fresh portable copy → first run → Welcome → Account → **you** sign up with a test address → You shows that email → finish → restart → still signed in. Signing up on the real Supabase project is creating an account on an external service, so you do that step. I drive and verify the rest.
+
+Conflicts these rulings settle (older text is corrected when its phase lands):
+- "Skip … allowed and remembered" (ruling 1, `:457-458`) and "Set up later" on Welcome: superseded for the account by "no skip"; A3a.
+- "Email comes from GitHub; it is not a separate question" (settled item 5, `:429-431`; `copy.default.toml:47`; `you.rs:34`): the account's email is required; A3b.
+- "Never: … a locked app" (R-A10, `:71`) and "no connect-to-internet nags" (`MODEL-LOADER-UX-REQUIREMENTS.md:168`): first run cannot finish offline (master plan R7). After first run, the app stays local-first (A6).
+- Nomen / ZITADEL text (`:1790-1792`, `:1802`; master plan C10, P3, M2): withdrawn 2026-10-21; the login is Supabase.
+
+Decisions that are yours:
+- **D1 — where the session lives.** OS keychain (your keyring rule for tokens; a copied folder on another machine asks you to sign in again), or `.userdata` (travels with the folder, so a copy carries your login).
+- **D2 — the anon key ships in `config/platform/cloud.toml`.** It is public by design (`secrets.rs:14-21`), and you add the value.
+- **D3 — the license's source in Supabase.** A `subscriptions` row made at sign-up, or the user's server-set `app_metadata`.
+- **D4 — shippin.cloud.** Ask now and record the answer, or hold the question until Shippin's API exists.
+- **D5 — the live sign-up is yours** (above).
+
+Found while reading, outside this step:
+- WebView2's data folder and a `logs` folder sit in `%LOCALAPPDATA%\com.devpulse.desktop`, outside the DevPulse folder (portable-folder rule).
+- `set_supabase_anon_key`, `clear_supabase_anon_key`, `validate_license` and `get_license_summary` have no callers. A1 and A7 wire them in.
 
 ### B1 addendum — OpenRouter (master plan H5)
 
