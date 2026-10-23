@@ -629,7 +629,13 @@ impl Platform {
             suggest: ArcSwapOption::empty(),
             devforge: ArcSwapOption::empty(),
             ollama: ArcSwapOption::empty(),
-            sherpa_streaming: Arc::new(SherpaStreamingService::new(&data_dir)),
+            sherpa_streaming: Arc::new(SherpaStreamingService::new(
+                &boot_config
+                    .services
+                    .system
+                    .model_loader
+                    .resolve_models_dir(&data_dir),
+            )),
             project_db: Arc::new(ProjectDbManager::new(
                 data_dir.join("projects"),
                 boot_config.services.user.relational.turso_options(),

@@ -49,11 +49,8 @@ pub async fn boot(
     boot_log.running("Model Loader", "booting...");
     let start = Instant::now();
 
-    // Single resolution — first-hit-wins chain handles both dev
-    // (repo-root `models/`) and release (sibling-of-exe `models/`)
-    // without a cfg branch. See
-    // `platform::config::legacy::resolve_models_dir_chain` for the
-    // rule order.
+    // The configured models folder (`model-loader.toml` `models_dir`),
+    // under the data dir unless the user set an absolute path.
     let models_dir = entry.resolve_models_dir(data_dir);
     tracing::info!(
         models_dir = %models_dir.display(),

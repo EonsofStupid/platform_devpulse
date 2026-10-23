@@ -1073,38 +1073,19 @@ impl Default for ModelLoaderServiceEntry {
 }
 
 impl ModelLoaderServiceEntry {
-    /// Resolve the full models directory path via a first-hit-wins chain.
-    ///
-    /// Same chain in debug and release — no `cfg(debug_assertions)`
-    /// branches. The app finds models in whichever location actually
-    /// exists on the running machine:
-    ///
-    /// 1. **Sibling-of-exe** `<exe_dir>/models/` — the portable-zip
-    ///    case. The end user unzips the distribution; `models/` is a
-    ///    sibling of the exe they double-click. This is the primary
-    ///    path for shipped builds because it IS the portable promise:
-    ///    files next to the app.
-    /// 2. **Repo-root** `<repo>/models/` — the dev case. The exe runs
-    ///    from `target/debug/` or `target/release/`; we walk up looking
-    ///    for a `Cargo.toml` + `interfaces/` pair, which uniquely
-    ///    identifies this workspace. Lets dev machines share a single
-    ///    on-disk models folder with the rest of the team.
-    /// 3. **Configured path** (absolute or joined to `data_dir`) —
-    ///    typically resolves to `<data_dir>/models/`, which is where
-    ///    the model-loader feature downloads new models at user
-    ///    request. The LAST fallback so bundled + dev-checked-in
-    ///    models are always preferred over re-downloaded copies.
-    ///
-    /// The old code had a `#[cfg(debug_assertions)]` override in
-    /// `platform/boot/model_loader.rs` that rebound a `let mut`
-    /// locally. That release path silently skipped the dev models —
-    /// this chain replaces it so release builds scan real directories
-    /// instead of scanning an empty `.userdata/models/`.
+    /// The models folder: the configured `models_dir`
+    /// (`config/platform/services/system/model-loader.toml`). A relative
+    /// path is under the data dir — `.userdata/models/` with the shipped
+    /// `"models"`, in dev and in a portable build alike, since both resolve
+    /// the data dir to the `.userdata/` in the `DevPulse` folder. An absolute
+    /// path is used as given, for a user who keeps models elsewhere.
     pub fn resolve_models_dir(&self, data_dir: &Path) -> PathBuf {
-        let exe_dir = std::env::current_exe()
-            .ok()
-            .and_then(|p| p.parent().map(std::path::Path::to_path_buf));
-        resolve_models_dir_chain(&self.models_dir, data_dir, exe_dir.as_deref())
+        let configured = Path::new(&self.models_dir);
+        if configured.is_absolute() {
+            configured.to_path_buf()
+        } else {
+            data_dir.join(configured)
+        }
     }
 
     /// Get the list of subdirectory names for model discovery.
@@ -1191,76 +1172,6 @@ fn default_models_dir() -> String {
     "models".to_string()
 }
 
-/// Pure first-hit-wins resolver for the models directory.
-///
-/// Extracted from [`ModelLoaderServiceEntry::resolve_models_dir`] so it
-/// is testable without touching `std::env::current_exe()` — the caller
-/// passes in whatever `exe_dir` they want the walker to anchor on.
-///
-/// Chain:
-/// 1. `<exe_dir>/models/` — portable zip case.
-/// 2. `<repo>/models/` — dev workspace case; repo root detected by the
-///    co-presence of `Cargo.toml` and `interfaces/` on the walk up.
-/// 3. `configured_models_dir`, absolute or joined to `data_dir`.
-///
-/// Rule 3 always returns a path even when that path doesn't exist on
-/// disk — it is the deterministic endpoint of the chain. Earlier rules
-/// only trigger when the candidate directory actually exists, so there
-/// is never an ambiguity about which one "wins".
-pub(crate) fn resolve_models_dir_chain(
-    configured_models_dir: &str,
-    data_dir: &Path,
-    exe_dir: Option<&Path>,
-) -> PathBuf {
-    // Rule 1: sibling-of-exe — the portable-zip case.
-    if let Some(exe) = exe_dir {
-        let sibling = exe.join("models");
-        if sibling.is_dir() {
-            return sibling;
-        }
-    }
-
-    // Rule 2: repo-root — only hit when the exe runs from inside a
-    // dev checkout (`target/debug/` or `target/release/`). On an
-    // end-user install this walk fails at the filesystem root and
-    // we fall through.
-    if let Some(exe) = exe_dir {
-        if let Some(repo_root) = find_repo_root(exe) {
-            let repo_models = repo_root.join("models");
-            if repo_models.is_dir() {
-                return repo_models;
-            }
-        }
-    }
-
-    // Rule 3: configured path. Absolute passes through; relative
-    // joins `data_dir` (typically `<LOCALAPPDATA>/DevPulse/models/`
-    // on Windows).
-    let configured = Path::new(configured_models_dir);
-    if configured.is_absolute() {
-        configured.to_path_buf()
-    } else {
-        data_dir.join(configured)
-    }
-}
-
-/// Walk up from `start` looking for the monorepo root, defined as any
-/// ancestor directory containing both `Cargo.toml` and `interfaces/`.
-///
-/// This is the same shape used by `xtask::workspace::find_root` — the
-/// repo has exactly one directory that matches, so the check is
-/// unambiguous. Returns `None` at filesystem root if no match.
-fn find_repo_root(start: &Path) -> Option<PathBuf> {
-    let mut dir = start.to_path_buf();
-    loop {
-        if dir.join("Cargo.toml").is_file() && dir.join("interfaces").is_dir() {
-            return Some(dir);
-        }
-        if !dir.pop() {
-            return None;
-        }
-    }
-}
 fn default_subdir_chat() -> String {
     "chat".to_string()
 }
@@ -2301,143 +2212,53 @@ mod signals_config_tests {
 }
 
 #[cfg(test)]
-#[allow(clippy::unwrap_used, clippy::expect_used)]
+#[allow(clippy::unwrap_used)]
 mod models_dir_resolver_tests {
-    use super::resolve_models_dir_chain;
+    use super::ModelLoaderServiceEntry;
     use std::fs;
     use std::path::PathBuf;
-    use std::sync::atomic::{AtomicU64, Ordering};
 
-    static SEQ: AtomicU64 = AtomicU64::new(0);
-
-    /// Allocate a unique scratch directory for a single test, returning
-    /// the absolute path. Caller deletes it explicitly — parallel tests
-    /// each get their own, never collide.
-    fn scratch(label: &str) -> PathBuf {
-        let seq = SEQ.fetch_add(1, Ordering::Relaxed);
-        let p = std::env::temp_dir().join(format!(
-            "dp-models-resolver-{}-{}-{seq}",
-            std::process::id(),
-            label
-        ));
-        fs::create_dir_all(&p).unwrap();
-        p
+    fn entry(models_dir: &str) -> ModelLoaderServiceEntry {
+        ModelLoaderServiceEntry {
+            models_dir: models_dir.to_string(),
+            ..ModelLoaderServiceEntry::default()
+        }
     }
 
     #[test]
-    fn rule_1_sibling_of_exe_wins_when_it_exists() {
-        let exe_dir = scratch("r1");
-        fs::create_dir(exe_dir.join("models")).unwrap();
-        let data_dir = scratch("r1-data");
+    fn relative_configured_path_is_under_the_data_dir() {
+        let data_dir = PathBuf::from("devpulse").join(".userdata");
 
-        let resolved = resolve_models_dir_chain("models", &data_dir, Some(&exe_dir));
-
-        assert_eq!(resolved, exe_dir.join("models"));
-        fs::remove_dir_all(&exe_dir).unwrap();
-        fs::remove_dir_all(&data_dir).unwrap();
+        assert_eq!(
+            entry("models").resolve_models_dir(&data_dir),
+            data_dir.join("models")
+        );
     }
 
     #[test]
-    fn rule_2_repo_root_models_hit_when_sibling_missing() {
-        // Construct a fake repo: <repo>/Cargo.toml + <repo>/interfaces/
-        // + <repo>/models/. Exe lives under <repo>/target/debug/exe_dir.
-        // No sibling-of-exe models → rule 2 must walk up and find the
-        // repo-root models.
-        let repo = scratch("r2");
+    fn absolute_configured_path_is_used_as_given() {
+        let elsewhere = std::env::temp_dir().join("dp-models-elsewhere");
+        let data_dir = PathBuf::from("devpulse").join(".userdata");
+
+        assert_eq!(
+            entry(elsewhere.to_str().unwrap()).resolve_models_dir(&data_dir),
+            elsewhere
+        );
+    }
+
+    #[test]
+    fn a_models_folder_in_the_checkout_does_not_win_over_the_config() {
+        // The dev layout that used to be probed: <repo>/models beside
+        // <repo>/.userdata. The configured folder under the data dir wins.
+        let repo = std::env::temp_dir().join(format!("dp-models-checkout-{}", std::process::id()));
+        fs::create_dir_all(repo.join("models")).unwrap();
+        fs::create_dir_all(repo.join("interfaces")).unwrap();
         fs::write(repo.join("Cargo.toml"), "[workspace]\n").unwrap();
-        fs::create_dir(repo.join("interfaces")).unwrap();
-        fs::create_dir(repo.join("models")).unwrap();
-        let exe_dir = repo.join("target").join("debug");
-        fs::create_dir_all(&exe_dir).unwrap();
-        let data_dir = scratch("r2-data");
+        let data_dir = repo.join(".userdata");
 
-        let resolved = resolve_models_dir_chain("models", &data_dir, Some(&exe_dir));
-
-        assert_eq!(resolved, repo.join("models"));
-        fs::remove_dir_all(&repo).unwrap();
-        fs::remove_dir_all(&data_dir).unwrap();
-    }
-
-    #[test]
-    fn rule_3_fallback_to_configured_when_neither_rule_1_nor_2_hit() {
-        // Exe in a directory that doesn't contain a repo root and has
-        // no sibling models/. Expect fallback to data_dir/models.
-        let exe_dir = scratch("r3");
-        let data_dir = scratch("r3-data");
-
-        let resolved = resolve_models_dir_chain("models", &data_dir, Some(&exe_dir));
+        let resolved = entry("models").resolve_models_dir(&data_dir);
 
         assert_eq!(resolved, data_dir.join("models"));
-        fs::remove_dir_all(&exe_dir).unwrap();
-        fs::remove_dir_all(&data_dir).unwrap();
-    }
-
-    #[test]
-    fn rule_3_absolute_configured_path_bypasses_data_dir_join() {
-        let exe_dir = scratch("r3abs");
-        let data_dir = scratch("r3abs-data");
-        let abs_models = scratch("r3abs-abs");
-
-        let resolved =
-            resolve_models_dir_chain(abs_models.to_str().unwrap(), &data_dir, Some(&exe_dir));
-
-        assert_eq!(resolved, abs_models);
-        fs::remove_dir_all(&exe_dir).unwrap();
-        fs::remove_dir_all(&data_dir).unwrap();
-        fs::remove_dir_all(&abs_models).unwrap();
-    }
-
-    #[test]
-    fn no_exe_dir_skips_rules_1_and_2_cleanly() {
-        // None for exe_dir means the app couldn't determine its own
-        // path. Rules 1 + 2 must skip silently and fall to rule 3.
-        let data_dir = scratch("noexe-data");
-
-        let resolved = resolve_models_dir_chain("models", &data_dir, None);
-
-        assert_eq!(resolved, data_dir.join("models"));
-        fs::remove_dir_all(&data_dir).unwrap();
-    }
-
-    #[test]
-    fn rule_1_dominates_rule_2_when_both_would_hit() {
-        // Simulate the case where the dev also has a sibling models/
-        // next to `target/debug/exe_dir`. Rule 1 (exe sibling) must
-        // win — portable semantics trump dev-workspace semantics when
-        // both are co-present.
-        let repo = scratch("dom");
-        fs::write(repo.join("Cargo.toml"), "[workspace]\n").unwrap();
-        fs::create_dir(repo.join("interfaces")).unwrap();
-        fs::create_dir(repo.join("models")).unwrap();
-        let exe_dir = repo.join("target").join("debug");
-        fs::create_dir_all(&exe_dir).unwrap();
-        fs::create_dir(exe_dir.join("models")).unwrap();
-        let data_dir = scratch("dom-data");
-
-        let resolved = resolve_models_dir_chain("models", &data_dir, Some(&exe_dir));
-
-        assert_eq!(resolved, exe_dir.join("models"));
         fs::remove_dir_all(&repo).unwrap();
-        fs::remove_dir_all(&data_dir).unwrap();
-    }
-
-    #[test]
-    fn empty_directory_at_rule_1_still_wins_over_rule_3() {
-        // Sibling-of-exe models/ exists but is empty. It still wins —
-        // the resolver picks by "does the directory exist", not "does
-        // it contain files". An empty dir is the user's choice; model
-        // discovery downstream handles empty dirs fine.
-        let exe_dir = scratch("empty-r1");
-        fs::create_dir(exe_dir.join("models")).unwrap();
-        let data_dir = scratch("empty-r1-data");
-        // Also populate rule-3 target to prove rule-1 still dominates.
-        fs::create_dir(data_dir.join("models")).unwrap();
-        fs::write(data_dir.join("models").join("placeholder.gguf"), b"x").unwrap();
-
-        let resolved = resolve_models_dir_chain("models", &data_dir, Some(&exe_dir));
-
-        assert_eq!(resolved, exe_dir.join("models"));
-        fs::remove_dir_all(&exe_dir).unwrap();
-        fs::remove_dir_all(&data_dir).unwrap();
     }
 }
