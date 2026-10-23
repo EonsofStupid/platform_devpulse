@@ -291,33 +291,45 @@ const NODE_H = 64;
 	<div class="overlay" aria-hidden="false">
 		{#each nodes as node (node.id)}
 			{@const active = activeNodes.has(node.id)}
-			<svelte:element
-				this={clickable ? "button" : "div"}
-				class="node-label"
-				class:node-label--active={active}
-				class:node-label--clickable={clickable}
-				class:node-label--compact={compact}
-				style:left="{(node.x / 660) * 100}%"
-				style:top="{(node.y / 180) * 100}%"
-				type={clickable ? "button" : undefined}
-				aria-label={clickable
-					? `${node.layman} — ${node.technical}, ${active ? "active" : "idle"}`
-					: undefined}
-				onclick={clickable ? () => handleNodeClick(node.id) : undefined}
-				onkeydown={clickable ? (e: KeyboardEvent) => handleNodeKey(e, node.id) : undefined}
-			>
-				<div class="node-label__head">
+			{#snippet label()}
+				<!-- span, not div: the label is a button's content when clickable. -->
+				<span class="node-label__head">
 					<StatusDot status={nodeStatusDot(node.id)} />
 					<Text size={compact ? "xs" : "sm"} weight="semibold">
 						{isCold ? node.skeletal : node.layman}
 					</Text>
-				</div>
+				</span>
 				{#if !compact && !isCold}
 					<Badge variant={active ? "informative" : "neutral"} size="sm" fillStyle="subtle">
 						{node.technical}
 					</Badge>
 				{/if}
-			</svelte:element>
+			{/snippet}
+			{#if clickable}
+				<button
+					type="button"
+					class="node-label node-label--clickable"
+					class:node-label--active={active}
+					class:node-label--compact={compact}
+					style:left="{(node.x / 660) * 100}%"
+					style:top="{(node.y / 180) * 100}%"
+					aria-label={`${node.layman} — ${node.technical}, ${active ? "active" : "idle"}`}
+					onclick={() => handleNodeClick(node.id)}
+					onkeydown={(e: KeyboardEvent) => handleNodeKey(e, node.id)}
+				>
+					{@render label()}
+				</button>
+			{:else}
+				<div
+					class="node-label"
+					class:node-label--active={active}
+					class:node-label--compact={compact}
+					style:left="{(node.x / 660) * 100}%"
+					style:top="{(node.y / 180) * 100}%"
+				>
+					{@render label()}
+				</div>
+			{/if}
 		{/each}
 	</div>
 

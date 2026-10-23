@@ -1,27 +1,6 @@
 /**
  * @file vitest.config.ts
- * @package @devpulse/coldlight
- *
- * Vitest 4 configuration — browser mode (Chromium via Playwright).
- *
- * Node 24 minimum. Svelte 5 runes. Zero stores.
- *
- * Dev:  headed browser, no coverage, no traces
- * CI:   headless, coverage v8, traces on failure, screenshot on failure
- *
- * ```mermaid
- * flowchart LR
- *   Test[*.test.ts] --> Vitest[Vitest 4]
- *   Vitest --> Browser[Chromium via Playwright]
- *   Browser --> DOM[Real DOM]
- *   Vitest --> Coverage[V8 Coverage]
- *   Coverage --> Report[HTML + LCOV]
- * ```
- */
-
-/**
- * @file vitest.config.ts
- * @package @devpulse/coldlight
+ * @package devpulse-desktop
  *
  * Vitest 4 configuration — browser mode (Chromium via Playwright).
  *
@@ -51,6 +30,10 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const isCI = !!process.env.CI;
 export default defineConfig({
 	plugins: [svelte()],
+	// Pre-bundled so Vite does not re-optimize and reload a test mid-run when a test first imports it.
+	optimizeDeps: {
+		include: ["@tauri-apps/api/webviewWindow"],
+	},
 	resolve: {
 		alias: {
 			$lib: resolve(__dirname, "./src/lib"),
@@ -86,10 +69,9 @@ export default defineConfig({
 						trace: isCI ? "retain-on-failure" : "off",
 						// Screenshot on test failure in CI
 						screenshotFailures: isCI,
-						// ColdLight's own browser tests use 51205
+						// No pinned port: Vitest takes the next free one (see ColdLight's vitest.config.ts).
 						api: {
 							host: "127.0.0.1",
-							port: 51206,
 						},
 					},
 				},
