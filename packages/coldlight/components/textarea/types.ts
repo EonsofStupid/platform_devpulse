@@ -11,14 +11,12 @@ export type TextareaSize = "sm" | "md" | "lg";
 export type TextareaPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
 export interface TextareaProps extends TextareaPrimitiveProps {
-	disabled?: boolean;
-	readonly?: boolean;
-	required?: boolean;
-	invalid?: boolean;
-	rows?: number;
-	/** Current value — `$bindable` so callers can `bind:value`. */
-	value?: string;
-	onValueChange?: (value: string) => void;
+	/** Label text, rendered above the textarea and naming it */
+	label?: string;
+	/** Description text, rendered below and describing it */
+	description?: string;
+	/** Error message, shown while invalid */
+	error?: string;
 	/** Style preset. Default: "default". */
 	preset?: TextareaPreset;
 	size?: TextareaSize;

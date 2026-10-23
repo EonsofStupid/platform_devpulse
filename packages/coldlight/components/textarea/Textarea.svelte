@@ -21,12 +21,12 @@
 }
 -->
 <script lang="ts">
-import { textareaAnatomy, useTextarea } from "#coldlight/behaviors/inputs/textarea/index.js";
+import type { TextareaResize } from "#coldlight/behaviors/inputs/textarea/index.js";
+import { useTextarea } from "#coldlight/behaviors/inputs/textarea/index.js";
 import { cssVarString, renderForge } from "#coldlight/renderforge/index.js";
 import { cn } from "#coldlight/utils/cn.js";
-import type { TextareaProps } from "./types.js";
-
-type TextareaSize = "sm" | "md" | "lg";
+import { mergeProps } from "#coldlight/utils/merge-props.js";
+import type { TextareaProps, TextareaSize } from "./types.js";
 
 const SIZE: Record<TextareaSize, string> = {
 	sm: "text-sm px-2.5 py-1.5",
@@ -34,50 +34,118 @@ const SIZE: Record<TextareaSize, string> = {
 	lg: "text-base px-4 py-2.5",
 };
 
+/** The resize affordance (layout); "auto" grows with the content. */
+const RESIZE: Record<TextareaResize, string> = {
+	none: "resize-none",
+	vertical: "resize-y",
+	horizontal: "resize-x",
+	both: "resize",
+	auto: "resize-none [field-sizing:content]",
+};
+
 let {
-	size = "md",
+	label: labelText,
+	description: descriptionText,
+	error: errorText,
+	value = $bindable(),
+	defaultValue,
+	onValueChange,
+	rows,
+	maxLength,
+	resize = "vertical",
+	autoResize = false,
 	disabled = false,
 	readonly: readOnly = false,
 	required = false,
 	invalid = false,
-	rows,
-	value = $bindable(""),
-	onValueChange,
+	size = "md",
 	preset = "default",
+	children,
 	class: className,
 	...rest
 }: TextareaProps = $props();
 
-const textarea = $derived(useTextarea({ disabled, readonly: readOnly, required, invalid }));
+// Called once, reading props through getters. Controlled when `value` is given or bound
+// (`bind:value`); otherwise the textarea holds its value, starting from `defaultValue`.
+const textarea = useTextarea({
+	get label() {
+		return labelText;
+	},
+	get description() {
+		return descriptionText;
+	},
+	get error() {
+		return errorText;
+	},
+	get value() {
+		return value;
+	},
+	get defaultValue() {
+		return defaultValue;
+	},
+	onValueChange: (next) => {
+		// A bound or passed value follows the change; an unset one stays with the textarea.
+		if (value !== undefined) value = next;
+		onValueChange?.(next);
+	},
+	get maxLength() {
+		return maxLength;
+	},
+	get disabled() {
+		return disabled;
+	},
+	get readonly() {
+		return readOnly;
+	},
+	get required() {
+		return required;
+	},
+	get invalid() {
+		return invalid;
+	},
+});
+
 const m = $derived(renderForge({ kind: "textarea", preset }));
+
+// The caller's attributes go on the textarea; its handlers add to the hook's (mergeProps chains them).
+const inputAttrs = $derived(mergeProps(textarea.input, { rows }, rest));
 </script>
 
-<textarea
-		{...textareaAnatomy.attrs.input}
-		aria-invalid={textarea.root["aria-invalid"]}
-		aria-required={textarea.root["aria-required"]}
-		aria-disabled={textarea.root["aria-disabled"]}
-		aria-readonly={textarea.root["aria-readonly"]}
-		{disabled}
-		readonly={readOnly}
-		{required}
-		{rows}
-		{value}
-		placeholder={rest.placeholder}
-		aria-label={rest["aria-label"]}
+<!-- The caller's class stays on the textarea, where it always went (the SQL console's font-mono). -->
+<div {...textarea.root} class="flex w-full flex-col gap-1">
+	{#if labelText}
+		<label {...textarea.label} class="text-sm font-medium">
+			{labelText}
+			{#if required}<span aria-hidden="true"> *</span>{/if}
+		</label>
+	{/if}
+
+	<textarea
+		{...inputAttrs}
 		{...m.dataAttrs}
 		style={cssVarString(m.cssVars)}
-		data-invalid={invalid || undefined}
 		class={cn(
 			"w-full rounded-md border bg-transparent",
 			"placeholder:text-muted-foreground",
 			"focus-visible:outline-2 focus-visible:outline-offset-2",
 			"disabled:pointer-events-none disabled:opacity-50",
-			SIZE[size as TextareaSize] ?? SIZE.md,
-			className)}
-		oninput={(e) => {
-			const next = (e.target as HTMLTextAreaElement).value;
-			value = next;
-			onValueChange?.(next);
-		}}
+			SIZE[size] ?? SIZE.md,
+			RESIZE[autoResize ? "auto" : resize] ?? RESIZE.vertical,
+			className,
+		)}
 	></textarea>
+
+	{#if descriptionText && !invalid}
+		<p {...textarea.description} class="text-xs">{descriptionText}</p>
+	{/if}
+
+	{#if invalid && errorText}
+		<p {...textarea.error} class="text-xs">{errorText}</p>
+	{/if}
+
+	{#if textarea.count}
+		<span {...textarea.counter} class="self-end text-xs">{textarea.count}</span>
+	{/if}
+
+	{@render children?.()}
+</div>

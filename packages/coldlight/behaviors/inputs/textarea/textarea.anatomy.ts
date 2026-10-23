@@ -29,7 +29,7 @@ export const textareaAnatomy = createAnatomy("textarea", {
 			],
 		},
 		accepts: ["none"],
-		stateAttrs: ["data-invalid", "data-disabled"],
+		stateAttrs: ["data-invalid", "data-disabled", "data-readonly"],
 		keyboard: { focusable: true },
 	},
 	label: {
@@ -46,7 +46,8 @@ export const textareaAnatomy = createAnatomy("textarea", {
 		accepts: ["text"],
 	},
 	error: {
-		description: "Error message shown when validation fails. Uses aria-live='assertive'.",
+		description:
+			"Error message shown when validation fails: role='alert', aria-live='polite' (primitive spec and useField).",
 		element: "div",
 		required: false,
 		aria: { conditional: ["aria-live"] },

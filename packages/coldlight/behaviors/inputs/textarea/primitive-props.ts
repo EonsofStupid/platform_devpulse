@@ -1,5 +1,5 @@
 import type { Snippet } from "svelte";
-import type { HTMLAttributes } from "svelte/elements";
+import type { HTMLTextareaAttributes } from "svelte/elements";
 
 /** Textarea resize behavior */
 export type TextareaResize = "none" | "vertical" | "horizontal" | "both" | "auto";
@@ -20,15 +20,18 @@ export type TextareaResize = "none" | "vertical" | "horizontal" | "both" | "auto
  * </div>
  * ```
  */
-export interface TextareaPrimitiveProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
+/** The caller's attributes go on the textarea (the input part); the root container is the component's. */
+export interface TextareaPrimitiveProps extends Omit<HTMLTextareaAttributes, "children" | "value"> {
 	/** Snippet content rendered inside the textarea container */
 	children?: Snippet;
 	/** Additional CSS classes */
 	class?: string;
-	/** Current text value */
+	/** The value, when the owner controls it (bindable); omit to let the textarea hold it */
 	value?: string;
-	/** Callback when value changes */
-	onChange?: (value: string) => void;
+	/** The starting value, when the textarea holds its state. Default: "" */
+	defaultValue?: string;
+	/** Called with every change the user makes (controlled or not) */
+	onValueChange?: (value: string) => void;
 	/** Number of visible text rows. Default: 3 */
 	rows?: number;
 	/** Maximum character count */
