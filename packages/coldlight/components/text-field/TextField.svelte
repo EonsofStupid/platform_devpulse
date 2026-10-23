@@ -24,6 +24,7 @@
 import { textFieldAnatomy, useTextField } from "#coldlight/behaviors/inputs/text-field/index.js";
 import { cssVarString, renderForge } from "#coldlight/renderforge/index.js";
 import { cn } from "#coldlight/utils/cn.js";
+import { mergeProps } from "#coldlight/utils/merge-props.js";
 import type { TextFieldProps, TextFieldSize } from "./text-field.types.js";
 
 const SIZE: Record<TextFieldSize, string> = {
@@ -36,7 +37,8 @@ let {
 	label: labelText,
 	description: descriptionText,
 	error: errorText,
-	value = $bindable(""),
+	value = $bindable(),
+	defaultValue,
 	onValueChange,
 	type = "text",
 	placeholder,
@@ -54,24 +56,51 @@ let {
 	...rest
 }: TextFieldProps = $props();
 
-function handleValueChange(next: string): void {
-	value = next;
-	onValueChange?.(next);
-}
+// Called once, reading props through getters. Controlled when `value` is given or bound
+// (`bind:value`); otherwise the field holds its value, starting from `defaultValue`.
+const field = useTextField({
+	get label() {
+		return labelText;
+	},
+	get description() {
+		return descriptionText;
+	},
+	get error() {
+		return errorText;
+	},
+	get value() {
+		return value;
+	},
+	get defaultValue() {
+		return defaultValue;
+	},
+	onValueChange: (next) => {
+		// A bound or passed value follows the change; an unset one stays with the field.
+		if (value !== undefined) value = next;
+		onValueChange?.(next);
+	},
+	get type() {
+		return type;
+	},
+	get placeholder() {
+		return placeholder;
+	},
+	get disabled() {
+		return disabled;
+	},
+	get readonly() {
+		return readOnly;
+	},
+	get required() {
+		return required;
+	},
+	get invalid() {
+		return invalid;
+	},
+});
 
-const field = $derived(
-	useTextField({
-		value,
-		onValueChange: handleValueChange,
-		type,
-		placeholder,
-		disabled,
-		readonly: readOnly,
-		required,
-		invalid,
-		error: errorText,
-	}),
-);
+// The caller's attributes go on the input; its handlers add to the field's (mergeProps chains them).
+const inputAttrs = $derived(mergeProps(field.input, { autocomplete, spellcheck }, rest));
 
 const m = $derived(renderForge({ kind: "text-field", preset }));
 </script>
@@ -92,11 +121,7 @@ const m = $derived(renderForge({ kind: "text-field", preset }));
 			{/if}
 
 			<input
-				{...textFieldAnatomy.attrs.input}
-				{...field.input}
-				{autocomplete}
-				{spellcheck}
-				{...rest}
+				{...inputAttrs}
 				class={cn(
 					"w-full bg-transparent outline-none rounded-md border",
 					"focus-visible:outline-2 focus-visible:outline-offset-2",

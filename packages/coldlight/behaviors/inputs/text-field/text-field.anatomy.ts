@@ -67,7 +67,7 @@ export const textFieldAnatomy = createAnatomy("text-field", {
 	},
 	error: {
 		description:
-			"Error message shown when validation fails. Gets ID wired to input's aria-describedby. Only visible when invalid. Uses aria-live='assertive' to announce to screen readers.",
+			"Error message shown when validation fails. Gets ID wired to input's aria-describedby. Only visible when invalid. role='alert' with aria-live='polite' (primitive spec and useField; plan 0006 rule).",
 		element: "div",
 		required: false,
 		aria: {

@@ -17,10 +17,7 @@ export interface TextFieldProps extends TextFieldPrimitiveProps {
 	description?: string;
 	/** Error message — shown when invalid */
 	error?: string;
-	/** Current value — `$bindable` so callers can `bind:value` */
-	value?: string;
-	/** Callback on value change */
-	onValueChange?: (value: string) => void;
+
 	/** Input type. Default: "text" */
 	type?: TextFieldType;
 	/** Placeholder */

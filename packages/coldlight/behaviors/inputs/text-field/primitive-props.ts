@@ -16,7 +16,7 @@ import type { TextFieldType } from "./text-field.types.js";
  *   <input {...textFieldAnatomy.attrs.input} id={inputId} type="email" value={email} />
  *   <div {...textFieldAnatomy.attrs.description}>We'll never share your email.</div>
  *   {#if error}
- *     <div {...textFieldAnatomy.attrs.error} aria-live="assertive">{error}</div>
+ *     <div {...textFieldAnatomy.attrs.error} role="alert" aria-live="polite">{error}</div>
  *   {/if}
  * </div>
  * ```
@@ -26,10 +26,12 @@ export interface TextFieldPrimitiveProps extends Omit<HTMLAttributes<HTMLDivElem
 	children?: Snippet;
 	/** Additional CSS classes */
 	class?: string;
-	/** Current input value */
+	/** The value, when the owner controls it (bindable); omit to let the field hold it */
 	value?: string;
-	/** Callback when value changes */
-	onChange?: (value: string) => void;
+	/** The starting value, when the field holds its state. Default: "" */
+	defaultValue?: string;
+	/** Called with every change the user makes (controlled or not) */
+	onValueChange?: (value: string) => void;
 	/** Input type. Default: "text" */
 	type?: TextFieldType;
 	/** Whether the field is required */
