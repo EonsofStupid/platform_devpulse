@@ -1383,7 +1383,13 @@ Conflicts these rulings settle (older text is corrected when its phase lands):
 - "Never: … a locked app" (R-A10, `:71`) and "no connect-to-internet nags" (`MODEL-LOADER-UX-REQUIREMENTS.md:168`): first run cannot finish offline (master plan R7). After first run, the app stays local-first (A6).
 - Nomen / ZITADEL text (`:1790-1792`, `:1802`; master plan C10, P3, M2): withdrawn 2026-10-21; the login is Supabase.
 
-Decisions that are yours:
+Owner decisions 2026-10-23:
+- **D1:** the session lives in the OS keychain (A5's adapter); a copied folder on another machine asks you to sign in again.
+- **D2:** the anon key ships in `config/platform/cloud.toml` (A1); the owner adds the value, and the keychain stays as an override.
+- **D4:** the shippin.cloud question is held until Shippin's API exists (A8).
+- **Open:** D3, the license source, decided at A7.
+
+The questions as asked:
 - **D1 — where the session lives.** OS keychain (your keyring rule for tokens; a copied folder on another machine asks you to sign in again), or `.userdata` (travels with the folder, so a copy carries your login).
 - **D2 — the anon key ships in `config/platform/cloud.toml`.** It is public by design (`secrets.rs:14-21`), and you add the value.
 - **D3 — the license's source in Supabase.** A `subscriptions` row made at sign-up, or the user's server-set `app_metadata`.
