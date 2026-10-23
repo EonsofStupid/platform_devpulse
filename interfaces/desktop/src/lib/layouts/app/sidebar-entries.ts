@@ -38,3 +38,8 @@ export function footerEntries(group: string): RouteNode[] {
 export function submenuOf(hub: RouteNode): RouteNode[] {
 	return hub.children.filter((n) => n.hasPage && n.nav.placement !== "hidden");
 }
+
+/** Whether `node` is the page at `pathname` or one of its ancestors. */
+export function isActiveRoute(node: RouteNode, pathname: string): boolean {
+	return pathname === node.path || pathname.startsWith(`${node.path}/`);
+}

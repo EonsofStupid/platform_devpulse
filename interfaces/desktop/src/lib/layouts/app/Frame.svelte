@@ -4,6 +4,8 @@
 
   App shell frame — ColdLight 6-zone CSS Grid layout.
   Zones: topbar, sidebar (left), content, context (right), statusbar, overlay.
+  The sidebar's submenu shares the content cell, drawn over the page at the
+  rail's edge (the rail clips, so it cannot hold a flyout).
   All layout structural. Visual via token var() refs.
 
 	@defaults {
@@ -23,6 +25,7 @@ import { SwapOverlay } from "$lib/domains/app/models/index.js";
 import ActivityHud from "$lib/sys/activity-hud/ActivityHud.svelte";
 import { globalState } from "$lib/sys/runes/global.svelte";
 import Sidebar from "./Sidebar.svelte";
+import SidebarSubmenu from "./SidebarSubmenu.svelte";
 import StatusBar from "./StatusBar.svelte";
 import TopBar from "./TopBar.svelte";
 
@@ -33,6 +36,7 @@ interface Props {
 let { children }: Props = $props();
 
 const isSidebarExpanded = $derived(globalState.sidebar_mode === "expanded");
+let rail = $state<HTMLElement | null>(null);
 const isContextExpanded = $derived(globalState.context_mode === "expanded");
 
 /** Structural layout classes per shell slot — no recipe import */
@@ -67,6 +71,7 @@ const SLOTS = {
 		"motion-reduce:transition-none",
 	),
 	content: "row-start-2 col-start-2 overflow-y-auto scrollbar-thin p-4 lg:p-6",
+	submenu: "row-start-2 col-start-2 justify-self-start self-stretch z-[var(--z-index-dropdown)]",
 	context: cn(
 		"row-start-2 col-start-3 w-0 overflow-hidden",
 		"border-l border-[var(--border-subtle)]",
@@ -106,7 +111,7 @@ const SLOTS = {
 		<TopBar />
 	</header>
 
-	<aside data-kind="shell" data-slot="sidebar" class={isSidebarExpanded ? SLOTS.sidebarExpanded : SLOTS.sidebar} data-expanded={isSidebarExpanded ? "true" : undefined}>
+	<aside bind:this={rail} data-kind="shell" data-slot="sidebar" class={isSidebarExpanded ? SLOTS.sidebarExpanded : SLOTS.sidebar} data-expanded={isSidebarExpanded ? "true" : undefined}>
 		<!-- Sidebar-scoped cosmic backdrop at stronger intensity.
 		     Parent <aside> has position: relative + overflow-x-hidden so the
 		     animation stays clipped inside the rail/panel. -->
@@ -117,6 +122,8 @@ const SLOTS = {
 	<main data-kind="shell" data-slot="content" class={SLOTS.content}>
 		{@render children()}
 	</main>
+
+	<SidebarSubmenu {rail} class={SLOTS.submenu} />
 
 	<aside data-kind="shell" data-slot="context" class={isContextExpanded ? SLOTS.contextExpanded : SLOTS.context} data-expanded={isContextExpanded ? "true" : undefined}>
 	</aside>

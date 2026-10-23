@@ -79,6 +79,9 @@
 		{
 			"includes": ["**/*.svelte"],
 			"linter": {
+				"domains": {
+					"react": "none"
+				},
 				"rules": {
 					"correctness": {
 						"noUnusedImports": "off",

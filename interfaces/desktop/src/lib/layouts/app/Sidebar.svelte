@@ -4,9 +4,11 @@
   @layer lib
 
   Vertical sidebar built from the route folders (plan 0008): hubs are the
-  route group's top-level pages, each hub's submenu is its child pages, and
-  `footer` pages pin below the hubs. Icons, order and placement are each
-  folder's own `_nav`; names are copy. See `sidebar-entries.ts`.
+  route group's top-level pages and `footer` pages pin below the hubs. Icons,
+  order and placement are each folder's own `_nav`; names are copy. See
+  `sidebar-entries.ts`. A hub with child pages toggles its submenu, which
+  Frame draws beside this rail (`SidebarSubmenu.svelte`) — inside the rail
+  it was clipped.
 
   @consumers
   - Frame.svelte: Main app layout
@@ -25,26 +27,20 @@
 <script lang="ts">
 import { Button } from "@devpulse/coldlight/components/button";
 import { Text } from "@devpulse/coldlight/components/text";
-import { box, cn, stack } from "@devpulse/coldlight/utils";
+import { cn, stack } from "@devpulse/coldlight/utils";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-svelte";
 import { page } from "$app/state";
 import { copyState } from "$lib/sys/copy/index.js";
 import { hrefOf, type RouteNode, routeCopy } from "$lib/sys/routing/index.js";
 import { globalState } from "$lib/sys/runes/global.svelte";
-import { footerEntries, groupOf, hubEntries, submenuOf } from "./sidebar-entries.js";
+import { footerEntries, groupOf, hubEntries, isActiveRoute, submenuOf } from "./sidebar-entries.js";
 
 const group = $derived(groupOf(page.route.id));
 const hubs = $derived(hubEntries(group));
 const footer = $derived(footerEntries(group));
 const text = $derived(copyState.catalog?.layout.sidebar);
 
-const openHub = $derived(hubs.find((h) => h.segment === globalState.sidebar_submenu));
-const submenu = $derived(openHub ? submenuOf(openHub) : []);
-
-function isActive(node: RouteNode): boolean {
-	const current = page.url.pathname;
-	return current === node.path || current.startsWith(`${node.path}/`);
-}
+const isActive = (node: RouteNode): boolean => isActiveRoute(node, page.url.pathname);
 
 function handleHubClick(hub: RouteNode): void {
 	if (submenuOf(hub).length > 0) {
@@ -53,10 +49,6 @@ function handleHubClick(hub: RouteNode): void {
 		globalState.closeSubmenu();
 	}
 	globalState.setDomain(hub.segment);
-}
-
-function handleSubmenuNav(): void {
-	globalState.closeSubmenu();
 }
 
 const isExpanded = $derived(globalState.sidebar_mode === "expanded");
@@ -130,29 +122,4 @@ const isExpanded = $derived(globalState.sidebar_mode === "expanded");
 			{/if}
 		</Button>
 	</div>
-
-	{#if openHub && submenu.length > 0}
-		<div
-			data-slot="submenu"
-			class={cn(box({}), "absolute left-full top-0 z-[var(--z-dropdown)] flex h-full w-48 flex-col gap-1 p-2")}
-			role="menu"
-		>
-			<Text size="xs" color="muted" class="mb-1 px-2 font-semibold uppercase tracking-wider">
-				{routeCopy(openHub)?.label}
-			</Text>
-			{#each submenu as child (child.path)}
-				<a href={hrefOf(child)} onclick={handleSubmenuNav} class="contents">
-					<Button
-						variant="ghost"
-						size="sm"
-						class="w-full justify-start px-3 py-2"
-						aria-current={isActive(child) ? "page" : undefined}
-						role="menuitem"
-					>
-						<Text size="sm" color="secondary">{routeCopy(child)?.label}</Text>
-					</Button>
-				</a>
-			{/each}
-		</div>
-	{/if}
 </nav>
