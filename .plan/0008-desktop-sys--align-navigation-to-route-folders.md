@@ -263,3 +263,14 @@ opens the Models page the sidebar already links.
   - Found, not caused here: `tests/architecture/ip-boundary.test.ts` fails on "reranking" in `domains/app/models/data-access/memory-card.state.svelte.ts:107` and `util/models.types.ts:68`. Those lines are older than this work (last touched in `c44b6520`). The value is a slot-capability identifier used to filter models, not text shown to the user.
     - **Corrected 2026-10-23:** this needs no new decision. The owner's decision is already in `kernel_terms.toml` (`enforcement = "off"`), and the hook follows it; the test copied the terms by hand and never read the switch. Fixed in R21.
     - Still the owner's call: whether algorithm and infrastructure names count as "everything". That is the switch, and the test now follows it either way.
+- 2026-10-23 — **R20–R22.**
+  - **R21 `c28f4ef6`:** the IP-boundary test follows `kernel_terms.toml`'s terms and switch.
+  - **R20a `6a8d22e0`:** Action log copy, and `CommandError` for both commands.
+  - **R22 `cc468e09`:** the drift hook refuses a stale `export-bindings`.
+  - **R20b:** the Action log page.
+    - The route is a thin shell over `$lib/devtools/system/observability/logs/`: `action-log.service.ts` (IPC only), `action-log.state.svelte.ts` (lines, byte offset, filter), `ActionLogDevtool.svelte` (in `ServiceDevtoolShell`).
+    - The Logs tab has a SearchField, `CommandErrorAlert` and ColdLight's `Log` (plan 0006 LG3), with an EmptyState for "no actions yet" and for "no match". The Actions tab opens the logs folder. Copy and Export carry the filtered lines. `PolledQuery` paces the tail at the page's old 500 ms.
+    - Live: a named log region, keyboard-scrollable and following; JetBrains Mono at 13.5px on the family's elevated surface; 188 lines at the newest. The filter narrows to exactly the matching lines (20 of 188 for "loadHealth"), shows "No actions match the filter." on none, and clearing restores all. No console errors.
+  - Found, proposed next (R20c):
+    - **Midnight rollover.** The tail's byte offset belongs to one day's file, so after midnight it reads today's file from yesterday's offset and can skip its first lines; the old page did the same. Fix: the tail returns the day it read, and the state resets the offset when the day changes.
+    - **Structured lines.** Each line is a JSON record (phase, id, intent, error, elapsed, t). `Log` can show it as time, level (error and start/end phases), source (the action id) and text (the intent or error), with Copy and Export keeping the raw lines.
