@@ -44,8 +44,8 @@ import { BUTTON_SIZES, BUTTON_VARIANTS, Button } from "@devpulse/coldlight/compo
 			<div class="flex flex-wrap items-center gap-4">
 				<Button variant="primary" size="md" disabled>Disabled</Button>
 				<Button variant="primary" size="md" loading>Loading</Button>
-				<Button variant="primary" size="md" pressed={true}>Pressed</Button>
-				<Button variant="primary" size="md" pressed={false}>Unpressed</Button>
+				<Button variant="primary" size="md" defaultPressed={true}>Pressed</Button>
+				<Button variant="primary" size="md" defaultPressed={false}>Unpressed</Button>
 			</div>
 		</div>
 
@@ -66,7 +66,7 @@ import { BUTTON_SIZES, BUTTON_VARIANTS, Button } from "@devpulse/coldlight/compo
 			<h3 class="text-sm font-medium text-text-muted mb-4 uppercase tracking-wider">Data Attributes (inspect in DevTools)</h3>
 			<div class="flex flex-wrap gap-4">
 				<Button variant="primary" size="md" data-id="test-button">data-id="test-button"</Button>
-				<Button variant="secondary" size="md" pressed={true} data-id="toggle-btn">Toggle (pressed)</Button>
+				<Button variant="secondary" size="md" defaultPressed={true} data-id="toggle-btn">Toggle (pressed)</Button>
 			</div>
 			<p class="text-xs text-text-muted mt-2">
 				Inspect elements: data-kind="button", data-slot="root", data-state, data-id

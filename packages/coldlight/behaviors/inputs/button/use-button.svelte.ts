@@ -12,6 +12,7 @@
  * @see https://www.w3.org/WAI/ARIA/apg/patterns/button/
  */
 
+import { controllable } from "../../_internal/utils/controllable.svelte.js";
 import { disabledAttr } from "../../_internal/utils/data-attr.js";
 import { kbd } from "../../_internal/utils/kbd.js";
 import { uid } from "../../_internal/utils/uid.js";
@@ -22,15 +23,22 @@ export function useButton(props: UseButtonProps = {}): UseButtonReturn {
 	const id = uid("btn");
 
 	// ── Reactive state ──────────────────────────────────────────
-	let pressed = $state(props.pressed);
-	const isToggle = $derived(pressed !== undefined);
+	// A toggle button when `pressed` (controlled) or `defaultPressed` (its own state) is given.
+	const isToggle = $derived(props.pressed !== undefined || props.defaultPressed !== undefined);
+	const pressedState = controllable({
+		value: () => props.pressed,
+		defaultValue: () => props.defaultPressed ?? false,
+		onChange: (next) => props.onPressedChange?.(next),
+	});
+	const pressed = $derived(isToggle ? pressedState.current : undefined);
 	const isDisabled = $derived(props.disabled || props.loading || false);
 
+	function setPressed(next: boolean): void {
+		if (isToggle && !isDisabled) pressedState.set(next);
+	}
+
 	function togglePressed(): void {
-		if (!isToggle || isDisabled) return;
-		pressed = !pressed;
-		// biome-ignore lint/style/noNonNullAssertion: pressed is guaranteed defined when isToggle is true
-		props.onPressedChange?.(pressed!);
+		setPressed(!pressedState.current);
 	}
 
 	// ── Root slot attributes (reactive via $derived) ────────────
@@ -84,14 +92,10 @@ export function useButton(props: UseButtonProps = {}): UseButtonReturn {
 			return isDisabled;
 		},
 		press() {
-			if (!isToggle || isDisabled || pressed) return;
-			pressed = true;
-			props.onPressedChange?.(true);
+			setPressed(true);
 		},
 		unpress() {
-			if (!isToggle || isDisabled || !pressed) return;
-			pressed = false;
-			props.onPressedChange?.(false);
+			setPressed(false);
 		},
 		toggle: togglePressed,
 	};

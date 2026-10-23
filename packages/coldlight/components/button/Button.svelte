@@ -34,6 +34,7 @@ let {
 	disabled = false,
 	loading = false,
 	pressed,
+	defaultPressed,
 	onPressedChange,
 	expanded,
 	type,
@@ -42,7 +43,29 @@ let {
 	...rest
 }: ButtonProps = $props();
 
-const button = $derived(useButton({ disabled, loading, pressed, onPressedChange, expanded, type }));
+// Called once, reading props through getters: rebuilding it per prop change would reset its
+// id and a toggle button's own pressed state.
+const button = useButton({
+	get disabled() {
+		return disabled;
+	},
+	get loading() {
+		return loading;
+	},
+	get pressed() {
+		return pressed;
+	},
+	get defaultPressed() {
+		return defaultPressed;
+	},
+	get expanded() {
+		return expanded;
+	},
+	get type() {
+		return type;
+	},
+	onPressedChange: (v) => onPressedChange?.(v),
+});
 </script>
 
 <!-- Its look is button.tokens.json's generated CSS, selected by these attributes; class is layout. -->

@@ -6,7 +6,10 @@ export type ButtonType = "button" | "submit" | "reset";
 export interface UseButtonProps {
 	disabled?: boolean;
 	loading?: boolean;
+	/** Controlled pressed state; makes it a toggle button. */
 	pressed?: boolean;
+	/** Starting pressed state of a toggle button that holds its own state. */
+	defaultPressed?: boolean;
 	onPressedChange?: (pressed: boolean) => void;
 	expanded?: boolean;
 	type?: ButtonType;
@@ -36,7 +39,11 @@ export interface ButtonPrimitiveProps extends Omit<HTMLButtonAttributes, "childr
 	type?: ButtonType;
 	disabled?: boolean;
 	loading?: boolean;
+	/** Pressed state, when the owner controls it; makes it a toggle button */
 	pressed?: boolean;
+	/** Starting pressed state of a toggle button that holds its own state */
+	defaultPressed?: boolean;
+	/** Called with every change the user asks for (controlled or not) */
 	onPressedChange?: (pressed: boolean) => void;
 	expanded?: boolean;
 }
