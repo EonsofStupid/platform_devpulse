@@ -62,6 +62,7 @@ export {
 	hstack,
 } from "./hstack/index.js";
 export { idGen, idGenPair } from "./idGen.js";
+export { mergeProps } from "./merge-props.js";
 export { slotMerge } from "./slotMerge.js";
 export {
 	type UseSpacerProps,

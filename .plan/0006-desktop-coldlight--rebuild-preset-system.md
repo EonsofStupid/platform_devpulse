@@ -748,6 +748,8 @@ Causes found:
 | C8 | `{...rest}` after the component's own attributes (callers replace `data-kind`, `data-slot`, `role`) | Banner, Callout, ChatFooter, ChatFrame, DescriptionList, EmptyState, Form, FormField, Badge, Checkbox |
 | C9 | Props dropped | Progress and Textarea spread no `rest`; Spinner's labelled branch; ChatFooter/ChatFrame drop `style`; InputGroup leaks `invalid` to the DOM |
 | C10 | Wiring broken | FormField's label points at an id nothing has, `aria-describedby` always set; Sheet's overlay `popover` never shown (no backdrop), no focus trap; Progress labelled by an unrendered id; Toolbar unreachable by Tab; `aria-expanded` on Sidebar's navigation; `aria-busy` on aria-hidden Skeleton; Switch/Checkbox lack native `disabled`; SkipLink lost its focus target |
+| C11 | Hooks called inside `$derived(useX({…}))`: rebuilt on every prop change, so ids regenerate and own state resets | ≈20 components (Button fixed `e69dd0f4`; Alert, Badge, Banner, DataTable, DescriptionList, Form, FormField, Heading, InlineMessage, InputGroup, Label, LinkPreview, List, LoadingOverlay, NotificationCenter, ScrollArea, Separator, Sidebar, Skeleton …). Hooks are called once with getters |
+| C12 | `{...rest}` after the hook's attributes replaces its handlers: a caller's `onclick` disabled a toggle; Enter toggled a toggle button twice (`useButton`'s keydown toggled and clicked) | Button fixed (`mergeProps` in `utils/`, React Aria's merge: handlers chain); Toggle, Switch, Checkbox and the other spreading components adopt it |
 
 **Phases.** Each phase touches ≤ 5 hand-written files plus their tests. It is done when the family's suite is green, svelte-check reports 0/0 and the live check holds; one commit per phase.
 

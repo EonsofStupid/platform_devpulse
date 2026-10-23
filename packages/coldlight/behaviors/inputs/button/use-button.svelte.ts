@@ -70,11 +70,12 @@ export function useButton(props: UseButtonProps = {}): UseButtonReturn {
 			if (isToggle) togglePressed();
 		},
 
+		// A native <button> activates itself on Enter and Space, and its click toggles. Only a
+		// non-native root needs the keys turned into a click; toggling here as well toggled twice.
 		onkeydown: (e: KeyboardEvent) => {
-			if (isDisabled) return;
+			if (isDisabled || e.currentTarget instanceof HTMLButtonElement) return;
 			if (e.key === kbd.SPACE || e.key === kbd.ENTER) {
 				e.preventDefault();
-				if (isToggle) togglePressed();
 				(e.currentTarget as HTMLElement).click();
 			}
 		},

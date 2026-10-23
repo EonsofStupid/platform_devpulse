@@ -4,6 +4,7 @@
  */
 
 import { describe, expect, test, vi } from "vitest";
+import { userEvent } from "vitest/browser";
 import { render } from "vitest-browser-svelte";
 import { locatePart, snippetOf } from "#coldlight/testing/parts.js";
 import Button from "./Button.svelte";
@@ -76,5 +77,34 @@ describe("button — toggle mode", () => {
 		await expect.element(root).toHaveAttribute("aria-pressed", "true");
 		await rerender({ pressed: false });
 		await expect.element(root).toHaveAttribute("aria-pressed", "false");
+	});
+});
+
+describe("button — events", () => {
+	test("keyboard: Enter toggles a toggle button once", async () => {
+		const { container } = render(Button, { props: { children: label, defaultPressed: false } });
+		const root = locatePart(container, "button");
+		(root.element() as HTMLElement).focus();
+		await userEvent.keyboard("{Enter}");
+		await expect.element(root).toHaveAttribute("aria-pressed", "true");
+	});
+
+	test("a caller's onclick runs alongside the toggle, not instead of it", async () => {
+		const onclick = vi.fn();
+		const { container } = render(Button, {
+			props: { children: label, defaultPressed: false, onclick },
+		});
+		const root = locatePart(container, "button");
+		await root.click();
+		expect(onclick).toHaveBeenCalledOnce();
+		await expect.element(root).toHaveAttribute("aria-pressed", "true");
+	});
+
+	test("disabled: a caller's onclick does not run", async () => {
+		const onclick = vi.fn();
+		const { container } = render(Button, { props: { children: label, disabled: true, onclick } });
+		const root = locatePart(container, "button");
+		(root.element() as HTMLElement).click();
+		expect(onclick).not.toHaveBeenCalled();
 	});
 });

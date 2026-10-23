@@ -25,6 +25,7 @@
 import { buttonAnatomy, useButton } from "#coldlight/behaviors/inputs/button/index.js";
 import { styleAttrs } from "#coldlight/renderforge/index.js";
 import { cn } from "#coldlight/utils/cn.js";
+import { mergeProps } from "#coldlight/utils/merge-props.js";
 import { BUTTON_DEFAULTS } from "./button.generated.js";
 import type { ButtonProps } from "./button.types.js";
 
@@ -38,6 +39,7 @@ let {
 	onPressedChange,
 	expanded,
 	type,
+	onclick,
 	children,
 	class: className,
 	...rest
@@ -66,13 +68,19 @@ const button = useButton({
 	},
 	onPressedChange: (v) => onPressedChange?.(v),
 });
+
+// The caller's handlers add to the behavior's (mergeProps chains them); its click runs after the
+// behavior's and not while disabled.
+const attrs = $derived(
+	mergeProps(buttonAnatomy.attrs.root, button.root, rest, {
+		onclick: button.isDisabled ? undefined : onclick,
+	}),
+);
 </script>
 
 <!-- Its look is button.tokens.json's generated CSS, selected by these attributes; class is layout. -->
 <button
-	{...buttonAnatomy.attrs.root}
-	{...button.root}
-	{...rest}
+	{...attrs}
 	{...styleAttrs({ kind: "button", variant, size })}
 	class={cn("inline-flex items-center justify-center select-none", className)}
 >
