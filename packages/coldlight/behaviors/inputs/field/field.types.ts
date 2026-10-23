@@ -46,7 +46,22 @@ export type FieldErrorAttrs = HTMLAttributes<HTMLDivElement> & {
 	"data-invalid"?: "";
 };
 
+/** The ids of a field's parts. */
+export interface FieldIds {
+	readonly root: string;
+	readonly label: string;
+	readonly control: string;
+	readonly description: string;
+	readonly error: string;
+}
+
 export interface UseFieldReturn {
+	/** The parts' ids, for inputs that compose the field with their own anatomy. */
+	readonly ids: FieldIds;
+	/** The rendered description and error ids, for the control's aria-describedby. */
+	readonly describedBy: string | undefined;
+	/** Whether the error part is rendered (invalid with a message). */
+	readonly hasError: boolean;
 	readonly root: FieldRootAttrs;
 	readonly label: FieldLabelAttrs;
 	readonly control: FieldControlAttrs;

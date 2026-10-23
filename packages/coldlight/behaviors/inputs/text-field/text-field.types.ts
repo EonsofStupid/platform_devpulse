@@ -3,7 +3,14 @@ import type { HTMLAttributes, HTMLInputAttributes, HTMLLabelAttributes } from "s
 export type TextFieldType = "text" | "email" | "password" | "url" | "tel";
 
 export interface UseTextFieldProps {
+	/** The label text, when one is rendered (the input is labelled through `for`). */
+	label?: string;
+	/** The description text, when one is rendered. */
+	description?: string;
+	/** Controlled value; `undefined` leaves it to the field. */
 	value?: string;
+	/** Starting value when uncontrolled. */
+	defaultValue?: string;
 	onValueChange?: (value: string) => void;
 	type?: TextFieldType;
 	placeholder?: string;
@@ -23,6 +30,7 @@ export type TextFieldRootAttrs = HTMLAttributes<HTMLDivElement> & {
 	"data-slot": "root";
 	"data-disabled"?: "";
 	"data-invalid"?: "";
+	"data-required"?: "";
 };
 
 export type TextFieldInputAttrs = HTMLInputAttributes & {
@@ -36,6 +44,7 @@ export type TextFieldInputAttrs = HTMLInputAttributes & {
 export type TextFieldLabelAttrs = HTMLLabelAttributes & {
 	"data-kind": "text-field";
 	"data-slot": "label";
+	"data-required"?: "";
 	"data-disabled"?: "";
 };
 

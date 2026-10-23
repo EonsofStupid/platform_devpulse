@@ -76,6 +76,13 @@ export function useField(props: UseFieldProps = {}): UseFieldReturn {
 	});
 
 	return {
+		ids,
+		get describedBy() {
+			return describedBy;
+		},
+		get hasError() {
+			return hasError;
+		},
 		get root() {
 			return root;
 		},
