@@ -1,0 +1,153 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+[data-kind="log"][data-slot="root"] {
+	--log-border-style: solid;
+	--log-border-width: var(--border-width-hairline);
+	--log-border-radius: var(--radius-md);
+	--log-font-family: var(--font-mono);
+	--log-font-size: var(--font-size-sm);
+	--log-line-height: 1.6;
+	border-style: var(--log-border-style);
+	border-width: var(--log-border-width);
+	border-radius: var(--log-border-radius);
+	font-family: var(--log-font-family);
+	font-size: var(--log-font-size);
+	line-height: var(--log-line-height);
+	background-color: var(--log-background-color);
+	box-shadow: var(--log-box-shadow);
+	color: var(--log-color);
+	border-color: var(--log-border-color);
+	opacity: var(--log-opacity);
+	animation: var(--log-animation);
+	transition-duration: var(--log-transition-duration);
+	transition-timing-function: var(--log-transition-timing-function);
+	background-image: var(--log-gradient);
+	font-weight: var(--log-font-weight);
+	letter-spacing: var(--log-letter-spacing);
+}
+
+[data-kind="log"][data-slot="root"][data-variant="elevated"] {
+	--log-background-color: var(--surface-role-elevated-background-color);
+	--log-box-shadow: var(--surface-role-elevated-box-shadow);
+	--log-color: var(--surface-role-elevated-color);
+	--log-border-color: var(--surface-role-elevated-border-color);
+	--log-opacity: var(--surface-role-elevated-opacity);
+	--log-animation: var(--surface-role-elevated-animation);
+	--log-transition-duration: var(--surface-role-elevated-transition-duration);
+	--log-transition-timing-function: var(--surface-role-elevated-transition-timing-function);
+	--log-gradient: var(--surface-role-elevated-gradient);
+	--log-font-weight: var(--surface-role-elevated-font-weight);
+	--log-letter-spacing: var(--surface-role-elevated-letter-spacing);
+}
+
+[data-kind="log"][data-slot="root"][data-variant="deep"] {
+	--log-background-color: var(--surface-role-deep-background-color);
+	--log-box-shadow: var(--surface-role-deep-box-shadow);
+	--log-color: var(--surface-role-deep-color);
+	--log-border-color: var(--surface-role-deep-border-color);
+	--log-opacity: var(--surface-role-deep-opacity);
+	--log-animation: var(--surface-role-deep-animation);
+	--log-transition-duration: var(--surface-role-deep-transition-duration);
+	--log-transition-timing-function: var(--surface-role-deep-transition-timing-function);
+	--log-gradient: var(--surface-role-deep-gradient);
+	--log-font-weight: var(--surface-role-deep-font-weight);
+	--log-letter-spacing: var(--surface-role-deep-letter-spacing);
+}
+
+[data-kind="log"][data-slot="root"][data-variant="minimal"] {
+	--log-background-color: var(--surface-role-minimal-background-color);
+	--log-box-shadow: var(--surface-role-minimal-box-shadow);
+	--log-color: var(--surface-role-minimal-color);
+	--log-border-color: var(--surface-role-minimal-border-color);
+	--log-opacity: var(--surface-role-minimal-opacity);
+	--log-animation: var(--surface-role-minimal-animation);
+	--log-transition-duration: var(--surface-role-minimal-transition-duration);
+	--log-transition-timing-function: var(--surface-role-minimal-transition-timing-function);
+	--log-gradient: var(--surface-role-minimal-gradient);
+	--log-font-weight: var(--surface-role-minimal-font-weight);
+	--log-letter-spacing: var(--surface-role-minimal-letter-spacing);
+}
+
+[data-kind="log"][data-slot="root"][data-variant="solid"] {
+	--log-background-color: var(--surface-role-solid-background-color);
+	--log-box-shadow: var(--surface-role-solid-box-shadow);
+	--log-color: var(--surface-role-solid-color);
+	--log-border-color: var(--surface-role-solid-border-color);
+	--log-opacity: var(--surface-role-solid-opacity);
+	--log-animation: var(--surface-role-solid-animation);
+	--log-transition-duration: var(--surface-role-solid-transition-duration);
+	--log-transition-timing-function: var(--surface-role-solid-transition-timing-function);
+	--log-gradient: var(--surface-role-solid-gradient);
+	--log-font-weight: var(--surface-role-solid-font-weight);
+	--log-letter-spacing: var(--surface-role-solid-letter-spacing);
+}
+
+[data-kind="log"][data-slot="root"][data-variant="glow"] {
+	--log-background-color: var(--surface-role-glow-background-color);
+	--log-box-shadow: var(--surface-role-glow-box-shadow);
+	--log-color: var(--surface-role-glow-color);
+	--log-border-color: var(--surface-role-glow-border-color);
+	--log-opacity: var(--surface-role-glow-opacity);
+	--log-animation: var(--surface-role-glow-animation);
+	--log-transition-duration: var(--surface-role-glow-transition-duration);
+	--log-transition-timing-function: var(--surface-role-glow-transition-timing-function);
+	--log-gradient: var(--surface-role-glow-gradient);
+	--log-font-weight: var(--surface-role-glow-font-weight);
+	--log-letter-spacing: var(--surface-role-glow-letter-spacing);
+}
+
+[data-kind="log"][data-slot="root"][data-variant="muted"] {
+	--log-background-color: var(--surface-role-muted-background-color);
+	--log-box-shadow: var(--surface-role-muted-box-shadow);
+	--log-color: var(--surface-role-muted-color);
+	--log-border-color: var(--surface-role-muted-border-color);
+	--log-opacity: var(--surface-role-muted-opacity);
+	--log-animation: var(--surface-role-muted-animation);
+	--log-transition-duration: var(--surface-role-muted-transition-duration);
+	--log-transition-timing-function: var(--surface-role-muted-transition-timing-function);
+	--log-gradient: var(--surface-role-muted-gradient);
+	--log-font-weight: var(--surface-role-muted-font-weight);
+	--log-letter-spacing: var(--surface-role-muted-letter-spacing);
+}
+
+[data-kind="log"][data-slot="line"] {
+	--log-line-border-bottom: var(--border-width-hairline) solid var(--border-subtle);
+	border-bottom: var(--log-line-border-bottom);
+}
+
+[data-kind="log"][data-slot="time"] {
+	--log-time-color: var(--text-muted);
+	color: var(--log-time-color);
+}
+
+[data-kind="log"][data-slot="source"] {
+	--log-source-color: var(--text-secondary);
+	color: var(--log-source-color);
+}
+
+[data-kind="log"][data-slot="level"] {
+	--log-level-font-weight: 600;
+	font-weight: var(--log-level-font-weight);
+}
+
+[data-kind="log"][data-slot="level"][data-tone="error"] {
+	--log-level-color: var(--signal-error);
+	color: var(--log-level-color);
+}
+
+[data-kind="log"][data-slot="level"][data-tone="warning"] {
+	--log-level-color: var(--signal-warning);
+	color: var(--log-level-color);
+}
+
+[data-kind="log"][data-slot="level"][data-tone="info"] {
+	--log-level-color: var(--signal-info);
+	color: var(--log-level-color);
+}
+
+[data-kind="log"][data-slot="level"][data-tone="muted"] {
+	--log-level-color: var(--text-muted);
+	color: var(--log-level-color);
+}
