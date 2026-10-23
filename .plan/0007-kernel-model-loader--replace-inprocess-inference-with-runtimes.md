@@ -228,6 +228,55 @@ Plan 0001 is amended on approval: its `onboarding/runtimes/` folder is
 dropped — onboarding's reconcile decides the desired state, the kernel
 runtime adapter runs it through the engine facade.
 
+### Stage 1b — the model loader takes its paths from the config
+
+Owner, 2026-10-23: "get it properly writing to the .userdata inside the
+folder … you clearly misunderstood about local and ignored the logical
+configurational endpoints which would even support running locally."
+
+The endpoints already exist. They are:
+
+- `config/platform/00-portable.toml` keeps all data in `.userdata/`.
+- `config/platform/services/system/model-loader.toml` sets `models_dir = "models"`, relative to that data dir.
+- In dev the data dir is `<repo>/.userdata`, so the config works locally as it stands.
+
+The code ignores those endpoints in two places:
+
+- **Models folder.** The engine's resolver tries `<exe_dir>/models`, then
+  `<repo>/models` found by walking up to `Cargo.toml`, and only then the
+  config. In dev it returns `<repo>/models`
+  ([config/loader.rs:1210-1247](../systems/devpulse-engine/src/platform/config/loader.rs#L1210-L1247)).
+  So downloads and `registry.json` land in the repo root.
+- **User-data folder.** The kernel takes the user-data dir to be
+  `models_dir.parent()`
+  ([service.rs:279](../kernel/model-loader/src/service.rs#L279)) instead of
+  the engine's `data_dir`. That puts slot links in `<repo>/slots/`, and
+  would put `assistant.toml`, voice clones and the HF token file
+  (`Secrets::path_for`, also `models_dir.parent()`) in the repo root too.
+
+There are two smaller copies of the same habit:
+
+- The speech service hardcodes `<data>/models/sherpa`
+  ([sherpa_streaming.rs:128](../systems/devpulse-engine/src/platform/services/sherpa_streaming.rs#L128)).
+- The xtask manifest backfill defaults to `<repo>/models`
+  ([model_manifest_backfill.rs:62](../xtask/src/commands/model_manifest_backfill.rs#L62)).
+
+| # | Outcome | Files | Verification |
+| --- | --- | --- | --- |
+| 1b.1 | Kernel gets the data dir from the engine: `ModelLoaderService::new(…, userdata_dir, models_dir, …)`; secrets file at `{userdata}/secrets.toml` | `model-loader/src/service.rs`, `models/secrets.rs`, `tests/real_loader_smoke.rs`, engine `services/model_loader.rs` | `cargo check` + tests model-loader; engine check |
+| 1b.2 | Models folder = the configured path (relative → data dir, absolute as given); no exe/repo probing; the speech store is `<models>/sherpa` from the same resolution | engine `config/loader.rs` (+ tests), `boot/model_loader.rs`, `platform/mod.rs`, `services/sherpa_streaming.rs` | engine tests; boot log shows `models_dir = …\.userdata\models` |
+| 1b.3 | xtask backfill reads the same config key | `xtask/src/commands/model_manifest_backfill.rs` | `cargo check -p xtask` |
+| 1b.4 | Data moved in, app stopped: `models/{registry.json,unsloth}` → `.userdata/models/`. Registry ids come from paths, so the move invalidates the two saved picks (chat.brain and minion.shared → Qwen3-30B); they are re-picked through the app's own assign command. Then the dangling repo-root `slots/` is removed | no code | live: models list shows Qwen3-30B; `.userdata/slots/{chat.brain,minion.shared}/model.gguf` exist; nothing new in the repo root |
+
+Not touched without your OK:
+
+- `models/general/.keep` is tracked, and `.gitignore`'s `models/*` lines keep that skeleton. Neither has a use once 1b.2 lands.
+
+Found during this stage, proposed next:
+
+- A registry id is a UUID of the model file's **absolute** path ([discovery.rs:1015](../kernel/model-loader/src/models/discovery.rs#L1015)), and `registry.json` stores absolute paths. Moving the DevPulse folder therefore drops every slot pick. Proposed fix: identity from the path relative to the models folder.
+- Discovery also scans the Hugging Face cache in the user profile ([registry.rs:171](../kernel/model-loader/src/models/registry.rs#L171)), which is outside the DevPulse folder. Proposed fix: make it a configured extra source rather than a built-in default.
+
 ## Decisions
 
 Owner, 2026-10-12:

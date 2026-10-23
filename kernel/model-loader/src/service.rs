@@ -74,13 +74,17 @@ pub(crate) struct ConfigState {
     pub(crate) assistant: AssistantConfig,
     pub(crate) secrets: Secrets,
     pub(crate) downloads: DownloadManager,
-    pub(crate) userdata_dir: PathBuf,
     pub(crate) has_assignments: bool,
     pub(crate) setup_complete: bool,
 }
 
 /// Read-only after boot — no lock needed.
 pub(crate) struct BootState {
+    /// The data dir the engine resolved (`.userdata/` in the `DevPulse`
+    /// folder). Slot links, `config/*.toml` overrides, voice clones and
+    /// the secrets file live under it.
+    pub(crate) userdata_dir: PathBuf,
+    /// The configured models folder; downloads and the registry live here.
     pub(crate) models_dir: PathBuf,
     pub(crate) events: Arc<dyn LoaderEventSink>,
     pub(crate) presets: Vec<crate::hardware::presets::PresetBlueprint>,
@@ -228,7 +232,10 @@ impl ModelLoaderService {
 
     /// Create a new service instance.
     ///
-    /// `models_dir` is where GGUF/SafeTensors files live.
+    /// `userdata_dir` is the data dir the engine resolved from the config
+    /// (`.userdata/` in the `DevPulse` folder); `models_dir` is the configured
+    /// models folder, where GGUF/SafeTensors files live. Both come from the
+    /// caller — neither is derived from the other.
     /// `subdirs` defines subdirectory names for model discovery.
     /// `presets` is the cached preset catalog loaded at boot.
     ///
@@ -244,6 +251,7 @@ impl ModelLoaderService {
     pub fn new(
         config: Box<dyn ConfigBackend>,
         events: Arc<dyn LoaderEventSink>,
+        userdata_dir: PathBuf,
         models_dir: PathBuf,
         subdirs: Vec<String>,
         presets: Vec<crate::hardware::presets::PresetBlueprint>,
@@ -270,15 +278,12 @@ impl ModelLoaderService {
 
         let mut downloads = DownloadManager::new(models_dir.clone());
 
-        let secrets = Secrets::load(&models_dir).unwrap_or_else(|e| {
+        let secrets = Secrets::load(&userdata_dir).unwrap_or_else(|e| {
             tracing::warn!(error = %e, "Failed to load secrets — continuing without stored HF token");
             Secrets::default()
         });
         downloads.set_hf_token(secrets.hf_token().map(String::from));
 
-        let userdata_dir = models_dir
-            .parent()
-            .map_or_else(|| models_dir.clone(), std::path::Path::to_path_buf);
         let assistant = AssistantConfig::load(&userdata_dir).unwrap_or_else(|e| {
             tracing::warn!(
                 target: "assistant",
@@ -318,11 +323,11 @@ impl ModelLoaderService {
                 assistant,
                 secrets,
                 downloads,
-                userdata_dir,
                 has_assignments,
                 setup_complete,
             })),
             boot: Arc::new(BootState {
+                userdata_dir,
                 models_dir,
                 events,
                 presets,
@@ -735,17 +740,7 @@ impl ModelLoaderService {
 
     /// Voice custom directory.
     pub fn voice_custom_dir(&self) -> PathBuf {
-        // userdata_dir is behind config lock but models_dir is boot state
-        // voice custom is always {userdata}/voice/custom/ — derive from models_dir parent
-        self.boot
-            .models_dir
-            .parent()
-            .map_or_else(
-                || self.boot.models_dir.clone(),
-                std::path::Path::to_path_buf,
-            )
-            .join("voice")
-            .join("custom")
+        self.boot.userdata_dir.join("voice").join("custom")
     }
 
     // ── Registry write (scan) — only registry lock ────────────
@@ -858,7 +853,7 @@ impl ModelLoaderService {
         // the event stream for live cortex-tile state; tracing is the
         // log-replay/telemetry axis.
         let link_path = match crate::slots::symlink::assign(
-            &cfg.userdata_dir,
+            &self.boot.userdata_dir,
             slot_id,
             entry_format,
             &entry_path,
@@ -983,7 +978,7 @@ impl ModelLoaderService {
         // unassign returns. Symlink is the load-bearing artifact
         // ([[engine-per-model-assignment]]); leaving it would falsely
         // tell every caller the slot is still armed.
-        crate::slots::symlink::unassign(&cfg.userdata_dir, slot_id)?;
+        crate::slots::symlink::unassign(&self.boot.userdata_dir, slot_id)?;
 
         if let Some(s) = cfg.slots.get_slot_mut(slot_id) {
             s.assigned_model = None;
@@ -1013,10 +1008,7 @@ impl ModelLoaderService {
                     key: "slot.*".to_string(),
                     reason: e.to_string(),
                 })?;
-        // Snapshot the path field once so the reconcile branch below can
-        // call into the symlink layer without re-borrowing `cfg` while
-        // `cfg.slots.get_slot_mut(...)` holds it mutably.
-        let userdata_dir = cfg.userdata_dir.clone();
+        let userdata_dir = &self.boot.userdata_dir;
 
         for (key, model_id) in persisted {
             // `.model` here is the config-key suffix `slot.<id>.model`,
@@ -1045,13 +1037,13 @@ impl ModelLoaderService {
                             // keeps the runtime contract intact without
                             // forcing the customer to re-hit Save.
                             let symlink_target = crate::slots::symlink::symlink_path(
-                                &userdata_dir,
+                                userdata_dir,
                                 slot_id,
                                 entry.format,
                             );
                             if !symlink_target.exists() {
                                 if let Err(e) = crate::slots::symlink::assign(
-                                    &userdata_dir,
+                                    userdata_dir,
                                     slot_id,
                                     entry.format,
                                     &entry.path,
@@ -1152,9 +1144,8 @@ impl ModelLoaderService {
     /// IO error).
     pub async fn set_assistant_name(&self, name: String) -> Result<(), LoaderError> {
         let mut cfg = self.config.write().await;
-        let dir = cfg.userdata_dir.clone();
         cfg.assistant
-            .set_name(&dir, name)
+            .set_name(&self.boot.userdata_dir, name)
             .map_err(|e| LoaderError::Internal {
                 message: format!("Failed to persist assistant name: {e}"),
             })
@@ -1166,9 +1157,8 @@ impl ModelLoaderService {
     /// [`LoaderError::Internal`] on assistant config persist failure.
     pub async fn set_wake_phrase(&self, phrase: String) -> Result<(), LoaderError> {
         let mut cfg = self.config.write().await;
-        let dir = cfg.userdata_dir.clone();
         cfg.assistant
-            .set_wake_phrase(&dir, phrase)
+            .set_wake_phrase(&self.boot.userdata_dir, phrase)
             .map_err(|e| LoaderError::Internal {
                 message: format!("Failed to persist wake phrase: {e}"),
             })
@@ -1180,9 +1170,8 @@ impl ModelLoaderService {
     /// [`LoaderError::Internal`] on assistant config persist failure.
     pub async fn set_wake_enabled(&self, enabled: bool) -> Result<(), LoaderError> {
         let mut cfg = self.config.write().await;
-        let dir = cfg.userdata_dir.clone();
         cfg.assistant
-            .set_wake_enabled(&dir, enabled)
+            .set_wake_enabled(&self.boot.userdata_dir, enabled)
             .map_err(|e| LoaderError::Internal {
                 message: format!("Failed to persist wake enabled: {e}"),
             })
@@ -1194,9 +1183,8 @@ impl ModelLoaderService {
     /// [`LoaderError::Internal`] on assistant config persist failure.
     pub async fn set_voice_brain_24_7(&self, enabled: bool) -> Result<(), LoaderError> {
         let mut cfg = self.config.write().await;
-        let dir = cfg.userdata_dir.clone();
         cfg.assistant
-            .set_voice_brain_24_7(&dir, enabled)
+            .set_voice_brain_24_7(&self.boot.userdata_dir, enabled)
             .map_err(|e| LoaderError::Internal {
                 message: format!("Failed to persist voice brain: {e}"),
             })
@@ -1208,9 +1196,8 @@ impl ModelLoaderService {
     /// [`LoaderError::Internal`] on assistant config persist failure.
     pub async fn set_voice_profile(&self, profile: String) -> Result<(), LoaderError> {
         let mut cfg = self.config.write().await;
-        let dir = cfg.userdata_dir.clone();
         cfg.assistant
-            .set_voice_profile(&dir, profile)
+            .set_voice_profile(&self.boot.userdata_dir, profile)
             .map_err(|e| LoaderError::Internal {
                 message: format!("Failed to persist voice profile: {e}"),
             })
@@ -1222,9 +1209,8 @@ impl ModelLoaderService {
     /// [`LoaderError::Internal`] on assistant config persist failure.
     pub async fn set_routing_mode(&self, mode: String) -> Result<(), LoaderError> {
         let mut cfg = self.config.write().await;
-        let dir = cfg.userdata_dir.clone();
         cfg.assistant
-            .set_routing_mode(&dir, &mode)
+            .set_routing_mode(&self.boot.userdata_dir, &mode)
             .map_err(|e| LoaderError::Internal {
                 message: format!("Failed to persist routing mode: {e}"),
             })
@@ -1244,9 +1230,8 @@ impl ModelLoaderService {
     pub async fn register_voice_clone(&self, entry: VoiceCloneEntry) -> Result<(), LoaderError> {
         let snapshot = {
             let mut cfg = self.config.write().await;
-            let dir = cfg.userdata_dir.clone();
             cfg.assistant
-                .register_voice_clone(&dir, entry)
+                .register_voice_clone(&self.boot.userdata_dir, entry)
                 .map_err(|e| LoaderError::Internal {
                     message: format!("Failed to register voice clone: {e}"),
                 })?;
@@ -1265,9 +1250,8 @@ impl ModelLoaderService {
     pub async fn remove_voice_clone(&self, name: &str) -> Result<(), LoaderError> {
         let snapshot = {
             let mut cfg = self.config.write().await;
-            let dir = cfg.userdata_dir.clone();
             cfg.assistant
-                .remove_voice_clone(&dir, name)
+                .remove_voice_clone(&self.boot.userdata_dir, name)
                 .map_err(|e| LoaderError::Internal {
                     message: format!("Failed to remove voice clone: {e}"),
                 })?;
@@ -1390,9 +1374,8 @@ impl ModelLoaderService {
     /// [`LoaderError::Internal`] on assistant config persist failure.
     pub async fn add_keyword_action(&self, entry: KeywordActionEntry) -> Result<(), LoaderError> {
         let mut cfg = self.config.write().await;
-        let dir = cfg.userdata_dir.clone();
         cfg.assistant
-            .add_keyword_action(&dir, entry)
+            .add_keyword_action(&self.boot.userdata_dir, entry)
             .map_err(|e| LoaderError::Internal {
                 message: format!("Failed to persist keyword action: {e}"),
             })
@@ -1405,9 +1388,8 @@ impl ModelLoaderService {
     /// assistant config persist fails.
     pub async fn remove_keyword_action(&self, phrase: &str) -> Result<(), LoaderError> {
         let mut cfg = self.config.write().await;
-        let dir = cfg.userdata_dir.clone();
         cfg.assistant
-            .remove_keyword_action(&dir, phrase)
+            .remove_keyword_action(&self.boot.userdata_dir, phrase)
             .map_err(|e| LoaderError::Internal {
                 message: format!("Failed to remove keyword action: {e}"),
             })
@@ -1424,9 +1406,8 @@ impl ModelLoaderService {
         new_entry: KeywordActionEntry,
     ) -> Result<(), LoaderError> {
         let mut cfg = self.config.write().await;
-        let dir = cfg.userdata_dir.clone();
         cfg.assistant
-            .update_keyword_action(&dir, phrase, new_entry)
+            .update_keyword_action(&self.boot.userdata_dir, phrase, new_entry)
             .map_err(|e| LoaderError::Internal {
                 message: format!("Failed to update keyword action: {e}"),
             })
@@ -1438,9 +1419,8 @@ impl ModelLoaderService {
     /// [`LoaderError::Internal`] on assistant config persist failure.
     pub async fn set_idle_timeout(&self, secs: u32) -> Result<(), LoaderError> {
         let mut cfg = self.config.write().await;
-        let dir = cfg.userdata_dir.clone();
         cfg.assistant
-            .set_idle_timeout(&dir, secs)
+            .set_idle_timeout(&self.boot.userdata_dir, secs)
             .map_err(|e| LoaderError::Internal {
                 message: format!("Failed to persist idle timeout: {e}"),
             })
@@ -1452,9 +1432,8 @@ impl ModelLoaderService {
     /// [`LoaderError::Internal`] on assistant config persist failure.
     pub async fn set_brain_ngl(&self, ngl: i32) -> Result<(), LoaderError> {
         let mut cfg = self.config.write().await;
-        let dir = cfg.userdata_dir.clone();
         cfg.assistant
-            .set_brain_ngl(&dir, ngl)
+            .set_brain_ngl(&self.boot.userdata_dir, ngl)
             .map_err(|e| LoaderError::Internal {
                 message: format!("Failed to persist brain ngl: {e}"),
             })
@@ -1466,12 +1445,12 @@ impl ModelLoaderService {
     ///
     /// # Errors
     /// [`LoaderError::Internal`] if the secrets store can't be written
-    /// (typically when `{models_dir}/secrets.toml` isn't writable).
+    /// (typically when `{userdata}/secrets.toml` isn't writable).
     pub async fn set_hf_token(&self, token: Option<String>) -> Result<(), LoaderError> {
         let mut cfg = self.config.write().await;
         cfg.secrets.set_hf_token(token);
         cfg.secrets
-            .save(&self.boot.models_dir)
+            .save(&self.boot.userdata_dir)
             .map_err(|e| LoaderError::Internal {
                 message: format!("Failed to persist HF token: {e}"),
             })?;
@@ -1847,20 +1826,18 @@ impl ModelLoaderService {
         // opens is the symlink path. That's what makes the slot
         // discoverable on disk by every consumer without needing to
         // query the loader.
-        let model_path =
-            crate::slots::symlink::resolve(&cfg.userdata_dir, slot_id).ok_or_else(|| {
-                LoaderError::ModelFileMissing {
-                    path: crate::slots::symlink::symlink_path(
-                        &cfg.userdata_dir,
-                        slot_id,
-                        entry.format,
-                    ),
-                    slot_id: Some(slot_id.to_string()),
-                    can_redownload: matches!(
-                        entry.source,
-                        crate::models::registry::ModelSource::HuggingFace { .. }
-                    ),
-                }
+        let model_path = crate::slots::symlink::resolve(&self.boot.userdata_dir, slot_id)
+            .ok_or_else(|| LoaderError::ModelFileMissing {
+                path: crate::slots::symlink::symlink_path(
+                    &self.boot.userdata_dir,
+                    slot_id,
+                    entry.format,
+                ),
+                slot_id: Some(slot_id.to_string()),
+                can_redownload: matches!(
+                    entry.source,
+                    crate::models::registry::ModelSource::HuggingFace { .. }
+                ),
             })?;
 
         if !model_path.exists() {
@@ -2000,17 +1977,15 @@ impl ModelLoaderService {
         // Symlink-first resolution — see [[engine-per-model-assignment]].
         // Registry entry stays as the metadata source; symlink target
         // is what the backend actually opens.
-        let model_path =
-            crate::slots::symlink::resolve(&cfg.userdata_dir, slot_id).ok_or_else(|| {
-                LoaderError::ModelFileMissing {
-                    path: crate::slots::symlink::symlink_path(
-                        &cfg.userdata_dir,
-                        slot_id,
-                        entry.format,
-                    ),
-                    slot_id: Some(slot_id.to_string()),
-                    can_redownload: false,
-                }
+        let model_path = crate::slots::symlink::resolve(&self.boot.userdata_dir, slot_id)
+            .ok_or_else(|| LoaderError::ModelFileMissing {
+                path: crate::slots::symlink::symlink_path(
+                    &self.boot.userdata_dir,
+                    slot_id,
+                    entry.format,
+                ),
+                slot_id: Some(slot_id.to_string()),
+                can_redownload: false,
             })?;
         if !model_path.exists() {
             return Err(LoaderError::ModelFileMissing {
@@ -2970,7 +2945,8 @@ mod tests {
         ModelLoaderService::new(
             Box::new(MemoryConfig::new()),
             Arc::new(NullEventSink),
-            tmp,
+            tmp.clone(),
+            tmp.join("models"),
             vec!["voice".to_string()],
             Vec::new(),
             None, // no burn adapter in tests — Burn dispatch returns a clear error

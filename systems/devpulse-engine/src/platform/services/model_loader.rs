@@ -110,10 +110,12 @@ impl ModelLoaderService {
 
         // `Inner::new()` returns a Clone-able service (all fields Arc).
         // We wrap in Arc for engine-side sharing but the kernel already
-        // manages per-sub-struct locking internally.
+        // manages per-sub-struct locking internally. The kernel gets the
+        // data dir itself — slot links, overrides and secrets live there.
         let service = Inner::new(
             config,
             events,
+            data_dir.to_path_buf(),
             models_dir,
             subdirs,
             presets,

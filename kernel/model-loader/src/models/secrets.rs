@@ -1,11 +1,12 @@
 //! User-scoped secrets store — currently carries the `HuggingFace` access
 //! token used by the download manager and HF search. Kept in a tiny
-//! TOML file alongside the model registry so downloads pick it up
+//! TOML file in the data dir — beside, not inside, the models folder, so
+//! rotating the registry never wipes credentials — and downloads pick it up
 //! without touching the keychain.
 //!
 //! File layout:
 //! ```toml
-//! # {models_dir}/../secrets.toml
+//! # {userdata}/secrets.toml
 //! hf_token = "hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 //! ```
 //!
@@ -32,15 +33,10 @@ pub struct Secrets {
 }
 
 impl Secrets {
-    /// Compute the secrets file path given the models directory.
-    ///
-    /// Stored one level up from `models_dir` so rotating the registry
-    /// doesn't accidentally wipe credentials.
-    pub fn path_for(models_dir: &Path) -> PathBuf {
-        models_dir
-            .parent()
-            .map_or_else(|| models_dir.to_path_buf(), Path::to_path_buf)
-            .join(SECRETS_FILENAME)
+    /// The secrets file in the data dir the engine resolved
+    /// (`{userdata}/secrets.toml`).
+    pub fn path_for(userdata_dir: &Path) -> PathBuf {
+        userdata_dir.join(SECRETS_FILENAME)
     }
 
     /// Load secrets from disk. Missing file returns an empty store
@@ -51,8 +47,8 @@ impl Secrets {
     /// Returns an error if the secrets file exists but cannot be read
     /// (permission denied, IO failure) or if the TOML body fails to
     /// parse (malformed file, schema mismatch).
-    pub fn load(models_dir: &Path) -> anyhow::Result<Self> {
-        let path = Self::path_for(models_dir);
+    pub fn load(userdata_dir: &Path) -> anyhow::Result<Self> {
+        let path = Self::path_for(userdata_dir);
         if !path.exists() {
             return Ok(Self::default());
         }
@@ -72,8 +68,8 @@ impl Secrets {
     /// TOML serialization fails, if writing the file fails (disk full,
     /// permission denied), or — on Unix — if reading or applying the
     /// `0o600` permission mode fails.
-    pub fn save(&self, models_dir: &Path) -> anyhow::Result<()> {
-        let path = Self::path_for(models_dir);
+    pub fn save(&self, userdata_dir: &Path) -> anyhow::Result<()> {
+        let path = Self::path_for(userdata_dir);
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent)?;
         }
@@ -127,21 +123,21 @@ mod tests {
     fn secrets_round_trip() {
         let tmp =
             std::env::temp_dir().join(format!("devpulse-secrets-test-{}", std::process::id()));
-        let models_dir = tmp.join("models");
-        std::fs::create_dir_all(&models_dir).unwrap();
+        let userdata_dir = tmp.join(".userdata");
 
         let mut s = Secrets::default();
         assert!(!s.has_hf_token());
         s.set_hf_token(Some("hf_test_token_value".into()));
-        s.save(&models_dir).unwrap();
+        s.save(&userdata_dir).unwrap();
+        assert!(userdata_dir.join("secrets.toml").is_file());
 
-        let loaded = Secrets::load(&models_dir).unwrap();
+        let loaded = Secrets::load(&userdata_dir).unwrap();
         assert_eq!(loaded.hf_token(), Some("hf_test_token_value"));
 
         let mut cleared = loaded.clone();
         cleared.set_hf_token(None);
-        cleared.save(&models_dir).unwrap();
-        let reloaded = Secrets::load(&models_dir).unwrap();
+        cleared.save(&userdata_dir).unwrap();
+        let reloaded = Secrets::load(&userdata_dir).unwrap();
         assert!(!reloaded.has_hf_token());
 
         let _ = std::fs::remove_dir_all(&tmp);

@@ -69,11 +69,13 @@
 //!   --test real_loader_smoke -- --nocapture
 //! ```
 //!
-//! The test path resolves `.userdata/models/` by walking up from
-//! `CARGO_MANIFEST_DIR`, so it works from any shell without needing
-//! an env var. If the directory doesn't exist, every step past #1
-//! emits `SKIP` rather than `FAIL` — a missing portable `.userdata`
-//! is not the same as a broken loader and shouldn't trip the red.
+//! The test reads the checkout's data dir, `<workspace>/.userdata`, and
+//! its models folder `.userdata/models/` — the shipped `models_dir =
+//! "models"` (`config/platform/services/system/model-loader.toml`). What
+//! the service writes (slot links) goes to a fresh temp data dir, never
+//! into your `.userdata`. If the models folder doesn't exist, every step
+//! past #1 emits `SKIP` rather than `FAIL` — a missing portable
+//! `.userdata` is not the same as a broken loader and shouldn't trip the red.
 
 #![cfg(feature = "candle-backend")]
 
@@ -86,27 +88,16 @@ use std::sync::Arc;
 
 // ── Shared ────────────────────────────────────────────────────
 
-/// Resolve the models directory by walking up from the crate's manifest dir.
-///
-/// Checks two locations (dev mode first, then portable):
-/// 1. `<workspace>/models/` — dev mode, models at repo root
-/// 2. `<workspace>/.userdata/models/` — portable release layout
-fn resolve_models_dir() -> PathBuf {
+/// The checkout's data dir, `<workspace>/.userdata` — the same folder the
+/// app resolves in dev. Its `config/*.toml` overrides are read from here.
+fn checkout_data_dir() -> PathBuf {
     let manifest = Path::new(env!("CARGO_MANIFEST_DIR"));
     // kernel/model-loader/ → workspace root is two parents up.
     let workspace = manifest
         .parent()
         .and_then(|p| p.parent())
         .unwrap_or(manifest);
-
-    // Dev mode: models/ at repo root (where the actual files live during development)
-    let dev_path = workspace.join("models");
-    if dev_path.exists() {
-        return dev_path;
-    }
-
-    // Portable: .userdata/models/ (release layout)
-    workspace.join(".userdata").join("models")
+    workspace.join(".userdata")
 }
 
 /// A discarding event sink so the service has something to talk to
@@ -184,7 +175,8 @@ fn step1_kernel_ssot_configs_load() {
 /// service state.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn steps_2_through_6_real_disk() {
-    let models_dir = resolve_models_dir();
+    let data_dir = checkout_data_dir();
+    let models_dir = data_dir.join("models");
 
     if !models_dir.exists() {
         log_step(
@@ -198,13 +190,18 @@ async fn steps_2_through_6_real_disk() {
     }
     println!("[real_loader_smoke] models_dir = {}", models_dir.display());
 
-    // Build a real service pointing at the real directory. MemoryConfig
+    // Build a real service pointing at the real models folder. MemoryConfig
     // means assignments are held in RAM for the duration of the test —
-    // we don't persist anything to Turso from here.
-    let presets = load_default_presets(&models_dir).unwrap_or_default();
+    // we don't persist anything to Turso from here — and the service's data
+    // dir is a fresh temp folder, so the slot links it lays down never land
+    // in your `.userdata`.
+    let scratch_data_dir =
+        std::env::temp_dir().join(format!("devpulse-smoke-{}", std::process::id()));
+    let presets = load_default_presets(&data_dir).unwrap_or_default();
     let service = ModelLoaderService::new(
         Box::new(MemoryConfig::new()),
         Arc::new(NullSink),
+        scratch_data_dir.clone(),
         models_dir.clone(),
         vec![
             "chat".to_string(),
@@ -218,7 +215,7 @@ async fn steps_2_through_6_real_disk() {
     .expect("service construction must not fail with a real models dir");
 
     // Register the baseline slot set so auto_assign has targets.
-    let slots = load_default_slots(&models_dir).expect("slots.default.toml must parse");
+    let slots = load_default_slots(&data_dir).expect("slots.default.toml must parse");
     service
         .register_slots(slots)
         .await
@@ -548,6 +545,9 @@ async fn steps_2_through_6_real_disk() {
             }
         }
     }
+
+    // The temp data dir only ever held this run's slot links.
+    let _ = std::fs::remove_dir_all(&scratch_data_dir);
 
     // ── Final report ──────────────────────────────────────────
     //
