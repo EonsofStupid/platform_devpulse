@@ -768,7 +768,12 @@ Causes found:
 - The field error is polite (primitive spec and `useField`) over the anatomy's "assertive"; the anatomy text is corrected.
 - Prose typography comes from a `prose.tokens.json` with child-element rules (Tailwind = layout only), not the typography plugin.
 
-**For the owner:** the controlled-state model (C7); ToggleGroup's root role (`toolbar` vs `group`); Callout's parts; Heading's `aria-level` on native h1–h6 (spec lists it, anatomy says conditional).
+**Owner, 2026-10-22:**
+
+- Controlled state is `value` / `defaultValue` / `on…Change` (React Aria's model, as `useDisclosure` does).
+- ToggleGroup's root is `group`, with `data-orientation` and no `aria-orientation`; the anatomy is corrected.
+- Callout gains icon and content parts, with `role="note"` on the root.
+- Headings keep their native level: `aria-level`, with `role="heading"`, only when rendered as another element. The spec's enforcement becomes conditional.
 
 ## Phases (approval between each)
 
