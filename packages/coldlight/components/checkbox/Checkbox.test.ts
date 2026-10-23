@@ -11,7 +11,7 @@
  * Setup:  vitest-browser-svelte
  */
 
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { render } from "vitest-browser-svelte";
 import Checkbox from "./Checkbox.svelte";
 
@@ -23,7 +23,7 @@ describe("checkbox component — ARIA", () => {
 	test("has role='checkbox'", async () => {
 		const { getByRole } = render(Checkbox);
 		const el = getByRole("checkbox");
-		expect(el).toBeTruthy();
+		await expect.element(el).toBeInTheDocument();
 	});
 
 	test("aria-checked is 'false' by default", async () => {
@@ -44,10 +44,11 @@ describe("checkbox component — ARIA", () => {
 		await expect.element(el).toHaveAttribute("aria-checked", "mixed");
 	});
 
-	test("checked takes precedence over indeterminate for aria-checked", async () => {
+	// HTML's :indeterminate and React Aria's isIndeterminate: mixed wins while it is set.
+	test("indeterminate takes precedence over checked for aria-checked", async () => {
 		const { getByRole } = render(Checkbox, { props: { checked: true, indeterminate: true } });
 		const el = getByRole("checkbox");
-		await expect.element(el).toHaveAttribute("aria-checked", "true");
+		await expect.element(el).toHaveAttribute("aria-checked", "mixed");
 	});
 
 	test("aria-disabled is set when disabled", async () => {
@@ -86,10 +87,50 @@ describe("checkbox component — data-state", () => {
 		await expect.element(el).toHaveAttribute("data-state", "indeterminate");
 	});
 
-	test("data-state is 'disabled' when disabled", async () => {
+	test("disabled is its own attribute; data-state stays the checked state", async () => {
 		const { getByRole } = render(Checkbox, { props: { disabled: true } });
 		const el = getByRole("checkbox");
-		await expect.element(el).toHaveAttribute("data-state", "disabled");
+		await expect.element(el).toHaveAttribute("data-disabled", "");
+		await expect.element(el).toHaveAttribute("data-state", "unchecked");
+	});
+});
+
+// =============================================================================
+// CONTROLLED AND UNCONTROLLED STATE
+// =============================================================================
+
+describe("checkbox component — controlled and uncontrolled state", () => {
+	test("uncontrolled: starts from defaultChecked and toggles itself", async () => {
+		const onCheckedChange = vi.fn();
+		const { getByRole } = render(Checkbox, { props: { defaultChecked: true, onCheckedChange } });
+		const el = getByRole("checkbox");
+		await el.click();
+		await expect.element(el).toHaveAttribute("aria-checked", "false");
+		expect(onCheckedChange).toHaveBeenCalledWith(false);
+	});
+
+	test("a click on an indeterminate checkbox clears it and checks", async () => {
+		const onIndeterminateChange = vi.fn();
+		const { getByRole } = render(Checkbox, {
+			props: { defaultIndeterminate: true, onIndeterminateChange },
+		});
+		const el = getByRole("checkbox");
+		await el.click();
+		await expect.element(el).toHaveAttribute("aria-checked", "true");
+		expect(onIndeterminateChange).toHaveBeenCalledWith(false);
+	});
+
+	test("controlled: follows checked; a click only asks the owner", async () => {
+		const onCheckedChange = vi.fn();
+		const { getByRole, rerender } = render(Checkbox, {
+			props: { checked: false, onCheckedChange },
+		});
+		const el = getByRole("checkbox");
+		await el.click();
+		expect(onCheckedChange).toHaveBeenCalledWith(true);
+		await expect.element(el).toHaveAttribute("aria-checked", "false");
+		await rerender({ checked: true });
+		await expect.element(el).toHaveAttribute("aria-checked", "true");
 	});
 });
 

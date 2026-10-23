@@ -37,26 +37,37 @@ const SIZE: Record<CheckboxSize, string> = {
 let {
 	preset = "default",
 	size = "md",
-	checked = false,
-	indeterminate = false,
+	checked,
+	defaultChecked,
+	indeterminate,
+	defaultIndeterminate,
 	disabled = false,
 	onCheckedChange,
+	onIndeterminateChange,
 	children,
 	class: className,
 	...rest
 }: CheckboxProps = $props();
 
+// Controlled when `checked` / `indeterminate` are given, otherwise the checkbox holds them.
 const checkbox = useCheckbox({
 	get checked() {
 		return checked;
 	},
+	get defaultChecked() {
+		return defaultChecked;
+	},
 	get indeterminate() {
 		return indeterminate;
+	},
+	get defaultIndeterminate() {
+		return defaultIndeterminate;
 	},
 	get disabled() {
 		return disabled;
 	},
 	onCheckedChange: (v) => onCheckedChange?.(v),
+	onIndeterminateChange: (v) => onIndeterminateChange?.(v),
 });
 
 const m = $derived(renderForge({ kind: "checkbox", preset }));

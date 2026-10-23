@@ -23,6 +23,7 @@
  * ```
  */
 
+import { controllable } from "../../_internal/utils/controllable.svelte.js";
 import { dataAttr, disabledAttr } from "../../_internal/utils/data-attr.js";
 import { kbd } from "../../_internal/utils/kbd.js";
 import { createIds } from "../../_internal/utils/uid.js";
@@ -32,9 +33,19 @@ import type { CheckboxState, UseCheckboxProps, UseCheckboxReturn } from "./check
 export function useCheckbox(props: UseCheckboxProps = {}): UseCheckboxReturn {
 	const ids = createIds("checkbox", ["root", "indicator", "label"] as const);
 
-	// ── State ────────────────────────────────────────────────────
-	let checked = $state(props.checked ?? false);
-	let indeterminate = $state(props.indeterminate ?? false);
+	// ── State — controlled when the owner passes a value (plan 0006 T2) ─
+	const checkedState = controllable({
+		value: () => props.checked,
+		defaultValue: () => props.defaultChecked ?? false,
+		onChange: (next) => props.onCheckedChange?.(next),
+	});
+	const indeterminateState = controllable({
+		value: () => props.indeterminate,
+		defaultValue: () => props.defaultIndeterminate ?? false,
+		onChange: (next) => props.onIndeterminateChange?.(next),
+	});
+	const checked = $derived(checkedState.current);
+	const indeterminate = $derived(indeterminateState.current);
 	const disabled = $derived(props.disabled ?? false);
 	const required = $derived(props.required ?? false);
 
@@ -48,14 +59,15 @@ export function useCheckbox(props: UseCheckboxProps = {}): UseCheckboxReturn {
 		return checked ? "checked" : "unchecked";
 	}
 
-	function doToggle(): void {
+	/** Ask for a checked state; a user choice always clears indeterminate. */
+	function select(next: boolean): void {
 		if (disabled) return;
-		if (indeterminate) {
-			indeterminate = false;
-			props.onIndeterminateChange?.(false);
-		}
-		checked = !checked;
-		props.onCheckedChange?.(checked);
+		indeterminateState.set(false);
+		checkedState.set(next);
+	}
+
+	function doToggle(): void {
+		select(!checked);
 	}
 
 	// ── Slot attributes ──────────────────────────────────────────
@@ -124,22 +136,10 @@ export function useCheckbox(props: UseCheckboxProps = {}): UseCheckboxReturn {
 		},
 		toggle: doToggle,
 		check() {
-			if (disabled) return;
-			if (indeterminate) {
-				indeterminate = false;
-				props.onIndeterminateChange?.(false);
-			}
-			checked = true;
-			props.onCheckedChange?.(true);
+			select(true);
 		},
 		uncheck() {
-			if (disabled) return;
-			if (indeterminate) {
-				indeterminate = false;
-				props.onIndeterminateChange?.(false);
-			}
-			checked = false;
-			props.onCheckedChange?.(false);
+			select(false);
 		},
 	};
 }

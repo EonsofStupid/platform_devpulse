@@ -3,9 +3,15 @@ import type { HTMLAttributes, HTMLButtonAttributes } from "svelte/elements";
 export type CheckboxState = "checked" | "unchecked" | "indeterminate";
 
 export interface UseCheckboxProps {
+	/** Controlled value; `undefined` leaves the state to the checkbox. */
 	checked?: boolean;
+	/** Starting value when uncontrolled. */
+	defaultChecked?: boolean;
 	onCheckedChange?: (checked: boolean) => void;
+	/** Controlled indeterminate state; `undefined` leaves it to the checkbox. */
 	indeterminate?: boolean;
+	/** Starting indeterminate state when uncontrolled. */
+	defaultIndeterminate?: boolean;
 	onIndeterminateChange?: (indeterminate: boolean) => void;
 	disabled?: boolean;
 	required?: boolean;

@@ -31,13 +31,17 @@ export interface CheckboxRootProps extends Omit<HTMLButtonAttributes, "children"
 	label?: Snippet;
 	/** Additional CSS classes */
 	class?: string;
-	/** Whether the checkbox is checked */
+	/** Whether the checkbox is checked, when the owner controls it; omit to let the checkbox hold it */
 	checked?: boolean;
-	/** Callback when checked state changes */
+	/** Whether the checkbox starts checked, when it holds its state. Default: false */
+	defaultChecked?: boolean;
+	/** Called with every change the user asks for (controlled or not) */
 	onCheckedChange?: (checked: boolean) => void;
-	/** Whether the checkbox is in indeterminate state */
+	/** Whether the checkbox is indeterminate, when the owner controls it */
 	indeterminate?: boolean;
-	/** Callback when indeterminate state changes */
+	/** Whether the checkbox starts indeterminate, when it holds its state. Default: false */
+	defaultIndeterminate?: boolean;
+	/** Called when a click clears the indeterminate state */
 	onIndeterminateChange?: (indeterminate: boolean) => void;
 	/** Disabled state */
 	disabled?: boolean;
@@ -50,12 +54,18 @@ export interface CheckboxPrimitiveProps extends Omit<HTMLButtonAttributes, "chil
 	children?: Snippet;
 	/** Additional CSS classes */
 	class?: string;
-	/** Whether the checkbox is checked */
+	/** Whether the checkbox is checked, when the owner controls it; omit to let the checkbox hold it */
 	checked?: boolean;
-	/** Callback when checked state changes */
+	/** Whether the checkbox starts checked, when it holds its state. Default: false */
+	defaultChecked?: boolean;
+	/** Called with every change the user asks for (controlled or not) */
 	onCheckedChange?: (checked: boolean) => void;
-	/** Whether the checkbox is in indeterminate state (partial selection) */
+	/** Whether the checkbox is indeterminate (partial selection), when the owner controls it */
 	indeterminate?: boolean;
+	/** Whether the checkbox starts indeterminate, when it holds its state. Default: false */
+	defaultIndeterminate?: boolean;
+	/** Called when a click clears the indeterminate state */
+	onIndeterminateChange?: (indeterminate: boolean) => void;
 	/** Disabled state — prevents interaction */
 	disabled?: boolean;
 	/** Required for form validation */
