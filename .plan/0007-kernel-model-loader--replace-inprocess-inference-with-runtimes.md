@@ -9,7 +9,7 @@ touches: [kernel-clyffy, engine, desktop-tauri, desktop-devtools, desktop-models
 status: in-progress
 owner: jesse
 created: 2026-10-11
-updated: 2026-10-21
+updated: 2026-10-23
 supersedes: []
 specs:
   - scripts/docs/specs/MODEL-LOADER-UX-REQUIREMENTS.md
@@ -376,3 +376,23 @@ Owner, 2026-10-13:
   tests model-loader 173 + smoke 2, kernel 85, engine 156 + contract 4,
   process 4; svelte-check 0 errors (app and ColdLight), Biome 560 / 1072,
   arch 18; bindings regenerated.
+- 2026-10-23 — **Stage 1b done: the model loader takes its paths from the
+  config.** Commits `6d26cf24` (1b.1), `12e09902` (1b.2), `209357d4` (1b.3);
+  1b.4 moved the data and was checked live.
+  - The boot log reads `models_dir = …\.userdata\models` and the scan found
+    12 models there. Data dir and models folder are both inside `.userdata`.
+  - The move changed the Qwen3-30B registry id. Boot logged
+    "Stale assignment — clearing" for `chat.brain`, the only saved pick, and
+    it was re-picked through `assign_model_to_slot`. Its link is now
+    `.userdata/slots/chat.brain/model.gguf` → `.userdata/models/unsloth/…`.
+  - `minion.shared` had a link in the repo root but no saved pick. It was
+    likely written by the real-disk smoke test, which used to arm slots
+    under the repo root. It was not re-created.
+  - The two dangling repo-root links and the `slots/` folder are gone.
+    Nothing new appears in the repo root after boot.
+  - Tests: model-loader 170 + smoke 2 + 3; engine resolver 3. Hooks passed
+    on each commit.
+  - Found: the same Qwen3-30B file is also in the Hugging Face cache in your
+    user profile (a second 17 GB copy, outside the folder). The registry
+    lists both. Nothing was deleted; the proposed fix (the cache as a
+    configured source) is in Stage 1b.

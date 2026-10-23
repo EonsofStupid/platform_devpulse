@@ -1739,7 +1739,7 @@ async sherpaCompileInfo() : Promise<Result<SherpaCompileInfo, string>> {
 }
 },
 /**
- * List installed streaming-ASR models under `{data_dir}/models/sherpa/`.
+ * List installed streaming-ASR models under `{models}/sherpa/`.
  */
 async sherpaListModels() : Promise<Result<SherpaInstalledModel[], string>> {
     try {
@@ -1820,7 +1820,7 @@ async sherpaListSessions() : Promise<Result<SherpaSessionInfo[], string>> {
 },
 /**
  * Return the absolute path of the models root
- * (`{data_dir}/models/sherpa/`). The devtool shows this so users
+ * (`{models}/sherpa/`). The devtool shows this so users
  * know where to manually drop model dirs.
  */
 async sherpaModelsDir() : Promise<Result<string, string>> {
@@ -12493,7 +12493,7 @@ enabled: boolean }
  */
 export type SherpaInstalledModel = { 
 /**
- * Directory name (unique id within `{data_dir}/models/sherpa/`).
+ * Directory name (unique id within `{models}/sherpa/`).
  */
 id: string; 
 /**
