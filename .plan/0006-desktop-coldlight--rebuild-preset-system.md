@@ -777,6 +777,39 @@ Causes found:
 - Callout gains icon and content parts, with `role="note"` on the root.
 - Headings keep their native level: `aria-level`, with `role="heading"`, only when rendered as another element. The spec's enforcement becomes conditional.
 
+
+### The log kind (owner 2026-10-23: "ColdLight log kind first")
+
+ColdLight has no log component, so about ten places hand-roll a monospace log view:
+- `DevtoolLogsTab`: the devtools README's own reference, built from divs, inline colours and Tailwind `font-mono`;
+- `ScopedLogPanel`;
+- the TTS, Candle, llama.cpp and DuckDB devtools;
+- the runtimes page;
+- the DevForge dashboard;
+- the Action log (plan 0008 R20b);
+- ColdLight's ChatDashboard.
+
+The owner chose a kind first. The Action log adopts it, and the others move to it as each is touched.
+
+What it has to be:
+- **A live region in reading order.** `role="log"`: new entries only at the end, polite announcements, `aria-atomic` false, and an accessible name required ([MDN, log role](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles/log_role)).
+- **Keyboard-scrollable.** A scrolling region must be reachable by keyboard (WCAG 2.1.1; axe `scrollable-region-focusable`), so the root is `tabindex="0"`.
+- **Following the end.** At the bottom, new lines keep it at the bottom. Once you scroll up it stays put, and it resumes when you return to the bottom. `data-following` says which.
+- **Lines with parts.** Time, level, source, text (the parts `DevtoolLogsTab` draws). A level is a tone on its part: error → `error`, warn → `warning`, info → `info`, debug and trace → `muted`, names ColdLight already uses (status tones; Spinner's `muted`).
+
+What the generator lacks: a kind file gives variants, sizes, tones and states to one part, and other parts only fixed values (`kind-css.mjs`, the `part` section). A log needs both a variant on its panel (the family surface) and a tone per line level. The fix is general, since table cells and list items with a status need it too: **parts take tones**. `part.<slot>.tone.<name>.<property>` becomes `[data-kind][data-slot="<slot>"][data-tone="<name>"]`, with a generated `<KIND>_<SLOT>_TONES` union.
+
+| # | Outcome | Files | Verification |
+| --- | --- | --- | --- |
+| LG1 | Parts take tones in kind files, as above. A tone a part does not declare is refused, as unknown sections and states are today | `interfaces/desktop/scripts/build/styledictionary/kind-css.mjs`, `kind-css.test.mjs` | `node --test` on the generator: a part tone emits its selector and union; existing kinds' CSS byte-identical (token build diff empty) |
+| LG2 | The behaviour: `log.anatomy.ts` and `useLog`. The anatomy has root (`div`, `role="log"`, named, `tabindex="0"`, `data-following`), list (`ol`), line (`li`, repeatable) and time / level / source / text. `useLog` is called once with getters (C11) and follows the end, attached to the root | `behaviors/display/log/{log.anatomy.ts, log.types.ts, use-log.svelte.ts, index.ts}`, display + master barrels | Vitest: the ARIA contract (role, name, tabindex), following, stopping when scrolled up, resuming at the end |
+| LG3 | The component: `Log` with `log.tokens.json`. The panel's variants are family roles, defaulting to the popover's `elevated` look for a raised panel. Mono text is from tokens (`--font-mono`), not Tailwind. Lines have a hairline separator; levels are part tones. Props: `lines` (time, level, source, text), `label`, `variant`, `surface`, `following`, an `empty` snippet. Lines are keyed by id, else position (logs only append) | `components/log/{Log.svelte, log.tokens.json, types.ts, index.ts, Log.test.ts}` (+ generated `log.generated.ts`, `styles/components/kinds/log.css`) | Vitest: anatomy, ARIA, tones per level, empty state, caller attributes (C9/C12); `pnpm check` both packages; token build adds only `log.css` |
+| LG4 | The Action log adopts it (plan 0008 R20b) | see plan 0008 | live |
+
+Later, not in these phases:
+- **Virtualizing long logs.** ColdLight has `behaviors/interaction/virtualizer`. The line cap is a policy value, so it belongs in schema'd config with a floor (owner 2026-10-21).
+- **Each hand-rolled view moves to `Log`** when it is next touched.
+
 ## Phases (approval between each)
 
 *2026-10-22: Phases 1 (type roles, per-kind defaults), 3 (states as attribute

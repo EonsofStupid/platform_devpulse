@@ -17,6 +17,9 @@
  *   <kind>.state.<state>.<property>      hover, active, focus-visible, pressed, selected, open, disabled
  *   <kind>.part.<slot>.<property>        another part of the kind, [data-slot="<slot>"]; its own
  *                                        custom properties `--<kind>-<slot>-<property>`
+ *   <kind>.part.<slot>.tone.<name>.<property>
+ *                                        that part with [data-tone="<name>"] (e.g. a log line's
+ *                                        level); the same custom properties, set per tone
  *
  * Token names are CSS property names; `gradient` means `background-image`.
  * Each becomes the kind's custom property `--<kind>-<property>`, set by its
@@ -117,12 +120,19 @@ function cssValue(token, nameByPath) {
 /** The selector a section's token is set under. */
 function selectorOf(sel, kind, token) {
 	const [, section, name] = token.path;
+	if (section === 'part') {
+		const part = `[data-kind="${kind}"][data-slot="${name}"]`;
+		if (token.path.length === 4) return part;
+		if (token.path.length === 6 && token.path[3] === 'tone') return `${part}[data-tone="${token.path[4]}"]`;
+		throw new Error(
+			`${token.path.join('.')}: a part token sits at <kind>.part.<slot>.<property> or <kind>.part.<slot>.tone.<name>.<property>`,
+		);
+	}
 	const expected = section === 'base' ? 3 : 4;
 	if (token.path.length !== expected) {
 		throw new Error(`${token.path.join('.')}: a ${section} token sits at <kind>.${section}${section === 'base' ? '' : '.<name>'}.<property>`);
 	}
 	if (section === 'base') return sel;
-	if (section === 'part') return `[data-kind="${kind}"][data-slot="${name}"]`;
 	if (section === 'state') {
 		if (!(name in STATE_SELECTORS)) throw new Error(`${kind}: unknown state "${name}"`);
 		return `${sel}${STATE_SELECTORS[name]}`;
@@ -189,9 +199,13 @@ export function kindCss(dictionary, kind, meta, group, scope) {
 	const partRules = new Map();
 	for (const section of SECTIONS) {
 		if (section === 'part') {
-			for (const token of tokens.filter((t) => t.path[1] === 'part')) {
+			// A part's own values first, then its tones, which refine them.
+			const parts = tokens.filter((t) => t.path[1] === 'part');
+			const ordered = [...parts.filter((t) => t.path[3] !== 'tone'), ...parts.filter((t) => t.path[3] === 'tone')];
+			for (const token of ordered) {
 				const selector = selectorOf(sel, kind, token);
-				const [, , slot, property] = token.path;
+				const slot = token.path[2];
+				const property = token.path.at(-1);
 				const custom = `--${kind}-${slot}-${property}`;
 				const value = cssValue(token, nameByPath);
 				const target = PROPERTY_ALIAS[property] ?? property;
@@ -251,6 +265,14 @@ export function readKindFile(path, kind) {
 	for (const state of keys(group.state)) {
 		if (!(state in STATE_SELECTORS)) throw new Error(`${path}: unknown state "${state}"`);
 	}
+	for (const slot of keys(group.part)) {
+		for (const key of keys(group.part[slot])) {
+			const node = group.part[slot][key];
+			if (key !== 'tone' && !(node && typeof node === 'object' && '$value' in node)) {
+				throw new Error(`${path}: part "${slot}": unknown group "${key}" (a part holds properties and "tone")`);
+			}
+		}
+	}
 	return { group, meta: group.$extensions?.[EXT] ?? {} };
 }
 
@@ -264,7 +286,7 @@ function constArray(name, values) {
 	return `export const ${name} = [\n${values.map((v) => `\t${JSON.stringify(v)},`).join('\n')}\n] as const;`;
 }
 
-/** The kind's generated TypeScript: its variant, size and tone unions and defaults. */
+/** The kind's generated TypeScript: its variant, size and tone unions, each part's tones, and defaults. */
 export function kindTypes(kind, group, meta) {
 	const K = constant(kind);
 	const P = pascal(kind);
@@ -281,6 +303,13 @@ export function kindTypes(kind, group, meta) {
 		if (values.length === 0) continue;
 		lines.push(constArray(`${K}_${constant(section)}S`, values));
 		lines.push(`export type ${P}${label} = (typeof ${K}_${constant(section)}S)[number];`, '');
+	}
+	for (const slot of keys(group.part)) {
+		const tones = keys(group.part[slot]?.tone);
+		if (tones.length === 0) continue;
+		const name = `${K}_${constant(slot)}_TONES`;
+		lines.push(constArray(name, tones));
+		lines.push(`export type ${P}${pascal(slot)}Tone = (typeof ${name})[number];`, '');
 	}
 	const defaults = meta.defaults ?? {};
 	const entries = Object.entries(defaults).map(([k, v]) => `${k}: ${JSON.stringify(v)}`);

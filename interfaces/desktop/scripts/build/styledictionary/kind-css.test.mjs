@@ -164,6 +164,41 @@ test('a part section styles another part with its own custom properties', () => 
 	assert.match(keyword, /\[data-slot="overlay"\] \{\n\tcolor: inherit;\n\}/, 'a CSS-wide keyword goes straight to the property');
 });
 
+test('a part takes tones: each sets the custom properties of that part under [data-tone]', () => {
+	const group = {
+		part: { level: { color: { $value: 'gray' }, tone: { error: { color: { $value: 'red' } }, warning: { color: { $value: 'orange' } } } } },
+	};
+	const css = kindCss(
+		dictionary([
+			token('log.part.level.color', 'gray'),
+			token('log.part.level.tone.error.color', 'red'),
+			token('log.part.level.tone.warning.color', 'orange'),
+		]),
+		'log',
+		{},
+		group,
+	);
+	assert.match(css, /\[data-kind="log"\]\[data-slot="level"\] \{\n\t--log-level-color: gray;\n\tcolor: var\(--log-level-color\);\n\}/);
+	assert.match(css, /\[data-kind="log"\]\[data-slot="level"\]\[data-tone="error"\] \{\n\t--log-level-color: red;\n\tcolor: var\(--log-level-color\);\n\}/);
+	assert.match(css, /\[data-kind="log"\]\[data-slot="level"\]\[data-tone="warning"\] \{\n\t--log-level-color: orange;\n\tcolor: var\(--log-level-color\);\n\}/);
+	assert.ok(css.indexOf('[data-tone="error"]') > css.indexOf('[data-slot="level"] {'), 'tones come after the part they refine');
+	const toneOnly = kindCss(
+		dictionary([token('log.part.level.tone.muted.opacity', '0.7')]),
+		'log',
+		{},
+		{ part: { level: { tone: { muted: { opacity: { $value: '0.7' } } } } } },
+	);
+	assert.match(toneOnly, /\[data-slot="level"\]\[data-tone="muted"\] \{\n\t--log-level-opacity: 0\.7;\n\topacity: var\(--log-level-opacity\);\n\}/, 'a property only a tone sets is read in that tone');
+});
+
+test('a part token at any other depth throws', () => {
+	const group = { part: { level: { state: { hover: { color: { $value: 'red' } } } } } };
+	assert.throws(
+		() => kindCss(dictionary([token('log.part.level.state.hover.color', 'red')]), 'log', {}, group),
+		/a part token sits at <kind>\.part\.<slot>\.<property> or <kind>\.part\.<slot>\.tone\.<name>\.<property>/,
+	);
+});
+
 test('kind tokens are found by path, not by file', () => {
 	const isKind = kindTokenFilter(new Set(['button']));
 	assert.equal(isKind(token('button.variant.primary.color', 'x')), true);
@@ -183,6 +218,10 @@ test('readKindFile reads the kind group and rejects unknown sections and states'
 	assert.equal(readKindFile(write('legacy.json', { preset: {} }), 'chip'), null);
 	assert.throws(() => readKindFile(write('typo.json', { chip: { varient: {} } }), 'chip'), /unknown section "varient"/);
 	assert.throws(() => readKindFile(write('state.json', { chip: { state: { hovered: {} } } }), 'chip'), /unknown state "hovered"/);
+	assert.throws(
+		() => readKindFile(write('part.json', { log: { part: { level: { tones: { error: {} } } } } }), 'log'),
+		/part "level": unknown group "tones" \(a part holds properties and "tone"\)/,
+	);
 });
 
 test('kindTypes writes the unions and defaults', () => {
@@ -191,4 +230,11 @@ test('kindTypes writes the unions and defaults', () => {
 	assert.match(ts, /export type IconButtonSize = \(typeof ICON_BUTTON_SIZES\)\[number\];/);
 	assert.match(ts, /export const ICON_BUTTON_DEFAULTS = \{ variant: "primary", size: "md" \} as const;/);
 	assert.doesNotMatch(ts, /TONE/);
+});
+
+test('kindTypes writes the tones of each part', () => {
+	const ts = kindTypes('log', { part: { line: {}, level: { color: {}, tone: { error: {}, warning: {}, muted: {} } } } }, {});
+	assert.match(ts, /export const LOG_LEVEL_TONES = \["error", "warning", "muted"\] as const;/);
+	assert.match(ts, /export type LogLevelTone = \(typeof LOG_LEVEL_TONES\)\[number\];/);
+	assert.doesNotMatch(ts, /LOG_LINE_TONES/, 'a part without tones has no union');
 });
