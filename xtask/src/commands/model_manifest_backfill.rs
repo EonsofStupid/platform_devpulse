@@ -1,7 +1,8 @@
 //! `ModelManifestBackfill` — write `devpulse.json` for every model on disk.
 //!
 //! One-shot migration from filename-string matching to canonical-id
-//! binding. Walks `<repo>/models/` (or `--dir <path>` override), and for
+//! binding. Walks the app's models folder — the configured `models_dir`,
+//! `.userdata/models/` by default (or `--dir <path>` override) — and for
 //! every directory that contains a model file (`.gguf`, `.safetensors`,
 //! `.onnx`, `.bin`), either:
 //!
@@ -33,9 +34,47 @@ use std::fs::{self, File};
 use std::io::{BufReader, Read};
 use std::path::{Path, PathBuf};
 
+/// The models folder the app uses: `models_dir` from the platform config,
+/// read the way the engine reads it — the user's `.userdata/platform.toml`
+/// when present (it replaces the shipped config), else the shipped
+/// `config/platform/services/system/model-loader.toml`. A relative path is
+/// under the data dir, `<repo>/.userdata`; an absolute one is used as given.
+fn configured_models_dir(ws: &Workspace) -> Result<PathBuf> {
+    let data_dir = ws.root().join(".userdata");
+    let user_config = data_dir.join("platform.toml");
+    let source = if user_config.is_file() {
+        user_config
+    } else {
+        ws.root()
+            .join("config")
+            .join("platform")
+            .join("services")
+            .join("system")
+            .join("model-loader.toml")
+    };
+    let text = fs::read_to_string(&source).with_context(|| format!("read {}", source.display()))?;
+    let config: toml::Value =
+        toml::from_str(&text).with_context(|| format!("parse {}", source.display()))?;
+    // The engine's default when the key is absent (`default_models_dir`).
+    let configured = config
+        .get("services")
+        .and_then(|v| v.get("system"))
+        .and_then(|v| v.get("model_loader"))
+        .and_then(|v| v.get("models_dir"))
+        .and_then(toml::Value::as_str)
+        .unwrap_or("models");
+    let path = Path::new(configured);
+    Ok(if path.is_absolute() {
+        path.to_path_buf()
+    } else {
+        data_dir.join(path)
+    })
+}
+
 /// CLI options for [`ModelManifestBackfill`].
 pub struct ModelManifestBackfill {
-    /// Root models directory. Defaults to `<repo>/models`.
+    /// Root models directory. Defaults to the app's configured models
+    /// folder (`.userdata/models/` with the shipped config).
     pub dir: Option<PathBuf>,
     /// Overwrite existing `devpulse.json` files. Default: skip.
     pub force: bool,
@@ -59,7 +98,10 @@ impl Task for ModelManifestBackfill {
             "Model Manifest Backfill"
         });
 
-        let root = self.dir.clone().unwrap_or_else(|| ws.root().join("models"));
+        let root = match &self.dir {
+            Some(dir) => dir.clone(),
+            None => configured_models_dir(ws)?,
+        };
         if !root.is_dir() {
             anyhow::bail!(
                 "models root not found at {}.\n  \

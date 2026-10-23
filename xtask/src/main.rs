@@ -62,7 +62,8 @@ enum Commands {
     /// every file. One-shot migration to the canonical-id SSOT so presets
     /// stop filename-string-matching against phantom inventory.
     ModelManifestBackfill {
-        /// Root models directory. Defaults to `<repo>/models`.
+        /// Root models directory. Defaults to the app's configured models
+        /// folder (`.userdata/models/` with the shipped config).
         #[arg(long)]
         dir: Option<PathBuf>,
         /// Overwrite existing `devpulse.json` files. Default: skip.
