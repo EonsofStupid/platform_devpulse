@@ -5,10 +5,10 @@ paths:
   - interfaces/desktop/src/lib/sys/routing/
   - interfaces/desktop/src/routes/
 touches: [desktop-devtools, desktop-layouts, desktop-onboarding, desktop-tauri, engine]
-status: done
+status: in-progress
 owner: jesse
 created: 2026-10-17
-updated: 2026-10-17
+updated: 2026-10-23
 supersedes: []
 specs:
   - https://svelte.dev/docs/kit/routing
@@ -102,6 +102,36 @@ Each phase: checked, committed with hooks, pushed, runner-verified.
 | R13 | Fix found live: the manifests globbed route modules with `import: "_nav"` / `"_devtool"`, a named import that fails to link in the browser for any file without that export (`routes/+page.ts`) — every page rendered 500 since R3 `5f157731`; vitest and svelte-check stayed green. Route modules are now read whole (`routeExports(name)`), and an architecture test rejects a glob that picks one export | `lib/sys/routing/{route-manifest,index}.ts`, `devtools/devtool-manifest.ts`, `tests/architecture/route-manifest.test.ts` | the test fails on the old code (names both manifests); live: `/devpulse` renders, sidebar from the folders |
 | R14 | Fix found live while verifying R11: the DuckDB and SurrealDB devtools crashed on open (`effect_update_depth_exceeded`) — an `$effect` read and wrote its own `activityTick` (since 2026-05-11). Their states now count completed health checks (`healthChecks`), as Turso's does, and the pages pass that | `domains/infra/{duckdb,surreal}/data-access/*.state.svelte.ts`, the DuckDB / SurrealDB devtools | live: both pages render, no console errors; hero accent equals the shell's on all three stores |
 | R15 | Fix found by the live sweep of all 44 pages (43 clean): the Speech-to-Speech devtool rendered a 500 (`rune_outside_svelte`) since `c77e4e78` — `sts.svc.ts` declared `$state` in a plain `.ts` module. The rune moves to `sts-latency.state.svelte.ts` (the tts/stt split), and an architecture test rejects rune calls in plain `.ts` modules | `devtools/clyffy/ears/sts/{data-access,feature}`, `tests/architecture/runes-modules.test.ts` | the test fails on the old file only; live: the page renders, no console errors |
+
+### Reach what the folders already describe (owner 2026-10-23: "go")
+
+The folders are the source, but on 2026-10-23 a read-only inventory found
+pages the user cannot reach, and the submenu was confirmed live:
+
+- **The DevPulse submenu is invisible.** It renders inside the sidebar rail
+  (`Sidebar.svelte:134-157`), at x 52–244 px. The rail is 60 px wide and
+  `overflow-x-hidden overflow-y-auto` (`Frame.svelte:57,65`), so the five
+  pages under Home (Community, Models, Projects, Settings, Stats) can't be
+  seen or clicked. Checked live over CDP.
+- **DevTools opens only with Ctrl+Shift+Q** (`src-tauri/src/lib.rs:917-935`).
+  No control in any window opens it.
+- **`/profile` is reached from nowhere** (its own header says "the operator
+  types the URL"). It also renders outside the app frame, so it would have no
+  way back. The top bar's avatar links nowhere.
+- **`/logs` (Action log) is in the devtools group but outside
+  `/devtools/{tier}/{bucket}/{id}`**, so the dashboard, which is built from
+  those folders, never shows it.
+
+| # | Phase | Files | Verification |
+|---|---|---|---|
+| R16 | ColdLight's dismiss layer gains `exclude`: elements that count as inside, such as the control that toggles the layer. Without it, a press on that control dismisses the layer, then the control's click reopens it. `useDismissLayer` / `useEscapeLayer` and their configs are exported from `./behaviors`, so the app reuses ColdLight's own dismiss rules | coldlight `behaviors/_shared/dismiss-layer/{types,dismiss-layer.svelte}.ts` + test, `behaviors/index.ts` | vitest: outside dismisses, inside and excluded don't, disabled is inert; ColdLight `pnpm check` |
+| R17 | The submenu is a region of the frame, not a child of the clipped rail. `SidebarSubmenu.svelte` holds what the rail had (the open hub's child pages, names from copy). Frame places it in the content cell over the page, so it starts at the rail's edge, collapsed or expanded. Escape or a press outside closes it; the rail is excluded, so a hub press toggles cleanly. The active-route check is shared | `layouts/app/{SidebarSubmenu.svelte,Sidebar.svelte,sidebar-entries.ts,Frame.svelte}` | `pnpm check`; Biome; live: Home opens a visible submenu, each of the five entries opens its page, Escape / outside / hub press close it |
+| R18 | The top bar reaches DevTools and Profile. A DevTools button beside Chat opens the devtools window, with its name and icon from the `/devtools` folder and copy. The avatar links to `/profile`, named by that route's copy | `layouts/app/TopBar.svelte` | `pnpm check`; live: the button opens the devtools window; the avatar opens Profile |
+| R19 | Two pages move to where their folders put them in the app. `/profile` moves into the `(app)` group, keeping the frame, with `placement: "hidden"` so it isn't a sidebar hub. `/logs` becomes a System › Observability devtool (`/devtools/system/observability/logs`), so its dashboard tile comes from its folder; its copy key moves with it | `routes/(app)/profile/{+page.svelte,+page.ts}`, `routes/(devtools)/devtools/system/observability/logs/{+page.svelte,+page.ts}`, `config/copy.default.toml` | `pnpm check`; vitest (route manifest, label coverage); Rust route constants regenerate; live: Profile renders in the frame; the Action log tile is on the dashboard and opens a live tail |
+
+Not here: the old setup-wizard views, `LoginShell` and the HF dialogs, which
+nothing imports, get wired in their owning plans (0001 / 0007). The boot
+gates (overlay with no exit, any failed service fatal) belong to plan 0001.
 
 ## Decisions needed
 

@@ -4,7 +4,8 @@
  * Used by: dialog, popover, dropdown-menu, select, combobox.
  *
  * Nested overlays don't dismiss parents — only the top layer responds.
- * Handles edge cases: text selection, child dialogs.
+ * Handles edge cases: text selection, child dialogs, and `exclude` — the
+ * elements (e.g. the toggling control) that count as inside the layer.
  */
 
 import type { DismissLayerConfig } from "./types.js";
@@ -37,7 +38,10 @@ export function useDismissLayer(config: DismissLayerConfig): void {
 				e.clientY >= rect.top &&
 				e.clientY <= rect.bottom;
 
-			if (!inside && !node.contains(e.target as Node)) {
+			const target = e.target as Node;
+			const excluded = config.exclude?.().some((el) => el?.contains(target)) ?? false;
+
+			if (!inside && !node.contains(target) && !excluded) {
 				pointerDownOutside = true;
 			}
 		}

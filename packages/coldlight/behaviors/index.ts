@@ -4,7 +4,8 @@
  * @layer behavior
  *
  * Master barrel for all ColdLight WAI-ARIA APG behaviors.
- * 5 families: display, inputs, interaction, navigation, overlays.
+ * 5 families: display, inputs, interaction, navigation, overlays — plus the
+ * shared dismiss layers (Escape, press outside) that overlays are built on.
  * Explicit named exports only — no `export *`.
  */
 
@@ -159,3 +160,8 @@ export {
 	useToaster,
 	useTooltip,
 } from "./overlays/index.js";
+
+// ── Layers — the dismiss rules overlays share, for app-owned layers too ──
+
+export type { DismissLayerConfig, EscapeLayerConfig } from "./_shared/index.js";
+export { useDismissLayer, useEscapeLayer } from "./_shared/index.js";
