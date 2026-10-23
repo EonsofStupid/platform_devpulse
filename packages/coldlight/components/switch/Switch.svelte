@@ -36,7 +36,8 @@ const SIZE: Record<SwitchSize, { track: string; thumb: string }> = {
 
 let {
 	size = "md",
-	checked = false,
+	checked,
+	defaultChecked,
 	disabled = false,
 	onCheckedChange,
 	children,
@@ -45,9 +46,13 @@ let {
 	...rest
 }: SwitchProps = $props();
 
+// Controlled when `checked` is given, otherwise the switch holds its state (from `defaultChecked`).
 const sw = useSwitch({
 	get checked() {
 		return checked;
+	},
+	get defaultChecked() {
+		return defaultChecked;
 	},
 	get disabled() {
 		return disabled;

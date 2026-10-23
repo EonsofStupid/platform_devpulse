@@ -11,7 +11,7 @@
  * Setup:  vitest-browser-svelte
  */
 
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { render } from "vitest-browser-svelte";
 import Switch from "./Switch.svelte";
 
@@ -68,10 +68,39 @@ describe("switch component — data-state", () => {
 		await expect.element(el).toHaveAttribute("data-state", "checked");
 	});
 
-	test("data-state is 'disabled' when disabled", async () => {
+	test("disabled is its own attribute; data-state stays checked/unchecked", async () => {
 		const { getByRole } = render(Switch, { props: { disabled: true } });
 		const el = getByRole("switch");
-		await expect.element(el).toHaveAttribute("data-state", "disabled");
+		await expect.element(el).toHaveAttribute("data-disabled", "");
+		await expect.element(el).toHaveAttribute("aria-disabled", "true");
+		await expect.element(el).toHaveAttribute("data-state", "unchecked");
+	});
+});
+
+// =============================================================================
+// CONTROLLED AND UNCONTROLLED STATE
+// =============================================================================
+
+describe("switch component — controlled and uncontrolled state", () => {
+	test("uncontrolled: starts from defaultChecked and toggles itself", async () => {
+		const onCheckedChange = vi.fn();
+		const { getByRole } = render(Switch, { props: { defaultChecked: true, onCheckedChange } });
+		const el = getByRole("switch");
+		await expect.element(el).toHaveAttribute("aria-checked", "true");
+		await el.click();
+		await expect.element(el).toHaveAttribute("aria-checked", "false");
+		expect(onCheckedChange).toHaveBeenCalledWith(false);
+	});
+
+	test("controlled: follows checked; a click only asks the owner", async () => {
+		const onCheckedChange = vi.fn();
+		const { getByRole, rerender } = render(Switch, { props: { checked: false, onCheckedChange } });
+		const el = getByRole("switch");
+		await el.click();
+		expect(onCheckedChange).toHaveBeenCalledWith(true);
+		await expect.element(el).toHaveAttribute("aria-checked", "false");
+		await rerender({ checked: true });
+		await expect.element(el).toHaveAttribute("aria-checked", "true");
 	});
 });
 

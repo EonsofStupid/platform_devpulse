@@ -1,7 +1,10 @@
 import type { HTMLAttributes, HTMLButtonAttributes } from "svelte/elements";
 
 export interface UseSwitchProps {
+	/** Controlled value; `undefined` leaves the state to the switch. */
 	checked?: boolean;
+	/** Starting value when uncontrolled. */
+	defaultChecked?: boolean;
 	onCheckedChange?: (checked: boolean) => void;
 	disabled?: boolean;
 	required?: boolean;

@@ -21,9 +21,11 @@ export interface SwitchPrimitiveProps extends Omit<HTMLButtonAttributes, "childr
 	children?: Snippet;
 	/** Additional CSS classes */
 	class?: string;
-	/** Whether the switch is on */
+	/** Whether the switch is on, when the owner controls it; omit to let the switch hold it */
 	checked?: boolean;
-	/** Callback when checked state changes */
+	/** Whether the switch starts on, when the switch holds its state. Default: false */
+	defaultChecked?: boolean;
+	/** Called with every change the user asks for (controlled or not) */
 	onCheckedChange?: (checked: boolean) => void;
 	/** Disabled state — prevents interaction */
 	disabled?: boolean;

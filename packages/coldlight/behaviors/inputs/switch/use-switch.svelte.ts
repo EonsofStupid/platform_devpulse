@@ -7,6 +7,7 @@
  * @see https://www.w3.org/WAI/ARIA/apg/patterns/switch/
  */
 
+import { controllable } from "../../_internal/utils/controllable.svelte.js";
 import { dataAttr, disabledAttr } from "../../_internal/utils/data-attr.js";
 import { kbd } from "../../_internal/utils/kbd.js";
 import { uid } from "../../_internal/utils/uid.js";
@@ -16,13 +17,20 @@ import type { UseSwitchProps, UseSwitchReturn } from "./switch.types.js";
 export function useSwitch(props: UseSwitchProps = {}): UseSwitchReturn {
 	const id = uid("switch");
 
-	let checked = $state(props.checked ?? false);
+	const state = controllable({
+		value: () => props.checked,
+		defaultValue: () => props.defaultChecked ?? false,
+		onChange: (next) => props.onCheckedChange?.(next),
+	});
+	const checked = $derived(state.current);
 	const disabled = $derived(props.disabled ?? false);
 
+	function setChecked(next: boolean): void {
+		if (!disabled) state.set(next);
+	}
+
 	function doToggle(): void {
-		if (disabled) return;
-		checked = !checked;
-		props.onCheckedChange?.(checked);
+		setChecked(!checked);
 	}
 
 	const root = $derived({
@@ -80,16 +88,10 @@ export function useSwitch(props: UseSwitchProps = {}): UseSwitchReturn {
 		},
 		toggle: doToggle,
 		turnOn() {
-			if (!disabled && !checked) {
-				checked = true;
-				props.onCheckedChange?.(true);
-			}
+			setChecked(true);
 		},
 		turnOff() {
-			if (!disabled && checked) {
-				checked = false;
-				props.onCheckedChange?.(false);
-			}
+			setChecked(false);
 		},
 	};
 }
