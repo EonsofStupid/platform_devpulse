@@ -992,8 +992,13 @@ create your own." In this plan's terms:
   `{data_dir}/config/{roles,rooms,personas}/`, validated by the kernel
   (B4.1), and the persona form is B4.3c.
 
-Status that day: B3.4, B4.1 and B4.2a are done. B4.2b/c (one live agent
-session per seat, the `room_*` commands) and B4.3 (the Cowork UI) remain.
+Status that day: B3.4, B4.1, B4.2a and B4.2b are done. B4.2b (`d34f40b0`)
+gives one live agent conversation per place and the `room_*` commands, and a
+Council answered in the running app (`fd221bbc`, log 2026-10-21). B4.2c (the
+whole contract checked, talk-only Codex, evidence, the router role) and B4.3
+(the Cowork UI; no window code calls `room_*` yet) remain. *Corrected
+2026-10-23: the first version of this note said B4.2b remained; the log and
+the bindings show it is built.*
 
 Owner rulings 2026-10-21: "Rooms, roles, personas" next, then the AgentHub
 board. **Persona = full character**: a persona carries its own backstory
@@ -1167,6 +1172,15 @@ reading of your design and research, open to your correction.
   - Seating's "router room does not run yet" refusal goes.
   - Check: kernel tests for a named place, an unknown place and escalation;
     live, a Router room answers through the place it named.
+- **c5 Seating checks what a thread checks** (research 2026-10-23).
+  - `Rooms::start` checks only that each agent is installed
+    (`platform/rooms.rs:184-188`). `Agents::start_thread` also checks that the
+    agent can hold a conversation (`platform/agents.rs:134-136`). A room
+    seated with an agent that cannot converse fails only at the first turn.
+  - The same check is shared by both, from one place in `agents.rs`.
+  - Files: `platform/{rooms,agents}.rs`.
+  - Check: an engine test seating an agent with no conversation is refused
+    at `start`, named.
 
 **B4.3 — the chat window, built the ColdLight way** (master plan H2–H3).
 
@@ -1183,8 +1197,10 @@ The steps:
 1. A library component in `packages/coldlight/components/<kind>/` with its
    `behaviors/<group>/<kind>/<kind>.anatomy.ts` and DTCG `tokens.ts`, only when
    more than one feature uses it.
-2. Presets in `tokens/src/presets/chat.tokens.json`, mirrored in
-   `visual/presets/chat.ts` until 0006 0c.2.
+2. Presets in
+   `interfaces/desktop/scripts/build/styledictionary/tokens/src/presets/chat.tokens.json`
+   (14 `chat-*` presets today), mirrored in
+   `packages/coldlight/visual/presets/chat.ts` until 0006 0c.2.
 3. `domains/chat/ui/<name>/` (`Name.svelte`, `name.types.ts`, `index.ts`):
    props in, callbacks out, no runes.
 4. `feature/` wiring `data-access` to `ui/` with layout classes only.
@@ -1195,7 +1211,9 @@ Each phase passes:
 
 - `pnpm ds:tokens:build`;
 - `pnpm check`;
-- `scripts/hooks/coldlight-boundary.mjs` at or below its baseline;
+- `scripts/hooks/coldlight-boundary.mjs` at or below its baseline
+  (`coldlight-boundary.baseline.json`; no hook or CI job runs it, so it is
+  run by hand);
 - a coldlight-curator audit;
 - CDP screenshots at 1440 and 1024 wide.
 
@@ -1205,8 +1223,11 @@ Each phase passes:
     `agents.state.svelte.ts` keeps only state.
   - `ui/agent-picker/` (ColdLight Select, `text-sm`, an error through the
     `inline-message` component) and `ui/agent-turn/`. The permission choices
-    use `DecisionCard` and the `chat-decision-card` preset, both already
-    there.
+    use the `chat-decision-card` preset. *Corrected 2026-10-23:* there is no
+    ColdLight `DecisionCard`. The domain's `feature/DecisionCard.svelte` is
+    orphaned, with fixed Edit/Approve/Decline text and no props for choices
+    or callbacks. It becomes the `ui/decision-card/` adapter (choices and a
+    callback in), so it is wired in rather than deleted.
   - `feature/ChatAgentPicker.svelte` and `feature/ChatAgentTurn.svelte` keep
     only wiring.
   - The "ready to chat" rule moves to `providers` `util`.
@@ -1214,8 +1235,18 @@ Each phase passes:
     picker unmounting no longer stops ChatStream's updates.
   - `SessionRow.svelte`'s active state uses `chat-session-row-active` and
     `data-state`, not Tailwind visuals; its sizes are `text-sm`.
-  - The literals in `ChatSessionList.svelte` and `ChatStream.svelte` move to
-    copy.
+  - The literals move to copy. *Corrected 2026-10-23:* not only in
+    `ChatSessionList.svelte` and `ChatStream.svelte`. They are also in
+    `ChatRoot:61`, `ChatActionsMenu:26-39`, `ChatModeSelector:10-17`,
+    `CortexMemoryStrip:16`, `DecisionCard:36-38`,
+    `DeleteConfirmDialog:43-52`, `ExportDialog:44-61`,
+    `SuggestionDropdown:36-69`, `VoiceOrb:35`, `EmptyChatState:18` and
+    `TypingIndicator:14`. In `data-access` they are in
+    `chat.state.svelte.ts:68,114` and `chat.service.ts:33-103`. Split across
+    phases by file count.
+  - `suggest.state.svelte.ts:92,141` also calls `commands` directly. Those
+    calls move into `chat.service.ts`, as the agents' calls move into
+    `agents.service.ts`.
   - One copy template replaces the two-fragment sentence.
   - Live: the B3.4 check again (a two-turn Codex thread from the window),
     screenshots, and an audit with zero findings.
@@ -1250,6 +1281,17 @@ Each phase passes:
   - `feature/` files compose the adapters into ChatRoot: the room list beside
     the threads, and a room's stream.
   - New engine command: `room_save_persona`, kernel-validated.
+  - *Found 2026-10-23, needed for B4.3e:*
+    - **A room's history.** Each room turn's place, role, candidate and
+      outcome are saved in `turns.metadata` (`platform/rooms.rs:508-530`,
+      `:416-442`). But `ChatMessage` has no `metadata`
+      (`commands/chat/mod.rs:18-34`), and `load_recent` does not select it
+      (`commands/chat/history.rs:55`). So a reopened room would lose who said
+      what. `ChatMessage` gains the room turn and the outcome.
+    - **Sending into a room.** Room sessions share `sessions`, so they show
+      in the thread list. Typing into one falls through to the local brain
+      (`chat.state.svelte.ts:105-116`). `send` dispatches to `room_ask` for a
+      room, as it does to the agent intents for an agent thread.
 - **B4.3e — live.** From the chat window:
   - seat a Council (three Claude Code answerers, a Codex selector);
   - ask it; watch the three answers stream; see the pick marked;
@@ -1371,10 +1413,10 @@ What the code has, read 2026-10-23:
 | Auth logic works and stays: sign-in, sign-up, sign-out, a session refreshed by supabase-js, analytics events | `domains/auth/data-access/auth.state.svelte.ts:70-219` |
 | Sign-up is email + password only; no email code. The copy sends a confirmation *link* | `auth.state.svelte.ts:116,146`; `config/wizard_copy.default.toml:403-404` |
 | The anon key is read from the OS keychain, filled only by `set_supabase_anon_key`, which nothing calls. A fresh install reports `not-configured`, so a required sign-up cannot work | `commands/cloud/secrets.rs:29-32,111`; `supabase.client.ts:8-11,51-53` |
-| The project URL is a constant in Rust, not configuration | `secrets.rs:38` |
-| The session is in the webview's localStorage. WebView2 keeps that in `%LOCALAPPDATA%\com.devpulse.desktop\EBWebView`, outside the DevPulse folder (there is also a `logs` folder there) | `supabase.client.ts:56-61`; checked on disk |
-| Auth text is in the model-loader **wizard** copy (`get_wizard_copy().auth`), a kernel catalog; auth is not AI | `LoginShell.svelte:46-52`; `wizard_copy.default.toml:388-430` |
-| `LoginShell` has a `<main>`, a raw `<style>` with colours, an unused confirmation copy and sign-out copy, and a "go to settings" state that links nowhere | `LoginShell.svelte:157,234-292,5-12` |
+| ~~The project URL is a constant in Rust, not configuration~~ — done in A1 (`c6d0fb1a`): `config/platform/integrations/cloud.toml` | was `secrets.rs:38` |
+| The session is in the webview's localStorage. WebView2 keeps that in `%LOCALAPPDATA%\com.devpulse.desktop\EBWebView`, outside the DevPulse folder (there is also a `logs` folder there) | `supabase.client.ts:54-63` (no `storage` option); checked on disk |
+| ~~Auth text is in the model-loader wizard copy~~ — done in A2 (`edd4f461`): `[auth]` in `copy.default.toml`, read through `copyState` | was `LoginShell.svelte:46-52` |
+| `LoginShell` has a `<main>`, a raw `<style>` with colours, an unused confirmation copy and sign-out copy, and a "go to settings" state that links nowhere | `LoginShell.svelte:151,228-286,5-12` (re-read after A2) |
 | The root layout's contract is the opposite of the rulings: signed-out "is the DEFAULT working state, never a blocking screen" | `routes/+layout.svelte:178-189` |
 | First run has `welcome, you, your_ai, containers`; the stage enum refuses unknown ids. The only gate is a name on You; "Set up later" leaves from any stage | `config/onboarding/first-run.flow.toml:9`; `onboarding/flow.rs:21-55`; `workflow.rs:137-151,206-215` |
 | The profile has `email TEXT UNIQUE` and no account identity (subject, issuer). You's email is optional ("from GitHub") | `services/relational.rs:232`; `onboarding/you.rs:34`; `copy.default.toml:47` |
@@ -1382,33 +1424,90 @@ What the code has, read 2026-10-23:
 
 How Rust learns you are signed in: the first-run buttons are intents and Rust decides (`FirstRunFlow.svelte:3-6`). So the Account view sends the session's access token to Rust. Rust confirms it with Supabase's user endpoint (`GET {url}/auth/v1/user`, anon key + bearer token), records who you are, and opens the gate. The frontend's word alone does not.
 
-Phases (each ≤ 5 files, checked, committed with hooks):
+##### Research pass 2026-10-23 — where each piece goes
+
+Owner 2026-10-23: "research the existing code base to author properly no
+shortcuts methodical … align properly to folders and canonically aligned".
+Read on disk at `8c7a8edf`. The rules below are the repo's own words; the
+precedent is the code that already follows them.
+
+Where code goes, as the repo writes it:
+
+| Layer | Rule | Source | Precedent to copy |
+| --- | --- | --- | --- |
+| Window domain | `feature/` wires `data-access` to `ui/`; `ui/` is props in, events out, no IPC; `data-access` holds `*.state.svelte.ts` and `*.service.ts` and is the only place state lives; `util/` is pure; other domains through `index.ts` | `docs/platform/Desktop.md:38-64` (LOCKED 2026-04-14), `:105-138` | `domains/app/onboarding/` |
+| IPC chain | generated bindings → `sys/bindings/<area>/index.ts` facade → `data-access/<x>.service.ts` (the only IPC) → `<x>.state.svelte.ts` | `Desktop.md:46,118`; `domains/chat/README.md:6`; this plan's B4.3 step 5 | `sys/bindings/onboarding/index.ts` → `onboarding.service.ts:18-36` → `onboarding.state.svelte.ts:37-52` |
+| `ui/` adapter | `ui/<name>/{Name.svelte, name.types.ts, index.ts}` | this plan's B4.3 step 3 | `domains/app/onboarding/ui/{onboarding-shell,repo-list}/` |
+| Names | `*.service.ts`, never `*.svc.ts` | `Desktop.md:480-494`; `scripts/docs/preflight/checks/check.naming.ts:5-9` | — |
+| Strings | every visible string in `copy.default.toml`, typed in `platform/copy/mod.rs` | `copy/mod.rs:1`; `sys/copy/copy.state.svelte.ts:5` | `FirstRunFlow.svelte:26` |
+| Tauri | intents only, no logic; every command returns `CommandError` | this plan `:504-505`; `commands/_util/error.rs:8` | `commands/cloud/secrets.rs` |
+| Engine | non-AI platform code under `platform/<area>/`; tests inline with `profile::tests::user_db`; outbound HTTP through an injected `reqwest::Client` behind a trait | `onboarding/mod.rs:10-21`; `profile/mod.rs:158-175` | `onboarding/probes/{mod,openai_compatible}.rs` |
+| Database | a new `migrations/user/NNNN_name.sql`, applied at open in one transaction; the next is `0003` | `systems/devpulse-engine/build.rs:127-192`; `platform/db/mod.rs:76-133` | `migrations/user/0002_first_run_progress.sql` |
+| First-run stages | "A stage is listed only once it works end to end" | `onboarding/flow.rs:18`; `config/onboarding/first-run.flow.toml:8` | — |
+
+Where the login code breaks those rules today:
+- `domains/auth` has no `sys/bindings` facade and no service. `commands.*` is
+  called from `auth.state.svelte.ts:24`, `supabase.client.ts:46` and
+  `LoginShell.svelte:29,78-86`. `LoginShell` is one file with a `<main>` and
+  a raw `<style>` (`:151`, `:228-286`); there is no `ui/` adapter.
+- The onboarding commands return `Result<_, String>`
+  (`commands/onboarding/mod.rs:28-155`), and `you-form.state.svelte.ts` and
+  `repo-scan.state.svelte.ts` call the facade directly instead of the
+  service.
+- Workflow refusals are English `bail!` strings that the window shows as is
+  (`workflow.rs:176,179,200`; `FirstRunFlow.svelte:60-62`). The buttons
+  follow `needs` and status, so a refusal shows only on a race.
+- **Secrets in the logs.** In dev builds the IPC handler writes every
+  command's arguments verbatim at TRACE (`src-tauri/src/lib.rs:599-610`), and
+  the dev JSONL filter keeps TRACE: `.userdata/logs/runs/*/session.jsonl` holds
+  `"args":"Json(Object {…})"`. `store_api_key(key)`
+  (`commands/credentials/mod.rs:65`), `set_hf_token(token)`
+  (`commands/models/mod.rs:898`) and `set_supabase_anon_key(key)`
+  (`commands/cloud/secrets.rs:142`) already pass secrets through it. Checked
+  2026-10-23: 21 session logs hold invoke records and none is from those
+  three, so nothing has leaked yet. The login's access token would.
+- The plan's own order broke the flow rule: the old A3a listed `account` in
+  the flow before its screen and verification existed.
+
+Phases (each checked and committed with hooks passing; at most 5 source files,
+generated bindings and snapshots not counted, except A11 as noted). Renumbered
+from the first version of this table: old A3a → A11, A3b → A5–A7, A4 → A8–A10,
+A5 → A13, A6 → A14, A7 → A15, A8 → A16.
 
 | # | Outcome | Files | Verification |
 | --- | --- | --- | --- |
-| A1 | The auth endpoint is configuration. `config/platform/integrations/cloud.toml` (the integrations axis) holds `[integrations.cloud.auth] url` and the public `anon_key`; the keychain entry stays as an override for a self-hosted project. You supply the key's value (decision D2); I never enter it | `config/platform/integrations/cloud.toml`, engine `platform/config/{loader.rs, integrations/{mod,cloud}.rs}`, `commands/cloud/secrets.rs` | `cargo test` config; `get_supabase_credentials` returns the configured URL and a key without the keychain |
-| A2 | Auth text moves to the engine copy catalog (`[auth]` in `copy.default.toml`, `CopyCatalog.auth`) in one commit, since two `AuthCopy` types cannot both be in the generated bindings. `LoginShell` reads `copyState`; wizard copy loses `[auth]` (moved, not dropped). The not-configured line no longer points to a "Settings → Cloud" screen that does not exist. The email-code, offline and account-stage text comes with the screens that use it (A4) | engine `platform/copy/mod.rs`, `config/copy.default.toml`, `config/wizard_copy.default.toml` (+ its kernel struct), `LoginShell.svelte`, `bindings.ts` | cargo test copy; svelte-check |
-| A3a | The `account` stage: `Stage::Account`, `first-run.flow.toml` = `welcome, account, you, your_ai, containers`. The stage needs an account until the profile holds one. "Set up later" is refused until the account exists (no skip), and the Welcome view hides it until then | `onboarding/{flow,workflow,state}.rs`, `first-run.flow.toml`, `FirstRunFlow.svelte` | engine tests: `next` refused without an account, `later` refused before it; live: Welcome → Account, no later |
-| A3b | Rust verifies the session and records the account. A Tauri intent `onboarding_account(access_token)` checks it with Supabase and writes `account_subject`, `account_issuer` and the account's email to the profile; the You stage shows that email | `commands/onboarding/mod.rs`, engine `onboarding/{workflow,you}.rs`, `services/relational.rs` (migration) | engine tests (fake verifier); live: a signed-in session opens the gate |
-| A4 | The Account view. `LoginShell` is mounted at the stage, rebuilt in the B4.3 order (a `ui/` adapter, ColdLight only, no `<main>`, no raw colours). Email code is the default (`signInWithOtp` / `verifyOtp`), with a password option and sign-in for existing users. Offline: an explanation and a Retry button | `onboarding/feature/first-run/views/AccountView.svelte`, `auth.state.svelte.ts`, `LoginShell.svelte` (+ `ui/`), `onboarding.service.ts` | svelte-check; Biome; live up to the sign-up itself (D5) |
-| A5 | Where the session lives (decision D1): supabase-js `auth.storage` is a Tauri-backed adapter. Moving WebView2's own data folder into `.userdata` is listed under "Found" | `supabase.client.ts`, `auth/data-access/session-storage.service.ts`, `commands/cloud/session.rs`, `lib.rs`, `bindings.ts` | restart keeps the session; the session is no longer in webview storage |
-| A6 | After first run. With no session (signed out or expired), the root layout shows `LoginShell` (sign-in) over the app. A network failure while holding a session keeps you working, local-first. The layout's contract comment is rewritten. Profile gets Sign out (the copy exists) | `routes/+layout.svelte`, `routes/(app)/profile/+page.svelte` (+ a profile `ui/` part), auth copy | live: sign out → sign-in screen; offline restart with a session → app works |
-| A7 | The license comes from the verified account, Free by default. The Pro stub goes only once that works. Its source (decision D3) depends on the Supabase project's schema, which this repo does not hold | `commands/cloud/license.rs` (+ the verifier's response) | a free account reads Free |
-| A8 | The shippin.cloud question after the account (decision D4). Shippin has no API yet (master plan P3b) | waits on Shippin's API | — |
+| A1 | **Done** `c6d0fb1a`. The auth endpoint is configuration: `[integrations.cloud.auth] url` and the public `anon_key` in `config/platform/integrations/cloud.toml`; the keychain entry is an override. You supply the key's value (D2) | — | — |
+| A2 | **Done** `edd4f461`. Auth text is in the engine copy catalog (`[auth]`, `CopyCatalog.auth`); `LoginShell` reads `copyState` | — | — |
+| A3 | **No secret reaches the logs.** The IPC trace keeps the command and the argument names and replaces the values of secret-named arguments (`key`, `token`, `access_token`, `refresh_token`, `secret`, `password`, and names ending in those) with `[redacted]`, in one tested function. A new secret-bearing command is covered by its argument's name | `src-tauri/src/lib.rs`, `src-tauri/src/ipc_trace.rs` (new) | unit tests (nested JSON, every name); live: `session.jsonl` still shows a normal command's arguments |
+| A4 | **Onboarding speaks `CommandError`.** The module's `Result<_, String>` goes. The service unwraps `CommandError` and keeps its `message`. `you-form` and `repo-scan` state go through the service, the only IPC. Refusals stay the engine's text here; typed refusals with copy are listed under "Found" | `commands/onboarding/mod.rs`, `onboarding.service.ts`, `onboarding.state.svelte.ts`, `you-form.state.svelte.ts`, `repo-scan.state.svelte.ts` | clippy; svelte-check; Biome; live (CDP): first run walks Welcome → You → Your AI |
+| A5 | **The account on the profile.** Migration `user/0003_account.sql` adds `account_subject` and `account_issuer`, unique as a pair. `UserProfile.account`; `profile::set_account` writes the account and its email. A different account on an install that has one is refused, with nothing written (D6) | `migrations/user/0003_account.sql`, `platform/profile/mod.rs` | engine tests: round trip, same account again, a different account refused |
+| A6 | **The engine verifies a session.** A new `platform/account/` (the DevPulse account; not AI, so the engine). A `SessionVerifier` trait (precedent `EndpointProbe`) and the Supabase verifier: `GET {url}/auth/v1/user` with `apikey` and the bearer token, through an injected `reqwest::Client`. It returns the account (subject = the user's `id`, issuer = `{url}/auth/v1`, email) or a typed refusal: rejected (401/403), unreachable, not configured, or no email. `Onboarding::account(verifier, token)` verifies, records (A5) and publishes | `platform/account/{mod,supabase}.rs` (new), `platform/mod.rs`, `onboarding/workflow.rs` | engine tests with a scripted verifier; pure tests of the response reading; an `#[ignore]` live test |
+| A7 | **The intent.** Tauri `onboarding_account(access_token)` resolves the endpoint with `credentials_from` (`secrets.rs:108-128`; the keychain stays in Tauri, the only crate with `keyring`) and calls A6. The facade, service and state gain `account` | `commands/onboarding/mod.rs`, `lib.rs`, `sys/bindings/onboarding/index.ts`, `onboarding.service.ts`, `onboarding.state.svelte.ts` | clippy; svelte-check; live (CDP): a made-up token is refused in the engine's words, and `session.jsonl` shows `[redacted]` |
+| A8 | **The auth domain to the rules above.** A `sys/bindings/auth/index.ts` facade; `data-access/auth.service.ts` holds every auth `commands.*` call; `auth.state`, `supabase.client` and `LoginShell` use it. `supabase.client.ts`'s stale doc (`:5-16`) is rewritten. Nothing visible changes | `sys/bindings/auth/index.ts` (new), `auth.service.ts` (new), `auth.state.svelte.ts`, `supabase.client.ts`, `LoginShell.svelte` | svelte-check; Biome; live: `authState` still reaches `not-configured` |
+| A9 | **The form as a `ui/` adapter.** `domains/auth/ui/sign-in-form/` (`SignInForm.svelte`, `sign-in-form.types.ts`, `index.ts`): props in, callbacks out, ColdLight only, no `<main>`, no `<style>`. `feature/LoginShell.svelte` keeps only the wiring | `ui/sign-in-form/*` (3, new), `LoginShell.svelte`, `domains/auth/index.ts` | svelte-check; Biome; curator audit; CDP screenshot |
+| A10 | **Sign-up by email code** (the default; "Both", 2026-10-15). `authState.sendCode` / `verifyCode` (supabase-js `signInWithOtp` / `verifyOtp`); the password stays an option; offline: an explanation and Retry. New `[auth]` keys | `auth.state.svelte.ts`, `ui/sign-in-form/SignInForm.svelte`, `LoginShell.svelte`, `copy.default.toml`, `platform/copy/mod.rs` | cargo test copy; svelte-check; CDP up to the code step |
+| A11 | **The Account stage, end to end** (the flow rule makes this one step). Engine: `Stage::Account`, `Requirement::Account` until the profile holds an account, `later` refused before it, the flow `welcome, account, you, your_ai, containers`, the signal snapshot. Window: `views/AccountView.svelte` mounts `LoginShell` and sends `account` (A7) on a session; Welcome hides "Set up later" until the account exists. Seven source files: the rule outranks the file count | `onboarding/{flow,state,workflow}.rs`, `first-run.flow.toml`, `tests/snapshots/signal_contract__wire_samples_are_stable.snap`, `FirstRunFlow.svelte`, `views/AccountView.svelte` (new) | engine tests (`next` and `later` refused without an account); live: Welcome → Account, no "later"; **you** sign up (D5); the stage opens You |
+| A12 | **You shows the account's email.** The You form shows it and no longer asks for it; `you.rs:136-141` stops clearing the column when the field is blank | `onboarding/you.rs`, `copy.default.toml`, `views/YouView.svelte` | engine tests; live: You shows your sign-up address |
+| A13 | **The session in the OS keychain** (D1). supabase-js `auth.storage` is an adapter over Tauri commands; the values never reach the logs (A3) | `supabase.client.ts`, `auth.service.ts`, `sys/bindings/auth/index.ts`, `commands/cloud/session.rs` (new), `lib.rs` | restart keeps the session; nothing under `EBWebView` holds it |
+| A14 | **After first run.** No session (signed out or expired): the root layout shows the sign-in over the app. A network failure while holding a session keeps you working, local-first. The layout's contract comment (`routes/+layout.svelte:178-186`) is rewritten. Profile gets Sign out (the copy exists) | `routes/+layout.svelte`, `routes/(app)/profile/+page.svelte`, a profile `ui/` part | live: sign out → sign-in; offline restart with a session → app works |
+| A15 | **The license from the verified account**, Free by default; the Pro stub goes only once that works (D3) | `commands/cloud/license.rs` (+ the verifier's response) | a free account reads Free |
+| A16 | **The shippin.cloud question** after the account (D4). Shippin has no API yet (master plan P3b) | waits on Shippin's API | — |
 
 Live check, end to end: a fresh portable copy → first run → Welcome → Account → **you** sign up with a test address → You shows that email → finish → restart → still signed in. Signing up on the real Supabase project is creating an account on an external service, so you do that step. I drive and verify the rest.
 
 Conflicts these rulings settle (older text is corrected when its phase lands):
-- "Skip … allowed and remembered" (ruling 1, `:457-458`) and "Set up later" on Welcome: superseded for the account by "no skip"; A3a.
-- "Email comes from GitHub; it is not a separate question" (settled item 5, `:429-431`; `copy.default.toml:47`; `you.rs:34`): the account's email is required; A3b.
-- "Never: … a locked app" (R-A10, `:71`) and "no connect-to-internet nags" (`MODEL-LOADER-UX-REQUIREMENTS.md:168`): first run cannot finish offline (master plan R7). After first run, the app stays local-first (A6).
+- "Skip … allowed and remembered" (ruling 1, `:457-458`) and "Set up later" on Welcome: superseded for the account by "no skip"; A11.
+- "Email comes from GitHub; it is not a separate question" (settled item 5, `:429-431`; `copy.default.toml:47`; `you.rs:34`): the account's email is required; A5 and A12.
+- "Never: … a locked app" (R-A10, `:71`) and "no connect-to-internet nags" (`MODEL-LOADER-UX-REQUIREMENTS.md:168`): first run cannot finish offline (master plan R7). After first run, the app stays local-first (A14).
 - Nomen / ZITADEL text (`:1790-1792`, `:1802`; master plan C10, P3, M2): withdrawn 2026-10-21; the login is Supabase.
+- The root layout's "Users reach LoginShell from settings" (`routes/+layout.svelte:178-186`) and the profile route's "auth-gated" comment (`routes/(app)/profile/+page.svelte:9-11`) are both untrue today; A14 rewrites them.
 
 Owner decisions 2026-10-23:
-- **D1:** the session lives in the OS keychain (A5's adapter); a copied folder on another machine asks you to sign in again.
+- **D1:** the session lives in the OS keychain (A13's adapter); a copied folder on another machine asks you to sign in again.
 - **D2:** the anon key ships in `config/platform/integrations/cloud.toml` (A1); the owner adds the value, and the keychain stays as an override.
-- **D4:** the shippin.cloud question is held until Shippin's API exists (A8).
-- **Open:** D3, the license source, decided at A7.
+- **D4:** the shippin.cloud question is held until Shippin's API exists (A16).
+- **Open:** D3, the license source, decided at A15.
+- **Open, my default until you rule:** D6, a different account signing in on an install that already has one. A5 refuses it and writes nothing; the alternative is to replace the account and keep everything else.
 
 The questions as asked:
 - **D1 — where the session lives.** OS keychain (your keyring rule for tokens; a copied folder on another machine asks you to sign in again), or `.userdata` (travels with the folder, so a copy carries your login).
@@ -1419,7 +1518,15 @@ The questions as asked:
 
 Found while reading, outside this step:
 - WebView2's data folder and a `logs` folder sit in `%LOCALAPPDATA%\com.devpulse.desktop`, outside the DevPulse folder (portable-folder rule).
-- `set_supabase_anon_key`, `clear_supabase_anon_key`, `validate_license` and `get_license_summary` have no callers. A1 and A7 wire them in.
+- `set_supabase_anon_key`, `clear_supabase_anon_key`, `validate_license` and `get_license_summary` have no callers. A1 and A15 wire them in.
+- Typed first-run refusals: the engine's `bail!` text becomes a refusal kind with a copy key, so the window says it in your words. It needs a refusal kind in `CommandError` (`_util/error.rs:38-75` has none).
+- The settings page edits the email too, with "Email" and "Not set" written in code (`routes/(app)/devpulse/settings/+page.svelte:49-52,79-83`), and `profile/mod.rs:5-6` says nothing else writes the row while `onboarding/store.rs:47-56` does.
+- The rule documents disagree in places, and the locked `Desktop.md` wins here:
+  - `packages/coldlight/COMPOSITION-CONTRACT.md:114-117` puts state at `$lib/sys/data-access/<feature>/`;
+  - `check.naming.ts:106-122` says "no .svelte files in domains/";
+  - `Desktop.md:181` imports a `chat.svc.js`;
+  - `Desktop.md:509-517` lists six preflight checks that do not exist, and nothing enforces the feature/ui/data-access direction or "IPC only in services";
+  - `.claude/rules/rust.md:3-5` names paths that do not exist (`systems/engine/**`, `kernel/clyffy/**`), so it never applies.
 
 ### B1 addendum — OpenRouter (master plan H5)
 
@@ -2203,3 +2310,22 @@ queries proving what was written.
       its own module (`domains/agenthub`), and B7, the Social tab, is from
       `alpha/docs/PLATFORM_ARCHITECTURE.md`: presence invisible by default, and
       a general channel that parallels the Discord dev channel.
+  - 2026-10-23 — **Account step A1 and A2 done.**
+    - A1 (`c6d0fb1a`): the auth endpoint is configuration
+      (`config/platform/integrations/cloud.toml`); the keychain entry is an
+      override. Live: the credentials commands return the configured URL.
+    - A2 (`edd4f461`): auth text is in the engine copy catalog; `LoginShell`
+      reads `copyState`.
+  - 2026-10-23 — **Research pass: where each piece goes** (owner: "research
+    the existing code base to author properly no shortcuts methodical").
+    - Three read-only passes (first run and login, chat and rooms, the repo's
+      written rules and gates), checked against the source before citing.
+    - The Account step is re-sequenced to the code's own rules: secrets kept
+      out of the logs first (A3), the onboarding commands on `CommandError`
+      (A4), then the engine pieces, the auth domain to the window rules, and
+      the stage last, since a stage is listed only once it works end to end.
+    - Found and recorded: the dev IPC trace writes command arguments verbatim
+      (no secret logged yet); B4.2b was already built (my first Cowork note
+      said otherwise, corrected); B4.2c c5; the room-history and room-send
+      gaps for B4.3e; `DecisionCard` is not a ColdLight component; the rule
+      documents' contradictions.
