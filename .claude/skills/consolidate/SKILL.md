@@ -1,6 +1,6 @@
 ---
 name: consolidate
-description: Find duplicate definitions across codebase, pick the SSOT, redirect all consumers, delete the rest. Pre-release mode — no shims, no backwards compat.
+description: Find duplicate definitions across codebase, pick the SSOT, redirect all consumers; a duplicate is deleted only once nothing of its capability is lost and the owner OKs that item. Pre-release mode — no shims, no backwards compat.
 user-invocable: true
 disable-model-invocation: false
 argument-hint: "<type name, module path, or 'scan' to find all duplicates>"
@@ -87,7 +87,7 @@ cd interfaces/desktop && npx svelte-check --threshold error
 If errors:
 - If the error is "Cannot find module" → a consumer was missed. Find and redirect it.
 - If the error is a type mismatch → the SSOT definition differs from the duplicate. The SSOT wins. Fix the consumer.
-- NEVER restore a deleted file to fix an error. That's a bandaid.
+- Restoring a deleted capability is the owner's priority, not a bandaid (owner 2026-10-20: "I want capabilities restored"). Restore it re-authored to the SSOT, never as a second copy.
 
 ## Anti-Patterns (REJECT THESE)
 

@@ -34,7 +34,7 @@ Find files that:
 - Are not imported by anything (dead code)
 - Import from files that don't exist
 - Are .d.ts files that shadow .ts files with different values
-- Are in directories for deleted concepts (taxonomy/, catalog/, ui/, builders/)
+- Are in directories for deleted concepts (taxonomy/, catalog/, builders/, or ui/ inside packages/coldlight/ — an app domain's `ui/<name>/` adapters are required, owner 2026-10-21)
 
 ### 3. Barrel File Health
 

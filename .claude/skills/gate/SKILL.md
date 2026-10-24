@@ -81,10 +81,15 @@ Zero tolerance. If a type is unknown, use `unknown` with a type guard.
 
 ```
 Grep: "taxonomy/", "catalog/", "semantics/", "molecules/",
-      "shortcodes/", "/ui/", "builders/"
+      "shortcodes/", "builders/"
+Grep, inside packages/coldlight/ only: "/ui/"
 ```
 
-These concepts are deleted. Any reference is stale drift.
+These concepts are deleted. Any reference is stale drift. A `ui/` folder is
+deleted only inside ColdLight: an app domain's `ui/<name>/` adapters are
+required (owner 2026-10-21: "you establish the raw first under
+design/components/compname and then you have the actual rendered version
+authored colocated under the ui folder").
 
 ### 7. COMPILE CHECK
 

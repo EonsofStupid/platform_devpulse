@@ -30,7 +30,7 @@ For each file changed:
 8. **Bandaid imports** — Does this add a re-export barrel, backward-compat shim, or import redirect?
 9. **Optional escape** — Does this make a schema field optional to avoid fixing consumers?
 10. **Any types** — Does this introduce `as any`, `: any`, or `as unknown`?
-11. **Deleted concepts** — Does this reference taxonomy/, catalog/, semantics/, molecules/, shortcodes/, ui/, builders/?
+11. **Deleted concepts** — Does this reference taxonomy/, catalog/, semantics/, molecules/, shortcodes/, builders/, or a ui/ folder inside packages/coldlight/? (An app domain's `ui/<name>/` adapters are required — owner 2026-10-21.)
 12. **Barrel depth** — Does internal code import from the public API barrel instead of the source file?
 13. **Schema weakening** — Does this loosen a Zod schema to avoid fixing the data it validates?
 

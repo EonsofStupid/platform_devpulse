@@ -26,7 +26,7 @@ This project is in pre-release. These rules override any "minimal change" instin
 2. **No shims.** If an import path changed, update the consumer. Don't add a re-export.
 3. **No optional fields to avoid fixing data.** If the schema says required, fix the data.
 4. **Merge duplicates on sight.** If you find the same type in two files, invoke `/consolidate`.
-5. **Delete dead code.** If a file has zero importers after your change, delete it.
+5. **Include before delete.** If a file has zero importers after your change, find where it belongs and wire it in, or show its capability is covered elsewhere. Deleting it waits for the owner's OK on that item (owner 2026-10-19: "dead code needs to exist in the codebase or be properly included before deleted this is a fucking rule").
 6. **One definition per concept.** If you're about to write `export type Foo` and Foo already
    exists somewhere, you're creating a duplicate. Stop and redirect.
 
