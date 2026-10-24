@@ -7,6 +7,7 @@ use std::sync::Arc;
 
 use crate::cortex::cag::traits::Embedder;
 use crate::cortex::persistence::surreal::client::SurrealAdapter;
+use crate::cortex::persistence::surreal::rpc::Query;
 
 /// Default persona id for single-user installs. Multi-persona installs
 /// pass their own id at the call site; this constant exists so the
@@ -103,23 +104,28 @@ impl SuggestionService {
 
         let id = uuid::Uuid::now_v7().to_string();
         let captured_at = unix_now_secs();
-        let embedding_json = serde_json::to_string(&embedding)
-            .context("serialize embedding to JSON for SurrealDB CONTENT clause")?;
-        let safe_text = text.replace('\\', "\\\\").replace('\'', "\\'");
 
-        let surql = format!(
-            "CREATE type::thing('chat_prompt', '{id}') CONTENT {{ \
-                text: '{safe_text}', \
-                embedding: {embedding_json}, \
-                persona_id: '{persona}', \
-                captured_at: {captured_at}, \
-                accepted: {accepted} \
-            }};"
-        );
-
+        // Every value is bound: the text needs no escaping and the
+        // embedding crosses as a float array.
+        let insert = Query::new(
+            "CREATE type::record('chat_prompt', $id) CONTENT { \
+                text: $text, \
+                embedding: $embedding, \
+                persona_id: $persona, \
+                captured_at: $captured_at, \
+                accepted: $accepted \
+            };",
+        )
+        .bind("id", &id)?
+        .bind("text", text)?
+        .bind("embedding", &embedding)?
+        .bind("persona", persona)?
+        .bind("captured_at", &captured_at)?
+        .bind("accepted", &accepted)?;
         self.surreal
-            .execute_in_ns(&self.namespace, &self.database, &surql)
-            .await
+            .run(&self.namespace, &self.database, insert)
+            .await?
+            .check()
             .context("chat_prompt insert failed")?;
 
         tracing::info!(
@@ -170,29 +176,33 @@ impl SuggestionService {
             .await
             .context("chat.suggest embed failed during query")?;
 
-        let embedding_json = serde_json::to_string(&embedding)
-            .context("serialize partial embedding for SurrealDB KNN parameter")?;
-
         let overfetch = k.saturating_mul(4).max(k);
-        let surql = format!(
+        // Surreal 3 takes a filter beside the HNSW search only when the
+        // search width is given (`<|K,EF|>`; a bare `<|K|>` with a filter is
+        // refused). `record::id` is Surreal 3's name for the 2.x `meta::id`.
+        let ef = overfetch.max(40);
+        let knn = Query::new(format!(
             "SELECT \
-                meta::id(id) AS id, \
+                record::id(id) AS id, \
                 text, \
                 captured_at, \
                 accepted, \
-                vector::similarity::cosine(embedding, {embedding_json}) AS similarity \
+                vector::similarity::cosine(embedding, $embedding) AS similarity \
              FROM chat_prompt \
-             WHERE persona_id = '{persona}' \
-               AND embedding <|{overfetch}|> {embedding_json} \
+             WHERE persona_id = $persona \
+               AND embedding <|{overfetch},{ef}|> $embedding \
              ORDER BY similarity DESC \
              LIMIT {overfetch};"
+        ))
+        .bind("embedding", &embedding)?
+        .bind("persona", persona)?;
+        let raw = serde_json::Value::Array(
+            self.surreal
+                .run(&self.namespace, &self.database, knn)
+                .await?
+                .take(0)
+                .context("chat_prompt KNN query failed")?,
         );
-
-        let raw = self
-            .surreal
-            .query_in_ns(&self.namespace, &self.database, &surql)
-            .await
-            .context("chat_prompt KNN query failed")?;
 
         let candidates = parse_candidates(&raw);
         let now = unix_now_secs();

@@ -1,12 +1,11 @@
-//! `IntelligenceStore` implementation backed by the embedded
-//! `SurrealKV` `SurrealAdapter`.
+//! `IntelligenceStore` implementation backed by the Surreal server
+//! (`SurrealAdapter`, plan 0007 Part S).
 //!
 //! Plugs the abstract intelligence layer
-//! ([`crate::cortex::intelligence`]) into the local embedded
-//! connector. Every method routes through the typed scoped helpers
-//! on [`SurrealAdapter`]: no `SurrealQL` string interpolation, no
-//! `serde_json::Value` round-trip for the primary record shape, no
-//! session-state mutation across cloned `Surreal<Db>` handles.
+//! ([`crate::cortex::intelligence`]) into the local server. Every method
+//! routes through the typed scoped helpers on [`SurrealAdapter`]: values
+//! are bound, never pasted into `SurrealQL`; embeddings cross as float
+//! arrays and archive bytes as bytes.
 //!
 //! Future connectors (`surreal_cloud`, `turso`, ...) live in
 //! sibling modules under `cortex::persistence::*` and implement the
@@ -16,12 +15,12 @@
 use anyhow::{Context, Result};
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
-use surrealdb::types::SurrealValue;
 
 use crate::cortex::intelligence::{
     IntelligenceStore, MemoryKind, MemoryRecord, RecallHit, EMBEDDING_DIM, MEMORY_SCHEMA,
 };
 use crate::cortex::persistence::surreal::client::SurrealAdapter;
+use crate::cortex::persistence::surreal::rpc::Query;
 
 /// Namespace under `projects/<slug>` is the routing convention. The
 /// abstract `slug` parameter on every trait method maps to the
@@ -29,14 +28,10 @@ use crate::cortex::persistence::surreal::client::SurrealAdapter;
 /// every project-local store sits in a single namespace bucket.
 const PROJECT_NAMESPACE: &str = "projects";
 
-/// Recall-row shape returned by the HNSW-knn similarity query.
-///
-/// `SurrealValue` derive does not honor serde's `flatten`, so this
-/// row mirrors [`MemoryRecord`] field-for-field and adds `score`.
-/// The query result is re-assembled into [`MemoryRecord`] +
-/// [`RecallHit::score`] inside `recall_by_embedding`.
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
-#[surreal(crate = "surrealdb::types")]
+/// Recall-row shape returned by the HNSW-knn similarity query: a
+/// [`MemoryRecord`] field-for-field plus `score`, re-assembled into
+/// [`MemoryRecord`] + [`RecallHit::score`] inside `recall_by_embedding`.
+#[derive(Debug, Clone, Serialize, Deserialize)]
 struct RecallRow {
     id: String,
     text: String,
@@ -62,17 +57,9 @@ impl IntelligenceStore for SurrealAdapter {
                 record.embedding.len()
             );
         }
-        // Clone once for the move into `upsert_typed_in_ns` — the
-        // adapter helper requires `'static` for the bound payload.
-        self.upsert_typed_in_ns(
-            PROJECT_NAMESPACE,
-            slug,
-            "memories",
-            &record.id,
-            record.clone(),
-        )
-        .await
-        .with_context(|| format!("save_memory {slug}:{}", record.id))?;
+        self.upsert_typed_in_ns(PROJECT_NAMESPACE, slug, "memories", &record.id, record)
+            .await
+            .with_context(|| format!("save_memory {slug}:{}", record.id))?;
         Ok(record.id.clone())
     }
 
@@ -104,20 +91,21 @@ impl IntelligenceStore for SurrealAdapter {
              ORDER BY score DESC LIMIT {top_k};"
         );
 
-        let mut q = self
-            .scoped_query(PROJECT_NAMESPACE, slug, &surql)
-            .bind(("emb", query_embedding.to_vec()));
+        let mut q = Query::new(surql).bind("emb", query_embedding)?;
         if let Some(k) = kind {
-            // Bind MemoryKind directly — SurrealValue serialization
-            // matches what `save_memory` writes via the same path,
-            // so the schema's `kind TYPE string` column compares
-            // consistently across reads and writes.
-            q = q.bind(("kind", k));
+            // MemoryKind serializes as its snake_case name — the same text
+            // `save_memory` writes into the `kind TYPE string` column.
+            q = q.bind("kind", &k)?;
         }
-        let mut response = q.await.with_context(|| format!("recall {slug}"))?;
-        let rows: Vec<RecallRow> = response
-            .take(1)
-            .with_context(|| format!("recall take {slug}"))?;
+        let rows: Vec<RecallRow> = self
+            .run(PROJECT_NAMESPACE, slug, q)
+            .await?
+            .take(0)
+            .with_context(|| format!("recall {slug}"))?
+            .into_iter()
+            .map(serde_json::from_value)
+            .collect::<std::result::Result<_, _>>()
+            .with_context(|| format!("recall rows {slug}"))?;
 
         Ok(rows
             .into_iter()
@@ -137,34 +125,38 @@ impl IntelligenceStore for SurrealAdapter {
     }
 
     async fn relate(&self, slug: &str, from_id: &str, to_id: &str, edge: &str) -> Result<()> {
-        // RELATE on parametrized record ids via `type::thing`. Edge
-        // table name flows through `$edge` so the connector never
-        // builds a SurrealQL identifier from caller input.
-        let surql = "RELATE type::thing('memories', $from)->\
-                     type::thing($edge, rand::uuid())->\
-                     type::thing('memories', $to);";
-        self.scoped_query(PROJECT_NAMESPACE, slug, surql)
-            .bind(("from", from_id.to_string()))
-            .bind(("to", to_id.to_string()))
-            .bind(("edge", edge.to_string()))
-            .await
-            .with_context(|| format!("relate {slug} {from_id}->{edge}->{to_id}"))?;
-        Ok(())
+        // RELATE on parametrized record ids via `type::record` (Surreal 3's
+        // name for `type::thing`). The edge table name flows through `$edge`
+        // so the connector never builds a SurrealQL identifier from caller
+        // input.
+        let q = Query::new(
+            "RELATE type::record('memories', $from)->\
+             type::record($edge, rand::uuid())->\
+             type::record('memories', $to);",
+        )
+        .bind("from", from_id)?
+        .bind("to", to_id)?
+        .bind("edge", edge)?;
+        self.run(PROJECT_NAMESPACE, slug, q)
+            .await?
+            .check()
+            .with_context(|| format!("relate {slug} {from_id}->{edge}->{to_id}"))
     }
 
     async fn write_archive(&self, slug: &str, memory_id: &str, bytes: &[u8]) -> Result<()> {
-        // The archive row's id matches the memory id 1:1 — keeps
-        // the sidecar lookup-by-id straightforward. `memory_id` is
-        // a SurrealDB record reference field, so cast through
-        // `type::thing('memories', $mid)` at bind time.
-        let surql = "UPSERT type::thing('rro_archive', $mid) \
-                     CONTENT { memory_id: type::thing('memories', $mid), bytes: $bytes };";
-        self.scoped_query(PROJECT_NAMESPACE, slug, surql)
-            .bind(("mid", memory_id.to_string()))
-            .bind(("bytes", bytes.to_vec()))
-            .await
-            .with_context(|| format!("write_archive {slug}:{memory_id}"))?;
-        Ok(())
+        // The archive row's id matches the memory id 1:1. `memory_id` is a
+        // record reference, cast through `type::record('memories', $mid)`;
+        // the blob crosses as bytes.
+        let q = Query::new(
+            "UPSERT type::record('rro_archive', $mid) \
+             CONTENT { memory_id: type::record('memories', $mid), bytes: $bytes };",
+        )
+        .bind("mid", memory_id)?
+        .bind("bytes", serde_bytes::Bytes::new(bytes))?;
+        self.run(PROJECT_NAMESPACE, slug, q)
+            .await?
+            .check()
+            .with_context(|| format!("write_archive {slug}:{memory_id}"))
     }
 
     async fn read_archive_bytes(&self, slug: &str, memory_id: &str) -> Result<Option<Vec<u8>>> {

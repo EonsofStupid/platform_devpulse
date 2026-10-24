@@ -1,11 +1,7 @@
-//! Graph store boot — open the embedded `SurrealKV` store and
-//! initialize the three namespace scopes on one connection.
-//!
-//! No child process, no port allocator, no WS handshake. `DevPulse`
-//! holds the `SurrealKV` file lock directly via [`SurrealService`].
-//! The single `Surreal<Db>` connection backs system / user / global
-//! namespace scopes; each query prefixes its own `USE NS .. DB ..;`
-//! so isolation is at the query level, not session state.
+//! Graph store boot — start the Surreal server (upstream's build, a
+//! supervised subprocess; plan 0007 Part S) on the configured store and
+//! initialize the system / user / global scopes on it. Every request names
+//! its namespace and database, so isolation never depends on session state.
 
 use crate::platform::boot::log::BootLog;
 use crate::platform::config::PlatformBootConfig;
@@ -13,12 +9,15 @@ use crate::platform::init::InitEvent;
 use crate::platform::services::graph::{
     GraphService, GLOBAL_GRAPH_SCHEMA, SYSTEM_GRAPH_SCHEMA, USER_GRAPH_SCHEMA,
 };
-use crate::platform::services::surreal::SurrealService;
+use crate::platform::services::surreal::{root_password, SurrealService};
 use devpulse_clyffy::cortex::persistence::SurrealAdapter;
 use devpulse_clyffy::cortex::persistence::SurrealConfig;
 use std::path::Path;
 use std::sync::Arc;
 use std::time::Instant;
+
+/// The boot step for the Surreal server, as the boot manifest names it.
+const SURREAL_STEP: &str = "SurrealDB sidecar";
 
 /// Boot the embedded `SurrealKV` store and build three scoped graph services.
 ///
@@ -58,40 +57,55 @@ pub async fn boot_consolidated(
         return (None, None, None, None);
     }
 
-    // ── Stage A: open the embedded SurrealKV store ──────────────
+    // ── Stage A: start the Surreal server on the store ──────────
     on_event(InitEvent::running(
-        "SurrealKV embedded",
-        "Opening on-disk store...",
+        SURREAL_STEP,
+        "Starting the Surreal server...",
     ));
-    boot_log.running("SurrealKV embedded", "opening store...");
+    boot_log.running(SURREAL_STEP, "starting the server...");
     let start = Instant::now();
 
-    // From configuration (`[services.system.surreal] data_path`), never a
-    // path built here.
+    // From configuration (`[services.system.surreal]`, the port from
+    // `[services.network.graph_api]`), never a path built here.
     let data_path = store_cfg.store(data_dir);
+    let net = &boot_config.services.network.graph_api;
+    let password = match root_password(&store_cfg.credentials(data_dir)) {
+        Ok(p) => p,
+        Err(e) => {
+            tracing::error!(error = ?e, "Surreal credentials unavailable");
+            on_event(InitEvent::error(SURREAL_STEP, &format!("{e:#}")));
+            boot_log.fail(SURREAL_STEP, &format!("credentials: {e:#}"));
+            return (None, None, None, None);
+        }
+    };
     let cfg = SurrealConfig {
+        binary: store_cfg.binary(data_dir),
         data_path: data_path.clone(),
+        host: net.bind.clone(),
+        port: net.port,
+        max_bumps: store_cfg.max_bumps,
+        log_level: store_cfg.log_level.clone(),
+        user: store_cfg.root_user.clone(),
+        password,
     };
 
     let store = match SurrealService::boot(cfg).await {
         Ok(svc) => Arc::new(svc),
         Err(e) => {
-            tracing::error!(error = ?e, "SurrealKV embedded store open failed");
-            on_event(InitEvent::error("SurrealKV embedded", &format!("{e:#}")));
-            boot_log.fail("SurrealKV embedded", &format!("open failed: {e:#}"));
+            tracing::error!(error = ?e, "Surreal server failed to start");
+            on_event(InitEvent::error(SURREAL_STEP, &format!("{e:#}")));
+            boot_log.fail(SURREAL_STEP, &format!("start failed: {e:#}"));
             return (None, None, None, None);
         }
     };
 
     let store_latency = start.elapsed();
-    on_event(InitEvent::ok_with_latency(
-        "SurrealKV embedded",
-        store_latency,
-    ));
+    on_event(InitEvent::ok_with_latency(SURREAL_STEP, store_latency));
     boot_log.ok(
-        "SurrealKV embedded",
+        SURREAL_STEP,
         &format!(
-            "open at {} ({}ms)",
+            "ready at {} on {} ({}ms)",
+            store.adapter().endpoint().unwrap_or_default(),
             data_path.display(),
             store_latency.as_millis() as u64
         ),
@@ -113,7 +127,7 @@ pub async fn boot_consolidated(
     {
         Ok(a) => Arc::new(a),
         Err(e) => {
-            tracing::error!(error = ?e, "SurrealKV adapter init failed");
+            tracing::error!(error = ?e, "Surreal schema init failed");
             on_event(InitEvent::error("Graph store", &format!("{e:#}")));
             boot_log.fail("Graph store", &format!("schema init failed: {e:#}"));
             return (Some(store), None, None, None);
@@ -151,7 +165,7 @@ pub async fn boot_consolidated(
         latency_us = connect_start.elapsed().as_micros() as u64,
         path = %data_path.display(),
         namespaces = "system, user, global",
-        "Graph store connected (embedded SurrealKV)"
+        "Graph store connected (Surreal server)"
     );
     on_event(InitEvent::ok_with_latency(
         "Graph store",

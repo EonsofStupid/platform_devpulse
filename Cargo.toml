@@ -37,7 +37,8 @@ specta-typescript = "0.0.9"
 # its own process allocator; full-text search stays on.
 turso = { version = "0.8.3", default-features = false, features = ["fts"] }
 duckdb = { version = "1.10506", features = ["bundled"] }
-surrealdb = { version = "3.0", default-features = false, features = ["kv-surrealkv"] }
+# SurrealDB is not a dependency: DevPulse runs upstream's server build as a
+# supervised subprocess and talks to it over HTTP /rpc (plan 0007 Part S).
 moka = { version = "0.12", features = ["future"] }
 # fjall deferred — SurrealKV covers persistent KV; re-add if perf demands it
 wal = { git = "https://github.com/EonsofStupid/wal", branch = "rro-alpha" }

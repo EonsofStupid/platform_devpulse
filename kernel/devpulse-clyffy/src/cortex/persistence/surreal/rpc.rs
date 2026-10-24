@@ -286,7 +286,6 @@ fn field<'a>(map: &'a [(Cbor, Cbor)], name: &str) -> Option<&'a Cbor> {
 pub(crate) fn to_json(value: &Cbor) -> serde_json::Value {
     use serde_json::Value as Json;
     match value {
-        Cbor::Null => Json::Null,
         Cbor::Bool(b) => Json::Bool(*b),
         Cbor::Integer(i) => {
             let n = i128::from(*i);
@@ -311,6 +310,7 @@ pub(crate) fn to_json(value: &Cbor) -> serde_json::Value {
                 .collect(),
         ),
         Cbor::Tag(tag, inner) => tagged(*tag, inner),
+        // `Null`, and any value kind a later ciborium adds.
         _ => Json::Null,
     }
 }

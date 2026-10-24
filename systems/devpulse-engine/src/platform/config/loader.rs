@@ -1309,8 +1309,7 @@ impl DevForgeServiceEntry {
 
 /// `SurrealDB` — upstream's server build, installed inside the `DevPulse`
 /// folder and run as a supervised subprocess (plan 0007 Part S, owner
-/// decision 6). Until the cutover (S5) the store is still opened
-/// in-process; `data_path` already locates it from configuration.
+/// decision 6). Its port is `[services.network.graph_api]`.
 ///
 /// Paths are relative to the data dir unless absolute.
 #[derive(Debug, Clone, Deserialize)]
@@ -1333,6 +1332,23 @@ pub struct SurrealServiceEntry {
     /// The store.
     #[serde(default = "default_surreal_data_path")]
     pub data_path: String,
+    /// An explicit server binary instead of the installed build; empty =
+    /// the installed build. Nothing outside the `DevPulse` folder is searched.
+    #[serde(default)]
+    pub binary_path: String,
+    /// The server's log level.
+    #[serde(default = "default_surreal_log_level")]
+    pub log_level: String,
+    /// The root user the server is started with.
+    #[serde(default = "default_surreal_root_user")]
+    pub root_user: String,
+    /// Where the root password is kept: generated on the first start, inside
+    /// the folder (a copied folder still opens its store), never synced.
+    #[serde(default = "default_surreal_credentials_path")]
+    pub credentials_path: String,
+    /// How far past the configured port to look for a free one.
+    #[serde(default = "default_surreal_max_bumps")]
+    pub max_bumps: u16,
 }
 
 impl Default for SurrealServiceEntry {
@@ -1343,6 +1359,11 @@ impl Default for SurrealServiceEntry {
             version: default_surreal_version(),
             install_dir: default_surreal_install_dir(),
             data_path: default_surreal_data_path(),
+            binary_path: String::new(),
+            log_level: default_surreal_log_level(),
+            root_user: default_surreal_root_user(),
+            credentials_path: default_surreal_credentials_path(),
+            max_bumps: default_surreal_max_bumps(),
         }
     }
 }
@@ -1354,11 +1375,22 @@ impl SurrealServiceEntry {
         under_data_dir(data_dir, &self.install_dir).join(&self.version)
     }
 
-    /// The server binary of the configured build.
+    /// The server binary: `binary_path` when set, otherwise the configured
+    /// build's.
     #[must_use]
     pub fn binary(&self, data_dir: &Path) -> PathBuf {
-        self.build_dir(data_dir)
-            .join(format!("surreal{}", std::env::consts::EXE_SUFFIX))
+        if self.binary_path.trim().is_empty() {
+            self.build_dir(data_dir)
+                .join(format!("surreal{}", std::env::consts::EXE_SUFFIX))
+        } else {
+            under_data_dir(data_dir, self.binary_path.trim())
+        }
+    }
+
+    /// The credentials file.
+    #[must_use]
+    pub fn credentials(&self, data_dir: &Path) -> PathBuf {
+        under_data_dir(data_dir, &self.credentials_path)
     }
 
     /// The store.
@@ -2151,6 +2183,18 @@ fn default_surreal_install_dir() -> String {
 }
 fn default_surreal_data_path() -> String {
     "surreal/devpulse".to_owned()
+}
+fn default_surreal_log_level() -> String {
+    "warn".to_owned()
+}
+fn default_surreal_root_user() -> String {
+    "root".to_owned()
+}
+fn default_surreal_credentials_path() -> String {
+    "system/surreal/credentials.toml".to_owned()
+}
+fn default_surreal_max_bumps() -> u16 {
+    20
 }
 fn default_surreal_kind() -> String {
     "surreal".to_string()

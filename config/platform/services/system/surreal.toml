@@ -6,8 +6,8 @@
 # `cargo xtask fetch-surreal` (checked against upstream's published
 # SHA-256). All three graph namespaces (system / user / global) live
 # on that one server, isolated by namespace and database per query.
-# Until the cutover (Part S, S5) the store is still opened in-process
-# from `data_path`.
+# DevPulse starts it on the store, waits until it answers, restarts it if
+# it crashes, and stops it gracefully on close.
 #
 # Port comes from `[services.network.graph_api]`. If that port is
 # taken by a foreign listener at boot, the allocator bumps +1 up to
@@ -32,14 +32,14 @@ data_path = "surreal/devpulse"
 # Explicit binary instead of the installed build. Empty = the installed
 # build above; nothing outside the DevPulse folder is searched.
 binary_path = ""
-# Root credentials passed to `surreal start`. The namespace-scoped
-# users below (`system_user` / `system_password`) are created after
-# the server is up so `.claude/hooks/*.js` can auth with them.
+# The root user the server is started with. Its password is generated on
+# the first start and kept in `credentials_path` (relative to the data
+# dir), inside the folder and never synced.
 root_user = "root"
-root_password = "root"
+credentials_path = "system/surreal/credentials.toml"
 log_level = "warn"
-# Optional port-bump ceiling. Omit to use the default (20).
-# max_bumps = 20
+# How far past the configured port to look for a free one.
+max_bumps = 20
 
 # ─────────────────────────────────────────────────────────────
 # Namespace scopes — one WS connection, three NS/DB pairs

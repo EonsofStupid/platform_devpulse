@@ -376,8 +376,8 @@ counted; each verified live; commits with hooks passing):
 | S2 | **S2a and S2b done** (see the log); S2c, xtask on the shared guard, next. **Process mechanics.** `devpulse-process` gains a supervised child: Job Object kill-on-close (Windows), process group (POSIX), no console, line-by-line log capture, early-exit detection, Ctrl-Break then forced stop with deadlines | `systems/infra/devpulse-process/{Cargo.toml, src/lib.rs, src/child.rs}` | tests with a small child process; killing the test parent leaves no child |
 | S3 | **Done** (see the log). **The kernel runtime adapter** (phase 4's kernel half), generalized from the April `SurrealLifecycle` and `OllamaAdapter`: program, args, env, readiness URL, port policy, restart with backoff and a crash-loop cap, lifecycle events | `cortex/persistence/{runtime.rs, mod.rs}` | kernel tests with a scripted child: ready, crash then restart, crash loop then stop |
 | S4 | **Done** (see the log). **The CBOR client,** beside the old one, not yet wired: `surreal/rpc.rs` sends `query` with vars, reads the per-statement array, surfaces `ERR` statements, and maps CBOR tags to today's JSON shapes | `persistence/surreal/{rpc.rs, mod.rs}`, kernel `Cargo.toml` (`ciborium`, `serde_bytes`) | unit tests: encode and decode, tagged record ids, datetimes, bytes, an `ERR` statement |
-| S5 | **The cutover, on your existing data.** `lifecycle.rs` starts v3.0.5 through the runtime adapter on `surrealkv://{data_path}`; `client.rs` goes through `rpc.rs`; the 12 `type::thing` become `type::record`; `boot/graph.rs` reads the configured path | `surreal/{lifecycle,client,intelligence_impl}.rs`, `suggest/service.rs`, engine `boot/graph.rs` | live: boot reaches Ready; the SurrealDB devtool lists your tables with their counts; a chat prompt saves and suggests; DevPulse killed → no `surreal.exe` left |
-| S6 | **The crate leaves the build.** The `SurrealValue` derives become serde (bytes through `serde_bytes`); `surrealdb` leaves both `Cargo.toml`s and the lockfile | `intelligence/record.rs`, `surreal/{client,intelligence_impl}.rs`, kernel `Cargo.toml`, root `Cargo.toml` | `cargo tree -i surrealdb-core` → none; the `RUSTSEC-2026-0387` entry leaves `deny.toml` (added 2026-10-24 so the push could go through) and `cargo deny check advisories` still passes; build time before and after |
+| S5 | **Done** with S6 (see the log). **The cutover, on your existing data.** `lifecycle.rs` starts v3.0.5 through the runtime adapter on `surrealkv://{data_path}`; `client.rs` goes through `rpc.rs`; the 12 `type::thing` become `type::record`; `boot/graph.rs` reads the configured path | `surreal/{lifecycle,client,intelligence_impl}.rs`, `suggest/service.rs`, engine `boot/graph.rs` | live: boot reaches Ready; the SurrealDB devtool lists your tables with their counts; a chat prompt saves and suggests; DevPulse killed → no `surreal.exe` left |
+| S6 | **Done** with S5 (see the log). **The crate leaves the build.** The `SurrealValue` derives become serde (bytes through `serde_bytes`); `surrealdb` leaves both `Cargo.toml`s and the lockfile | `intelligence/record.rs`, `surreal/{client,intelligence_impl}.rs`, kernel `Cargo.toml`, root `Cargo.toml` | `cargo tree -i surrealdb-core` → none; the `RUSTSEC-2026-0387` entry leaves `deny.toml` (added 2026-10-24 so the push could go through) and `cargo deny check advisories` still passes; build time before and after |
 | S7 | **The engine facade and the window.** `sidecars/surreal/` (the folder `sidecars/mod.rs:13-14` names): managed, pid, binary, version, configured vs actual port, restarts; the devtool's Status tab and the boot manifest step show them | engine `services/{surreal.rs → sidecars/surreal/}`, `services/manifest.rs`, Tauri `commands/surreal/sidecar/mod.rs`, devtool feature | CDP screenshot of the Status tab with the live process |
 | S8 | **RocksDB, your April lock.** Export from the SurrealKV store, start on `rocksdb://{data_path}`, import, compare counts per table and namespace; the SurrealKV folder is kept until you OK its removal | `surreal/lifecycle.rs`, a one-time `surreal/move_store.rs`, `surreal.toml` | the counts match; restart opens RocksDB; the old folder untouched |
 | S9 | **Stale words fixed.** `surreal.toml` header, `persistence/mod.rs:10`, `services/graph.rs` "WS client", `.claude/rules/preflight.md` (`:8822`, `NS`/`DB` → `surreal-ns`/`surreal-db`), `build_release.rs:631-721`, `xtask dev` banner, the `ensure_port_free` that would block a bump | docs and comments; ≤ 5 per commit | `rg` finds no embedded-era claim |
@@ -625,3 +625,35 @@ Owner, 2026-10-24:
   6 tests (5 unit + the live server, which stopped gracefully on Ctrl-Break; no `surreal.exe` left).
   Next: S5 and S6 become one atomic step — once the client goes through the server nothing opens the store
   in-process, and the typed helpers need serde instead of the crate's derive.
+- 2026-10-24 — **S5 + S6 done in one step: Surreal runs as upstream's built binary; the `surrealdb` crate is out.**
+  - Kernel: `SurrealLifecycle` starts `surreal start --bind {host}:{port} --no-banner --log {level}
+    surrealkv:{store}` through the S3 runtime (cwd = the store's parent, so no Windows path meets Surreal's
+    scheme parsing; `SURREAL_ONLINE_VERSION_CHECK=false`), watches it, and stops it gracefully; the
+    adapter goes through the S4 client with the same surface (`query_in_ns`, `execute_in_ns`, scoped
+    handles, kv, typed helpers), now checking every statement; node/edge content and the suggestion
+    service's text and embeddings are bound, not pasted; 12 `type::thing` → `type::record`, `meta::id` →
+    `record::id`, `record(x)` → `record<x>` (5 schema lines Surreal 3 refused), the KNN filter form
+    `<|k,ef|>` (3.0.5 refuses a bare `<|k|>` beside a filter); the `SurrealValue` derives are serde
+    (`serde_bytes` for bytes).
+  - Engine: `[services.system.surreal]` gains `binary_path` (empty = the installed build; nothing outside
+    the folder is searched), `log_level`, `root_user`, `credentials_path`, `max_bumps`; the published
+    `root_password = "root"` is gone — the password is generated on first start and kept in
+    `{data_dir}/system/surreal/credentials.toml` (inside the folder, never synced); the port is
+    `[services.network.graph_api]` (8822); boot reports the manifest's `SurrealDB sidecar` step again.
+  - `cargo tree -i surrealdb-core` / `crypto-bigint` / `jsonwebtoken` → none; the RUSTSEC-2026-0387 entry is
+    removed from `deny.toml` and `cargo deny check advisories` passes.
+  - Verified before touching the owner's store: every statement of all six schemas (316) against the
+    3.0.5 server (5 refused → fixed); `tests/surreal_server.rs` (ignored; needs the installed build) runs the
+    boot schemas, suggestions record + recall through `SuggestionService` with a stand-in embedder (a prompt
+    with quotes, a backslash and `person:tobie` round-trips exactly), kv, nodes, record ids as `table:key`,
+    the inspector reads, and a clean stop.
+  - Live, on the owner's store (backed up first to `.userdata/surreal/devpulse.backup-2026-10-24`): boot
+    `SurrealDB sidecar: ready at http://127.0.0.1:8822 … (2011ms)`, `Graph store: 3 namespaces ready
+    (116ms)`; the process is `.userdata/global/runtimes/surreal/3.0.5/surreal.exe … surrealkv:devpulse`;
+    over CDP `surreal_status` / `surreal_health` / `graph_health_all` answer and every table lists; a
+    count of every table in every namespace matches a pre-cutover copy exactly (34 tables, 1 row —
+    `user/profile/active_project`). That one row is the finding: every other graph write has been failing
+    silently under the embedded crate (`type::thing`, the old `record(x)` schemas), so prompts, thoughts and
+    project records were never stored. Killing the app ends `surreal.exe` within 3 s (its job).
+  - Not exercised live: suggestions in the app (no embedder is loaded in the `chat.suggest` slot on this
+    machine — it fails before the store); the graceful stop on a normal app close (covered by the tests).

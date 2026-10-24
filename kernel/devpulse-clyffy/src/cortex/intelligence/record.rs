@@ -17,7 +17,6 @@
 use anyhow::{anyhow, Result};
 use rkyv::{Archive, Deserialize as RkyvDeserialize, Serialize as RkyvSerialize};
 use serde::{Deserialize, Serialize};
-use surrealdb::types::SurrealValue;
 
 // ═══════════════════════════════════════════════════════════════
 // Kind taxonomy — shared across graph-row and rkyv-archive paths
@@ -38,14 +37,12 @@ use surrealdb::types::SurrealValue;
     Hash,
     Serialize,
     Deserialize,
-    SurrealValue,
     Archive,
     RkyvSerialize,
     RkyvDeserialize,
 )]
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 #[serde(rename_all = "snake_case")]
-#[surreal(crate = "surrealdb::types")]
 pub enum MemoryKind {
     /// Architectural decision — locked rules, design choices.
     Decision,
@@ -77,12 +74,9 @@ pub enum MemoryKind {
 /// [`super::schema::EMBEDDING_DIM`] in the schema; changing the
 /// embedder dim requires a fresh per-project table re-init.
 ///
-/// Carries `SurrealValue` so the typed-bind path on the connector
-/// roundtrips the row without serde / `serde_json::Value`
-/// intermediation. The `serde` derives stay on for the engine /
-/// Tauri-IPC JSON paths.
-#[derive(Debug, Clone, Serialize, Deserialize, SurrealValue)]
-#[surreal(crate = "surrealdb::types")]
+/// Crosses to the Surreal server through serde (CBOR) and to the engine /
+/// Tauri IPC as JSON.
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MemoryRecord {
     /// Stable id — `UUIDv7` by convention.
     pub id: String,

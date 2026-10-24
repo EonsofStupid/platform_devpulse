@@ -79,7 +79,6 @@ futures = { workspace = true }
 base64 = "0.22"
 turso = { workspace = true }
 duckdb = { workspace = true }
-surrealdb = { workspace = true }
 moka = { workspace = true }
 rro = { workspace = true, optional = true }
 llguidance = { workspace = true, optional = true }

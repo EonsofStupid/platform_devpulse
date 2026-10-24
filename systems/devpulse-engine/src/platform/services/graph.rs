@@ -122,8 +122,8 @@ DEFINE INDEX IF NOT EXISTS states_name ON states FIELDS name UNIQUE;
 
 -- State transitions
 DEFINE TABLE IF NOT EXISTS transitions SCHEMAFULL;
-DEFINE FIELD IF NOT EXISTS from_state ON transitions TYPE record(states);
-DEFINE FIELD IF NOT EXISTS to_state ON transitions TYPE record(states);
+DEFINE FIELD IF NOT EXISTS from_state ON transitions TYPE record<states>;
+DEFINE FIELD IF NOT EXISTS to_state ON transitions TYPE record<states>;
 DEFINE FIELD IF NOT EXISTS probability ON transitions TYPE float;
 DEFINE FIELD IF NOT EXISTS trigger ON transitions TYPE string;
 

@@ -1,25 +1,67 @@
-//! Surreal service — engine facade over the embedded `SurrealKV` store.
+//! Surreal service — engine facade over the Surreal server (plan 0007 Part S).
 //!
-//! The engine facade wraps [`SurrealLifecycle`] (now an embedded
-//! `Surreal<Db>` owner — no child process) with the platform `Service`
-//! trait and exposes serde-friendly status / health structs for the
-//! Tauri command layer. Lifecycle is owned here; the kernel adapter
-//! does the actual file lock + WAL flush.
+//! The engine facade wraps [`SurrealLifecycle`] — upstream's server build in
+//! a supervised subprocess — with the platform `Service` trait and exposes
+//! serde-friendly status / health structs for the Tauri command layer, and
+//! keeps the server's root password ([`root_password`]).
 //!
 //! # Boot-time, not lazy
 //!
 //! Surreal is a critical boot-time dependency — every graph namespace
-//! connects through it. The boot pipeline constructs this service;
-//! the devtool reads its status and (for hot-update) the Platform
-//! drops + reopens the lifecycle.
+//! connects through it. The boot pipeline constructs this service; the
+//! devtool reads its status; shutdown stops the server gracefully.
 
 use super::{Service, ServiceRole, ServiceState};
-use anyhow::Result;
+use anyhow::{Context, Result};
 use devpulse_clyffy::cortex::persistence::surreal::{SurrealConfig, SurrealLifecycle};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use specta::Type;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
+
+/// The credentials file's shape.
+#[derive(Debug, Serialize, Deserialize)]
+struct Credentials {
+    password: String,
+}
+
+/// The Surreal root password kept at `path`: read it, or generate and keep
+/// it the first time. The file lives inside the `DevPulse` folder, so a
+/// copied folder still opens its store; it is never synced.
+///
+/// # Errors
+/// Returns an error if the file cannot be read, parsed or written.
+pub fn root_password(path: &Path) -> Result<String> {
+    match std::fs::read_to_string(path) {
+        Ok(text) => {
+            let creds: Credentials = toml::from_str(&text)
+                .with_context(|| format!("read the Surreal credentials {}", path.display()))?;
+            Ok(creds.password)
+        }
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
+            let password = format!(
+                "{}{}",
+                uuid::Uuid::new_v4().simple(),
+                uuid::Uuid::new_v4().simple()
+            );
+            if let Some(parent) = path.parent() {
+                std::fs::create_dir_all(parent)
+                    .with_context(|| format!("create {}", parent.display()))?;
+            }
+            let body = format!(
+                "# The Surreal server's root password, generated on its first start\n\
+                 # (plan 0007 Part S). Kept inside the DevPulse folder; never synced.\n{}",
+                toml::to_string(&Credentials {
+                    password: password.clone()
+                })?
+            );
+            std::fs::write(path, body)
+                .with_context(|| format!("keep the Surreal credentials {}", path.display()))?;
+            Ok(password)
+        }
+        Err(e) => Err(e).with_context(|| format!("read {}", path.display())),
+    }
+}
 
 /// Engine-level service wrapping the embedded kernel adapter.
 pub struct SurrealService {
@@ -27,12 +69,12 @@ pub struct SurrealService {
 }
 
 impl SurrealService {
-    /// Boot the service — opens the embedded `SurrealKV` store at the
-    /// configured data path.
+    /// Boot the service — starts the Surreal server on the configured store
+    /// and waits until it answers.
     ///
     /// # Errors
-    /// Propagates any failure from [`SurrealLifecycle::boot`] (FS error,
-    /// existing lock, corrupted store).
+    /// Propagates any failure from [`SurrealLifecycle::boot`] (binary not
+    /// installed, store folder, a server that exits or never answers).
     pub async fn boot(cfg: SurrealConfig) -> Result<Self> {
         let adapter = SurrealLifecycle::boot(cfg).await?;
         Ok(Self {
@@ -40,8 +82,8 @@ impl SurrealService {
         })
     }
 
-    /// Underlying adapter (for the graph boot step that reads the live
-    /// `Surreal<Db>` connection).
+    /// Underlying lifecycle (the graph boot step connects its scopes
+    /// through it).
     #[must_use]
     pub fn adapter(&self) -> &Arc<SurrealLifecycle> {
         &self.adapter
@@ -52,10 +94,9 @@ impl SurrealService {
     pub fn snapshot(&self) -> SurrealStatus {
         SurrealStatus {
             running: true,
-            // Embedded — DevPulse always owns the file. Retained for
-            // source-compat with the prior sidecar surface.
+            // DevPulse started this server and owns it.
             managed: self.adapter.is_managed(),
-            backend: "kv-surrealkv".into(),
+            backend: "surrealkv (server)".into(),
             data_path: self.adapter.data_path().to_string_lossy().into_owned(),
         }
     }
@@ -89,19 +130,17 @@ impl Service for SurrealService {
 
 /// Runtime status of the Surreal service — what the devtool renders.
 ///
-/// Embedded path: no host/port/HTTP/WS — `DevPulse` holds the file lock
-/// directly. The devtool surfaces `data_path` so a layman can see
-/// exactly where the bytes live.
+/// The devtool surfaces `data_path` so a layman can see exactly where the
+/// bytes live (the process and port fields arrive with plan 0007 S7).
 #[derive(Debug, Clone, Serialize, Type)]
 #[serde(rename_all = "camelCase")]
 pub struct SurrealStatus {
     /// True iff the service is present in the platform slot.
     pub running: bool,
-    /// True iff `DevPulse` owns the embedded store. Always `true`
-    /// for the embedded path — retained for source-compat with the
-    /// prior managed/attached sidecar distinction.
+    /// True iff `DevPulse` started and owns the server (always, today:
+    /// it never attaches to one it did not start).
     pub managed: bool,
-    /// Storage backend identifier (`"kv-surrealkv"`).
+    /// Storage backend identifier (`"surrealkv (server)"`).
     pub backend: String,
     /// Absolute path to the `SurrealKV` data directory.
     pub data_path: String,
@@ -114,7 +153,7 @@ impl SurrealStatus {
         Self {
             running: false,
             managed: false,
-            backend: "kv-surrealkv".into(),
+            backend: "surrealkv (server)".into(),
             data_path: String::new(),
         }
     }
@@ -131,7 +170,7 @@ pub struct SurrealHealth {
 }
 
 impl SurrealHealth {
-    /// Healthy — the embedded probe (`INFO FOR ROOT`) returned without error.
+    /// Healthy — the server's `INFO FOR ROOT` returned without error.
     #[must_use]
     pub fn up() -> Self {
         Self {

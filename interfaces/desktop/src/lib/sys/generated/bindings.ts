@@ -13328,9 +13328,8 @@ label: string }
 /**
  * Runtime status of the Surreal service — what the devtool renders.
  * 
- * Embedded path: no host/port/HTTP/WS — `DevPulse` holds the file lock
- * directly. The devtool surfaces `data_path` so a layman can see
- * exactly where the bytes live.
+ * The devtool surfaces `data_path` so a layman can see exactly where the
+ * bytes live (the process and port fields arrive with plan 0007 S7).
  */
 export type SurrealStatus = { 
 /**
@@ -13338,13 +13337,12 @@ export type SurrealStatus = {
  */
 running: boolean; 
 /**
- * True iff `DevPulse` owns the embedded store. Always `true`
- * for the embedded path — retained for source-compat with the
- * prior managed/attached sidecar distinction.
+ * True iff `DevPulse` started and owns the server (always, today:
+ * it never attaches to one it did not start).
  */
 managed: boolean; 
 /**
- * Storage backend identifier (`"kv-surrealkv"`).
+ * Storage backend identifier (`"surrealkv (server)"`).
  */
 backend: string; 
 /**

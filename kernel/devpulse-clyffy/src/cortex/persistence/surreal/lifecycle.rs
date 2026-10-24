@@ -1,154 +1,228 @@
-//! Surreal embedded lifecycle — owns the in-process `SurrealKV` store.
+//! Surreal lifecycle — upstream's server build in a supervised subprocess
+//! (plan 0007 Part S, S5; owner decision 6, 2026-10-24: "a prebuilt binary
+//! subprocess that can easily be detached").
 //!
-//! No child process, no WS, no port allocation. `DevPulse` opens the
-//! `kv-surrealkv` storage backend directly via the Rust API. Drop
-//! the handle to release the file lock for hot-update / migration.
+//! The April design (`15f60f08`, a managed `surreal start` child) re-authored
+//! onto the kernel runtime ([`super::super::runtime`]) and `DevPulse`'s own
+//! client ([`super::rpc`]); no Surreal crate is linked.
 //!
-//! # Why embedded?
-//!
-//! - **Zero latency**: queries cross no socket/HTTP boundary.
-//! - **Lower memory**: no `surreal start` process overhead, no
-//!   second tokio runtime, no extra reqwest/HTTP/WS plumbing.
-//! - **Pure Rust**: `SurrealKV` (LSM + MVCC) compiles without C/C++
-//!   deps — release builds stay self-contained.
-//! - **Hot-update tagged**: `Self::shutdown` drops the handle so a
-//!   future swap can run schema migrations + reopen with no
-//!   process-lifecycle dance.
-//!
-//! # What this DOES NOT own
-//!
-//! - Schema initialization. That belongs to
-//!   [`super::client::SurrealAdapter::open_embedded`].
-//! - The `Surreal<Db>` connection itself — owned by the adapter,
-//!   passed back through [`Self::adapter`] / [`Self::db`].
+//! - **Binary and store** come from configuration (the engine passes them):
+//!   the installed build inside the `DevPulse` folder, and the store folder.
+//! - **Store path.** The server runs in the store's parent folder and opens
+//!   it by name (`surrealkv:<name>`), so a Windows absolute path never meets
+//!   Surreal's path-scheme parsing.
+//! - **Port** from the allocator: the configured one, bumped past a foreign
+//!   listener; the server is never attached to — it owns the store.
+//! - **Root user** is created by the server on the first start from
+//!   `SURREAL_USER` / `SURREAL_PASS`; the engine keeps the password in a
+//!   credentials file inside the folder.
+//! - **No phoning home:** `SURREAL_ONLINE_VERSION_CHECK=false`.
+//! - **Stop** is graceful first, forced after the owner's checks (R-G19).
+
+use std::path::{Path, PathBuf};
+use std::sync::Arc;
 
 use anyhow::{Context, Result};
-use std::path::{Path, PathBuf};
-use surrealdb::engine::local::{Db, SurrealKv};
-use surrealdb::Surreal;
 
-/// Boot parameters for the embedded `SurrealKV` store.
-///
-/// Single-field today; kept as a struct so future tuning (cache size,
-/// compaction policy) lands without breaking the call surface.
+use super::rpc::{Query, SurrealRpc};
+use crate::cortex::persistence::port_alloc::PortAllocation;
+use crate::cortex::persistence::runtime::{
+    RestartPolicy, Runtime, RuntimeEvent, RuntimeEvents, RuntimeSpec, RuntimeState, PORT,
+};
+
+/// How to start the server.
 #[derive(Debug, Clone)]
 pub struct SurrealConfig {
-    /// Absolute path to the `SurrealKV` data directory. Created on
-    /// boot if absent. Format: opaque LSM tree + WAL — never edit
-    /// by hand.
+    /// The installed server build.
+    pub binary: PathBuf,
+    /// The store folder (created when absent).
     pub data_path: PathBuf,
+    /// The address it listens on.
+    pub host: String,
+    /// The configured port.
+    pub port: u16,
+    /// How far past the configured port to look.
+    pub max_bumps: u16,
+    /// The server's log level (`error`, `warn`, `info`, …).
+    pub log_level: String,
+    /// The root user.
+    pub user: String,
+    /// The root user's password.
+    pub password: String,
 }
 
-/// Embedded `SurrealKV` handle owned by the Platform.
-///
-/// Construction = open the on-disk store and produce a `Surreal<Db>`
-/// connection. Cloneable per-namespace via the underlying `Surreal`'s
-/// internal `Arc`. Hot-update happens by:
-///
-///   1. drain in-flight queries (Platform-side gate),
-///   2. drop every `Surreal<Db>` clone (releases the file lock),
-///   3. run migration / compaction,
-///   4. construct a new `SurrealLifecycle` and republish.
-///
-/// Replaces the prior child-process manager. The struct name is
-/// retained so existing engine imports continue to resolve.
+/// The running server and the client that reaches it.
 pub struct SurrealLifecycle {
-    /// Path the store was opened at — surfaced to the devtool so the
-    /// user can see exactly where the bytes live.
+    runtime: Arc<Runtime>,
+    rpc: SurrealRpc,
     data_path: PathBuf,
-    /// Live in-process connection. Cheap to clone (internal Arc).
-    db: Surreal<Db>,
+    binary: PathBuf,
+}
+
+impl std::fmt::Debug for SurrealLifecycle {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("SurrealLifecycle")
+            .field("binary", &self.binary)
+            .field("data_path", &self.data_path)
+            .field("endpoint", &self.runtime.endpoint())
+            .finish_non_exhaustive()
+    }
 }
 
 impl SurrealLifecycle {
-    /// Open (or create) the embedded `SurrealKV` store at the configured
-    /// path.
+    /// Start the server on the store and wait until it answers; then keep
+    /// it running (restart on a crash).
     ///
     /// # Errors
-    ///
-    /// - Filesystem error creating the data directory.
-    /// - `SurrealKV` refuses to open the existing store (corruption,
-    ///   incompatible WAL, file locked by another process).
+    /// - the binary is not installed (`cargo xtask fetch-surreal`);
+    /// - the store folder cannot be created;
+    /// - the server cannot start, exits while starting (its last lines are
+    ///   quoted), or does not answer in time.
     pub async fn boot(cfg: SurrealConfig) -> Result<Self> {
-        std::fs::create_dir_all(&cfg.data_path)
-            .with_context(|| format!("create `SurrealKV` data dir {}", cfg.data_path.display()))?;
-
-        let path_str = cfg.data_path.to_string_lossy().into_owned();
-        let db: Surreal<Db> = Surreal::new::<SurrealKv>(path_str.as_str())
-            .await
-            .with_context(|| format!("open `SurrealKV` store at {}", cfg.data_path.display()))?;
-
-        tracing::info!(
-            path = %cfg.data_path.display(),
-            backend = "kv-surrealkv",
-            "SurrealKV embedded store opened"
+        anyhow::ensure!(
+            cfg.binary.is_file(),
+            "the Surreal server build is not installed at {} — run `cargo xtask fetch-surreal`",
+            cfg.binary.display()
         );
+        std::fs::create_dir_all(&cfg.data_path)
+            .with_context(|| format!("create the Surreal store {}", cfg.data_path.display()))?;
+        let parent = cfg
+            .data_path
+            .parent()
+            .context("the Surreal store has no parent folder")?
+            .to_path_buf();
+        let name = cfg
+            .data_path
+            .file_name()
+            .context("the Surreal store has no folder name")?
+            .to_string_lossy()
+            .into_owned();
 
+        let events: RuntimeEvents = Arc::new(|event| match event {
+            RuntimeEvent::Line { text, .. } => {
+                tracing::info!(target: "surreal", "{text}");
+            }
+            RuntimeEvent::State(state) => {
+                tracing::info!(target: "surreal", ?state, "server state");
+            }
+        });
+        let runtime = Runtime::start(
+            RuntimeSpec {
+                name: "surreal".into(),
+                program: cfg.binary.clone(),
+                args: vec![
+                    "start".into(),
+                    "--bind".into(),
+                    format!("{}:{PORT}", cfg.host),
+                    "--no-banner".into(),
+                    "--log".into(),
+                    cfg.log_level.clone(),
+                    format!("surrealkv:{name}"),
+                ],
+                env: vec![
+                    ("SURREAL_USER".into(), cfg.user.clone()),
+                    ("SURREAL_PASS".into(), cfg.password.clone()),
+                    ("SURREAL_ONLINE_VERSION_CHECK".into(), "false".into()),
+                ],
+                dir: Some(parent),
+                host: cfg.host.clone(),
+                port: cfg.port,
+                max_bumps: cfg.max_bumps,
+                ready_path: "/health".into(),
+                startup_timeout: std::time::Duration::from_secs(60),
+                restart: RestartPolicy::default(),
+                stop: devpulse_process::StopPolicy::default(),
+            },
+            events,
+        )
+        .await
+        .context("start the Surreal server")?;
+        runtime.watch();
+
+        let at = Arc::clone(&runtime);
+        let rpc = SurrealRpc::new(Arc::new(move || at.endpoint()), cfg.user, cfg.password)?;
+        tracing::info!(
+            target: "surreal",
+            binary = %cfg.binary.display(),
+            store = %cfg.data_path.display(),
+            endpoint = ?runtime.endpoint(),
+            "Surreal server ready"
+        );
         Ok(Self {
+            runtime,
+            rpc,
             data_path: cfg.data_path,
-            db,
+            binary: cfg.binary,
         })
     }
 
-    /// Borrow the live connection. Multiple namespace scopes share
-    /// one `Surreal<Db>` — every query prefixes its own
-    /// `USE NS .. DB ..;` so namespace isolation is at the query
-    /// level, never on session state.
+    /// The client for this server.
     #[must_use]
-    pub fn db(&self) -> &Surreal<Db> {
-        &self.db
+    pub fn rpc(&self) -> &SurrealRpc {
+        &self.rpc
     }
 
-    /// Path the store is open at. Devtool reads this to render the
-    /// "where is my data" status row.
+    /// The store folder.
     #[must_use]
     pub fn data_path(&self) -> &Path {
         &self.data_path
     }
 
-    /// Always `true` for the embedded path — `DevPulse` owns the store.
-    /// Retained for source-compat with code that previously
-    /// distinguished managed vs attached sidecars.
+    /// The server build it runs.
+    #[must_use]
+    pub fn binary(&self) -> &Path {
+        &self.binary
+    }
+
+    /// Its address, while it has one.
+    #[must_use]
+    pub fn endpoint(&self) -> Option<String> {
+        self.runtime.endpoint()
+    }
+
+    /// The port it was given: configured, actual, bumps.
+    #[must_use]
+    pub fn allocation(&self) -> Option<PortAllocation> {
+        self.runtime.allocation()
+    }
+
+    /// The server's process id, while it runs.
+    #[must_use]
+    pub fn pid(&self) -> Option<u32> {
+        self.runtime.pid()
+    }
+
+    /// Where the server stands.
+    #[must_use]
+    pub fn state(&self) -> RuntimeState {
+        self.runtime.state()
+    }
+
+    /// `DevPulse` started this server and owns it (it never attaches).
     #[must_use]
     pub fn is_managed(&self) -> bool {
         true
     }
 
-    /// Health probe — runs a trivial `INFO FOR DB` against the
-    /// embedded engine. Cheap (no I/O beyond a memtable read).
+    /// Health probe: `INFO FOR ROOT` answered without error.
     ///
     /// # Errors
-    /// Propagates any error from the embedded query layer.
+    /// Returns the server's or the transport's error.
     pub async fn ping(&self) -> Result<()> {
-        // `INFO FOR ROOT` is the canonical embedded health probe; it
-        // returns the cluster info without touching any user data.
-        self.db
-            .query("INFO FOR ROOT;")
-            .await
-            .context("SurrealKV health probe failed")?;
-        Ok(())
+        self.rpc
+            .query_root(Query::new("INFO FOR ROOT;"))
+            .await?
+            .check()
+            .context("Surreal health probe")
     }
 
-    /// Graceful shutdown — drop the connection, releasing the file
-    /// lock so a follow-up `boot` (or external migration tool) can
-    /// reopen without process restart.
-    ///
-    /// `SurrealKV` flushes its WAL automatically on `Surreal<Db>` Drop.
-    /// This method exists for symmetry with the old sidecar surface
-    /// — engine `Service::shutdown` forwards to it.
+    /// Stop the server: graceful first, forced after the checks.
     ///
     /// # Errors
-    /// Reserved for the migration / drop-handle path that will surface
-    /// `SurrealKV` flush failures once hot-update lands. The current
-    /// implementation never returns `Err` because the embedded store
-    /// flushes on `Drop`; the signature stays `Result<()>` so callers
-    /// don't break when that contract grows real failure modes.
-    #[allow(clippy::unused_async)]
+    /// Returns the OS error if it cannot be stopped.
     pub async fn shutdown(&self) -> Result<()> {
-        tracing::info!(
-            path = %self.data_path.display(),
-            "SurrealKV embedded store shutting down — flush on drop"
-        );
+        let stopped = self.runtime.stop().await?;
+        tracing::info!(target: "surreal", ?stopped, "Surreal server stopped");
         Ok(())
     }
 }
