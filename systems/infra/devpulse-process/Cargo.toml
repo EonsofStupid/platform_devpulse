@@ -27,4 +27,10 @@ windows-sys = { version = "0.59", features = [
     "Win32_Security",
     # JOBOBJECT_EXTENDED_LIMIT_INFORMATION is gated on it (IO_COUNTERS).
     "Win32_System_Threading",
+    # Ctrl-Break to a child's process group (stop.rs).
+    "Win32_System_Console",
 ] }
+
+[target.'cfg(unix)'.dependencies]
+# SIGTERM / SIGKILL to a child's process group (stop.rs).
+libc = "0.2"

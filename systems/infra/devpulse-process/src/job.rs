@@ -13,8 +13,8 @@ use anyhow::{Context, Result};
 use windows_sys::Win32::Foundation::{CloseHandle, HANDLE};
 use windows_sys::Win32::System::JobObjects::{
     AssignProcessToJobObject, CreateJobObjectW, JobObjectExtendedLimitInformation,
-    SetInformationJobObject, JOBOBJECT_EXTENDED_LIMIT_INFORMATION, JOB_OBJECT_LIMIT_BREAKAWAY_OK,
-    JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE,
+    SetInformationJobObject, TerminateJobObject, JOBOBJECT_EXTENDED_LIMIT_INFORMATION,
+    JOB_OBJECT_LIMIT_BREAKAWAY_OK, JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE,
 };
 
 /// Whether a process in the job may leave it by asking to
@@ -97,6 +97,24 @@ impl JobGuard {
         anyhow::ensure!(
             ok != 0,
             "AssignProcessToJobObject failed (pid {pid}): {}",
+            io::Error::last_os_error()
+        );
+        Ok(())
+    }
+
+    /// End every process in this job now — a process and everything it
+    /// started (the forced half of a stop).
+    ///
+    /// # Errors
+    /// Returns the OS error if the job cannot be terminated.
+    #[allow(unsafe_code)]
+    pub fn terminate(&self) -> Result<()> {
+        // SAFETY: a valid job handle from `new`; 1 is the exit code given to
+        // every process in it.
+        let ok = unsafe { TerminateJobObject(self.handle, 1) };
+        anyhow::ensure!(
+            ok != 0,
+            "TerminateJobObject failed: {}",
             io::Error::last_os_error()
         );
         Ok(())

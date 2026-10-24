@@ -4467,6 +4467,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "devpulse-telemetry",
+ "libc",
  "tokio",
  "windows-sys 0.59.0",
 ]

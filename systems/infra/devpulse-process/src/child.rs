@@ -2,15 +2,17 @@
 //! Surreal server (plan 0007 Part S, S2a).
 //!
 //! - No console window (`DevPulse` is a GUI app).
-//! - On Windows it is put in one process-wide Job Object with kill-on-close,
-//!   so it cannot outlive `DevPulse` however `DevPulse` ends. On Unix it gets
-//!   its own process group, so a stop reaches what it started.
+//! - Its own process group, so a graceful stop reaches it and only it
+//!   ([`crate::stop`]).
+//! - On Windows its own Job Object with kill-on-close: a forced stop ends it
+//!   and everything it started, and it cannot outlive `DevPulse` however
+//!   `DevPulse` ends (the job's handle closes with `DevPulse`).
 //! - Every line it prints goes to the caller's sink, which decides where it
 //!   lands (the kernel sends it into tracing and lifecycle events).
 //! - Its exit is noticed: [`SupervisedChild::exited`] answers at any time,
 //!   so a crash during startup is seen at once rather than after a timeout.
 //!
-//! The process is assigned to the job right after it starts. A runtime that
+//! The process is assigned to its job right after it starts. A runtime that
 //! started its own children in that first instant would leave them outside
 //! the job; the runtimes `DevPulse` supervises do not.
 
@@ -49,11 +51,22 @@ pub struct ChildSpec {
 }
 
 /// A running child under supervision.
-#[derive(Debug)]
 pub struct SupervisedChild {
-    name: String,
-    pid: u32,
-    child: tokio::process::Child,
+    pub(crate) name: String,
+    pub(crate) pid: u32,
+    pub(crate) child: tokio::process::Child,
+    /// The child's own kill-on-close job (Windows).
+    #[cfg(windows)]
+    pub(crate) job: crate::job::JobGuard,
+}
+
+impl std::fmt::Debug for SupervisedChild {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("SupervisedChild")
+            .field("name", &self.name)
+            .field("pid", &self.pid)
+            .finish_non_exhaustive()
+    }
 }
 
 impl SupervisedChild {
@@ -77,14 +90,27 @@ impl SupervisedChild {
         }
         #[cfg(windows)]
         {
-            // No console window flashes up from a GUI app.
+            const CREATE_NEW_PROCESS_GROUP: u32 = 0x0000_0200;
             const CREATE_NO_WINDOW: u32 = 0x0800_0000;
-            cmd.creation_flags(CREATE_NO_WINDOW);
+            // Its own process group, so Ctrl-Break reaches it alone. With a
+            // console of our own (a dev build) it shares that console, so the
+            // signal can be sent; without one (a release build) it gets a
+            // hidden console of its own, and no window flashes up.
+            let flags = if crate::stop::console::attached() {
+                CREATE_NEW_PROCESS_GROUP
+            } else {
+                CREATE_NO_WINDOW | CREATE_NEW_PROCESS_GROUP
+            };
+            cmd.creation_flags(flags);
         }
         #[cfg(unix)]
         {
             cmd.process_group(0);
         }
+
+        #[cfg(windows)]
+        let job = crate::job::JobGuard::new(crate::job::Breakaway::Refused)
+            .with_context(|| format!("create the job for {}", spec.name))?;
 
         let mut child = cmd
             .spawn()
@@ -98,7 +124,7 @@ impl SupervisedChild {
             let joined = child
                 .raw_handle()
                 .context("the child has no process handle")
-                .and_then(|handle| runtime_job()?.assign(handle, pid));
+                .and_then(|handle| job.assign(handle, pid));
             if let Err(e) = joined {
                 let _ = child.start_kill();
                 return Err(e).with_context(|| format!("supervise {}", spec.name));
@@ -115,6 +141,8 @@ impl SupervisedChild {
             name: spec.name.clone(),
             pid,
             child,
+            #[cfg(windows)]
+            job,
         })
     }
 
@@ -151,7 +179,8 @@ impl SupervisedChild {
             .with_context(|| format!("wait for {}", self.name))
     }
 
-    /// End it now, without asking — the forced half of a stop.
+    /// End it now, without asking — it and everything it started (its job on
+    /// Windows, its process group on Unix). The forced half of a stop.
     ///
     /// # Errors
     /// Returns the OS error if it cannot be ended or waited for.
@@ -159,8 +188,12 @@ impl SupervisedChild {
         if let Some(status) = self.exited()? {
             return Ok(status);
         }
-        self.child
-            .start_kill()
+        #[cfg(windows)]
+        self.job
+            .terminate()
+            .with_context(|| format!("end {}", self.name))?;
+        #[cfg(unix)]
+        crate::stop::signal_group(self.pid, crate::stop::Signal::Kill)
             .with_context(|| format!("end {}", self.name))?;
         self.wait().await
     }
@@ -186,20 +219,6 @@ where
             }
         }
     });
-}
-
-/// The one Job Object every supervised child joins. It is never dropped, so
-/// its handle closes only when `DevPulse` exits — and then the OS ends every
-/// child in it.
-#[cfg(windows)]
-fn runtime_job() -> Result<&'static crate::job::JobGuard> {
-    use crate::job::{Breakaway, JobGuard};
-    use std::sync::OnceLock;
-
-    static JOB: OnceLock<std::result::Result<JobGuard, String>> = OnceLock::new();
-    JOB.get_or_init(|| JobGuard::new(Breakaway::Refused).map_err(|e| format!("{e:#}")))
-        .as_ref()
-        .map_err(|e| anyhow::anyhow!("the process job is unavailable: {e}"))
 }
 
 #[cfg(test)]

@@ -373,7 +373,7 @@ counted; each verified live; commits with hooks passing):
 | # | Outcome | Files | Verification |
 | --- | --- | --- | --- |
 | S1 | **Done** (see the log). **The binary, installed the right way.** `fetch-surreal` installs the configured version into `.userdata/global/runtimes/surreal/{V}/`: SHA-256 against the published digest, temp extract, atomic rename, LICENSE beside it, previous build kept; nothing written into `src-tauri/binaries/`. `surreal.toml` gains `version`, `runtimes_dir` and `data_path`; its stale keys are reconciled | `xtask/src/commands/fetch_surreal.rs`, `config/platform/services/system/surreal.toml`, engine `config/loader.rs` (`SurrealServiceEntry`) | `cargo test -p xtask`; the installed `surreal version` prints 3.0.5; a tampered download is refused |
-| S2 | **S2a done** (see the log); S2b graceful-then-forced stop and S2c xtask on the shared guard next. **Process mechanics.** `devpulse-process` gains a supervised child: Job Object kill-on-close (Windows), process group (POSIX), no console, line-by-line log capture, early-exit detection, Ctrl-Break then forced stop with deadlines | `systems/infra/devpulse-process/{Cargo.toml, src/lib.rs, src/child.rs}` | tests with a small child process; killing the test parent leaves no child |
+| S2 | **S2a and S2b done** (see the log); S2c, xtask on the shared guard, next. **Process mechanics.** `devpulse-process` gains a supervised child: Job Object kill-on-close (Windows), process group (POSIX), no console, line-by-line log capture, early-exit detection, Ctrl-Break then forced stop with deadlines | `systems/infra/devpulse-process/{Cargo.toml, src/lib.rs, src/child.rs}` | tests with a small child process; killing the test parent leaves no child |
 | S3 | **The kernel runtime adapter** (phase 4's kernel half), generalized from the April `SurrealLifecycle` and `OllamaAdapter`: program, args, env, readiness URL, port policy, restart with backoff and a crash-loop cap, lifecycle events | `cortex/persistence/{runtime.rs, mod.rs}` | kernel tests with a scripted child: ready, crash then restart, crash loop then stop |
 | S4 | **The CBOR client,** beside the old one, not yet wired: `surreal/rpc.rs` sends `query` with vars, reads the per-statement array, surfaces `ERR` statements, and maps CBOR tags to today's JSON shapes | `persistence/surreal/{rpc.rs, mod.rs}`, kernel `Cargo.toml` (`ciborium`, `serde_bytes`) | unit tests: encode and decode, tagged record ids, datetimes, bytes, an `ERR` statement |
 | S5 | **The cutover, on your existing data.** `lifecycle.rs` starts v3.0.5 through the runtime adapter on `surrealkv://{data_path}`; `client.rs` goes through `rpc.rs`; the 12 `type::thing` become `type::record`; `boot/graph.rs` reads the configured path | `surreal/{lifecycle,client,intelligence_impl}.rs`, `suggest/service.rs`, engine `boot/graph.rs` | live: boot reaches Ready; the SurrealDB devtool lists your tables with their counts; a chat prompt saves and suggests; DevPulse killed → no `surreal.exe` left |
@@ -587,3 +587,14 @@ Owner, 2026-10-24:
   rustfmt clean, `cargo check -p devpulse_desktop_backend`. Found on the way: `windows-sys` 0.59 gates
   `JOBOBJECT_EXTENDED_LIMIT_INFORMATION` on `Win32_System_Threading`. R-G19 (owner): "first gracefully
   then forced after two attempts … 3 checks if no progress on the third check over 30 seconds" is S2b.
+- 2026-10-24 — **S2b done: graceful first, forced after the checks (R-G19).** `StopPolicy::default()` is
+  the owner's rule: two graceful requests, three checks over thirty seconds, then forced.
+  `SupervisedChild::stop` sends Ctrl-Break to the child's own process group on Windows (SIGTERM to the
+  group on Unix), checks every 100 ms within each interval, forces only after the last check, and
+  forces at once (saying why) when no request can be sent. Each child now has its own kill-on-close
+  job, so a forced stop ends the child and everything it started (`TerminateJobObject`; `killpg` on
+  Unix) without touching other runtimes. Spawn flags follow whether `DevPulse` has a console: shared
+  console (dev builds) or a hidden one it attaches to for the request (release builds). Verified: 11
+  tests + both Windows paths — with a console (graceful in 0.4 s; `ping`, which ignores Ctrl-Break,
+  forced after the 6 s test window) and, run alone, without one (`without_a_console_the_request_still_lands`).
+  clippy all targets, rustfmt, `cargo check -p devpulse_desktop_backend` clean.

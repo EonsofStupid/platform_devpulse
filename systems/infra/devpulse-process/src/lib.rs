@@ -15,8 +15,10 @@
 mod child;
 #[cfg(windows)]
 pub mod job;
+mod stop;
 
 pub use child::{ChildSpec, LineSink, Stream, SupervisedChild};
+pub use stop::{StopKind, StopPolicy, Stopped};
 
 use std::path::Path;
 use std::time::Duration;
