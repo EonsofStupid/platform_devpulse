@@ -5449,7 +5449,7 @@ error_invalid_credentials: string;
  */
 error_network: string; 
 /**
- * Banner text when this copy of DevPulse has no sign-in configured
+ * Banner text when this copy of `DevPulse` has no sign-in configured
  * (no anon key in `[integrations.cloud.auth]` or the keychain).
  */
 error_supabase_not_configured: string; 
@@ -6743,7 +6743,7 @@ devtools: DevtoolsCopy;
  */
 chat: ChatCopy; 
 /**
- * The DevPulse account: sign-in, sign-up, sign-out (moved from the
+ * The `DevPulse` account: sign-in, sign-up, sign-out (moved from the
  * model-loader wizard copy; auth is not AI, so its text is the engine's).
  */
 auth: AuthCopy; 

@@ -1,10 +1,10 @@
-//! Supabase cloud credentials for the DevPulse account — from configuration,
+//! Supabase cloud credentials for the `DevPulse` account — from configuration,
 //! with the OS keychain as an override; no `.env`, no plaintext secrets.
 //!
 //! - The project URL and the public anon key are configuration:
 //!   `[integrations.cloud.auth]` in `config/platform/integrations/cloud.toml`,
 //!   or in your `{data_dir}/platform.toml` (plan 0001 Account step A1;
-//!   owner decision D2, 2026-10-23: the anon key ships with DevPulse).
+//!   owner decision D2, 2026-10-23: the anon key ships with `DevPulse`).
 //! - The keychain entry overrides the configured anon key, for a
 //!   self-hosted project. Keychain service name: `"devpulse"` (same as AI
 //!   provider keys); entry name: `cloud_supabase_anon_key` (snake-case per

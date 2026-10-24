@@ -1,4 +1,4 @@
-//! The DevPulse account (devpulse.app): `[integrations.cloud.auth]` in
+//! The `DevPulse` account (devpulse.app): `[integrations.cloud.auth]` in
 //! `config/platform/integrations/cloud.toml`, or in your `{data_dir}/platform.toml`.
 //!
 //! Supabase auth for the first-run account step (plan 0001, Account step A1).
@@ -18,7 +18,7 @@ pub struct CloudConfig {
     pub auth: CloudAuthConfig,
 }
 
-/// Where the DevPulse account signs in. An empty value means not configured.
+/// Where the `DevPulse` account signs in. An empty value means not configured.
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct CloudAuthConfig {

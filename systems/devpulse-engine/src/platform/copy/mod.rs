@@ -528,7 +528,7 @@ pub struct AuthCopy {
     /// Banner text when the sign-in request can't reach Supabase
     /// (network / DNS / cloud outage).
     pub error_network: String,
-    /// Banner text when this copy of DevPulse has no sign-in configured
+    /// Banner text when this copy of `DevPulse` has no sign-in configured
     /// (no anon key in `[integrations.cloud.auth]` or the keychain).
     pub error_supabase_not_configured: String,
     /// Catch-all template for unexpected errors. Placeholder `{error}`.
@@ -549,7 +549,7 @@ pub struct CopyCatalog {
     pub devtools: DevtoolsCopy,
     /// The chat.
     pub chat: ChatCopy,
-    /// The DevPulse account: sign-in, sign-up, sign-out (moved from the
+    /// The `DevPulse` account: sign-in, sign-up, sign-out (moved from the
     /// model-loader wizard copy; auth is not AI, so its text is the engine's).
     pub auth: AuthCopy,
     /// Route names, keyed by the URL path the route folders give
