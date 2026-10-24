@@ -13236,7 +13236,9 @@ id: string;
  */
 text: string; 
 /**
- * Cosine similarity score in `[0.0, 1.0]`. Higher is closer.
+ * Closeness in `[0.0, 1.0]`, higher is closer: cosine similarity when
+ * recalled by meaning, from the word-match score when recalled by
+ * words.
  */
 similarity: number; 
 /**
