@@ -9,6 +9,8 @@
 import type { Snippet } from "svelte";
 import type { HTMLAttributes, HTMLButtonAttributes } from "svelte/elements";
 import type { SelectPrimitiveProps } from "#coldlight/behaviors/inputs/select/index.js";
+import type { SurfaceFamily } from "#coldlight/renderforge/generated/surfaces.js";
+import type { SelectVariant } from "./select.generated.js";
 
 // =============================================================================
 // ROOT
@@ -33,6 +35,10 @@ export interface SelectTriggerProps extends Omit<HTMLButtonAttributes, "children
 }
 
 export interface SelectContentProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
+	/** The open list's surface role, from select.tokens.json; the family in scope supplies it. Default: "elevated" */
+	variant?: SelectVariant;
+	/** Family for the open list; unset, it takes the family in scope. */
+	surface?: SurfaceFamily;
 	children?: Snippet;
 	class?: string;
 }

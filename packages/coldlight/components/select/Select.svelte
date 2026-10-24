@@ -77,7 +77,7 @@ const m = $derived(renderForge({ kind: "select", preset }));
 		{...rest}
 		{...m.dataAttrs}
 		style={cssVarString(m.cssVars)}
-		class={cn(disabled && "opacity-50 pointer-events-none", className)}
+		class={cn("relative", disabled && "opacity-50 pointer-events-none", className)}
 	>
 		{@render children?.()}
 	</div>

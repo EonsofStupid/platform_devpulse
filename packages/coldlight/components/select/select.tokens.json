@@ -1,0 +1,26 @@
+{
+	"$description": "Select's tokens (plan 0006 §0s.6, inputs). The build generates styles/components/kinds/select.css and select.generated.ts from the select group. Only the open list (the content part) is styled here; it had no surface at all, so it showed whatever lay under it. The trigger and the root stay on the inline chain until their batch.",
+	"select": {
+		"$description": "Styles the open list. Each variant is a surface role read from the family in scope, as Popover's panel is; the default is elevated. The kind owns its radius and border width (the class map's rounded-md and border).",
+		"$extensions": {
+			"com.coldlight": {
+				"slot": "content",
+				"accepts": ["surface", "text", "frame"],
+				"defaults": { "variant": "elevated" }
+			}
+		},
+		"base": {
+			"border-style": { "$value": "solid", "$type": "strokeStyle" },
+			"border-width": { "$value": "0.0625rem", "$type": "dimension" },
+			"border-radius": { "$value": "{radius.md}", "$type": "dimension" }
+		},
+		"variant": {
+			"elevated": { "$extensions": { "com.coldlight": { "role": "elevated" } } },
+			"deep": { "$extensions": { "com.coldlight": { "role": "deep" } } },
+			"minimal": { "$extensions": { "com.coldlight": { "role": "minimal" } } },
+			"solid": { "$extensions": { "com.coldlight": { "role": "solid" } } },
+			"glow": { "$extensions": { "com.coldlight": { "role": "glow" } } },
+			"muted": { "$extensions": { "com.coldlight": { "role": "muted" } } }
+		}
+	}
+}
