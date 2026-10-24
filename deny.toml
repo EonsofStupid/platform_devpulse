@@ -68,6 +68,14 @@ ignore = [
     "RUSTSEC-2026-0370", # zvariant unmaintained
     "RUSTSEC-2026-0371", # zbus_names unmaintained
     "RUSTSEC-2026-0372", # zvariant_derive unmaintained
+    # crypto-bigint 0.5 timing variability (2026-10-24). Its only path is the
+    # compiled-in Surreal crate: surrealdb 3.0.5 → surrealdb-core → jsonwebtoken
+    # 10 → p256/p384 0.13 → elliptic-curve 0.13 → crypto-bigint 0.5. No fixed
+    # release exists anywhere in that chain (surrealdb-core 3.3.4 still takes
+    # jsonwebtoken 10; jsonwebtoken 11.1.0 still takes p256 0.13). Plan 0007
+    # Part S removes the crate from the build (Surreal runs as its own
+    # binary); S6 deletes this entry.
+    "RUSTSEC-2026-0387", # crypto-bigint 0.5 via the embedded surrealdb crate
 ]
 
 [licenses]
