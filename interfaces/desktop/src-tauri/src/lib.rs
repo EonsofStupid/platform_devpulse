@@ -314,6 +314,7 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             commands::containers::containers_run_step,
             commands::providers_status::providers_state,
             commands::providers_status::providers_check,
+            commands::providers_status::providers_check_signed_in,
             commands::providers_status::providers_run_action,
             commands::knowledge::get_knowledge_entry,
             commands::knowledge::record_knowledge_reaction,

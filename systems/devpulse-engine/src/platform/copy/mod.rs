@@ -291,6 +291,31 @@ pub struct YourAiCopy {
     pub guided: String,
     /// The way back to this stage later.
     pub later_hint: String,
+    /// "Sign in to {agent}" — above the sign-in steps (plan 0001 B3.7).
+    pub sign_in_heading: String,
+    /// Step 1: copy the vendor's own sign-in command.
+    pub step_copy: String,
+    /// The copy button.
+    pub copy: String,
+    /// The copy button once it copied.
+    pub copied: String,
+    /// The clipboard refused: copy the command by hand.
+    pub copy_failed: String,
+    /// Step 2: paste it into a terminal, or open one here.
+    pub step_paste: String,
+    /// Button: open a terminal running the command.
+    pub open_terminal: String,
+    /// Step 3: finish in the vendor's own tool ("{agent}"); a code goes into
+    /// its prompt, never into `DevPulse`.
+    pub step_finish: String,
+    /// While `DevPulse` waits to see you signed in.
+    pub waiting: String,
+    /// The wait ended without a sign-in: check again by hand.
+    pub waiting_stopped: String,
+    /// "{agent} is active." — signed in.
+    pub now_active: String,
+    /// Button: close the steps.
+    pub close: String,
 }
 
 /// First run.

@@ -27,6 +27,6 @@ pub use actions::{ActionContext, ProviderAction, ProviderActionRun};
 pub use catalog::Catalog;
 pub use connect::connector::ConnectorReport;
 pub use definition::{AdapterKind, ProviderDefinition, ProviderKind};
-pub use discovery::{check, ProviderReport, ProvidersReport, SignedIn};
+pub use discovery::{check, signed_in_now, ProviderReport, ProvidersReport, SignedIn};
 pub use session::{AgentEvent, AgentSession, PermissionChoice, TurnEvents};
 pub use types::ProviderId;

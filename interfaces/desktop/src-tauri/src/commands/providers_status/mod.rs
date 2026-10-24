@@ -36,6 +36,22 @@ pub async fn providers_check(state: State<'_, PlatformState>) -> Result<Provider
         .map_err(|e| format!("{e:#}"))
 }
 
+/// Ask one installed provider again whether you are signed in (its status
+/// command only), while you sign in through the vendor's own tool.
+#[tauri::command]
+#[specta::specta]
+#[allow(clippy::missing_errors_doc)]
+pub async fn providers_check_signed_in(
+    provider_id: ProviderId,
+    state: State<'_, PlatformState>,
+) -> Result<ProvidersState, String> {
+    platform(&state)?
+        .providers()
+        .recheck_signed_in(provider_id)
+        .await
+        .map_err(|e| format!("{e:#}"))
+}
+
 /// Run one action (update, or open the vendor's sign-in) on an installed provider.
 #[tauri::command]
 #[specta::specta]

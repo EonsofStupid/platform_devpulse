@@ -10,6 +10,7 @@ import { commands } from "$lib/sys/generated/bindings.js";
 // ── Your AI (plan 0001 R11) ──────────────────────────────────────
 export const providersState = commands.providersState;
 export const providersCheck = commands.providersCheck;
+export const providersCheckSignedIn = commands.providersCheckSignedIn;
 export const providersRunAction = commands.providersRunAction;
 
 // ── Validation (API-key vendors) ─────────────────────────────────

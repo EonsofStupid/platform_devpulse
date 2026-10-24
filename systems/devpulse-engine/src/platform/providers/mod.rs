@@ -18,7 +18,7 @@ use tokio::sync::Mutex;
 // IP-NOTE: provider catalog types — vendor-neutral, layman names (provider,
 // signed in, update, sign in, try it, connector); no kernel vocabulary
 // crosses.
-use devpulse_clyffy::providers::{actions, catalog, check, ActionContext};
+use devpulse_clyffy::providers::{actions, catalog, check, signed_in_now, ActionContext};
 pub use devpulse_clyffy::providers::{
     AdapterKind, ConnectorReport, ProviderAction, ProviderActionRun, ProviderId, ProviderKind,
     ProviderReport, ProvidersReport, SignedIn,
@@ -117,6 +117,44 @@ impl Providers {
             .as_ref()
             .and_then(|r| r.providers.iter().find(|p| p.id == id))
             .map_or(SignedIn::Unknown, |p| p.signed_in)
+    }
+
+    /// Ask one installed provider again whether you are signed in — only its
+    /// status command, so the window can ask every few seconds while you sign
+    /// in through the vendor's own tool. The state is published when the
+    /// answer changes.
+    ///
+    /// # Errors
+    /// Returns an error if the provider is unknown or not installed.
+    pub async fn recheck_signed_in(&self, id: ProviderId) -> Result<ProvidersState> {
+        let catalog = catalog::load(&self.data_dir)?;
+        let Some(definition) = catalog.definitions.iter().find(|d| d.id == id) else {
+            bail!("{} is not a provider in the catalog", id.key());
+        };
+        let Some(location) = self.location(id).await else {
+            bail!("{} is not installed", definition.name());
+        };
+        let now = signed_in_now(definition, std::path::Path::new(&location)).await;
+        let changed = {
+            let mut state = self.state.lock().await;
+            match state
+                .report
+                .as_mut()
+                .and_then(|r| r.providers.iter_mut().find(|p| p.id == id))
+            {
+                Some(provider) if provider.signed_in != now => {
+                    provider.signed_in = now;
+                    true
+                }
+                _ => false,
+            }
+        };
+        if changed {
+            tracing::info!(target: "providers", provider_id = id.key(), signed_in = ?now, "sign-in changed");
+            Ok(self.publish().await)
+        } else {
+            Ok(self.state().await)
+        }
     }
 
     async fn publish(&self) -> ProvidersState {

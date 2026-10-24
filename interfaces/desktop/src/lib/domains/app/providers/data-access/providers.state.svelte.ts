@@ -11,6 +11,10 @@
  * While anything follows the state, coming back to the window looks at the
  * providers again (at most once a minute), so a sign-in finished in the
  * vendor's own tool shows without a click.
+ *
+ * Signing in (plan 0001 B3.7): opening a provider's sign-in steps asks that
+ * one provider every few seconds whether you are signed in yet (its status
+ * command only), until it says yes, the steps close, or ten minutes pass.
  */
 
 import type {
@@ -19,12 +23,16 @@ import type {
 	ProvidersState,
 } from "$lib/sys/bindings/providers/index.js";
 import { signalFabric } from "$lib/sys/events/signal-fabric.js";
-import { check, runAction } from "./providers.service.js";
+import { check, checkSignedIn, runAction } from "./providers.service.js";
 
 export type { ProviderAction, ProvidersState };
 
 /** The shortest time between two checks started by returning to the window. */
 const FOCUS_RECHECK_MS = 60_000;
+/** How often an open sign-in asks whether you are signed in yet. */
+const SIGN_IN_POLL_MS = 4_000;
+/** How long an open sign-in keeps asking. */
+const SIGN_IN_WATCH_MS = 10 * 60_000;
 
 const message = (e: unknown): string => (e instanceof Error ? e.message : String(e));
 
@@ -33,10 +41,16 @@ class ProvidersStore {
 	/** An intent is on its way to Rust. */
 	busy = $state(false);
 	error = $state<string | null>(null);
+	/** The provider whose sign-in steps are open. */
+	signingIn = $state<ProviderId | null>(null);
+	/** The open sign-in is still asking whether you are signed in. */
+	watchingSignIn = $state(false);
 	/** How many views follow the state; the subscriptions end with the last. */
 	private followers = 0;
 	private stop: (() => void) | null = null;
 	private lastCheck = 0;
+	private signInTimer: ReturnType<typeof setInterval> | null = null;
+	private signInStarted = 0;
 
 	/** Follow the `providers` signal and the window's focus. Returns the teardown. */
 	start(): () => void {
@@ -57,8 +71,47 @@ class ProvidersStore {
 			if (this.followers === 0) {
 				this.stop?.();
 				this.stop = null;
+				this.closeSignIn();
 			}
 		};
+	}
+
+	/** Open a provider's sign-in steps and watch for the sign-in to finish. */
+	openSignIn = (providerId: ProviderId): void => {
+		this.closeSignIn();
+		this.signingIn = providerId;
+		this.signInStarted = Date.now();
+		this.watchingSignIn = true;
+		this.signInTimer = setInterval(() => void this.pollSignIn(), SIGN_IN_POLL_MS);
+	};
+
+	/** Close the sign-in steps and stop watching. */
+	closeSignIn = (): void => {
+		this.stopWatchingSignIn();
+		this.signingIn = null;
+	};
+
+	private stopWatchingSignIn(): void {
+		if (this.signInTimer) clearInterval(this.signInTimer);
+		this.signInTimer = null;
+		this.watchingSignIn = false;
+	}
+
+	private async pollSignIn(): Promise<void> {
+		const id = this.signingIn;
+		if (!id || Date.now() - this.signInStarted > SIGN_IN_WATCH_MS) {
+			this.stopWatchingSignIn();
+			return;
+		}
+		try {
+			this.current = await checkSignedIn(id);
+		} catch (e) {
+			this.error = message(e);
+			this.stopWatchingSignIn();
+			return;
+		}
+		const provider = this.current.report?.providers.find((p) => p.id === id);
+		if (provider?.signedIn === "yes") this.stopWatchingSignIn();
 	}
 
 	/** Back in the window: look again, unless something is already running. */

@@ -13,7 +13,7 @@ use std::path::Path;
 
 use serde::{Deserialize, Serialize};
 
-use super::actions::ProviderAction;
+use super::actions::{self, ProviderAction};
 use super::catalog::Catalog;
 use super::connect::connector::{self, ConnectorReport};
 use super::definition::{AdapterKind, ProviderDefinition, ProviderKind};
@@ -49,6 +49,9 @@ pub struct ProviderReport {
     pub update_available: bool,
     /// Signed in, as far as can be told.
     pub signed_in: SignedIn,
+    /// The vendor's own sign-in command as you would type it in a terminal
+    /// (`claude auth login`); `None` when it has none or is not installed.
+    pub sign_in_command: Option<String>,
     /// The actions its definition offers (the vendor's own commands, and
     /// Try it when it says how to talk to it).
     pub actions: Vec<ProviderAction>,
@@ -115,6 +118,9 @@ async fn report_one(
     };
     let update_available =
         matches!((&latest, &version), (Some(l), Some(v)) if installed::newer(l, v));
+    let sign_in_command = location
+        .as_deref()
+        .and_then(|program| actions::sign_in_typed(definition, program));
     let connector_spec = definition
         .connect
         .as_ref()
@@ -133,6 +139,7 @@ async fn report_one(
         latest,
         update_available,
         signed_in,
+        sign_in_command,
         actions: [
             (definition.sign_in.is_some(), ProviderAction::SignIn),
             (definition.update.is_some(), ProviderAction::Update),
@@ -145,6 +152,16 @@ async fn report_one(
         connector: connector_spec
             .map(|spec| connector::report(data_dir, definition.id.key(), spec)),
         problems,
+    }
+}
+
+/// Ask one installed provider again whether you are signed in — only its
+/// status command (or its login file), so it can be asked every few seconds
+/// while you sign in.
+pub async fn signed_in_now(definition: &ProviderDefinition, program: &Path) -> SignedIn {
+    match &definition.signed_in {
+        Some(spec) => signed_in::check(spec, program, std::env::home_dir().as_deref()).await,
+        None => SignedIn::Unknown,
     }
 }
 

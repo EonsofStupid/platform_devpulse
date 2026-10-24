@@ -2446,6 +2446,18 @@ async providersCheck() : Promise<Result<ProvidersState, string>> {
 }
 },
 /**
+ * Ask one installed provider again whether you are signed in (its status
+ * command only), while you sign in through the vendor's own tool.
+ */
+async providersCheckSignedIn(providerId: ProviderId) : Promise<Result<ProvidersState, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("providers_check_signed_in", { providerId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Run one action (update, or open the vendor's sign-in) on an installed provider.
  */
 async providersRunAction(providerId: ProviderId, action: ProviderAction) : Promise<Result<ProvidersState, string>> {
@@ -11196,6 +11208,11 @@ updateAvailable: boolean;
  */
 signedIn: SignedIn; 
 /**
+ * The vendor's own sign-in command as you would type it in a terminal
+ * (`claude auth login`); `None` when it has none or is not installed.
+ */
+signInCommand: string | null; 
+/**
  * The actions its definition offers (the vendor's own commands, and
  * Try it when it says how to talk to it).
  */
@@ -14966,7 +14983,56 @@ guided: string;
 /**
  * The way back to this stage later.
  */
-later_hint: string }
+later_hint: string; 
+/**
+ * "Sign in to {agent}" — above the sign-in steps (plan 0001 B3.7).
+ */
+sign_in_heading: string; 
+/**
+ * Step 1: copy the vendor's own sign-in command.
+ */
+step_copy: string; 
+/**
+ * The copy button.
+ */
+copy: string; 
+/**
+ * The copy button once it copied.
+ */
+copied: string; 
+/**
+ * The clipboard refused: copy the command by hand.
+ */
+copy_failed: string; 
+/**
+ * Step 2: paste it into a terminal, or open one here.
+ */
+step_paste: string; 
+/**
+ * Button: open a terminal running the command.
+ */
+open_terminal: string; 
+/**
+ * Step 3: finish in the vendor's own tool ("{agent}"); a code goes into
+ * its prompt, never into `DevPulse`.
+ */
+step_finish: string; 
+/**
+ * While `DevPulse` waits to see you signed in.
+ */
+waiting: string; 
+/**
+ * The wait ended without a sign-in: check again by hand.
+ */
+waiting_stopped: string; 
+/**
+ * "{agent} is active." — signed in.
+ */
+now_active: string; 
+/**
+ * Button: close the steps.
+ */
+close: string }
 
 /** tauri-specta globals **/
 

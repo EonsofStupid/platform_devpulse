@@ -214,6 +214,7 @@ expression: "serde_json::to_string_pretty(&samples).expect(\"samples render\")"
             "name": "Codex",
             "note": null,
             "problems": [],
+            "signInCommand": "codex login",
             "signedIn": "yes",
             "updateAvailable": false,
             "version": "0.163.0"

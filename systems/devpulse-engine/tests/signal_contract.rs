@@ -146,6 +146,7 @@ fn sample(kind: SignalKind) -> SignalVariant {
                     latest: Some("0.163.0".into()),
                     update_available: false,
                     signed_in: SignedIn::Yes,
+                    sign_in_command: Some("codex login".into()),
                     actions: vec![
                         ProviderAction::SignIn,
                         ProviderAction::Update,

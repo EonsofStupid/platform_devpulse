@@ -8,6 +8,10 @@
 	asked the way DevPulse talks to it, with the real answer. Each runs only
 	when you click it. Everything shown is Rust's `providers` state; text
 	comes from the copy catalog.
+
+	Sign in opens the provider's sign-in steps (plan 0001 B3.7): copy its own
+	command, paste it into a terminal or open one here, finish in its own
+	prompt; the card turns signed in by itself.
 -->
 <script lang="ts">
 import { Button } from "@devpulse/coldlight/components/button";
@@ -26,6 +30,7 @@ import type {
 	ProviderReport,
 } from "$lib/sys/generated/bindings.js";
 import { providersState } from "../data-access/providers.state.svelte.js";
+import SignInSteps from "../ui/sign-in-steps/SignInSteps.svelte";
 
 let { copy }: { copy: YourAiCopy } = $props();
 
@@ -64,6 +69,20 @@ const answeredText = (last: ProviderActionRun): string =>
 	fill(copy.answered, { seconds: secondsFormat.format(last.elapsedMs / 1000) });
 
 const connectorReady = (p: ProviderReport): boolean => p.connector?.installed ?? true;
+
+/** What the open sign-in's copy button did, for which provider. */
+let copied = $state<{ id: string; ok: boolean } | null>(null);
+const copiedFor = (p: ProviderReport): "idle" | "copied" | "failed" =>
+	copied?.id !== p.id ? "idle" : copied.ok ? "copied" : "failed";
+
+function signIn(p: ProviderReport): void {
+	copied = null;
+	if (p.signInCommand) {
+		providersState.openSignIn(p.id);
+	} else {
+		void providersState.act(p.id, "signIn");
+	}
+}
 </script>
 
 {#snippet card(p: ProviderReport)}
@@ -112,8 +131,8 @@ const connectorReady = (p: ProviderReport): boolean => p.connector?.installed ??
 			{/if}
 
 			<div class="flex flex-wrap items-center gap-2">
-				{#if p.installed && p.actions.includes("signIn") && p.signedIn !== "yes"}
-					<Button variant="primary" size="sm" onclick={() => providersState.act(p.id, "signIn")} disabled={!idle}>
+				{#if p.installed && p.actions.includes("signIn") && p.signedIn !== "yes" && providersState.signingIn !== p.id}
+					<Button variant="primary" size="sm" onclick={() => signIn(p)} disabled={!idle}>
 						{#if running(p, "signIn")}<Spinner size="xs" />{copy.opening}{:else}{copy.sign_in}{/if}
 					</Button>
 				{/if}
@@ -138,6 +157,21 @@ const connectorReady = (p: ProviderReport): boolean => p.connector?.installed ??
 			{#each p.problems as problem (problem)}
 				<Text size="xs" color="muted">{problem}</Text>
 			{/each}
+
+			{#if providersState.signingIn === p.id && p.signInCommand}
+				<SignInSteps
+					{copy}
+					agent={p.name}
+					command={p.signInCommand}
+					copied={copiedFor(p)}
+					opening={running(p, "signIn")}
+					signedIn={p.signedIn === "yes"}
+					watching={providersState.watchingSignIn}
+					onCopied={(ok) => (copied = { id: p.id, ok })}
+					onOpenTerminal={() => void providersState.act(p.id, "signIn")}
+					onClose={providersState.closeSignIn}
+				/>
+			{/if}
 
 			{#if last && last.action === "test"}
 				<Text size="xs" color="muted">{fill(copy.asked, { prompt: copy.test_prompt })}</Text>

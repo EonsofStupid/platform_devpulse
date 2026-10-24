@@ -2471,4 +2471,34 @@ queries proving what was written.
     - Found: ColdLight's Select has no kind styles, so its open list is
       transparent over what is under it (the picker's options overlap the
       session list). Plan 0006 owns the fix.
+  - 2026-10-24 — **B3.7 done: copy here, paste here.**
+    - Kernel: a provider report carries its vendor's sign-in command as you
+      would type it (`sign_in_command`: the program's bare name when that
+      name on `PATH` is the program, `claude auth login`; its full path
+      otherwise); `signed_in_now` asks one provider's status command alone.
+    - Engine: `Providers::recheck_signed_in` (publishes only on a change);
+      Tauri `providers_check_signed_in`.
+    - Desktop: **Sign in** opens the provider's steps
+      (`providers/ui/sign-in-steps`, props in, callbacks out): 1. copy the
+      command (ColdLight's CodeBlock copy button); 2. paste it into a
+      terminal, or **Open a terminal** (the existing action); 3. finish in
+      the vendor's own prompt — a code goes there, never into DevPulse. The
+      state asks that one provider every 4 s while the steps are open (ten
+      minutes at most) and the card turns active by itself. Text is copy
+      (`onboarding.your_ai.sign_in_heading` …). Every provider with a
+      sign-in command gets the same steps.
+    - Verified: the kernel's typed-command test (on `PATH` and off it); the
+      signal contract snapshot (+ `signInCommand`); clippy, rustfmt,
+      svelte-check 0/0 (desktop and ColdLight), Biome, the copy tests.
+    - Live (CDP), with the temporary signed-out definition again (removed
+      afterwards, with its folders): the steps showed `claude auth login`; a
+      real click put it on the system clipboard (checked from the shell; the
+      clipboard was saved first and restored after); removing the definition
+      while the steps watched turned them to "Claude Code is active." within
+      one poll. "Open a terminal" was not pressed (it would start a real
+      sign-in on your account); it is the slice 4a action, live-checked then.
+    - Found and fixed: ColdLight's CodeBlock said "copied" when the
+      clipboard had refused (`0927b058`). A WebView2 permission prompt
+      opened when my check script tried to *read* the clipboard; it was
+      answered Block. DevPulse never reads the clipboard.
 

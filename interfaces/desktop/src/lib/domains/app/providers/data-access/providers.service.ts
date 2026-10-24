@@ -12,6 +12,7 @@ import {
 	type ProviderId,
 	type ProvidersState,
 	providersCheck,
+	providersCheckSignedIn,
 	providersRunAction,
 } from "$lib/sys/bindings/providers/index.js";
 import { logError } from "$lib/sys/logger.js";
@@ -27,6 +28,10 @@ async function unwrap<T>(name: string, call: Promise<Result<T, string>>): Promis
 
 /** Look at every provider on this machine again. */
 export const check = (): Promise<ProvidersState> => unwrap("providersCheck", providersCheck());
+
+/** Ask one provider again whether you are signed in (its status command only). */
+export const checkSignedIn = (providerId: ProviderId): Promise<ProvidersState> =>
+	unwrap("providersCheckSignedIn", providersCheckSignedIn(providerId));
 
 /** Run one of a provider's actions (the vendor's own command, or Try it). */
 export const runAction = (

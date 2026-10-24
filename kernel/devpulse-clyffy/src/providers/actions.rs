@@ -104,6 +104,28 @@ fn command(spec: &CommandSpec, location: &Path) -> (String, Vec<String>) {
     (program, spec.args.clone())
 }
 
+/// The vendor's own sign-in command as you would type it in a terminal:
+/// the program by its bare name when that name on `PATH` is this program
+/// (`claude auth login`), otherwise by its full path. `None` when the
+/// definition has no sign-in command.
+#[must_use]
+pub fn sign_in_typed(definition: &ProviderDefinition, location: &Path) -> Option<String> {
+    let spec = definition.sign_in.as_ref()?;
+    let (program, args) = command(spec, location);
+    let program = if spec.program.is_none() {
+        definition
+            .detect
+            .executables
+            .iter()
+            .find(|name| installed::on_path(name).is_some_and(|found| found == location))
+            .cloned()
+            .unwrap_or(program)
+    } else {
+        program
+    };
+    Some(typed(&program, &args))
+}
+
 fn typed(program: &str, args: &[String]) -> String {
     std::iter::once(program.to_owned())
         .chain(args.iter().cloned())
@@ -335,6 +357,33 @@ mod tests {
             typed(&program, &args),
             "devpulse-no-such-tool-7c install -g @google/gemini-cli@latest",
             "a program that is nowhere stays as typed"
+        );
+    }
+
+    #[test]
+    fn the_sign_in_command_names_the_program_as_a_terminal_finds_it() {
+        // `cargo` is present wherever these tests run; it stands in for the
+        // vendor's program.
+        let definition: ProviderDefinition = toml::from_str(
+            "id = \"claude-code\"\n[detect]\nexecutables = [\"cargo\"]\n[sign_in]\nargs = [\"auth\", \"login\"]\n",
+        )
+        .unwrap();
+        let on_path = installed::on_path("cargo").expect("cargo on PATH");
+        assert_eq!(
+            sign_in_typed(&definition, &on_path).as_deref(),
+            Some("cargo auth login"),
+            "found on PATH: its bare name"
+        );
+        let elsewhere = std::env::temp_dir()
+            .join("devpulse-elsewhere")
+            .join("cargo");
+        assert_eq!(
+            sign_in_typed(&definition, &elsewhere),
+            Some(typed(
+                &elsewhere.display().to_string(),
+                &["auth".into(), "login".into()]
+            )),
+            "found only at a known path: its full path"
         );
     }
 
