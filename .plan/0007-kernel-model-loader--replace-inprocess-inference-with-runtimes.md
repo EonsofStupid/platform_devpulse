@@ -5,11 +5,11 @@ paths:
   - kernel/model-loader/config/runtimes.default.toml
   - kernel/model-loader/src/runtimes/
   - kernel/devpulse-clyffy/src/cortex/persistence/runtime.rs
-touches: [kernel-clyffy, engine, desktop-tauri, desktop-devtools, desktop-models, xtask, deps, config]
+touches: [kernel-clyffy, engine, process, desktop-tauri, desktop-devtools, desktop-models, xtask, deps, config]
 status: in-progress
 owner: jesse
 created: 2026-10-11
-updated: 2026-10-23
+updated: 2026-10-24
 supersedes: []
 specs:
   - scripts/docs/specs/MODEL-LOADER-UX-REQUIREMENTS.md
@@ -277,6 +277,159 @@ Found during this stage, proposed next:
 - A registry id is a UUID of the model file's **absolute** path ([discovery.rs:1015](../kernel/model-loader/src/models/discovery.rs#L1015)), and `registry.json` stores absolute paths. Moving the DevPulse folder therefore drops every slot pick. Proposed fix: identity from the path relative to the models folder.
 - Discovery also scans the Hugging Face cache in the user profile ([registry.rs:171](../kernel/model-loader/src/models/registry.rs#L171)), which is outside the DevPulse folder. Proposed fix: make it a configured extra source rather than a built-in default.
 
+### Part S — Surreal runs as a built binary under the kernel's supervisor; the `surrealdb` crate leaves the build
+
+Owner, 2026-10-24, asked why Surreal's source is in the build: "surreal is
+suppose to be a prebuilt binary subprocess that can easily be detached … when
+rrflow is going to replace it", then "am i wrong that is the correct please fix
+that … we properly use built binaries and have them as subprocesses, we
+properly, move this as a true portable devspace that has the option to
+eventually synchronize with the cloud" (decision 6).
+
+The same request was made in April and built: `15f60f08` (2026-04-24) ran
+`surreal start` as a managed child process, with decisions the owner locked in
+`scripts/docs/sprints/SESSION-NOTES-SURREAL-SIDECAR.md:27-36`. `251b0a52`
+(2026-05-06, an AI session) reversed it to the embedded `kv-surrealkv` crate.
+Part S re-authors the April code in place (`git show 251b0a52^:…`) onto this
+plan's supervisor. It does not write a second one.
+
+Research 2026-10-24 (four passes, citations below):
+
+| Fact | Evidence |
+| --- | --- |
+| Only the kernel uses the crate: `devpulse-clyffy → devpulse-engine → devpulse_desktop_backend` is the single path | `cargo tree -i surrealdb`; root `Cargo.toml:40`, `kernel/devpulse-clyffy/Cargo.toml:82` |
+| Even the client-only crate requires `surrealdb-core`, so detaching means no `surrealdb` crate at all. DevPulse talks to the process with its own client | crates.io `surrealdb/3.0.5` dependencies (`surrealdb-core` not optional) |
+| The crate brings RUSTSEC-2026-0387 (`crypto-bigint` 0.5 via `jsonwebtoken` → `p256`/`p384`); no fixed release exists anywhere in that chain, so it blocks `cargo deny` and the push until the crate leaves | `cargo deny check advisories`; crates.io `surrealdb-core/3.3.4`, `jsonwebtoken/11.1.0` |
+| What is used is small: one `Surreal<Db>` handle, `.query`, `.bind`, `.take`, and the `SurrealValue` derive. No live queries, no transactions, no `RecordId` | `persistence/surreal/{lifecycle,client,intelligence_impl}.rs`; `intelligence/record.rs:20,41,48,84-85` |
+| What must keep working: boot schemas for system, user and global (fatal if they fail, `surreal.toml:38,50,61`, `runtime.toml:2`); chat type-ahead suggestions (HNSW 1024 on `chat_prompt`); the projects mirror; governance thoughts; the SurrealDB, Intelligence, Persona graph and RRO devtools | `boot/graph.rs:44-198`; `suggest/service.rs:110-195`; `projects.rs:537-819`; `commands/sys/graph.rs:133-374`; `commands/intelligence/mod.rs` |
+| The 12 `type::thing` calls fail on SurrealDB 3: it was renamed `type::record` in 3.0 | `client.rs:351,384,418,458,553,570`, `intelligence_impl.rs:143-145,160-161`, `suggest/service.rs:111`; SurrealDB docs, database functions / type |
+| The store holds data: 36 MB of SurrealKV 0.21 at `.userdata/surreal/devpulse/`, at a path hardcoded in `boot/graph.rs:69` | on disk 2026-10-24 |
+| The v3.0.5 server uses the same SurrealKV 0.21.0 as the embedded crate, so it opens that folder as is. 3.3.x migrates a store one way on first open | each tag's `Cargo.lock`; SurrealDB docs "32-to-33", "upgrades-and-patching" |
+| Over HTTP `/rpc`, JSON bodies rewrite strings that look like record ids, datetimes or UUIDs, and cut UUID-prefixed strings short (issue #7324, still in 3.3.4). CBOR does not, and carries bytes and floats natively | `core/src/rpc/format/json.rs` @v3.3.4; docs `cbor-protocol` |
+| `127.0.0.1:0` binds but the server never reports the port, so ports come from `port_alloc` | `ntw/mod.rs` @v3.0.5 and @v3.3.4 |
+| Only `surreal-ns` / `surreal-db` headers are read in 3.x; the old `NS` / `DB` are ignored | `surrealdb/src/headers/mod.rs` @v3.0.5 |
+| The server checks `download.surrealdb.com/latest.txt` on every start unless `SURREAL_ONLINE_VERSION_CHECK=false` | `cli/mod.rs` @v3.0.5 |
+| Release: `surreal-v3.0.5.windows-amd64.exe`, 94,902,784 bytes, SHA-256 `fa96694e3ebc3c21da08493518c2199354b3a34f5022187b4cbdd4a6f4d325ec`, published 2026-03-27 on `download.surrealdb.com` (same file on GitHub releases). Latest is 3.3.4 | HEAD request and `…windows-amd64.txt`, 2026-10-24 |
+| Licence BSL 1.1: redistribution allowed with the LICENSE shown on each copy; no use "as a Database Service" for third parties | `LICENSE` @v3.3.4 |
+| Ctrl-Break / Ctrl-C stop the server cleanly (WAL flushed). A hard kill loses only in-flight transactions with the default `sync=every` | `ntw/signals.rs`, `cli/start.rs` @v3.3.4 |
+| Supervision pieces today: `port_alloc` (generic, on disk); `OllamaAdapter` (a copy of the April Surreal lifecycle); `devpulse-process` (one-shot runs only). No Job Object, child-log capture, restart or early-exit detection exists in any runtime crate | `cortex/persistence/{port_alloc,ollama}.rs`; `systems/infra/devpulse-process/src/lib.rs:62-111`; `xtask/src/zombie.rs:35-140` |
+| `xtask fetch-surreal` still exists: v3.0.5 hardcoded, no checksum, writes into `src-tauri/binaries/` for a Tauri `externalBin` that no longer exists | `xtask/src/commands/fetch_surreal.rs:35,95-133` |
+| Nothing answers `:8822` today. The hooks, skills, `preflight.md` and the `build-release` smoke text that call it are calling a dead endpoint | `commands/sys/graph.rs:218,231-236`; `xtask/src/smoke.rs:14-23` |
+
+How Part S is built (each line cites its rule):
+
+- **The binary is upstream's build, installed inside the folder.**
+  `surreal-v{V}.{platform}` from `download.surrealdb.com`, checked against the
+  published SHA-256, extracted to a temp folder and renamed atomically into
+  `.userdata/global/runtimes/surreal/{V}/`, with upstream's LICENSE beside it.
+  Rules: runtime install, this plan's lifecycle step 2; "everything inside the
+  folder, dependencies included" (devpulse-self-reliant); no Tauri `externalBin`.
+- **Getting the binary there.** A dev checkout gets it from
+  `cargo xtask fetch-surreal`, re-authored to the steps above. The portable
+  build carries it inside the portable folder. The 0007 installer (phase 5)
+  takes over updates. Surreal is required and boots with DevPulse, so it is
+  not an opt-in click like an AI runtime.
+- **The version is configuration** (`[services.system.surreal] version`), not
+  "newest". A store migrates one way when a newer server opens it, so every
+  version change is an update step: an export first, then the new build, with
+  the previous build kept.
+- **Paths come from the config**, relative to the data dir: the binary from
+  `runtimes_dir`, the store from `data_path`. That replaces the hardcoded
+  `graph.rs:69` (paths-from-config-endpoints).
+- **Supervision is this plan's phase 4,** with Surreal as its first runtime.
+  - Process mechanics extend the existing `devpulse-process` crate with a
+    long-lived child: a kill-on-close Job Object, no console window,
+    stdout/stderr into tracing, early-exit detection, then a graceful stop
+    (Ctrl-Break) and a forced stop.
+  - The policy lives in the kernel's `cortex/persistence/runtime.rs`
+    (decision 1): the port from `port_alloc`, readiness, restart with backoff
+    and a crash-loop cap.
+  - Graceful-then-forced follows the owner's rule (R-G19: "GRACEFULLY THEN
+    FORCED AFTER TWO ATTEMPTS … 30 SECONDS").
+  - Putting the mechanics in an infra crate is master plan Q35's
+    recommendation. Q35 itself stays the owner's gate.
+- **Ports.** The configured port with auto-bump, and configured versus actual
+  shown in the UI (April lock). Surreal owns its data, so Part S never attaches
+  to a server it did not start. If a port is taken by someone else, it bumps.
+- **The client.** HTTP `POST /rpc` with CBOR: `query [sql, vars]`, with
+  `surreal-ns` / `surreal-db` headers and Basic root auth. Results come back as
+  today's `serde_json::Value` shapes, so the callers keep their surface.
+  Embeddings bind as float arrays and bytes as CBOR byte strings
+  (`serde_bytes`).
+- **Credentials.** The root user is created on first start
+  (`SURREAL_USER`/`SURREAL_PASS`). Its password is generated once and kept in
+  a credentials file inside the folder, so a copied folder still opens its
+  store. Like RRFlow's `credentials/`, it is never synced (master plan K4).
+- **No phoning home:** `SURREAL_ONLINE_VERSION_CHECK=false` and `--no-banner`.
+- **Storage.** Part S first runs v3.0.5 on the existing `surrealkv://` folder,
+  so behaviour matches with your data intact. It then moves to RocksDB, your
+  April lock (SurrealDB's docs also call SurrealKV beta, with RocksDB
+  recommended for on-disk servers). The move exports, imports, checks the
+  counts per table, and keeps the old folder until you OK its removal.
+
+Phases (≤ 5 source files each; generated bindings and the lockfile not
+counted; each verified live; commits with hooks passing):
+
+| # | Outcome | Files | Verification |
+| --- | --- | --- | --- |
+| S1 | **The binary, installed the right way.** `fetch-surreal` installs the configured version into `.userdata/global/runtimes/surreal/{V}/`: SHA-256 against the published digest, temp extract, atomic rename, LICENSE beside it, previous build kept; nothing written into `src-tauri/binaries/`. `surreal.toml` gains `version`, `runtimes_dir` and `data_path`; its stale keys are reconciled | `xtask/src/commands/fetch_surreal.rs`, `config/platform/services/system/surreal.toml`, engine `config/loader.rs` (`SurrealServiceEntry`) | `cargo test -p xtask`; the installed `surreal version` prints 3.0.5; a tampered download is refused |
+| S2 | **Process mechanics.** `devpulse-process` gains a supervised child: Job Object kill-on-close (Windows), process group (POSIX), no console, line-by-line log capture, early-exit detection, Ctrl-Break then forced stop with deadlines | `systems/infra/devpulse-process/{Cargo.toml, src/lib.rs, src/child.rs}` | tests with a small child process; killing the test parent leaves no child |
+| S3 | **The kernel runtime adapter** (phase 4's kernel half), generalized from the April `SurrealLifecycle` and `OllamaAdapter`: program, args, env, readiness URL, port policy, restart with backoff and a crash-loop cap, lifecycle events | `cortex/persistence/{runtime.rs, mod.rs}` | kernel tests with a scripted child: ready, crash then restart, crash loop then stop |
+| S4 | **The CBOR client,** beside the old one, not yet wired: `surreal/rpc.rs` sends `query` with vars, reads the per-statement array, surfaces `ERR` statements, and maps CBOR tags to today's JSON shapes | `persistence/surreal/{rpc.rs, mod.rs}`, kernel `Cargo.toml` (`ciborium`, `serde_bytes`) | unit tests: encode and decode, tagged record ids, datetimes, bytes, an `ERR` statement |
+| S5 | **The cutover, on your existing data.** `lifecycle.rs` starts v3.0.5 through the runtime adapter on `surrealkv://{data_path}`; `client.rs` goes through `rpc.rs`; the 12 `type::thing` become `type::record`; `boot/graph.rs` reads the configured path | `surreal/{lifecycle,client,intelligence_impl}.rs`, `suggest/service.rs`, engine `boot/graph.rs` | live: boot reaches Ready; the SurrealDB devtool lists your tables with their counts; a chat prompt saves and suggests; DevPulse killed → no `surreal.exe` left |
+| S6 | **The crate leaves the build.** The `SurrealValue` derives become serde (bytes through `serde_bytes`); `surrealdb` leaves both `Cargo.toml`s and the lockfile | `intelligence/record.rs`, `surreal/{client,intelligence_impl}.rs`, kernel `Cargo.toml`, root `Cargo.toml` | `cargo tree -i surrealdb-core` → none; `cargo deny check advisories` passes; build time before and after |
+| S7 | **The engine facade and the window.** `sidecars/surreal/` (the folder `sidecars/mod.rs:13-14` names): managed, pid, binary, version, configured vs actual port, restarts; the devtool's Status tab and the boot manifest step show them | engine `services/{surreal.rs → sidecars/surreal/}`, `services/manifest.rs`, Tauri `commands/surreal/sidecar/mod.rs`, devtool feature | CDP screenshot of the Status tab with the live process |
+| S8 | **RocksDB, your April lock.** Export from the SurrealKV store, start on `rocksdb://{data_path}`, import, compare counts per table and namespace; the SurrealKV folder is kept until you OK its removal | `surreal/lifecycle.rs`, a one-time `surreal/move_store.rs`, `surreal.toml` | the counts match; restart opens RocksDB; the old folder untouched |
+| S9 | **Stale words fixed.** `surreal.toml` header, `persistence/mod.rs:10`, `services/graph.rs` "WS client", `.claude/rules/preflight.md` (`:8822`, `NS`/`DB` → `surreal-ns`/`surreal-db`), `build_release.rs:631-721`, `xtask dev` banner, the `ensure_port_free` that would block a bump | docs and comments; ≤ 5 per commit | `rg` finds no embedded-era claim |
+| S10 | **Your checkpoint.** Kill DevPulse → no Surreal left; restart → your data; copy the folder elsewhere → it opens its store; update 3.0.5 → 3.3.4 through the installer with an export first | — | your sign-off |
+
+Not decided here, yours:
+
+- **Q35** (master plan): the mechanics in an infra crate. S2 follows the
+  recommendation; say if you want them in the kernel instead.
+- **The BSL "Database Service" clause.** The SurrealDB devtool has a raw
+  console that lets the person define tables. That is the person's own local
+  store, not a service for third parties. If DevPulse ever offers Surreal to
+  other people (shippin.cloud), that clause applies and needs a legal read.
+- **The `devpulse_engine` namespace user** for the hooks: its password is in
+  `surreal.toml:45-68` and the rules docs. The April code created it, and S5
+  restores that. Whether it moves into the credentials file is your call. The
+  hooks also point at port 8842, which is an external dev server, not DevPulse.
+
+Found while reading, outside Part S:
+
+- Dead code that stays (include-before-delete) and is ported where it compiles:
+  - `config/wiring.rs` is not compiled;
+  - `adapters/persistence/surreal.rs` is a stub;
+  - `REASONING_SCHEMA` and the `Reasoning*` types;
+  - `kv_*`, `query_nodes`, `traverse`;
+  - `ProjectGraphManager` / `init_project_full`;
+  - four unused `IntelligenceStore` methods;
+  - the engine's unused `axum`.
+
+  Each deletion waits for your OK, one item at a time.
+- `MemoryRecord.created_at` / `updated_at` are `i64` while `MEMORY_SCHEMA`
+  types them `datetime` (`schema.rs:30-31`), and `RecallRow.id: String` reads a
+  record id. S4's mapping makes both visible, and they are fixed there.
+- Stale "Python is banned" texts against "Python is allowed":
+  - `.claude/rules/rust.md:14`;
+  - `.claude/settings.json:21-23` (a permission setting, so yours to edit);
+  - `docs/platform/PLATFORM_TURNKEY_V2.md:68`;
+  - `scripts/docs/PHILOSOPHY.md:157`;
+  - `docs/claude.kb/baselines/devpulse/CLAUDE.md:16,25`.
+- Stale "Surreal is embedded" docs:
+  - `scripts/docs/consolidation/LOCKED_DECISIONS.md` A-5 "composed in, not
+    forked" (superseded by the 2026-10-01 fork approval);
+  - `scripts/docs/ARCHITECTURE-SSOT.md:363`;
+  - `docs/platform/PLATFORM_TURNKEY_V2.md:61-66`;
+  - `docs/platform/INTELLIGENCE_LAYER.md` Phase A;
+  - `docs/platform/TURNKEY_WIZARD_PLAN.md:82`.
+- Master plan K4 points to a "0007 Part R" for RRFlow that was never written.
+  Part S comes first, and Part R replaces Surreal with RRFlow behind the same
+  supervisor and client seam.
+- `0007-engine--…` is stale and should be marked superseded by this file
+  (master plan Q20).
+
 ## Decisions
 
 Owner, 2026-10-12:
@@ -310,6 +463,15 @@ Owner, 2026-10-13:
    then builds without submodules, and CI stops compiling llama.cpp. The
    installer UI (phases 5 and 8) follows. This starts right after the plan
    0001 work is committed.
+
+Owner, 2026-10-24:
+
+6. **Surreal is a built binary subprocess, never compiled in.** "surreal is
+   suppose to be a prebuilt binary subprocess that can easily be detached …
+   when rrflow is going to replace it"; "am i wrong that is the correct please
+   fix that … we properly use built binaries and have them as subprocesses …
+   a true portable devspace that has the option to eventually synchronize with
+   the cloud". Also: "Python is allowed". Part S.
 
 ## Verification
 
@@ -396,3 +558,10 @@ Owner, 2026-10-13:
     user profile (a second 17 GB copy, outside the folder). The registry
     lists both. Nothing was deleted; the proposed fix (the cache as a
     configured source) is in Stage 1b.
+- 2026-10-24 — **Part S planned: Surreal as a built binary under the kernel's supervisor** (owner:
+  "am i wrong that is the correct please fix that"). Four research passes: every use of the embedded
+  store; the April subprocess code in git (`251b0a52^`) and today's supervision pieces; the owner's
+  plans, memory and specs; SurrealDB's own release, CLI, HTTP/RPC and storage facts. Found: only the
+  kernel uses the crate; even its client needs `surrealdb-core` (the source of RUSTSEC-2026-0387,
+  which blocks the push); the 12 `type::thing` calls fail on SurrealDB 3; the store holds 36 MB that
+  the v3.0.5 server opens as is; JSON over `/rpc` rewrites strings, so the client speaks CBOR.

@@ -66,6 +66,7 @@ name. Add a row here only when the folder exists.
 | `engine` | `systems/devpulse-engine/` |
 | `media` | `systems/devpulse-media/` |
 | `telemetry` | `systems/infra/devpulse-telemetry/`, `systems/infra/devpulse-telemetry-macros/` |
+| `process` | `systems/infra/devpulse-process/` |
 | `desktop` | `interfaces/desktop/` (whole app — only when no narrower token fits) |
 | `desktop-tauri` | `interfaces/desktop/src-tauri/` |
 | `desktop-coldlight` | `packages/coldlight/` |
