@@ -1,10 +1,13 @@
-# Surreal — managed `surreal start` child process (RocksDB) + three
-# scoped namespaces.
+# Surreal — upstream's server build, run as a supervised subprocess,
+# plus three scoped namespaces (plan 0007 Part S; owner decision 6,
+# 2026-10-24: a built binary, never compiled in; RRFlow replaces it).
 #
-# The platform spawns one `surreal start` child process using the
-# settings under `[services.system.surreal]`. All three graph
-# namespaces (system / user / global) live on that single server,
-# isolated by NS/DB in every query.
+# The build is installed inside the DevPulse folder by
+# `cargo xtask fetch-surreal` (checked against upstream's published
+# SHA-256). All three graph namespaces (system / user / global) live
+# on that one server, isolated by namespace and database per query.
+# Until the cutover (Part S, S5) the store is still opened in-process
+# from `data_path`.
 #
 # Port comes from `[services.network.graph_api]`. If that port is
 # taken by a foreign listener at boot, the allocator bumps +1 up to
@@ -12,14 +15,22 @@
 # vs. configured so you always know where it landed.
 
 # ─────────────────────────────────────────────────────────────
-# Child process — lifecycle + binary resolution
+# The server — build, store, lifecycle
 # ─────────────────────────────────────────────────────────────
 [services.system.surreal]
 enabled = true
 critical = true
 auto_start = true
-# Explicit surreal binary path. Empty = resolve from the bundled
-# binary next to the app exe, then standard install paths, then PATH.
+# The server build. A store migrates one way when a newer server opens
+# it, so changing this is an update step: export first.
+version = "3.0.5"
+# Where builds are installed, relative to the data dir:
+# `{install_dir}/{version}/surreal(.exe)`, with upstream's LICENSE.
+install_dir = "global/runtimes/surreal"
+# The store, relative to the data dir (SurrealKV today; RocksDB in S8).
+data_path = "surreal/devpulse"
+# Explicit binary instead of the installed build. Empty = the installed
+# build above; nothing outside the DevPulse folder is searched.
 binary_path = ""
 # Root credentials passed to `surreal start`. The namespace-scoped
 # users below (`system_user` / `system_password`) are created after
@@ -37,8 +48,8 @@ log_level = "warn"
 enabled = true
 critical = true
 kind = "surreal"
-# `path` is legacy — the RocksDB store lives at
-# `{data_dir}/surreal/devpulse/` and is shared across all scopes.
+# `path` is legacy — the one store is `[services.system.surreal]
+# data_path`, shared across all scopes.
 path = "system/surreal/reasoning"
 namespace = "system"
 database = "engine"

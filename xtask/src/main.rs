@@ -135,10 +135,10 @@ enum Commands {
         #[arg(long)]
         pin: bool,
     },
-    /// Download the `SurrealDB` sidecar binary into
-    /// `interfaces/desktop/src-tauri/binaries/`. The release tag is
-    /// pinned in `fetch_surreal.rs` to match the `surrealdb` crate
-    /// version in the workspace.
+    /// Install upstream's `SurrealDB` server build inside the `DevPulse`
+    /// folder: the version and folder come from `[services.system.surreal]`,
+    /// the download is checked against the published SHA-256 (plan 0007
+    /// Part S).
     FetchSurreal {
         /// Target platform: `win32-x64`, `darwin-arm64`, `darwin-x64`,
         /// `linux-x64`, or `linux-arm64`.

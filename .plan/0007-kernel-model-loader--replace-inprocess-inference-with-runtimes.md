@@ -372,7 +372,7 @@ counted; each verified live; commits with hooks passing):
 
 | # | Outcome | Files | Verification |
 | --- | --- | --- | --- |
-| S1 | **The binary, installed the right way.** `fetch-surreal` installs the configured version into `.userdata/global/runtimes/surreal/{V}/`: SHA-256 against the published digest, temp extract, atomic rename, LICENSE beside it, previous build kept; nothing written into `src-tauri/binaries/`. `surreal.toml` gains `version`, `runtimes_dir` and `data_path`; its stale keys are reconciled | `xtask/src/commands/fetch_surreal.rs`, `config/platform/services/system/surreal.toml`, engine `config/loader.rs` (`SurrealServiceEntry`) | `cargo test -p xtask`; the installed `surreal version` prints 3.0.5; a tampered download is refused |
+| S1 | **Done** (see the log). **The binary, installed the right way.** `fetch-surreal` installs the configured version into `.userdata/global/runtimes/surreal/{V}/`: SHA-256 against the published digest, temp extract, atomic rename, LICENSE beside it, previous build kept; nothing written into `src-tauri/binaries/`. `surreal.toml` gains `version`, `runtimes_dir` and `data_path`; its stale keys are reconciled | `xtask/src/commands/fetch_surreal.rs`, `config/platform/services/system/surreal.toml`, engine `config/loader.rs` (`SurrealServiceEntry`) | `cargo test -p xtask`; the installed `surreal version` prints 3.0.5; a tampered download is refused |
 | S2 | **Process mechanics.** `devpulse-process` gains a supervised child: Job Object kill-on-close (Windows), process group (POSIX), no console, line-by-line log capture, early-exit detection, Ctrl-Break then forced stop with deadlines | `systems/infra/devpulse-process/{Cargo.toml, src/lib.rs, src/child.rs}` | tests with a small child process; killing the test parent leaves no child |
 | S3 | **The kernel runtime adapter** (phase 4's kernel half), generalized from the April `SurrealLifecycle` and `OllamaAdapter`: program, args, env, readiness URL, port policy, restart with backoff and a crash-loop cap, lifecycle events | `cortex/persistence/{runtime.rs, mod.rs}` | kernel tests with a scripted child: ready, crash then restart, crash loop then stop |
 | S4 | **The CBOR client,** beside the old one, not yet wired: `surreal/rpc.rs` sends `query` with vars, reads the per-statement array, surfaces `ERR` statements, and maps CBOR tags to today's JSON shapes | `persistence/surreal/{rpc.rs, mod.rs}`, kernel `Cargo.toml` (`ciborium`, `serde_bytes`) | unit tests: encode and decode, tagged record ids, datetimes, bytes, an `ERR` statement |
@@ -565,3 +565,15 @@ Owner, 2026-10-24:
   kernel uses the crate; even its client needs `surrealdb-core` (the source of RUSTSEC-2026-0387,
   which blocks the push); the 12 `type::thing` calls fail on SurrealDB 3; the store holds 36 MB that
   the v3.0.5 server opens as is; JSON over `/rpc` rewrites strings, so the client speaks CBOR.
+- 2026-10-24 — **S1 done: Surreal's build installed inside the folder** (owner approved the download).
+  `cargo xtask fetch-surreal` re-authored: reads `version` / `install_dir` from `[services.system.surreal]`,
+  takes the asset from GitHub and its SHA-256 from `download.surrealdb.com`, refuses a mismatch, stages
+  beside the destination and renames into place, puts upstream's LICENSE beside the binary, keeps other
+  versions, writes nothing into `src-tauri/binaries/`. `SurrealServiceEntry` gains `version`,
+  `install_dir`, `data_path` with `binary()` / `store()`; `boot/graph.rs` takes the store from `data_path`
+  instead of a hardcoded join; `resolve_models_dir` shares the same data-dir helper. Verified: xtask 3 +
+  engine 10 config tests, clippy (xtask all targets, engine) and rustfmt clean; installed
+  `.userdata/global/runtimes/surreal/3.0.5/surreal.exe` (94,902,784 bytes, SHA-256 `fa96694e…d325ec`
+  matching the published digest), `surreal version` → `3.0.5 for windows on x86_64`; the rebuilt app
+  opened the store from the configured path (boot log `…\.userdata\surreal/devpulse`, 2.3 s). The
+  mismatch refusal is covered by reading the code, not by a tampered download.

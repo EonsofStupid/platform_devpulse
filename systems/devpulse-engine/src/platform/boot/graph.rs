@@ -66,7 +66,9 @@ pub async fn boot_consolidated(
     boot_log.running("SurrealKV embedded", "opening store...");
     let start = Instant::now();
 
-    let data_path = data_dir.join("surreal").join("devpulse");
+    // From configuration (`[services.system.surreal] data_path`), never a
+    // path built here.
+    let data_path = store_cfg.store(data_dir);
     let cfg = SurrealConfig {
         data_path: data_path.clone(),
     };

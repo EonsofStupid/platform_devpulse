@@ -1083,12 +1083,7 @@ impl ModelLoaderServiceEntry {
     /// the data dir to the `.userdata/` in the `DevPulse` folder. An absolute
     /// path is used as given, for a user who keeps models elsewhere.
     pub fn resolve_models_dir(&self, data_dir: &Path) -> PathBuf {
-        let configured = Path::new(&self.models_dir);
-        if configured.is_absolute() {
-            configured.to_path_buf()
-        } else {
-            data_dir.join(configured)
-        }
+        under_data_dir(data_dir, &self.models_dir)
     }
 
     /// Get the list of subdirectory names for model discovery.
@@ -1312,10 +1307,12 @@ impl DevForgeServiceEntry {
     }
 }
 
-/// `SurrealDB` embedded store entry — `DevPulse` opens the `SurrealKV`
-/// backend in-process at `{data_dir}/surreal/devpulse`. No child
-/// process, no port, no auth — the Platform holds the file lock
-/// directly via the `kv-surrealkv` storage backend.
+/// `SurrealDB` — upstream's server build, installed inside the `DevPulse`
+/// folder and run as a supervised subprocess (plan 0007 Part S, owner
+/// decision 6). Until the cutover (S5) the store is still opened
+/// in-process; `data_path` already locates it from configuration.
+///
+/// Paths are relative to the data dir unless absolute.
 #[derive(Debug, Clone, Deserialize)]
 pub struct SurrealServiceEntry {
     /// Whether this service is enabled.
@@ -1325,6 +1322,17 @@ pub struct SurrealServiceEntry {
     /// the graph store depends on it — defaults to `true`.
     #[serde(default = "default_true")]
     pub critical: bool,
+    /// The server build to run. A store migrates one way when a newer
+    /// server opens it, so changing this is an update step (export first).
+    #[serde(default = "default_surreal_version")]
+    pub version: String,
+    /// Where builds are installed: `{install_dir}/{version}/surreal(.exe)`,
+    /// with upstream's LICENSE beside it.
+    #[serde(default = "default_surreal_install_dir")]
+    pub install_dir: String,
+    /// The store.
+    #[serde(default = "default_surreal_data_path")]
+    pub data_path: String,
 }
 
 impl Default for SurrealServiceEntry {
@@ -1332,7 +1340,41 @@ impl Default for SurrealServiceEntry {
         Self {
             enabled: true,
             critical: true,
+            version: default_surreal_version(),
+            install_dir: default_surreal_install_dir(),
+            data_path: default_surreal_data_path(),
         }
+    }
+}
+
+impl SurrealServiceEntry {
+    /// The folder of the configured build.
+    #[must_use]
+    pub fn build_dir(&self, data_dir: &Path) -> PathBuf {
+        under_data_dir(data_dir, &self.install_dir).join(&self.version)
+    }
+
+    /// The server binary of the configured build.
+    #[must_use]
+    pub fn binary(&self, data_dir: &Path) -> PathBuf {
+        self.build_dir(data_dir)
+            .join(format!("surreal{}", std::env::consts::EXE_SUFFIX))
+    }
+
+    /// The store.
+    #[must_use]
+    pub fn store(&self, data_dir: &Path) -> PathBuf {
+        under_data_dir(data_dir, &self.data_path)
+    }
+}
+
+/// A configured path: absolute as given, otherwise under the data dir.
+fn under_data_dir(data_dir: &Path, configured: &str) -> PathBuf {
+    let path = Path::new(configured);
+    if path.is_absolute() {
+        path.to_path_buf()
+    } else {
+        data_dir.join(path)
     }
 }
 
@@ -2101,6 +2143,15 @@ impl LanePreset {
 fn default_true() -> bool {
     true
 }
+fn default_surreal_version() -> String {
+    "3.0.5".to_owned()
+}
+fn default_surreal_install_dir() -> String {
+    "global/runtimes/surreal".to_owned()
+}
+fn default_surreal_data_path() -> String {
+    "surreal/devpulse".to_owned()
+}
 fn default_surreal_kind() -> String {
     "surreal".to_string()
 }
@@ -2263,5 +2314,59 @@ mod models_dir_resolver_tests {
 
         assert_eq!(resolved, data_dir.join("models"));
         fs::remove_dir_all(&repo).unwrap();
+    }
+}
+
+#[cfg(test)]
+#[allow(clippy::unwrap_used)]
+mod surreal_paths_tests {
+    use super::{PlatformBootConfig, SurrealServiceEntry, DEFAULT_CONFIG};
+    use std::path::PathBuf;
+
+    #[test]
+    fn the_shipped_config_names_the_build_and_keeps_the_store_where_it_was() {
+        let boot: PlatformBootConfig = toml::from_str(DEFAULT_CONFIG).unwrap();
+        let surreal = &boot.services.system.surreal;
+        let data_dir = PathBuf::from("devpulse").join(".userdata");
+
+        assert_eq!(surreal.version, "3.0.5");
+        assert_eq!(
+            surreal.binary(&data_dir),
+            data_dir
+                .join("global")
+                .join("runtimes")
+                .join("surreal")
+                .join("3.0.5")
+                .join(format!("surreal{}", std::env::consts::EXE_SUFFIX))
+        );
+        // The store the embedded crate has been writing to.
+        assert_eq!(
+            surreal.store(&data_dir),
+            data_dir.join("surreal").join("devpulse")
+        );
+    }
+
+    #[test]
+    fn absolute_paths_are_used_as_given() {
+        let elsewhere = std::env::temp_dir().join("dp-surreal-elsewhere");
+        let entry = SurrealServiceEntry {
+            install_dir: elsewhere.join("builds").to_str().unwrap().to_owned(),
+            data_path: elsewhere.join("store").to_str().unwrap().to_owned(),
+            ..SurrealServiceEntry::default()
+        };
+        let data_dir = PathBuf::from("devpulse").join(".userdata");
+
+        assert_eq!(
+            entry.build_dir(&data_dir),
+            elsewhere.join("builds").join("3.0.5")
+        );
+        assert_eq!(entry.store(&data_dir), elsewhere.join("store"));
+    }
+
+    #[test]
+    fn an_override_without_the_new_keys_keeps_the_defaults() {
+        let entry: SurrealServiceEntry = toml::from_str("enabled = true\n").unwrap();
+        assert_eq!(entry.version, SurrealServiceEntry::default().version);
+        assert_eq!(entry.data_path, "surreal/devpulse");
     }
 }
