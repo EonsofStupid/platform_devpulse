@@ -31,7 +31,8 @@ use devpulse_engine::platform::{
     FeedItem, FeedKind, SqlAdapter, DEFAULT_FEED_TTL_SECS,
 };
 
-use crate::commands::cloud::{get_supabase_credentials, SupabaseCredentials};
+use crate::commands::cloud::secrets::credentials_from;
+use crate::commands::cloud::SupabaseCredentials;
 use crate::state::PlatformState;
 
 // ── Types ───────────────────────────────────────────────────────────
@@ -167,7 +168,8 @@ pub async fn sync_community_feed(
         });
     }
 
-    let creds: SupabaseCredentials = match get_supabase_credentials().await {
+    let auth = &platform.boot_config().integrations.cloud.auth;
+    let creds: SupabaseCredentials = match credentials_from(auth) {
         Ok(c) => c,
         Err(e) => {
             return Ok(SyncResult::Skipped {

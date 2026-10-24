@@ -4008,13 +4008,14 @@ async cloudChat(messages: CloudMessage[], systemPrompt: string | null, model: st
 /**
  * Load the Supabase credentials envelope.
  * 
- * Reads the anon key from the OS keychain. URL is the deployment
- * constant. Frontend instantiates `supabase-js` from the returned
- * envelope when `anon_key` is `Some`.
+ * The URL is the configured one; the anon key is the keychain's override,
+ * else the configured key. Without a configured URL nothing can sign in, so
+ * `anon_key` is `None`. Frontend instantiates `supabase-js` from the
+ * returned envelope when `anon_key` is `Some`.
  * 
  * # Errors
- * Keychain access failure (other than `NoEntry`, which returns
- * `anon_key: None`).
+ * Platform config unreadable, or keychain access failure (other than
+ * `NoEntry`).
  */
 async getSupabaseCredentials() : Promise<Result<SupabaseCredentials, CommandError>> {
     try {
@@ -4061,12 +4062,13 @@ async clearSupabaseAnonKey() : Promise<Result<null, CommandError>> {
 }
 },
 /**
- * Frontend-safe status check — never returns the raw key. Used by the
- * Cloud settings devtool to render "key stored" / "no key set" without
- * pulling the value into the JS heap.
+ * Frontend-safe status check — never returns the raw key: whether the
+ * configuration holds one, whether the keychain overrides it, and a masked
+ * preview of the keychain's.
  * 
  * # Errors
- * Keychain read failure (other than `NoEntry`).
+ * Platform config unreadable, or keychain read failure (other than
+ * `NoEntry`).
  */
 async getSupabaseCredentialsStatus() : Promise<Result<SupabaseCredentialsStatus, CommandError>> {
     try {
@@ -13238,8 +13240,8 @@ export type SupabaseCredentials = {
  */
 url: string; 
 /**
- * The public anon key from the Supabase dashboard. `None` when
- * not yet stored in the keychain.
+ * The public anon key: the keychain's override, else the configured
+ * key. `None` when neither is set, or no URL is configured.
  */
 anonKey: string | null }
 /**
@@ -13252,7 +13254,11 @@ export type SupabaseCredentialsStatus = {
  */
 url: string; 
 /**
- * `true` when an anon key is in the OS keychain.
+ * `true` when the configuration holds an anon key.
+ */
+anonKeyConfigured: boolean; 
+/**
+ * `true` when an anon key is in the OS keychain (it overrides the configured one).
  */
 anonKeyStored: boolean; 
 /**

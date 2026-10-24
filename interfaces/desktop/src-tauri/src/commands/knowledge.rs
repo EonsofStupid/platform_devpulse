@@ -8,7 +8,7 @@
 //! Storage bucket so the catalog can be refreshed without a binary
 //! rebuild.
 
-use crate::commands::cloud::get_supabase_credentials;
+use crate::commands::cloud::secrets::credentials_from;
 use crate::state::PlatformState;
 use anyhow::Context as _;
 use devpulse_engine::platform::{
@@ -190,7 +190,8 @@ pub async fn sync_knowledge_from_remote(
         .ok_or("User relational service not available")?;
     let adapter: &dyn SqlAdapter = svc.adapter().as_ref();
 
-    let creds = match get_supabase_credentials().await {
+    let auth = &platform.boot_config().integrations.cloud.auth;
+    let creds = match credentials_from(auth) {
         Ok(c) => c,
         Err(e) => {
             return Ok(KnowledgeSyncResult::Skipped {

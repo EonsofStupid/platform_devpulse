@@ -1365,7 +1365,7 @@ Phases (each ≤ 5 files, checked, committed with hooks):
 
 | # | Outcome | Files | Verification |
 | --- | --- | --- | --- |
-| A1 | The auth endpoint is configuration. `config/platform/cloud.toml` holds `[cloud.auth] url` and the public `anon_key`; the keychain entry stays as an override for a self-hosted project. You supply the key's value (decision D2); I never enter it | `config/platform/cloud.toml`, engine `platform/config/loader.rs`, `commands/cloud/secrets.rs` | `cargo test` config; `get_supabase_credentials` returns the configured URL and a key without the keychain |
+| A1 | The auth endpoint is configuration. `config/platform/integrations/cloud.toml` (the integrations axis) holds `[integrations.cloud.auth] url` and the public `anon_key`; the keychain entry stays as an override for a self-hosted project. You supply the key's value (decision D2); I never enter it | `config/platform/integrations/cloud.toml`, engine `platform/config/{loader.rs, integrations/{mod,cloud}.rs}`, `commands/cloud/secrets.rs` | `cargo test` config; `get_supabase_credentials` returns the configured URL and a key without the keychain |
 | A2 | Auth text moves to the engine copy catalog (`[auth]` in `copy.default.toml`, `CopyCatalog.auth`), with text added for the email code, offline and account stage. `LoginShell` reads `copyState`; wizard copy loses `[auth]` (moved, not dropped) | engine `platform/copy/mod.rs`, `config/copy.default.toml`, `config/wizard_copy.default.toml` (+ its kernel struct), `LoginShell.svelte`, `bindings.ts` | cargo test copy; svelte-check |
 | A3a | The `account` stage: `Stage::Account`, `first-run.flow.toml` = `welcome, account, you, your_ai, containers`. The stage needs an account until the profile holds one. "Set up later" is refused until the account exists (no skip), and the Welcome view hides it until then | `onboarding/{flow,workflow,state}.rs`, `first-run.flow.toml`, `FirstRunFlow.svelte` | engine tests: `next` refused without an account, `later` refused before it; live: Welcome → Account, no later |
 | A3b | Rust verifies the session and records the account. A Tauri intent `onboarding_account(access_token)` checks it with Supabase and writes `account_subject`, `account_issuer` and the account's email to the profile; the You stage shows that email | `commands/onboarding/mod.rs`, engine `onboarding/{workflow,you}.rs`, `services/relational.rs` (migration) | engine tests (fake verifier); live: a signed-in session opens the gate |
@@ -1385,13 +1385,13 @@ Conflicts these rulings settle (older text is corrected when its phase lands):
 
 Owner decisions 2026-10-23:
 - **D1:** the session lives in the OS keychain (A5's adapter); a copied folder on another machine asks you to sign in again.
-- **D2:** the anon key ships in `config/platform/cloud.toml` (A1); the owner adds the value, and the keychain stays as an override.
+- **D2:** the anon key ships in `config/platform/integrations/cloud.toml` (A1); the owner adds the value, and the keychain stays as an override.
 - **D4:** the shippin.cloud question is held until Shippin's API exists (A8).
 - **Open:** D3, the license source, decided at A7.
 
 The questions as asked:
 - **D1 — where the session lives.** OS keychain (your keyring rule for tokens; a copied folder on another machine asks you to sign in again), or `.userdata` (travels with the folder, so a copy carries your login).
-- **D2 — the anon key ships in `config/platform/cloud.toml`.** It is public by design (`secrets.rs:14-21`), and you add the value.
+- **D2 — the anon key ships in `config/platform/integrations/cloud.toml`.** It is public by design (`secrets.rs:14-21`), and you add the value.
 - **D3 — the license's source in Supabase.** A `subscriptions` row made at sign-up, or the user's server-set `app_metadata`.
 - **D4 — shippin.cloud.** Ask now and record the answer, or hold the question until Shippin's API exists.
 - **D5 — the live sign-up is yours** (above).

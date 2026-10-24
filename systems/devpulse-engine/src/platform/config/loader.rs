@@ -250,6 +250,9 @@ pub struct PlatformBootConfig {
     /// refused by name instead of failing the whole config.
     #[serde(default)]
     pub logs: Option<toml::Value>,
+    /// External services (`[integrations]`, `config/platform/integrations/`).
+    #[serde(default)]
+    pub integrations: super::integrations::IntegrationsConfig,
 }
 
 /// Signal delivery tuning from `config/platform/signals.toml`.
