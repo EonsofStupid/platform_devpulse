@@ -11,7 +11,7 @@ paths:
 - Handle errors with `thiserror` for library code, `anyhow` for application code
 - Prefer `&str` over `String` in function parameters where possible
 - NEVER use `unwrap()` in production — use `?` or explicit error handling
-- NEVER suggest Python equivalents. This is a full-Rust stack. No exceptions.
+- Rust is the default language. Python is allowed but not the default; it is the obvious choice for ML training, fine-tuning and data pipelines (owner 2026-09-23).
 - Candle inference is SYNC — bridge to async via flume channels, not tokio::spawn_blocking
 - llama.cpp FFI: Rust→C only. Use devpulse-llama-sys + devpulse-llama crates (EonsofStupid forks)
 - All deps forked under EonsofStupid org as git= deps. No submodules. No upstream crates.io.

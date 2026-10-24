@@ -154,7 +154,7 @@ The cockpit metaphor shapes the UI, the kernel, the routing layer, and every int
 
 ## Own The Stack, But Only What Must Be Forked
 
-DevPulse is a Rust runtime. No Python in the binary. C dependencies are fine where they are load-bearing (DuckDB, FFmpeg, scap, Candle BLAS, llama.cpp FFI). Forks happen only when the upstream cannot carry what we need and no patch path exists.
+DevPulse is a Rust runtime. Rust is the default; Python is allowed and is the obvious choice for ML training and data pipelines (CLAUDE.md "Language Choice", owner 2026-09-23). C dependencies are fine where they are load-bearing (DuckDB, FFmpeg, scap, Candle BLAS, llama.cpp FFI). Forks happen only when the upstream cannot carry what we need and no patch path exists.
 
 Currently forked (justified):
 - `sherpa-rs` — STT runtime adjustments

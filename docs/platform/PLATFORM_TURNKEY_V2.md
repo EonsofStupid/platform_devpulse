@@ -60,16 +60,25 @@ These rules govern every phase below. Violating any is a structural
 bug, not a stylistic preference. Most are cross-referenced from
 `memory/` LOCKED entries.
 
-1. **App is embedded; cloud is for Claude.** `DevPulse.exe` uses
-   kv-surrealkv (no port), embedded Qdrant, embedded DuckDB, embedded
-   LibSQL, Burn in-process. Cloud SurrealDB+Qdrant are dev-side only
-   (chat dump, banter, drift correction). See
-   `memory/project_app_embedded_cloud_for_claude.md`.
-2. **No Python. No Docker. No external services.** Full Rust + TS +
-   Svelte.
+1. ~~App is embedded; kv-surrealkv (no port)~~ — **superseded by the
+   owner.** Surreal is upstream's built binary in a supervised subprocess,
+   never compiled in (plan 0007 decision 6, 2026-10-24: "surreal is suppose
+   to be a prebuilt binary subprocess that can easily be detached"; April:
+   "surreal was never suppose to be just useless embedded i wanted the full
+   version properly sidecar and managed by devpulse"). AI runtimes are
+   subprocesses too (plan 0007). The database is Turso, not LibSQL
+   (owner 2026-07-01).
+2. ~~No Python. No Docker. No external services.~~ — **superseded by the
+   owner.** Rust is the default and Python is allowed (CLAUDE.md
+   "Language Choice", owner 2026-09-23). Docker / Podman is a guided product
+   feature ("I want docker available for the app made easy for users …
+   portable all within devpulse"). DevPulse has a required devpulse.app
+   account, optional shippin.cloud or homelab sync, and the person's own
+   subscriptions (plan 0001).
 3. **No `unwrap()` in production Rust.** Use `?` or explicit handling.
-4. **Kernel vocabulary stays in `kernel/`.** Layman names cross
-   outward.
+4. ~~Kernel vocabulary stays in `kernel/`~~ — **superseded by the owner**
+   (2026-10-19: "everything is public"): the term list maps layman ↔
+   advanced labels, enforcement off; the prompt recipes stay the kernel's.
 5. **Pre-release mode.** Reauthor aggressively. No shims. No
    backcompat.
 6. **Verify after every edit.** Never claim "done" before `cargo
@@ -78,8 +87,11 @@ bug, not a stylistic preference. Most are cross-referenced from
    Nano-9B) + `minion` (Harrier 0.6B) + `voice` (Sherpa Whisper+Kokoro)
    + `rag_embed` (Nemotron ColEmbed VL). Vision is brain-capability,
    not a slot.
-8. **Routing by file format at load time.** GGUF→llama.cpp;
-   SafeTensors+embedding→Burn; ONNX/Sherpa→ort; others→Candle.
+8. ~~Routing by file format at load time (GGUF→llama.cpp;
+   SafeTensors+embedding→Burn; ONNX/Sherpa→ort; others→Candle)~~ —
+   **superseded by the owner**: every slot points at an endpoint, a runtime
+   subprocess or a remote URL; no inference engine is compiled in (plan 0007
+   decision 5, 2026-10-13).
 9. **Setup-wizard boundary INVALID.** Slot Orchestrator devtool is
    SSOT. Devtools are the dev-diagnostic surface; the customer never
    reaches `/devtools/`.

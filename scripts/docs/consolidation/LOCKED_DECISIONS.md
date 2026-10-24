@@ -24,7 +24,7 @@
 | A-2 | **Dispersed nodes connect to the master.** Each node (per-project / per-device / per-Minion) is a sync client of the master. | 2026-05-13 |
 | A-3 | **Two sync modes available:** **full sync** (everything mirrors) and **namespace sync** (selective per-node). | 2026-05-13 |
 | A-4 | **Namespace sync is what makes specialists true specialists.** A vision Minion''s node only syncs the `vision` namespace, so it stays uncluttered. | 2026-05-13 |
-| A-5 | **SurrealDB is composed in, not forked.** RRD is the curated stack distribution (Linkerd/Datadog pattern), not a fork. We retain the ability to fork if upstream rejects a feature we need, but do not fork preemptively. | 2026-05-13 |
+| A-5 | ~~SurrealDB is composed in, not forked.~~ **Superseded by the owner:** he wants to fork and own Surreal ("I want to fork and start owning surreal", April), approved as RRFlow 2026-10-01; until RRFlow replaces it, Surreal is upstream's built binary in a supervised subprocess, never compiled in (plan 0007 decision 6, 2026-10-24). | 2026-05-13, superseded 2026-10-24 |
 
 ## Section B — md ↔ DB sync
 
@@ -124,11 +124,11 @@ These were locked PRIOR to this conversation and remain unchanged. Captured here
 | Plan Graph spec | EXISTS at `/scripts/docs/specs/tasks/PLAN_GRAPH_SPEC.md` — Supervisor owns the Plan Graph; AgentPlan tasks are the cross-Minion DAG |
 | Plan Graph executor variant | `Executor::SpecialistClyffy(clyffy_id)` — Supervisor delegates via A2A |
 | Memory Blocks | Become derived views over SurrealDB. Live queries push updates to any Clyffy holding that block in context. |
-| Persistence layer DAL | `dal-libsql` (OLTP), `dal-duckdb` (OLAP), `dal-surrealdb` (agent-memory + graph-context). All three coexist, none replaced. |
+| Persistence layer DAL | Turso (OLTP; owner 2026-07-01 "actually turso not libsql"), DuckDB (OLAP), SurrealDB (agent-memory + graph-context, a supervised subprocess). All three coexist, none replaced. |
 | Bridge resilience | Tower::Service stack — Bulkhead > Circuit > Retry > Timeout > backend. Spec drafted; code not yet rebuilt. |
 | Rumination | The product, the default mode |
 | RRO | Multi-layer reasoning substrate — not a database. Subconscious/Immediate (sub-100ms) + Deep (escalation). |
-| Storage stack | libSQL SSOT + 5 categories: vectors (Qdrant fork), relational (libSQL), graph (SurrealDB), analytics (DuckDB), hot cache (Moka 4 instances). |
+| Storage stack | Turso SSOT (owner 2026-07-01; was libSQL) + 5 categories: vectors (Qdrant fork), relational (Turso), graph (SurrealDB, a supervised subprocess), analytics (DuckDB), hot cache (Moka 4 instances). |
 | Serialization | rkyv 0.8.15 internal MCP / JSON+YAML for LLM / JSON-RPC perimeter. |
 | Model stack | Phi-4-multimodal-5.6B chat.brain + Qwen3-0.6B minion.shared + custom 0.5B encoder + BGE-Reranker-Base. PARKED items: Kokoro dropped, Whisper dropped, SigLIP2 dropped — SigLIP-HD is the vision lock per Siggy''s seat. **NOTE — verify against MODEL_STACK.md; this is a domain where I''ve drifted before.** |
 | MCP role | DevPulse is bidirectional (SERVER + CLIENT). rmcp Rust SDK both ways. |

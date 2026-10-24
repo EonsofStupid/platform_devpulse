@@ -13,16 +13,16 @@
 - `cd interfaces/desktop && pnpm svelte-check` — TypeScript check
 
 ## Stack
-- Rust (engine, kernel, Tauri backend) — **NO PYTHON. NO EXCEPTIONS.**
+- Rust (engine, kernel, Tauri backend) — the default; Python is allowed (Language Choice, owner 2026-09-23)
 - Svelte 5 runes ($state, $derived, $effect) — NEVER legacy stores
 - Tauri 2.0 — multi-window cockpit via WebviewWindow
 - Candle (canonical inference) + llama.cpp FFI (GGUF, secondary)
 - flume 0.11 (sync→async bridge) + tokio::broadcast (signal fan-out)
-- libSQL (SSOT) + SurrealDB (graph, implement last) + DuckDB (analytics)
+- Turso (SSOT) + SurrealDB (graph; built binary, supervised subprocess) + DuckDB (analytics)
 - ColdLight design system: @packages/coldlight/MASTER-PLAN.md
 
 ## Hard Rules
-- NEVER suggest Python, Docker, npm servers, or external services
+- Python is allowed; Docker / Podman is a guided product feature; DevPulse has a devpulse.app account, optional shippin.cloud or homelab sync, and the person's own subscriptions (owner)
 - NEVER use `unwrap()` in production Rust — use `?` or explicit handling
 - NEVER create /core, /utils, /helpers — use feature-based modules
 - NEVER reference kernel terms outside kernel/ — see @.claude/rules/ip-protection.md

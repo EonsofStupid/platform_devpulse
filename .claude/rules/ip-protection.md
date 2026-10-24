@@ -8,6 +8,16 @@ paths:
 
 # IP Protection — Engine / Kernel Boundary
 
+> **Owner 2026-10-19 — everything is public.** The vocabulary ban below is
+> retired. `systems/devpulse-engine/ip/kernel_terms.toml` keeps the term
+> list as a layman ↔ advanced label map with `enforcement = "off"` ("keep
+> the configuration so it can be used but for now I want everything
+> public"); no term is blocked anywhere. What stays: the prompt recipes are
+> the kernel's (owner: "COSTAR+ will be allowed, the actual prompt recipe
+> system will not be"), and the desktop never imports `devpulse-clyffy`
+> (engine facade only). Retiring the rest of the machinery (registry, lint,
+> `ip_term!`) is its own plan.
+
 **SSOT:** `systems/devpulse-engine/ip/signals.registry.yaml`
 **Narrations:** `systems/devpulse-engine/ip/signals.narrations.yaml`
 **Shape:** OpenTelemetry semantic convention registry (extended with families, relationships, visibility tiers, narrations)
