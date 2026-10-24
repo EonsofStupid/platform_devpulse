@@ -1479,7 +1479,7 @@ A5 → A13, A6 → A14, A7 → A15, A8 → A16.
 | A1 | **Done** `c6d0fb1a`. The auth endpoint is configuration: `[integrations.cloud.auth] url` and the public `anon_key` in `config/platform/integrations/cloud.toml`; the keychain entry is an override. You supply the key's value (D2) | — | — |
 | A2 | **Done** `edd4f461`. Auth text is in the engine copy catalog (`[auth]`, `CopyCatalog.auth`); `LoginShell` reads `copyState` | — | — |
 | A3 | **Done** (see the log). **No secret reaches the logs.** The IPC trace keeps the command and the argument names and replaces the values of secret-named arguments (`key`, `token`, `access_token`, `refresh_token`, `secret`, `password`, and names ending in those) with `[redacted]`, in one tested function. A new secret-bearing command is covered by its argument's name | `src-tauri/src/lib.rs`, `src-tauri/src/ipc_trace.rs` (new) | unit tests (nested JSON, every name); live: `session.jsonl` still shows a normal command's arguments |
-| A4 | **Onboarding speaks `CommandError`.** The module's `Result<_, String>` goes. The service unwraps `CommandError` and keeps its `message`. `you-form` and `repo-scan` state go through the service, the only IPC. Refusals stay the engine's text here; typed refusals with copy are listed under "Found" | `commands/onboarding/mod.rs`, `onboarding.service.ts`, `onboarding.state.svelte.ts`, `you-form.state.svelte.ts`, `repo-scan.state.svelte.ts` | clippy; svelte-check; Biome; live (CDP): first run walks Welcome → You → Your AI |
+| A4 | **Done** (see the log). **Onboarding speaks `CommandError`.** The module's `Result<_, String>` goes. The service unwraps `CommandError` and keeps its `message`. `you-form` and `repo-scan` state go through the service, the only IPC. Refusals stay the engine's text here; typed refusals with copy are listed under "Found" | `commands/onboarding/mod.rs`, `onboarding.service.ts`, `onboarding.state.svelte.ts`, `you-form.state.svelte.ts`, `repo-scan.state.svelte.ts` | clippy; svelte-check; Biome; live (CDP): first run walks Welcome → You → Your AI |
 | A5 | **The account on the profile.** Migration `user/0003_account.sql` adds `account_subject` and `account_issuer`, unique as a pair. `UserProfile.account`; `profile::set_account` writes the account and its email. A different account on an install that has one is refused, with nothing written (D6) | `migrations/user/0003_account.sql`, `platform/profile/mod.rs` | engine tests: round trip, same account again, a different account refused |
 | A6 | **The engine verifies a session.** A new `platform/account/` (the DevPulse account; not AI, so the engine). A `SessionVerifier` trait (precedent `EndpointProbe`) and the Supabase verifier: `GET {url}/auth/v1/user` with `apikey` and the bearer token, through an injected `reqwest::Client`. It returns the account (subject = the user's `id`, issuer = `{url}/auth/v1`, email) or a typed refusal: rejected (401/403), unreachable, not configured, or no email. `Onboarding::account(verifier, token)` verifies, records (A5) and publishes | `platform/account/{mod,supabase}.rs` (new), `platform/mod.rs`, `onboarding/workflow.rs` | engine tests with a scripted verifier; pure tests of the response reading; an `#[ignore]` live test |
 | A7 | **The intent.** Tauri `onboarding_account(access_token)` resolves the endpoint with `credentials_from` (`secrets.rs:108-128`; the keychain stays in Tauri, the only crate with `keyring`) and calls A6. The facade, service and state gain `account` | `commands/onboarding/mod.rs`, `lib.rs`, `sys/bindings/onboarding/index.ts`, `onboarding.service.ts`, `onboarding.state.svelte.ts` | clippy; svelte-check; live (CDP): a made-up token is refused in the engine's words, and `session.jsonl` shows `[redacted]` |
@@ -2343,3 +2343,20 @@ queries proving what was written.
       (`set_signal_interest {"kind":"models",…}`), and `get_preference`
       called over CDP was traced as `{"key":"[redacted]"}`. Its value appears
       nowhere in `session.jsonl`.
+  - 2026-10-24 — **A4 done: first run speaks `CommandError`.**
+    - The nine onboarding commands return `CommandError`: a platform still
+      booting is `not-configured`, an unopened user database and a workflow
+      refusal are `internal` with the engine's words.
+    - `onboarding.service.ts` is the domain's only IPC: the stage intents,
+      the You form, the projects scan and the folder picker. `you-form` and
+      `repo-scan` state call it; their copies of `unwrap` are gone. The
+      service logs the error kind and throws the message.
+    - `onboarding.state.svelte.ts` needed no change (it already went through
+      the service).
+    - Verified: clippy clean (desktop library), rustfmt, svelte-check 0/0,
+      Biome clean; the regenerated bindings change exactly the nine commands.
+    - Live, over CDP in the running app, with first-run progress unchanged:
+      `onboarding_state` answers; `onboarding_back` while first run is
+      complete is refused as `{"kind":"internal","message":"first run is not
+      open"}`; the You form returns its three fields; scanning a missing
+      folder answers `null`.

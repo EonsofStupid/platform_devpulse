@@ -8,22 +8,8 @@
  * results.
  */
 
-import type { Result } from "$lib/sys/bindings/_shared/index.js";
-import {
-	type FoundRepo,
-	onboardingRegisterProjects,
-	onboardingScanProjects,
-	type RegisterResult,
-} from "$lib/sys/bindings/onboarding/index.js";
-import { logError } from "$lib/sys/logger.js";
-
-function unwrap<T>(name: string, result: Result<T, string>): T {
-	if (result.status === "error") {
-		logError("onboarding.repoScan", `${name} failed: ${result.error}`);
-		throw new Error(result.error);
-	}
-	return result.data;
-}
+import type { FoundRepo, RegisterResult } from "$lib/sys/bindings/onboarding/index.js";
+import { registerProjects, scanProjects } from "./onboarding.service.js";
 
 const message = (e: unknown): string => (e instanceof Error ? e.message : String(e));
 
@@ -52,7 +38,7 @@ class RepoScanStore {
 		this.missing = false;
 		this.results = [];
 		try {
-			const repos = unwrap("onboardingScanProjects", await onboardingScanProjects(target));
+			const repos = await scanProjects(target);
 			if (this.folder !== target) return;
 			this.missing = repos === null;
 			this.repos = repos ?? [];
@@ -90,10 +76,7 @@ class RepoScanStore {
 		this.registering = true;
 		this.problem = null;
 		try {
-			const results = unwrap(
-				"onboardingRegisterProjects",
-				await onboardingRegisterProjects(this.picked),
-			);
+			const results = await registerProjects(this.picked);
 			const added = new Set(results.filter((r) => r.error === null).map((r) => r.path));
 			this.repos =
 				this.repos?.map((r) => (added.has(r.path) ? { ...r, registered: true } : r)) ?? null;

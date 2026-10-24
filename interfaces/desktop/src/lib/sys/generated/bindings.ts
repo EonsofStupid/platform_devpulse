@@ -2153,7 +2153,7 @@ async getCopy() : Promise<Result<LoadedCopy, string>> {
 /**
  * The current first-run state (the same value the `onboarding` signal carries).
  */
-async onboardingState() : Promise<Result<OnboardingState, string>> {
+async onboardingState() : Promise<Result<OnboardingState, CommandError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("onboarding_state") };
 } catch (e) {
@@ -2164,7 +2164,7 @@ async onboardingState() : Promise<Result<OnboardingState, string>> {
 /**
  * Continue to the next stage (after the last one, first run is finished).
  */
-async onboardingNext() : Promise<Result<OnboardingState, string>> {
+async onboardingNext() : Promise<Result<OnboardingState, CommandError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("onboarding_next") };
 } catch (e) {
@@ -2175,7 +2175,7 @@ async onboardingNext() : Promise<Result<OnboardingState, string>> {
 /**
  * Go back one stage.
  */
-async onboardingBack() : Promise<Result<OnboardingState, string>> {
+async onboardingBack() : Promise<Result<OnboardingState, CommandError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("onboarding_back") };
 } catch (e) {
@@ -2186,7 +2186,7 @@ async onboardingBack() : Promise<Result<OnboardingState, string>> {
 /**
  * "Set up later": leave first run; it can be reopened at any time.
  */
-async onboardingLater() : Promise<Result<OnboardingState, string>> {
+async onboardingLater() : Promise<Result<OnboardingState, CommandError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("onboarding_later") };
 } catch (e) {
@@ -2197,7 +2197,7 @@ async onboardingLater() : Promise<Result<OnboardingState, string>> {
 /**
  * Reopen first run where you left it.
  */
-async onboardingReopen() : Promise<Result<OnboardingState, string>> {
+async onboardingReopen() : Promise<Result<OnboardingState, CommandError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("onboarding_reopen") };
 } catch (e) {
@@ -2209,7 +2209,7 @@ async onboardingReopen() : Promise<Result<OnboardingState, string>> {
  * The "You" form: its schema, your stored values, and suggestions found on
  * this machine (git identity, folders that hold repositories).
  */
-async onboardingYouForm() : Promise<Result<FormView, string>> {
+async onboardingYouForm() : Promise<Result<FormView, CommandError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("onboarding_you_form") };
 } catch (e) {
@@ -2221,7 +2221,7 @@ async onboardingYouForm() : Promise<Result<FormView, string>> {
  * Save the "You" form. Refused fields come back in the outcome, with
  * nothing written.
  */
-async onboardingYouSubmit(values: JsonValue) : Promise<Result<FormOutcome, string>> {
+async onboardingYouSubmit(values: JsonValue) : Promise<Result<FormOutcome, CommandError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("onboarding_you_submit", { values }) };
 } catch (e) {
@@ -2234,7 +2234,7 @@ async onboardingYouSubmit(values: JsonValue) : Promise<Result<FormOutcome, strin
  * first; the ones already registered marked. `None` when the folder does
  * not exist (an answer, not a failure).
  */
-async onboardingScanProjects(folder: string) : Promise<Result<FoundRepo[] | null, string>> {
+async onboardingScanProjects(folder: string) : Promise<Result<FoundRepo[] | null, CommandError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("onboarding_scan_projects", { folder }) };
 } catch (e) {
@@ -2248,7 +2248,7 @@ async onboardingScanProjects(folder: string) : Promise<Result<FoundRepo[] | null
  * removed earlier comes back. When no project is active yet, the first one
  * becomes active.
  */
-async onboardingRegisterProjects(paths: string[]) : Promise<Result<RegisterResult[], string>> {
+async onboardingRegisterProjects(paths: string[]) : Promise<Result<RegisterResult[], CommandError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("onboarding_register_projects", { paths }) };
 } catch (e) {

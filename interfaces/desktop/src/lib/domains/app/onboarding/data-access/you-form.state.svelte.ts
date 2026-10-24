@@ -8,25 +8,10 @@
  * to Rust; when it is saved, first run continues (Rust checks the gate).
  */
 
-import type { Result } from "$lib/sys/bindings/_shared/index.js";
-import { pickDirectory } from "$lib/sys/bindings/models/index.js";
-import {
-	type FieldError,
-	type FormView,
-	onboardingYouForm,
-	onboardingYouSubmit,
-} from "$lib/sys/bindings/onboarding/index.js";
-import { logError } from "$lib/sys/logger.js";
+import type { FieldError, FormView } from "$lib/sys/bindings/onboarding/index.js";
+import { pickFolder, readYouForm, submitYouForm } from "./onboarding.service.js";
 import { onboardingState } from "./onboarding.state.svelte.js";
 import { repoScan } from "./repo-scan.state.svelte.js";
-
-function unwrap<T>(name: string, result: Result<T, string>): T {
-	if (result.status === "error") {
-		logError("onboarding.youForm", `${name} failed: ${result.error}`);
-		throw new Error(result.error);
-	}
-	return result.data;
-}
 
 const message = (e: unknown): string => (e instanceof Error ? e.message : String(e));
 
@@ -42,7 +27,7 @@ class YouFormStore {
 		this.loading = true;
 		this.problem = null;
 		try {
-			const view = unwrap("onboardingYouForm", await onboardingYouForm());
+			const view = await readYouForm();
 			const stored = (view.values ?? {}) as Record<string, string | null>;
 			this.draft = Object.fromEntries(view.fields.map((f) => [f, stored[f] ?? ""]));
 			this.view = view;
@@ -60,7 +45,7 @@ class YouFormStore {
 
 	async browse(field: string, title: string): Promise<void> {
 		try {
-			const path = unwrap("pickDirectory", await pickDirectory(title));
+			const path = await pickFolder(title);
 			if (path) this.set(field, path);
 		} catch (e) {
 			this.problem = message(e);
@@ -88,7 +73,7 @@ class YouFormStore {
 		this.saving = true;
 		this.problem = null;
 		try {
-			const outcome = unwrap("onboardingYouSubmit", await onboardingYouSubmit(this.payload()));
+			const outcome = await submitYouForm(this.payload());
 			this.errors = outcome.errors;
 			if (!outcome.saved) return;
 			if (!(await repoScan.register())) return;
