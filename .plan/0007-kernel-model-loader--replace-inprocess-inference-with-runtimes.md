@@ -374,7 +374,7 @@ counted; each verified live; commits with hooks passing):
 | --- | --- | --- | --- |
 | S1 | **Done** (see the log). **The binary, installed the right way.** `fetch-surreal` installs the configured version into `.userdata/global/runtimes/surreal/{V}/`: SHA-256 against the published digest, temp extract, atomic rename, LICENSE beside it, previous build kept; nothing written into `src-tauri/binaries/`. `surreal.toml` gains `version`, `runtimes_dir` and `data_path`; its stale keys are reconciled | `xtask/src/commands/fetch_surreal.rs`, `config/platform/services/system/surreal.toml`, engine `config/loader.rs` (`SurrealServiceEntry`) | `cargo test -p xtask`; the installed `surreal version` prints 3.0.5; a tampered download is refused |
 | S2 | **S2a and S2b done** (see the log); S2c, xtask on the shared guard, next. **Process mechanics.** `devpulse-process` gains a supervised child: Job Object kill-on-close (Windows), process group (POSIX), no console, line-by-line log capture, early-exit detection, Ctrl-Break then forced stop with deadlines | `systems/infra/devpulse-process/{Cargo.toml, src/lib.rs, src/child.rs}` | tests with a small child process; killing the test parent leaves no child |
-| S3 | **The kernel runtime adapter** (phase 4's kernel half), generalized from the April `SurrealLifecycle` and `OllamaAdapter`: program, args, env, readiness URL, port policy, restart with backoff and a crash-loop cap, lifecycle events | `cortex/persistence/{runtime.rs, mod.rs}` | kernel tests with a scripted child: ready, crash then restart, crash loop then stop |
+| S3 | **Done** (see the log). **The kernel runtime adapter** (phase 4's kernel half), generalized from the April `SurrealLifecycle` and `OllamaAdapter`: program, args, env, readiness URL, port policy, restart with backoff and a crash-loop cap, lifecycle events | `cortex/persistence/{runtime.rs, mod.rs}` | kernel tests with a scripted child: ready, crash then restart, crash loop then stop |
 | S4 | **The CBOR client,** beside the old one, not yet wired: `surreal/rpc.rs` sends `query` with vars, reads the per-statement array, surfaces `ERR` statements, and maps CBOR tags to today's JSON shapes | `persistence/surreal/{rpc.rs, mod.rs}`, kernel `Cargo.toml` (`ciborium`, `serde_bytes`) | unit tests: encode and decode, tagged record ids, datetimes, bytes, an `ERR` statement |
 | S5 | **The cutover, on your existing data.** `lifecycle.rs` starts v3.0.5 through the runtime adapter on `surrealkv://{data_path}`; `client.rs` goes through `rpc.rs`; the 12 `type::thing` become `type::record`; `boot/graph.rs` reads the configured path | `surreal/{lifecycle,client,intelligence_impl}.rs`, `suggest/service.rs`, engine `boot/graph.rs` | live: boot reaches Ready; the SurrealDB devtool lists your tables with their counts; a chat prompt saves and suggests; DevPulse killed → no `surreal.exe` left |
 | S6 | **The crate leaves the build.** The `SurrealValue` derives become serde (bytes through `serde_bytes`); `surrealdb` leaves both `Cargo.toml`s and the lockfile | `intelligence/record.rs`, `surreal/{client,intelligence_impl}.rs`, kernel `Cargo.toml`, root `Cargo.toml` | `cargo tree -i surrealdb-core` → none; the `RUSTSEC-2026-0387` entry leaves `deny.toml` (added 2026-10-24 so the push could go through) and `cargo deny check advisories` still passes; build time before and after |
@@ -598,3 +598,18 @@ Owner, 2026-10-24:
   tests + both Windows paths — with a console (graceful in 0.4 s; `ping`, which ignores Ctrl-Break,
   forced after the 6 s test window) and, run alone, without one (`without_a_console_the_request_still_lands`).
   clippy all targets, rustfmt, `cargo check -p devpulse_desktop_backend` clean.
+- 2026-10-24 — **Merged into main** (owner: "Full merge, resolve every file"; `008546f1`, pushed). Every path decided
+  from the main commits that touched it: the restored code stands; the kernel cut, severance, GB10 client,
+  Connectome rename and the active kernel-extraction charter are not taken; main's deletions wait for the
+  owner; 31 docs and tooling files come in; main's July code (64 commits) is ported as separate commits.
+- 2026-10-24 — **S3 done: the kernel runtime adapter** (`cortex/persistence/runtime.rs`, phase 4's kernel half),
+  re-authored from the April `SurrealLifecycle` and the `OllamaAdapter`: the port from `port_alloc`, never
+  attaching (an occupied port is someone else's — the runtime owns its data); `{port}` substituted in args
+  and env; the child under `devpulse-process` (own job, no console, lines to the caller's events with the
+  last 20 kept for errors); ready = HTTP 2xx on the ready path; an exit while starting fails at once with
+  its last lines; no answer by the startup timeout → stopped and failed; the watchdog restarts a crash with
+  doubling backoff and stays down past the crash-loop cap, saying why; stop = graceful then forced (R-G19).
+  Verified: 5 kernel tests against a real child process (this test binary serving HTTP): answers then stops
+  gracefully; an occupied port bumps; exit-while-starting fails in under 5 s quoting its output; a child that
+  never answers fails at the 2 s test timeout; two restarts then `Failed` after the third crash. rustfmt and
+  clippy (lib + tests, the new file) clean.

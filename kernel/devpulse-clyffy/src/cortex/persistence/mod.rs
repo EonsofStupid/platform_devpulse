@@ -7,7 +7,8 @@
 //!
 //! - `Turso`: Relational data (users, settings, projects, messages).
 //! - `DuckDB`: Analytics (user + AI metrics, telemetry).
-//! - `SurrealDB`: Graph store — WS client to the managed child process.
+//! - `SurrealDB`: Graph store — today still the embedded crate; plan 0007
+//!   Part S moves it to upstream's built binary under [`runtime`].
 //! - `Moka`: In-memory cache (hot data, TTL-based eviction).
 //! - `RRO`: Vector similarity search (embedded Qdrant — two-tier retrieval).
 //! - `Ollama`: Managed child process — local inference runtime.
@@ -42,6 +43,8 @@ pub mod whisper;
 
 // Managed child-process runtimes
 pub mod ollama;
+// A built binary in a supervised subprocess (plan 0007 phase 4, Part S).
+pub mod runtime;
 
 // Re-exports for convenience
 pub use config::{PersistenceConfig, StoreKind, SurrealNamespace};
@@ -53,6 +56,7 @@ pub use ollama::{OllamaAdapter, OllamaConfig, OllamaModel};
 pub use port_alloc::{Disposition, PortAllocation};
 #[cfg(feature = "rro")]
 pub use rro::RroAdapter;
+pub use runtime::{RestartPolicy, Runtime, RuntimeEvent, RuntimeEvents, RuntimeSpec, RuntimeState};
 pub use surreal::{ScopedGraphHandle, SurrealAdapter, SurrealConfig, SurrealLifecycle};
 pub use traits::{
     AnalyticsAdapter, CacheAdapter, GraphAdapter, PersistenceAdapter, SparseVector, SqlAdapter,
