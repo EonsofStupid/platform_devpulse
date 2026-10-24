@@ -373,7 +373,7 @@ counted; each verified live; commits with hooks passing):
 | # | Outcome | Files | Verification |
 | --- | --- | --- | --- |
 | S1 | **Done** (see the log). **The binary, installed the right way.** `fetch-surreal` installs the configured version into `.userdata/global/runtimes/surreal/{V}/`: SHA-256 against the published digest, temp extract, atomic rename, LICENSE beside it, previous build kept; nothing written into `src-tauri/binaries/`. `surreal.toml` gains `version`, `runtimes_dir` and `data_path`; its stale keys are reconciled | `xtask/src/commands/fetch_surreal.rs`, `config/platform/services/system/surreal.toml`, engine `config/loader.rs` (`SurrealServiceEntry`) | `cargo test -p xtask`; the installed `surreal version` prints 3.0.5; a tampered download is refused |
-| S2 | **Process mechanics.** `devpulse-process` gains a supervised child: Job Object kill-on-close (Windows), process group (POSIX), no console, line-by-line log capture, early-exit detection, Ctrl-Break then forced stop with deadlines | `systems/infra/devpulse-process/{Cargo.toml, src/lib.rs, src/child.rs}` | tests with a small child process; killing the test parent leaves no child |
+| S2 | **S2a done** (see the log); S2b graceful-then-forced stop and S2c xtask on the shared guard next. **Process mechanics.** `devpulse-process` gains a supervised child: Job Object kill-on-close (Windows), process group (POSIX), no console, line-by-line log capture, early-exit detection, Ctrl-Break then forced stop with deadlines | `systems/infra/devpulse-process/{Cargo.toml, src/lib.rs, src/child.rs}` | tests with a small child process; killing the test parent leaves no child |
 | S3 | **The kernel runtime adapter** (phase 4's kernel half), generalized from the April `SurrealLifecycle` and `OllamaAdapter`: program, args, env, readiness URL, port policy, restart with backoff and a crash-loop cap, lifecycle events | `cortex/persistence/{runtime.rs, mod.rs}` | kernel tests with a scripted child: ready, crash then restart, crash loop then stop |
 | S4 | **The CBOR client,** beside the old one, not yet wired: `surreal/rpc.rs` sends `query` with vars, reads the per-statement array, surfaces `ERR` statements, and maps CBOR tags to today's JSON shapes | `persistence/surreal/{rpc.rs, mod.rs}`, kernel `Cargo.toml` (`ciborium`, `serde_bytes`) | unit tests: encode and decode, tagged record ids, datetimes, bytes, an `ERR` statement |
 | S5 | **The cutover, on your existing data.** `lifecycle.rs` starts v3.0.5 through the runtime adapter on `surrealkv://{data_path}`; `client.rs` goes through `rpc.rs`; the 12 `type::thing` become `type::record`; `boot/graph.rs` reads the configured path | `surreal/{lifecycle,client,intelligence_impl}.rs`, `suggest/service.rs`, engine `boot/graph.rs` | live: boot reaches Ready; the SurrealDB devtool lists your tables with their counts; a chat prompt saves and suggests; DevPulse killed → no `surreal.exe` left |
@@ -577,3 +577,13 @@ Owner, 2026-10-24:
   matching the published digest), `surreal version` → `3.0.5 for windows on x86_64`; the rebuilt app
   opened the store from the configured path (boot log `…\.userdata\surreal/devpulse`, 2.3 s). The
   mismatch refusal is covered by reading the code, not by a tampered download.
+- 2026-10-24 — **S2a done: `devpulse-process` supervises long-lived children.** The dev tree's Job Object
+  guard (`xtask/src/zombie.rs`) is re-authored as `devpulse-process/src/job.rs` with breakaway as a choice
+  (xtask needs it for sccache; runtimes refuse it). `SupervisedChild` starts a program with no console
+  window, joins one process-wide kill-on-close job on Windows (its own process group on Unix), hands
+  every output line to a caller's sink (non-UTF-8 replaced, not fatal), and answers `exited()` at any
+  time so a crash is seen at once. Verified: 7 tests (3 new: lines from both streams and the exit code;
+  a running child stays running until ended; a missing program is named), clippy all targets and
+  rustfmt clean, `cargo check -p devpulse_desktop_backend`. Found on the way: `windows-sys` 0.59 gates
+  `JOBOBJECT_EXTENDED_LIMIT_INFORMATION` on `Win32_System_Threading`. R-G19 (owner): "first gracefully
+  then forced after two attempts … 3 checks if no progress on the third check over 30 seconds" is S2b.

@@ -1,4 +1,5 @@
-//! Asking a command-line tool on this machine and reading its answer.
+//! Running programs on this machine: asking a command-line tool and reading
+//! its answer, and supervising a long-lived runtime.
 //!
 //! The engine (first run, containers) and the kernel (AI providers) ask tools
 //! the person already has — git, container engines, WSL, the GPU driver, the
@@ -6,6 +7,16 @@
 //! window (`DevPulse` is a GUI app), a deadline, and the child killed if the call
 //! is dropped. "The tool is not installed" and "the tool answered with an
 //! error" stay apart, because the UI says different things for each.
+//!
+//! [`SupervisedChild`] is the long-lived half: a runtime `DevPulse` starts
+//! and keeps (the Surreal server first, plan 0007 Part S), which can never
+//! outlive `DevPulse` ([`job`] on Windows).
+
+mod child;
+#[cfg(windows)]
+pub mod job;
+
+pub use child::{ChildSpec, LineSink, Stream, SupervisedChild};
 
 use std::path::Path;
 use std::time::Duration;
