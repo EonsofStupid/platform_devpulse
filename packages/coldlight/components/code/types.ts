@@ -81,6 +81,14 @@ export interface CodeBlockCopyDetails {
 	value: string;
 }
 
+/** Details passed to `onCopyError` — the clipboard refused the text. */
+export interface CodeBlockCopyErrorDetails {
+	/** The code text that was not copied. */
+	value: string;
+	/** Why, as the clipboard said. */
+	error: unknown;
+}
+
 /** Props for CodeBlock.Root — the outer container. */
 export interface CodeBlockRootProps
 	extends Omit<HTMLAttributes<HTMLElement>, "children" | "class" | "dir">,
@@ -103,6 +111,8 @@ export interface CodeBlockRootProps
 	disabled?: boolean;
 	/** Callback when code is copied. */
 	onCopy?: (details: CodeBlockCopyDetails) => void;
+	/** Callback when the clipboard refused the code (nothing was copied). */
+	onCopyError?: (details: CodeBlockCopyErrorDetails) => void;
 	children?: Snippet;
 }
 

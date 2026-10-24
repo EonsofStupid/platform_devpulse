@@ -28,18 +28,24 @@ let {
 	dir = "ltr",
 	disabled = false,
 	onCopy,
+	onCopyError,
 	children,
 	preset = "default",
 	class: className,
 	...rest
 }: CodeBlockRootProps = $props();
 
+/** Copy `value`. `onCopy` reports it once the clipboard took it; a window
+ * without focus, or a refused permission, copies nothing and reports
+ * `onCopyError` instead. */
 function copyCode(value?: string) {
 	if (disabled) return;
 	const text = value ?? "";
 	if (text) {
-		navigator.clipboard.writeText(text);
-		onCopy?.({ value: text });
+		navigator.clipboard.writeText(text).then(
+			() => onCopy?.({ value: text }),
+			(error: unknown) => onCopyError?.({ value: text, error }),
+		);
 	}
 }
 

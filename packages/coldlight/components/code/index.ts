@@ -27,6 +27,7 @@ export type {
 	CodeBlockContentProps,
 	CodeBlockCopyButtonProps,
 	CodeBlockCopyDetails,
+	CodeBlockCopyErrorDetails,
 	CodeBlockHeaderProps,
 	CodeBlockIds,
 	CodeBlockRootProps,
