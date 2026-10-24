@@ -1478,7 +1478,7 @@ A5 → A13, A6 → A14, A7 → A15, A8 → A16.
 | --- | --- | --- | --- |
 | A1 | **Done** `c6d0fb1a`. The auth endpoint is configuration: `[integrations.cloud.auth] url` and the public `anon_key` in `config/platform/integrations/cloud.toml`; the keychain entry is an override. You supply the key's value (D2) | — | — |
 | A2 | **Done** `edd4f461`. Auth text is in the engine copy catalog (`[auth]`, `CopyCatalog.auth`); `LoginShell` reads `copyState` | — | — |
-| A3 | **No secret reaches the logs.** The IPC trace keeps the command and the argument names and replaces the values of secret-named arguments (`key`, `token`, `access_token`, `refresh_token`, `secret`, `password`, and names ending in those) with `[redacted]`, in one tested function. A new secret-bearing command is covered by its argument's name | `src-tauri/src/lib.rs`, `src-tauri/src/ipc_trace.rs` (new) | unit tests (nested JSON, every name); live: `session.jsonl` still shows a normal command's arguments |
+| A3 | **Done** (see the log). **No secret reaches the logs.** The IPC trace keeps the command and the argument names and replaces the values of secret-named arguments (`key`, `token`, `access_token`, `refresh_token`, `secret`, `password`, and names ending in those) with `[redacted]`, in one tested function. A new secret-bearing command is covered by its argument's name | `src-tauri/src/lib.rs`, `src-tauri/src/ipc_trace.rs` (new) | unit tests (nested JSON, every name); live: `session.jsonl` still shows a normal command's arguments |
 | A4 | **Onboarding speaks `CommandError`.** The module's `Result<_, String>` goes. The service unwraps `CommandError` and keeps its `message`. `you-form` and `repo-scan` state go through the service, the only IPC. Refusals stay the engine's text here; typed refusals with copy are listed under "Found" | `commands/onboarding/mod.rs`, `onboarding.service.ts`, `onboarding.state.svelte.ts`, `you-form.state.svelte.ts`, `repo-scan.state.svelte.ts` | clippy; svelte-check; Biome; live (CDP): first run walks Welcome → You → Your AI |
 | A5 | **The account on the profile.** Migration `user/0003_account.sql` adds `account_subject` and `account_issuer`, unique as a pair. `UserProfile.account`; `profile::set_account` writes the account and its email. A different account on an install that has one is refused, with nothing written (D6) | `migrations/user/0003_account.sql`, `platform/profile/mod.rs` | engine tests: round trip, same account again, a different account refused |
 | A6 | **The engine verifies a session.** A new `platform/account/` (the DevPulse account; not AI, so the engine). A `SessionVerifier` trait (precedent `EndpointProbe`) and the Supabase verifier: `GET {url}/auth/v1/user` with `apikey` and the bearer token, through an injected `reqwest::Client`. It returns the account (subject = the user's `id`, issuer = `{url}/auth/v1`, email) or a typed refusal: rejected (401/403), unreachable, not configured, or no email. `Onboarding::account(verifier, token)` verifies, records (A5) and publishes | `platform/account/{mod,supabase}.rs` (new), `platform/mod.rs`, `onboarding/workflow.rs` | engine tests with a scripted verifier; pure tests of the response reading; an `#[ignore]` live test |
@@ -2329,3 +2329,17 @@ queries proving what was written.
       said otherwise, corrected); B4.2c c5; the room-history and room-send
       gaps for B4.3e; `DecisionCard` is not a ColdLight component; the rule
       documents' contradictions.
+  - 2026-10-23 — **A3 done: no secret reaches the logs.**
+    - `src-tauri/src/ipc_trace.rs`: the debug IPC trace writes a call's
+      arguments as JSON with every secret-named value replaced by
+      `[redacted]`, at any depth (`key`, `token`, `secret`, `password`, …,
+      matched on the name lowercased to letters and digits), and a raw body
+      by its size. `lib.rs` uses it instead of the raw payload.
+    - Verified: 4 unit tests; clippy clean for the desktop library, the
+      engine and the model-loader. Clippy also found eight doc lines from
+      A1 and A2 without backticks, fixed in `499fa215`; those phases had
+      been checked with `cargo check` and tests only.
+    - Live, in the running dev app: normal arguments still appear
+      (`set_signal_interest {"kind":"models",…}`), and `get_preference`
+      called over CDP was traced as `{"key":"[redacted]"}`. Its value appears
+      nowhere in `session.jsonl`.

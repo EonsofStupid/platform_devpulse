@@ -24,6 +24,7 @@ pub mod bindings;
 pub mod commands;
 pub mod crash_safety;
 pub mod events;
+pub mod ipc_trace;
 pub mod log_runs;
 pub mod logging;
 pub mod paths;
@@ -596,16 +597,20 @@ pub fn run() {
     // Handler-side `#[tracing::instrument]` spans are unaffected — those
     // are the canonical per-command trace and they stay at their
     // declared level.
+    //
+    // **Arguments (plan 0001 A3).** Debug builds also write the call's
+    // arguments, through `ipc_trace::describe`, which replaces every
+    // secret-named value (an API key, a token) — never the raw payload.
     let specta_handler = builder.invoke_handler();
     let traced_invoke_handler = move |invoke: tauri::ipc::Invoke<tauri::Wry>| -> bool {
         let command = invoke.message.command().to_string();
         #[cfg(debug_assertions)]
         {
-            let payload = format!("{:?}", invoke.message.payload());
+            let args = ipc_trace::describe(invoke.message.payload());
             tracing::trace!(
                 target: "ipc",
                 command = %command,
-                args = %payload,
+                args = %args,
                 "invoke received"
             );
         }
