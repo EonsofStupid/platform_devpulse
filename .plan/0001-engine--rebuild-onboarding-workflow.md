@@ -974,6 +974,27 @@ Facts it rests on (2026-10-21):
 
 ### B4 — rooms, roles and personas (phases)
 
+**Owner 2026-10-23 — Cowork.** "I am allowed to have claude code get built
+out so we have a version of it that is tailored to work like claude desktop
+and our chat has cowork where you can easily activate and work with the
+council, use the established roles we provide and the minimal requirements to
+create your own." In this plan's terms:
+
+- **Claude Code like Claude Desktop** is B3's threads, driving your own
+  Claude Code under its own login (the compliance pattern in the
+  subscriptions decision).
+- **Cowork** is the chat mode where you turn a room on and work with its
+  seats. The rooms are this B4: Council, debate, brainstorm, author-critic,
+  router.
+- **The established roles** are the library: 11 roles and 5 rooms.
+- **The minimal requirements to create your own** are the `role.v1`,
+  `room.v1` and `persona.v1` schemas. Your files go in
+  `{data_dir}/config/{roles,rooms,personas}/`, validated by the kernel
+  (B4.1), and the persona form is B4.3c.
+
+Status that day: B3.4, B4.1 and B4.2a are done. B4.2b/c (one live agent
+session per seat, the `room_*` commands) and B4.3 (the Cowork UI) remain.
+
 Owner rulings 2026-10-21: "Rooms, roles, personas" next, then the AgentHub
 board. **Persona = full character**: a persona carries its own backstory
 and expertise, added to the role's prompt. Your research found this adds
