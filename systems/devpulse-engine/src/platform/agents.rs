@@ -24,7 +24,7 @@ use tokio::sync::{mpsc, Mutex};
 use uuid::Uuid;
 
 use super::projects::Projects;
-use super::providers::Providers;
+use super::providers::{Providers, SignedIn};
 
 /// A thread with one of your agents.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Type)]
@@ -118,8 +118,8 @@ impl Agents {
     /// Start a thread with an installed agent in a project.
     ///
     /// # Errors
-    /// When the agent is not installed or cannot hold a conversation, or the
-    /// user database cannot be written.
+    /// When the agent is not installed, you are signed out of it, it cannot
+    /// hold a conversation, or the user database cannot be written.
     pub async fn start_thread(
         &self,
         project_id: &str,
@@ -136,6 +136,12 @@ impl Agents {
         }
         if self.providers.location(provider_id).await.is_none() {
             bail!("{} is not installed", definition.name());
+        }
+        if self.signed_out(provider_id).await {
+            bail!(
+                "{} is not signed in — sign in from Settings → Your AI",
+                definition.name()
+            );
         }
         let session_id = format!("sess-{}", Uuid::new_v4());
         let title = definition.name().to_owned();
@@ -221,6 +227,13 @@ impl Agents {
     /// The agent is installed on this machine.
     pub(super) async fn installed(&self, provider_id: ProviderId) -> bool {
         self.providers.location(provider_id).await.is_some()
+    }
+
+    /// The last check found you signed out of the agent. An agent whose
+    /// sign-in could not be told is not refused (some vendors only leave a
+    /// login file).
+    pub(super) async fn signed_out(&self, provider_id: ProviderId) -> bool {
+        self.providers.signed_in(provider_id).await == SignedIn::No
     }
 
     /// Start a conversation with an installed agent working in `cwd` (made

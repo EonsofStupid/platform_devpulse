@@ -2445,3 +2445,30 @@ queries proving what was written.
     - `main`'s `0c758a7f` (a one-shot `claude -p` chat command) is superseded
       by B3.4's threads and is not ported as written; `c3c0e048` and
       `f3748059` are already in this branch's code.
+  - 2026-10-24 — **B3.6 done: Your AI outside first run; signed-out agents
+    are not offered.**
+    - Engine: `Providers::signed_in` (from the last check); `start_thread`
+      and a room's seats refuse an agent the check found signed out, in the
+      engine's words ("… is not signed in — sign in from Settings → Your
+      AI"). An agent whose sign-in cannot be told is not refused.
+    - Desktop: a Your AI page (`routes/(app)/devpulse/settings/ai/`, its name
+      from `[nav."/devpulse/settings/ai"]`) mounts the providers cards;
+      Settings links to it through `routeAt`. The providers domain talks to
+      Rust only through `providers.service.ts`; its state rechecks when the
+      window regains focus (at most once a minute, never over a running
+      action) and counts its followers, so one view closing no longer cuts
+      the others off. The chat picker lists a signed-out agent, disabled,
+      with where to sign in (`chat.agents.sign_in_first`).
+    - Verified: clippy, rustfmt, svelte-check 0/0, Biome, the copy tests,
+      the route-label architecture test.
+    - Live (CDP): Settings shows Your AI and its link opens the page, which
+      shows this machine's truth (Claude Code 2.1.310 signed in; Codex
+      0.163.0 signed in, update 0.164.0; Grok, Antigravity CLI, Gemini CLI,
+      Cursor not installed). With a temporary user definition whose status
+      check fails (removed afterwards, with the folder it created), Claude
+      Code read as signed out: `agent_thread_start` was refused with the
+      message above and the picker showed it disabled.
+    - Found: ColdLight's Select has no kind styles, so its open list is
+      transparent over what is under it (the picker's options overlap the
+      session list). Plan 0006 owns the fix.
+

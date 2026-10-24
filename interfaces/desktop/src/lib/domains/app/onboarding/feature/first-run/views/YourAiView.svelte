@@ -4,7 +4,7 @@
 
 	Stage 3 — your AI (plan 0001): the providers domain's cards under the
 	stage's heading. Optional: you can continue without it and come back from
-	Settings → Run setup again.
+	Settings → Your AI.
 -->
 <script lang="ts">
 import { Heading } from "@devpulse/coldlight/components/heading";
@@ -21,4 +21,5 @@ let { copy }: { copy: YourAiCopy } = $props();
 		<Text as="p" size="base" color="secondary">{copy.subtitle}</Text>
 	</div>
 	<YourProviders {copy} />
+	<Text size="sm" color="muted">{copy.later_hint}</Text>
 </div>

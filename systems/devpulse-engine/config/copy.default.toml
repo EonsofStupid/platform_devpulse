@@ -97,7 +97,7 @@ app_updates_itself = "It updates itself."
 done = "Done"
 failed = "Didn't work"
 guided = "Run this in a terminal:"
-later_hint = "You can skip this and come back any time: Settings → Run setup again."
+later_hint = "You can skip this and come back any time: Settings → Your AI."
 
 [onboarding.containers]
 title = "Your dev environment"
@@ -275,7 +275,8 @@ error_unknown_template = "Something went wrong — {error}"
 
 [chat.agents]
 new_thread = "New thread with…"
-none_ready = "No agent can chat yet — install or sign in to one in Settings → Run setup again → Your AI."
+none_ready = "No agent can chat yet — install or sign in to one in Settings → Your AI."
+sign_in_first = "{agent} — sign in first (Settings → Your AI)"
 local = "Clyffy"
 working = "Working…"
 using_tool = "Using: {title}"
@@ -313,6 +314,10 @@ label = "Projects"
 
 [nav."/devpulse/settings"]
 label = "Settings"
+
+[nav."/devpulse/settings/ai"]
+label = "Your AI"
+blurb = "The AI you already pay for: installed, signed in, up to date."
 
 [nav."/devpulse/stats"]
 label = "Stats"

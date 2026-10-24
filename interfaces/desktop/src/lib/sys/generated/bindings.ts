@@ -4591,6 +4591,11 @@ new_thread: string;
  */
 none_ready: string; 
 /**
+ * "{agent} — sign in first": an installed agent you are signed out of,
+ * listed but not pickable.
+ */
+sign_in_first: string; 
+/**
  * The local brain, as the author of its answers.
  */
 local: string; 

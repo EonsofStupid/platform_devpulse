@@ -4,24 +4,27 @@
  *
  * Which subscriptions and apps are on this machine, their versions, whether
  * you are signed in, and the action running arrive as the `providers` state
- * signal (replayed to late windows). Intents go to Rust, which runs the
- * vendor's own commands; nothing here decides anything. A refusal keeps
- * Rust's message in `error`.
+ * signal (replayed to late windows). Intents go to Rust through the service,
+ * which runs the vendor's own commands; nothing here decides anything. A
+ * refusal keeps Rust's message in `error`.
+ *
+ * While anything follows the state, coming back to the window looks at the
+ * providers again (at most once a minute), so a sign-in finished in the
+ * vendor's own tool shows without a click.
  */
 
-import { signalFabric } from "$lib/sys/events/signal-fabric.js";
 import type {
 	ProviderAction,
 	ProviderId,
 	ProvidersState,
-	Result,
-} from "$lib/sys/generated/bindings.js";
-import { commands } from "$lib/sys/generated/bindings.js";
-import { logError } from "$lib/sys/logger.js";
+} from "$lib/sys/bindings/providers/index.js";
+import { signalFabric } from "$lib/sys/events/signal-fabric.js";
+import { check, runAction } from "./providers.service.js";
 
 export type { ProviderAction, ProvidersState };
 
-const LOG_TARGET = "domains.providers";
+/** The shortest time between two checks started by returning to the window. */
+const FOCUS_RECHECK_MS = 60_000;
 
 const message = (e: unknown): string => (e instanceof Error ? e.message : String(e));
 
@@ -30,41 +33,61 @@ class ProvidersStore {
 	/** An intent is on its way to Rust. */
 	busy = $state(false);
 	error = $state<string | null>(null);
-	private off: (() => void) | null = null;
+	/** How many views follow the state; the subscriptions end with the last. */
+	private followers = 0;
+	private stop: (() => void) | null = null;
+	private lastCheck = 0;
 
-	/** Follow the `providers` signal. Returns the teardown. */
+	/** Follow the `providers` signal and the window's focus. Returns the teardown. */
 	start(): () => void {
-		this.off ??= signalFabric.on("providers", (state) => {
-			this.current = state;
-		});
+		this.followers += 1;
+		if (!this.stop) {
+			const off = signalFabric.on("providers", (state) => {
+				this.current = state;
+			});
+			const onFocus = (): void => this.recheck();
+			window.addEventListener("focus", onFocus);
+			this.stop = () => {
+				off();
+				window.removeEventListener("focus", onFocus);
+			};
+		}
 		return () => {
-			this.off?.();
-			this.off = null;
+			this.followers -= 1;
+			if (this.followers === 0) {
+				this.stop?.();
+				this.stop = null;
+			}
 		};
 	}
 
-	private async run(
-		name: string,
-		intent: () => Promise<Result<ProvidersState, string>>,
-	): Promise<void> {
+	/** Back in the window: look again, unless something is already running. */
+	private recheck(): void {
+		const idle = !this.busy && !this.current?.checking && !this.current?.running;
+		if (idle && Date.now() - this.lastCheck >= FOCUS_RECHECK_MS) {
+			void this.check();
+		}
+	}
+
+	private async run(intent: () => Promise<ProvidersState>): Promise<void> {
 		this.busy = true;
 		this.error = null;
 		try {
-			const result = await intent();
-			if (result.status === "error") throw new Error(result.error);
-			this.current = result.data;
+			this.current = await intent();
 		} catch (e) {
 			this.error = message(e);
-			logError(LOG_TARGET, `${name} failed — ${this.error}`);
 		} finally {
 			this.busy = false;
 		}
 	}
 
-	check = (): Promise<void> => this.run("providersCheck", () => commands.providersCheck());
+	check = (): Promise<void> => {
+		this.lastCheck = Date.now();
+		return this.run(check);
+	};
 
 	act = (providerId: ProviderId, action: ProviderAction): Promise<void> =>
-		this.run("providersRunAction", () => commands.providersRunAction(providerId, action));
+		this.run(() => runAction(providerId, action));
 }
 
 export const providersState = new ProvidersStore();

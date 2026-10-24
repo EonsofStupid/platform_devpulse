@@ -107,6 +107,18 @@ impl Providers {
             .clone()
     }
 
+    /// Whether you are signed in to a provider, from the last check;
+    /// `Unknown` before the first check finishes or when it was not found.
+    pub async fn signed_in(&self, id: ProviderId) -> SignedIn {
+        self.state
+            .lock()
+            .await
+            .report
+            .as_ref()
+            .and_then(|r| r.providers.iter().find(|p| p.id == id))
+            .map_or(SignedIn::Unknown, |p| p.signed_in)
+    }
+
     async fn publish(&self) -> ProvidersState {
         let state = self.state().await;
         self.signals.emit(Signal::new(

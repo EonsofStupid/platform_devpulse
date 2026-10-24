@@ -14,9 +14,13 @@ import { Check, Pencil, X } from "lucide-svelte";
 import { profileSettingsState } from "$lib/domains/app/devpulse/index.js";
 import { onboardingState } from "$lib/domains/app/onboarding/index.js";
 import { copyState } from "$lib/sys/copy/index.js";
+import { hrefOf, routeAt, routeCopy } from "$lib/sys/routing/index.js";
 
 const settingsState = profileSettingsState;
 const setupCopy = $derived(copyState.catalog?.onboarding.common ?? null);
+// Your AI lives on its own page (plan 0001 B3.6); its name is route copy.
+const yourAi = routeAt("/devpulse/settings/ai");
+const yourAiCopy = $derived(yourAi ? routeCopy(yourAi) : undefined);
 
 $effect(() => {
 	void settingsState.load();
@@ -25,6 +29,15 @@ $effect(() => {
 
 <div class={cn(container({}), "container-md")} data-page="devpulse-settings">
 	<div class={stack({ gap: "4" })}>
+		{#if yourAi && yourAiCopy}
+			<Widget title={yourAiCopy.label}>
+				<div class={hstack({ justify: "between" })}>
+					<Text size="sm" color="muted">{yourAiCopy.blurb}</Text>
+					<a href={hrefOf(yourAi)}><Text size="sm" weight="semibold">{yourAiCopy.label}</Text></a>
+				</div>
+			</Widget>
+		{/if}
+
 		<Widget title="Profile">
 			{#if settingsState.loading}
 				<div class={hstack({ justify: "center" })}>

@@ -171,8 +171,8 @@ impl Rooms {
     /// Open a room of your library in a project, with your agents seated.
     ///
     /// # Errors
-    /// When the seating breaks the room's rules, an agent is not installed,
-    /// or the user database cannot be written.
+    /// When the seating breaks the room's rules, an agent is not installed or
+    /// you are signed out of it, or the user database cannot be written.
     pub async fn start(
         &self,
         project_id: &str,
@@ -184,6 +184,13 @@ impl Rooms {
         for place in &seated.places {
             if !self.agents.installed(place.provider).await {
                 bail!("{}: {} is not installed", place.key(), place.agent_name());
+            }
+            if self.agents.signed_out(place.provider).await {
+                bail!(
+                    "{}: {} is not signed in — sign in from Settings → Your AI",
+                    place.key(),
+                    place.agent_name()
+                );
             }
         }
         let session_id = format!("sess-{}", Uuid::new_v4());

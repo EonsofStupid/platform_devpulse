@@ -218,6 +218,4 @@ const connectorReady = (p: ProviderReport): boolean => p.connector?.installed ??
 			</div>
 		</section>
 	{/if}
-
-	<Text size="xs" color="muted">{copy.later_hint}</Text>
 </div>

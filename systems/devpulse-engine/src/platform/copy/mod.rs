@@ -381,6 +381,9 @@ pub struct AgentChatCopy {
     pub new_thread: String,
     /// Shown when no agent can hold a conversation yet.
     pub none_ready: String,
+    /// "{agent} — sign in first": an installed agent you are signed out of,
+    /// listed but not pickable.
+    pub sign_in_first: String,
     /// The local brain, as the author of its answers.
     pub local: String,
     /// While the agent works and has not answered yet.
