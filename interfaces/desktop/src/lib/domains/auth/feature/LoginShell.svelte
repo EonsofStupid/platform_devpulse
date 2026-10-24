@@ -25,6 +25,7 @@ import { Heading } from "@devpulse/coldlight/components/heading";
 import { Text } from "@devpulse/coldlight/components/text";
 import { TextField } from "@devpulse/coldlight/components/text-field";
 import { Lock, Mail, Settings } from "lucide-svelte";
+import { copyState } from "$lib/sys/copy/index.js";
 import { type AuthCopy, commands } from "$lib/sys/generated/bindings.js";
 import { authState } from "../index.js";
 
@@ -41,15 +42,7 @@ let email = $state("");
 let password = $state("");
 let confirmPassword = $state("");
 
-let copy = $state<AuthCopy>(emptyAuthCopy());
-
-$effect(() => {
-	commands.getWizardCopy().then((res) => {
-		if (res.status === "ok" && res.data.auth) {
-			copy = res.data.auth;
-		}
-	});
-});
+const copy = $derived(copyState.catalog?.auth ?? emptyAuthCopy());
 
 const heading = $derived(mode === "sign-in" ? copy.sign_in_heading : copy.sign_up_heading);
 const subtitle = $derived(mode === "sign-in" ? copy.sign_in_subtitle : copy.sign_up_subtitle);
@@ -109,6 +102,7 @@ function swapMode(): void {
 	confirmPassword = "";
 }
 
+/** Blank text until the catalog loads (the root layout loads it once for every window). */
 function emptyAuthCopy(): AuthCopy {
 	return {
 		sign_in_heading: "",

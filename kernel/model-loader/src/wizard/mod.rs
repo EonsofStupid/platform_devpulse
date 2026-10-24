@@ -24,7 +24,7 @@ pub mod tooltips;
 
 pub use analytics::{emit_event, AnalyticsEvent};
 pub use copy::{
-    ActivateCopy, AuthCopy, BrowseCopy, CompletionCopy, CustomizeCopy, GreetingCopy, HardwareCopy,
+    ActivateCopy, BrowseCopy, CompletionCopy, CustomizeCopy, GreetingCopy, HardwareCopy,
     ModelsCopy, ProfileCopy, RuntimePickerCopy, ScanningCopy, WizardCopy,
 };
 pub use tier_display::{TierDisplay, TierRole};

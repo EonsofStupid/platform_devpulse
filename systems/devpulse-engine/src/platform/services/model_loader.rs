@@ -27,9 +27,9 @@ pub use devpulse_clyffy::model_loader::AudioSamples;
 pub use devpulse_clyffy::model_loader::DownloadScope as ModelDownloadScope;
 pub use devpulse_clyffy::model_loader::ModelStatus as SlotModelStatus;
 pub use devpulse_clyffy::model_loader::{
-    ActivateCopy, AnalyticsEvent, AuthCopy, BrowseCopy, CompletionCopy, CustomizeCopy,
-    GreetingCopy, HardwareCopy, ModelsCopy, ProfileCopy, RuntimePickerCopy, ScanningCopy,
-    StepTooltips, TierDisplay, TierRole, TooltipEntry, WizardCopy,
+    ActivateCopy, AnalyticsEvent, BrowseCopy, CompletionCopy, CustomizeCopy, GreetingCopy,
+    HardwareCopy, ModelsCopy, ProfileCopy, RuntimePickerCopy, ScanningCopy, StepTooltips,
+    TierDisplay, TierRole, TooltipEntry, WizardCopy,
 };
 pub use devpulse_clyffy::model_loader::{
     AssistantAction, AssistantConfig, IdentityConfig, KeywordActionEntry, OffloadConfig, TtsConfig,

@@ -5449,8 +5449,8 @@ error_invalid_credentials: string;
  */
 error_network: string; 
 /**
- * Banner text rendered when no Supabase anon key is in the OS
- * keychain. Tells the operator where to set it.
+ * Banner text when this copy of DevPulse has no sign-in configured
+ * (no anon key in `[integrations.cloud.auth]` or the keychain).
  */
 error_supabase_not_configured: string; 
 /**
@@ -6742,6 +6742,11 @@ devtools: DevtoolsCopy;
  * The chat.
  */
 chat: ChatCopy; 
+/**
+ * The DevPulse account: sign-in, sign-up, sign-out (moved from the
+ * model-loader wizard copy; auth is not AI, so its text is the engine's).
+ */
+auth: AuthCopy; 
 /**
  * Route names, keyed by the URL path the route folders give
  * (`/devtools/system/datastores/turso`). The desktop's architecture
@@ -14655,14 +14660,6 @@ clyffy_tooltips?: ClyffyTooltipsCopy;
  * `#[serde(default)]` keeps older user overrides parsing cleanly.
  */
 downloader?: DownloaderCopy; 
-/**
- * Copy for the auth shell — sign-in route, sign-up route, sign-out
- * affordances, error templates. Strings flow through this struct
- * instead of being inlined in Svelte so Rule 6 (Rust SSOT for every
- * visible string) stays satisfied. `#[serde(default)]` keeps older
- * user `wizard_copy.toml` overrides parsing without `[auth]`.
- */
-auth?: AuthCopy; 
 /**
  * Copy for the post-login runtime picker — the embedder selector
  * with the minion read-only section that lives at `/profile`.

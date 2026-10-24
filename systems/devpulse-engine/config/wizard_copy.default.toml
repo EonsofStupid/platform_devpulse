@@ -382,55 +382,6 @@ error_back_label = "Back to search"
 project_scope_indicator_template = "Saving to project: {project_id}"
 
 # ─────────────────────────────────────────────────────────────────────
-# Auth shell — sign-in, sign-up, sign-out, error templates
-# Layman English only. No jargon like "credentials," "session," "JWT."
-# ─────────────────────────────────────────────────────────────────────
-[auth]
-
-# ── Sign-in route ───────────────────────────────────────────────────
-sign_in_heading = "Sign in"
-sign_in_subtitle = "Welcome back."
-sign_in_submit_label = "Sign in"
-sign_in_submit_aria = "Sign in to DevPulse"
-sign_in_submit_busy_label = "Signing in…"
-
-# ── Sign-up route ───────────────────────────────────────────────────
-sign_up_heading = "Create your account"
-sign_up_subtitle = "It takes a minute. Then we get to work."
-sign_up_submit_label = "Create account"
-sign_up_submit_aria = "Create your DevPulse account"
-sign_up_submit_busy_label = "Creating account…"
-sign_up_confirmation_heading = "Check your email"
-sign_up_confirmation_body_template = "We sent a confirmation link to {email}. Click it to finish."
-
-# ── Form fields ─────────────────────────────────────────────────────
-email_label = "Email"
-email_placeholder = "you@example.com"
-email_aria = "Email address"
-password_label = "Password"
-password_placeholder = "Your password"
-password_aria = "Password"
-confirm_password_label = "Confirm password"
-confirm_password_placeholder = "Type it again"
-confirm_password_aria = "Confirm your password"
-
-# ── Switch links ────────────────────────────────────────────────────
-to_sign_up_link_label = "Don't have an account? Create one."
-to_sign_in_link_label = "Already have an account? Sign in."
-
-# ── Sign-out affordance ─────────────────────────────────────────────
-sign_out_label = "Sign out"
-sign_out_aria = "Sign out of your account"
-
-# ── Errors ──────────────────────────────────────────────────────────
-error_credentials_required = "Email and password are required."
-error_passwords_dont_match = "The two passwords don't match."
-error_invalid_credentials = "That didn't work. Check your email and password and try again."
-error_network = "Can't reach the sign-in server. Check your internet connection."
-error_supabase_not_configured = "Sign-in isn't set up yet. Open Settings → Cloud to add your Supabase key."
-error_unknown_template = "Something went wrong — {error}"
-
-# ─────────────────────────────────────────────────────────────────────
 # Runtime picker — post-login embedder selector + minion read-only
 # Layman English only. Templates use {repo}, {size_mb}, {error}.
 # ─────────────────────────────────────────────────────────────────────

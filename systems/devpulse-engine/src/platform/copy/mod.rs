@@ -443,6 +443,98 @@ pub struct LayoutCopy {
     pub sidebar: SidebarCopy,
 }
 
+/// Copy for the auth shell — sign-in route, sign-up route, sign-out
+/// affordances, error templates, "cloud not yet configured" empty state.
+///
+/// One struct covers both routes (sign-in + sign-up) and the headers
+/// in the post-login screen because they all share the same vocabulary
+/// surface ("account," "password," "sign in," "sign out"). Customer
+/// copy — layman English only, no jargon like "credentials," "session,"
+/// "JWT."
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+#[serde(deny_unknown_fields)]
+pub struct AuthCopy {
+    // ── Sign-in route ──────────────────────────────────────────────
+    /// Page heading on the sign-in route.
+    pub sign_in_heading: String,
+    /// Subtitle below the sign-in heading.
+    pub sign_in_subtitle: String,
+    /// Visible button label that submits the sign-in form.
+    pub sign_in_submit_label: String,
+    /// `aria-label` on the sign-in submit button.
+    pub sign_in_submit_aria: String,
+    /// Button label rendered while the sign-in request is in flight.
+    pub sign_in_submit_busy_label: String,
+
+    // ── Sign-up route ──────────────────────────────────────────────
+    /// Page heading on the sign-up route.
+    pub sign_up_heading: String,
+    /// Subtitle below the sign-up heading.
+    pub sign_up_subtitle: String,
+    /// Visible button label that submits the sign-up form.
+    pub sign_up_submit_label: String,
+    /// `aria-label` on the sign-up submit button.
+    pub sign_up_submit_aria: String,
+    /// Button label rendered while the sign-up request is in flight.
+    pub sign_up_submit_busy_label: String,
+    /// Heading shown after a successful sign-up while the user is
+    /// waiting for the email confirmation link.
+    pub sign_up_confirmation_heading: String,
+    /// Body shown after a successful sign-up. Placeholder `{email}`
+    /// renders the address we sent the confirmation link to.
+    pub sign_up_confirmation_body_template: String,
+
+    // ── Form fields ────────────────────────────────────────────────
+    /// Label above the email input.
+    pub email_label: String,
+    /// Placeholder inside the email input.
+    pub email_placeholder: String,
+    /// `aria-label` on the email input.
+    pub email_aria: String,
+    /// Label above the password input.
+    pub password_label: String,
+    /// Placeholder inside the password input.
+    pub password_placeholder: String,
+    /// `aria-label` on the password input.
+    pub password_aria: String,
+    /// Label above the confirm-password input (sign-up only).
+    pub confirm_password_label: String,
+    /// Placeholder inside the confirm-password input.
+    pub confirm_password_placeholder: String,
+    /// `aria-label` on the confirm-password input.
+    pub confirm_password_aria: String,
+
+    // ── Switch links ───────────────────────────────────────────────
+    /// Link on the sign-in route that swaps to the sign-up route.
+    pub to_sign_up_link_label: String,
+    /// Link on the sign-up route that swaps back to the sign-in route.
+    pub to_sign_in_link_label: String,
+
+    // ── Sign-out affordance (post-login surfaces) ──────────────────
+    /// Visible "Sign out" button label.
+    pub sign_out_label: String,
+    /// `aria-label` on the sign-out button.
+    pub sign_out_aria: String,
+
+    // ── Errors ─────────────────────────────────────────────────────
+    /// Banner text when the user tries to submit with empty fields.
+    pub error_credentials_required: String,
+    /// Banner text when the two password inputs don't match on sign-up.
+    pub error_passwords_dont_match: String,
+    /// Banner text when Supabase rejects the credentials. Deliberately
+    /// vague — doesn't reveal whether the email or password was wrong
+    /// (auth UX standard).
+    pub error_invalid_credentials: String,
+    /// Banner text when the sign-in request can't reach Supabase
+    /// (network / DNS / cloud outage).
+    pub error_network: String,
+    /// Banner text when this copy of DevPulse has no sign-in configured
+    /// (no anon key in `[integrations.cloud.auth]` or the keychain).
+    pub error_supabase_not_configured: String,
+    /// Catch-all template for unexpected errors. Placeholder `{error}`.
+    pub error_unknown_template: String,
+}
+
 /// The whole catalog.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 #[serde(deny_unknown_fields)]
@@ -457,6 +549,9 @@ pub struct CopyCatalog {
     pub devtools: DevtoolsCopy,
     /// The chat.
     pub chat: ChatCopy,
+    /// The DevPulse account: sign-in, sign-up, sign-out (moved from the
+    /// model-loader wizard copy; auth is not AI, so its text is the engine's).
+    pub auth: AuthCopy,
     /// Route names, keyed by the URL path the route folders give
     /// (`/devtools/system/datastores/turso`). The desktop's architecture
     /// test holds these keys equal to its route tree.
