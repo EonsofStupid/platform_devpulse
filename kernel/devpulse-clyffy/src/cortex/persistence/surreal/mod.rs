@@ -15,6 +15,7 @@
 pub mod client;
 pub mod intelligence_impl;
 pub mod lifecycle;
+pub mod rpc;
 
 pub use client::{ScopedGraphHandle, SurrealAdapter};
 pub use lifecycle::{SurrealConfig, SurrealLifecycle};

@@ -87,6 +87,10 @@ llguidance = { workspace = true, optional = true }
 # HTTP client for managed sidecars (Ollama, SurrealDB) —
 # rustls-tls avoids a system OpenSSL dep on Windows/Linux release builds.
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+# The Surreal server speaks CBOR over HTTP /rpc (plan 0007 Part S, S4).
+ciborium = "0.2"
+serde_bytes = "0.11"
+chrono = { workspace = true }
 
 # rkyv 0.8 — zero-copy serialization. Backs `RroRecord` (the JIT
 # precomputed-context shape) under
