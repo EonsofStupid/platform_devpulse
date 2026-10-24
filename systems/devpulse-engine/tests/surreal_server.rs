@@ -47,6 +47,20 @@ impl Embedder for FixedEmbedder {
     }
 }
 
+/// No model loaded in `chat.suggest`.
+struct NoEmbedder;
+
+#[async_trait]
+impl Embedder for NoEmbedder {
+    fn dimension(&self) -> u32 {
+        1024
+    }
+
+    async fn embed(&self, _text: &str) -> anyhow::Result<Vec<f32>> {
+        anyhow::bail!("chat.suggest has no model loaded")
+    }
+}
+
 fn installed_server() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("../../.userdata/global/runtimes/surreal/3.0.5")
@@ -138,6 +152,43 @@ async fn every_schema_and_query_path_works_on_the_server() {
         "the text round-trips exactly: {:?}",
         found[0].text
     );
+
+    // No model loaded (plan 0001 B3.9): prompts are stored without an
+    // embedding and recalled by their words, while still typing a word.
+    let by_words = SuggestionService::new(
+        Arc::new(NoEmbedder),
+        Arc::clone(&adapter),
+        "user",
+        "profile",
+    );
+    by_words
+        .record_prompt("deploy the docs site to staging", "words", false)
+        .await
+        .expect("record without an embedding");
+    by_words
+        .record_prompt("write a unit test for the parser", "words", true)
+        .await
+        .expect("record without an embedding");
+    let found = by_words
+        .query("depl", "words", 3)
+        .await
+        .expect("recall by words");
+    assert_eq!(found.len(), 1, "{found:?}");
+    assert_eq!(found[0].text, "deploy the docs site to staging");
+    assert!(found[0].similarity >= 0.5, "{found:?}");
+    let found = by_words
+        .query("person:tob", "default", 3)
+        .await
+        .expect("punctuation in the partial");
+    assert!(
+        found.iter().any(|s| s.text.contains("person:tobie")),
+        "a prompt recorded with an embedding is found by its words too: {found:?}"
+    );
+    assert!(by_words
+        .query("zzzz", "words", 3)
+        .await
+        .expect("no match")
+        .is_empty());
 
     // kv, nodes and edges through a scoped handle.
     let system = adapter.scoped_handle("system", "engine");

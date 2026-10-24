@@ -991,11 +991,16 @@ authentication, cli-reference, headless; read 2026-10-24):
   login).
 - Branding: "Claude Code" as plain text; no Anthropic logos; no DevPulse
   product named after Claude.
-- Open: "running Claude Code in your products" requires Anthropic's
-  Commercial Terms; the docs don't say whether a desktop app starting your
-  own Claude Code counts (Q50).
+- **Q50 answered (owner 2026-10-24):** "wrong it is allowed howeever I need
+  the user to just actually click the actions to do the install keeping it
+  their decision and aligned". Running your own Claude Code from DevPulse is
+  allowed. The rule that comes with it: **every install, sign-in and update
+  happens only when you click it** — DevPulse never installs or signs in on
+  its own. Sign in, Update and Install connector already work that way; a
+  missing tool has only a "How to get it" link, so B3.10 adds **Install** on
+  click.
 
-**Phases.** B3.5 (your checkpoint) moves after B3.9.
+**Phases.** B3.5 (your checkpoint) moves after B3.10.
 
 | # | Outcome | Live check |
 | --- | --- | --- |
@@ -1003,6 +1008,39 @@ authentication, cli-reference, headless; read 2026-10-24):
 | B3.7 | **Copy here, paste here.** A sign-in card with three steps from the copy catalog: 1. copy the command (`claude auth login`) with a Copy button; 2. **Open a terminal** (the existing action) or paste it into your own; 3. Claude Code opens your browser, and if it shows a code you paste it into Claude Code's `Paste code here if prompted`. DevPulse watches `claude auth status` (exit 0, `authMethod`) and shows Claude as active. The steps come from each definition's `sign_in`, so Codex, Gemini and Grok get the same card. | the steps render; `claude auth status` turning signed-in flips the card without a restart. The sign-in itself is yours, on your account. |
 | B3.8 | **Claude Code like Claude Desktop**, cut into phases when B3.6–B3.7 land: a) one process per thread over `--input-format stream-json`; b) permission prompts through `--permission-prompt-tool` on DevPulse's MCP server, shown with the existing permission UI; c) your context (`--mcp-config`, B6); d) model and effort per thread, usage and the cost estimate from `result`; e) attachments, once the stream-json image format is verified; f) projects (the thread's folder is the project, as today). | each sub-phase live in the chat window |
 | B3.9 | **Suggestions with no model.** With no embedder in `chat.suggest`, recall uses Surreal's full-text index over `chat_prompt`, with the same ranking (recency, accepted boost); an assigned embedder still recalls by meaning. | typing shows your past prompts with no model loaded |
+| B3.10 | **Install on click (Q50).** A definition gains `[install]`: the vendor's own, unmodified build by its official method. Where the vendor publishes a package or binary, it goes into the DevPulse folder (`{data_dir}/tools/agents/{id}`, as connectors do) and detection looks there; otherwise its official installer runs. A missing tool's card shows **Install**, what will run and from where, and that installing accepts the vendor's terms (the containers stage's consent line); nothing installs without that click. The output is shown and the providers are checked again. | Install on a tool that is not on this machine → it is found, versioned and can sign in; nothing ran before the click |
+
+**B3.10 — how each vendor installs** (official docs, install scripts and npm
+registry, read 2026-10-24; nothing was run):
+
+| Vendor | Install on click | Lands in | Runs with |
+| --- | --- | --- | --- |
+| Claude Code | npm `@anthropic-ai/claude-code` (supported, not deprecated; the same native binary through per-platform packages) | the DevPulse folder | no Node at run time |
+| Codex | npm `@openai/codex` | the DevPulse folder | Node |
+| Gemini CLI | npm `@google/gemini-cli` (API-key and Code Assist users only since 2026-06-18) | the DevPulse folder | Node |
+| Grok Build | npm `@xai-official/grok` (in the npm and ACP registries; not yet named in xAI's docs) | the DevPulse folder | Node |
+| Antigravity CLI | Google's script with `--dir` (no npm package) | the folder given; the script also sets up the shell | native |
+| Cursor CLI | Cursor's script only (no npm package, no folder choice; on Windows it recreates `%LOCALAPPDATA%\cursor-agent` and edits PATH) | your profile | native |
+
+- **Phases.** **B3.10a:** npm installs into `{data_dir}/tools/agents/{id}`
+  through the installer connectors use (moved to `providers/npm.rs`), with
+  detection looking there after `PATH` and the vendor's own places, and the
+  Install button. **B3.10b:** the vendors' scripts (Antigravity, Cursor),
+  with the card saying before the click that the script changes `PATH` or
+  your profile. **B3.10c:** Claude Code without Node: its binary from
+  `downloads.claude.ai`, checked against the signed `manifest.json` (the
+  vendor's documented "binary integrity" flow).
+- **Updates stay your click.** A tool installed in the DevPulse folder is
+  updated by its card's **Update** (the same npm install, `@latest`); its own
+  background updater is turned off where the vendor allows
+  (`DISABLE_AUTOUPDATER=1` for Claude Code, `check_for_update_on_startup =
+  false` for Codex).
+- **Sign-ins stay where each vendor keeps them** (`~/.claude`, `~/.codex`,
+  …), so a tool you already use keeps its sign-in. Q53 asks whether they move
+  into the folder.
+- Found on the way: Grok's installer also creates an `agent` command, which
+  is Cursor's; the Antigravity ACP server is a separate binary
+  (`agy_acp_server`).
 
 **B5.4 — tickets, the software factory.** Turso `ticket_boards` (per
 project, its prefix, the next number) and `tickets` (`PREFIX-n`, title, body,
@@ -1013,13 +1051,18 @@ ticket. The prefix scheme is Q51. Built after B5.1–B5.3 inside
 
 **Questions for you:**
 
-- **Q50 Commercial Terms.** Before release, ask Anthropic (the legal page's
-  contact) whether DevPulse starting your own installed Claude Code is
-  "running Claude Code in your products". Nothing is blocked until release.
+- **Q50 — answered:** allowed; you click every install, sign-in and update
+  (above, B3.10).
 - **Q51 Ticket prefix.** One prefix per project (suggested from its name,
   editable, like `DP-42`), or one for the whole devspace?
 - **Q52 "affinity".** AFFiNE, the open-source local-first Notion alternative?
   Overmind's plan waits for this answer.
+- **Q53 Where sign-ins live.** Each vendor keeps your sign-in in your user
+  profile (`~/.claude`, `~/.codex`, …). They can be moved into the DevPulse
+  folder (`CLAUDE_CONFIG_DIR`, `CODEX_HOME`, `GEMINI_CLI_HOME`), so the
+  folder carries them. But Claude's and Codex's are plain JSON files there,
+  without the profile's protection, which matters on a USB stick or a synced
+  folder. Default until you answer: they stay where each vendor puts them.
 
 ### B3 — each subscription in chat (first; phases)
 
@@ -2501,4 +2544,30 @@ queries proving what was written.
       clipboard had refused (`0927b058`). A WebView2 permission prompt
       opened when my check script tried to *read* the clipboard; it was
       answered Block. DevPulse never reads the clipboard.
+  - 2026-10-24 — **Q50 answered; B3.10 researched.** Your answer: allowed, and
+    you click every install, sign-in and update. The six vendors' official
+    install methods are in "B3.10 — how each vendor installs" (npm into the
+    folder for Claude Code, Codex, Gemini and Grok; the vendors' scripts for
+    Antigravity and Cursor), with Q53 on where sign-ins live.
+  - 2026-10-24 — **B3.9 done: suggestions with no model.**
+    - With no embedder answering in `chat.suggest`, a prompt is stored without
+      its embedding and recalled by its words: a full-text index on
+      `chat_prompt.text` (edge n-grams, so `depl` finds "deploy"); the
+      partial's punctuation is dropped (`person:tob` matched nothing
+      otherwise). A word match counts at least half as close as a perfect
+      one, so recency and acceptance still order equal matches. An embedder
+      that answers still recalls by meaning; the switch is logged once.
+    - Found and fixed against the real server: `captured_at`'s default
+      `time::now().to_secs()` is refused by Surreal 3 — every write that left
+      it out failed (`time::unix(time::now())` now); the embedding field
+      becomes optional. Both are `DEFINE FIELD OVERWRITE`, so stores that hold
+      the old definitions take the new ones at boot; the index covers rows
+      made before it (probed on 3.0.5).
+    - Verified: 7 suggest unit tests; the live-server test now also records
+      and recalls with no embedder (`depl`, punctuation, no match).
+    - Live, on your store through the app's IPC (under a persona of its own,
+      its two rows deleted afterwards — the table is back to 0 rows): the
+      migrated schema; `depl` → "deploy the docs site to staging", `unit te`
+      → "write a unit test for the parser", `zzzz` → none; the log says once
+      that no embedder is loaded.
 

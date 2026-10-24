@@ -1,8 +1,15 @@
 //! `SuggestionService` — embed-and-rank service for chat-input
 //! type-time suggestions.
+//!
+//! With an embedder answering in `chat.suggest`, prompts are recalled by
+//! meaning (HNSW cosine). With none (no model loaded — the usual case when
+//! your AI is your subscriptions), each prompt is stored without its
+//! embedding and recalled by its words through the full-text index (plan
+//! 0001 B3.9). Ranking is the same either way.
 
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
+use std::sync::atomic::{AtomicBool, Ordering as AtomicOrdering};
 use std::sync::Arc;
 
 use crate::cortex::cag::traits::Embedder;
@@ -23,7 +30,9 @@ pub struct Suggestion {
     pub id: String,
     /// Original prompt text the user committed previously.
     pub text: String,
-    /// Cosine similarity score in `[0.0, 1.0]`. Higher is closer.
+    /// Closeness in `[0.0, 1.0]`, higher is closer: cosine similarity when
+    /// recalled by meaning, from the word-match score when recalled by
+    /// words.
     pub similarity: f32,
     /// Unix-seconds capture time. Used by the recency factor in the
     /// final rank.
@@ -56,6 +65,9 @@ pub struct SuggestionService {
     surreal: Arc<SurrealAdapter>,
     namespace: String,
     database: String,
+    /// The embedder did not answer last time (said once in the log, not
+    /// on every keystroke).
+    embedder_down: AtomicBool,
 }
 
 impl SuggestionService {
@@ -73,18 +85,44 @@ impl SuggestionService {
             surreal,
             namespace: namespace.into(),
             database: database.into(),
+            embedder_down: AtomicBool::new(false),
+        }
+    }
+
+    /// The embedding of `text`, or `None` when no embedder answers — then
+    /// the prompt is stored and recalled by its words. Each change between
+    /// the two is logged once.
+    async fn embed(&self, text: &str) -> Option<Vec<f32>> {
+        match self.embedder.embed(text).await {
+            Ok(embedding) => {
+                if self.embedder_down.swap(false, AtomicOrdering::Relaxed) {
+                    tracing::info!(
+                        "chat.suggest embedder answers again; prompts are recalled by meaning"
+                    );
+                }
+                Some(embedding)
+            }
+            Err(e) => {
+                if !self.embedder_down.swap(true, AtomicOrdering::Relaxed) {
+                    tracing::warn!(
+                        error = %format!("{e:#}"),
+                        "chat.suggest has no embedder answering; prompts are stored and recalled by their words"
+                    );
+                }
+                None
+            }
         }
     }
 
     /// Capture a committed prompt for future type-time recall.
     ///
-    /// Embeds `text` and writes a `chat_prompt` row. Idempotent at the
-    /// id level — caller-supplied `UUIDv7` collisions overwrite (use
-    /// [`uuid::Uuid::now_v7`] to avoid that path).
+    /// Writes a `chat_prompt` row, with the prompt's embedding when an
+    /// embedder answers and without it otherwise (recalled by its words).
+    /// Idempotent at the id level — caller-supplied `UUIDv7` collisions
+    /// overwrite (use [`uuid::Uuid::now_v7`] to avoid that path).
     ///
     /// # Errors
-    /// - Embedder failure (model not loaded, tokenization error).
-    /// - `SurrealDB` write failure.
+    /// `SurrealDB` write failure.
     #[tracing::instrument(
         skip(self, text),
         fields(
@@ -96,32 +134,36 @@ impl SuggestionService {
     )]
     pub async fn record_prompt(&self, text: &str, persona_id: &str, accepted: bool) -> Result<()> {
         let persona = resolve_persona(persona_id);
-        let embedding = self
-            .embedder
-            .embed(text)
-            .await
-            .context("chat.suggest embed failed during record_prompt")?;
+        let embedding = self.embed(text).await;
 
         let id = uuid::Uuid::now_v7().to_string();
         let captured_at = unix_now_secs();
 
         // Every value is bound: the text needs no escaping and the
-        // embedding crosses as a float array.
-        let insert = Query::new(
-            "CREATE type::record('chat_prompt', $id) CONTENT { \
+        // embedding crosses as a float array. Without one the field is
+        // left out (NONE), which the optional field takes.
+        let with_embedding = if embedding.is_some() {
+            "embedding: $embedding, "
+        } else {
+            ""
+        };
+        let mut insert = Query::new(format!(
+            "CREATE type::record('chat_prompt', $id) CONTENT {{ \
                 text: $text, \
-                embedding: $embedding, \
+                {with_embedding}\
                 persona_id: $persona, \
                 captured_at: $captured_at, \
                 accepted: $accepted \
-            };",
-        )
+            }};"
+        ))
         .bind("id", &id)?
         .bind("text", text)?
-        .bind("embedding", &embedding)?
         .bind("persona", persona)?
         .bind("captured_at", &captured_at)?
         .bind("accepted", &accepted)?;
+        if let Some(embedding) = &embedding {
+            insert = insert.bind("embedding", embedding)?;
+        }
         self.surreal
             .run(&self.namespace, &self.database, insert)
             .await?
@@ -133,6 +175,7 @@ impl SuggestionService {
             id,
             captured_at,
             accepted,
+            by_meaning = embedding.is_some(),
             "chat_prompt recorded"
         );
         Ok(())
@@ -142,14 +185,14 @@ impl SuggestionService {
     /// the user is currently typing.
     ///
     /// Pipeline: embed `partial` once → HNSW cosine pull (`k * 4`
-    /// candidates) → in-Rust recency × accepted-boost reweighting →
-    /// truncate to `k`. The `k * 4` overfetch gives the recency factor
-    /// room to surface a slightly-older-but-relevant match over a
-    /// brand-new low-similarity one.
+    /// candidates) — or, with no embedder answering, the full-text index
+    /// on the partial's words → in-Rust recency × accepted-boost
+    /// reweighting → truncate to `k`. The `k * 4` overfetch gives the
+    /// recency factor room to surface a slightly-older-but-relevant match
+    /// over a brand-new low-similarity one.
     ///
     /// # Errors
-    /// - Embedder failure.
-    /// - `SurrealDB` query failure.
+    /// `SurrealDB` query failure.
     #[tracing::instrument(
         skip(self, partial),
         fields(
@@ -170,41 +213,11 @@ impl SuggestionService {
         }
 
         let persona = resolve_persona(persona_id);
-        let embedding = self
-            .embedder
-            .embed(partial)
-            .await
-            .context("chat.suggest embed failed during query")?;
-
         let overfetch = k.saturating_mul(4).max(k);
-        // Surreal 3 takes a filter beside the HNSW search only when the
-        // search width is given (`<|K,EF|>`; a bare `<|K|>` with a filter is
-        // refused). `record::id` is Surreal 3's name for the 2.x `meta::id`.
-        let ef = overfetch.max(40);
-        let knn = Query::new(format!(
-            "SELECT \
-                record::id(id) AS id, \
-                text, \
-                captured_at, \
-                accepted, \
-                vector::similarity::cosine(embedding, $embedding) AS similarity \
-             FROM chat_prompt \
-             WHERE persona_id = $persona \
-               AND embedding <|{overfetch},{ef}|> $embedding \
-             ORDER BY similarity DESC \
-             LIMIT {overfetch};"
-        ))
-        .bind("embedding", &embedding)?
-        .bind("persona", persona)?;
-        let raw = serde_json::Value::Array(
-            self.surreal
-                .run(&self.namespace, &self.database, knn)
-                .await?
-                .take(0)
-                .context("chat_prompt KNN query failed")?,
-        );
-
-        let candidates = parse_candidates(&raw);
+        let candidates = match self.embed(partial).await {
+            Some(embedding) => self.by_meaning(&embedding, persona, overfetch).await?,
+            None => self.by_words(partial, persona, overfetch).await?,
+        };
         let now = unix_now_secs();
 
         let mut scored: Vec<Suggestion> = candidates
@@ -238,6 +251,104 @@ impl SuggestionService {
         );
         Ok(scored)
     }
+
+    /// Nearest prompts by meaning (HNSW cosine).
+    async fn by_meaning(
+        &self,
+        embedding: &[f32],
+        persona: &str,
+        overfetch: usize,
+    ) -> Result<Vec<RawCandidate>> {
+        // Surreal 3 takes a filter beside the HNSW search only when the
+        // search width is given (`<|K,EF|>`; a bare `<|K|>` with a filter is
+        // refused). `record::id` is Surreal 3's name for the 2.x `meta::id`.
+        let ef = overfetch.max(40);
+        let knn = Query::new(format!(
+            "SELECT \
+                record::id(id) AS id, \
+                text, \
+                captured_at, \
+                accepted, \
+                vector::similarity::cosine(embedding, $embedding) AS similarity \
+             FROM chat_prompt \
+             WHERE persona_id = $persona \
+               AND embedding <|{overfetch},{ef}|> $embedding \
+             ORDER BY similarity DESC \
+             LIMIT {overfetch};"
+        ))
+        .bind("embedding", embedding)?
+        .bind("persona", persona)?;
+        let raw = serde_json::Value::Array(
+            self.surreal
+                .run(&self.namespace, &self.database, knn)
+                .await?
+                .take(0)
+                .context("chat_prompt KNN query failed")?,
+        );
+        Ok(parse_candidates(&raw))
+    }
+
+    /// Prompts holding the partial's words (the full-text index; a word is
+    /// matched while you are still typing it).
+    async fn by_words(
+        &self,
+        partial: &str,
+        persona: &str,
+        overfetch: usize,
+    ) -> Result<Vec<RawCandidate>> {
+        let words = words_of(partial);
+        if words.is_empty() {
+            return Ok(Vec::new());
+        }
+        let search = Query::new(format!(
+            "SELECT \
+                record::id(id) AS id, \
+                text, \
+                captured_at, \
+                accepted, \
+                search::score(0) AS similarity \
+             FROM chat_prompt \
+             WHERE persona_id = $persona \
+               AND text @0@ $words \
+             ORDER BY similarity DESC \
+             LIMIT {overfetch};"
+        ))
+        .bind("words", &words)?
+        .bind("persona", persona)?;
+        let raw = serde_json::Value::Array(
+            self.surreal
+                .run(&self.namespace, &self.database, search)
+                .await?
+                .take(0)
+                .context("chat_prompt word search failed")?,
+        );
+        Ok(parse_candidates(&raw)
+            .into_iter()
+            .map(|mut c| {
+                c.similarity = word_closeness(c.similarity);
+                c
+            })
+            .collect())
+    }
+}
+
+/// The partial's words, joined by spaces: the analyzer splits on
+/// punctuation in stored text, but a query term holding punctuation
+/// (`person:tob`) matches nothing.
+fn words_of(partial: &str) -> String {
+    partial
+        .split(|c: char| !c.is_alphanumeric())
+        .filter(|w| !w.is_empty())
+        .collect::<Vec<_>>()
+        .join(" ")
+}
+
+/// A word match is at least half as close as a perfect match; the
+/// full-text score (unbounded, and 0 for words every prompt holds) adds
+/// the rest, so recency and acceptance still order equal matches.
+fn word_closeness(score: f32) -> f32 {
+    let score = score.max(0.0);
+    0.5 + 0.5 * (score / (1.0 + score))
 }
 
 #[derive(Debug)]
@@ -363,6 +474,21 @@ mod tests {
     fn resolve_persona_falls_back_on_empty() {
         assert_eq!(resolve_persona(""), DEFAULT_PERSONA_ID);
         assert_eq!(resolve_persona("alice"), "alice");
+    }
+
+    #[test]
+    fn words_drop_punctuation_a_query_term_cannot_hold() {
+        assert_eq!(words_of("person:tob"), "person tob");
+        assert_eq!(words_of("  deploy, the app!"), "deploy the app");
+        assert_eq!(words_of("::"), "");
+    }
+
+    #[test]
+    fn a_word_match_is_at_least_half_close_and_below_one() {
+        assert!((word_closeness(0.0) - 0.5).abs() < 1e-6);
+        let strong = word_closeness(2.26);
+        assert!(strong > 0.8 && strong < 1.0, "{strong}");
+        assert!((word_closeness(-1.0) - 0.5).abs() < 1e-6);
     }
 
     #[test]

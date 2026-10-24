@@ -3,7 +3,9 @@
 //! Drives the chat-input intellisense layer: as the user types a partial
 //! prompt, the service embeds the partial via the `chat.suggest` slot
 //! and runs a HNSW cosine query against the user's prompt history in
-//! the `clyffy/devpulse` namespace. Returns top-K matches ordered by a
+//! the `clyffy/devpulse` namespace. With no embedder answering (no model
+//! loaded), it recalls by the partial's words through the full-text index
+//! instead (plan 0001 B3.9). Returns top-K matches ordered by a
 //! recency × similarity × accepted-frequency rank.
 //!
 //! # Boundaries

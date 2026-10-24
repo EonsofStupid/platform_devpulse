@@ -334,14 +334,23 @@ DEFINE FIELD IF NOT EXISTS created_at ON summarizes TYPE datetime DEFAULT time::
 -- the index resident in half the memory of F64 with no measurable
 -- recall loss at 1024-d cosine. M and EFC use SurrealDB v3 defaults —
 -- tune later if the corpus grows past ~100k entries per user.
+--
+-- With no embedding model (plan 0001 B3.9) a prompt is stored without
+-- its embedding and recalled by its words: the full-text index below,
+-- edge n-grams so a word is found while you are still typing it.
+-- OVERWRITE replaces two definitions stores already hold: the embedding
+-- became optional, and `time::now().to_secs()` is refused by Surreal 3
+-- (every write that left `captured_at` out failed).
 DEFINE TABLE IF NOT EXISTS chat_prompt SCHEMAFULL;
 DEFINE FIELD IF NOT EXISTS text ON chat_prompt TYPE string;
-DEFINE FIELD IF NOT EXISTS embedding ON chat_prompt TYPE array<float, 1024>;
+DEFINE FIELD OVERWRITE embedding ON chat_prompt TYPE option<array<float, 1024>>;
 DEFINE FIELD IF NOT EXISTS persona_id ON chat_prompt TYPE string;
-DEFINE FIELD IF NOT EXISTS captured_at ON chat_prompt TYPE int DEFAULT time::now().to_secs();
+DEFINE FIELD OVERWRITE captured_at ON chat_prompt TYPE int DEFAULT time::unix(time::now());
 DEFINE FIELD IF NOT EXISTS accepted ON chat_prompt TYPE bool DEFAULT false;
 DEFINE INDEX IF NOT EXISTS chat_prompt_persona ON chat_prompt FIELDS persona_id;
 DEFINE INDEX IF NOT EXISTS chat_prompt_embedding ON chat_prompt FIELDS embedding HNSW DIMENSION 1024 DIST COSINE TYPE F32;
+DEFINE ANALYZER IF NOT EXISTS chat_prompt_words TOKENIZERS class FILTERS lowercase, ascii, edgengram(2, 12);
+DEFINE INDEX IF NOT EXISTS chat_prompt_text ON chat_prompt FIELDS text FULLTEXT ANALYZER chat_prompt_words;
 ";
 
 // ═══════════════════════════════════════════════════════════════
