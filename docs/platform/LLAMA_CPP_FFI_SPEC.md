@@ -12,16 +12,6 @@ inference/llama-cpp/` management surface.
 deepen, KV reuse strategy) — that lives in the Cortex roadmap.
 This doc is the runtime substrate only.
 
-> ## ⚠ CUT LANDED — 2026-07-08
->
-> The kernel left this repo; llama.cpp inference is Clyffy's
-> (`github.com/EonsofStupid/clyffyos`, clyffyos-model-loader owns the FFI).
-> The `kernel/model-loader` citations below are git-history references. The
-> local build artifacts (vendored `deps/` trees, `cargo xtask
-> fetch-llama-cpp`, the prebuilt manifest) follow the cut — tracked as cut
-> Phase 7. The engineering record (prebuilt pipeline, binding architecture,
-> FFI latency targets) is preserved; its implementation home is ClyffyOS.
-
 ---
 
 ## 1. Architecture (foundation — wired today)

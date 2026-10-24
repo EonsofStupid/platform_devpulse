@@ -5,24 +5,35 @@
 
 pub mod analytics;
 pub mod cache;
+pub mod graph;
 pub mod manifest;
 pub mod project_analytics;
 pub mod project_db;
+pub mod project_graph;
 pub mod project_init;
+#[cfg(feature = "rro")]
+pub mod project_vector;
 pub mod relational;
 pub mod rrd_translator;
 pub mod status;
-// There are no Tier-2 service modules (graph / surreal / surreal_config /
-// vector / project_graph / project_vector / model_loader / model_loader_log)
-// — those services are Clyffy's on GB10, served over the gb10-client wire.
-// embedder + whisper are slot-managed (Layer 2).
+#[cfg(feature = "rro")]
+pub mod vector;
+// embedder + whisper modules DELETED — slot-managed by model loader (Layer 2).
 pub mod audio;
-pub mod candle_config;
 pub mod devforge;
-pub mod llama_cpp_embedded_config;
+#[cfg(feature = "inference")]
+pub mod model_loader;
+#[cfg(feature = "inference")]
+pub use model_loader::ModelDownloadScope;
+pub mod candle_config;
+pub mod llama_server_config;
+#[cfg(feature = "inference")]
+pub mod model_loader_log;
 pub mod routing_config;
 pub mod sherpa_streaming;
 pub mod sidecars;
+pub mod surreal;
+pub mod surreal_config;
 pub mod voice_stt_config;
 pub mod voice_tts_config;
 
@@ -37,7 +48,7 @@ use specta::Type;
 /// subscribers can round-trip events through OTLP/JSONL exports.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Type)]
 pub enum ServiceRole {
-    /// Relational service (`LibSQL`).
+    /// Relational service (Turso).
     Relational,
     /// Analytics service (`DuckDB`).
     Analytics,
@@ -47,9 +58,8 @@ pub enum ServiceRole {
     Cache,
     /// Vector service (`RRO`).
     Vector,
-    // No Grammar role — grammar / constrained decoding is Clyffy's on
-    // GB10; the desktop's grammar commands are connection-gated wire
-    // shells, not a local service.
+    /// Grammar service (kernel-owned constrained decoding).
+    Grammar,
     /// `DevForge` service (managed REH web server).
     DevForge,
     /// Model Loader service (AI model management, inference).
@@ -242,18 +252,18 @@ macro_rules! emit_lifecycle_dual {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// RRD lifecycle taxonomy — a tracing contract with Clyffy's daemon
+// RRD lifecycle taxonomy → moved to kernel/rrd crate
 // ═══════════════════════════════════════════════════════════════
 //
-// The RRD daemon is Clyffy's (`clyffyos-rrd`, clyffyos repo) and
-// emits lifecycle events on the `rrd.lifecycle` tracing target per
-// `HOT_UPDATE_PATTERN.md` §11 — the daemon never depends on this
-// engine. The engine owns the SUBSCRIBER half of that contract:
-// `RRD_LIFECYCLE_TARGET` is defined in
-// [`crate::platform::services::rrd_translator`], whose
-// `RrdLifecycleTranslator` tracing layer preserves the dual-emission
-// rule (H12) structurally by mirroring every event on the target
-// into `InternalEvent::RrdPhaseTransition`.
+// `RRD_LIFECYCLE_TARGET`, `rrd_lifecycle_phase`, and the
+// `emit_rrd_lifecycle!` macro now live in the `rrd` kernel crate
+// (`kernel/rrd/src/lifecycle.rs`) per `HOT_UPDATE_PATTERN.md` §11
+// — the daemon must not depend on the engine. The dual-emission
+// rule (H12) is preserved structurally by the
+// `RrdLifecycleTranslator` tracing layer in
+// [`crate::platform::services::rrd_translator`], which mirrors
+// every event on the `rrd.lifecycle` target into
+// `InternalEvent::RrdPhaseTransition`.
 //
 // Engine code that wants to observe RRD lifecycle events should
 // either (a) subscribe to `query_scoped_log("rrd.lifecycle", ...)`

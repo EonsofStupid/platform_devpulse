@@ -40,9 +40,9 @@
 	    never paints layout twice.
 -->
 <script lang="ts">
-import { CheckCircle, X } from "@lucide/svelte";
+import { cn } from "@devpulse/coldlight/utils";
+import { CheckCircle, X } from "lucide-svelte";
 import { onMount, tick } from "svelte";
-import { cn } from "$lib/design/utils/cn.js";
 import { downloadState } from "$lib/sys/activity-hud/download.state.svelte.js";
 import { installState } from "$lib/sys/activity-hud/install.state.svelte.js";
 import { getWizardCopy } from "$lib/sys/bindings/models/index.js";

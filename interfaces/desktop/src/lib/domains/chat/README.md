@@ -10,11 +10,11 @@ This domain is the **reference implementation** for DevPulse desktop library-typ
 
 ## Copy pattern
 
-When authoring a new domain, duplicate this folder layout and dependency arrows, swap IPC services for your domain’s `*.service.ts`, and register ColdLight presets under `src/lib/design/visual/presets/<domain>.ts` + `ALL_PRESETS`.
+When authoring a new domain, duplicate this folder layout and dependency arrows, swap IPC services for your domain’s `*.service.ts`, and register ColdLight presets under `packages/coldlight/visual/presets/<domain>.ts` + `ALL_PRESETS`.
 
 ## Persistence SSOT
 
-Chat persistence is **`sessions` + `turns`** in the engine user-scoped LibSQL schema. The Tauri command layer (`src-tauri/src/commands/chat/`) is the IPC boundary; the UI never calls `@tauri-apps/api` outside `chat.service.ts`.
+Chat persistence is **`sessions` + `turns`** in the engine user-scoped Turso schema. The Tauri command layer (`src-tauri/src/commands/chat/`) is the IPC boundary; the UI never calls `@tauri-apps/api` outside `chat.service.ts`.
 
 ## Motion rules
 

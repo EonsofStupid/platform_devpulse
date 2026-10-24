@@ -36,6 +36,10 @@
       "required": ["description", "tier", "scope", "enforcement"],
       "properties": {
         "description": { "type": "string" },
+        "targetPath": {
+          "type": "string",
+          "description": "This rule's root relative to the platform root; overrides the policy's targetPath"
+        },
         "tier": { "type": "integer", "minimum": 1, "maximum": 3 },
         "scope": {
           "type": "array",

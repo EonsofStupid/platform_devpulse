@@ -13,7 +13,7 @@
 //! | API-Enhanced       | End users       | HTTP API     | always available |
 //!
 //! All three connect to the SAME DevPulse infrastructure:
-//! - Same databases (libSQL, SurrealDB, DuckDB, Qdrant)
+//! - Same databases (Turso, SurrealDB, DuckDB, Qdrant)
 //! - Same signal bus (tokio::broadcast)
 //! - Same model slots
 //! - Same lane tracing

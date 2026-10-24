@@ -1,4 +1,4 @@
-//! Per-project `LibSQL` commands — init, health, query, table listing.
+//! Per-project Turso commands — init, health, query, table listing.
 //!
 //! Project databases live at `{project_root}/.userdata/project.db`.
 //! Created on demand via `init_project_db`, not during boot.
@@ -97,7 +97,7 @@ pub async fn init_project_db(
 
     let adapter = platform
         .project_db()
-        .init_project(&project_id, root, &project_name)
+        .init_project(&project_id, &project_name)
         .await
         .map_err(|e| format!("Failed to init project database: {e:#}"))?;
 
@@ -117,7 +117,7 @@ pub async fn init_project_db(
         .and_then(|n| u64::try_from(n).ok())
         .unwrap_or(0);
 
-    let db_path = root.join(".userdata").join("project.db");
+    let db_path = platform.project_db().db_path(&project_id);
 
     Ok(ProjectDbInitResult {
         project_id,

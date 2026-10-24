@@ -9,28 +9,31 @@
   is the priority over strict isolation.
 -->
 <script lang="ts">
-import { Activity, BrainCircuit, Cpu, ExternalLink, Grid3x3, Settings, X } from "@lucide/svelte";
-import { invoke } from "@tauri-apps/api/core";
-import { untrack } from "svelte";
-import { Button } from "$lib/design/components/button/index.js";
-import { Section } from "$lib/design/components/section/index.js";
-import Text from "$lib/design/components/text/Text.svelte";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Text } from "@devpulse/coldlight/components/text";
+import { Activity, ExternalLink, Grid3x3, Settings, X } from "lucide-svelte";
+import { onMount, untrack } from "svelte";
+import { page } from "$app/state";
 import LiveSubsystemStrip from "$lib/devtools/_shared/LiveSubsystemStrip.svelte";
-import {
-	DEVTOOL_BUCKET_ICONS,
-	DEVTOOL_REGISTRY,
-	type DevtoolMeta,
-	groupByTier,
-	type LucideIcon,
-	type TierGroup,
-} from "$lib/devtools/index.js";
+import { devtoolNav, devtoolTiers } from "$lib/devtools/index.js";
+import { copyState } from "$lib/sys/copy/index.js";
 import type {
 	LaneToggle,
 	LaneTraceConfig,
 	PlatformConfig,
 	ServiceStatusSnapshot,
+	WindowRole,
+	WindowRoleInfo,
 } from "$lib/sys/generated/bindings.js";
 import { commands } from "$lib/sys/generated/bindings.js";
+import { logError } from "$lib/sys/logger.js";
+import {
+	findRoute,
+	findRouteById,
+	hrefOf,
+	type RouteNode,
+	routeCopy,
+} from "$lib/sys/routing/index.js";
 
 // ── Tab state ────────────────────────────────────────────────
 type TabId = "overview" | "lanes" | "config";
@@ -43,51 +46,42 @@ const tabs = [
 
 let activeTab = $state<TabId>("overview");
 
-// ── Registry-driven tier grouping ────────────────────────────
-// `groupByTier` resolves the per-tier bucket icons from the registry
-// module — every tier is bucketed, so the dashboard renders one
-// uniform `tier → buckets → tiles` shape with no special-casing.
-const tierGroups: TierGroup[] = $derived(groupByTier(DEVTOOL_REGISTRY, DEVTOOL_BUCKET_ICONS));
+// ── Tiers, buckets and devtools from this page's route folders ────
+// This page's child folders are tiers, theirs are buckets, theirs are
+// devtools (plan 0008); icons and order are each folder's `_nav`, tone /
+// status its `_devtool`, every text its copy.
+const dashboard = $derived(findRouteById(page.route.id));
+const tiers = $derived(dashboard ? devtoolTiers(dashboard) : []);
+const devtoolsText = $derived(copyState.catalog?.devtools);
 
-// External windows — Tauri WebviewWindow targets that live outside
-// the routed devtools but still belong on this dashboard for
-// discoverability. Kept hardcoded (not in DEVTOOL_REGISTRY) because
-// they aren't routes — they're window opens.
-type ExternalWindow = {
-	role: Parameters<typeof commands.openWindow>[0];
-	label: string;
-	blurb: string;
-	icon: LucideIcon;
-};
+// ── Detached windows, from Rust's window roles ───────────────
+// Each role names the page it opens (a route constant generated from the
+// route folders); a tile is that page's own icon, name and line.
+let windowRoles = $state<WindowRoleInfo[]>([]);
 
-const EXTERNAL_WINDOWS: ExternalWindow[] = [
-	{
-		role: "ModelLoader",
-		label: "Model Control Window",
-		blurb: "Slot management, downloads. Detached window.",
-		icon: BrainCircuit,
-	},
-	{
-		role: "ConnectomeViewer",
-		label: "Connectome Viewer Window",
-		blurb: "Telemetry graph. Detached window.",
-		icon: Activity,
-	},
-];
-
-/** Per-tier blurb — the only branch in the uniform tier→buckets→tiles shape. */
-function tierBlurb(tier: TierGroup["tier"]): string {
-	if (tier === "system") {
-		return "Platform infrastructure: datastores, caches, retrieval, observability, IDE.";
-	}
-	if (tier === "clyffy") {
-		return "The assistant's senses + cognition.";
-	}
-	return "Slot orchestrator + inference runtimes.";
+async function loadWindowRoles(): Promise<void> {
+	const result = await commands.windowRoles();
+	if (result.status === "ok") windowRoles = result.data;
+	else logError("devtools", `window roles failed: ${result.error}`);
 }
 
-function isPlanned(tile: DevtoolMeta): boolean {
-	return tile.status === "planned";
+onMount(() => {
+	void loadWindowRoles();
+});
+
+const detachedWindows = $derived(
+	windowRoles.flatMap((w) => {
+		const node = w.detached ? findRoute(w.route) : undefined;
+		return node ? [{ role: w.role, node }] : [];
+	}),
+);
+
+function tierToneClass(tier: RouteNode): string {
+	return `ds-section--${devtoolNav(tier).tone ?? "muted"}`;
+}
+
+function isPlanned(tool: RouteNode): boolean {
+	return devtoolNav(tool).status === "planned";
 }
 
 // ── Lane config state ────────────────────────────────────────
@@ -235,12 +229,15 @@ $effect(() => {
 });
 
 // ── Window control ───────────────────────────────────────────
-function handleClose(): void {
-	invoke("close_window", { label: "devtools" });
+async function handleClose(): Promise<void> {
+	const result = await commands.closeChildWindow("DevTools");
+	if (result.status === "error") {
+		logError("devtools", `close devtools window failed: ${result.error}`);
+	}
 }
 
-function openWindow(role: string): void {
-	commands.openWindow(role as Parameters<typeof commands.openWindow>[0]);
+function openWindow(role: WindowRole): void {
+	void commands.openWindow(role);
 }
 
 // ── Lane grouping helper ─────────────────────────────────────
@@ -291,7 +288,7 @@ let laneGroups = $derived<LaneGroup[]>(
 		<div class="flex items-center gap-2" data-tauri-drag-region>
 			<Text size="xs" weight="semibold" preset="default">DEVPULSE TOOLS</Text>
 		</div>
-		<Button preset="ghost" size="sm" onclick={handleClose}>
+		<Button variant="ghost" size="sm" onclick={handleClose}>
 			<X size={12} />
 		</Button>
 	</header>
@@ -323,11 +320,14 @@ let laneGroups = $derived<LaneGroup[]>(
 				<LiveSubsystemStrip />
 
 				<!-- ── Quick Actions (primary) ─────────────────── -->
-				<Section
-					title="Quick Actions"
-					blurb="Most-used surfaces. Lane tracing presets, config inspector, runtime aggregation."
-					accent="primary"
-				>
+				<section class="ds-section ds-section--primary">
+					<header class="ds-section-header">
+						<h2 class="ds-section-title">Quick Actions</h2>
+						<p class="ds-section-blurb">
+							Most-used surfaces. Lane tracing presets, config inspector,
+							runtime aggregation.
+						</p>
+					</header>
 					<div class="ds-tile-grid ds-tile-grid--lg">
 						<button class="ds-tile ds-tile--lg" onclick={() => (activeTab = "lanes")}>
 							<Activity size={26} class="ds-tile-icon" />
@@ -341,62 +341,83 @@ let laneGroups = $derived<LaneGroup[]>(
 							<span class="ds-tile-title">Config Inspector</span>
 							<span class="ds-tile-blurb">Platform config, service stages, data paths.</span>
 						</button>
-						<a href="/devtools/runtimes" class="ds-tile ds-tile--lg">
-							<Cpu size={26} class="ds-tile-icon" />
-							<span class="ds-tile-title">Runtimes Aggregation</span>
-							<span class="ds-tile-blurb">
-								Inverse view — every loaded runtime, its fingerprint,
-								and per-runtime update checks.
-							</span>
-						</a>
+						<!-- Tier folders that are pages in their own right. -->
+						{#each tiers.filter((t) => t.node.hasPage) as tier (tier.node.path)}
+							{@const TierIcon = tier.node.nav.icon}
+							{@const text = routeCopy(tier.node)}
+							<a href={hrefOf(tier.node)} class="ds-tile ds-tile--lg">
+								{#if TierIcon}
+									<TierIcon size={26} class="ds-tile-icon" />
+								{/if}
+								<span class="ds-tile-title">{text?.label}</span>
+								<span class="ds-tile-blurb">{text?.blurb}</span>
+							</a>
+						{/each}
 					</div>
-				</Section>
+				</section>
 
 				<!-- ── Detached windows (muted) — Tauri WebviewWindow targets, kept here for discoverability. -->
-				<Section
-					title="Detached Windows"
-					blurb="Surfaces that pop into their own always-on-top window."
-					accent="muted"
-				>
+				<section class="ds-section ds-section--muted">
+					<header class="ds-section-header">
+						<h2 class="ds-section-title">Detached Windows</h2>
+						<p class="ds-section-blurb">
+							Surfaces that pop into their own always-on-top window.
+						</p>
+					</header>
 					<div class="ds-tile-grid">
-						{#each EXTERNAL_WINDOWS as win (win.role)}
-							{@const Icon = win.icon}
+						{#each detachedWindows as win (win.role)}
+							{@const Icon = win.node.nav.icon}
+							{@const text = routeCopy(win.node)}
 							<button class="ds-tile" onclick={() => openWindow(win.role)}>
-								<Icon size={20} class="ds-tile-icon" />
-								<span class="ds-tile-title">{win.label}</span>
-								<span class="ds-tile-blurb">{win.blurb}</span>
+								{#if Icon}
+									<Icon size={20} class="ds-tile-icon" />
+								{/if}
+								<span class="ds-tile-title">{text?.label}</span>
+								<span class="ds-tile-blurb">{text?.blurb}</span>
 								<ExternalLink size={12} class="ds-tile-corner" />
 							</button>
 						{/each}
 					</div>
-				</Section>
+				</section>
 
-				<!-- ── Three tiers from registry — System → Clyffy → Runtimes.
-				     Every tier renders the same shape: section → buckets → tiles.
-				     Per-tier blurb is the only branch. -->
-				{#each tierGroups as group (group.tier)}
-					<Section title={group.label} blurb={tierBlurb(group.tier)} accent={group.accent}>
+				<!-- ── Tiers → buckets → devtools, from this page's route folders.
+				     Every tier renders the same shape; nothing is special-cased. -->
+				{#each tiers as tier (tier.node.path)}
+					{@const tierText = routeCopy(tier.node)}
+					<section class="ds-section {tierToneClass(tier.node)}">
+						<header class="ds-section-header">
+							<h2 class="ds-section-title">{tierText?.label}</h2>
+							{#if tierText?.description}
+								<p class="ds-section-blurb">{tierText.description}</p>
+							{/if}
+						</header>
+
 						<div class="ds-buckets">
-							{#each group.buckets as bucket (bucket.bucket)}
-								{@const BucketIcon = bucket.icon}
+							{#each tier.buckets as bucket (bucket.node.path)}
+								{@const BucketIcon = bucket.node.nav.icon}
 								<div class="ds-bucket">
 									<header class="ds-bucket-header">
-										<BucketIcon size={14} class="ds-bucket-icon" />
-										<span class="ds-bucket-title">{bucket.label}</span>
+										{#if BucketIcon}
+											<BucketIcon size={14} class="ds-bucket-icon" />
+										{/if}
+										<span class="ds-bucket-title">{routeCopy(bucket.node)?.label}</span>
 									</header>
 									<div class="ds-tile-grid">
-										{#each bucket.tiles as tile (tile.id)}
-											{@const Icon = tile.icon}
+										{#each bucket.tools as tool (tool.path)}
+											{@const Icon = tool.nav.icon}
+											{@const toolText = routeCopy(tool)}
 											<a
-												href={tile.route}
+												href={hrefOf(tool)}
 												class="ds-tile"
-												class:ds-tile--planned={isPlanned(tile)}
+												class:ds-tile--planned={isPlanned(tool)}
 											>
-												<Icon size={20} class="ds-tile-icon" />
-												<span class="ds-tile-title">{tile.label}</span>
-												<span class="ds-tile-blurb">{tile.blurb}</span>
-												{#if isPlanned(tile)}
-													<span class="ds-tile-planned-pill">Planned</span>
+												{#if Icon}
+													<Icon size={20} class="ds-tile-icon" />
+												{/if}
+												<span class="ds-tile-title">{toolText?.label}</span>
+												<span class="ds-tile-blurb">{toolText?.blurb}</span>
+												{#if isPlanned(tool)}
+													<span class="ds-tile-planned-pill">{devtoolsText?.planned}</span>
 												{/if}
 											</a>
 										{/each}
@@ -404,7 +425,7 @@ let laneGroups = $derived<LaneGroup[]>(
 								</div>
 							{/each}
 						</div>
-					</Section>
+					</section>
 				{/each}
 			</div>
 
@@ -520,8 +541,9 @@ let laneGroups = $derived<LaneGroup[]>(
 
 <style>
 	/* ── Dashboard chrome — semantic-accent driven ─────────────
-	   Sections are ColdLight `<Section>` (owns the --accent-section-*
-	   trio + header). Tiles/buckets below read the section's trio. */
+	   Each `.ds-section` declares its own --accent-section-* trio via
+	   a modifier class. Tiles inside read those vars; switching
+	   accents is one className change. */
 
 	.ds-tabbar {
 		display: flex;
@@ -556,6 +578,65 @@ let laneGroups = $derived<LaneGroup[]>(
 		flex-direction: column;
 		gap: 1.25rem;
 		padding: 1rem;
+	}
+
+	.ds-section {
+		--accent-section-main: var(--accent-primary-main);
+		--accent-section-glow: var(--accent-primary-glow);
+		--accent-section-fill: var(--accent-primary-fill);
+		display: flex;
+		flex-direction: column;
+		gap: 0.625rem;
+	}
+
+	.ds-section--primary {
+		--accent-section-main: var(--accent-primary-main);
+		--accent-section-glow: var(--accent-primary-glow);
+		--accent-section-fill: var(--accent-primary-fill);
+	}
+	.ds-section--secondary {
+		--accent-section-main: var(--accent-secondary-main);
+		--accent-section-glow: var(--accent-secondary-glow);
+		--accent-section-fill: var(--accent-secondary-fill);
+	}
+	.ds-section--success {
+		--accent-section-main: var(--accent-success-main);
+		--accent-section-glow: var(--accent-success-glow);
+		--accent-section-fill: var(--accent-success-fill);
+	}
+	.ds-section--warning {
+		--accent-section-main: var(--accent-warning-main);
+		--accent-section-glow: var(--accent-warning-glow);
+		--accent-section-fill: var(--accent-warning-fill);
+	}
+	.ds-section--muted {
+		--accent-section-main: var(--accent-muted-main);
+		--accent-section-glow: var(--accent-muted-glow);
+		--accent-section-fill: var(--accent-muted-fill);
+	}
+
+	.ds-section-header {
+		display: flex;
+		align-items: baseline;
+		gap: 0.625rem;
+		padding-inline: 0.25rem;
+		border-left: 2px solid var(--accent-section-main);
+		padding-left: 0.625rem;
+	}
+
+	.ds-section-title {
+		margin: 0;
+		font-size: var(--font-size-sm);
+		font-weight: 600;
+		color: var(--accent-section-main);
+		letter-spacing: 0.02em;
+		text-transform: uppercase;
+	}
+
+	.ds-section-blurb {
+		margin: 0;
+		font-size: var(--font-size-xs);
+		color: var(--text-secondary);
 	}
 
 	.ds-tile-grid {

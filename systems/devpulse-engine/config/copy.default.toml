@@ -1,0 +1,545 @@
+# DevPulse UI copy — the one catalog (plan 0001 O1).
+#
+# Every visible string comes from here; views hold no text of their own.
+# Your file at `.userdata/config/copy.toml` overrides any key (per key —
+# keys you leave out keep these defaults). A key DevPulse does not know is
+# refused with its name, and these defaults are used until it is fixed.
+#
+# `{name}`-style placeholders are filled by the view with real values.
+#
+# The live wizard-era sections (downloader, sign-in, runtime picker) move
+# here in plan 0001 O2/O3.
+
+# ─────────────────────────────────────────────────────────────────────
+# First run
+# ─────────────────────────────────────────────────────────────────────
+
+[onboarding.common]
+continue = "Continue"
+back = "Back"
+later = "Set up later"
+finish = "Open DevPulse"
+progress = "Step {current} of {total}"
+flow_problem = "Your first-run flow file wasn't used, so the standard steps are showing."
+reopen = "Finish setting up"
+run_again_title = "First-run setup"
+run_again_hint = "Walk through setup again — your name, your projects folder and which repositories DevPulse works with. Nothing you saved is lost."
+run_again = "Run setup again"
+
+[onboarding.welcome]
+title = "Hi, I'm Clyffy."
+subtitle = "Let's set DevPulse up around you — who you are, where your projects live, and the AI you already use."
+mascot_alt = "Clyffy waving hello"
+cta = "Let's go"
+later_hint = "Not now? You can pick this up any time from the top bar."
+looking = "Looking around this machine…"
+found_heading = "I can already see"
+nothing_found = "Nothing to show yet — we'll set it up together."
+found_git = "Git knows you as {name}"
+found_folder = "{path} · {count} repositories"
+
+[onboarding.you]
+title = "About you"
+subtitle = "So DevPulse knows who it's working with and where your code lives. Your repositories stay exactly where they are."
+name_label = "Your name"
+name_hint = "Shown across DevPulse."
+email_label = "Email"
+email_hint = "Optional. Used for your commits and your GitHub link later."
+projects_label = "Projects folder"
+projects_hint = "The folder your projects live in. DevPulse remembers them; it never moves or copies them."
+browse = "Browse…"
+picker_title = "Choose your projects folder"
+from_git = "From your git settings"
+folder_repos = "{count} repositories"
+repos_heading = "Repositories in this folder"
+repos_hint = "Tick the ones to add. They stay where they are; DevPulse only remembers them."
+repos_find = "Find repositories"
+repos_finding = "Looking for repositories…"
+repos_none = "No git repositories directly in this folder."
+repos_add = "Add {count} to DevPulse"
+repo_devpulse = "DevPulse itself"
+repo_registered = "Already added"
+repo_added = "Added"
+
+[onboarding.your_ai]
+title = "Your AI"
+subtitle = "The AI you already pay for works here, together. I checked this computer for each one — installed or not, which version, and whether you're signed in. Signing in and updating always happen in the vendor's own tool; I never see your password or token."
+subscriptions_heading = "Your subscriptions"
+apps_heading = "Desktop apps"
+checking = "Checking this computer…"
+check_again = "Check again"
+not_installed = "Not installed"
+installed_version = "Installed · {version}"
+installed = "Installed"
+latest = "Latest {version}"
+up_to_date = "Up to date"
+update_available = "Update available: {version}"
+signed_in = "Signed in"
+signed_out = "Not signed in"
+signed_in_unknown = "Can't tell if you're signed in"
+update = "Update"
+updating = "Updating…"
+sign_in = "Sign in"
+opening = "Opening…"
+test = "Try it"
+testing = "Asking…"
+test_prompt = "In one short sentence, say hello and tell me which model you are."
+asked = "I asked: “{prompt}”"
+answered = "Answered in {seconds} s"
+connector_needed = "Needs a small connector to talk to DevPulse."
+connector_installed = "Connector {version}"
+connector_ready = "Connector installed"
+install_connector = "Install connector"
+installing = "Installing…"
+docs = "How to get it"
+help = "Help"
+app_updates_itself = "It updates itself."
+done = "Done"
+failed = "Didn't work"
+guided = "Run this in a terminal:"
+later_hint = "You can skip this and come back any time: Settings → Run setup again."
+
+[onboarding.containers]
+title = "Your dev environment"
+subtitle = "Containers run your apps and their databases the same way on every machine. I'll check what this computer has, ask you three things, and set up Docker or Podman properly — only when you click."
+found_heading = "What's on this machine"
+checking = "Looking at this machine…"
+check_again = "Check again"
+engine_missing = "Not installed"
+engine_running = "Running · {version}"
+engine_stopped = "Installed · {version} · not running"
+compose = "Compose {version}"
+machine_running = "Machine {name}: running"
+machine_stopped = "Machine {name}: stopped"
+host_ram = "{gb} GB memory"
+host_cores = "{count} CPU cores"
+host_gpu = "GPU: {name}"
+wsl_ok = "WSL {version}"
+wsl_missing = "WSL is not installed"
+virtualization_on = "Virtualization is on"
+virtualization_off = "Virtualization is off in the firmware"
+questions_heading = "Three questions"
+usage_label = "What will you use containers for?"
+gpu_label = "Will your containers use the GPU — AI or machine-learning work?"
+app_label = "Do you want a desktop app to see and manage your containers?"
+yes = "Yes"
+no = "No"
+save_answers = "Use these answers"
+advice_heading = "My recommendation"
+keep = "Keep {name}"
+recommend = "Set up {name}"
+answer_first = "Answer the three questions and I'll recommend one, with the reasons."
+why = "Why"
+warnings_heading = "Worth knowing"
+blockers_heading = "Fix this first"
+source = "Source: {title}"
+steps_heading = "Steps — each runs only when you click it"
+run = "Run"
+running = "Running…"
+done = "Done"
+failed = "Didn't work"
+guided = "Run this yourself"
+restart = "Restart Windows, then come back to this step."
+install_consent = "Installing accepts {name}'s licence terms."
+later_hint = "You can skip this and come back any time: Settings → Run setup again."
+
+[onboarding.containers.usage]
+personal = "My own projects"
+education = "School or university"
+openSource = "A non-commercial open-source project"
+smallBusiness = "Work — under 250 people and under $10M revenue"
+largeOrganization = "Work — 250 or more people, or $10M or more revenue"
+government = "Work for a government body"
+
+[onboarding.containers.points]
+keep_working = "{name} {version} is already running on this machine — I'll keep it, not replace it."
+keep_installed = "{name} {version} is installed but not running ({problem}). I'll start it rather than install something new."
+licence_free = "Docker Desktop is free for your use: personal, education, non-commercial open source, or a business under 250 people and $10M revenue."
+licence_required = "Docker Desktop needs a paid subscription at organizations with {employees} or more people or ${revenue} or more in revenue, and in government."
+free_and_open = "Podman is free and open source (Apache 2.0) for any use, with no subscription."
+no_admin_needed = "Podman installs for your user only — no administrator rights — and runs containers rootless by default."
+dev_containers_ready = "VS Code Dev Containers use Docker with no extra settings."
+dev_containers_setting = "VS Code Dev Containers use Podman after one setting (dev.containers.dockerPath = podman)."
+gpu_docker = "Docker Desktop runs GPU containers on Windows through WSL 2 (--gpus=all)."
+gpu_podman = "Podman runs GPU containers through NVIDIA CDI, on WSL 2 only, with a Pascal or newer GPU."
+linux_native = "On Linux, Podman runs natively from your distribution's packages — no virtual machine."
+windows10 = "Podman 6 no longer supports Windows 10."
+intel_mac = "Podman 6 no longer supports Intel Macs."
+virtualization_off = "Hardware virtualization is switched off. Turn it on in your PC's BIOS/UEFI settings (often called Intel VT-x or AMD-V), then check again."
+wsl_missing = "WSL 2 is not installed. Containers on Windows run in it; installing it needs administrator rights and a restart."
+wsl_old = "WSL {found} is older than Docker Desktop needs ({wanted}); updating it is one step."
+ram_low = "This machine has {have} GB of memory; {name} asks for {want} GB."
+
+[onboarding.containers.steps]
+install_wsl = "Install WSL"
+update_wsl = "Update WSL"
+install = "Install"
+start = "Start"
+test = "Run a test container"
+
+[onboarding.containers.os]
+windows = "Windows"
+macos = "macOS"
+linux = "Linux"
+
+# ─────────────────────────────────────────────────────────────────────
+# Forms — why a field was refused. `{limit}` is the length limit, or the
+# floor a number may not go below.
+# ─────────────────────────────────────────────────────────────────────
+
+[forms.errors]
+required = "This one is needed."
+too_short = "Needs at least {limit} characters."
+too_long = "Keep it under {limit} characters."
+below_minimum = "Needs to be at least {limit}."
+email = "That doesn't look like an email address."
+not_a_folder = "That folder doesn't exist on this machine."
+unknown = "This form doesn't have that field."
+invalid = "That value isn't valid here."
+
+# ─────────────────────────────────────────────────────────────────────
+# Layouts — the app sidebar's own text. Its entries are route names.
+# ─────────────────────────────────────────────────────────────────────
+
+[layout.sidebar]
+label = "Primary"
+expand = "Expand sidebar"
+collapse = "Collapse sidebar"
+collapse_short = "Collapse"
+
+# ─────────────────────────────────────────────────────────────────────
+# Devtools — shared text. Each devtool's name and lines are under [nav].
+# ─────────────────────────────────────────────────────────────────────
+
+[devtools]
+planned = "Planned"
+planned_body = "This devtool is planned and not built yet."
+
+[devtools.action_log]
+filter_label = "Filter"
+filter_placeholder = "Words to find, e.g. models.refresh or error"
+log_label = "Today's actions"
+empty = "No actions yet today. They appear here as you use the app."
+no_match = "No actions match the filter."
+open_folder = "Open the logs folder"
+open_folder_body = "Every day's action log is a file in your DevPulse logs folder."
+
+# ─────────────────────────────────────────────────────────────────────
+# Auth shell — sign-in, sign-up, sign-out, error templates
+# Layman English only. No jargon like "credentials," "session," "JWT."
+# ─────────────────────────────────────────────────────────────────────
+[auth]
+
+# ── Sign-in route ───────────────────────────────────────────────────
+sign_in_heading = "Sign in"
+sign_in_subtitle = "Welcome back."
+sign_in_submit_label = "Sign in"
+sign_in_submit_aria = "Sign in to DevPulse"
+sign_in_submit_busy_label = "Signing in…"
+
+# ── Sign-up route ───────────────────────────────────────────────────
+sign_up_heading = "Create your account"
+sign_up_subtitle = "It takes a minute. Then we get to work."
+sign_up_submit_label = "Create account"
+sign_up_submit_aria = "Create your DevPulse account"
+sign_up_submit_busy_label = "Creating account…"
+sign_up_confirmation_heading = "Check your email"
+sign_up_confirmation_body_template = "We sent a confirmation link to {email}. Click it to finish."
+
+# ── Form fields ─────────────────────────────────────────────────────
+email_label = "Email"
+email_placeholder = "you@example.com"
+email_aria = "Email address"
+password_label = "Password"
+password_placeholder = "Your password"
+password_aria = "Password"
+confirm_password_label = "Confirm password"
+confirm_password_placeholder = "Type it again"
+confirm_password_aria = "Confirm your password"
+
+# ── Switch links ────────────────────────────────────────────────────
+to_sign_up_link_label = "Don't have an account? Create one."
+to_sign_in_link_label = "Already have an account? Sign in."
+
+# ── Sign-out affordance ─────────────────────────────────────────────
+sign_out_label = "Sign out"
+sign_out_aria = "Sign out of your account"
+
+# ── Errors ──────────────────────────────────────────────────────────
+error_credentials_required = "Email and password are required."
+error_passwords_dont_match = "The two passwords don't match."
+error_invalid_credentials = "That didn't work. Check your email and password and try again."
+error_network = "Can't reach the sign-in server. Check your internet connection."
+error_supabase_not_configured = "Sign-in isn't set up in this copy of DevPulse yet."
+error_unknown_template = "Something went wrong — {error}"
+
+[chat.agents]
+new_thread = "New thread with…"
+none_ready = "No agent can chat yet — install or sign in to one in Settings → Run setup again → Your AI."
+local = "Clyffy"
+working = "Working…"
+using_tool = "Using: {title}"
+asks = "{agent} asks:"
+refuse = "Don't allow"
+stop = "Stop"
+
+# ─────────────────────────────────────────────────────────────────────
+# Routes — one name per route folder, keyed by its URL path (plan 0008).
+# The desktop builds every menu, dashboard and tile from its route folders
+# and reads names from here; a route without a name, or a name for a path
+# that is not a route, fails its architecture test.
+# ─────────────────────────────────────────────────────────────────────
+
+[nav."/"]
+label = "DevPulse"
+
+[nav."/latest"]
+label = "Latest"
+description = "What's new in your build, your tools, and the community."
+badge = "Update available"
+
+[nav."/devpulse"]
+label = "Home"
+
+[nav."/devpulse/community"]
+label = "Community"
+
+[nav."/devpulse/models"]
+label = "Models"
+blurb = "Slot management, downloads."
+
+[nav."/devpulse/projects"]
+label = "Projects"
+
+[nav."/devpulse/settings"]
+label = "Settings"
+
+[nav."/devpulse/stats"]
+label = "Stats"
+
+[nav."/ui-demo"]
+label = "UI Demo"
+
+[nav."/overmind"]
+label = "OverMind"
+
+[nav."/wiredfront"]
+label = "WiredFront"
+
+[nav."/devforge"]
+label = "DevForge"
+
+[nav."/clyffy"]
+label = "Clyffy"
+
+[nav."/model-loader"]
+label = "Model Loader"
+blurb = "Your brain, vision, voice and memory models."
+
+[nav."/cortex"]
+label = "Cortex"
+blurb = "Clyffy's eyes, ears, mouth, sparkles and brain, set up on one screen."
+
+[nav."/onboarding"]
+label = "First run"
+
+[nav."/profile"]
+label = "Profile"
+
+[nav."/chat"]
+label = "Clyffy Chat"
+
+# Devtools — tier folders, bucket folders, then each devtool.
+
+[nav."/devtools"]
+label = "DevPulse Tools"
+
+[nav."/devtools/system"]
+label = "System"
+description = "Platform infrastructure: datastores, caches, retrieval, observability, IDE."
+
+[nav."/devtools/clyffy"]
+label = "Clyffy"
+description = "The assistant's senses + cognition."
+
+[nav."/devtools/runtimes"]
+label = "Runtimes"
+blurb = "Inverse view — every loaded runtime, its fingerprint, and per-runtime update checks."
+description = "Live state of every inference runtime currently fulfilling a slot"
+
+[nav."/devtools/system/datastores"]
+label = "Datastores"
+
+[nav."/devtools/system/caches"]
+label = "Caches"
+
+[nav."/devtools/system/observability"]
+label = "Observability"
+
+[nav."/devtools/system/ide"]
+label = "IDE"
+
+[nav."/devtools/clyffy/ears"]
+label = "Ears"
+
+[nav."/devtools/clyffy/mouth"]
+label = "Mouth"
+
+[nav."/devtools/clyffy/eyes"]
+label = "Eyes"
+
+[nav."/devtools/clyffy/memory"]
+label = "Memory"
+
+[nav."/devtools/clyffy/reasoning"]
+label = "Reasoning"
+
+[nav."/devtools/clyffy/governance"]
+label = "Governance"
+
+[nav."/devtools/clyffy/providers"]
+label = "Providers"
+
+[nav."/devtools/runtimes/orchestrator"]
+label = "Orchestrator"
+
+[nav."/devtools/runtimes/inference"]
+label = "Inference"
+
+[nav."/devtools/system/datastores/turso"]
+label = "Turso"
+blurb = "Your data: browse and edit rows, see migration history, run SQL."
+description = "Your data and the platform's · browse, edit, migrate"
+term = "Turso"
+
+[nav."/devtools/system/datastores/duckdb"]
+label = "DuckDB"
+blurb = "Analytical engine. Telemetry spans, OLAP queries."
+description = "Analytics engine · OLAP"
+term = "DuckDB"
+
+[nav."/devtools/system/datastores/surrealdb"]
+label = "SurrealDB"
+blurb = "Multi-model engine: graph + document. HTTP :8822. Sidecar lifecycle."
+description = "Multi-model engine · graph + document · 3 namespaces"
+term = "SurrealDB"
+
+[nav."/devtools/system/datastores/qdrant"]
+label = "Qdrant"
+blurb = "Embedded vector store · in-process · zero latency. Cross-linked from RRO."
+description = "Embedded vector store · in-process · zero latency"
+term = "Qdrant"
+
+[nav."/devtools/system/datastores/mongodb"]
+label = "MongoDB"
+blurb = "Document engine. Docs + images via GridFS."
+
+[nav."/devtools/system/datastores/project-db"]
+label = "Project DB"
+blurb = "Per-project Turso. Lazy-loaded, on-demand."
+description = "Per-project Turso instances · lazy-loaded"
+
+[nav."/devtools/system/caches/moka"]
+label = "Cache"
+blurb = "In-memory KV. Capacity, TTL, hit-rate."
+description = "In-memory Moka store · non-persistent · TTL-driven"
+term = "Moka cache"
+
+[nav."/devtools/system/observability/telemetry"]
+label = "Telemetry"
+blurb = "OTel spans, lane baselines, exporter config."
+description = "OTel pipeline — traces, spans, baselines"
+
+[nav."/devtools/system/observability/logs"]
+label = "Action log"
+blurb = "Every wrapped app action as it happens, filterable."
+description = "Live tail of today's action log"
+
+[nav."/devtools/system/ide/devforge"]
+label = "DevForge"
+blurb = "Embedded IDE host. REH server, extensions, update channel."
+description = "Code Editor · REH Server"
+
+[nav."/devtools/clyffy/ears/stt"]
+label = "Speech-to-Text"
+blurb = "Whisper transcription with VAD."
+description = "Whisper — batch transcription"
+
+[nav."/devtools/clyffy/ears/streaming-asr"]
+label = "Sherpa (streaming ASR)"
+blurb = "Sherpa streaming + wake-word detection."
+description = "Real-time speech-to-text · zipformer streaming · sherpa-onnx"
+
+[nav."/devtools/clyffy/ears/sts"]
+label = "Speech-to-Speech"
+blurb = "Cascaded loop — wake → STT → brain → TTS."
+description = "Bidirectional voice pipeline — Whisper + Kokoro"
+
+[nav."/devtools/clyffy/mouth/tts"]
+label = "Voice Synthesis"
+blurb = "Qwen3-TTS preset speakers + zero-shot voice cloning."
+description = "Qwen3-TTS — preset speakers + zero-shot voice cloning"
+
+[nav."/devtools/clyffy/eyes/vision"]
+label = "Vision"
+blurb = "SigLIP2 image embeddings — 1152-dim L2."
+description = "Auto-managed image encoder slot · diagnostics + manual probe"
+
+[nav."/devtools/clyffy/memory/cortex"]
+label = "Knowledge Engine"
+blurb = "Prompt builder, memory lookup, councils."
+description = "Reasoning pipeline — prompt builder, memory, councils"
+term = "Brain"
+
+[nav."/devtools/clyffy/memory/intelligence"]
+label = "Memory Intelligence"
+blurb = "Embedding-indexed memory + RRO archive across project namespaces."
+description = "Embedding-indexed memory + RRO archive across project namespaces"
+term = "RRO"
+
+[nav."/devtools/clyffy/memory/persona-graph"]
+label = "Persona Graph"
+blurb = "Clyffy's identity in SurrealDB namespaces. Links into the engine."
+description = "Clyffy's identity in SurrealDB · 3 namespaces"
+
+[nav."/devtools/clyffy/reasoning/rro"]
+label = "RRO Trifecta"
+blurb = "Embedder + encoder + vector store. The retrieval unit."
+description = "Embedder + encoder + vector store · retrieval-rumination orchestrator"
+
+[nav."/devtools/clyffy/reasoning/rrd"]
+label = "RRD Daemon"
+blurb = "Hot-update lifecycle — pause, drain, swap, resume on the encoder."
+description = "Hot-update lifecycle — pause · drain · swap · resume on the encoder"
+
+[nav."/devtools/clyffy/governance/policy"]
+label = "Agent Policy"
+blurb = "Constrained decoding + AG-UI wire + A2UI grammar. What the agent is allowed to emit."
+description = "Constrained decoding · AG-UI wire · A2UI grammar"
+
+[nav."/devtools/clyffy/providers/claude"]
+label = "Claude Integration"
+blurb = "MCP server, subscription lane, API providers, councils."
+description = "Subprocess MCP · subscription + API lanes"
+
+[nav."/devtools/runtimes/orchestrator/slots"]
+label = "Slot Orchestrator"
+blurb = "Slot assignment, downloads, VRAM budget."
+description = "Slot ↔ model assignments · load / unload · VRAM headroom"
+
+[nav."/devtools/runtimes/inference/candle"]
+label = "Candle"
+blurb = "Native-tensor runtime. GGUF + SafeTensors."
+description = "In-process model runtime · GGUF + SafeTensors"
+term = "Candle"
+
+[nav."/devtools/runtimes/inference/llama-cpp"]
+label = "llama.cpp (server)"
+blurb = "GGUF models, served by llama.cpp's own server as a separate process."
+description = "GGUF models served by llama-server, a supervised subprocess"
+term = "llama.cpp"
+
+[nav."/devtools/runtimes/inference/ollama"]
+label = "Ollama"
+blurb = "Backup runtime — kept available for fallback."
+description = "External Ollama process · HTTP API"

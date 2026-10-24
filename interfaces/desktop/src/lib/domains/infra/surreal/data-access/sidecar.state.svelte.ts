@@ -69,7 +69,7 @@ class SurrealSidecarState {
 
 	get portSummary(): string {
 		const s = this.status;
-		if (!s?.running) return "—";
+		if (!s || !s.running) return "—";
 		// Embedded mode has no port — surface the data path instead so
 		// the devtool keeps a single "where is it live" line.
 		return s.dataPath;

@@ -1,0 +1,180 @@
+{
+	"$schema": "https://developer.microsoft.com/json-schemas/tsdoc/v0/tsdoc.schema.json",
+	"extends": ["@microsoft/api-extractor/extends/tsdoc-base.json", "typedoc/tsdoc.json"],
+	"noStandardTags": false,
+	"tagDefinitions": [
+		{
+			"tagName": "@file",
+			"syntaxKind": "block",
+			"allowMultiple": false
+		},
+		{
+			"tagName": "@description",
+			"syntaxKind": "block",
+			"allowMultiple": false
+		},
+		{
+			"tagName": "@package",
+			"syntaxKind": "block",
+			"allowMultiple": false
+		},
+		{
+			"tagName": "@layer",
+			"syntaxKind": "block",
+			"allowMultiple": false
+		},
+		{
+			"tagName": "@kind",
+			"syntaxKind": "block",
+			"allowMultiple": false
+		},
+		{
+			"tagName": "@slot",
+			"syntaxKind": "block",
+			"allowMultiple": true
+		},
+		{
+			"tagName": "@aria",
+			"syntaxKind": "block",
+			"allowMultiple": true
+		},
+		{
+			"tagName": "@keyboard",
+			"syntaxKind": "block",
+			"allowMultiple": true
+		},
+		{
+			"tagName": "@dataattr",
+			"syntaxKind": "block",
+			"allowMultiple": true
+		},
+		{
+			"tagName": "@consumers",
+			"syntaxKind": "block",
+			"allowMultiple": false
+		},
+		{
+			"tagName": "@render",
+			"syntaxKind": "block",
+			"allowMultiple": false
+		},
+		{
+			"tagName": "@theme",
+			"syntaxKind": "block",
+			"allowMultiple": false
+		},
+		{
+			"tagName": "@transport",
+			"syntaxKind": "block",
+			"allowMultiple": false
+		},
+		{
+			"tagName": "@builder",
+			"syntaxKind": "block",
+			"allowMultiple": false
+		},
+		{
+			"tagName": "@primitive",
+			"syntaxKind": "modifier",
+			"allowMultiple": false
+		},
+		{
+			"tagName": "@recipe",
+			"syntaxKind": "modifier",
+			"allowMultiple": false
+		},
+		{
+			"tagName": "@material",
+			"syntaxKind": "modifier",
+			"allowMultiple": false
+		},
+		{
+			"tagName": "@focus",
+			"syntaxKind": "modifier",
+			"allowMultiple": false
+		},
+		{
+			"tagName": "@taxonomy",
+			"syntaxKind": "modifier",
+			"allowMultiple": false
+		}
+	],
+	"supportForTags": {
+		"@file": true,
+		"@description": true,
+		"@package": true,
+		"@layer": true,
+		"@kind": true,
+		"@slot": true,
+		"@aria": true,
+		"@keyboard": true,
+		"@dataattr": true,
+		"@consumers": true,
+		"@render": true,
+		"@theme": true,
+		"@transport": true,
+		"@builder": true,
+		"@primitive": true,
+		"@recipe": true,
+		"@material": true,
+		"@focus": true,
+		"@taxonomy": true,
+		"@author": true,
+		"@module": true,
+		"@mergeModuleWith": true,
+		"@type": true,
+		"@typedef": true,
+		"@callback": true,
+		"@prop": true,
+		"@property": true,
+		"@group": true,
+		"@groupDescription": true,
+		"@disableGroups": true,
+		"@category": true,
+		"@categoryDescription": true,
+		"@hidden": true,
+		"@ignore": true,
+		"@class": true,
+		"@abstract": true,
+		"@document": true,
+		"@default": true,
+		"@extends": true,
+		"@augments": true,
+		"@return": true,
+		"@yields": true,
+		"@enum": true,
+		"@event": true,
+		"@expand": true,
+		"@preventExpand": true,
+		"@expandType": true,
+		"@inline": true,
+		"@preventInline": true,
+		"@inlineType": true,
+		"@primaryExport": true,
+		"@template": true,
+		"@this": true,
+		"@linkcode": true,
+		"@linkplain": true,
+		"@include": true,
+		"@includeCode": true,
+		"@private": true,
+		"@protected": true,
+		"@satisfies": true,
+		"@since": true,
+		"@license": true,
+		"@import": true,
+		"@overload": true,
+		"@namespace": true,
+		"@interface": true,
+		"@function": true,
+		"@showCategories": true,
+		"@hideCategories": true,
+		"@showGroups": true,
+		"@hideGroups": true,
+		"@hideconstructor": true,
+		"@summary": true,
+		"@useDeclaredType": true,
+		"@sortStrategy": true,
+		"@internal": true
+	}
+}

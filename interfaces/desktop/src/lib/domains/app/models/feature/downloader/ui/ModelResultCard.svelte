@@ -18,8 +18,8 @@
 	    AT users get the inference rationale.
 -->
 <script lang="ts">
-import { Download as DownloadIcon, Heart } from "@lucide/svelte";
-import { cn } from "$lib/design/utils/cn.js";
+import { cn } from "@devpulse/coldlight/utils";
+import { Download as DownloadIcon, Heart } from "lucide-svelte";
 import type { HfSearchResultInfo } from "$lib/sys/generated/bindings.js";
 import { getSlotLabel } from "../../../util/slots.js";
 import type { SuggestedSlotTag } from "../util/downloader.types.js";

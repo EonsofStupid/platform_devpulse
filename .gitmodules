@@ -1,0 +1,4 @@
+[submodule "deps/moshi"]
+	path = deps/moshi
+	url = https://github.com/EonsofStupid/moshi.git
+	branch = rro-alpha-candle-0.10

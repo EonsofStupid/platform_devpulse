@@ -13,7 +13,7 @@
 //! #
 //! [+000.000s] [START] DevPulse Boot
 //! [+000.012s] [  OK ] preflight: directories ready (12ms)
-//! [+000.045s] [  OK ] system_relational: LibSQL platform.db (33ms)
+//! [+000.045s] [  OK ] system_relational: Turso platform.db (33ms)
 //! [+002.341s] [  OK ] graph_store: SurrealDB consolidated 3 namespaces (2252ms)
 //! [+002.402s] [READY] All critical services confirmed — UI may render
 //! ```
@@ -82,7 +82,7 @@ impl BootLog {
 
     /// Log a successful stage.
     ///
-    /// Callers include timing in `detail` (e.g. "`LibSQL` platform.db (33ms)").
+    /// Callers include timing in `detail` (e.g. "Turso platform.db (33ms)").
     pub fn ok(&self, stage: &str, detail: &str) {
         let line = format!("[  OK ] {stage}: {detail}");
         self.emit(&line);

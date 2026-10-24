@@ -186,3 +186,54 @@ pub enum GovernanceEvent {
     /// Request escalated from one lane to another.
     LaneEscalation,
 }
+
+// =============================================================================
+// MODELS
+// =============================================================================
+
+/// Models readiness — computed once, in Rust. `ready` decides whether the app
+/// opens the setup flow; the UI renders it and never recomputes it.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, Type)]
+pub struct ModelsReadiness {
+    /// Setup is complete AND at least one model is registered AND at least
+    /// one slot has a model assigned.
+    pub ready: bool,
+    /// The user finished (or skipped) setup.
+    pub setup_complete: bool,
+    /// No prior configuration exists on this machine.
+    pub first_run: bool,
+    /// Models in the registry.
+    pub model_count: u32,
+    /// Slots defined.
+    pub slot_count: u32,
+    /// Slots with a model assigned.
+    pub assigned_count: u32,
+}
+
+// =============================================================================
+// BOOT
+// =============================================================================
+
+/// Platform boot phase.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize, Type)]
+#[serde(rename_all = "lowercase")]
+pub enum BootPhase {
+    /// Services are starting.
+    Initializing,
+    /// All critical services are up (or degraded gracefully).
+    Ready,
+    /// Boot failed — `BootStatus::error` says why.
+    Failed,
+}
+
+/// Platform boot progress — Rust-owned state. Every window renders it; a
+/// window opened later receives it from the state snapshot.
+#[derive(Clone, Debug, Serialize, Deserialize, Type)]
+pub struct BootStatus {
+    /// Where boot is.
+    pub phase: BootPhase,
+    /// Why boot failed; set only when `phase` is `failed`.
+    pub error: Option<String>,
+    /// Latest status of each boot step, in the order steps first reported.
+    pub steps: Vec<crate::platform::InitEvent>,
+}

@@ -1,0 +1,45 @@
+<!--
+	@component Table of Contents
+	@kind table-of-contents
+	@layer component
+	@category content
+	@description Auto-generated navigation list of page headings with scroll-spy active state tracking
+	@container false
+	@compound true
+	@blockCategory navigation
+	@defaultStyle table-of-contents-default
+	@styleIds table-of-contents-default
+	@requiredAxes border, color, typography
+	@slots root:all, item:none, link:none, indicator:none
+	@defaults {
+		"background-color": "oklch(0.0901 0.017 224.61 / 0.8)",
+		"border-radius": "0.75rem",
+		"box-shadow": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+		"color": "oklch(0.9319 0.015 224)",
+		"border-color": "oklch(0.4234 0.081 173.37 / 0.22)",
+		"border-width": "0.0625rem"
+}
+-->
+<script lang="ts">
+import {
+	tableOfContentsAnatomy,
+	useTableOfContents,
+} from "#coldlight/behaviors/navigation/table-of-contents/index.js";
+import { cssVarString, renderForge } from "#coldlight/renderforge/index.js";
+import { cn } from "#coldlight/utils/cn.js";
+import type { TableOfContentsProps } from "./types.js";
+
+let {
+	label = "Table of contents",
+	activeId,
+	onActiveIdChange,
+	size = "md",
+	preset = "default",
+	children,
+	class: className,
+	...rest
+}: TableOfContentsProps = $props();
+const toc = $derived(useTableOfContents({ label }));
+const m = $derived(renderForge({ kind: "table-of-contents", preset }));
+</script>
+<nav {...tableOfContentsAnatomy.attrs.root} {...toc.root} {...m.dataAttrs} style={cssVarString(m.cssVars)} class={cn("flex flex-col", className)} {...rest}>{@render children?.()}</nav>

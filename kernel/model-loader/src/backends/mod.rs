@@ -1,0 +1,22 @@
+//! Inference backends — Candle, mistral.rs, ONNX Runtime, and Orpheus TTS in
+//! process; GGUF goes to llama.cpp's own server (the router decides).
+
+pub mod bridge;
+pub mod burn_adapter;
+pub mod candle;
+pub mod mistralrs;
+pub mod orpheus;
+pub mod ort;
+pub mod phoneme;
+pub mod piper;
+pub mod pool;
+pub mod router;
+pub mod voice;
+pub mod voice_pool;
+
+pub use bridge::{InferenceBridge, InferenceHandle, InferenceRequest, InferenceResponse};
+pub use burn_adapter::{BurnEncoderAdapter, BurnEncoderAdapterArc};
+pub use pool::BackendPool;
+pub use router::{llamacpp_supports_architecture, select_backend};
+pub use voice::{AudioDecoderBackend, AudioSamples, SttBackend, TtsBackend};
+pub use voice_pool::VoicePool;

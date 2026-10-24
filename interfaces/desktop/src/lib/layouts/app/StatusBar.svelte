@@ -6,7 +6,7 @@
   Status bar with progressive boot display.
   During boot: shows per-subsystem status with latencies and icons.
   After boot: shows connection status, uptime, version.
-  DEV_MODE: raw tech labels (LibSQL, SurrealDB, DuckDB, Moka).
+  DEV_MODE: raw tech labels (Turso, SurrealDB, DuckDB, Moka).
   PROD: friendly labels (Data Store, Cortex, Analytics Engine, Memory Cache).
 
   Per-subsystem details — tech name, category, Clyffy narration — live
@@ -27,11 +27,15 @@
 }
 -->
 <script lang="ts">
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Text } from "$lib/design/components/text/index.js";
-import { hstack } from "$lib/design/utils/hstack/index.js";
-import { formatMb, hardwareState } from "$lib/domains/app/models/index.js";
-import { clyffyConnection } from "$lib/domains/clyffy/status/connection.state.svelte.js";
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Text } from "@devpulse/coldlight/components/text";
+import { hstack } from "@devpulse/coldlight/utils";
+import {
+	formatMb,
+	hardwareState,
+	isInferenceReady,
+	modelsState,
+} from "$lib/domains/app/models/index.js";
 import { DEV_MODE } from "$lib/sys/generated/terminology.js";
 import { platformState } from "$lib/sys/runes/platformState.svelte.js";
 import { groupSubsystems } from "./StatusBar.types.js";
@@ -40,19 +44,17 @@ import SubsystemBadge from "./SubsystemBadge.svelte";
 const APP_VERSION = "0.1.0";
 
 const subsystems = $derived(platformState.subsystemList());
+const brainStatus = $derived(modelsState.statuses["chat.brain"]);
+const brainLoaded = $derived(brainStatus !== undefined && isInferenceReady(brainStatus));
 const subsystemGroups = $derived(groupSubsystems(subsystems));
 
 // Subscribe to live hardware telemetry so the VRAM badge has real data.
 // Ref-counted via createTauriEvent — shared with dashboard and any other
 // active subscriber; detaches automatically when StatusBar unmounts.
 $effect(() => hardwareState.subscribe("statusbar"));
-
-// Subscribe to the Clyffy wire connection so the AI-layer badge (the no-AI
-// indicator) reflects the live ConnectionState. Ref-counted; detaches on unmount.
-$effect(() => clyffyConnection.subscribe());
 </script>
 
-<div class="statusbar-surface flex h-full w-full items-center justify-between px-4 py-1" aria-label="System status">
+<div class="statusbar-surface flex w-full items-center justify-between" aria-label="System status">
 	{#if platformState.isBooting}
 		<!-- Boot progress mode — grouped subsystems with per-badge tooltips -->
 		<div class={hstack({ gap: "2", align: "center" })}>
@@ -112,31 +114,15 @@ $effect(() => clyffyConnection.subscribe());
 				<Text size="xs" color="secondary">{platformState.connectionStatus}</Text>
 			</Badge>
 
-			<!-- AI-layer segment — the no-AI indicator. DevPulse runs standalone
-			     (Tier-1, Turso only); the AI layer (Clyffy on the GB10) is a
-			     CONNECTION, not a local component, so "Standalone" is a valid mode,
-			     never an error. Sourced from the devpulse-gb10-client wire
-			     ConnectionState.tier2_available() — capability computed, never
-			     hardcoded (see systems/devpulse-gb10-client/SPEC.md). -->
-			<Badge variant={clyffyConnection.tier2Available ? "positive" : "neutral"} size="sm" class="gap-1">
+			<!-- Model status segment -->
+			<Badge variant={brainLoaded ? "positive" : "neutral"} size="sm" class="gap-1">
 				<span
 					class="status-dot h-1.5 w-1.5 rounded-full"
-					data-subsystem-state={clyffyConnection.tier2Available ? "ready" : "pending"}
+					data-subsystem-state={brainLoaded ? "ready" : "pending"}
 					aria-hidden="true"
 				></span>
-				<Text size="xs" color="secondary">{clyffyConnection.tier2Available ? "AI: Clyffy" : "AI"}</Text>
+				<Text size="xs" color="secondary">Brain: {brainLoaded ? "ON" : "OFF"}</Text>
 			</Badge>
-			<!-- Endpoint-metadata chip — surfaces what the live handshake
-			     reported (kind/version/short sha). Renders only while
-			     connected; every field is capability-computed. -->
-			{#if clyffyConnection.capability}
-				{@const cap = clyffyConnection.capability}
-				<Badge variant="neutral" size="sm">
-					<Text size="xs" color="muted">
-						{cap.kind} v{cap.version}{cap.build_sha ? ` · ${cap.build_sha}` : ""}
-					</Text>
-				</Badge>
-			{/if}
 			{#if hardwareState.hasGpu}
 				<Badge variant="neutral" size="sm">
 					<Text size="xs" color="muted">VRAM: {formatMb(hardwareState.vramUsedMb ?? 0)}/{formatMb(hardwareState.vramTotalMb ?? 0)}</Text>
@@ -166,15 +152,12 @@ $effect(() => clyffyConnection.subscribe());
 </div>
 
 <style>
-	/* Statusbar zone surface — colocated, pulling from ColdLight style tokens
-	   (the generated ingredients). Deep glass via the semantic --surface-overlay
-	   role, inset bevel + dot glow, hairline top edge. No raw literals. */
 	.statusbar-surface {
-		background: var(--surface-overlay);
+		background: var(--glass-deep);
 		backdrop-filter: blur(var(--blur-lg));
 		-webkit-backdrop-filter: blur(var(--blur-lg));
 		box-shadow: inset var(--bevel-subtle), var(--glow-dot-sm);
-		border-top: 0.0625rem solid var(--border-soft);
+		border-radius: 0;
 	}
 
 	.status-dot {

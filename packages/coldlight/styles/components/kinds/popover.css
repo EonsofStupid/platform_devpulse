@@ -1,0 +1,128 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+[data-kind="popover"][data-slot="content"] {
+	--popover-border-style: solid;
+	--popover-border-width: 0.0625rem;
+	--popover-border-radius: var(--radius-md);
+	border-style: var(--popover-border-style);
+	border-width: var(--popover-border-width);
+	border-radius: var(--popover-border-radius);
+	background-color: var(--popover-background-color);
+	box-shadow: var(--popover-box-shadow);
+	color: var(--popover-color);
+	border-color: var(--popover-border-color);
+	opacity: var(--popover-opacity);
+	animation: var(--popover-animation);
+	transition-duration: var(--popover-transition-duration);
+	transition-timing-function: var(--popover-transition-timing-function);
+	background-image: var(--popover-gradient);
+	font-family: var(--popover-font-family);
+	font-size: var(--popover-font-size);
+	font-weight: var(--popover-font-weight);
+	letter-spacing: var(--popover-letter-spacing);
+	line-height: var(--popover-line-height);
+}
+
+[data-kind="popover"][data-slot="content"][data-variant="elevated"] {
+	--popover-background-color: var(--surface-role-elevated-background-color);
+	--popover-box-shadow: var(--surface-role-elevated-box-shadow);
+	--popover-color: var(--surface-role-elevated-color);
+	--popover-border-color: var(--surface-role-elevated-border-color);
+	--popover-opacity: var(--surface-role-elevated-opacity);
+	--popover-animation: var(--surface-role-elevated-animation);
+	--popover-transition-duration: var(--surface-role-elevated-transition-duration);
+	--popover-transition-timing-function: var(--surface-role-elevated-transition-timing-function);
+	--popover-gradient: var(--surface-role-elevated-gradient);
+	--popover-font-family: var(--surface-role-elevated-font-family);
+	--popover-font-size: var(--surface-role-elevated-font-size);
+	--popover-font-weight: var(--surface-role-elevated-font-weight);
+	--popover-letter-spacing: var(--surface-role-elevated-letter-spacing);
+	--popover-line-height: var(--surface-role-elevated-line-height);
+}
+
+[data-kind="popover"][data-slot="content"][data-variant="deep"] {
+	--popover-background-color: var(--surface-role-deep-background-color);
+	--popover-box-shadow: var(--surface-role-deep-box-shadow);
+	--popover-color: var(--surface-role-deep-color);
+	--popover-border-color: var(--surface-role-deep-border-color);
+	--popover-opacity: var(--surface-role-deep-opacity);
+	--popover-animation: var(--surface-role-deep-animation);
+	--popover-transition-duration: var(--surface-role-deep-transition-duration);
+	--popover-transition-timing-function: var(--surface-role-deep-transition-timing-function);
+	--popover-gradient: var(--surface-role-deep-gradient);
+	--popover-font-family: var(--surface-role-deep-font-family);
+	--popover-font-size: var(--surface-role-deep-font-size);
+	--popover-font-weight: var(--surface-role-deep-font-weight);
+	--popover-letter-spacing: var(--surface-role-deep-letter-spacing);
+	--popover-line-height: var(--surface-role-deep-line-height);
+}
+
+[data-kind="popover"][data-slot="content"][data-variant="minimal"] {
+	--popover-background-color: var(--surface-role-minimal-background-color);
+	--popover-box-shadow: var(--surface-role-minimal-box-shadow);
+	--popover-color: var(--surface-role-minimal-color);
+	--popover-border-color: var(--surface-role-minimal-border-color);
+	--popover-opacity: var(--surface-role-minimal-opacity);
+	--popover-animation: var(--surface-role-minimal-animation);
+	--popover-transition-duration: var(--surface-role-minimal-transition-duration);
+	--popover-transition-timing-function: var(--surface-role-minimal-transition-timing-function);
+	--popover-gradient: var(--surface-role-minimal-gradient);
+	--popover-font-family: var(--surface-role-minimal-font-family);
+	--popover-font-size: var(--surface-role-minimal-font-size);
+	--popover-font-weight: var(--surface-role-minimal-font-weight);
+	--popover-letter-spacing: var(--surface-role-minimal-letter-spacing);
+	--popover-line-height: var(--surface-role-minimal-line-height);
+}
+
+[data-kind="popover"][data-slot="content"][data-variant="solid"] {
+	--popover-background-color: var(--surface-role-solid-background-color);
+	--popover-box-shadow: var(--surface-role-solid-box-shadow);
+	--popover-color: var(--surface-role-solid-color);
+	--popover-border-color: var(--surface-role-solid-border-color);
+	--popover-opacity: var(--surface-role-solid-opacity);
+	--popover-animation: var(--surface-role-solid-animation);
+	--popover-transition-duration: var(--surface-role-solid-transition-duration);
+	--popover-transition-timing-function: var(--surface-role-solid-transition-timing-function);
+	--popover-gradient: var(--surface-role-solid-gradient);
+	--popover-font-family: var(--surface-role-solid-font-family);
+	--popover-font-size: var(--surface-role-solid-font-size);
+	--popover-font-weight: var(--surface-role-solid-font-weight);
+	--popover-letter-spacing: var(--surface-role-solid-letter-spacing);
+	--popover-line-height: var(--surface-role-solid-line-height);
+}
+
+[data-kind="popover"][data-slot="content"][data-variant="glow"] {
+	--popover-background-color: var(--surface-role-glow-background-color);
+	--popover-box-shadow: var(--surface-role-glow-box-shadow);
+	--popover-color: var(--surface-role-glow-color);
+	--popover-border-color: var(--surface-role-glow-border-color);
+	--popover-opacity: var(--surface-role-glow-opacity);
+	--popover-animation: var(--surface-role-glow-animation);
+	--popover-transition-duration: var(--surface-role-glow-transition-duration);
+	--popover-transition-timing-function: var(--surface-role-glow-transition-timing-function);
+	--popover-gradient: var(--surface-role-glow-gradient);
+	--popover-font-family: var(--surface-role-glow-font-family);
+	--popover-font-size: var(--surface-role-glow-font-size);
+	--popover-font-weight: var(--surface-role-glow-font-weight);
+	--popover-letter-spacing: var(--surface-role-glow-letter-spacing);
+	--popover-line-height: var(--surface-role-glow-line-height);
+}
+
+[data-kind="popover"][data-slot="content"][data-variant="muted"] {
+	--popover-background-color: var(--surface-role-muted-background-color);
+	--popover-box-shadow: var(--surface-role-muted-box-shadow);
+	--popover-color: var(--surface-role-muted-color);
+	--popover-border-color: var(--surface-role-muted-border-color);
+	--popover-opacity: var(--surface-role-muted-opacity);
+	--popover-animation: var(--surface-role-muted-animation);
+	--popover-transition-duration: var(--surface-role-muted-transition-duration);
+	--popover-transition-timing-function: var(--surface-role-muted-transition-timing-function);
+	--popover-gradient: var(--surface-role-muted-gradient);
+	--popover-font-family: var(--surface-role-muted-font-family);
+	--popover-font-size: var(--surface-role-muted-font-size);
+	--popover-font-weight: var(--surface-role-muted-font-weight);
+	--popover-letter-spacing: var(--surface-role-muted-letter-spacing);
+	--popover-line-height: var(--surface-role-muted-line-height);
+}

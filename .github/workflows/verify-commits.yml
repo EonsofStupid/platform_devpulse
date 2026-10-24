@@ -1,0 +1,133 @@
+name: Verify commits
+
+# Builds and tests every commit in a push, one at a time, on the self-hosted
+# Windows runner, so each commit on the line is known to compile and pass,
+# not just the tip.
+
+on:
+  push:
+    branches: [restore/pre-gb10, "feat/**"]
+  workflow_dispatch:
+    inputs:
+      base:
+        description: "Verify the commits after this one (sha or ref)"
+        required: true
+
+concurrency:
+  group: verify-commits-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_PROFILE_DEV_DEBUG: "0"
+
+# actions: read lets a run find the last commit a successful run verified.
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  verify:
+    name: Build and test each commit
+    runs-on: [self-hosted, Windows, dpl-win]
+    timeout-minutes: 720
+    defaults:
+      run:
+        shell: bash
+    steps:
+      # Git for Windows is installed on the runner, but only its cmd/ folder is
+      # on the service account's PATH. GITHUB_PATH prepends its bin/ for every
+      # later step, ahead of any WSL bash.exe.
+      - name: Put Git Bash on PATH
+        shell: powershell
+        run: Add-Content -Path $env:GITHUB_PATH -Value "C:\Program Files\Git\bin"
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          # Older commits in the range still compile their vendored
+          # submodules; from plan 0007 stage 1 on, nothing needs them.
+          submodules: recursive
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Use sccache when the runner has it
+        run: |
+          if command -v sccache >/dev/null 2>&1; then
+            sccache --version
+          else
+            echo "sccache not installed on this runner; building without it"
+            echo "RUSTC_WRAPPER=" >> "$GITHUB_ENV"
+          fi
+
+      - name: Commits to verify
+        env:
+          BASE_INPUT: ${{ github.event.inputs.base }}
+          # Repository variable: set it to re-verify a range on the next push
+          # (manual dispatch only works once this workflow is on main).
+          VERIFY_BASE: ${{ vars.VERIFY_BASE }}
+          BEFORE: ${{ github.event.before }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Start after the last commit a successful run verified, not after
+          # this push's `before`: a push that lands while a run is going
+          # cancels the run still pending, and its commits would be skipped.
+          last_ok=$(node --input-type=module -e '
+            const { GITHUB_API_URL: api, GITHUB_REPOSITORY: repo, GITHUB_REF_NAME: ref, GH_TOKEN: token } = process.env;
+            const url = `${api}/repos/${repo}/actions/workflows/verify-commits.yml/runs?branch=${encodeURIComponent(ref)}&status=success&per_page=1`;
+            try {
+              const res = await fetch(url, { headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json" } });
+              const body = res.ok ? await res.json() : {};
+              process.stdout.write(body.workflow_runs?.[0]?.head_sha ?? "");
+            } catch (e) {
+              console.error(`last verified commit not found: ${e.message}`);
+            }
+          ')
+          echo "Last commit a successful run verified: ${last_ok:-none}"
+          base="${BASE_INPUT:-${VERIFY_BASE:-$last_ok}}"
+          if [ -z "$base" ] || ! git merge-base --is-ancestor "$base" HEAD 2>/dev/null; then
+            base="$BEFORE"
+          fi
+          if [ -z "$base" ] || [ "$base" = "0000000000000000000000000000000000000000" ]; then
+            base=$(git merge-base origin/main HEAD)
+          fi
+          git rev-list --reverse "$base..HEAD" > "$RUNNER_TEMP/commits.txt"
+          echo "Verifying $(wc -l < "$RUNNER_TEMP/commits.txt") commits after $base:"
+          git log --oneline --reverse "$base..HEAD"
+
+      - name: Build and test each commit
+        run: |
+          set -euo pipefail
+          tip=$(git rev-parse HEAD)
+          while read -r c; do
+            echo "::group::$(git log -1 --format='%h %s' "$c")"
+            git checkout -q "$c"
+            git submodule update --init --recursive -q
+            cargo fmt --all -- --check
+            cargo check --workspace
+            cargo test -p devpulse-engine -p devpulse-clyffy
+            pnpm install --frozen-lockfile
+            (cd interfaces/desktop && pnpm exec svelte-kit sync && pnpm exec svelte-check --threshold error)
+            # ColdLight is its own package from plan 0006 C2 on.
+            if [ -f packages/coldlight/package.json ]; then
+              (cd packages/coldlight && pnpm exec svelte-check --threshold error)
+            fi
+            # Architecture tests: IP boundary, the route manifest against the
+            # route folders, route names, devtools folders (plan 0008).
+            (cd interfaces/desktop && pnpm -s test:arch)
+            if [ -f scripts/hooks/no-hand-typed-routes.mjs ]; then
+              node scripts/hooks/no-hand-typed-routes.mjs --all
+            fi
+            echo "::endgroup::"
+          done < "$RUNNER_TEMP/commits.txt"
+          git checkout -q "$tip"
+
+      - name: Tip only - clippy and Biome
+        run: |
+          cargo xtask clippy --workspace
+          (cd interfaces/desktop && pnpm exec biome check .)
+          (cd packages/coldlight && pnpm exec biome check .)

@@ -37,14 +37,14 @@
 	save-button label, badge tone, and disabled state.
 -->
 <script lang="ts">
-import { Check, Pencil } from "@lucide/svelte";
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Heading } from "@devpulse/coldlight/components/heading";
+import { KeyValue } from "@devpulse/coldlight/components/key-value";
+import { Spinner } from "@devpulse/coldlight/components/spinner";
+import { Text } from "@devpulse/coldlight/components/text";
+import { Check, Pencil } from "lucide-svelte";
 import type { Component } from "svelte";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Button } from "$lib/design/components/button/index.js";
-import { Heading } from "$lib/design/components/heading/index.js";
-import { KeyValue } from "$lib/design/components/key-value/index.js";
-import { Spinner } from "$lib/design/components/spinner/index.js";
-import { Text } from "$lib/design/components/text/index.js";
 
 export type SaveState = "ready" | "saving" | "saved" | "error";
 
@@ -159,7 +159,7 @@ const buttonLabel = $derived(
 		<footer class="slot-footer">
 			<div class="footer-left">
 				{#if onPickDifferent && state !== "saving"}
-					<Button preset="ghost" size="sm" onclick={onPickDifferent}>
+					<Button variant="ghost" size="sm" onclick={onPickDifferent}>
 						<Pencil size={12} />
 						Pick a different one
 					</Button>
@@ -171,7 +171,7 @@ const buttonLabel = $derived(
 				{/if}
 			</div>
 			<Button
-				preset={state === "saved" ? "ghost" : "primary"}
+				variant={state === "saved" ? "ghost" : "primary"}
 				size="md"
 				onclick={onSave}
 				disabled={state === "saving" || state === "saved"}

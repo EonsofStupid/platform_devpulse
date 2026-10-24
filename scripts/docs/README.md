@@ -1,15 +1,6 @@
 # DevPulse Documentation Enforcement System
 
 > Enterprise documentation and architecture enforcement for DevPulse platform.
->
-> **⚠ Kernel references in this tree are historical.** The sprint docs, specs,
-> and ADRs under `scripts/docs/` span eras; the AI layer (connectome, model
-> loading/inference, RRD) left this repo on 2026-07-08 and lives at
-> `github.com/EonsofStupid/clyffyos`. Any `kernel/…` path or `devpulse-clyffy`
-> crate reference predates that cut — read it as project memory, not a working
-> path. Active sprints in here remain active; this marker does not declare the
-> folder dead. Current truth: `docs/platform/CLYFFYOS_DEVPULSE_SEPARATION.md`
-> + `ARCHITECTURE.md`.
 
 ## Quick Start
 

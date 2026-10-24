@@ -21,7 +21,7 @@ pub async fn sherpa_compile_info(
     Ok(devpulse_engine::platform::SherpaStreamingService::compile_info())
 }
 
-/// List installed streaming-ASR models under `{data_dir}/models/sherpa/`.
+/// List installed streaming-ASR models under `{models}/sherpa/`.
 #[tauri::command]
 #[specta::specta]
 #[allow(clippy::missing_errors_doc)]
@@ -126,7 +126,7 @@ pub async fn sherpa_list_sessions(
 }
 
 /// Return the absolute path of the models root
-/// (`{data_dir}/models/sherpa/`). The devtool shows this so users
+/// (`{models}/sherpa/`). The devtool shows this so users
 /// know where to manually drop model dirs.
 #[tauri::command]
 #[specta::specta]

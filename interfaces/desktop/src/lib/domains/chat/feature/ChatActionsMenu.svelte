@@ -2,7 +2,7 @@
   @feature ChatActionsMenu — delete / clear / export
 -->
 <script lang="ts">
-import { Button } from "$lib/design/components/button/index.js";
+import { Button } from "@devpulse/coldlight/components/button";
 import { chatState } from "../data-access/chat.state.svelte.js";
 import { sessionsState } from "../data-access/sessions.state.svelte.js";
 import DeleteConfirmDialog from "./DeleteConfirmDialog.svelte";
@@ -16,7 +16,7 @@ let exportAll = $state(false);
 
 <div class="flex items-center gap-1">
 	<Button
-		preset="ghost"
+		variant="ghost"
 		size="sm"
 		onclick={() => {
 			exportAll = false;
@@ -26,7 +26,7 @@ let exportAll = $state(false);
 		Export
 	</Button>
 	<Button
-		preset="ghost"
+		variant="ghost"
 		size="sm"
 		onclick={() => {
 			exportAll = true;
@@ -35,8 +35,8 @@ let exportAll = $state(false);
 	>
 		Export all
 	</Button>
-	<Button preset="ghost" size="sm" onclick={() => (showDelete = true)}>Delete session</Button>
-	<Button preset="danger" size="sm" onclick={() => (showClear = true)}>Clear all</Button>
+	<Button variant="ghost" size="sm" onclick={() => (showDelete = true)}>Delete session</Button>
+	<Button variant="danger" size="sm" onclick={() => (showClear = true)}>Clear all</Button>
 </div>
 
 <DeleteConfirmDialog

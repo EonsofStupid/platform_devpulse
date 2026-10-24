@@ -15,12 +15,7 @@
  */
 
 import StyleDictionary from 'style-dictionary';
-import {
-	fileHeader,
-	createPropertyFormatter,
-	usesReferences,
-	getReferences,
-} from 'style-dictionary/utils';
+import { fileHeader, createPropertyFormatter } from 'style-dictionary/utils';
 import {
 	transforms,
 	transformTypes,
@@ -29,6 +24,10 @@ import {
 	logWarningLevels,
 	logBrokenReferenceLevels,
 } from 'style-dictionary/enums';
+import { readdirSync, existsSync } from 'node:fs';
+import { kindCss, kindTokenFilter, readKindFile } from './kind-css.mjs';
+import { resolveExtends } from './preprocess-extends.mjs';
+import { readFamilies, scopeOf, surfaceScopesCss } from './surface-scopes.mjs';
 
 // ═══════════════════════════════════════════════════════════════
 // COLDLIGHT CUSTOM NAMES — constants, zero raw strings
@@ -37,11 +36,12 @@ import {
 
 /** Custom format names — ColdLight extensions to SD5 */
 const clFormats = {
+	kindCss: 'coldlight/kind-css',
+	surfaceScopes: 'coldlight/surface-scopes',
 	css: 'coldlight/css',
 	tailwindTheme: 'coldlight/tailwind-theme',
 	types: 'coldlight/types',
 	manifest: 'coldlight/manifest',
-	keyframes: 'coldlight/keyframes',
 };
 
 /** Custom transform names */
@@ -61,12 +61,8 @@ const DP_EXT = 'com.devpulse.coldlight';
 
 /** Custom preprocessor names */
 const clPreprocessors = {
+	resolveExtends: 'coldlight/resolve-extends',
 	captureExtensions: 'coldlight/capture-extensions',
-};
-
-/** Custom parser names */
-const clParsers = {
-	stripRootDescription: 'coldlight/strip-root-description',
 };
 
 /** DTCG $extensions namespace */
@@ -110,7 +106,7 @@ const tiers = {
 		'zIndex', 'font', 'fontFeatureSettings', 'fontVariationSettings',
 		'textSize', 'leading', 'tracking',
 		'motion', 'gradient', 'layout',
-		'font-size', 'depth', 'duration', 'easing', 'animation', 'keyframes',
+		'font-size', 'depth', 'duration', 'easing', 'animation',
 		'opacity', 'outlineOffset', 'borderWidth', 'borderRise',
 		'z-index',
 	],
@@ -119,11 +115,12 @@ const tiers = {
 		'interaction', 'overlay', 'scrollbar', 'backdrop', 'textStyle',
 		'text', 'signal', 'accent',
 		// Tier-2 role bindings (intent layer — primary/secondary/state/muted)
-		'primary', 'secondary', 'danger', 'success', 'warning', 'info', 'muted', 'cta',
+		'primary', 'secondary', 'danger', 'success', 'warning', 'info', 'muted',
 		// New DTCG semantic roots
 		'glass-blur', 'backdrop-glow', 'backdrop-grid',
 		'backdrop-grid-line', 'backdrop-grid-size',
 		'gradient-duration', 'scrollbar-size', 'chat', 'wizard', 'claude',
+		'iconSize',
 	],
 };
 
@@ -138,13 +135,12 @@ const layers = {
 const tw4Remap = {
 	topLevel: {
 		bevel: 'inset-shadow',
-		// glow → 'drop-shadow' remap REMOVED (P2.3): drop-shadow() cannot
-		// carry spread, so the Tailwind registration was semantically wrong
-		// and had zero consumers. Glow emits only as --glow-* in styles/.
+		glow: 'drop-shadow',
 		textSize: 'text',
 		space: 'spacing',
-		layout: 'spacing',
 		zIndex: 'z',
+		// Icon box sizes are layout: Tailwind's spacing namespace gives `size-icon-*`.
+		iconSize: 'spacing-icon',
 	},
 	nested: {
 		'motion.ease': 'ease',
@@ -154,13 +150,34 @@ const tw4Remap = {
 
 /**
  * Build paths (relative to CWD = interfaces/desktop/).
- * Token CSS only → design/styles + design/theme + design/types + manifest/token-manifest.json.
+ * Token CSS only → design/styles + design/theme + design/types + generated/token-manifest.json.
  * SVG preset vars → design/svg/presets. Do not emit non-token glue here.
  */
 const paths = {
 	source: 'scripts/build/styledictionary/tokens/src',
-	design: 'src/lib/design',
+	design: '../../packages/coldlight',
 };
+
+/** Every component folder with a `<kind>.tokens.json` whose top group is the kind (plan 0006 §0s). */
+export const KIND_FILES = readdirSync(`${paths.design}/components`, { withFileTypes: true })
+	.filter((d) => d.isDirectory() && existsSync(`${paths.design}/components/${d.name}/${d.name}.tokens.json`))
+	.flatMap((d) => {
+		const path = `${paths.design}/components/${d.name}/${d.name}.tokens.json`;
+		const read = readKindFile(path, d.name);
+		return read ? [{ kind: d.name, path, ...read }] : [];
+	});
+
+/** A token of a kind file's own group; path-based, since inherited tokens keep their family file's path. */
+const isKindToken = kindTokenFilter(new Set(KIND_FILES.map(({ kind }) => kind)));
+
+/** The families (plan 0006 §0s, D1), from the preset files. */
+export const SURFACE_FAMILIES = readFamilies();
+
+/** The roles and axes a kind's variant can read from the family in scope. */
+const SURFACE_SCOPE = scopeOf(SURFACE_FAMILIES);
+
+/** The family at the root until the Provider writes `data-surface` (today's `default` → neuro-elevated). */
+export const SURFACE_DEFAULT = 'neuro';
 
 // ═══════════════════════════════════════════════════════════════
 // PATH-BASED FILTERING
@@ -174,7 +191,9 @@ const pathFilter =
 const isPrimitive = pathFilter(...tiers.primitive);
 const isSemantic = pathFilter(...tiers.semantic);
 const isSvgPreset = pathFilter('svg-style');
-const isComponent = (token) => !isPrimitive(token) && !isSemantic(token) && !isSvgPreset(token);
+// A kind file's own group becomes that kind's CSS (css-kinds), not :root variables.
+const isComponent = (token) =>
+	!isPrimitive(token) && !isSemantic(token) && !isSvgPreset(token) && !isKindToken(token);
 
 // ═══════════════════════════════════════════════════════════════
 // $EXTENSIONS HELPERS
@@ -360,15 +379,9 @@ StyleDictionary.registerTransform({
 		const maxRem = maxPx / 16;
 		const slope = (maxPx - minPx) / (maxVwPx - minVwPx);
 		const intercept = (minPx - slope * minVwPx) / 16;
-		const slopePct = (slope * 100).toFixed(4);
+		const vw = (slope * 100).toFixed(4);
 		const base = intercept.toFixed(4);
-		// S1.C container-fluid: `basis: "container"` interpolates on the
-		// nearest container's inline size (cqi) instead of the viewport
-		// (vw). With no `container-type` ancestor, cqi falls back to the
-		// small viewport — container contexts are declared on the shell
-		// zones / overlays / chat frame (see S1-FLUID-TOKENS.md § S1.C).
-		const unit = f.basis === 'container' ? 'cqi' : 'vw';
-		return `clamp(${minRem}rem, ${base}rem + ${slopePct}${unit}, ${maxRem}rem)`;
+		return `clamp(${minRem}rem, ${base}rem + ${vw}vw, ${maxRem}rem)`;
 	},
 });
 
@@ -409,27 +422,20 @@ StyleDictionary.registerTransform({
 			}
 			return pxToRem(d);
 		};
-		// DTCG color object → oklch() (hex is the FALLBACK, not the value —
-		// checking hex first silently dropped every shadow/glow/bevel color
-		// out of the OKLCH system; audit 2026-07-11, fixed P2.3).
+		// DTCG color object → hex(+alpha)
 		const col = (c) => {
 			if (isPlainObj(c)) {
-				if (c.colorSpace === 'oklch' && Array.isArray(c.components)) {
-					const [l, ch, h] = c.components;
-					const alpha = typeof c.alpha === 'number' && c.alpha < 1 ? ` / ${c.alpha}` : '';
-					return `oklch(${l} ${ch} ${h}${alpha})`;
-				}
-				if (c.colorSpace === 'srgb' && Array.isArray(c.components)) {
-					const [r, g, b] = c.components;
-					const h = (n) => Math.round(Math.max(0, Math.min(1, n)) * 255).toString(16).padStart(2, '0');
-					return `#${h(r)}${h(g)}${h(b)}`;
-				}
 				if (typeof c.hex === 'string') {
 					if (typeof c.alpha === 'number' && c.alpha < 1) {
 						const a = Math.round(c.alpha * 255);
 						return `${c.hex}${a.toString(16).padStart(2, '0')}`;
 					}
 					return c.hex;
+				}
+				if (c.colorSpace === 'srgb' && Array.isArray(c.components)) {
+					const [r, g, b] = c.components;
+					const h = (n) => Math.round(Math.max(0, Math.min(1, n)) * 255).toString(16).padStart(2, '0');
+					return `#${h(r)}${h(g)}${h(b)}`;
 				}
 			}
 			return c;
@@ -460,34 +466,6 @@ StyleDictionary.registerTransform({
 // This converts to linear-gradient() CSS shorthand.
 // ═══════════════════════════════════════════════════════════════
 
-/** Hex color + DTCG alpha channel → #rrggbb[aa]. */
-const hexWithAlpha = (hex, alpha) => {
-	if (typeof alpha !== 'number' || alpha >= 1) return hex;
-	return `${hex}${Math.round(alpha * 255).toString(16).padStart(2, '0')}`;
-};
-
-/**
- * DTCG gradient stop color → CSS color. The oklch components ARE the
- * designed value — the hex sibling is a lossy preview fallback and must
- * never win over the real color (it was flattening every designed
- * gradient to near-black).
- */
-const gradientStopColor = (c) => {
-	if (!isPlainObj(c)) return c;
-	if (c.colorSpace === 'oklch' && Array.isArray(c.components)) {
-		const [l, ch, h] = c.components;
-		const alpha = typeof c.alpha === 'number' && c.alpha < 1 ? ` / ${c.alpha}` : '';
-		return `oklch(${l} ${ch} ${h}${alpha})`;
-	}
-	if (typeof c.hex === 'string') return hexWithAlpha(c.hex, c.alpha);
-	if (c.colorSpace === 'srgb' && Array.isArray(c.components)) {
-		const [r, g, b] = c.components;
-		const to255 = (n) => Math.round(Math.max(0, Math.min(1, n)) * 255).toString(16).padStart(2, '0');
-		return `#${to255(r)}${to255(g)}${to255(b)}`;
-	}
-	return c;
-};
-
 StyleDictionary.registerTransform({
 	name: clTransforms.gradientCssShorthand,
 	type: transformTypes.value,
@@ -497,23 +475,37 @@ StyleDictionary.registerTransform({
 		const val = token.$value ?? token.value;
 		if (!Array.isArray(val)) return val;
 
+		const colorOf = (c) => {
+			if (isPlainObj(c)) {
+				if (typeof c.hex === 'string') {
+					if (typeof c.alpha === 'number' && c.alpha < 1) {
+						const a = Math.round(c.alpha * 255);
+						return `${c.hex}${a.toString(16).padStart(2, '0')}`;
+					}
+					return c.hex;
+				}
+				if (c.colorSpace === 'srgb' && Array.isArray(c.components)) {
+					const [r, g, b] = c.components;
+					const h = (n) => Math.round(Math.max(0, Math.min(1, n)) * 255).toString(16).padStart(2, '0');
+					return `#${h(r)}${h(g)}${h(b)}`;
+				}
+			}
+			return c;
+		};
+
 		const stops = val
 			.map((stop) => {
 				const pos = typeof stop.position === 'number'
 					? ` ${stop.position * 100}%`
 					: '';
-				return `${gradientStopColor(stop.color)}${pos}`;
+				return `${colorOf(stop.color)}${pos}`;
 			})
 			.join(', ');
 
-		// Tokens author the angle as a bare number (180); CSS requires a
-		// unit — a unitless angle invalidates the whole declaration and
-		// killed every designed gradient at parse time.
-		const rawAngle =
+		const angle =
 			token.$extensions?.[DP_EXT]?.gradient?.angle
 			?? token.$extensions?.[CL_EXT]?.angle
 			?? '135deg';
-		const angle = typeof rawAngle === 'number' ? `${rawAngle}deg` : rawAngle;
 		return `linear-gradient(${angle}, ${stops})`;
 	},
 });
@@ -527,19 +519,11 @@ StyleDictionary.registerTransform({
 // into the groupExtensions map so custom formats can read them.
 // ═══════════════════════════════════════════════════════════════
 
-// Every token source file self-documents with a ROOT-level $description
-// (129 files — the house convention). SD merges all sources into one tree,
-// so those root keys collide pairwise and SD warns on every build. The
-// descriptions are per-FILE documentation, not tokens: strip them at parse
-// time so the merge is silent and the file convention stays.
-StyleDictionary.registerParser({
-	name: clParsers.stripRootDescription,
-	pattern: /\.json$/,
-	parser: ({ contents }) => {
-		const data = JSON.parse(contents);
-		delete data.$description;
-		return data;
-	},
+// DTCG 2025.10 §6.4 group inheritance (`$extends`), resolved before any
+// other step so inherited groups carry their metadata too (plan 0006 0s.3).
+StyleDictionary.registerPreprocessor({
+	name: clPreprocessors.resolveExtends,
+	preprocessor: (dictionary) => resolveExtends(dictionary),
 });
 
 StyleDictionary.registerPreprocessor({
@@ -662,41 +646,29 @@ function toTw4VarName(token) {
 	return `--${token.name}`;
 }
 
-/**
- * Tailwind v4 theme namespaces (tailwindcss.com/docs/theme). A `@theme` var only
- * mints a utility if its name begins with one of these; anything else is inert.
- */
-const TW4_NAMESPACES = [
-	'--color-',
-	'--font-weight-',
-	'--font-',
-	'--text-',
-	'--tracking-',
-	'--leading-',
-	'--tab-size-',
-	'--breakpoint-',
-	'--container-',
-	'--spacing-',
-	'--radius-',
-	'--inset-shadow-',
-	'--drop-shadow-',
-	'--shadow-',
-	'--blur-',
-	'--perspective-',
-	'--zoom-',
-	'--aspect-',
-	'--ease-',
-	'--animate-',
-];
-
-/** True if `name` lands on a real Tailwind v4 theme namespace. */
-const isTw4Namespace = (name) => TW4_NAMESPACES.some((p) => name.startsWith(p));
-
 // ═══════════════════════════════════════════════════════════════
 // CUSTOM FORMAT: coldlight/css
 //
 // CSS custom properties wrapped in @layer tokens.{sublayer}.
 // ═══════════════════════════════════════════════════════════════
+
+// One kind's CSS from its colocated tokens file (plan 0006 §0s; see kind-css.mjs).
+StyleDictionary.registerFormat({
+	name: clFormats.kindCss,
+	format: async ({ dictionary, file, options }) => {
+		const header = await fileHeader({ file });
+		return `${header}${kindCss(dictionary, options.kind, options.meta, options.group, options.scope)}\n`;
+	},
+});
+
+// The family scope: each family's roles as --surface-role-* under [data-surface] (see surface-scopes.mjs).
+StyleDictionary.registerFormat({
+	name: clFormats.surfaceScopes,
+	format: async ({ dictionary, file, options }) => {
+		const header = await fileHeader({ file });
+		return `${header}${surfaceScopesCss(dictionary, options.families, options.surfaceDefault)}\n`;
+	},
+});
 
 StyleDictionary.registerFormat({
 	name: clFormats.css,
@@ -731,61 +703,21 @@ StyleDictionary.registerFormat({
 
 StyleDictionary.registerFormat({
 	name: clFormats.tailwindTheme,
-	format: async ({ dictionary, file }) => {
+	format: async ({ dictionary, file, options }) => {
 		const header = await fileHeader({ file });
-		const literals = [];
-		const refs = [];
-
-		// Whole-value `{ref}` tokens emit as live var() pointers so a
-		// primitive rebind propagates through the @theme copy instead of
-		// being frozen into a flattened literal (audit finding F5).
-		// Tailwind requires the `inline` option for var()-valued theme
-		// variables (tailwindcss.com/docs/theme) — utilities then resolve
-		// at the use site.
-		const WHOLE_REF = /^\{[^}]+\}$/;
+		const lines = [];
 
 		for (const token of dictionary.allTokens) {
 			if (isComponent(token)) continue;
 
 			const name = toTw4VarName(token);
-
-			// F9 namespace guard: theme/ registers Tailwind utilities ONLY. A name
-			// that is not a Tailwind v4 namespace mints no utility and would place an
-			// UNLAYERED copy over the layered styles/ value — the 644-collision
-			// cascade bug (audit:cssvars CONTESTED). Skip; it lives in styles/ alone.
-			if (!isTw4Namespace(name)) continue;
-
-			const original = token.original?.$value ?? token.original?.value;
-
-			if (
-				typeof original === 'string' &&
-				WHOLE_REF.test(original.trim()) &&
-				usesReferences(original)
-			) {
-				// dictionary.tokens is filtered per-file; ref targets usually
-				// live outside the filter, so resolve against the full tree.
-				const [target] = getReferences(
-					original,
-					dictionary.unfilteredTokens ?? dictionary.tokens,
-					{ usesDtcg: true },
-				);
-				if (target?.name) {
-					refs.push(`  ${name}: var(--${target.name});`);
-					continue;
-				}
-			}
-
 			const val = token.$value ?? token.value;
-			literals.push(`  ${name}: ${val};`);
+			lines.push(`  ${name}: ${val};`);
 		}
 
-		const blocks = [];
-		if (literals.length > 0) blocks.push(`@theme {\n${literals.join('\n')}\n}`);
-		if (refs.length > 0) blocks.push(`@theme inline {\n${refs.join('\n')}\n}`);
+		if (lines.length === 0) return '';
 
-		if (blocks.length === 0) return '';
-
-		return `${header}${blocks.join('\n\n')}\n`;
+		return `${header}@theme {\n${lines.join('\n')}\n}\n`;
 	},
 });
 
@@ -970,39 +902,6 @@ StyleDictionary.registerFormat({
 });
 
 // ═══════════════════════════════════════════════════════════════
-// CUSTOM FORMAT: coldlight/keyframes
-//
-// @keyframes blocks emitted from the keyframes step-map tokens.
-// $value = { "<offset>": { "<css-prop>": "<value>" } }. Declarations
-// are written verbatim (already kebab-case in source) — property
-// order is source order. Keyframe name = token path minus the root.
-// ═══════════════════════════════════════════════════════════════
-
-StyleDictionary.registerFormat({
-	name: clFormats.keyframes,
-	format: async ({ dictionary, file }) => {
-		const header = await fileHeader({ file });
-		const blocks = dictionary.allTokens
-			.filter((token) => token.path[0] === 'keyframes')
-			.map((token) => {
-				const name = token.path.slice(1).join('-');
-				const steps = token.$value ?? token.value;
-				const stepBlocks = Object.entries(steps)
-					.map(([offset, decls]) => {
-						const declLines = Object.entries(decls)
-							.map(([prop, val]) => `\t\t${prop}: ${val};`)
-							.join('\n');
-						return `\t${offset} {\n${declLines}\n\t}`;
-					})
-					.join('\n');
-				return `@keyframes ${name} {\n${stepBlocks}\n}`;
-			});
-
-		return `${header}${blocks.join('\n\n')}\n`;
-	},
-});
-
-// ═══════════════════════════════════════════════════════════════
 // FILE DEFINITION HELPERS
 // ═══════════════════════════════════════════════════════════════
 
@@ -1032,10 +931,15 @@ const typesFile = (dest, filter) => ({
 
 const config = {
 	source: [
-		`${paths.source}/*.json`,
+		// style-presets.json is no longer read: the family files below are the one
+		// preset source (plan 0006 0s.2). svg-presets.json splits per SVG kind in 0s.6.
+		`${paths.source}/svg-presets.json`,
 		`${paths.source}/primitives/**/*.tokens.json`,
 		`${paths.source}/semantic/**/*.tokens.json`,
 		`${paths.source}/presets/**/*.tokens.json`,
+		// Colocated: each component's and SVG kind's own tokens file (plan 0006 0s).
+		`${paths.design}/components/*/*.tokens.json`,
+		`${paths.design}/svg/*/*.tokens.json`,
 	],
 	usesDtcg: true,
 	expand: (token) => {
@@ -1050,14 +954,10 @@ const config = {
 		if (type === 'color') return false;
 		if (type === 'cubicBezier') return false;
 		if (type === 'gradient') return false;
-		// keyframes carry a step-map object as $value; expanding would split the
-		// offsets/declarations into sibling sub-tokens and break the emitter.
-		if (type === 'keyframes') return false;
 		// typography, transition, border still expand into sub-properties.
 		return true;
 	},
-	parsers: [clParsers.stripRootDescription],
-	preprocessors: [clPreprocessors.captureExtensions],
+	preprocessors: [clPreprocessors.resolveExtends, clPreprocessors.captureExtensions],
 	log: {
 		verbosity: logVerbosityLevels.verbose,
 		warnings: logWarningLevels.warn,
@@ -1070,7 +970,7 @@ const config = {
 		// ── CSS: Primitives ───────────────────────────────────────
 		'css-primitives': {
 			transforms: CSS_TRANSFORMS,
-			buildPath: `${paths.design}/generated/styles/${layers.primitives}/`,
+			buildPath: `${paths.design}/styles/${layers.primitives}/`,
 			files: [
 				cssFile('color.css', pathFilter('color'), layers.primitives),
 				cssFile('shadow.css', pathFilter('shadow', 'depth'), layers.primitives),
@@ -1084,70 +984,84 @@ const config = {
 				// vars — reconciled 2026-07-07. Do not remove without re-checking
 				// `var(--border-width-` / `var(--outline-offset-` consumers.
 				cssFile('border-width.css', pathFilter('borderWidth', 'outlineOffset'), layers.primitives),
-				cssFile('spacing.css', pathFilter('space', 'padding', 'size', 'breakpoint', 'zIndex'), layers.primitives),
+				cssFile('spacing.css', pathFilter('space', 'padding', 'size', 'breakpoint', 'zIndex', 'z-index'), layers.primitives),
 				cssFile('typography.css', pathFilter('font', 'fontFeatureSettings', 'fontVariationSettings', 'textSize', 'font-size', 'leading', 'tracking'), layers.primitives),
-				cssFile('motion.css', pathFilter('motion', 'duration', 'easing'), layers.primitives),
+				cssFile('motion.css', pathFilter('motion', 'duration', 'easing', 'animation'), layers.primitives),
 				cssFile('gradient.css', pathFilter('gradient'), layers.primitives),
+				cssFile('layout.css', pathFilter('layout'), layers.primitives),
+				// Every primitive-tier group lands in a file (`tiers.primitive`); this was in none.
+				cssFile('opacity.css', pathFilter('opacity'), layers.primitives),
 			],
 		},
 
 		// ── CSS: Semantic ─────────────────────────────────────────
 		'css-semantic': {
 			transforms: CSS_TRANSFORMS,
-			buildPath: `${paths.design}/generated/styles/${layers.semantic}/`,
+			buildPath: `${paths.design}/styles/${layers.semantic}/`,
 			files: [
 				cssFile('elevation.css', pathFilter('elevation'), layers.semantic),
-				cssFile('surface.css', pathFilter('surface'), layers.semantic),
+				cssFile('surface.css', pathFilter('surface', 'glass-blur'), layers.semantic),
 				cssFile('border.css', pathFilter('border', 'borderPreset'), layers.semantic),
-				cssFile('transition.css', pathFilter('transition'), layers.semantic),
+				cssFile('transition.css', pathFilter('transition', 'gradient-duration'), layers.semantic),
 				cssFile('interaction.css', pathFilter('interaction'), layers.semantic),
 				cssFile('overlay.css', pathFilter('overlay'), layers.semantic),
-				cssFile('scrollbar.css', pathFilter('scrollbar'), layers.semantic),
+				cssFile('scrollbar.css', pathFilter('scrollbar', 'scrollbar-size'), layers.semantic),
 				cssFile('backdrop.css', pathFilter('backdrop-glow', 'backdrop-grid', 'backdrop-grid-size', 'backdrop-grid-line'), layers.semantic),
 				cssFile('text-styles.css', pathFilter('textStyle'), layers.semantic),
 			cssFile('text.css', pathFilter('text'), layers.semantic),
 			cssFile('signal.css', pathFilter('signal'), layers.semantic),
 			cssFile('accent.css', pathFilter('accent'), layers.semantic),
-			cssFile('role.css', pathFilter('primary', 'secondary', 'danger', 'success', 'warning', 'info', 'muted', 'cta'), layers.semantic),
+			cssFile('role.css', pathFilter('primary', 'secondary', 'danger', 'success', 'warning', 'info', 'muted'), layers.semantic),
 			cssFile('claude.css', pathFilter('claude'), layers.semantic),
-			// Groups without a registered file are dropped SILENTLY by SD —
-			// chat + wizard semantic tokens were authored but never emitted.
+			cssFile('icon.css', pathFilter('iconSize'), layers.semantic),
+			// Every semantic-tier group lands in a file (`tiers.semantic`); these were in none.
 			cssFile('chat.css', pathFilter('chat'), layers.semantic),
 			cssFile('wizard.css', pathFilter('wizard'), layers.semantic),
 			],
 		},
 
 		// ── CSS: Components ───────────────────────────────────────
-		// MUST use the layered format: unlayered emission outranks every
-		// @layer tokens.* declaration and hands the cascade to whatever
-		// literal happens to load last (root cause of the 2026-07-11
-		// monochrome-teal audit finding F2).
 		'css-components': {
 			transforms: CSS_TRANSFORMS,
-			buildPath: `${paths.design}/generated/styles/${layers.components}/`,
+			buildPath: `${paths.design}/styles/${layers.components}/`,
 			files: [
-				cssFile('components.generated.css', isComponent, layers.components),
+				{
+					destination: 'components.generated.css',
+					format: 'css/variables',
+					filter: isComponent,
+					options: { outputReferences: false },
+				},
 			],
 		},
 
-		// ── CSS: Keyframes ────────────────────────────────────────
-		// @keyframes bodies from the keyframes step-map tokens. Unlayered
-		// (keyframes cannot live in @layer) — emitted to generated/ and
-		// imported by design/index.css.
-		'css-keyframes': {
-			transforms: TYPE_TRANSFORMS,
-			buildPath: `${paths.design}/generated/`,
+		// ── CSS: Kinds (one file per colocated kind tokens file) ──
+		'css-kinds': {
+			transforms: CSS_TRANSFORMS,
+			buildPath: `${paths.design}/styles/components/kinds/`,
+			files: KIND_FILES.map(({ kind, meta, group }) => ({
+				destination: `${kind}.css`,
+				format: clFormats.kindCss,
+				filter: (token) => token.path[0] === kind && isKindToken(token),
+				options: { kind, meta, group, scope: SURFACE_SCOPE },
+			})),
+		},
+
+		// ── CSS: Scopes (the family scope, plan 0006 §0s) ──
+		'css-scopes': {
+			transforms: CSS_TRANSFORMS,
+			buildPath: `${paths.design}/styles/scopes/`,
 			files: [{
-				destination: 'keyframes.generated.css',
-				format: clFormats.keyframes,
-				filter: pathFilter('keyframes'),
+				destination: 'surface.css',
+				format: clFormats.surfaceScopes,
+				filter: (token) => token.path[0] === 'preset',
+				options: { families: SURFACE_FAMILIES, surfaceDefault: SURFACE_DEFAULT },
 			}],
 		},
 
 		// ── CSS: SVG Presets ──────────────────────────────────────
 		'css-svg-presets': {
 			transforms: CSS_TRANSFORMS,
-			buildPath: `${paths.design}/generated/svg/presets/`,
+			buildPath: `${paths.design}/svg/presets/`,
 			files: [
 				{
 					destination: 'svg-presets.generated.css',
@@ -1162,7 +1076,7 @@ const config = {
 		// Color: brand hues + brand-accent hues + achromatics for Tailwind @theme.
 		'theme-color': {
 			transforms: CSS_TRANSFORMS,
-			buildPath: `${paths.design}/generated/theme/`,
+			buildPath: `${paths.design}/theme/`,
 			files: [themeFile('color.css', (token) => {
 				if (token.path[0] !== 'color') return false;
 				const THEME_HUES = new Set([...brandHues, ...brandAccentHues, ...achromatics]);
@@ -1172,41 +1086,43 @@ const config = {
 				return THEME_HUES.has(token.path[1]);
 			})],
 		},
-		'theme-shadow': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('shadow.css', pathFilter('shadow', 'depth'))] },
-		'theme-elevation': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('elevation.css', pathFilter('elevation'))] },
-		'theme-bevel': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('bevel.css', pathFilter('bevel'))] },
-		'theme-blur': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('blur.css', pathFilter('blur'))] },
-		'theme-surface': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('surface.css', pathFilter('glass', 'matte', 'surface'))] },
-		'theme-radius': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('radius.css', pathFilter('radius'))] },
-		'theme-spacing': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('spacing.css', pathFilter('space', 'padding', 'size', 'breakpoint', 'zIndex', 'layout'))] },
-		'theme-typography': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('typography.css', pathFilter('font', 'fontFeatureSettings', 'fontVariationSettings', 'textSize', 'font-size'))] },
-		'theme-text-style': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('text-style.css', pathFilter('textStyle'))] },
+		'theme-shadow': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('shadow.css', pathFilter('shadow', 'depth'))] },
+		'theme-elevation': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('elevation.css', pathFilter('elevation'))] },
+		'theme-bevel': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('bevel.css', pathFilter('bevel'))] },
+		'theme-glow': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('glow.css', pathFilter('glow', 'glowSpread'))] },
+		'theme-blur': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('blur.css', pathFilter('blur'))] },
+		'theme-surface': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('surface.css', pathFilter('glass', 'matte', 'surface'))] },
+		'theme-radius': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('radius.css', pathFilter('radius'))] },
+		'theme-spacing': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('spacing.css', pathFilter('space', 'padding', 'size', 'breakpoint', 'zIndex'))] },
+		'theme-typography': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('typography.css', pathFilter('font', 'fontFeatureSettings', 'fontVariationSettings', 'textSize', 'font-size'))] },
+		'theme-text-style': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('text-style.css', pathFilter('textStyle'))] },
 		'theme-text-composed': {
 			transforms: CSS_TRANSFORMS,
-			buildPath: `${paths.design}/generated/theme/`,
+			buildPath: `${paths.design}/theme/`,
 			files: [{
 				destination: 'text-composed.css',
 				format: 'coldlight/tailwind-typography',
 				filter: pathFilter('textStyle'),
 			}],
 		},
-		'theme-motion': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('motion.css', pathFilter('motion', 'duration', 'easing'))] },
-		'theme-transition': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('transition.css', pathFilter('transition'))] },
-		'theme-border': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('border.css', pathFilter('border', 'borderPreset'))] },
-		'theme-interaction': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('interaction.css', pathFilter('interaction'))] },
-		'theme-overlay': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('overlay.css', pathFilter('overlay'))] },
-		'theme-scrollbar': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('scrollbar.css', pathFilter('scrollbar'))] },
-		'theme-backdrop': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('backdrop.css', pathFilter('backdrop-glow', 'backdrop-grid', 'backdrop-grid-size', 'backdrop-grid-line'))] },
-		'theme-gradient': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('gradient.css', pathFilter('gradient'))] },
-		'theme-text': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('text.css', pathFilter('text'))] },
-		'theme-signal': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('signal.css', pathFilter('signal'))] },
-		'theme-accent': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('accent.css', pathFilter('accent'))] },
-		'theme-role':   { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/generated/theme/`, files: [themeFile('role.css',   pathFilter('primary', 'secondary', 'danger', 'success', 'warning', 'info', 'muted', 'cta'))] },
+		'theme-motion': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('motion.css', pathFilter('motion', 'duration', 'easing'))] },
+		'theme-transition': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('transition.css', pathFilter('transition'))] },
+		'theme-border': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('border.css', pathFilter('border', 'borderPreset'))] },
+		'theme-interaction': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('interaction.css', pathFilter('interaction'))] },
+		'theme-overlay': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('overlay.css', pathFilter('overlay'))] },
+		'theme-scrollbar': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('scrollbar.css', pathFilter('scrollbar'))] },
+		'theme-backdrop': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('backdrop.css', pathFilter('backdrop-glow', 'backdrop-grid', 'backdrop-grid-size', 'backdrop-grid-line'))] },
+		'theme-gradient': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('gradient.css', pathFilter('gradient'))] },
+		'theme-text': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('text.css', pathFilter('text'))] },
+		'theme-signal': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('signal.css', pathFilter('signal'))] },
+		'theme-accent': { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('accent.css', pathFilter('accent'))] },
+		'theme-role':   { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('role.css',   pathFilter('primary', 'secondary', 'danger', 'success', 'warning', 'info', 'muted'))] },
+		'theme-icon':   { transforms: CSS_TRANSFORMS, buildPath: `${paths.design}/theme/`, files: [themeFile('icon.css',   pathFilter('iconSize'))] },
 
 		// ── TypeScript Types ──────────────────────────────────────
 		'types-primitives': {
 			transforms: TYPE_TRANSFORMS,
-			buildPath: `${paths.design}/generated/types/`,
+			buildPath: `${paths.design}/types/`,
 			files: [
 				typesFile('color.d.ts', pathFilter('color')),
 				typesFile('shadow.d.ts', pathFilter('shadow', 'bevel', 'glow', 'glowSpread')),
@@ -1220,7 +1136,7 @@ const config = {
 		},
 		'types-semantic': {
 			transforms: TYPE_TRANSFORMS,
-			buildPath: `${paths.design}/generated/types/`,
+			buildPath: `${paths.design}/types/`,
 			files: [
 				typesFile('elevation.d.ts', pathFilter('elevation')),
 				typesFile('border.d.ts', pathFilter('border', 'borderPreset')),
@@ -1229,22 +1145,25 @@ const config = {
 				typesFile('text.d.ts', pathFilter('text')),
 				typesFile('signal.d.ts', pathFilter('signal')),
 				typesFile('accent.d.ts', pathFilter('accent')),
-				typesFile('role.d.ts', pathFilter('primary', 'secondary', 'danger', 'success', 'warning', 'info', 'muted', 'cta')),
+				typesFile('role.d.ts', pathFilter('primary', 'secondary', 'danger', 'success', 'warning', 'info', 'muted')),
+				typesFile('icon.d.ts', pathFilter('iconSize')),
 			],
 		},
 		'types-components': {
 			transforms: TYPE_TRANSFORMS,
-			buildPath: `${paths.design}/generated/types/`,
+			buildPath: `${paths.design}/types/`,
 			files: [typesFile('component.d.ts', isComponent)],
 		},
 
 		// ── Manifest: VPB token metadata ─────────────────────────
 		manifest: {
 			transforms: TYPE_TRANSFORMS,
-			buildPath: `${paths.design}/generated/manifest/`,
+			buildPath: `${paths.design}/generated/`,
 			files: [{
 				destination: 'token-manifest.json',
 				format: clFormats.manifest,
+				// Kind tokens are not :root variables; they set `--<kind>-*` per selector (css-kinds).
+				filter: (token) => !isKindToken(token),
 			}],
 		},
 	},

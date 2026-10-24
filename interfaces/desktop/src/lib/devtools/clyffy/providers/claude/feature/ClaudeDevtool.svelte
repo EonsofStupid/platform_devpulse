@@ -8,7 +8,7 @@
 	DevtoolBentoTile, CommandErrorAlert, DevtoolLogsTab, DevtoolRefreshButton).
 
 	Wrapped in ServiceDevtoolShell which auto-mounts the per-devtool
-	BackgroundScene registered in SERVICE_BACKDROPS["claude"] —
+	BackgroundScene declared by the route folder's `_devtool.backdrop` —
 	cosmic-galaxy at strong intensity, palette derived from the coral
 	accent.
 
@@ -18,28 +18,26 @@
 	long-running server inside our process.
 -->
 <script lang="ts">
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Callout } from "@devpulse/coldlight/components/callout";
+import { Card } from "@devpulse/coldlight/components/card";
+import { EmptyState } from "@devpulse/coldlight/components/empty-state";
+import { Stat } from "@devpulse/coldlight/components/stat";
+import { Text } from "@devpulse/coldlight/components/text";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@devpulse/coldlight/components/tooltip";
 import {
 	Bot,
 	CheckCircle2,
 	Cpu,
 	Key,
-	Plug,
 	PlugZap,
 	Terminal,
 	Unplug,
 	Wrench,
 	XCircle,
-} from "@lucide/svelte";
+} from "lucide-svelte";
 import { onMount } from "svelte";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Button } from "$lib/design/components/button/index.js";
-import { Callout } from "$lib/design/components/callout/index.js";
-import { Card } from "$lib/design/components/card/index.js";
-import { EmptyState } from "$lib/design/components/empty-state/index.js";
-import { LoadingBlock } from "$lib/design/components/spinner/index.js";
-import { Stat } from "$lib/design/components/stat/index.js";
-import { Text } from "$lib/design/components/text/index.js";
-import { Tooltip, TooltipContent, TooltipTrigger } from "$lib/design/components/tooltip/index.js";
 import {
 	CommandErrorAlert,
 	DevtoolBentoGrid,
@@ -49,6 +47,7 @@ import {
 	type LogTargetPreset,
 	ServiceDevtoolShell,
 } from "$lib/devtools/index.js";
+import { ClyffyLoadingBlock } from "$lib/domains/clyffy/index.js";
 import { type ClaudeInstall, type ClaudeTarget, commands } from "$lib/sys/generated/bindings.js";
 import { logError, logInfo } from "$lib/sys/logger.js";
 import { okQuery, PolledQuery } from "$lib/sys/runes/index.js";
@@ -195,12 +194,6 @@ onMount(() => {
 </script>
 
 <ServiceDevtoolShell
-	title="Claude Integration"
-	description="Subprocess MCP · subscription + API lanes"
-	icon={Plug}
-	axis="integrations"
-	accent="coral"
-	backdrop="claude"
 	health={badge}
 >
 	{#snippet status()}
@@ -279,7 +272,7 @@ onMount(() => {
 				</EmptyState>
 			{:else}
 				<div class="grid grid-cols-1 sm:grid-cols-2 gap-[var(--space-3)]">
-					<Card preset="glass">
+					<Card surface="glass" variant="deep">
 						<div
 							class="p-[var(--space-3)] flex flex-col gap-[var(--space-2)]"
 							style="border-left: var(--border-width-thin) solid var(--accent-purple-main);"
@@ -313,7 +306,7 @@ onMount(() => {
 						</div>
 					</Card>
 
-					<Card preset="glass">
+					<Card surface="glass" variant="deep">
 						<div
 							class="p-[var(--space-3)] flex flex-col gap-[var(--space-2)]"
 							style="border-left: var(--border-width-thin) solid var(--accent-cyan-main);"
@@ -351,7 +344,7 @@ onMount(() => {
 
 			<!-- Tool list — glass card with badge cluster -->
 			{#if toolNames.length > 0}
-				<Card preset="glass">
+				<Card surface="glass" variant="deep">
 					<div class="p-[var(--space-3)] flex flex-col gap-[var(--space-2)]">
 						<div class="flex items-center gap-[var(--space-2)]">
 							<Wrench size={12} style="color: var(--accent-teal-main);" />
@@ -388,7 +381,7 @@ onMount(() => {
 			</Text>
 
 			<!-- Subscription lane (purple accent) -->
-			<Card variant="outlined">
+			<Card>
 				<div class="p-4 flex flex-col gap-3" style="border-left: 3px solid var(--accent-purple-main);">
 					<div class="flex items-center gap-2">
 						<Bot size={14} style="color: var(--accent-purple-main);" />
@@ -418,7 +411,7 @@ onMount(() => {
 			</Card>
 
 			<!-- API lane (cyan accent) -->
-			<Card variant="outlined">
+			<Card>
 				<div class="p-4 flex flex-col gap-3" style="border-left: 3px solid var(--accent-cyan-main);">
 					<div class="flex items-center gap-2">
 						<Key size={14} style="color: var(--accent-cyan-main);" />
@@ -466,11 +459,10 @@ onMount(() => {
 
 	{#snippet actions()}
 		{#if pendingTarget}
-			<LoadingBlock
+			<ClyffyLoadingBlock
 				title={pendingTarget === "code" ? "Updating Claude Code config" : "Updating Claude Desktop config"}
 				subtitle="Atomic rewrite — your other MCP entries are preserved."
-				showContent
-				contentKind="dyk"
+				kind="dyk"
 			/>
 		{:else}
 			<div class="flex flex-col gap-4">
@@ -481,7 +473,7 @@ onMount(() => {
 				</Text>
 
 				<!-- Claude Code actions -->
-				<Card variant="outlined">
+				<Card>
 					<div class="p-4 flex flex-col gap-3" style="border-left: 3px solid var(--accent-purple-main);">
 						<div class="flex items-center gap-2">
 							<Terminal size={14} style="color: var(--accent-purple-main);" />
@@ -496,7 +488,7 @@ onMount(() => {
 						</Text>
 						<div class="flex flex-wrap gap-2">
 							<Button
-								preset="primary"
+								variant="primary"
 								size="sm"
 								onclick={() => handleRegister("code")}
 							>
@@ -505,7 +497,7 @@ onMount(() => {
 							</Button>
 							{#if code?.devpulseRegistered}
 								<Button
-									preset="ghost"
+									variant="ghost"
 									size="sm"
 									onclick={() => handleUnregister("code")}
 								>
@@ -517,7 +509,7 @@ onMount(() => {
 				</Card>
 
 				<!-- Claude Desktop actions -->
-				<Card variant="outlined">
+				<Card>
 					<div class="p-4 flex flex-col gap-3" style="border-left: 3px solid var(--accent-cyan-main);">
 						<div class="flex items-center gap-2">
 							<Cpu size={14} style="color: var(--accent-cyan-main);" />
@@ -532,7 +524,7 @@ onMount(() => {
 						</Text>
 						<div class="flex flex-wrap gap-2">
 							<Button
-								preset="primary"
+								variant="primary"
 								size="sm"
 								onclick={() => handleRegister("desktop")}
 							>
@@ -541,7 +533,7 @@ onMount(() => {
 							</Button>
 							{#if desktop?.devpulseRegistered}
 								<Button
-									preset="ghost"
+									variant="ghost"
 									size="sm"
 									onclick={() => handleUnregister("desktop")}
 								>
@@ -552,7 +544,7 @@ onMount(() => {
 					</div>
 				</Card>
 
-				<Card variant="outlined">
+				<Card>
 					<div class="p-4 flex flex-col gap-3" style="border-left: 3px solid var(--accent-ember-main);">
 						<Text size="sm" weight="bold">Auto-register on every boot</Text>
 						<Text size="xs" color="muted">

@@ -4,11 +4,9 @@
   @domain devpulse
 -->
 <script lang="ts">
-import { Widget } from "$lib/design/blocks/widgets/index.js";
-import { Text } from "$lib/design/components/text/index.js";
-import { gridLayout } from "$lib/design/utils/grid-layout/index.js";
-import { hstack } from "$lib/design/utils/hstack/index.js";
-import { stack } from "$lib/design/utils/stack/index.js";
+import { Widget } from "@devpulse/coldlight/blocks/widgets";
+import { Text } from "@devpulse/coldlight/components/text";
+import { gridLayout, hstack, stack } from "@devpulse/coldlight/utils";
 import { devpulseState } from "$lib/domains/app/devpulse/index.js";
 </script>
 
@@ -16,16 +14,16 @@ import { devpulseState } from "$lib/domains/app/devpulse/index.js";
 	<Widget title="Coding Stats" tabs={[{id: "week", label: "Week"}, {id: "month", label: "Month"}, {id: "year", label: "Year"}]} activeTab="week">
 		<div class={stack({ gap: "3" })}>
 			<div class={hstack({ justify: "between" })}>
-				<Text color="secondary">Commits</Text>
-				<Text weight="semibold">{devpulseState.data.user.totalCommits}</Text>
+				<Text color="secondary">Projects</Text>
+				<Text weight="semibold">{devpulseState.data.user.totalProjects}</Text>
 			</div>
 			<div class={hstack({ justify: "between" })}>
-				<Text color="secondary">Streak</Text>
-				<Text weight="semibold">{devpulseState.data.user.streak} days</Text>
+				<Text color="secondary">Messages</Text>
+				<Text weight="semibold">{devpulseState.data.user.totalMessages}</Text>
 			</div>
 			<div class={hstack({ justify: "between" })}>
-				<Text color="secondary">Branches</Text>
-				<Text weight="semibold">{devpulseState.data.user.activeBranches}</Text>
+				<Text color="secondary">Sessions</Text>
+				<Text weight="semibold">{devpulseState.data.user.totalSessions}</Text>
 			</div>
 		</div>
 	</Widget>

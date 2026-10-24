@@ -1,0 +1,418 @@
+# ═══════════════════════════════════════════════════════════════
+# SLOTS — Kernel SSOT
+# ═══════════════════════════════════════════════════════════════
+#
+# Every user-configurable model binding point lives in this file. The
+# kernel `model-loader::slots::defaults` loader embeds it at compile
+# time via `include_str!` and loads any user override from
+# `{userdata}/config/slots.toml`.
+#
+# This file absorbs the previously-inline
+# `[[services.system.model_loader.slots]]` array from
+# `config/platform/services/system/model-loader.toml`. The repo-root
+# platform fragments now point here instead of carrying a shadow copy.
+#
+# ── Schema ─────────────────────────────────────────────────────
+#
+# Each `[[slots]]` entry produces one `Slot` (see
+# `kernel/model-loader/src/slots/types.rs`). Required fields:
+#
+#   id                  — unique dotted identifier (e.g. "chat.brain")
+#   label               — human-readable name
+#   capability          — ModelCapability variant (see enum)
+#   preferred_device    — DevicePreference (Gpu | Cpu | GpuWithCpuFallback | Any)
+#   loading             — LoadingStrategy (Hot | Warm | OnDemand | { Signal = "…" } | { Coupled = { parent = "…" } })
+#   persistence_class   — PersistenceClass (on_demand | warm_standby | always_on)
+#   lane                — LaneKind (vram | ddr | cpu | ssd)
+#   source_tier         — "UserManaged" or { Bundled = { bundled_path = "…" } }
+#
+# Optional fields:
+#
+#   fallback            — another slot id to try when this one has no model loaded
+#   runtime             — override backend routing ("Candle" | "LlamaCpp" | "Ort")
+#   default_model       — filename the loader should auto-assign on first boot
+#   requires            — array of slot ids that must be loaded alongside this one
+#   overrides           — slot id this slot can replace when conditions hold
+#   extensions          — table of backend-specific key/value strings
+#
+# ── Extension pattern ──────────────────────────────────────────
+#
+# To add a new slot:
+#   1. Append a new `[[slots]]` block here with every required field.
+#   2. If a new capability is needed, add a variant to
+#      `ModelCapability` in `kernel/model-loader/src/slots/types.rs`.
+#   3. Add the slot id to `kernel/model-loader/src/slots/defaults.rs`
+#      `BASELINE_SLOT_IDS` so the baseline test picks it up.
+#   4. If an auto-config preset should populate it, edit
+#      `kernel/model-loader/config/presets.default.toml` and add an
+#      entry under the appropriate `[[presets.<tier>.recommendations]]`.
+# Nothing else changes — the frontend picks up the new slot via
+# `list_presets`, the Slot Config overlay shows it in the Slots tab,
+# and the VRAM/DDR budgeter plans against it automatically.
+#
+# ═══════════════════════════════════════════════════════════════
+
+# ── 1. chat.brain — Primary reasoning LLM ─────────────────────
+#
+# Bundled with a small Qwen3-0.6B GGUF so a portable .userdata ships
+# with a working brain out of the box. Users swap to a larger model
+# through the devtool — any existing assignment wins over the bundled
+# default per `auto_assign_bundled_slots` semantics.
+
+[[slots]]
+id = "chat.brain"
+label = "AI Brain"
+capability = "TextGeneration"
+preferred_device = "Gpu"
+loading = "OnDemand"
+persistence_class = "warm_standby"
+lane = "vram"
+runtime = "Candle"
+source_tier = "UserManaged"
+
+# ── 1b. chat.fast — Routing / simple-turn brain ──────────────
+#
+# Small always-hot dense model that handles quick routing,
+# classification, tagging, and simple turns. Keeps the primary
+# chat.brain free to stay warm for heavy reasoning. In the Jesse
+# Primary loadout this is Qwen3-4B Q4_K_M (~2.5 GB VRAM) sitting
+# alongside Moshi 7B (voice.brain). On lower tiers chat.fast
+# shares its model with minion.shared via BackendPool ref-count.
+#
+# Uses `GpuWithCpuFallback` so CPU-only tiers inherit it without
+# breaking the "small always-hot" contract.
+
+[[slots]]
+id = "chat.fast"
+label = "Quick Brain"
+capability = "TextGeneration"
+preferred_device = "GpuWithCpuFallback"
+loading = "OnDemand"
+persistence_class = "warm_standby"
+lane = "vram"
+runtime = "LlamaCpp"
+fallback = "chat.brain"
+source_tier = "UserManaged"
+
+# ── 2. minion.shared — Shared helper brain ────────────────────
+#
+# Bundled with the same Qwen3-0.6B. The BackendPool ref-counts the
+# underlying weights so chat.brain and minion.shared share one
+# loaded copy rather than doubling VRAM.
+
+[[slots]]
+id = "minion.shared"
+label = "Helper Engine"
+capability = "TextGeneration"
+preferred_device = "GpuWithCpuFallback"
+loading = "OnDemand"
+persistence_class = "warm_standby"
+lane = "vram"
+runtime = "Candle"
+source_tier = "UserManaged"
+
+# ── 3. minion.escalation — Deep reasoning escalation ──────────
+
+[[slots]]
+id = "minion.escalation"
+label = "Deep Reasoning"
+capability = "TextGeneration"
+preferred_device = "Gpu"
+loading = "Warm"
+persistence_class = "on_demand"
+lane = "vram"
+fallback = "chat.brain"
+source_tier = "UserManaged"
+
+# ── 4. vision.embedder — Image encoder ────────────────────────
+#
+# Bundled SigLIP2 by default. When the user picks an omni-capable
+# `chat.brain` model, the Slot Config overlay auto-configures this
+# slot to route through the brain instead of loading a separate
+# encoder (D6 — omni override warning required if user overrides).
+
+[[slots]]
+id = "vision.embedder"
+label = "Vision System"
+capability = "VisionEmbedding"
+preferred_device = "Cpu"
+loading = { Signal = "screenshot.captured" }
+persistence_class = "on_demand"
+lane = "cpu"
+runtime = "Candle"
+source_tier = "UserManaged"
+
+# ── 4b. chat.vision — Vision-language chat model ──────────────
+#
+# Dedicated vision-capable LLM (Qwen3-VL family). Distinct from
+# `vision.embedder` — that slot is a pure image encoder (SigLIP2)
+# that produces embedding vectors, this slot is a full VL chat
+# model that answers questions about pasted images. Loads on the
+# `image.pasted` signal, unloads after idle.
+#
+# On omni presets (Ultra w/ Qwen3-VL-30B-A3B) this slot shares its
+# model with `chat.brain` via BackendPool ref-count — one copy in
+# VRAM, two slot ids. On non-omni tiers it holds a smaller VL
+# model paired with the text brain (Qwen3-VL-2B on Jesse Primary,
+# Qwen3-VL-8B on High).
+#
+# llama.cpp GGUF vision models require a paired `mmproj-*.gguf`
+# file — see the Jesse Primary preset's `chat.vision` entry which
+# carries both `model_filename` and an `mmproj_filename` field in
+# the slot extensions.
+
+[[slots]]
+id = "chat.vision"
+label = "Vision Reasoning"
+capability = "VisionLanguage"
+preferred_device = "Gpu"
+loading = { Signal = "image.pasted" }
+persistence_class = "on_demand"
+lane = "vram"
+runtime = "LlamaCpp"
+fallback = "chat.brain"
+source_tier = "UserManaged"
+
+# ── 5. voice.tts — Text to speech ─────────────────────────────
+
+[[slots]]
+id = "voice.tts"
+label = "Clyffy's Voice"
+capability = "TextToSpeech"
+preferred_device = "Cpu"
+loading = { Signal = "speech.requested" }
+persistence_class = "on_demand"
+lane = "cpu"
+runtime = "Ort"
+source_tier = "UserManaged"
+
+[slots.extensions]
+voice_profile = "af_heart"
+
+# ── 6. voice.stt — Speech to text ─────────────────────────────
+
+[[slots]]
+id = "voice.stt"
+label = "Voice Input"
+capability = "SpeechToText"
+preferred_device = "Cpu"
+loading = { Signal = "voice.activated" }
+persistence_class = "on_demand"
+lane = "cpu"
+runtime = "Ort"
+source_tier = "UserManaged"
+
+# ── 7. voice.brain — Full-duplex speech-to-speech brain ───────
+#
+# Runs a native STS model (Moshi 7B by Kyutai is the default) for
+# 24/7 full-duplex voice conversation. When enabled the slot stays
+# hot on GPU — Moshi's 180 ms latency only works with CUDA/Metal
+# acceleration. The AssistantConfig `voice_brain.enabled_24_7`
+# field controls whether this slot is reserved at boot; when the
+# user disables 24/7 voice in the Voice Lab, the slot stays
+# unloaded and voice falls back to the cascaded path (wake -> STT
+# -> chat.fast -> TTS).
+#
+# Fallback chain: if Moshi can't load (missing model, insufficient
+# VRAM, driver crash) voice falls through to minion.escalation,
+# which itself fallbacks to chat.brain.
+
+[[slots]]
+id = "voice.brain"
+label = "Voice Conversation"
+capability = "TextGeneration"
+preferred_device = "Gpu"
+loading = "OnDemand"
+persistence_class = "warm_standby"
+lane = "vram"
+fallback = "minion.escalation"
+source_tier = "UserManaged"
+
+# ── 8. voice.wake — Wake-word detector ────────────────────────
+#
+# Keyword spotter that gates voice mode entry. No default model file
+# ships yet — when the user assigns one via the devtool, the slot
+# transitions to loaded and the wake detector becomes active.
+#
+# `loading = OnDemand` is deliberate: until a model is assigned the
+# slot is empty and the budgeter must not reserve capacity for it.
+# The previous `Hot` + `AlwaysOn` combination would deadlock the
+# boot loader (try to load a model that doesn't exist, hold the
+# always-on reservation forever). Once a user picks a model, the
+# devtool flips this to `Hot` + `AlwaysOn` via the override path in
+# `{userdata}/config/slots.toml`.
+#
+# `builtin = true` tags it as a platform essential so the System tab
+# groups it with the other essentials.
+
+[[slots]]
+id = "voice.wake"
+label = "Wake Word"
+capability = "SpeechToText"
+preferred_device = "Cpu"
+loading = "OnDemand"
+persistence_class = "on_demand"
+lane = "cpu"
+source_tier = "UserManaged"
+builtin = true
+
+# ─── BUILT-IN ESSENTIALS ──────────────────────────────────────
+#
+# The remaining slots are platform built-ins. They live in the same
+# slot table as the user-facing slots above, share the same loader,
+# the same mutation path, the same devtool surface. The `builtin`
+# flag controls only how the devtool groups them in its UI — the
+# Slot Config overlay's "System" tab filters by `builtin == true`,
+# the "Slots" tab filters by `builtin == false`. Same data, two
+# views, one source of truth. There is no second TOML file.
+#
+# NOTE: The vector store (RRO) is NOT a slot. It's a storage
+# adapter that lives in `kernel/devpulse-clyffy/src/cortex/
+# persistence/rro.rs` — pure storage, no model file, no model
+# capability that fits the slot schema. The devtool surfaces RRO
+# status through a direct kernel query in the System tab, not
+# through the slot registry. Forcing it into slots would have
+# required inventing a capability variant for storage adapters.
+
+# ── 9. rag.embedder — Primary text encoder ──────────────────
+#
+# Seed suggestion: nomic-embed-text-v1.5 GGUF, bundled in the
+# portable .userdata so the search path has a working default on
+# first boot. The devtool swaps this to any Qwen/BERT-family model
+# the user prefers — bundled is a suggestion, the user override
+# always wins via `auto_assign_bundled_slots` semantics.
+
+[[slots]]
+id = "rag.embedder"
+label = "Search Engine"
+capability = "Embedding"
+preferred_device = "Cpu"
+loading = "OnDemand"
+persistence_class = "warm_standby"
+lane = "cpu"
+runtime = "Burn"
+source_tier = "UserManaged"
+builtin = true
+
+# ── 9b. rag.encoder — Vector store query encoder ─────────────
+#
+# Second Qwen3-Embedding-0.6B instance dedicated to the RRO
+# (Qdrant) query path. Keeping it separate from `rag.embedder`
+# means the owner can swap the document-side and query-side
+# encoders independently — a common tuning trick for retrieval
+# quality. On first boot both slots load the same bundled model,
+# so there's no cold-start penalty.
+#
+# The BackendPool ref-counts identical model IDs so a fresh
+# install only materialises ONE copy of the 0.6B weights in CPU
+# memory even though two slots reference it.
+#
+# `builtin = true` groups this under the System tab alongside
+# `rag.embedder` and the other vector-store essentials.
+
+[[slots]]
+id = "rag.encoder"
+label = "Query Encoder"
+capability = "Embedding"
+preferred_device = "Cpu"
+loading = "OnDemand"
+persistence_class = "warm_standby"
+lane = "cpu"
+runtime = "Burn"
+source_tier = "UserManaged"
+builtin = true
+
+# ── 9c. minion.embedder — Minion-process document encoder ────
+#
+# Dedicated 270m Harrier embedder for the minion process tier. Sized
+# down from the 0.6B `rag.embedder` so each minion process pays a
+# small RAM cost (~536 MB) for its own embedder rather than reaching
+# back into Clyffy main's larger model via IPC. Sized identically
+# regardless of host hardware tier — this is a CONSUMER tier (the
+# minion process), not a HARDWARE tier override.
+#
+# `warm_standby` keeps the model resident while the minion process
+# is alive; `on_demand` lifecycle would force a reload per query
+# which kills throughput.
+
+[[slots]]
+id = "minion.embedder"
+label = "Minion Search Engine"
+capability = "Embedding"
+preferred_device = "Cpu"
+loading = "OnDemand"
+persistence_class = "warm_standby"
+lane = "cpu"
+runtime = "Burn"
+source_tier = "UserManaged"
+builtin = true
+
+# ── 9d. minion.encoder — Minion-process query encoder ────────
+#
+# Dedicated 270m Harrier encoder for the minion process tier. Pairs
+# with `minion.embedder` so each minion has its own retrieval-side
+# encoder/embedder pair. Same sizing rationale: 270m on every host
+# regardless of hardware tier — consumer-tier sizing, not hardware-
+# tier sizing.
+
+[[slots]]
+id = "minion.encoder"
+label = "Minion Query Encoder"
+capability = "Embedding"
+preferred_device = "Cpu"
+loading = "OnDemand"
+persistence_class = "warm_standby"
+lane = "cpu"
+runtime = "Burn"
+source_tier = "UserManaged"
+builtin = true
+
+# ── 10. rag.reranker — Search result filter ──────────────────
+#
+# Cross-encoder that refines vector search results. No file ships
+# in the portable .userdata yet — the slot stays UserManaged so the
+# devtool prompts the user to pick one. No `default_model` hint
+# until a real file lands under `models/rag/`.
+
+[[slots]]
+id = "rag.reranker"
+label = "Result Filter"
+capability = "Reranking"
+preferred_device = "Cpu"
+loading = "OnDemand"
+persistence_class = "on_demand"
+lane = "cpu"
+source_tier = "UserManaged"
+builtin = true
+
+# ── 11. chat.suggest — Type-time suggestion encoder ──────────
+#
+# Personal-history embedder for chat-input suggestions. Embeds the
+# user's partial input + their past prompts and returns top-K matches
+# via cosine search against the persona graph. Sub-50 ms latency
+# target — `warm_standby` keeps the model resident once typing starts
+# and evicts it last under memory pressure.
+#
+# Distinct from `rag.embedder` (document corpus) and `minion.embedder`
+# (minion-process retrieval): this slot's adapter target is per-user
+# personal history, not domain documents. The BackendPool ref-counts
+# the underlying weights so a fresh install only materialises ONE copy
+# of the Harrier 0.6B model in CPU memory even though three slots
+# (`rag.embedder`, `rag.encoder`, `chat.suggest`) reference it.
+#
+# `builtin = true` — platform essential, no user picker. The slot
+# auto-loads on first chat input and stays warm; the chat-input
+# surface drives type-time queries against it without a reasoner
+# round-trip.
+
+[[slots]]
+id = "chat.suggest"
+label = "Suggestion Engine"
+capability = "Embedding"
+preferred_device = "Cpu"
+loading = "OnDemand"
+persistence_class = "warm_standby"
+lane = "cpu"
+runtime = "Burn"
+source_tier = "UserManaged"
+builtin = true

@@ -1,6 +1,6 @@
-//! `LibSQL` boot stage — system and user relational stores.
+//! Turso boot stage — system and user relational stores.
 //!
-//! Each `LibSQL` instance gets:
+//! Each Turso instance gets:
 //! 1. Path resolution from config
 //! 2. Windows path sanitization
 //! 3. File-lock retry with exponential backoff
@@ -14,13 +14,13 @@ use crate::platform::boot::log::BootLog;
 use crate::platform::boot::retry;
 use crate::platform::config::{sanitize_path, ServiceEntry, WindowsConfig};
 use crate::platform::init::InitEvent;
-use crate::platform::services::relational::RelationalService;
+use crate::platform::services::relational::{RelationalService, StoreSchema};
 
 use std::path::Path;
 use std::sync::Arc;
 use std::time::Instant;
 
-/// Boot a `LibSQL` relational store.
+/// Boot a Turso relational store.
 ///
 /// Returns `Some(service)` on success, `None` on failure or if disabled.
 /// Emits `InitEvent`s for the frontend status bar and writes to the boot log.
@@ -29,7 +29,7 @@ pub async fn boot(
     data_dir: &Path,
     entry: &ServiceEntry,
     win_config: &WindowsConfig,
-    schema: &'static str,
+    store: StoreSchema,
     label: &'static str,
     on_event: &(impl Fn(InitEvent) + Send + 'static),
     boot_log: &BootLog,
@@ -47,10 +47,11 @@ pub async fn boot(
     let raw_path = entry.resolve_path(data_dir);
     let path = sanitize_path(&raw_path, win_config);
     let retry_cfg = entry.retry.to_retry_config();
+    let options = entry.turso_options();
 
     let result = retry::retry_on_lock_async(&retry_cfg, label, || {
         let p = path.clone();
-        async move { RelationalService::boot(&p, schema, label).await }
+        async move { RelationalService::boot(&p, store, label, options).await }
     })
     .await;
 
@@ -62,18 +63,15 @@ pub async fn boot(
                 status = "ready",
                 latency_us = start.elapsed().as_micros() as u64,
                 path = %path.display(),
-                "LibSQL store booted"
+                "Turso store booted"
             );
             on_event(InitEvent::ok_with_latency(label, start.elapsed()));
-            boot_log.ok(
-                label,
-                &format!("LibSQL {} ({elapsed_ms}ms)", path.display()),
-            );
+            boot_log.ok(label, &format!("Turso {} ({elapsed_ms}ms)", path.display()));
             Some(Arc::new(store))
         }
         Err(e) => {
             let elapsed_ms = start.elapsed().as_millis() as u64;
-            tracing::error!(step = label, error = ?e, "LibSQL store failed to boot");
+            tracing::error!(step = label, error = ?e, "Turso store failed to boot");
             on_event(InitEvent::error(label, &format!("{e:#}")));
             boot_log.fail(label, &format!("{e:#} ({elapsed_ms}ms)"));
             None

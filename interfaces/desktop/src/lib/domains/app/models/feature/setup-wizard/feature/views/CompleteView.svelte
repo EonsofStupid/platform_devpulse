@@ -3,15 +3,15 @@
 	@module @devpulse/domains/app/models/feature/setup-wizard/feature/views/complete
 
 	Step 5 — Handoff to dashboard. `onFinish` marks setup complete in
-	the engine + closes the overlay. The wizard does NOT auto-open
+	the kernel + closes the overlay. The wizard does NOT auto-open
 	on subsequent launches once `[onboarding].completed = true` lands
 	in the user preferences TOML (per ONBOARDING-CASCADE Layer 4).
 -->
 <script lang="ts">
-import { Button } from "$lib/design/components/button/index.js";
-import { Heading } from "$lib/design/components/heading/index.js";
-import { Spinner } from "$lib/design/components/spinner/index.js";
-import { Text } from "$lib/design/components/text/index.js";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Heading } from "@devpulse/coldlight/components/heading";
+import { Spinner } from "@devpulse/coldlight/components/spinner";
+import { Text } from "@devpulse/coldlight/components/text";
 import type { CompleteViewProps } from "../../util/wizard.types.js";
 import OverlayShell from "../OverlayShell.svelte";
 
@@ -34,7 +34,7 @@ let { copy, busy, callbacks }: CompleteViewProps = $props();
 	{#snippet footer()}
 		<div class="flex-1"></div>
 		<Button
-			preset="primary"
+			variant="primary"
 			size="sm"
 			onclick={callbacks.onFinish}
 			disabled={!copy || busy}

@@ -2,12 +2,14 @@
   @feature CortexMemoryStrip — read-only cortex context graph
 -->
 <script lang="ts">
-import Text from "$lib/design/components/text/Text.svelte";
-import { modelsState } from "$lib/domains/app/models/index.js";
+import { Text } from "@devpulse/coldlight/components/text";
+import { isInferenceReady, modelsState } from "$lib/domains/app/models/index.js";
 import { StatusDotNeuron } from "../ui/index.js";
 
 const brain = $derived(modelsState.statuses["chat.brain"]);
-const brainActive = $derived(brain?.type === "ready" || brain?.type === "loading");
+const brainActive = $derived(
+	brain !== undefined && (isInferenceReady(brain) || brain.type === "loading"),
+);
 </script>
 
 <div class="flex flex-col gap-2 border-b border-[var(--border-subtle)] pb-2">

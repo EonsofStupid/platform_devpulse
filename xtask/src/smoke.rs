@@ -463,7 +463,7 @@ mod tests {
     fn in_flight_returns_last_line() {
         let log = "\
 [+000.082s] [  OK ] preflight: directories ready
-[+000.090s] [  OK ] System relational: LibSQL platform.db
+[+000.090s] [  OK ] System relational: Turso platform.db
 ";
         let (_dir, path) = write_log(log);
         match read_boot_log(&path, None) {

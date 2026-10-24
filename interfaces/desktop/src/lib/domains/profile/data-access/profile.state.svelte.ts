@@ -10,7 +10,7 @@
  *   resolving   — calling `recommendPrimaryForSlot` to find the .gguf
  *                 inside the repo
  *   downloading — `installToSlot` is fetching files from HF
- *   loading     — files on disk; the runtime is loading them
+ *   loading     — files on disk; kernel is loading them into the runtime
  *   applied     — slot is live, Clyffy can use the embedder
  *   failed      — error surfaced via `applyError`
  *
@@ -21,17 +21,17 @@
 
 import { commands } from "$lib/sys/generated/bindings.js";
 
-/** Seed value — mirrors the engine's `config/presets.default.toml`
+/** Seed value — mirrors `kernel/model-loader/config/presets.default.toml:141`
  *  which locks `microsoft/harrier-oss-v1-0.6b` as the default for the
  *  `rag.embedder` slot on capable hardware. The tier-adaptive fallback
  *  to `microsoft/harrier-oss-v1-270m` (Floor / Minimal / CpuOnly tiers,
- *  same file) kicks in via the engine's preset apply path
+ *  same file lines 428–555) kicks in via the kernel's preset apply path
  *  when the user clicks Apply. The seed here is purely a UI default
  *  the operator can override by typing a different repo id. */
 const SEED_EMBEDDER_REPO = "microsoft/harrier-oss-v1-0.6b";
 
-/** The Tauri slot id Clyffy's embedder lives in. Matches the engine's
- *  slot config — `config/slots.default.toml`'s
+/** The Tauri slot id Clyffy's embedder lives in. Matches the kernel
+ *  slot config — `kernel/model-loader/config/slots.default.toml`'s
  *  `rag.embedder` entry. */
 const EMBEDDER_SLOT_ID = "rag.embedder";
 
@@ -58,7 +58,7 @@ class ProfileState {
 	currentRepoId = $state<string | null>(null);
 	/** Repo id the system recommends — for the picker's "Recommended"
 	 *  status line. Today this is the same as the seed value. When the
-	 *  engine grows a tier-aware `get_recommended_embedder_repo` Tauri
+	 *  kernel grows a tier-aware `get_recommended_embedder_repo` Tauri
 	 *  command, this binds to it. */
 	recommendedRepoId = $state<string>(SEED_EMBEDDER_REPO);
 	/** Apply state machine phase. */
@@ -70,13 +70,13 @@ class ProfileState {
 	 *  Held here as a placeholder for future enhancements. */
 
 	/** Live: what the minion process is using right now. Read from the
-	 *  engine's slot snapshot at init time; falls back to the locked
+	 *  kernel's slot snapshot at init time; falls back to the locked
 	 *  270m default per `presets.default.toml:622` when the slot is
 	 *  unassigned (typical on first run before auto-config has run). */
 	minionRepoId = $state<string>("microsoft/harrier-oss-v1-270m");
 
 	/**
-	 * Hydrate `currentRepoId` + `minionRepoId` from the engine's slot
+	 * Hydrate `currentRepoId` + `minionRepoId` from the kernel's slot
 	 * snapshot. Called from the profile route's mount-time `$effect`.
 	 * Failure is non-fatal — the picker still renders, the operator
 	 * can still apply.
@@ -101,7 +101,7 @@ class ProfileState {
 	 * Apply the pending repo id — drives the full install chain:
 	 *
 	 *   1. `recommendPrimaryForSlot(repo, slot)` → finds the primary
-	 *      file in the repo (the engine knows which `.gguf` / `.safetensors`
+	 *      file in the repo (kernel knows which `.gguf` / `.safetensors`
 	 *      to pick for this slot's runtime).
 	 *   2. `installToSlot(repo, file, slot, null)` → downloads (if
 	 *      not on disk) + registers + loads into the runtime.
@@ -140,8 +140,8 @@ class ProfileState {
 			return;
 		}
 
-		// At this point the engine has reported a successful install
-		// chain. The `loading` phase is the load-into-runtime
+		// At this point the kernel has reported a successful install
+		// chain. The `loading` phase is the kernel's load-into-runtime
 		// stage — install_to_slot returns AFTER load completes, so we
 		// can advance straight to `applied`. Future enhancement: parse
 		// the install_to_slot return string for the slot's actual

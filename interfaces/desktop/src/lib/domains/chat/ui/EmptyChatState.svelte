@@ -2,9 +2,9 @@
   @component EmptyChatState
 -->
 <script lang="ts">
-import { Sparkles } from "@lucide/svelte";
-import Text from "$lib/design/components/text/Text.svelte";
-import { cn } from "$lib/design/utils/cn.js";
+import { Text } from "@devpulse/coldlight/components/text";
+import { cn } from "@devpulse/coldlight/utils";
+import { Sparkles } from "lucide-svelte";
 
 interface Props {
 	class?: string;

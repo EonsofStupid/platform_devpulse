@@ -4,9 +4,11 @@
 
 	The "Live subsystems" strip on the devtools dashboard. Renders one
 	`SubsystemTile` per Clyffy subsystem the dev cares about most:
-	cortex (memory), vision (eyes), ears (STT/Sherpa), mouth (TTS),
-	and reasoning (RRD). Each tile shows live status on hover + a
-	one-click verb that hits the real backend command (load/reload).
+	memory, eyes, ears, mouth and reasoning. Each tile opens a devtool
+	page, and that page's folder names and draws it (plan 0008): name
+	and line from copy, icon from `_nav`, accent and slot from
+	`_devtool`. Each tile shows live status on hover + a one-click verb
+	that hits the real kernel command (load/reload).
 
 	# Why this lives in `_shared`, not `design/blocks`
 
@@ -14,18 +16,21 @@
 	`rrdState`) so it isn't a primitive — it composes the
 	`SubsystemTile` block with the project's actual state. Following
 	the composition contract: domain-specific composer in
-	`lib/devtools/_shared/`, primitive in `lib/design/blocks/`.
+	`lib/devtools/_shared/`, primitive in `@devpulse/coldlight/blocks/`.
 -->
 <script lang="ts">
-import { BrainCircuit, Ear, Eye, Sparkles, Volume2 } from "@lucide/svelte";
-import { onMount } from "svelte";
 import {
 	type SubsystemState,
 	SubsystemTile,
 	type SubsystemVerb,
-} from "$lib/design/blocks/devtools/index.js";
+} from "@devpulse/coldlight/blocks/devtools";
+import { onMount } from "svelte";
+import { goto } from "$app/navigation";
+import { resolve } from "$app/paths";
 import { isInferenceReady, modelsState } from "$lib/domains/app/models/index.js";
 import { rroState } from "$lib/sys/data-access/rro/rro.state.svelte.js";
+import { hrefOf, type RouteNode, routeAt, routeCopy } from "$lib/sys/routing/index.js";
+import { devtoolNav } from "../devtool-manifest.js";
 
 onMount(() => {
 	// Subscribe to live RRO state transitions so the Reasoning tile
@@ -81,17 +86,6 @@ function slotState(slotId: string, readyLabel: string): SubsystemState {
 	};
 }
 
-/** Vision · SigLIP encoder (`vision.embedder`). */
-const visionState = $derived<SubsystemState>(
-	slotState("vision.embedder", "Ready · vision encode live"),
-);
-
-/** Ears · STT (`voice.stt`). */
-const earsState = $derived<SubsystemState>(slotState("voice.stt", "Ready · STT live"));
-
-/** Mouth · TTS (`voice.tts`). */
-const mouthState = $derived<SubsystemState>(slotState("voice.tts", "Ready · TTS live"));
-
 /**
  * Cortex · the orchestration layer. Reads aggregate slot readiness
  * across the four sensory slots. Cortex itself has no slot — it's
@@ -127,7 +121,7 @@ const cortexState: SubsystemState = $derived.by<SubsystemState>(() => {
 
 /**
  * Reasoning · RRO state machine (the "subconscious"). Drives off
- * `rroState.rroSnapshot` which mirrors the backend's live state
+ * `rroState.rroSnapshot` which mirrors the kernel's live state
  * transitions via `platform:rro-state-changed`.
  *
  * State map → tone:
@@ -208,7 +202,7 @@ function slotVerbs(slotId: string): SubsystemVerb[] {
 				ariaLabel: `Open the model downloader for ${slotId}`,
 				tone: "primary",
 				onclick: () => {
-					window.location.assign(`/devtools/runtimes/orchestrator/slots`);
+					void goto(resolve("/devtools/runtimes/orchestrator/slots"));
 				},
 			},
 		];
@@ -243,10 +237,6 @@ function slotVerbs(slotId: string): SubsystemVerb[] {
 	];
 }
 
-const visionVerbs = $derived<SubsystemVerb[]>(slotVerbs("vision.embedder"));
-const earsVerbs = $derived<SubsystemVerb[]>(slotVerbs("voice.stt"));
-const mouthVerbs = $derived<SubsystemVerb[]>(slotVerbs("voice.tts"));
-
 /**
  * Local busy flag for the cortex rescan verb (modelsState doesn't
  * expose a global `loading` rune — scan is a one-shot RPC).
@@ -275,7 +265,7 @@ const cortexVerbs = $derived<SubsystemVerb[]>([
 
 /**
  * Reasoning verbs — drive the RRO state machine from the tile.
- * Each verb fires a `trigger_*` IPC and the live
+ * Each verb fires a kernel `trigger_*` IPC and the live
  * `platform:rro-state-changed` event updates `rroSnapshot` so
  * the tile reflects the new state without a manual refresh.
  *
@@ -290,7 +280,7 @@ const cortexVerbs = $derived<SubsystemVerb[]>([
  *
  * Each verb's `busy` flag mirrors the matching
  * `rroState.rroActionLoading.{gather,purge,fork}` field so the
- * tile shows a spinner while the backend transition is in flight.
+ * tile shows a spinner while the kernel transition is in flight.
  */
 const reasoningVerbs = $derived<SubsystemVerb[]>([
 	{
@@ -318,6 +308,36 @@ const reasoningVerbs = $derived<SubsystemVerb[]>([
 		onclick: () => rroState.triggerFork(),
 	},
 ]);
+
+/** A tile and the devtool page it opens. */
+interface Tile {
+	node: RouteNode;
+	status: SubsystemState;
+	verbs: SubsystemVerb[];
+}
+
+/** The tile for a page, when the page exists. */
+function tileFor(
+	node: RouteNode | undefined,
+	status: SubsystemState,
+	verbs: SubsystemVerb[],
+): Tile[] {
+	return node ? [{ node, status, verbs }] : [];
+}
+
+/** A slot-backed tile: its slot is the capability its page declares. */
+function slotTile(node: RouteNode | undefined, readyLabel: string): Tile[] {
+	const slotId = node ? devtoolNav(node).capability : undefined;
+	return slotId ? tileFor(node, slotState(slotId, readyLabel), slotVerbs(slotId)) : [];
+}
+
+const tiles = $derived<Tile[]>([
+	...tileFor(routeAt("/devtools/clyffy/memory/cortex"), cortexState, cortexVerbs),
+	...slotTile(routeAt("/devtools/clyffy/eyes/vision"), "Ready · vision encode live"),
+	...slotTile(routeAt("/devtools/clyffy/ears/stt"), "Ready · STT live"),
+	...slotTile(routeAt("/devtools/clyffy/mouth/tts"), "Ready · TTS live"),
+	...tileFor(routeAt("/devtools/clyffy/reasoning/rrd"), reasoningState, reasoningVerbs),
+]);
 </script>
 
 <section class="live-subsystem-strip" aria-label="Live subsystems">
@@ -329,51 +349,18 @@ const reasoningVerbs = $derived<SubsystemVerb[]>([
 	</header>
 
 	<div class="live-subsystem-strip__grid">
-		<SubsystemTile
-			route="/devtools/clyffy/memory/cortex"
-			label="Cortex"
-			blurb="Memory orchestration · cross-sensor"
-			icon={Sparkles}
-			accent="cyan"
-			status={cortexState}
-			verbs={cortexVerbs}
-		/>
-		<SubsystemTile
-			route="/devtools/clyffy/eyes/vision"
-			label="Vision"
-			blurb="SigLIP image embeddings"
-			icon={Eye}
-			accent="purple"
-			status={visionState}
-			verbs={visionVerbs}
-		/>
-		<SubsystemTile
-			route="/devtools/clyffy/ears/stt"
-			label="Ears"
-			blurb="Sherpa speech-to-text"
-			icon={Ear}
-			accent="ember"
-			status={earsState}
-			verbs={earsVerbs}
-		/>
-		<SubsystemTile
-			route="/devtools/clyffy/mouth/tts"
-			label="Mouth"
-			blurb="Voice synthesis"
-			icon={Volume2}
-			accent="coral"
-			status={mouthState}
-			verbs={mouthVerbs}
-		/>
-		<SubsystemTile
-			route="/devtools/clyffy/reasoning/rrd"
-			label="Reasoning"
-			blurb="RRD subconscious daemon"
-			icon={BrainCircuit}
-			accent="teal"
-			status={reasoningState}
-			verbs={reasoningVerbs}
-		/>
+		{#each tiles as tile (tile.node.path)}
+			{@const text = routeCopy(tile.node)}
+			<SubsystemTile
+				route={hrefOf(tile.node)}
+				label={text?.label ?? ""}
+				blurb={text?.blurb ?? ""}
+				icon={tile.node.nav.icon}
+				accent={devtoolNav(tile.node).accent}
+				status={tile.status}
+				verbs={tile.verbs}
+			/>
+		{/each}
 	</div>
 </section>
 

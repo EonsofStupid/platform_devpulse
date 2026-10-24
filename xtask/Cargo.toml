@@ -17,7 +17,7 @@ toml = "0.8"
 # xtask should stay light and use Windows Schannel.
 ureq = { version = "2.10", default-features = false, features = ["native-tls", "gzip"] }
 native-tls = "0.2"
-zip = { version = "2.2", default-features = false, features = ["deflate"] }
+zip = { version = "9", default-features = false, features = ["deflate"] }
 sha2 = "0.10"
 hex = "0.4"
 # ISO8601 timestamps for build.manifest.json. Already workspace-pinned.
@@ -36,7 +36,14 @@ walkdir = "2.5"
 # toolchain without a manual vcvars64.bat invocation. The crate is already a
 # transitive dep of dozens of build.rs scripts in the workspace — the explicit
 # entry just lets xtask use the public `windows_registry` module directly.
-cc = "1"
+#
+# Held below 1.5 for the whole workspace (one `cc` per lockfile): since cc
+# 1.5.0 (rust-lang/cc-rs#1930) MSVC C++ sources get a separate `-Tp` argument,
+# which sccache does not recognise — it appends `/WX-` after it and cl.exe
+# reads that as a source file (C1083). Upstream: mozilla/sccache#2062 (open
+# as of 2026-10-12). 1.4.7 is the floor `aegis` (via turso) requires. Lift
+# this when sccache handles `-Tp`.
+cc = "~1.4.7"
 # OS keyring read for the auto-updater signing key. Matches the canonical
 # `devpulse:*` keyring entry pattern used by the desktop tier's cloud /
 # credential modules. The release-publish task pulls the Ed25519 private

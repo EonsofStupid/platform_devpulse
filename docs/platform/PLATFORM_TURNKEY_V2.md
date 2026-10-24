@@ -20,19 +20,6 @@ Reconcile the older artifact in the same PR that diverged. Keep the
 plan thin enough that "single source of truth" is a fact, not a
 slogan.
 
-> ## ⚠ REFRAMED — 2026-06-28
->
-> This is the citation-rich V2 turnkey SSOT (verified status + sequenced §4 phases + PR cadence). It is accurate but pre-pivot: written for the single-binary embedded-everything topology, before the DevPulse-frontend / ClyffyOS-backend split.
->
-> - **Split / relocation** — DevPulse is the FRONTEND (all visuals/UI) and boots fully standalone regardless of connection; DevPulse-local keeps only Turso + DuckDB (analytics). SurrealDB + qortex (the Qdrant-based vector store) + the Burn encoder/embedder/reranker stack + ALL inference + the connectome move to ClyffyOS (headless backend on GB10 or a networked VRAM pool). DevPulse reaches ClyffyOS via Bonjour discovery + `/v1/capability` + MCP verbs. The §2/§4 "embedded in one DevPulse.exe" and "service supervisor owns 6 runtimes" framing must split across the two hosts.
-> - **Renames land in Phase 2, with the code** — cortex -> connectome (control layer + intelligence layer); Qdrant -> qortex; libSQL/LibSQL -> Turso. The code paths and constants below (`kernel/devpulse-clyffy/src/cortex/...`, `EMBEDDING_DIM=384`, Qdrant/LibSQL service rows) stay ACCURATE until Phase 2 — this header flags them, it does not pre-rename them. The §2 Rule 7 slot/model picks (Cascade 2 / Nano-9B, Harrier 0.6B, Sherpa Whisper+Kokoro, ColEmbed VL), §5 bench seeds, and any dims (384) are GB10-side CONFIGURATION, not architecture: the system is model-size-agnostic (8GB LLM floor, scales up), with nothing hardcoded — paths/ids/dims/hosts flow from SSOT/config.
-> - **Deferred, not retired** — §5 `CLOUD_PREFLIGHT.md` cloud connectors and §6 Phase E (Cloud-Surreal connector + devpulse-secrets) are deferred to later phases, not killed; under the split, SurrealDB/qortex are the ClyffyOS backend rather than a dev-only convenience.
-> - **Still valid** — The three-month foundation gap (§3: the staged-indexing orchestrator that sequences discover -> classify -> embed -> store -> verify is missing), the §1 verified DB-boot status and devtool observability, the dual-observability discipline (§2 Rule 11, §4.3 unified Signal taxonomy, §8 gates), the §4.2 pipeline-stage design, real file:line citations, and the DONE/verification records all stay correct — they just relocate the GB10-side stages to ClyffyOS.
->
-> Current truth: `CLYFFY-COGNITIVE-FOUNDATION.md` (v2.0.0) + the 2026-06-27 architecture corrections. Records below preserved.
->
-> **⚠ CUT LANDED — 2026-07-08.** The split described above happened: the kernel left this repo (AI layer = `github.com/EonsofStupid/clyffyos`). Every `kernel/…` path below is a git-history reference. The staged-indexing orchestrator gap (§3) is now ClyffyOS's to close; the DevPulse-local items (boot gate, signal taxonomy, devtool observability) remain this repo's, deferred-not-retired.
-
 ---
 
 ## 1. Status today — verified, no aspirations
@@ -73,16 +60,25 @@ These rules govern every phase below. Violating any is a structural
 bug, not a stylistic preference. Most are cross-referenced from
 `memory/` LOCKED entries.
 
-1. **App is embedded; cloud is for Claude.** `DevPulse.exe` uses
-   kv-surrealkv (no port), embedded Qdrant, embedded DuckDB, embedded
-   LibSQL, Burn in-process. Cloud SurrealDB+Qdrant are dev-side only
-   (chat dump, banter, drift correction). See
-   `memory/project_app_embedded_cloud_for_claude.md`.
-2. **No Python. No Docker. No external services.** Full Rust + TS +
-   Svelte.
+1. ~~App is embedded; kv-surrealkv (no port)~~ — **superseded by the
+   owner.** Surreal is upstream's built binary in a supervised subprocess,
+   never compiled in (plan 0007 decision 6, 2026-10-24: "surreal is suppose
+   to be a prebuilt binary subprocess that can easily be detached"; April:
+   "surreal was never suppose to be just useless embedded i wanted the full
+   version properly sidecar and managed by devpulse"). AI runtimes are
+   subprocesses too (plan 0007). The database is Turso, not LibSQL
+   (owner 2026-07-01).
+2. ~~No Python. No Docker. No external services.~~ — **superseded by the
+   owner.** Rust is the default and Python is allowed (CLAUDE.md
+   "Language Choice", owner 2026-09-23). Docker / Podman is a guided product
+   feature ("I want docker available for the app made easy for users …
+   portable all within devpulse"). DevPulse has a required devpulse.app
+   account, optional shippin.cloud or homelab sync, and the person's own
+   subscriptions (plan 0001).
 3. **No `unwrap()` in production Rust.** Use `?` or explicit handling.
-4. **Kernel vocabulary stays in `kernel/`.** Layman names cross
-   outward.
+4. ~~Kernel vocabulary stays in `kernel/`~~ — **superseded by the owner**
+   (2026-10-19: "everything is public"): the term list maps layman ↔
+   advanced labels, enforcement off; the prompt recipes stay the kernel's.
 5. **Pre-release mode.** Reauthor aggressively. No shims. No
    backcompat.
 6. **Verify after every edit.** Never claim "done" before `cargo
@@ -91,8 +87,11 @@ bug, not a stylistic preference. Most are cross-referenced from
    Nano-9B) + `minion` (Harrier 0.6B) + `voice` (Sherpa Whisper+Kokoro)
    + `rag_embed` (Nemotron ColEmbed VL). Vision is brain-capability,
    not a slot.
-8. **Routing by file format at load time.** GGUF→llama.cpp;
-   SafeTensors+embedding→Burn; ONNX/Sherpa→ort; others→Candle.
+8. ~~Routing by file format at load time (GGUF→llama.cpp;
+   SafeTensors+embedding→Burn; ONNX/Sherpa→ort; others→Candle)~~ —
+   **superseded by the owner**: every slot points at an endpoint, a runtime
+   subprocess or a remote URL; no inference engine is compiled in (plan 0007
+   decision 5, 2026-10-13).
 9. **Setup-wizard boundary INVALID.** Slot Orchestrator devtool is
    SSOT. Devtools are the dev-diagnostic surface; the customer never
    reaches `/devtools/`.

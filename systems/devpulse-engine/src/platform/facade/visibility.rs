@@ -15,7 +15,7 @@
 //! - `Narrated` — Crosses to webview after narration composer
 //!   transforms it into user-safe text.
 //! - `Public` — Crosses directly. Rendered as-is by the UI.
-//! - `Debug` — Lab only. Raw signal dump to Connectome viewer.
+//! - `Debug` — Lab only. Raw signal dump to Cortex viewer.
 
 use serde::{Deserialize, Serialize};
 
@@ -30,7 +30,7 @@ pub enum Visibility {
     Narrated,
     /// Crosses `EventBridge` directly. Rendered as-is.
     Public,
-    /// Lab-only. Full raw event to Connectome viewer.
+    /// Lab-only. Full raw event to Cortex viewer.
     Debug,
 }
 

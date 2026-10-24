@@ -15,7 +15,7 @@
 //! # Model layout
 //!
 //! ```text
-//! {data_dir}/models/sherpa/
+//! {models}/sherpa/
 //!   sherpa-onnx-streaming-zipformer-en-2023-06-26/
 //!     encoder-epoch-99-avg-1.int8.onnx
 //!     decoder-epoch-99-avg-1.onnx
@@ -47,7 +47,7 @@ use uuid::Uuid;
 /// resolved file locations so the frontend can render the model card.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct SherpaInstalledModel {
-    /// Directory name (unique id within `{data_dir}/models/sherpa/`).
+    /// Directory name (unique id within `{models}/sherpa/`).
     pub id: String,
     /// Display label — same as `id` for now; a future `model.json`
     /// manifest can enrich this.
@@ -120,12 +120,13 @@ struct Session {
 }
 
 impl SherpaStreamingService {
-    /// Create the service. `data_dir` is the platform root; the service
-    /// rooted model store at `<data_dir>/models/sherpa/`.
+    /// Create the service over the configured models folder
+    /// (`.userdata/models/` by default); its model store is
+    /// `{models}/sherpa/`.
     #[must_use]
-    pub fn new(data_dir: &Path) -> Self {
+    pub fn new(models_dir: &Path) -> Self {
         Self {
-            models_dir: data_dir.join("models").join("sherpa"),
+            models_dir: models_dir.join("sherpa"),
             inner: Mutex::new(Inner {
                 #[cfg(feature = "sherpa")]
                 recognizers: HashMap::new(),

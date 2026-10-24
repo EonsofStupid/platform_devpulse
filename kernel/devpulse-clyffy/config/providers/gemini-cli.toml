@@ -1,0 +1,37 @@
+# Gemini CLI — Google's coding agent. Facts checked 2026-10-20 against
+# github.com/google-gemini/gemini-cli (README, source) and Google's
+# 2026-05-19 announcement.
+
+# What it is (name, docs, how DevPulse talks to it) is its registry row in
+# kernel/devpulse-clyffy/src/providers/registry.rs; this file is where this
+# machine keeps it.
+id = "gemini-cli"
+note = "Since 2026-06-18 Gemini CLI no longer serves Google AI Pro or Ultra subscriptions; it works with Gemini API keys and Code Assist Standard/Enterprise. Google moved free and Google One users to Antigravity CLI. (Checked 2026-10-20.)"
+
+[detect]
+executables = ["gemini"]
+
+[version]
+args = ["--version"]
+
+[latest]
+npm = "@google/gemini-cli"
+
+[signed_in]
+# No status command. A Google sign-in writes this file; it can also live in
+# the OS keychain, so a missing file means "can't tell", not "signed out".
+files = { windows = ["~/.gemini/oauth_creds.json"], macos = ["~/.gemini/oauth_creds.json"], linux = ["~/.gemini/oauth_creds.json"] }
+
+[sign_in]
+# Sign-in happens inside Gemini CLI itself ("Sign in with Google").
+args = []
+
+[update]
+# Gemini CLI has no updater command of its own.
+program = "npm"
+args = ["install", "-g", "@google/gemini-cli@latest"]
+
+[connect]
+# "Starts the agent in ACP mode" (Gemini CLI 0.65.0's own option;
+# --experimental-acp is the deprecated name).
+args = ["--acp"]

@@ -2,8 +2,8 @@
   @feature ExportDialog — format + path via IPC
 -->
 <script lang="ts">
-import { Button } from "$lib/design/components/button/index.js";
-import Text from "$lib/design/components/text/Text.svelte";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Text } from "@devpulse/coldlight/components/text";
 import type { ExportFormat } from "$lib/sys/generated/bindings.js";
 import * as exportService from "../data-access/export.service.js";
 
@@ -56,8 +56,8 @@ async function runExport() {
 				<Text size="xs" class="text-[var(--signal-error)]">{err}</Text>
 			{/if}
 			<div class="flex justify-end gap-2">
-				<Button preset="ghost" size="sm" onclick={onClose} disabled={busy}>Cancel</Button>
-				<Button preset="primary" size="sm" onclick={() => void runExport()} disabled={busy}>
+				<Button variant="ghost" size="sm" onclick={onClose} disabled={busy}>Cancel</Button>
+				<Button variant="primary" size="sm" onclick={() => void runExport()} disabled={busy}>
 					{busy ? "Exporting…" : "Choose file & export"}
 				</Button>
 			</div>

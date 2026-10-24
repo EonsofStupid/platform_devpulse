@@ -12,7 +12,6 @@ use std::sync::Arc;
 
 use rmcp::handler::server::wrapper::Parameters;
 use rmcp::model::{CallToolResult, Implementation, ServerCapabilities, ServerInfo};
-use rmcp::schemars;
 use rmcp::tool;
 use rmcp::ServerHandler;
 use serde::Deserialize;
@@ -55,9 +54,9 @@ impl ServerHandler for DevPulseMcpServer {
 // Tool parameter structs (schemars-derived for MCP schema gen)
 // ═══════════════════════════════════════════════════════════════
 
-/// Parameters for `query_libsql` tool.
+/// Parameters for `query_database` tool.
 #[derive(Deserialize, schemars::JsonSchema, Default)]
-struct QueryLibsqlParams {
+struct QueryDatabaseParams {
     /// SQL query (SELECT or WITH only).
     sql: String,
     /// Database scope: "system" or "user".
@@ -107,14 +106,14 @@ impl DevPulseMcpServer {
         )]))
     }
 
-    /// Query `LibSQL` database (read-only). Returns JSON rows.
-    #[tool(description = "Execute a read-only SQL query against libSQL (SELECT/WITH only)")]
-    async fn query_libsql(
+    /// Query Turso database (read-only). Returns JSON rows.
+    #[tool(description = "Execute a read-only SQL query against Turso (SELECT/WITH only)")]
+    async fn query_database(
         &self,
-        Parameters(params): Parameters<QueryLibsqlParams>,
+        Parameters(params): Parameters<QueryDatabaseParams>,
     ) -> Result<CallToolResult, rmcp::ErrorData> {
         let scope = params.scope.as_deref().unwrap_or("user");
-        let result = tools::query_libsql::execute(&self.platform, &params.sql, scope).await;
+        let result = tools::query_database::execute(&self.platform, &params.sql, scope).await;
         let is_error = result.starts_with("ERROR:");
         if is_error {
             Ok(CallToolResult::error(vec![rmcp::model::Content::text(
@@ -166,14 +165,14 @@ impl DevPulseMcpServer {
         }
     }
 
-    /// Execute a shell command (`full`-feature builds only).
+    /// Execute a shell command (kernel-feature builds only).
     ///
     /// The method itself is unconditional so the `#[rmcp::tool_router]`
     /// proc macro always sees it — proc-macro expansion runs before cfg
-    /// evaluation, so a `#[cfg(feature = "full")]` on the method made
+    /// evaluation, so a `#[cfg(feature = "kernel")]` on the method made
     /// the generated router reference a method that vanished under
     /// `--no-default-features --features engine` (IP protection gate).
-    /// The body is cfg-switched instead: when `full` is off (restricted
+    /// The body is cfg-switched instead: when `kernel` is off (engine-only
     /// engine build) it returns a structured error; when on it delegates
     /// to `tools::shell_execute::execute` as before.
     #[tool(description = "Execute a shell command in the project workspace (dev builds only)")]
@@ -181,7 +180,7 @@ impl DevPulseMcpServer {
         &self,
         Parameters(params): Parameters<ShellExecuteParams>,
     ) -> Result<CallToolResult, rmcp::ErrorData> {
-        #[cfg(feature = "full")]
+        #[cfg(feature = "kernel")]
         {
             let result = tools::shell_execute::execute(
                 &self.platform,
@@ -201,7 +200,7 @@ impl DevPulseMcpServer {
                 )]))
             }
         }
-        #[cfg(not(feature = "full"))]
+        #[cfg(not(feature = "kernel"))]
         {
             let ShellExecuteParams {
                 command,

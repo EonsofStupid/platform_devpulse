@@ -3,12 +3,12 @@
  * @module @devpulse/sys/runes/platformState
  * @description Unified platform state — merges boot progress + health into one reactive class.
  *
- * ## Boot Strategy: Snapshot-First
+ * ## Boot Strategy: Rust-owned state
  * 1. Wait for Tauri IPC bridge to be ready (poll window.__TAURI_INTERNALS__).
- * 2. On init(), call `get_boot_state` to get accumulated events from Rust.
- * 3. Apply snapshot (replay all events that fired before we mounted).
- * 4. Register live event listeners for any events that fire after.
- * 5. Events are idempotent — Map keyed by step name, so duplicates are safe.
+ * 2. Follow Rust's `boot` state signal (phase + latest status per step).
+ *    The signal fabric replays the current value, so a window that mounts
+ *    mid- or post-boot catches up with no separate snapshot call.
+ * 3. Same for `models` readiness. Values are rendered as-is, never recomputed.
  *
  * ## Lifecycle Safety
  * - init() is guarded against double-calls and destroyed-during-init races.
@@ -17,10 +17,14 @@
  */
 
 import { invoke } from "@tauri-apps/api/core";
-import { listen } from "@tauri-apps/api/event";
-import type { BootSnapshot } from "$lib/sys/generated/boot.types.js";
+import { signalFabric } from "$lib/sys/events/signal-fabric.js";
+import type {
+	BootStatus,
+	InitEvent,
+	InitStatus,
+	ModelsReadiness,
+} from "$lib/sys/generated/bindings.js";
 import type { SystemHealth } from "$lib/sys/generated/health.types.js";
-import type { InitEvent, InitStatus } from "$lib/sys/generated/init.types.js";
 import { resolveLabel } from "$lib/sys/generated/terminology.js";
 import { logDebug, logError, logInfo, logWarn, markIpcReady } from "$lib/sys/logger.js";
 
@@ -112,12 +116,11 @@ class PlatformState {
 	/** Number of slots with assigned models. */
 	assignedCount = $state(0);
 	/**
-	 * Whether we've received at least one authoritative models-status
-	 * update — either the boot snapshot or a live `platform:models-status`
-	 * event. Consumers that decide flow based on `modelsReady` /
-	 * `modelsFirstRun` MUST gate on this first; the defaults
-	 * (`modelsReady=false`, `modelsFirstRun=true`) would otherwise cause
-	 * the wizard to fail-open before the engine has reported state.
+	 * Whether Rust's `models` state signal has arrived (live or replayed
+	 * from the fabric snapshot). Consumers that decide flow based on
+	 * `modelsReady` / `modelsFirstRun` MUST gate on this first; the
+	 * defaults (`modelsReady=false`, `modelsFirstRun=true`) would otherwise
+	 * cause the wizard to fail-open before Rust has reported state.
 	 */
 	modelsStatusReceived = $state(false);
 
@@ -127,22 +130,9 @@ class PlatformState {
 	private initialized = false;
 	private destroyed = false;
 
-	/**
-	 * Deferred backing `whenReady()`. Created lazily on the first
-	 * caller that awaits before we've reached `ready`; resolved by
-	 * `markReady()` when the platform transitions in.
-	 */
-	private readyPromise: Promise<void> | null = null;
-	private resolveReady: (() => void) | null = null;
-
 	// Derived state — boot readiness
 	get isReady(): boolean {
 		return this.phase === "ready";
-	}
-
-	/** Platform AND models both ready — the full app can render. */
-	get isFullyReady(): boolean {
-		return this.phase === "ready" && this.modelsReady;
 	}
 
 	/** Any non-skipped subsystem reported `Error` — blocking until fixed. */
@@ -151,11 +141,6 @@ class PlatformState {
 			if (s.state === "failed") return true;
 		}
 		return false;
-	}
-
-	/** Platform booted but models need setup — show the wizard. */
-	get needsModelSetup(): boolean {
-		return this.phase === "ready" && !this.modelsReady;
 	}
 
 	get isBooting(): boolean {
@@ -223,31 +208,6 @@ class PlatformState {
 		return list;
 	}
 
-	/**
-	 * Await platform readiness — resolves the instant the backend has
-	 * stored the platform (the `boot-phase-changed → ready` event, or a
-	 * boot snapshot already reporting `Ready`), or eagerly if we're
-	 * already there. Callers MUST await this before invoking any command
-	 * that routes through the engine loader; those reject with
-	 * "Platform not ready" until `boot_task` stores the platform. Rides
-	 * the existing boot signal — no new IPC.
-	 */
-	whenReady(): Promise<void> {
-		if (this.phase === "ready") return Promise.resolve();
-		if (!this.readyPromise) {
-			this.readyPromise = new Promise<void>((resolve) => {
-				this.resolveReady = resolve;
-			});
-		}
-		return this.readyPromise;
-	}
-
-	/** Resolve any pending `whenReady()` awaiters. Idempotent. */
-	private markReady(): void {
-		this.resolveReady?.();
-		this.resolveReady = null;
-	}
-
 	/** Initialize — call once from root layout onMount. */
 	async init(): Promise<void> {
 		if (this.initialized) return;
@@ -279,151 +239,72 @@ class PlatformState {
 		// Bail if destroy() was called while we were waiting
 		if (this.destroyed) return;
 
-		logInfo("boot", "IPC ready — loading boot state from Rust");
+		logInfo("boot", "IPC ready — following boot progress from Rust");
 		this.bootStepLabel = "Loading boot state...";
 
-		// 2. Catch up — get snapshot of boot state accumulated in Rust
-		try {
-			const snapshot = await invoke<BootSnapshot>("get_boot_state");
-			if (this.destroyed) return;
-			logInfo("boot", `Boot snapshot: phase=${snapshot.phase}, events=${snapshot.events.length}`);
-			this.applySnapshot(snapshot);
-		} catch (e) {
-			// Non-terminal: live `platform:subsystem-status` / `boot-phase-changed` can still converge.
-			logWarn(
-				"boot",
-				`get_boot_state failed — continuing on live events only (snapshot unavailable): ${String(e)}`,
-			);
-		}
+		// 2. Boot progress — Rust's `boot` state signal. The fabric replays the
+		// current value, so a window that mounts late catches up immediately.
+		this.unlisteners.push(
+			signalFabric.on("boot", (status) => {
+				this.applyBootStatus(status);
+			}),
+		);
 
-		if (this.destroyed) return;
-
-		logInfo("boot", "Registering live event listeners");
-
-		// 3. Register live event listeners (idempotent — Map keyed by step name)
-		const unlistenSubsystem = await listen<InitEvent>("platform:subsystem-status", (e) => {
-			this.applyEvent(e.payload);
-		});
-		this.unlisteners.push(unlistenSubsystem);
-
-		if (this.destroyed) {
-			unlistenSubsystem();
-			return;
-		}
-
-		const unlistenPhase = await listen<{
-			phase: string;
-			health?: SystemHealth;
-			error?: string;
-		}>("boot-phase-changed", (e) => {
-			this.applyPhaseTransition(e.payload);
-		});
-		this.unlisteners.push(unlistenPhase);
-
-		// Listen for model readiness signal from boot_task.
-		// Handles BOTH formats:
-		//   - New: StatusUpdate envelope { kind: "data", data: { slots, models, firstRun } }
-		//   - Old: raw { ready, firstRun, modelCount, slotCount, assignedCount } (from snapshot catch-up)
-		const unlistenModels = await listen<Record<string, unknown>>("platform:models-status", (e) => {
-			const p = e.payload;
-			if (p.kind === "data" && p.data && typeof p.data === "object") {
-				// New emit_status format — unwrap StatusUpdate envelope
-				const d = p.data as {
-					slots?: { assigned_model_id?: string | null }[];
-					models?: unknown[];
-					firstRun?: boolean;
-				};
-				const slots = d.slots ?? [];
-				const modelCount = Array.isArray(d.models) ? d.models.length : 0;
-				const assignedCount = slots.filter((s) => s.assigned_model_id).length;
-				this.modelsFirstRun = d.firstRun ?? true;
-				this.modelCount = modelCount;
-				this.assignedCount = assignedCount;
-				this.modelsReady = !this.modelsFirstRun && modelCount > 0 && assignedCount > 0;
-				this.modelsStatusReceived = true;
-				if (this.modelsReady) this.error = null;
-				logInfo(
-					"boot",
-					`Models status [emit_status]: ready=${this.modelsReady} models=${modelCount} assigned=${assignedCount} firstRun=${this.modelsFirstRun}`,
-				);
-			} else if (typeof p.ready === "boolean") {
-				// Old format (from get_boot_state snapshot or legacy)
-				this.modelsReady = p.ready as boolean;
-				this.modelsFirstRun = (p.firstRun as boolean) ?? true;
-				this.modelCount = (p.modelCount as number) ?? 0;
-				this.assignedCount = (p.assignedCount as number) ?? 0;
-				this.modelsStatusReceived = true;
-				if (typeof p.error === "string" && (p.error as string).length > 0) {
-					this.error = p.error as string;
-					logError("boot", `Models status error: ${p.error}`);
-				} else if (p.ready) {
-					this.error = null;
-				}
-				logInfo(
-					"boot",
-					`Models status [legacy]: ready=${p.ready} models=${p.modelCount} assigned=${p.assignedCount}`,
-				);
-			}
-
-			// First-run now opens the shell-mounted setup overlay.
-			// BootOverlay drops away once platform boot is complete so
-			// onboarding stays inside the app layout instead of routing away.
-			if (p.firstRun) {
-				logInfo("boot", "First-run detected — setup overlay required");
-			}
-		});
-		this.unlisteners.push(unlistenModels);
+		// Models readiness — Rust's `models` state signal, replayed by the
+		// fabric to a window that mounts late. Rendered as-is; never recomputed.
+		this.unlisteners.push(
+			signalFabric.on("models", (readiness) => {
+				this.applyModelsReadiness(readiness);
+			}),
+		);
 
 		if (this.destroyed) {
 			this.cleanupListeners();
 		}
 	}
 
-	/** Apply a full boot snapshot (catch-up from Rust state). */
-	private applySnapshot(snapshot: BootSnapshot): void {
-		const phaseMap: Record<string, BootPhase> = {
-			Initializing: "initializing",
-			Ready: "ready",
-			Failed: "failed",
-		};
-		this.phase = phaseMap[snapshot.phase] ?? "initializing";
-
-		// Replay all accumulated events
-		for (const event of snapshot.events) {
-			this.applyEvent(event);
-		}
-
-		if (snapshot.health) this.health = snapshot.health;
-		if (snapshot.error) {
-			this.error = snapshot.error;
-			logWarn("boot", `Boot snapshot carried error: ${snapshot.error}`);
-		}
-
-		// Catch up on models-status that fired before the live listener mounted.
-		// This is the fix for the dev-mode race: Rust emits platform:models-status
-		// during blocking boot (before the window shows), then the frontend mounts
-		// and registers the listener — but the event is already gone. The snapshot
-		// stores the same payload so we don't lose it.
-		if (snapshot.modelsStatus) {
-			const m = snapshot.modelsStatus;
-			this.modelsReady = m.ready;
-			this.modelsFirstRun = m.firstRun;
-			this.modelCount = m.modelCount;
-			this.assignedCount = m.assignedCount;
-			this.modelsStatusReceived = true;
-			if (typeof m.error === "string" && m.error.length > 0) {
-				this.error = m.error;
+	/** Render Rust's boot progress: per-step status, then the phase. */
+	private applyBootStatus(status: BootStatus): void {
+		status.steps.forEach((step) => {
+			const known = this.subsystems.get(step.step);
+			if (
+				!known ||
+				known.state !== mapInitStatus(step.status) ||
+				known.latencyMs !== step.latency_us
+			) {
+				this.applyEvent(step);
 			}
-			logInfo(
-				"boot",
-				`Models status from snapshot: ready=${m.ready} models=${m.modelCount} assigned=${m.assignedCount}`,
-			);
-		}
+		});
 
-		if (this.phase === "ready") {
-			this.markReady();
+		if (status.phase === this.phase) return;
+		this.phase = status.phase;
+		if (status.phase === "ready") {
+			logInfo("boot", "Platform READY — all services healthy");
+			this.bootStepLabel = "All systems go";
+			this.stopBootTimer();
 			this.startHealthPolling();
+		} else if (status.phase === "failed") {
+			this.error = status.error;
+			logError("boot", `Platform FAILED: ${status.error ?? "unknown"}`);
+			this.bootStepLabel = status.error ?? "Boot failed";
+			this.stopBootTimer();
 		}
+	}
+
+	/** Render Rust's models readiness. The value is authoritative — never recomputed. */
+	private applyModelsReadiness(readiness: ModelsReadiness): void {
+		this.modelsReady = readiness.ready;
+		this.modelsFirstRun = readiness.first_run;
+		this.modelCount = readiness.model_count;
+		this.assignedCount = readiness.assigned_count;
+		this.modelsStatusReceived = true;
+		if (readiness.ready) this.error = null;
+		logInfo(
+			"boot",
+			`Models readiness: ready=${readiness.ready} setup_complete=${readiness.setup_complete} models=${readiness.model_count} assigned=${readiness.assigned_count} first_run=${readiness.first_run}`,
+		);
+
+		if (this.phase === "ready") this.startHealthPolling();
 	}
 
 	/** Apply a single subsystem init event (idempotent via Map key). */
@@ -450,34 +331,6 @@ class PlatformState {
 		} else if (state === "failed") {
 			this.bootStepLabel = `${friendlyName} failed`;
 			logError("boot", `Subsystem failed: step=${event.step} message=${event.message ?? "none"}`);
-		}
-	}
-
-	/** Apply a boot phase transition event. */
-	private applyPhaseTransition(payload: {
-		phase: string;
-		health?: SystemHealth;
-		error?: string;
-	}): void {
-		const phaseMap: Record<string, BootPhase> = {
-			initializing: "initializing",
-			ready: "ready",
-			failed: "failed",
-		};
-		this.phase = phaseMap[payload.phase] ?? this.phase;
-		if (payload.health) this.health = payload.health;
-		if (payload.error) this.error = payload.error;
-
-		if (payload.phase === "ready") {
-			logInfo("boot", "Platform READY — all services healthy");
-			this.bootStepLabel = "All systems go";
-			this.markReady();
-			this.stopBootTimer();
-			this.startHealthPolling();
-		} else if (payload.phase === "failed") {
-			logError("boot", `Platform FAILED: ${payload.error ?? "unknown"}`);
-			this.bootStepLabel = payload.error ?? "Boot failed";
-			this.stopBootTimer();
 		}
 	}
 

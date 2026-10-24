@@ -1,60 +1,82 @@
 # DevPulse Platform — Rust + Svelte 5 + Tauri 2 Monorepo
 
-AI-assisted developer platform. Standalone smart-portable desktop app
-(Tier 1) that connects to the operator's own headless Clyffy for the AI
-layer (Tier 2) over the gb10-client wire. Multi-window Tauri cockpit
-with local model management, voice pipeline, and visual builder.
+AI-assisted developer platform. Local-first inference. Multi-window
+Tauri desktop with managed models, voice pipeline, and visual builder.
 Pre-release — aggressive reauthoring, no shims.
 
 ## Stack
-- **Rust workspace** — engine (DevPulse's core), Tauri backend, xtask.
-  The AI layer (connectome kernel, inference, RRD daemon) is Clyffy's —
-  it lives at github.com/EonsofStupid/clyffyos and is reached over the
-  `devpulse-gb10-client` wire (capability computed, never hardcoded).
+- **Rust workspace** — kernel, engine, Tauri backend, xtask
 - **Svelte 5 runes** — `$state`, `$derived`, `$effect`. No legacy stores.
 - **Tauri 2.0** — multi-window cockpit via WebviewWindow
-- **Turso** (local SSOT — replaces libSQL) + local **DuckDB** (project analytics).
-  **SurrealDB** + qortex + inference + AI analytics run on **ClyffyOS/GB10**, not local.
+- **AI = providers over endpoints** — local runtimes are prebuilt, supervised
+  subprocesses (plan 0007); subscriptions run as the vendor's own CLI over ACP;
+  no new compiled-in inference (plan 0001)
+- **Turso** (SSOT, `kernel/.../persistence/turso/` — one connection per
+  operation; DBs at `.userdata/{system,user}/turso/`) + **SurrealDB** (graph;
+  upstream's built binary as a supervised subprocess, never compiled in —
+  plan 0007 Part S, until RRFlow replaces it) + **DuckDB** (analytics)
+- **Docker / Podman** — a product feature: DevPulse sets it up for the
+  person's projects, guided, per real-world best practice, inside the
+  portable folder (owner: "I want docker available for the app made easy for
+  users … portable all within devpulse"; 2026-10-20 "effortlessly sets up
+  Docker or podman per real world best practices")
+
+## Language Choice
+- Rust is the default. Use it wherever it is viable and best practice.
+- Python is allowed. It is not the default choice.
+- Python is the obvious choice for ML training, fine-tuning, and data
+  pipelines (collection, cleaning, dataset prep, ONNX/GGUF export). Use it
+  there — do not force those into Rust.
+- (Owner 2026-09-23, `1921fc48`; again 2026-10-24: "Python is allowed".)
 - **Style Dictionary 5** drives ColdLight — DTCG tokens → CSS + TS types
-  (OKLCH + REM + container-fluid `cqi` sizing)
 
 ## Commands
-- `cargo check -p <crate>` — typecheck one crate (NEVER workspace-wide)
+- `cargo check -p <crate>` — typecheck one crate while iterating (the
+  pre-commit and pre-push hooks run the workspace-wide checks)
 - `cargo xtask run-dev` — **THE ONLY dev command** (starts everything)
 - `cargo xtask verify` — full verification pipeline
 - `cargo xtask build-release [--portable-only]` — release build
 - `cd interfaces/desktop && pnpm check` — svelte-check (TS + Svelte)
+- `cd packages/coldlight && pnpm check` — svelte-check for ColdLight
 - `cd interfaces/desktop && pnpm ds:tokens:build` — ColdLight token regen
 
 ## Structure
-- `systems/devpulse-engine/` — DevPulse's **core backend**: services, boot,
-  config, signals, model *management* (`platform/model_loader`), knowledge
-  content. **NOT sensitive IP** — cite freely; the layman/Teaching-Mode
-  simplify is engine→UI.
-- `systems/devpulse-gb10-client/` — the wire to headless Clyffy
-  (`GET /v1/capability` handshake; `ConnectionState`; Tier-2 surfaces are a
-  pure function of the advertised capability)
+- `kernel/devpulse-clyffy/`, `kernel/model-loader/` — the kernel: AI only
+  (AI config and anything that drives an AI connection); the engine is
+  everything else. Vocabulary is public (owner 2026-10-19: "everything is
+  public"): `systems/devpulse-engine/ip/kernel_terms.toml` maps layman ↔
+  advanced labels and its enforcement is `off`. The prompt recipes stay the
+  kernel's (owner: "COSTAR+ will be allowed, the actual prompt recipe system
+  will not be").
+- `systems/devpulse-engine/` — platform engine (services, boot, config, signals)
 - `systems/devpulse-media/` — audio/media crate
 - `systems/infra/{devpulse-telemetry, devpulse-telemetry-macros}/` — peer
   infrastructure crates (upward-only dependency direction)
 - `interfaces/desktop/` — Tauri 2 + SvelteKit 5 app
-  - Devtool taxonomy SSOT: `src/lib/devtools/registry.ts`
+  - Devtool taxonomy SSOT: `src/lib/devtools/registry.ts` (+ `meta.ts`)
     drives `/devtools/{tier}/{bucket}/{id}` — three tiers (System / Clyffy /
     Runtimes), each bucketed. Add a devtool = one registry entry + one route
     folder under that path.
+- `packages/coldlight/` — ColdLight, the design system: internal workspace
+  package `@devpulse/coldlight`. The app imports it only through its
+  `exports`; inside, modules import each other as `#coldlight/*`. It imports
+  nothing from the app.
 - `xtask/` — Rust build orchestrator (`cargo xtask <command>`)
 - `scripts/` — build tooling, lefthook hooks, preflight AST checks
 - `docs/` — platform specs, knowledge library
 - `deps/` — vendored external forks (ort, kokoros, etc.)
 
 ## Top 5 Hard Rules
-1. **No Python. No Docker. No external services.** Full Rust + TS + Svelte.
+1. **Include before delete.** Unused code stays, or is wired in or proven
+   covered first; deletion only per item with the owner's OK (owner
+   2026-10-19: "dead code needs to exist in the codebase or be properly
+   included before deleted this is a fucking rule").
 2. **No `unwrap()` in production Rust.** Use `?` or explicit handling.
-3. **No AI kernel in this repo — ever.** The AI layer is Clyffy's and lives at
-   github.com/EonsofStupid/clyffyos; DevPulse reaches it over the wire only.
-   `verify-ip-boundary` + cargo-deny enforce the inference-free build. Layman
-   Teaching-Mode simplification runs engine→UI (no sensitive IP, not secrecy).
-4. **Pre-release mode.** Reauthor aggressively. No shims. No backcompat.
+3. **Pre-release mode.** Reauthor the existing code in place, aggressively.
+   No shims. No backcompat. Reauthoring never means deleting (rule 1) or
+   writing a parallel version.
+4. **Plan before change.** Extend the `.plan` that owns the topic; never a
+   parallel plan.
 5. **Verify after every edit.** Never report "done" before compile passes.
 
 ## @imports

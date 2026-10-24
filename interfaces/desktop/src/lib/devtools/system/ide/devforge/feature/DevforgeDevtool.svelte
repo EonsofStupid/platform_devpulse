@@ -7,11 +7,11 @@
 	extras: "Projects" (recent projects list with remove).
 -->
 <script lang="ts">
-import { Code, ExternalLink, FolderOpen, Power, RefreshCw, Trash2 } from "@lucide/svelte";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Spinner } from "@devpulse/coldlight/components/spinner";
+import { Text } from "@devpulse/coldlight/components/text";
+import { ExternalLink, FolderOpen, Power, RefreshCw, Trash2 } from "lucide-svelte";
 import { onMount } from "svelte";
-import { Button } from "$lib/design/components/button/index.js";
-import { Spinner } from "$lib/design/components/spinner/index.js";
-import { Text } from "$lib/design/components/text/index.js";
 import {
 	type ExtraTab,
 	type HealthBadge,
@@ -61,11 +61,6 @@ const badge = $derived<HealthBadge>(
 </script>
 
 <ServiceDevtoolShell
-	title="DevForge"
-	description="Code Editor · REH Server"
-	icon={Code}
-	axis="runtimes"
-	accent="magenta"
 	health={badge}
 	{extraTabs}
 >
@@ -74,7 +69,7 @@ const badge = $derived<HealthBadge>(
 			<div class="flex items-center justify-between">
 				<Text size="sm" weight="semibold">Server Status</Text>
 				<Button
-					preset="ghost"
+					variant="ghost"
 					size="sm"
 					onclick={() => devforgeState.loadStatus()}
 					disabled={devforgeState.statusLoading}
@@ -187,7 +182,7 @@ const badge = $derived<HealthBadge>(
 		<div class="space-y-3">
 			<div class="flex gap-3">
 				<Button
-					preset="primary"
+					variant="primary"
 					size="md"
 					onclick={() => devforgeState.openWindow()}
 					disabled={!devforgeState.installed}
@@ -197,7 +192,7 @@ const badge = $derived<HealthBadge>(
 				</Button>
 
 				{#if devforgeState.running}
-					<Button preset="ghost" size="md" onclick={() => devforgeState.closeWindow()}>
+					<Button variant="ghost" size="md" onclick={() => devforgeState.closeWindow()}>
 						<Power size={14} />
 						Close Window
 					</Button>
@@ -222,7 +217,7 @@ const badge = $derived<HealthBadge>(
 				<div class="flex items-center justify-between mb-2">
 					<Text size="sm" weight="semibold">Re-poll DevForge</Text>
 					<Button
-						preset="ghost"
+						variant="ghost"
 						size="sm"
 						onclick={() => devforgeState.refresh()}
 					>

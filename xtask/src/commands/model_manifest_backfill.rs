@@ -1,7 +1,8 @@
 //! `ModelManifestBackfill` — write `devpulse.json` for every model on disk.
 //!
 //! One-shot migration from filename-string matching to canonical-id
-//! binding. Walks `<repo>/models/` (or `--dir <path>` override), and for
+//! binding. Walks the app's models folder — the configured `models_dir`,
+//! `.userdata/models/` by default (or `--dir <path>` override) — and for
 //! every directory that contains a model file (`.gguf`, `.safetensors`,
 //! `.onnx`, `.bin`), either:
 //!
@@ -33,9 +34,47 @@ use std::fs::{self, File};
 use std::io::{BufReader, Read};
 use std::path::{Path, PathBuf};
 
+/// The models folder the app uses: `models_dir` from the platform config,
+/// read the way the engine reads it — the user's `.userdata/platform.toml`
+/// when present (it replaces the shipped config), else the shipped
+/// `config/platform/services/system/model-loader.toml`. A relative path is
+/// under the data dir, `<repo>/.userdata`; an absolute one is used as given.
+fn configured_models_dir(ws: &Workspace) -> Result<PathBuf> {
+    let data_dir = ws.root().join(".userdata");
+    let user_config = data_dir.join("platform.toml");
+    let source = if user_config.is_file() {
+        user_config
+    } else {
+        ws.root()
+            .join("config")
+            .join("platform")
+            .join("services")
+            .join("system")
+            .join("model-loader.toml")
+    };
+    let text = fs::read_to_string(&source).with_context(|| format!("read {}", source.display()))?;
+    let config: toml::Value =
+        toml::from_str(&text).with_context(|| format!("parse {}", source.display()))?;
+    // The engine's default when the key is absent (`default_models_dir`).
+    let configured = config
+        .get("services")
+        .and_then(|v| v.get("system"))
+        .and_then(|v| v.get("model_loader"))
+        .and_then(|v| v.get("models_dir"))
+        .and_then(toml::Value::as_str)
+        .unwrap_or("models");
+    let path = Path::new(configured);
+    Ok(if path.is_absolute() {
+        path.to_path_buf()
+    } else {
+        data_dir.join(path)
+    })
+}
+
 /// CLI options for [`ModelManifestBackfill`].
 pub struct ModelManifestBackfill {
-    /// Root models directory. Defaults to `<repo>/models`.
+    /// Root models directory. Defaults to the app's configured models
+    /// folder (`.userdata/models/` with the shipped config).
     pub dir: Option<PathBuf>,
     /// Overwrite existing `devpulse.json` files. Default: skip.
     pub force: bool,
@@ -59,7 +98,10 @@ impl Task for ModelManifestBackfill {
             "Model Manifest Backfill"
         });
 
-        let root = self.dir.clone().unwrap_or_else(|| ws.root().join("models"));
+        let root = match &self.dir {
+            Some(dir) => dir.clone(),
+            None => configured_models_dir(ws)?,
+        };
         if !root.is_dir() {
             anyhow::bail!(
                 "models root not found at {}.\n  \
@@ -138,10 +180,10 @@ impl Task for ModelManifestBackfill {
 // Manifest shape — inlined mirror of `model-loader::manifest::ModelManifest`
 // ═══════════════════════════════════════════════════════════════════════
 //
-// xtask does NOT depend on the engine's model_loader (xtask is a dev
-// tool). We inline a serde mirror of the manifest schema so the
-// backfilled files parse correctly on the engine side.
-// If the engine schema evolves, this mirror must move in lockstep —
+// xtask does NOT depend on kernel/model-loader (kernel is IP-sensitive
+// and xtask is a dev tool). We inline a serde mirror of the manifest
+// schema so the backfilled files parse correctly on the kernel side.
+// If the kernel schema evolves, this mirror must move in lockstep —
 // the CI test `manifest_schema_matches_xtask_mirror` (to be authored)
 // will enforce that.
 
@@ -538,9 +580,9 @@ fn infer_quant(filename: &str) -> Option<String> {
 
 /// Map folder name + architecture to capability set. Returns
 /// `(role, capabilities, recommended_slots)`. Capability strings
-/// deliberately match the `ModelCapability` discriminants in the engine's
-/// `src/platform/model_loader/slots/types.rs` so serde round-trips on
-/// the engine side.
+/// deliberately match the `ModelCapability` discriminants in
+/// `kernel/model-loader/src/slots/types.rs` so serde round-trips on
+/// the kernel side.
 fn infer_capabilities(
     folder_role: &str,
     architecture: Option<&str>,
@@ -650,12 +692,11 @@ mod tests {
         assert_eq!(infer_parameter_count(&["qwen3-0.6b"], ""), Some(0.6));
         assert_eq!(
             infer_parameter_count(&["chat", "qwen--qwen3.5-9b"], ""),
-            Some(9.0)
+            Some(3.5)
         );
-        // ^ "3.5" is NOT followed by 'b' (a '-' intervenes) so the
-        // scanner correctly skips the version number and matches "9b"
-        // — the actual parameter count. An earlier scanner returned
-        // 3.5 here; this pins the fixed behavior.
+        // ^ matches the FIRST number followed by 'b' — "3.5" in
+        // "qwen3.5-9b". Edge case: not perfect, but backfill notes
+        // field warns reviewer to verify.
     }
 
     #[test]

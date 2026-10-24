@@ -1,6 +1,6 @@
 //! MCP tool: `shell_execute` — run a shell command.
 //!
-//! `#[cfg(feature = "full")]` ONLY — compiled out of release.
+//! `#[cfg(feature = "kernel")]` ONLY — compiled out of release.
 //! Returns stdout + stderr + exit code. Timeout configurable.
 //!
 //! Security: workspace containment on cwd, command blocklist applied.

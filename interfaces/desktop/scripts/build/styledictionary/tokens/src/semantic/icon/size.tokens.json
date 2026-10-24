@@ -1,0 +1,22 @@
+{
+	"iconSize": {
+		"$type": "dimension",
+		"$description": "Hand-authored icon box sizes. rem, so icons follow the user's font size; px noted at the 16 px root. Consumed as `--icon-size-*` and, for layout, the Tailwind `size-icon-*` utilities.",
+		"xs": {
+			"$value": { "value": 0.875, "unit": "rem" },
+			"$description": "Dense chrome — title-bar and window controls. 14 px."
+		},
+		"sm": {
+			"$value": { "value": 1, "unit": "rem" },
+			"$description": "Beside body text — buttons, inputs, calendar navigation, widget headers. 16 px."
+		},
+		"md": {
+			"$value": { "value": 1.25, "unit": "rem" },
+			"$description": "Tiles and section headers. 20 px."
+		},
+		"lg": {
+			"$value": { "value": 1.5, "unit": "rem" },
+			"$description": "Feature and empty-state icons — Lucide's native 24 px grid."
+		}
+	}
+}

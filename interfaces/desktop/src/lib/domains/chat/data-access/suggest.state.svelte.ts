@@ -127,14 +127,11 @@ class SuggestState {
 		this.usedSuggestion = true;
 	}
 
-	/** Persist a committed prompt into the corpus for future recall.
-	 *
-	 * Best-effort: recording feeds type-time recall, which needs the embedder
-	 * slot. When the connected endpoint doesn't advertise one (standalone Tier-1,
-	 * or a Clyffy whose capability omits the embedder), `suggestRecord` errors —
-	 * that must NOT crash the send path. We swallow + log here so a caller can
-	 * safely `void record(...)`; the prompt still sent, only future recall is
-	 * skipped. Mirrors the graceful-degrade already in `#runQuery`. */
+	/**
+	 * Persist a committed prompt into the corpus for future recall.
+	 * Suggestions are optional: without the suggestion slot's embedder this
+	 * is logged and skipped (as `query` does), never thrown at the chat.
+	 */
 	async record(text: string): Promise<void> {
 		const trimmed = text.trim();
 		if (trimmed.length === 0) return;
@@ -145,7 +142,7 @@ class SuggestState {
 			});
 		} catch (e) {
 			const msg = e instanceof Error ? e.message : String(e);
-			logError("chat.suggest", `record failed (non-fatal, recall skipped): ${msg}`);
+			logError("chat.suggest", `record failed: ${msg}`);
 		} finally {
 			this.usedSuggestion = false;
 		}

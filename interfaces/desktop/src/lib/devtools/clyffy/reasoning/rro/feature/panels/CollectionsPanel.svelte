@@ -5,14 +5,15 @@
 	@description Knowledge store CRUD + health.
 -->
 <script lang="ts">
-import { ArrowUpRight, Database, Plus, RefreshCw, Trash2 } from "@lucide/svelte";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Button } from "$lib/design/components/button/index.js";
-import { Card } from "$lib/design/components/card/index.js";
-import { NumberField } from "$lib/design/components/number-field/index.js";
-import { Spinner } from "$lib/design/components/spinner/index.js";
-import { Text } from "$lib/design/components/text/index.js";
-import { TextField } from "$lib/design/components/text-field/index.js";
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Card } from "@devpulse/coldlight/components/card";
+import { NumberField } from "@devpulse/coldlight/components/number-field";
+import { Spinner } from "@devpulse/coldlight/components/spinner";
+import { Text } from "@devpulse/coldlight/components/text";
+import { TextField } from "@devpulse/coldlight/components/text-field";
+import { ArrowUpRight, Database, Plus, RefreshCw, Trash2 } from "lucide-svelte";
+import { resolve } from "$app/paths";
 import { rroState } from "$lib/sys/data-access/rro/rro.state.svelte.js";
 import { CapabilityHeader, ErrorCallout } from "../../ui/index.js";
 
@@ -24,14 +25,14 @@ $effect(() => {
 });
 </script>
 
-<Card preset="glass">
+<Card surface="glass" variant="deep">
 	<div class="p-3 space-y-3">
 		{#snippet icon()}
 			<Database size={14} class="text-[var(--accent-service-main)]" />
 		{/snippet}
 		{#snippet actions()}
 			<Button
-				preset="ghost"
+				variant="ghost"
 				size="sm"
 				onclick={() => rroState.loadHealth()}
 				disabled={rroState.healthLoading}
@@ -54,7 +55,7 @@ $effect(() => {
 					<Text size="xs" weight="medium">{rroState.health.storage_path}</Text>
 				</div>
 				<a
-					href="/devtools/system/datastores/qdrant"
+					href={resolve("/devtools/system/datastores/qdrant")}
 					class="inline-flex items-center gap-1 text-xs hover:text-[var(--accent-service-main)]"
 					title="Open the Qdrant store devtool — health, raw collection inventory, ops"
 				>
@@ -68,7 +69,7 @@ $effect(() => {
 			{:else}
 				<div class="space-y-1.5">
 					{#each rroState.health.collections as col}
-						<Card preset="flat">
+						<Card surface="flat" variant="minimal">
 							<div class="flex items-center justify-between p-2 gap-2">
 								<div class="flex items-center gap-2 min-w-0">
 									<Database size={12} class="text-[var(--accent-service-main)] shrink-0" />
@@ -79,7 +80,7 @@ $effect(() => {
 										{col.point_count.toLocaleString()} items
 									</Badge>
 									<Button
-										preset={rroState.deleteConfirm === col.name ? "danger" : "ghost"}
+										variant={rroState.deleteConfirm === col.name ? "danger" : "ghost"}
 										size="sm"
 										onclick={() => rroState.deleteCollection(col.name)}
 									>
@@ -99,7 +100,7 @@ $effect(() => {
 	</div>
 </Card>
 
-<Card preset="glass">
+<Card surface="glass" variant="deep">
 	<div class="p-3 space-y-3">
 		{#snippet icon()}
 			<Plus size={14} class="text-[var(--accent-service-main)]" />
@@ -133,7 +134,7 @@ $effect(() => {
 			<ErrorCallout prefix="Couldn't create store" message={rroState.createError} />
 			<ErrorCallout prefix="Couldn't delete store" message={rroState.deleteError} />
 			<Button
-				preset="primary"
+				variant="primary"
 				size="sm"
 				onclick={() => rroState.createCollection()}
 				disabled={rroState.createLoading || !rroState.newCollectionName.trim()}

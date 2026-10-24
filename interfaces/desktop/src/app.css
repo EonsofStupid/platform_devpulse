@@ -1,14 +1,87 @@
 @import "tailwindcss";
-@import "$lib/design/index.css";
+@import "@devpulse/coldlight/index.css";
+/* ColdLight is a workspace package outside this folder, so Tailwind's automatic
+   detection does not reach it: register its components as a source. */
+@source "../node_modules/@devpulse/coldlight";
 
 /* ═══════════════════════════════════════════════════════
-   NO TOKEN DEFINITIONS LIVE HERE (P2.4, 2026-07-12).
-   The role vocabulary, the backdrop-primary mirrors, and the
-   button-primary retarget were all promoted into SD5 source
-   (semantic/accent, semantic/backdrop, presets/button) and emit
-   inside @layer tokens.* — rebind in the token sources, never
-   in this file. app.css owns only base styles + route backdrops.
+   Semantic accent layer — VISUAL-EDITOR REBINDABLE.
+   Components consume --accent-primary-* / --accent-secondary-* /
+   --accent-danger-* / --accent-success-* / --accent-warning-* /
+   --accent-muted-*. They MUST NOT reach for palette names
+   (--accent-blue-*, --accent-teal-*) directly — the whole point
+   of this indirection is that a visual editor can rebind what
+   "primary" looks like by changing these pointers, and every
+   component updates without code changes.
+
+   Default binding: primary = blue, secondary = purple,
+   danger = coral, success = green, warning = gold, muted = frost.
+
+   TODO: promote to SD5 source tokens once the visual-editor
+   binding UX stabilizes. For now, hand-authored so the semantic
+   layer exists while the generator catches up.
    ═══════════════════════════════════════════════════════ */
+:root {
+	--accent-primary-main: var(--accent-blue-main);
+	--accent-primary-glow: var(--accent-blue-glow);
+	--accent-primary-fill: var(--accent-blue-fill);
+
+	--accent-secondary-main: var(--accent-purple-main);
+	--accent-secondary-glow: var(--accent-purple-glow);
+	--accent-secondary-fill: var(--accent-purple-fill);
+
+	--accent-danger-main: var(--accent-coral-main);
+	--accent-danger-glow: var(--accent-coral-glow);
+	--accent-danger-fill: var(--accent-coral-fill);
+
+	--accent-success-main: var(--accent-green-main);
+	--accent-success-glow: var(--accent-green-glow);
+	--accent-success-fill: var(--accent-green-fill);
+
+	--accent-warning-main: var(--accent-gold-main);
+	--accent-warning-glow: var(--accent-gold-glow);
+	--accent-warning-fill: var(--accent-gold-fill);
+
+	--accent-muted-main: var(--accent-frost-main);
+	--accent-muted-glow: var(--accent-frost-glow);
+	--accent-muted-fill: var(--accent-frost-fill);
+
+	/* Backdrop mirrors for semantic primary — used by full-viewport
+	   background variants (DynamicBackground, app.css route overrides). */
+	--backdrop-glow-primary: color-mix(in oklch, var(--color-brand-blue-500) 35%, transparent);
+	--backdrop-grid-primary: color-mix(in oklch, var(--color-brand-blue-500) 8%, transparent);
+	--backdrop-grid-size-primary: 3rem;
+
+	/* ── Preset shim ─────────────────────────────────────────
+	   The SD5-generated button-primary preset currently emits
+	   raw oklch() at hue 180 (teal) instead of palette refs.
+	   Retarget it here so components/button-primary consumes
+	   the semantic primary layer above. When the SD5 source
+	   is updated to palette refs, this shim can be deleted. */
+	--preset-button-primary-background-color: var(--accent-primary-main);
+	--preset-button-primary-hover-background-color: color-mix(
+		in oklch,
+		var(--accent-primary-main) 82%,
+		black 12%
+	);
+	--preset-button-primary-active-background-color: color-mix(
+		in oklch,
+		var(--accent-primary-main) 66%,
+		black 28%
+	);
+	--preset-button-primary-box-shadow: 0 0 1rem 0 var(--accent-primary-glow);
+	--preset-button-primary-hover-box-shadow: 0 0 1.5rem 0.125rem var(--accent-primary-glow);
+	--preset-button-primary-border-color: color-mix(
+		in oklch,
+		var(--accent-primary-main) 60%,
+		transparent
+	);
+	--preset-button-primary-hover-border-color: color-mix(
+		in oklch,
+		var(--accent-primary-main) 78%,
+		transparent
+	);
+}
 
 /*
  * Global base styles — ColdLight dark theme defaults.

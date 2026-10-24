@@ -4,16 +4,16 @@
 
 	Slot-scoped HuggingFace search + install dialog. Opens for an empty
 	slot, queries HF, and lets the user pick a repo whose primary file
-	the engine installs into the slot via `RepoDownloadButton` with
+	the kernel installs into the slot via `RepoDownloadButton` with
 	`slotId` bound.
 
 	## Why slot-scoped
 
-	The engine's `recommend_primary_for_slot` already filters per the
+	The kernel `recommend_primary_for_slot` already filters per the
 	slot's required capability + the host's hardware tier — so a chat
 	slot lands a GGUF, an embedder slot lands a safetensors shard,
 	etc. The dialog itself stays format-agnostic. The user types a
-	query and clicks Install; the engine handles compatibility.
+	query and clicks Install; the kernel handles compatibility.
 
 	## Lifecycle
 
@@ -23,10 +23,10 @@
 	  on the parent surface).
 -->
 <script lang="ts">
-import { Search, X } from "@lucide/svelte";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Spinner } from "$lib/design/components/spinner/index.js";
-import { Text } from "$lib/design/components/text/index.js";
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Spinner } from "@devpulse/coldlight/components/spinner";
+import { Text } from "@devpulse/coldlight/components/text";
+import { Search, X } from "lucide-svelte";
 import { type HfSearchResultInfo, searchHuggingface } from "$lib/sys/bindings/models/index.js";
 import RepoDownloadButton from "./RepoDownloadButton.svelte";
 

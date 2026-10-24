@@ -3,19 +3,13 @@
 //! Read and mutate retrieval config at runtime. Query collection
 //! health and run test searches from the devtools UI.
 //!
-//! # Tier-2 seam (standalone desktop vs. totalrecall)
+//! Mirrors the telemetry.rs pattern: `Arc<RwLock<RetrievalConfig>>`
+//! on `VectorService`, get/set via Tauri commands.
 //!
-//! The RRO/qortex vector store is a **Tier-2** capability: it is Clyffy-side
-//! (headless Clyffy / ClyffyOS) and is NOT linked into the standalone DevPulse
-//! desktop — the desktop's Turso store hard-enables a `parking_lot` feature
-//! mutually exclusive with qortex's, so the two cannot co-compile (see the
-//! `totalrecall` feature in `Cargo.toml`).
-//!
-//! These command entry points therefore keep a **stable** Tauri/specta
-//! signature so the generated frontend bindings never churn, but in the default
-//! (no `totalrecall`) build they return a typed "Tier-2 unavailable" — the
-//! exact seam the gb10-client wire calls replace once Clyffy connects. The real
-//! in-process implementation is compiled only under `totalrecall`.
+//! The vector store is behind the `rro` feature. With it off (the default
+//! until the from-scratch RRO lands at `deps/rro`), every command stays
+//! registered with the same signature and returns [`RRO_UNAVAILABLE`], so
+//! the generated TS bindings and frontend callers do not change.
 
 use crate::state::PlatformState;
 use devpulse_engine::platform::{retrieval_param_meta, RetrievalConfig, RetrievalParamMeta};
@@ -23,10 +17,9 @@ use serde::{Deserialize, Serialize};
 use specta::Type;
 use tauri::State;
 
-/// Returned by the vector-store commands when the in-process qortex store is
-/// not linked (standalone desktop). Connect Clyffy (gb10-client wire) to enable.
-#[cfg(not(feature = "totalrecall"))]
-const VECTOR_TIER2_UNAVAILABLE: &str = "Vector store unavailable — RRO/qortex is a Tier-2 capability served by Clyffy over the gb10-client wire. Connect Clyffy to enable.";
+/// Error returned by every vector command when the `rro` feature is off.
+#[cfg(not(feature = "rro"))]
+const RRO_UNAVAILABLE: &str = "Vector store unavailable — RRO not installed";
 
 // ═══════════════════════════════════════════════════════════════
 // Config commands
@@ -35,12 +28,11 @@ const VECTOR_TIER2_UNAVAILABLE: &str = "Vector store unavailable — RRO/qortex 
 /// Get the current retrieval configuration.
 ///
 /// # Errors
-/// Returns error if platform is still booting, the vector store is disabled,
-/// or (standalone desktop) the store is a not-yet-connected Tier-2 capability.
+/// Returns error if platform is still booting or vector store is disabled.
 #[tauri::command]
 #[specta::specta]
 pub async fn get_vector_config(state: State<'_, PlatformState>) -> Result<RetrievalConfig, String> {
-    #[cfg(feature = "totalrecall")]
+    #[cfg(feature = "rro")]
     {
         // P0: lock-free atomic load.
         match state.platform.load_full() {
@@ -51,10 +43,10 @@ pub async fn get_vector_config(state: State<'_, PlatformState>) -> Result<Retrie
             None => Err("Platform is still booting".to_string()),
         }
     }
-    #[cfg(not(feature = "totalrecall"))]
+    #[cfg(not(feature = "rro"))]
     {
-        let _ = &state;
-        Err(VECTOR_TIER2_UNAVAILABLE.to_string())
+        let _ = state;
+        Err(RRO_UNAVAILABLE.to_string())
     }
 }
 
@@ -63,15 +55,14 @@ pub async fn get_vector_config(state: State<'_, PlatformState>) -> Result<Retrie
 /// Changes take effect immediately — no restart required.
 ///
 /// # Errors
-/// Returns error if platform is still booting, the vector store is disabled,
-/// or (standalone desktop) the store is a not-yet-connected Tier-2 capability.
+/// Returns error if platform is still booting or vector store is disabled.
 #[tauri::command]
 #[specta::specta]
 pub async fn set_vector_config(
     state: State<'_, PlatformState>,
     config: RetrievalConfig,
 ) -> Result<(), String> {
-    #[cfg(feature = "totalrecall")]
+    #[cfg(feature = "rro")]
     {
         // P0: lock-free atomic load.
         match state.platform.load_full() {
@@ -85,10 +76,10 @@ pub async fn set_vector_config(
             None => Err("Platform is still booting".to_string()),
         }
     }
-    #[cfg(not(feature = "totalrecall"))]
+    #[cfg(not(feature = "rro"))]
     {
-        let _ = (&state, &config);
-        Err(VECTOR_TIER2_UNAVAILABLE.to_string())
+        let _ = (state, config);
+        Err(RRO_UNAVAILABLE.to_string())
     }
 }
 
@@ -117,14 +108,13 @@ pub struct VectorHealthReport {
 /// Get vector store health — collections, point counts, storage path.
 ///
 /// # Errors
-/// Returns error if platform is still booting, the vector store is disabled,
-/// or (standalone desktop) the store is a not-yet-connected Tier-2 capability.
+/// Returns error if platform is still booting or vector store is disabled.
 #[tauri::command]
 #[specta::specta]
 pub async fn get_vector_health(
     state: State<'_, PlatformState>,
 ) -> Result<VectorHealthReport, String> {
-    #[cfg(feature = "totalrecall")]
+    #[cfg(feature = "rro")]
     {
         // P0: lock-free atomic load.
         let platform = state
@@ -163,10 +153,10 @@ pub async fn get_vector_health(
             collections,
         })
     }
-    #[cfg(not(feature = "totalrecall"))]
+    #[cfg(not(feature = "rro"))]
     {
-        let _ = &state;
-        Err(VECTOR_TIER2_UNAVAILABLE.to_string())
+        let _ = state;
+        Err(RRO_UNAVAILABLE.to_string())
     }
 }
 
@@ -192,9 +182,8 @@ pub struct VectorSearchResult {
 /// the encoder slot.
 ///
 /// # Errors
-/// Returns error if platform is booting, the vector store is disabled, the
-/// search fails, or (standalone desktop) the store is a not-yet-connected
-/// Tier-2 capability.
+/// Returns error if platform is booting, vector store is disabled,
+/// or the search fails.
 #[tauri::command]
 #[specta::specta]
 pub async fn vector_test_search(
@@ -203,7 +192,7 @@ pub async fn vector_test_search(
     vector: Vec<f32>,
     limit: u32,
 ) -> Result<Vec<VectorSearchResult>, String> {
-    #[cfg(feature = "totalrecall")]
+    #[cfg(feature = "rro")]
     {
         // P0: lock-free atomic load.
         let platform = state
@@ -228,10 +217,10 @@ pub async fn vector_test_search(
             })
             .collect())
     }
-    #[cfg(not(feature = "totalrecall"))]
+    #[cfg(not(feature = "rro"))]
     {
-        let _ = (&state, &collection, &vector, limit);
-        Err(VECTOR_TIER2_UNAVAILABLE.to_string())
+        let _ = (state, collection, vector, limit);
+        Err(RRO_UNAVAILABLE.to_string())
     }
 }
 
@@ -245,9 +234,8 @@ pub async fn vector_test_search(
 /// Collection-level settings are fixed at creation.
 ///
 /// # Errors
-/// Returns error if platform is booting, the vector store is disabled, creation
-/// fails, or (standalone desktop) the store is a not-yet-connected Tier-2
-/// capability.
+/// Returns error if platform is booting, vector store is disabled,
+/// or collection creation fails.
 #[tauri::command]
 #[specta::specta]
 pub async fn create_vector_collection(
@@ -255,7 +243,7 @@ pub async fn create_vector_collection(
     name: String,
     dimension: u32,
 ) -> Result<(), String> {
-    #[cfg(feature = "totalrecall")]
+    #[cfg(feature = "rro")]
     {
         // P0: lock-free atomic load.
         let platform = state
@@ -271,26 +259,25 @@ pub async fn create_vector_collection(
             .await
             .map_err(|e| format!("Create collection failed: {e:#}"))
     }
-    #[cfg(not(feature = "totalrecall"))]
+    #[cfg(not(feature = "rro"))]
     {
-        let _ = (&state, &name, dimension);
-        Err(VECTOR_TIER2_UNAVAILABLE.to_string())
+        let _ = (state, name, dimension);
+        Err(RRO_UNAVAILABLE.to_string())
     }
 }
 
 /// Delete a vector collection and all its points.
 ///
 /// # Errors
-/// Returns error if platform is booting, the vector store is disabled, deletion
-/// fails, or (standalone desktop) the store is a not-yet-connected Tier-2
-/// capability.
+/// Returns error if platform is booting, vector store is disabled,
+/// or collection deletion fails.
 #[tauri::command]
 #[specta::specta]
 pub async fn delete_vector_collection(
     state: State<'_, PlatformState>,
     name: String,
 ) -> Result<(), String> {
-    #[cfg(feature = "totalrecall")]
+    #[cfg(feature = "rro")]
     {
         // P0: lock-free atomic load.
         let platform = state
@@ -306,10 +293,10 @@ pub async fn delete_vector_collection(
             .await
             .map_err(|e| format!("Delete collection failed: {e:#}"))
     }
-    #[cfg(not(feature = "totalrecall"))]
+    #[cfg(not(feature = "rro"))]
     {
-        let _ = (&state, &name);
-        Err(VECTOR_TIER2_UNAVAILABLE.to_string())
+        let _ = (state, name);
+        Err(RRO_UNAVAILABLE.to_string())
     }
 }
 
@@ -321,9 +308,6 @@ pub async fn delete_vector_collection(
 ///
 /// Returns field metadata (label, family, description, slider bounds)
 /// so the frontend renders sliders generically without hardcoded labels.
-///
-/// Always available — pure metadata, independent of the vector store backend,
-/// so the retrieval-config UI renders identically in Tier-1 and Tier-2.
 ///
 /// # Errors
 /// Infallible — the `Result` shape is kept for binding parity with the

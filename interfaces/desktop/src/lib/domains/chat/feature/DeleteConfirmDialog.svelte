@@ -2,9 +2,9 @@
   @feature DeleteConfirmDialog — two-step destructive confirm
 -->
 <script lang="ts">
-import { Button } from "$lib/design/components/button/index.js";
-import Text from "$lib/design/components/text/Text.svelte";
-import { TextField } from "$lib/design/components/text-field/index.js";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Text } from "@devpulse/coldlight/components/text";
+import { TextField } from "@devpulse/coldlight/components/text-field";
 
 interface Props {
 	open: boolean;
@@ -47,8 +47,8 @@ async function confirm() {
 				<TextField value={phrase} onValueChange={(v) => (phrase = v)} placeholder="CLEAR" />
 			{/if}
 			<div class="flex justify-end gap-2">
-				<Button preset="ghost" size="sm" onclick={onClose}>Cancel</Button>
-				<Button preset="danger" size="sm" onclick={() => void confirm()}>
+				<Button variant="ghost" size="sm" onclick={onClose}>Cancel</Button>
+				<Button variant="danger" size="sm" onclick={() => void confirm()}>
 					{step === 1 ? "Continue" : "Confirm"}
 				</Button>
 			</div>

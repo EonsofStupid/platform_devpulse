@@ -2,9 +2,9 @@
   @component StatusDotNeuron — cortex graph node
 -->
 <script lang="ts">
-import { Brain, Database, FileText, Image, StickyNote } from "@lucide/svelte";
-import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
-import { cn } from "$lib/design/utils/cn.js";
+import { cssVarString, renderForge } from "@devpulse/coldlight/renderforge";
+import { cn } from "@devpulse/coldlight/utils";
+import { Brain, Database, FileText, Image, StickyNote } from "lucide-svelte";
 
 export type CortexCategory = "vector" | "relational" | "flat-file" | "brain" | "images" | "notes";
 

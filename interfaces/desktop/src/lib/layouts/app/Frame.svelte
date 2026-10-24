@@ -2,10 +2,11 @@
   @file src/lib/layouts/app/Frame.svelte
   @module @devpulse/layouts/app/Frame
 
-  App shell frame — the composer. A 6-zone CSS Grid that places the zone
-  components (TopBar, Sidebar, StatusBar, …) and flows routes through content.
-  Frame is LAYOUT ONLY — each zone component owns its surface via a colocated
-  <style> that pulls from ColdLight style tokens (the generated ingredients).
+  App shell frame — ColdLight 6-zone CSS Grid layout.
+  Zones: topbar, sidebar (left), content, context (right), statusbar, overlay.
+  The sidebar's submenu shares the content cell, drawn over the page at the
+  rail's edge (the rail clips, so it cannot hold a flyout).
+  All layout structural. Visual via token var() refs.
 
 	@defaults {
 		"background-color": "oklch(0.0901 0.017 224.61 / 0.8)",
@@ -17,14 +18,14 @@
 }
 -->
 <script lang="ts">
+import { BackgroundScene } from "@devpulse/coldlight/components/background-scene";
+import { cn } from "@devpulse/coldlight/utils";
 import type { Snippet } from "svelte";
-import { BackgroundScene } from "$lib/design/components/background-scene/index.js";
-import { cn } from "$lib/design/utils/cn.js";
-import { SetupWizardOverlay } from "$lib/domains/app/models/feature/setup-wizard/index.js";
 import { SwapOverlay } from "$lib/domains/app/models/index.js";
 import ActivityHud from "$lib/sys/activity-hud/ActivityHud.svelte";
 import { globalState } from "$lib/sys/runes/global.svelte";
 import Sidebar from "./Sidebar.svelte";
+import SidebarSubmenu from "./SidebarSubmenu.svelte";
 import StatusBar from "./StatusBar.svelte";
 import TopBar from "./TopBar.svelte";
 
@@ -35,6 +36,7 @@ interface Props {
 let { children }: Props = $props();
 
 const isSidebarExpanded = $derived(globalState.sidebar_mode === "expanded");
+let rail = $state<HTMLElement | null>(null);
 const isContextExpanded = $derived(globalState.context_mode === "expanded");
 
 /** Structural layout classes per shell slot — no recipe import */
@@ -45,59 +47,45 @@ const isContextExpanded = $derived(globalState.context_mode === "expanded");
  *  Context:  400px (w-[25rem])    — chat portal / devtools panel
  */
 const SLOTS = {
-	// Named-areas shell: the zone map is declared ONCE here; every slot
-	// binds by name. Zones are cqi container seams (S1.C adoption
-	// contract) — the frame ROOT stays container-free so the fixed
-	// overlays below keep the viewport as their containing block.
-	frame: cn(
-		"grid h-screen w-screen overflow-hidden font-sans",
-		"grid-rows-[auto_1fr_auto] grid-cols-[auto_1fr_auto]",
-		"[grid-template-areas:'topbar_topbar_topbar'_'sidebar_content_context'_'statusbar_statusbar_statusbar']",
-	),
+	frame:
+		"grid h-screen w-screen overflow-hidden grid-rows-[auto_1fr_auto] grid-cols-[auto_1fr_auto] font-sans",
 	topbar: cn(
-		// Layout only — the TopBar component owns its surface + padding via a
-		// colocated <style> that pulls from ColdLight style tokens.
-		"[grid-area:topbar] h-topbar",
-		// Shell chrome paints above the content zone — the zone's container
-		// seam creates a stacking context, and its absolute dropdown must
-		// not slip under content.
-		"relative z-10",
-		"[container-type:inline-size] [container-name:topbar]",
+		"col-span-full flex items-center justify-between",
+		"h-[var(--layout-topbar-height)] px-4",
+		"border-b border-[var(--border-soft)]",
 	),
 	sidebar: cn(
-		// Layout only — the Sidebar component owns its surface, padding, and
-		// backdrop (colocated <style> pulling from ColdLight style tokens).
-		"[grid-area:sidebar] relative w-sidebar-collapsed",
+		"row-start-2 col-start-1 flex flex-col items-center relative",
+		"w-[var(--layout-sidebar-collapsed)] py-3 gap-2",
+		"border-r border-[var(--border-subtle)]",
 		"overflow-x-hidden overflow-y-auto scrollbar-thin",
-		"transition-[width] duration-[var(--duration-normal)] ease-[cubic-bezier(0.4,0,0.2,1)]",
+		"transition-[width,padding] duration-[var(--duration-md)] ease-[cubic-bezier(0.4,0,0.2,1)]",
 		"motion-reduce:transition-none",
-		"[container-type:inline-size] [container-name:sidebar]",
 	),
 	sidebarExpanded: cn(
-		// Layout only — see `sidebar` above.
-		"[grid-area:sidebar] relative w-sidebar-expanded",
+		"row-start-2 col-start-1 flex flex-col relative",
+		"w-[var(--layout-sidebar-expanded)] py-3 px-2",
+		"border-r border-[var(--border-subtle)]",
 		"overflow-x-hidden overflow-y-auto scrollbar-thin",
-		"transition-[width] duration-[var(--duration-normal)] ease-[cubic-bezier(0.4,0,0.2,1)]",
+		"transition-[width,padding] duration-[var(--duration-md)] ease-[cubic-bezier(0.4,0,0.2,1)]",
 		"motion-reduce:transition-none",
-		"[container-type:inline-size] [container-name:sidebar]",
 	),
-	content: cn(
-		"[grid-area:content] overflow-y-auto scrollbar-thin p-4 lg:p-6",
-		"[container-type:inline-size] [container-name:content]",
-	),
-	context: cn("[grid-area:context] w-0 overflow-hidden", "border-l border-[var(--border-subtle)]"),
-	contextExpanded: cn(
-		"[grid-area:context] w-context overflow-y-auto scrollbar-thin",
+	content: "row-start-2 col-start-2 overflow-y-auto scrollbar-thin p-4 lg:p-6",
+	submenu: "row-start-2 col-start-2 justify-self-start self-stretch z-[var(--z-index-dropdown)]",
+	context: cn(
+		"row-start-2 col-start-3 w-0 overflow-hidden",
 		"border-l border-[var(--border-subtle)]",
-		"[container-type:inline-size] [container-name:context]",
+	),
+	contextExpanded: cn(
+		"row-start-2 col-start-3 w-[var(--layout-context-width)] overflow-y-auto scrollbar-thin",
+		"border-l border-[var(--border-subtle)]",
 	),
 	statusbar: cn(
-		// Layout only — StatusBar owns its surface + padding (colocated <style>
-		// pulling from ColdLight style tokens).
-		"[grid-area:statusbar] h-statusbar",
+		"col-span-full flex items-center justify-between",
+		"h-[var(--layout-statusbar-height)] px-4 py-1",
+		"border-t border-[var(--border-soft)]",
 		"text-xs text-[var(--text-muted)]",
 		"overflow-x-auto scrollbar-thin",
-		"[container-type:inline-size] [container-name:statusbar]",
 	),
 	overlay: "fixed inset-0 z-50 bg-transparent pointer-events-none",
 	overlayActive: "fixed inset-0 z-50 bg-[var(--overlay-bg)] pointer-events-auto",
@@ -123,13 +111,19 @@ const SLOTS = {
 		<TopBar />
 	</header>
 
-	<aside data-kind="shell" data-slot="sidebar" class={isSidebarExpanded ? SLOTS.sidebarExpanded : SLOTS.sidebar} data-expanded={isSidebarExpanded ? "true" : undefined}>
+	<aside bind:this={rail} data-kind="shell" data-slot="sidebar" class={isSidebarExpanded ? SLOTS.sidebarExpanded : SLOTS.sidebar} data-expanded={isSidebarExpanded ? "true" : undefined}>
+		<!-- Sidebar-scoped cosmic backdrop at stronger intensity.
+		     Parent <aside> has position: relative + overflow-x-hidden so the
+		     animation stays clipped inside the rail/panel. -->
+		<BackgroundScene variation="cosmic-galaxy" palette="cosmic" speed="slow" intensity="strong" motion="on" />
 		<Sidebar />
 	</aside>
 
 	<main data-kind="shell" data-slot="content" class={SLOTS.content}>
 		{@render children()}
 	</main>
+
+	<SidebarSubmenu {rail} class={SLOTS.submenu} />
 
 	<aside data-kind="shell" data-slot="context" class={isContextExpanded ? SLOTS.contextExpanded : SLOTS.context} data-expanded={isContextExpanded ? "true" : undefined}>
 	</aside>
@@ -148,8 +142,6 @@ const SLOTS = {
 		onkeydown={(e) => { if (e.key === 'Enter' || e.key === 'Escape') globalState.hideOverlay(); }}
 	>
 	</div>
-
-	<SetupWizardOverlay />
 
 	<!-- Model swap overlay — full-screen block during load/unload only -->
 	<SwapOverlay />

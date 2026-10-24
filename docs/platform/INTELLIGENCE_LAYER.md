@@ -1,35 +1,6 @@
 # Intelligence Layer — SSOT Roadmap
 
-*Status as of 2026-05-15. Reframed 2026-06-28 — see banner.*
-
-> ## ⚠ REFRAMED — 2026-06-28
->
-> This roadmap is **accurate as a record** (DONE phases are real code on `main`),
-> but its home and vocabulary move under the current architecture:
->
-> - **Relocation** — this IS the **connectome intelligence layer**. It lives in
->   `kernel/devpulse-clyffy/` today and **extracts to ClyffyOS (headless, on
->   GB10)** per the ClyffyOS extraction. **GB10 hosts SurrealDB + qortex + the
->   encoder · embedder · reranker stack.** DevPulse keeps all visuals + **Turso**
->   (local), boots fully standalone, and is a **thin MCP client** to this layer.
-> - **Renames land in Phase 2, with the code** — `cortex→connectome`,
->   `Qdrant→qortex`, `libSQL→Turso`. Code paths + constants below
->   (`cortex::…`, `EMBEDDING_DIM=384`) stay accurate until then.
-> - **Model-agnostic** — the `Qwen3-0.6B` minion and `384-dim` embedder are
->   **GB10-side configuration**, model-size-agnostic (8GB floor), not hardcoded
->   architecture.
-> - **Deferred, not retired** — the cloud connector (Phase E), Infisical sync,
->   and AGENTS.md regen (Phase G) are sequenced later, not killed.
->
-> Current truth: `CLYFFY-COGNITIVE-FOUNDATION.md` (v2.0.0) + the 2026-06-27
-> architecture corrections. The phase records below are preserved deliberately.
->
-> **⚠ EXTRACTION LANDED — 2026-07-08.** This layer now LIVES in
-> `github.com/EonsofStupid/clyffyos` (clyffyos-connectome; `cortex` became
-> `connectome`). Every `kernel/devpulse-clyffy/…` path below is a git-history
-> reference — the crates left this repo with the kernel cut. The roadmap's open
-> phases are ClyffyOS's to sequence; DevPulse reaches the layer over the
-> `devpulse-gb10-client` wire (capability computed, never hardcoded).
+*Status as of 2026-05-15.*
 
 The intelligence layer is the per-project memory + reasoning surface
 that backs every cross-tool persistence flow in DevPulse — Claude

@@ -20,5 +20,6 @@ pub use loader::{
     retrieval_param_meta, sanitize_path, CacheServiceEntry, CatalogEntry, CatalogOption, DataScope,
     DevForgeServiceEntry, ExecutionLane, LaneToggle, LaneTraceConfig, ModelLoaderServiceEntry,
     OllamaServiceEntry, PlatformBootConfig, PlatformConfig, RetrievalConfig, RetrievalParamMeta,
-    RetrievalPreset, ServiceEntry, SurrealServiceEntry, VectorServiceEntry, WindowsConfig,
+    RetrievalPreset, ServiceEntry, SignalsConfig, SurrealServiceEntry, VectorServiceEntry,
+    WindowsConfig,
 };

@@ -18,16 +18,19 @@
 	   ships its feed surface. The text honestly says what is coming.
 -->
 <script lang="ts">
+import { Widget } from "@devpulse/coldlight/blocks/widgets";
+import { Text } from "@devpulse/coldlight/components/text";
+import { stack } from "@devpulse/coldlight/utils";
 import { onMount } from "svelte";
-import { CommunityFeedList } from "$lib/design/blocks/community/index.js";
-import { KnowledgeDeck } from "$lib/design/blocks/knowledge/index.js";
-import { LatestUpdateCard } from "$lib/design/blocks/latest/index.js";
-import { Widget } from "$lib/design/blocks/widgets/index.js";
-import { Text } from "$lib/design/components/text/index.js";
-import { stack } from "$lib/design/utils/stack/index.js";
-import { communityState } from "$lib/domains/app/community/index.js";
-import { syncKnowledgeFromRemote } from "$lib/domains/app/knowledge/index.js";
-import { updatesState } from "$lib/domains/app/updates/index.js";
+import { CommunityFeedList, communityState } from "$lib/domains/app/community/index.js";
+import { KnowledgeDeck, syncKnowledgeFromRemote } from "$lib/domains/app/knowledge/index.js";
+import { LatestUpdateCard, updatesState } from "$lib/domains/app/updates/index.js";
+import { hrefOf, routeAt, routeCopy, routeHere } from "$lib/sys/routing/index.js";
+
+const here = $derived(routeHere());
+const heading = $derived(here ? routeCopy(here) : undefined);
+const community = routeAt("/devpulse/community");
+const communityName = $derived(community ? (routeCopy(community)?.label ?? "") : "");
 
 // Fire non-blocking probes when the tab mounts so the user sees current
 // truth rather than the at-bootstrap "never checked" state. Network
@@ -46,10 +49,8 @@ onMount(() => {
 
 <div class={stack({ gap: "6" })} data-page="latest">
 	<header class={stack({ gap: "1" })}>
-		<h1 class="text-2xl font-bold">Latest</h1>
-		<Text size="sm" color="muted">
-			What's new in your build, your tools, and the community.
-		</Text>
+		<h1 class="text-2xl font-bold">{heading?.label}</h1>
+		<Text size="sm" color="muted">{heading?.description}</Text>
 	</header>
 
 	<!-- Section 1: Update status -->
@@ -73,11 +74,13 @@ onMount(() => {
 				items={communityState.items.slice(0, 5)}
 				loading={communityState.loading}
 				compact
-				emptyMessage="Nothing from the community yet — head to /devpulse/community to refresh, or check back later."
+				emptyMessage={`Nothing from the community yet — head to ${communityName} to refresh, or check back later.`}
 			/>
-			<Text size="xs" color="muted">
-				Full surface: <a class="underline" href="/devpulse/community">/devpulse/community</a>
-			</Text>
+			{#if community}
+				<Text size="xs" color="muted">
+					Full surface: <a class="underline" href={hrefOf(community)}>{communityName}</a>
+				</Text>
+			{/if}
 		</div>
 	</Widget>
 </div>

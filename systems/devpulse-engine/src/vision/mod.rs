@@ -3,9 +3,9 @@
 //! This module is the engine's public surface for the capture → encode
 //! → sink pipeline that powers `/devtools/vision` and (eventually) the
 //! customer-facing vision features. It is deliberately split from the
-//! inference backends (Clyffy-side, clyffyos repo: clyffyos-model-loader)
+//! kernel model-loader backend (`kernel/model-loader/src/backends/candle/siglip.rs`)
 //! because:
-//!   - The backend is Clyffy-internal implementation, reached over the wire.
+//!   - The backend is *kernel-internal* implementation.
 //!   - This module is the *engine-public* facade that carries governor +
 //!     metrics + DTOs across the Tauri boundary.
 //!
@@ -21,7 +21,7 @@
 //! # What does NOT live here
 //!
 //! - HTTP / OS-level capture code → `interfaces/desktop/src-tauri/src/commands/pixvix/`.
-//! - SigLip forward passes → Clyffy-side (clyffyos repo: clyffyos-model-loader backends).
+//! - SigLip forward passes → `kernel/model-loader/src/backends/{candle,ort}/`.
 //! - Storage sink implementations → `vision/sinks.rs` (V-4, added later).
 //! - The pipeline's orchestration loop → `vision/pipeline.rs` (V-4).
 //!
@@ -50,5 +50,5 @@ pub use metrics::{cosine_similarity, l2_norm, MetricsBuffer, DEFAULT_RECENT_CAPA
 pub use pipeline::{process_frame, should_skip_tick, CapturedTickFrame, PipelineConfig};
 pub use sinks::{
     CompositeSink, DiscardSink, DiskFrameSink, DuckDbEmbeddingSink, FrameSink, FrameSinkRecord,
-    LibSqlFrameSink, SinkHealth,
+    SinkHealth, TursoFrameSink,
 };

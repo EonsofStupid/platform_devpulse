@@ -13,7 +13,7 @@
 	- Actions — Load/Unload each slot, mic test, record+transcribe,
 	            speak, voice preview, smoke test, full STS pipeline.
 
-	Slot load/unload shows the Clyffy LoadingBlock (rotating DYK card)
+	Slot load/unload shows the ClyffyLoadingBlock (rotating DYK card)
 	for the duration. Short actions keep an inline spinner.
 
 	All calls go through real Tauri commands backed by ORT Whisper +
@@ -21,6 +21,10 @@
 	are flagged as future.
 -->
 <script lang="ts">
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Spinner } from "@devpulse/coldlight/components/spinner";
+import { Text } from "@devpulse/coldlight/components/text";
 import {
 	Activity,
 	Ear,
@@ -31,12 +35,8 @@ import {
 	PowerOff,
 	Radio,
 	Volume2,
-} from "@lucide/svelte";
+} from "lucide-svelte";
 import { onMount } from "svelte";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Button } from "$lib/design/components/button/index.js";
-import { LoadingBlock, Spinner } from "$lib/design/components/spinner/index.js";
-import { Text } from "$lib/design/components/text/index.js";
 import type { MicTestResult, VoiceInfo } from "$lib/devtools/_shared/voice-contracts.js";
 import { voiceSelectionState } from "$lib/devtools/_shared/voice-selection.state.svelte.js";
 import {
@@ -46,6 +46,7 @@ import {
 	ServiceDevtoolShell,
 } from "$lib/devtools/index.js";
 import { modelsState } from "$lib/domains/app/models/index.js";
+import { ClyffyLoadingBlock } from "$lib/domains/clyffy/index.js";
 import { capabilityChannel } from "$lib/sys/events/index.js";
 import { commands, type VoiceSmokeReport } from "$lib/sys/generated/bindings.js";
 import { logInfo } from "$lib/sys/logger.js";
@@ -57,7 +58,8 @@ import {
 	transcribeAudioFile,
 } from "../../stt/data-access/stt.svc.js";
 import { sttConfigState } from "../../stt/data-access/stt-config.state.svelte.js";
-import { runStsPipeline, stsLatencyState } from "../data-access/sts.svc.js";
+import { runStsPipeline } from "../data-access/sts.svc.js";
+import { stsLatencyState } from "../data-access/sts-latency.state.svelte.js";
 
 const LOG_TARGETS: LogTargetPreset[] = [{ value: "devtools.sts", label: "STS devtool" }];
 
@@ -292,11 +294,6 @@ async function handleTranscribeFile(event: Event): Promise<void> {
 </script>
 
 <ServiceDevtoolShell
-	title="Speech-to-Speech"
-	description="Bidirectional voice pipeline — Whisper + Kokoro"
-	icon={Radio}
-	axis="capabilities"
-	accent="purple"
 	health={badge}
 >
 	{#snippet status()}
@@ -508,7 +505,7 @@ async function handleTranscribeFile(event: Event): Promise<void> {
 
 			<div class="flex items-center gap-2 pt-2">
 				<Button
-					preset="primary"
+					variant="primary"
 					size="sm"
 					onclick={async () => {
 						if (ttsConfigState.dirty) await ttsConfigState.save();
@@ -526,7 +523,7 @@ async function handleTranscribeFile(event: Event): Promise<void> {
 					{/if}
 				</Button>
 				<Button
-					preset="ghost"
+					variant="ghost"
 					size="sm"
 					onclick={() => {
 						ttsConfigState.reset();
@@ -549,36 +546,35 @@ async function handleTranscribeFile(event: Event): Promise<void> {
 
 	{#snippet actions()}
 		{#if anySlotLoading}
-			<LoadingBlock
+			<ClyffyLoadingBlock
 				title="Loading voice pipeline"
 				subtitle="Safely loading into RAM / VRAM — sit tight."
-				showContent
-				contentKind="dyk"
+				kind="dyk"
 			/>
 		{:else}
 			<div class="flex flex-col gap-4">
 				<!-- Slot controls (both STT + TTS) -->
 				<div class="flex flex-wrap items-center gap-2">
 					{#if !sttReady && sttSlot?.assigned_model_id}
-						<Button preset="primary" size="sm" onclick={() => handleLoadSlot("voice.stt", (v) => { loadingStt = v; })}>
+						<Button variant="primary" size="sm" onclick={() => handleLoadSlot("voice.stt", (v) => { loadingStt = v; })}>
 							<Play size={12} />
 							Load Whisper
 						</Button>
 					{/if}
 					{#if sttReady}
-						<Button preset="ghost" size="sm" onclick={() => handleUnloadSlot("voice.stt", (v) => { loadingStt = v; })}>
+						<Button variant="ghost" size="sm" onclick={() => handleUnloadSlot("voice.stt", (v) => { loadingStt = v; })}>
 							<PowerOff size={12} />
 							Unload Whisper
 						</Button>
 					{/if}
 					{#if !ttsReady && ttsSlot?.assigned_model_id}
-						<Button preset="primary" size="sm" onclick={() => handleLoadSlot("voice.tts", (v) => { loadingTts = v; })}>
+						<Button variant="primary" size="sm" onclick={() => handleLoadSlot("voice.tts", (v) => { loadingTts = v; })}>
 							<Play size={12} />
 							Load Kokoro
 						</Button>
 					{/if}
 					{#if ttsReady}
-						<Button preset="ghost" size="sm" onclick={() => handleUnloadSlot("voice.tts", (v) => { loadingTts = v; })}>
+						<Button variant="ghost" size="sm" onclick={() => handleUnloadSlot("voice.tts", (v) => { loadingTts = v; })}>
 							<PowerOff size={12} />
 							Unload Kokoro
 						</Button>
@@ -596,7 +592,7 @@ async function handleTranscribeFile(event: Event): Promise<void> {
 						</div>
 
 						<div class="flex items-center gap-2">
-							<Button preset="secondary" size="sm" onclick={handleMicTest} disabled={testingMic}>
+							<Button variant="secondary" size="sm" onclick={handleMicTest} disabled={testingMic}>
 								{testingMic ? "Testing…" : "Test mic"}
 							</Button>
 							{#if micResult}
@@ -607,7 +603,7 @@ async function handleTranscribeFile(event: Event): Promise<void> {
 						</div>
 
 						<div class="flex items-center gap-2">
-							<Button preset="primary" size="sm" onclick={handleRecord} disabled={recording || !sttReady}>
+							<Button variant="primary" size="sm" onclick={handleRecord} disabled={recording || !sttReady}>
 								{#if recording}
 									<MicOff size={14} />
 									Recording 3 s…
@@ -661,7 +657,7 @@ async function handleTranscribeFile(event: Event): Promise<void> {
 						></textarea>
 
 						<div class="flex items-center gap-2">
-							<Button preset="primary" size="sm" onclick={handleSpeak} disabled={speaking || !ttsInput.trim() || !ttsReady}>
+							<Button variant="primary" size="sm" onclick={handleSpeak} disabled={speaking || !ttsInput.trim() || !ttsReady}>
 								{#if speaking}
 									<Spinner size="xs" />
 									Speaking…
@@ -708,7 +704,7 @@ async function handleTranscribeFile(event: Event): Promise<void> {
 							Synthesizes a phrase via TTS, feeds it directly into STT.
 							Tests both pipelines without mic or speakers.
 						</Text>
-						<Button preset="secondary" size="sm" onclick={handleSmokeTest} disabled={smokeTesting || !(sttReady && ttsReady)}>
+						<Button variant="secondary" size="sm" onclick={handleSmokeTest} disabled={smokeTesting || !(sttReady && ttsReady)}>
 							{#if smokeTesting}
 								<Spinner size="xs" />
 								Running…

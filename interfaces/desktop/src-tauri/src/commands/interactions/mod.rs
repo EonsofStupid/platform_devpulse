@@ -1,7 +1,7 @@
-//! Tauri command surface for engine interaction templates.
+//! Tauri command surface for kernel interaction templates.
 //!
 //! Exposes the [`InteractionTemplate`] loader so the frontend can
-//! ask the engine for a parsed template by id. The dispatcher
+//! ask the kernel for a parsed template by id. The dispatcher
 //! (frontend-side, in `SetupWizardOverlay`) consumes the template
 //! to render the right phase-component chain.
 //!
@@ -22,16 +22,16 @@ use tauri::State;
 
 use crate::state::PlatformState;
 
-/// Load a parsed engine interaction template by id.
+/// Load a parsed kernel interaction template by id.
 ///
 /// Supported ids: `"setup"`, `"welcome-back"`. Each id maps to the
-/// matching `InteractionTemplate::<id>` constructor on the engine
+/// matching `InteractionTemplate::<id>` constructor on the kernel
 /// side; templates are bundled at compile time via `include_str!`
 /// so this command never touches disk except to read user
 /// overrides at `{userdata_dir}/config/interactions/<id>.toml`.
 ///
 /// # Errors
-/// Returns the engine's parse / validation error message as a
+/// Returns the kernel's parse / validation error message as a
 /// string when the embedded default or the user override fails to
 /// parse. Returns `"Unknown interaction id: <id>"` when the id
 /// doesn't match a built-in template.

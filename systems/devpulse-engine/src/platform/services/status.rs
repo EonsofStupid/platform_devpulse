@@ -58,7 +58,7 @@ pub struct ServiceStatusSnapshot {
     pub scope: DataScope,
     /// Boot stage number from the manifest.
     pub stage: u8,
-    /// Public name ("Vector Store", "Model Manager", …).
+    /// Public name ("Vector Store", "Grammar Engine", …).
     pub public_name: String,
     /// UI grouping literal — matches `ServiceGroup::as_ts_literal`.
     pub group: String,
@@ -84,12 +84,13 @@ pub struct ServiceStatusSnapshot {
 pub fn feature_gate_compiled_in(meta: &ServiceMeta) -> bool {
     match meta.feature_gate {
         None => true,
-        // `sherpa` (streaming ASR) is the one remaining optional local feature.
+        Some("rro") => cfg!(feature = "rro"),
+        Some("candle") => cfg!(feature = "candle"),
+        Some("inference") => cfg!(feature = "inference"),
+        Some("llguidance") => cfg!(feature = "llguidance"),
         Some("sherpa") => cfg!(feature = "sherpa"),
-        // Everything else is not compiled locally: rro/candle/inference/llguidance
-        // are Clyffy's (served from GB10, never linked here), and any
-        // unknown gate string falls through here as drift protection — the devtool
-        // shows not-compiled rather than lying about truthy state.
+        // Unknown gate string — drift protection: surface as not-compiled
+        // so the devtool shows something rather than lying about truthy state.
         Some(_) => false,
     }
 }

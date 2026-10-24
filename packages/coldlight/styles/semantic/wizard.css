@@ -1,0 +1,39 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+@layer tokens.semantic {
+  :root {
+  --wizard-role-brain-main: oklch(0.6519 0.2080 294.44); /** Purple — Clyffy brain / reasoning. */
+  --wizard-role-brain-glow: oklch(0.63 0.12 280 / 0.4); /** Brain glow emission. */
+  --wizard-role-brain-fill: oklch(0.63 0.12 280 / 0.08); /** Brain subtle background fill. */
+  --wizard-role-minion-main: oklch(0.6806 0.1601 153.63); /** Green — minion / observation helpers. */
+  --wizard-role-minion-glow: oklch(0.66 0.17 155 / 0.4); /** Minion glow emission. */
+  --wizard-role-minion-fill: oklch(0.66 0.17 155 / 0.08); /** Minion subtle background fill. */
+  --wizard-role-encoder-main: oklch(0.6910 0.1386 242.82); /** Blue — encoder / search / vision. */
+  --wizard-role-encoder-glow: oklch(0.68 0.14 240 / 0.4); /** Encoder glow emission. */
+  --wizard-role-encoder-fill: oklch(0.68 0.14 240 / 0.08); /** Encoder subtle background fill. */
+  --wizard-role-voice-main: oklch(0.7123 0.1775 12.65); /** Coral — voice / STT / TTS. */
+  --wizard-role-voice-glow: oklch(0.72 0.16 10 / 0.4); /** Voice glow emission. */
+  --wizard-role-voice-fill: oklch(0.72 0.16 10 / 0.08); /** Voice subtle background fill. */
+  --wizard-surface-base: oklch(0.1625 0.0143 258.36); /** Wizard page background — deep void. */
+  --wizard-surface-card: oklch(0.12 0.015 220 / 0.8); /** Wizard card / glass-deep. */
+  --wizard-surface-card-raised: oklch(0.15 0.01 220 / 0.6); /** Wizard raised card / glass-smoke. */
+  --wizard-surface-overlay: oklch(0.1 0.02 220 / 0.9); /** Wizard modal overlay. */
+  --wizard-surface-inset: oklch(0.1430 0.0152 255.23); /** Wizard input / inset background. */
+  --wizard-text-primary: oklch(0.9540 0.0063 255.48); /** Wizard heading / primary text. */
+  --wizard-text-secondary: oklch(0.6723 0.0300 248.27); /** Wizard supporting text. */
+  --wizard-text-muted: oklch(0.4856 0.0292 257.68); /** Wizard hint / disabled text. */
+  --wizard-border-subtle: oklch(0.25 0.015 220 / 0.5); /** Wizard default border. */
+  --wizard-border-strong: oklch(0.35 0.02 220); /** Wizard emphasised border. */
+  --wizard-border-focus: oklch(0.8226 0.1381 204.82); /** Wizard focus ring — brand cyan. */
+  --wizard-shadow-glow-sm: 0rem 0rem 0.375rem 0rem #23ad674d; /** Small green glow — 6 px blur. */
+  --wizard-shadow-glow-md: 0rem 0rem 0.625rem 0rem #40dddd66; /** Medium cyan glow — 10 px blur. */
+  --wizard-shadow-glow-lg: 0rem 0rem 1.25rem 0rem #40dddd4d; /** Large cyan glow — mascot drop-shadow. 20 px blur. */
+  --wizard-shadow-elevation-md: 0rem 0.25rem 1rem 0rem #00000040; /** Wizard card elevation — 4 px offset, 16 px blur. */
+  --wizard-shadow-elevation-lg: 0rem 0.5rem 2rem 0rem #00000059; /** Wizard modal elevation — 8 px offset, 32 px blur. */
+  --wizard-ember-200: oklch(0.6550 0.1306 33.56); /** Error text light. */
+  --wizard-ember-300: oklch(0.5782 0.1257 32.28); /** Error text medium. */
+  --wizard-ember-600: oklch(0.3962 0.0804 34.63); /** Error border. */
+  }
+}

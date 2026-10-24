@@ -1,11 +1,11 @@
-//! Credential management — OS keychain primary, `LibSQL` hint mirror.
+//! Credential management — OS keychain primary, Turso hint mirror.
 //!
 //! Storage strategy:
 //! - Keychain holds the actual API key. Per OS:
 //!   - Windows: Credential Manager
 //!   - macOS:   Keychain
 //!   - Linux:   Secret Service
-//! - `LibSQL` `api_keys` table holds a masked hint + last-used timestamp
+//! - Turso `api_keys` table holds a masked hint + last-used timestamp
 //!   so the engine + devtool can show "key configured" without paying
 //!   the keychain round-trip.
 //!
@@ -51,10 +51,10 @@ pub struct ApiKeyStatus {
     pub masked_preview: Option<String>,
 }
 
-/// Store an API key in the OS keychain and mirror a masked hint to libSQL.
+/// Store an API key in the OS keychain and mirror a masked hint to Turso.
 ///
 /// Idempotent — re-storing for the same provider overwrites both halves.
-/// The libSQL mirror is best-effort; failure there logs a warning but
+/// The Turso mirror is best-effort; failure there logs a warning but
 /// does not roll back the keychain write (keychain is the source of truth).
 ///
 /// # Errors
@@ -85,7 +85,7 @@ pub async fn store_api_key(
         "API key stored in OS keychain"
     );
 
-    mirror_hint_to_libsql(state, provider, &key).await;
+    mirror_hint_to_database(state, provider, &key).await;
     Ok(())
 }
 
@@ -115,7 +115,7 @@ pub async fn get_api_key(provider: ProviderId) -> Result<Option<String>, Command
     }
 }
 
-/// Delete an API key from the OS keychain and the libSQL mirror.
+/// Delete an API key from the OS keychain and the Turso mirror.
 ///
 /// Idempotent — deleting a non-existent key is success.
 ///
@@ -146,7 +146,7 @@ pub async fn delete_api_key(
         }
     }
 
-    delete_hint_from_libsql(state, provider).await;
+    delete_hint_from_database(state, provider).await;
     Ok(())
 }
 
@@ -253,9 +253,9 @@ fn mask_preview(key: &str) -> String {
     }
 }
 
-/// Mirror a masked hint into the libSQL `api_keys` table. Best-effort —
+/// Mirror a masked hint into the Turso `api_keys` table. Best-effort —
 /// failure logs a warning but does not propagate (keychain is the SSOT).
-async fn mirror_hint_to_libsql(state: State<'_, PlatformState>, provider: ProviderId, key: &str) {
+async fn mirror_hint_to_database(state: State<'_, PlatformState>, provider: ProviderId, key: &str) {
     let Some(platform) = state.platform.load_full() else {
         return;
     };
@@ -263,28 +263,39 @@ async fn mirror_hint_to_libsql(state: State<'_, PlatformState>, provider: Provid
         return;
     };
     let adapter = svc.adapter();
+    let profile = match devpulse_engine::platform::profile::ensure(adapter.as_ref()).await {
+        Ok(profile) => profile,
+        Err(e) => {
+            tracing::warn!(
+                provider = ?provider,
+                error = %format!("{e:#}"),
+                "Failed to resolve the user profile for the API key hint (non-fatal — keychain is SSOT)"
+            );
+            return;
+        }
+    };
     let adapter_name = adapter_name_for(provider);
     let key_id = format!("key-{adapter_name}");
     let hint = mask_preview(key);
     if let Err(e) = adapter
         .execute(
-            "INSERT OR REPLACE INTO api_keys (id, user_id, adapter, key_hint, last_used_at) VALUES (?, 'user-1', ?, ?, datetime('now'))",
-            &[key_id.as_str(), adapter_name.as_str(), hint.as_str()],
+            "INSERT OR REPLACE INTO api_keys (id, user_id, adapter, key_hint, last_used_at) VALUES (?, ?, ?, ?, datetime('now'))",
+            &[key_id.into(), profile.id.as_str().into(), adapter_name.as_str().into(), hint.into()],
         )
         .await
     {
         tracing::warn!(
             provider = ?provider,
             error = %e,
-            "Failed to mirror API key hint to libSQL (non-fatal — keychain is SSOT)"
+            "Failed to mirror API key hint to Turso (non-fatal — keychain is SSOT)"
         );
     } else {
-        tracing::info!(provider = ?provider, "API key hint mirrored to libSQL");
+        tracing::info!(provider = ?provider, "API key hint mirrored to Turso");
     }
 }
 
-/// Delete the libSQL mirror row. Best-effort, parallels `mirror_hint_to_libsql`.
-async fn delete_hint_from_libsql(state: State<'_, PlatformState>, provider: ProviderId) {
+/// Delete the Turso mirror row. Best-effort, parallels `mirror_hint_to_database`.
+async fn delete_hint_from_database(state: State<'_, PlatformState>, provider: ProviderId) {
     let Some(platform) = state.platform.load_full() else {
         return;
     };
@@ -296,19 +307,19 @@ async fn delete_hint_from_libsql(state: State<'_, PlatformState>, provider: Prov
     if let Err(e) = adapter
         .execute(
             "DELETE FROM api_keys WHERE adapter = ?",
-            &[adapter_name.as_str()],
+            &[adapter_name.as_str().into()],
         )
         .await
     {
         tracing::warn!(
             provider = ?provider,
             error = %e,
-            "Failed to delete libSQL hint (non-fatal)"
+            "Failed to delete Turso hint (non-fatal)"
         );
     }
 }
 
-/// Adapter column value for the libSQL `api_keys` table — same kebab
+/// Adapter column value for the Turso `api_keys` table — same kebab
 /// form as the keyring key, minus the `api_key_` prefix.
 fn adapter_name_for(id: ProviderId) -> String {
     serde_json::to_string(&id).ok().map_or_else(
@@ -350,8 +361,11 @@ mod tests {
 
     #[test]
     fn subscription_path_excluded_from_status_query() {
-        let sub = ai_providers::find(ProviderId::AnthropicSubscription).unwrap();
-        assert!(!provider_takes_api_key(sub));
+        // Subscriptions are reached through the vendor's own program; none
+        // takes an API key here.
+        for sub in ai_providers::by_classification(ai_providers::Classification::SubscriptionPath) {
+            assert!(!provider_takes_api_key(sub), "{:?}", sub.id);
+        }
     }
 
     #[test]

@@ -19,12 +19,13 @@
 	a `<Text role="alert">` so AT users hear failures immediately.
 -->
 <script lang="ts">
-import { Lock, Mail, Settings } from "@lucide/svelte";
-import { Button } from "$lib/design/components/button/index.js";
-import { Card } from "$lib/design/components/card/index.js";
-import { Heading } from "$lib/design/components/heading/index.js";
-import { Text } from "$lib/design/components/text/index.js";
-import { TextField } from "$lib/design/components/text-field/index.js";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Card } from "@devpulse/coldlight/components/card";
+import { Heading } from "@devpulse/coldlight/components/heading";
+import { Text } from "@devpulse/coldlight/components/text";
+import { TextField } from "@devpulse/coldlight/components/text-field";
+import { Lock, Mail, Settings } from "lucide-svelte";
+import { copyState } from "$lib/sys/copy/index.js";
 import { type AuthCopy, commands } from "$lib/sys/generated/bindings.js";
 import { authState } from "../index.js";
 
@@ -41,15 +42,7 @@ let email = $state("");
 let password = $state("");
 let confirmPassword = $state("");
 
-let copy = $state<AuthCopy>(emptyAuthCopy());
-
-$effect(() => {
-	commands.getWizardCopy().then((res) => {
-		if (res.status === "ok" && res.data.auth) {
-			copy = res.data.auth;
-		}
-	});
-});
+const copy = $derived(copyState.catalog?.auth ?? emptyAuthCopy());
 
 const heading = $derived(mode === "sign-in" ? copy.sign_in_heading : copy.sign_up_heading);
 const subtitle = $derived(mode === "sign-in" ? copy.sign_in_subtitle : copy.sign_up_subtitle);
@@ -109,6 +102,7 @@ function swapMode(): void {
 	confirmPassword = "";
 }
 
+/** Blank text until the catalog loads (the root layout loads it once for every window). */
 function emptyAuthCopy(): AuthCopy {
 	return {
 		sign_in_heading: "",
@@ -155,7 +149,7 @@ function emptyAuthCopy(): AuthCopy {
 {/snippet}
 
 <main class={className ? `login-shell ${className}` : "login-shell"}>
-	<Card preset="glass" class="login-shell__card" label={heading || "Sign in"}>
+	<Card surface="glass" variant="deep" class="login-shell__card" label={heading || "Sign in"}>
 		{#if authState.phase === "not-configured"}
 			<header class="login-shell__header">
 				<Settings class="login-shell__settings-icon" aria-hidden="true" />
@@ -213,7 +207,7 @@ function emptyAuthCopy(): AuthCopy {
 
 				<div class="login-shell__actions">
 					<Button
-						preset="primary"
+						variant="primary"
 						size="md"
 						type="submit"
 						aria-label={submitAria}
@@ -222,7 +216,7 @@ function emptyAuthCopy(): AuthCopy {
 						{submitLabel}
 					</Button>
 
-					<Button preset="ghost" size="sm" type="button" onclick={swapMode}>
+					<Button variant="ghost" size="sm" type="button" onclick={swapMode}>
 						{mode === "sign-in" ? copy.to_sign_up_link_label : copy.to_sign_in_link_label}
 					</Button>
 				</div>

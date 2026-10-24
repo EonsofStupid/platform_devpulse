@@ -2,34 +2,34 @@
 	@file OverlayShell.svelte
 	@module @devpulse/domains/app/models/feature/setup-wizard/feature/overlay-shell
 
-	SEPARATE CRISP CARDS — operator ruling 2026-07-14: there is NO
-	enclosing shell box. The ENTIRE window is the animation (the
-	dispatcher's fixed BackgroundScene layers); floating directly on it,
-	as INDIVIDUAL crisp surfaces:
+	Shared overlay shell composed from ColdLight primitives. Visual
+	styling comes from preset chains via renderForge — this file
+	NEVER authors color / border / shadow CSS directly.
 
-	  header card   (mascot · title · step)        — wizard-deep, slim
-	  …children…    (the view's own separate cards) — each owns its chrome
-	  footer card   (Back / Skip / primary CTA)     — wizard-deep, slim
+	## 4 surface tiers — depth-stacked via ColdLight presets
 
-	This file is a pure ARRANGER: it owns the column rhythm, fluid XY
-	clamping (cqi for X, cqb for Y — root is container-type: size), and
-	the two slim header/footer cards. Zero color/border/shadow CSS —
-	chrome flows from the preset chains.
+	| Tier         | Where                          | Composition                  |
+	|--------------|--------------------------------|------------------------------|
+	| 1 (deepest)  | wizard backdrop                | root `[data-layout="setup"]` element (layout only — backdrop glow lives in app.css) |
+	| 2            | card outer shell               | `<Card preset="glass">`      |
+	| 3            | card inner content panel       | `<Card preset="stark">`      |
+	| 4 (top)      | nested wells (consumer-owned)  | `<Card preset="matte">` in views |
 
-	## Snippet slots
-	- `mascot`   — Clyffy mascot in the header card (pose per view).
-	- `backdrop` — optional extra per-view animated layer.
-	- `children` — the view's separate floating surfaces. Required.
-	- `footer`   — Back / Skip / primary CTA. Required.
+	Layout-only CSS in this file: positioning, sizing, gap. No colors,
+	no borders, no shadows — those flow from the Card preset chain.
+
+	## Optional snippet slots
+
+	- `mascot`  — Clyffy mascot in the header (pose changes per view).
+	- `backdrop` — MP4 / animated video. Rendered behind the card.
+	- `children` — view body content. Required.
+	- `footer`  — Back / Skip / primary CTA buttons. Required.
 -->
 <script lang="ts">
-import { X } from "@lucide/svelte";
+import { Card } from "@devpulse/coldlight/components/card";
+import { Heading } from "@devpulse/coldlight/components/heading";
+import { Text } from "@devpulse/coldlight/components/text";
 import type { Snippet } from "svelte";
-import { Button } from "$lib/design/components/button/index.js";
-import { Card } from "$lib/design/components/card/index.js";
-import { Heading } from "$lib/design/components/heading/index.js";
-import { Text } from "$lib/design/components/text/index.js";
-import { wizardState } from "../wizard.state.svelte.js";
 
 interface Props {
 	/** `aria-label` describing this overlay. */
@@ -38,162 +38,137 @@ interface Props {
 	step: number;
 	/** Total steps for the header indicator. */
 	totalSteps: number;
-	/** Heading text for the header card. */
+	/** Heading text for the card header. */
 	title: string;
-	/** Optional Clyffy mascot snippet — rendered in the header card. */
+	/** Optional Clyffy mascot snippet — rendered in the header. */
 	mascot?: Snippet;
-	/** Optional extra animated backdrop layer. */
+	/** Optional MP4 / animated backdrop video. */
 	backdrop?: Snippet;
-	/** View body content — separate floating surfaces. */
+	/** View body content. */
 	children: Snippet;
 	/** Footer actions (Back / Skip / primary CTA). */
 	footer: Snippet;
+	/**
+	 * Card width. `form` (default) is a single-column step (40rem);
+	 * `wide` is for steps that lay content out in rows (e.g. the cortex
+	 * constellation) and needs room for its container query to switch
+	 * to the multi-column layout.
+	 */
+	width?: "form" | "wide";
 }
 
-let { label, step, totalSteps, title, mascot, backdrop, children, footer }: Props = $props();
+let {
+	label,
+	step,
+	totalSteps,
+	title,
+	mascot,
+	backdrop,
+	children,
+	footer,
+	width = "form",
+}: Props = $props();
+
+/** Layout only — Tailwind owns sizing; the glass preset owns the visuals. */
+const cardClass = $derived(
+	`shell-card relative m-auto flex w-full flex-col gap-4 p-6 ${
+		width === "wide" ? "max-w-6xl" : "min-w-[30rem] max-w-[40rem]"
+	}`,
+);
 </script>
 
 <!--
-	Root layer — TRANSPARENT: the dispatcher's fixed BackgroundScene
-	layers (z 8999) own the full viewport; nothing here paints over
-	them. The old `data-layout="setup"` circuit-board field died
-	2026-07-14 — it had covered the MP4 since the beginning.
+	Tier 1: backdrop layer. `data-layout="setup"` picks up the radial
+	glow + grid pattern declared in app.css for full-viewport setup
+	shells. Position + size only — visuals come from the layout
+	attribute.
 -->
 <div
-	class="shell-root"
+	class="fixed inset-0 z-9000 flex overflow-y-auto p-6"
+	data-layout="setup"
 	role="dialog"
 	aria-modal="true"
 	aria-label={label}
 >
 	{#if backdrop}
-		<div class="shell-backdrop-video" aria-hidden="true">
+		<div
+			class="shell-backdrop-video pointer-events-none fixed inset-0 overflow-hidden [&_video]:size-full [&_video]:object-cover"
+			aria-hidden="true"
+		>
 			{@render backdrop()}
 		</div>
 	{/if}
 
-	<div class="shell-stack">
-		<!-- Header — its own slim crisp card floating on the animation. -->
-		<Card preset="wizard-deep" class="shell-head-card">
+	<!-- Tier 2: card outer shell — ColdLight glass preset. `m-auto` inside
+	     the scrolling flex root centers the card when it fits and lets it
+	     scroll (instead of clipping top + bottom) when it is taller. -->
+	<Card surface="glass" variant="deep" class={cardClass}>
+		<header class="shell-head">
 			<div class="shell-head-left">
 				{#if mascot}
 					<div class="shell-mascot">{@render mascot()}</div>
 				{/if}
 				<Heading level={2} size="lg">{title}</Heading>
 			</div>
-			<div class="shell-head-right">
-				<Text size="xs" class="text-frost-500">
-					Step {step} of {totalSteps}
-				</Text>
-				<!--
-					Universal escape hatch — closes the wizard back to the
-					dashboard from ANY step. The overlay is a fixed layer over
-					the app shell (Frame), so closing simply reveals the
-					dashboard beneath; a live wire connection is untouched.
-					Re-entry stays available from the top-bar AI chip.
-				-->
-				<Button
-					preset="ghost"
-					size="sm"
-					aria-label="Close setup and return to the dashboard"
-					onclick={() => wizardState.close()}
-				>
-					<X size={16} />
-				</Button>
-			</div>
+			<Text size="xs" class="text-frost-500">
+				Step {step} of {totalSteps}
+			</Text>
+		</header>
+
+		<!-- Tier 3: inner content panel — ColdLight stark preset. -->
+		<Card surface="stark" variant="glow" class="shell-body">
+			{@render children()}
 		</Card>
 
-		<!-- The view's surfaces — each a SEPARATE card owning its chrome;
-		     no wrapper paints anything between them and the animation. -->
-		{@render children()}
-
-		<!-- Footer — its own slim crisp card. -->
-		<Card preset="wizard-deep" class="shell-foot-card">
+		<footer class="shell-foot">
 			{@render footer()}
-		</Card>
-	</div>
+		</footer>
+	</Card>
 </div>
 
 <style>
-	/* PURE ARRANGER — layout + fluid XY only. Chrome lives in the
-	   preset chains the cards wear. */
-	.shell-root {
-		position: fixed;
-		inset: 0;
-		z-index: 9000;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		/* Container seam for container-fluid tokens (S1.C). `size`,
-		   not inline-size: the root is inset-0 fixed with a definite
-		   height, so BOTH axes are queryable — cqi for X, cqb for Y
-		   (fluid XY clamping, operator ruling 2026-07-14). */
-		container-type: size;
-		container-name: setup-overlay;
-	}
-
-	/* Optional per-view animated layer — under the cards. */
+	/* Layout-only. Visual styling (border / shadow / background) lives
+	   in the Card preset chain (glass for outer, stark for body) and
+	   the `[data-layout="setup"]` backdrop in app.css. */
+	/* MP4 / animated backdrop slot — sits below the card, above the
+	   layout backdrop. Positioning is Tailwind; only the dimming here. */
 	.shell-backdrop-video {
-		position: absolute;
-		inset: 0;
-		pointer-events: none;
-		overflow: hidden;
-	}
-	.shell-backdrop-video :global(video) {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
+		opacity: 0.35;
 	}
 
-	/* The floating column — fluid XY: width clamps on cqi, height and
-	   rhythm clamp on cqb. Scrolls itself if a view outgrows the
-	   window; the animation never scrolls. */
-	.shell-stack {
-		position: relative;
+	.shell-head {
 		display: flex;
-		flex-direction: column;
-		gap: clamp(0.75rem, 1.8cqb, 1.5rem);
-		width: min(64rem, 92cqi);
-		max-height: 94cqb;
-		overflow-y: auto;
-		padding: clamp(0.25rem, 0.8cqb, 0.75rem);
-	}
-
-	/* Header/footer — slim row cards. `:global()` because the classes
-	   land on child <Card> roots across the component boundary. */
-	:global(.shell-head-card) {
-		flex-direction: row;
-		align-items: center;
 		justify-content: space-between;
-		gap: clamp(0.5rem, 1cqi, 1rem);
-		padding: clamp(0.625rem, 1.2cqb, 1rem) clamp(0.875rem, 1.8cqi, 1.5rem);
+		align-items: center;
+		gap: 1rem;
 	}
 
 	.shell-head-left {
 		display: flex;
 		align-items: center;
-		gap: clamp(0.5rem, 1cqi, 0.75rem);
-		min-width: 0;
-	}
-
-	.shell-head-right {
-		display: flex;
-		align-items: center;
-		gap: clamp(0.5rem, 1cqi, 0.75rem);
-		flex-shrink: 0;
+		gap: 0.75rem;
 	}
 
 	.shell-mascot {
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		width: clamp(2rem, 3.5cqb, 2.5rem);
-		height: clamp(2rem, 3.5cqb, 2.5rem);
+		width: 2.25rem;
+		height: 2.25rem;
 	}
 
-	:global(.shell-foot-card) {
-		flex-direction: row;
+	/* `:global()` — class is passed to a child `<Card>` component. */
+	:global(.shell-body) {
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+		min-height: 9rem;
+		padding: 1rem;
+	}
+
+	.shell-foot {
+		display: flex;
+		gap: 0.5rem;
 		align-items: center;
-		gap: clamp(0.375rem, 0.8cqi, 0.625rem);
-		padding: clamp(0.5rem, 1cqb, 0.875rem) clamp(0.875rem, 1.8cqi, 1.5rem);
 	}
 </style>

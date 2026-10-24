@@ -151,7 +151,6 @@ impl PackagePortable {
         assert_declared_resources_present(&plan)?;
         write_manifest(ws, &plan, &report)?;
         write_readme(&plan, &report)?;
-        write_userdata_skeleton(&plan)?;
         let zip_size = build_zip(&plan)?;
         print_summary(&plan, &report, zip_size);
 
@@ -718,7 +717,7 @@ fn execute_dry_run(plan: &PackagePlan) {
             cat = cat,
         );
     }
-    crate::xinfo!("  [dry-run] would write manifest.json + README.txt + .userdata/ skeleton");
+    crate::xinfo!("  [dry-run] would write manifest.json + README.txt");
     crate::xinfo!(
         "  [dry-run] would produce zip at {}",
         plan.zip_path.display()
@@ -1057,43 +1056,14 @@ fn write_readme(plan: &PackagePlan, report: &PortableReport) -> Result<()> {
         );
     }
     body.push_str("  icon.ico — application icon\n");
-    body.push_str("  manifest.json — build metadata + per-file SHA256 (integrity check)\n");
-    body.push_str("  .userdata\\ — DevPulse's data folder (settings, local databases, logs)\n\n");
-    body.push_str(
-        "Fully portable: everything DevPulse stores lives in .userdata\\ beside the\n\
-         exe — move the folder with the app to carry your whole setup. The app\n\
-         recreates .userdata\\ if it's missing; only when this location is\n\
-         read-only does data fall back to the standard OS app-data folder.\n",
-    );
+    body.push_str("  manifest.json — build metadata + per-file SHA256 (integrity check)\n\n");
+    body.push_str("First run writes data to %LOCALAPPDATA%\\DevPulse\\ (Turso, DuckDB, logs).\n");
 
     let path = plan.portable_dir.join("README.txt");
     let mut f = File::create(&path).with_context(|| format!("creating {}", path.display()))?;
     f.write_all(body.as_bytes())
         .with_context(|| format!("writing {}", path.display()))?;
     crate::xinfo!("  > wrote README.txt");
-    Ok(())
-}
-
-/// Ship the portable data-dir skeleton. Two reasons it's explicit:
-/// the zip walker carries FILES only (an empty dir would be dropped),
-/// and an extracted bundle with `.userdata/` present resolves via the
-/// resolver's step 1 (existing dir wins) deterministically — the
-/// runtime smart-portable step (3.5) is the recreate-if-deleted
-/// backstop, not the primary path. The README inside doubles as the
-/// zip-carrier file and the layman explanation of the folder.
-fn write_userdata_skeleton(plan: &PackagePlan) -> Result<()> {
-    let dir = plan.portable_dir.join(".userdata");
-    fs::create_dir_all(&dir).with_context(|| format!("creating {}", dir.display()))?;
-    let body = "DevPulse data folder — generated and managed by the app.\n\n\
-        Everything DevPulse stores lives here, beside the exe: settings,\n\
-        local databases, logs, downloaded models. Move this folder together\n\
-        with the app to carry your whole setup. Deleting it resets DevPulse\n\
-        to first-run; the app recreates it automatically.\n";
-    let path = dir.join("README.txt");
-    let mut f = File::create(&path).with_context(|| format!("creating {}", path.display()))?;
-    f.write_all(body.as_bytes())
-        .with_context(|| format!("writing {}", path.display()))?;
-    crate::xinfo!("  > wrote .userdata/ skeleton");
     Ok(())
 }
 

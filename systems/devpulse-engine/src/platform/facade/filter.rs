@@ -8,6 +8,8 @@
 use std::collections::HashMap;
 use std::time::Instant;
 
+use devpulse_clyffy::cortex::llguidance::config::DEFAULT_GRAMMAR_KIND;
+
 use super::config::{RedactionLevel, WhitelistConfig};
 use super::surface::{SurfaceCategory, SurfaceEvent};
 
@@ -136,7 +138,7 @@ fn redact_pii(text: &str) -> String {
 
 /// Strip IP-sensitive method names and internal architecture terms.
 ///
-/// This is the key function that protects engine internals
+/// This is the key function that protects kernel internals
 /// from leaking to the user-facing UI.
 fn redact_ip(text: &str) -> String {
     // Terms that must NEVER appear in Surface-level output.
@@ -159,12 +161,12 @@ fn redact_ip(text: &str) -> String {
         ("flume", "message"),
         ("rkyv", "data"),
         ("Qdrant", "knowledge base"),
-        ("libSQL", "database"),
+        ("Turso", "database"),
         ("DuckDB", "analytics"),
         ("SurrealDB", "graph"),
         ("Candle", "AI engine"),
         ("llama.cpp", "AI engine"),
-        ("llguidance", "format system"),
+        (DEFAULT_GRAMMAR_KIND, "format system"),
         ("Qwen3", "AI model"),
         ("SigLIP2", "vision model"),
         ("Whisper", "voice model"),

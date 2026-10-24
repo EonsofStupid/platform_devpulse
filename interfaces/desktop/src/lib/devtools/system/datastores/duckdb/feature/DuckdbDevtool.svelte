@@ -11,11 +11,11 @@
 	`[services.system.duckdb]` of `platform.toml`.
 -->
 <script lang="ts">
-import { BarChart3, Hammer, Play, RefreshCw, Table2, Terminal } from "@lucide/svelte";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Spinner } from "@devpulse/coldlight/components/spinner";
+import { Text } from "@devpulse/coldlight/components/text";
+import { BarChart3, Hammer, Play, RefreshCw, Table2, Terminal } from "lucide-svelte";
 import { onMount } from "svelte";
-import { Button } from "$lib/design/components/button/index.js";
-import { Spinner } from "$lib/design/components/spinner/index.js";
-import { Text } from "$lib/design/components/text/index.js";
 import { type ExtraTab, type HealthBadge, ServiceDevtoolShell } from "$lib/devtools/index.js";
 import { EmptyStatePoster, StoreHeroCard } from "$lib/devtools/system/datastores/_shared/index.js";
 import { duckdbState } from "$lib/domains/infra/duckdb/index.js";
@@ -100,14 +100,6 @@ const heroHealthLabel = $derived(
 					? "Down"
 					: "Not probed yet",
 );
-// Activity tick — bump each time the health probe completes so the
-// LiveActivityPulse blips on every successful round-trip.
-let activityTick = $state(0);
-$effect(() => {
-	if (duckdbState.health) {
-		activityTick = activityTick + 1;
-	}
-});
 
 const badge = $derived<HealthBadge>(
 	duckdbState.healthLoading
@@ -133,33 +125,24 @@ function handleKeydown(e: KeyboardEvent): void {
 </script>
 
 <ServiceDevtoolShell
-	infoTerm="DuckDB"
-	title="DuckDB"
-	description="Analytics engine · OLAP"
-	icon={BarChart3}
-	axis="stores"
-	accent="gold"
 	health={badge}
 	{extraTabs}
 >
 	{#snippet status()}
 		<div class="space-y-3">
 			<StoreHeroCard
-				icon={BarChart3}
-				name="DuckDB"
 				purpose="Columnar analytics engine — fast aggregates over local + warehouse data"
 				health={heroState}
 				latencyMs={heroLatencyMs}
 				healthLabel={heroHealthLabel}
-				{activityTick}
-				accentVar="--accent-gold-main"
+				activityTick={duckdbState.healthChecks}
 			>
 				<DuckdbHero state={heroState} />
 			</StoreHeroCard>
 
 			<div class="flex items-center justify-end gap-2">
 				<Button
-					preset="ghost"
+					variant="ghost"
 					size="sm"
 					onclick={() => duckdbState.loadHealth()}
 					disabled={duckdbState.healthLoading}
@@ -203,7 +186,7 @@ function handleKeydown(e: KeyboardEvent): void {
 					title="Probe DuckDB to see its state"
 					hint="The engine is in-process — first probe is usually instant. If it stays down, the data file may be missing."
 					logTarget="duckdb.lifecycle"
-					accentVar="--accent-gold-main"
+					accentVar="--accent-amber"
 				/>
 			{/if}
 		</div>
@@ -231,7 +214,7 @@ function handleKeydown(e: KeyboardEvent): void {
 				<Text size="sm" weight="semibold">
 					Scoped log — <span class="font-mono text-xs">devtools.duckdb</span>
 				</Text>
-				<Button preset="ghost" size="sm" onclick={loadLogs} disabled={logLoading}>
+				<Button variant="ghost" size="sm" onclick={loadLogs} disabled={logLoading}>
 					{#if logLoading}
 						<Spinner size="xs" tone="accent" />
 					{:else}
@@ -292,7 +275,7 @@ function handleKeydown(e: KeyboardEvent): void {
 						Re-ping the analytics engine and reload latency.
 					</Text>
 					<Button
-						preset="primary"
+						variant="primary"
 						size="sm"
 						onclick={() => duckdbState.loadHealth()}
 						disabled={duckdbState.healthLoading}
@@ -312,7 +295,7 @@ function handleKeydown(e: KeyboardEvent): void {
 						Refresh the table catalog.
 					</Text>
 					<Button
-						preset="primary"
+						variant="primary"
 						size="sm"
 						onclick={() => duckdbState.loadTables()}
 						disabled={duckdbState.tablesLoading}
@@ -341,7 +324,7 @@ function handleKeydown(e: KeyboardEvent): void {
 				<div class="flex items-center justify-between mb-2">
 					<Text size="sm" weight="semibold">Sanity probe</Text>
 					<Button
-						preset="primary"
+						variant="primary"
 						size="sm"
 						onclick={runSanityProbe}
 						disabled={probeRunning}
@@ -396,7 +379,7 @@ function handleKeydown(e: KeyboardEvent): void {
 		<div class="flex items-center justify-between">
 			<Text size="sm" weight="semibold">Analytics Tables</Text>
 			<Button
-				preset="ghost"
+				variant="ghost"
 				size="sm"
 				onclick={() => duckdbState.loadTables()}
 				disabled={duckdbState.tablesLoading}
@@ -460,7 +443,7 @@ function handleKeydown(e: KeyboardEvent): void {
 			<div class="absolute bottom-2 right-2 flex items-center gap-2">
 				<span class="text-[10px] text-[var(--text-secondary)]">Ctrl+Enter to run</span>
 				<Button
-					preset="primary"
+					variant="primary"
 					size="sm"
 					onclick={handleQuerySubmit}
 					disabled={duckdbState.queryLoading || !duckdbState.queryInput.trim()}

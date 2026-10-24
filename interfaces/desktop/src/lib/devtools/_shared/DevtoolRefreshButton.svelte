@@ -14,9 +14,9 @@
 	```
 -->
 <script lang="ts">
-import { AlertTriangle, RefreshCw } from "@lucide/svelte";
-import { Button } from "$lib/design/components/button/index.js";
-import { Spinner } from "$lib/design/components/spinner/index.js";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Spinner } from "@devpulse/coldlight/components/spinner";
+import { AlertTriangle, RefreshCw } from "lucide-svelte";
 import type { PolledQuery, TauriQuery } from "$lib/sys/runes/index.js";
 
 type AnyQuery = TauriQuery<unknown, unknown> | PolledQuery<unknown, unknown>;
@@ -31,7 +31,7 @@ interface Props {
 let { query, label = "Refresh" }: Props = $props();
 </script>
 
-<Button preset="ghost" size="sm" onclick={() => query.refresh()} disabled={query.loading}>
+<Button variant="ghost" size="sm" onclick={() => query.refresh()} disabled={query.loading}>
 	{#if query.loading}
 		<Spinner size="xs" />
 	{:else if query.error !== null}

@@ -3,11 +3,11 @@
  * @module @devpulse/sys/data-access/rrd
  *
  * Subscribes to `platform:rrd-phase-transition` and keeps a rolling
- * history of the RRD daemon's lifecycle events (pause / drain /
+ * history of the kernel daemon's lifecycle events (pause / drain /
  * load / validate / swap / resume / fail). Powers the RRD devtool's
  * Status + Logs tabs.
  *
- * The Tauri event is bridged through the engine via the
+ * The Tauri event is bridged from the kernel via the
  * RrdLifecycleTranslator → InternalEvent::RrdPhaseTransition path
  * wired in lib.rs. See HOT_UPDATE_PATTERN.md §11.
  */

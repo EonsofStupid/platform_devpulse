@@ -24,7 +24,7 @@ const ariaPrimitivesCheck: Check = {
     const results: CheckResult[] = [];
 
     const svelteFiles = ctx.files.filter(f =>
-      f.includes('lib/design/primitives/') &&
+      f.includes('packages/coldlight/primitives/') &&
       f.endsWith('.svelte') &&
       !f.includes('_archive') &&
       !f.includes('.test.')

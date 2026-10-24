@@ -11,6 +11,7 @@ export {
 	updatesState,
 } from "./data-access/index.js";
 
+export { default as LatestUpdateCard } from "./feature/latest-update-card/LatestUpdateCard.svelte";
 export type {
 	UpdateChannel,
 	UpdateDownloadProgressPayload,

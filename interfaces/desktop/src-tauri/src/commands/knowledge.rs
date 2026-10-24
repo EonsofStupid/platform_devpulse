@@ -1,14 +1,14 @@
 //! Knowledge library Tauri commands — generalized types only.
 //!
-//! No Clyffy references. No engine-internal naming. The frontend sees
+//! No Clyffy references. No kernel-internal naming. The frontend sees
 //! `Entry`, `type: "dyk"`, `payload`, and nothing more.
 //!
-//! Delegates to the engine's selector via the facade — no duplicated SQL.
+//! Delegates to kernel selector via engine facade — no duplicated SQL.
 //! Remote-sync helper fetches updated entries from a public Supabase
 //! Storage bucket so the catalog can be refreshed without a binary
 //! rebuild.
 
-use crate::commands::cloud::get_supabase_credentials;
+use crate::commands::cloud::secrets::credentials_from;
 use crate::state::PlatformState;
 use anyhow::Context as _;
 use devpulse_engine::platform::{
@@ -21,7 +21,7 @@ use serde::{Deserialize, Serialize};
 use specta::Type;
 use tauri::State;
 
-/// A knowledge entry as the frontend sees it — no internal vocabulary.
+/// A knowledge entry as the frontend sees it — no kernel vocabulary.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 #[serde(rename_all = "camelCase")]
 pub struct KnowledgeEntryDto {
@@ -46,7 +46,7 @@ pub struct KnowledgeEntryDto {
 
 /// Get a knowledge entry matching the given type and optional tool context.
 ///
-/// Delegates to the engine's selector — affinity-weighted, cooldown-gated.
+/// Delegates to kernel selector — affinity-weighted, cooldown-gated.
 #[tauri::command]
 #[specta::specta]
 #[allow(clippy::missing_errors_doc)]
@@ -162,14 +162,14 @@ pub enum KnowledgeSyncResult {
 }
 
 /// Pull the latest knowledge catalog from the configured Supabase
-/// Storage bucket and upsert into libSQL.
+/// Storage bucket and upsert into Turso.
 ///
 /// URL convention (public bucket, anon-keyed read):
 ///
 /// - `{supabase_url}/storage/v1/object/public/knowledge/manifest.json`
 /// - `{supabase_url}/storage/v1/object/public/knowledge/{filename}`
 ///
-/// When the manifest version matches what's already stored, the engine
+/// When the manifest version matches what's already stored, the kernel
 /// fast-paths to zero work (returns `Synced { upserted: 0, .. }`).
 ///
 /// # Errors
@@ -190,7 +190,8 @@ pub async fn sync_knowledge_from_remote(
         .ok_or("User relational service not available")?;
     let adapter: &dyn SqlAdapter = svc.adapter().as_ref();
 
-    let creds = match get_supabase_credentials().await {
+    let auth = &platform.boot_config().integrations.cloud.auth;
+    let creds = match credentials_from(auth) {
         Ok(c) => c,
         Err(e) => {
             return Ok(KnowledgeSyncResult::Skipped {

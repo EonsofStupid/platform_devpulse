@@ -3,29 +3,37 @@
 //! # Architecture
 //! This file is the **orchestrator only**. Each service has its own boot file:
 //! - [`relational`] — Turso (system + user)
-//! - [`analytics`] — `DuckDB` (system + user)
+//! - [`analytics`] — `DuckDB`
+//! - [`graph`] — `SurrealDB` (consolidated: system + user + global namespaces)
 //! - [`cache`] — Moka
-//!
-//! There are no Tier-2 boot stages (graph/vector/model_loader/grammar) —
-//! those AI services are Clyffy's on GB10, served over the gb10-client
-//! wire. DevPulse-local boot is Tier-1 only.
+//! - [`vector`] — RRO (embedded Qdrant)
+//! - [`voice`] — Kokoros TTS
+//! - [`embedder`] — Candle dense embedding
+//! - [`whisper`] — Candle speech-to-text
+//! - [`model_loader`] — AI model management + inference
+//! - grammar — kernel-owned constrained decoding service (facade stage pending)
 //!
 //! # Boot Sequence
 //!  1. **Preflight** — validate config, create directory hierarchy
 //!  2. **System relational** (Turso) — CRITICAL
 //!  3. **System analytics** (`DuckDB`) — CRITICAL
-//!  4. **System cache** (Moka) — CRITICAL
-//!  5. **User relational** (Turso) — CRITICAL
-//!  6. **User analytics** (`DuckDB`)
-//!  7. **Validation** — verify all critical services (config-driven)
+//!  4. **Graph store** (`SurrealDB`) — CRITICAL ─┐
+//!     **Model Loader** — feature-gated ────────┘ PARALLEL (zero shared dependency)
+//!  5. **System cache** (Moka) — CRITICAL
+//!  6. **User relational** (Turso) — CRITICAL
+//!  7. **Vector store** (RRO) — feature-gated
+//!  9. **Grammar** — kernel persists `grammar_service` row to system Turso
+//! 10. **Validation** — verify all critical services (config-driven)
 //!
 //! `DevForge` (VS Code REH) is **not** a boot-time service. It's lazy-started
 //! on first `Platform::ensure_devforge_started()` call (user opens the code
 //! editor window). Keeping it out of the boot pipeline means cold boot never
 //! pays for Node REH health-polling.
 //!
-//! Stages complete sequentially — with only Tier-1 stores in the
-//! pipeline there is no cross-stage parallelism to exploit.
+//! Most stages complete sequentially. Model Loader runs in parallel with the
+//! Graph store via `tokio::join!` because they have zero shared dependency —
+//! this saves 3-7s of boot time that was previously wasted blocking on
+//! `SurrealDB` WAL recovery.
 //! The boot log writes to file AND stderr in real time.
 //!
 //! # Validation Contract
@@ -42,17 +50,29 @@
 
 mod analytics;
 mod cache;
+pub mod graph;
 pub mod log;
+mod model_loader;
 pub mod preflight;
 mod relational;
 pub mod retry;
+mod vector;
 
 use crate::platform::config::PlatformBootConfig;
 use crate::platform::init::InitEvent;
 use crate::platform::services::analytics::AnalyticsService;
 use crate::platform::services::analytics::{SYSTEM_ANALYTICS_SCHEMA, USER_ANALYTICS_SCHEMA};
 use crate::platform::services::cache::CacheService;
-use crate::platform::services::relational::{RelationalService, SYSTEM_SCHEMA, USER_SCHEMA};
+use crate::platform::services::graph::GraphService;
+// EmbedderService removed — slot-managed by model loader
+// WhisperService removed — slot-managed by model loader
+#[cfg(feature = "inference")]
+use crate::platform::services::model_loader::ModelLoaderService;
+use crate::platform::services::relational::{RelationalService, SYSTEM_STORE, USER_STORE};
+use crate::platform::services::surreal::SurrealService;
+#[cfg(feature = "rro")]
+use crate::platform::services::vector::VectorService;
+use devpulse_clyffy::cortex::llguidance::sync_grammar_service_from_config;
 
 use anyhow::Result;
 use log::BootLog;
@@ -61,14 +81,21 @@ use std::sync::Arc;
 
 /// Collected service handles from a successful boot pipeline.
 pub struct BootedServices {
+    pub surreal: Option<Arc<SurrealService>>,
     pub system_relational: Option<Arc<RelationalService>>,
     pub system_analytics: Option<Arc<AnalyticsService>>,
+    pub system_graph: Option<Arc<GraphService>>,
     pub system_cache: Option<Arc<CacheService>>,
     pub user_relational: Option<Arc<RelationalService>>,
     pub user_analytics: Option<Arc<AnalyticsService>>,
-    // Tier-2 (surreal/graph/vector/model_loader) is Clyffy's — served
-    // from GB10 over the gb10-client wire, so no handles here.
-    // DevForge is lazy-started on first open, not a boot-time service.
+    pub user_graph: Option<Arc<GraphService>>,
+    pub global_graph: Option<Arc<GraphService>>,
+    #[cfg(feature = "rro")]
+    pub vector: Option<Arc<VectorService>>,
+    // Embedder + Whisper removed — slot-managed by model loader.
+    #[cfg(feature = "inference")]
+    pub model_loader: Option<Arc<ModelLoaderService>>,
+    // DevForge removed from boot pipeline — lazy-started on first open.
 }
 
 /// Execute the full boot pipeline — sequential, gated, logged.
@@ -88,6 +115,7 @@ pub async fn execute(
     boot_config: &PlatformBootConfig,
     on_event: &(impl Fn(InitEvent) + Send + 'static),
     model_event_sink: Option<std::sync::Arc<dyn std::any::Any + Send + Sync>>,
+    signals: crate::Engine,
 ) -> Result<BootedServices> {
     // ── Boot log: real-time sink to file + stderr ──────────────
     let boot_log = BootLog::open(data_dir)?;
@@ -96,7 +124,14 @@ pub async fn execute(
     let timeout_dur = std::time::Duration::from_secs(boot_config.boot.timeout_secs);
     let result = tokio::time::timeout(
         timeout_dur,
-        execute_inner(data_dir, boot_config, on_event, &boot_log, model_event_sink),
+        execute_inner(
+            data_dir,
+            boot_config,
+            on_event,
+            &boot_log,
+            model_event_sink,
+            signals,
+        ),
     )
     .await;
 
@@ -119,7 +154,7 @@ pub async fn execute(
 /// Inner boot pipeline — called by `execute()` under a timeout guard.
 ///
 /// Length: orchestrates ~6 sequential boot stages (preflight,
-/// telemetry, libsql, surreal, ollama, model-loader). Splitting into
+/// telemetry, turso, surreal, ollama, model-loader). Splitting into
 /// per-stage helpers fragments the linear flow and obscures the
 /// timeout boundary `execute()` wraps it in. Each stage already owns
 /// its own logic in a sibling module; this function is the conductor.
@@ -132,6 +167,7 @@ async fn execute_inner(
     #[allow(unused_variables)] model_event_sink: Option<
         std::sync::Arc<dyn std::any::Any + Send + Sync>,
     >,
+    #[allow(unused_variables)] signals: crate::Engine,
 ) -> Result<BootedServices> {
     // ── Stage 1: Preflight — directory hierarchy ──────────────
     on_event(InitEvent::running("preflight", "Creating data directories"));
@@ -146,13 +182,13 @@ async fn execute_inner(
     on_event(InitEvent::ok("preflight", "Directories ready"));
     boot_log.ok("preflight", "directories ready");
 
-    // ── Stage 2: System relational (LibSQL) — CRITICAL ────────
-    let spin = boot_log.running("System relational", "connecting LibSQL...");
+    // ── Stage 2: System relational (Turso) — CRITICAL ────────
+    let spin = boot_log.running("System relational", "connecting Turso...");
     let system_relational = relational::boot(
         data_dir,
         &boot_config.services.system.relational,
         &boot_config.windows,
-        SYSTEM_SCHEMA,
+        SYSTEM_STORE,
         "System relational",
         on_event,
         boot_log,
@@ -175,30 +211,100 @@ async fn execute_inner(
 
     drop(spin);
 
-    // No graph-store or model-loading boot stage — the Surreal graph and
-    // inference-side model loading are Clyffy's on GB10, served over the
-    // gb10-client wire. DevPulse-local boot is Tier-1 only.
+    // ── Prepare Model Loader event sink early (needed for parallel boot) ──
+    #[cfg(feature = "inference")]
+    let loader_event_sink: Option<
+        std::sync::Arc<dyn devpulse_clyffy::model_loader::LoaderEventSink>,
+    > = model_event_sink.and_then(|any| {
+        any.downcast::<crate::platform::integrations::events::EventBridge>()
+            .ok()
+            .map(|bridge| {
+                bridge as std::sync::Arc<dyn devpulse_clyffy::model_loader::LoaderEventSink>
+            })
+    });
+
+    // ── Stage 4 + 12: Graph store AND Model Loader in PARALLEL ───
+    // Model Loader has ZERO dependency on SurrealDB (or any other service).
+    // Running them concurrently saves 3-7s of boot time that was wasted
+    // waiting for SurrealDB WAL recovery before model scanning could begin.
+    //
+    // tokio::join! runs both futures on the same task — no Send/'static
+    // requirement. Both share &on_event and &boot_log safely.
+    // ── Stage 4 + 12: Graph + Model Loader in parallel ─────────
+    let spin = boot_log.running("Graph + Model Loader", "initializing in parallel...");
+    #[cfg(feature = "inference")]
+    let ((surreal, system_graph, user_graph, global_graph), model_loader_svc) = tokio::join!(
+        graph::boot_consolidated(data_dir, boot_config, on_event, boot_log),
+        model_loader::boot(
+            data_dir,
+            &boot_config.services.system.model_loader,
+            on_event,
+            boot_log,
+            signals,
+            loader_event_sink,
+            system_relational.as_ref().map(|svc| svc.adapter().clone()),
+        )
+    );
+
+    #[cfg(not(feature = "inference"))]
+    let (surreal, system_graph, user_graph, global_graph) =
+        graph::boot_consolidated(data_dir, boot_config, on_event, boot_log).await;
+
+    #[cfg(not(feature = "inference"))]
+    {
+        if boot_config.services.system.model_loader.enabled {
+            boot_log.fail(
+                "Model Loader",
+                "enabled in config but 'inference' feature not compiled",
+            );
+            anyhow::bail!(
+                "FATAL: Model Loader is enabled in config but the 'inference' feature is not compiled in. \
+                 Add features = [\"inference\"] to devpulse-engine dependency in src-tauri/Cargo.toml."
+            );
+        }
+    }
+
+    drop(spin);
 
     // ── Stage 5: System cache (Moka) ──────────────────────────
     let system_cache = cache::boot(&boot_config.services.system.cache, on_event, boot_log);
 
-    // ── Stage 6: User relational (LibSQL) ─────────────────────
-    let spin = boot_log.running("User relational", "connecting LibSQL...");
+    // ── Stage 6: User relational (Turso) ─────────────────────
+    let spin = boot_log.running("User relational", "connecting Turso...");
     let user_relational = relational::boot(
         data_dir,
         &boot_config.services.user.relational,
         &boot_config.windows,
-        USER_SCHEMA,
+        USER_STORE,
         "User relational",
         on_event,
         boot_log,
     )
     .await;
 
-    // No knowledge-library sync stage — the embedded knowledge corpus +
-    // its sync logic are Clyffy's (clyffyos repo), running on GB10.
-    // Tips arrive over the gb10-client wire; a Tier-1 reimplementation,
-    // if wanted, is its own later slice.
+    // ── Stage 6b: Knowledge library sync ──────────────────────
+    // Syncs embedded JSON artifacts into user Turso. Fast path
+    // skips if manifest version matches stored version.
+    if let Some(ref user_svc) = user_relational {
+        let _kspin = boot_log.running("Knowledge sync", "syncing knowledge library...");
+        match devpulse_clyffy::cortex::knowledge::sync_to_database(user_svc.adapter().as_ref())
+            .await
+        {
+            Ok(count) => {
+                if count > 0 {
+                    tracing::info!(upserted = count, "Knowledge library synced");
+                    boot_log.ok("Knowledge sync", &format!("synced {count} entries"));
+                } else {
+                    boot_log.ok("Knowledge sync", "up to date");
+                }
+            }
+            Err(e) => {
+                // Non-critical — knowledge tips are nice-to-have, not blocking
+                tracing::warn!(error = %e, "Knowledge sync failed — tips unavailable this session");
+                boot_log.skip("Knowledge sync", &format!("non-critical: {e}"));
+            }
+        }
+    }
 
     // ── Stage 6c: User analytics (DuckDB) ─────────────────────
     // Booted after user relational so the directory hierarchy
@@ -215,12 +321,77 @@ async fn execute_inner(
     )
     .await;
 
-    // No vector-store (RRO) stage — the vector store is Clyffy's
-    // on GB10, served over the gb10-client wire.
+    // ── Stage 7: Vector store (RRO) — feature-gated ──────────
+    drop(spin);
+    let spin = boot_log.running("Vector store", "verifying RRO...");
+    #[cfg(feature = "rro")]
+    let vector = vector::boot(
+        data_dir,
+        &boot_config.services.system.vector,
+        on_event,
+        boot_log,
+    )
+    .await;
+    #[cfg(not(feature = "rro"))]
+    {
+        if boot_config.services.system.vector.enabled {
+            boot_log.fail(
+                "Vector store",
+                "enabled in config but 'rro' feature not compiled",
+            );
+            anyhow::bail!(
+                "FATAL: Vector store (RRO) is enabled in config but the 'rro' feature is not compiled in. \
+                 Add features = [\"rro\"] to devpulse-engine dependency in src-tauri/Cargo.toml."
+            );
+        }
+    }
+
     drop(spin);
 
-    // No grammar stage — grammar / constrained decoding is Clyffy's
-    // on GB10. No local grammar row.
+    // ── Stage 9: Grammar — system Turso row (kernel-owned contract) ───
+    if let Some(svc) = &system_relational {
+        on_event(InitEvent::running(
+            "Grammar service",
+            "Synchronizing system grammar row",
+        ));
+        match sync_grammar_service_from_config(
+            svc.adapter().as_ref(),
+            &boot_config.services.system.grammar,
+        )
+        .await
+        {
+            Ok(()) => {
+                on_event(InitEvent::ok(
+                    "Grammar service",
+                    "system grammar_service row synchronized",
+                ));
+                boot_log.ok("Grammar service", "system grammar_service row synchronized");
+            }
+            Err(e) => {
+                let msg = format!("{e:#}");
+                if boot_config.services.system.grammar.critical {
+                    on_event(InitEvent::error("Grammar service", &msg));
+                    boot_log.fail("Grammar service", &msg);
+                    return Err(e);
+                }
+                tracing::warn!(error = %e, "Grammar service row sync failed (non-critical)");
+                on_event(InitEvent::skipped_with_message(
+                    "Grammar service",
+                    "row sync failed — continuing (grammar not critical)",
+                ));
+                boot_log.skip("Grammar service", "row sync failed — continuing");
+            }
+        }
+    } else {
+        on_event(InitEvent::skipped_with_message(
+            "Grammar service",
+            "system relational store unavailable",
+        ));
+        boot_log.skip(
+            "Grammar service",
+            "system relational unavailable — grammar row not written",
+        );
+    }
 
     // Stages 10-11 (Embedder, Whisper) REMOVED — slot-managed by model loader.
     // rag.embedder and voice.stt slots handle these capabilities through Layer 2.
@@ -241,9 +412,11 @@ async fn execute_inner(
         use crate::platform::config::DataScope;
         use crate::platform::services::ServiceRole;
 
-        // Tier-1 only. Tier-2 (Graph/Vector/Model Loader) is Clyffy's on
-        // GB10 — nothing local to validate.
-        let checks: Vec<(&str, bool, bool)> = vec![
+        // `mut` is required when `rro` / `inference` features compile in
+        // the `checks.push(...)` lines below. Default build has neither,
+        // so we allow the unused-mut warning instead of reshuffling.
+        #[allow(unused_mut)]
+        let mut checks: Vec<(&str, bool, bool)> = vec![
             (
                 "System relational",
                 system_relational.is_some(),
@@ -253,6 +426,11 @@ async fn execute_inner(
                 "System analytics",
                 system_analytics.is_some(),
                 boot_config.is_enabled_and_critical(ServiceRole::Analytics, DataScope::System),
+            ),
+            (
+                "Graph store",
+                system_graph.is_some(),
+                boot_config.is_enabled_and_critical(ServiceRole::Graph, DataScope::System),
             ),
             (
                 "System cache",
@@ -269,7 +447,30 @@ async fn execute_inner(
                 user_analytics.is_some(),
                 boot_config.is_enabled_and_critical(ServiceRole::Analytics, DataScope::User),
             ),
+            (
+                "User graph namespace",
+                user_graph.is_some(),
+                boot_config.is_enabled_and_critical(ServiceRole::Graph, DataScope::User),
+            ),
+            (
+                "Global graph namespace",
+                global_graph.is_some(),
+                boot_config.is_enabled_and_critical(ServiceRole::Graph, DataScope::Global),
+            ),
         ];
+        #[cfg(feature = "rro")]
+        checks.push((
+            "Vector store",
+            vector.is_some(),
+            boot_config.is_enabled_and_critical(ServiceRole::Vector, DataScope::System),
+        ));
+        // Embedder + Whisper removed — slot-managed by model loader (Layer 2).
+        #[cfg(feature = "inference")]
+        checks.push((
+            "Model Loader",
+            model_loader_svc.is_some(),
+            boot_config.is_enabled_and_critical(ServiceRole::ModelLoader, DataScope::System),
+        ));
         // DevForge (Code Editor) is lazy-started on user open — not validated at boot.
 
         validate_critical(&checks, boot_config, boot_log)?;
@@ -299,11 +500,19 @@ async fn execute_inner(
     );
 
     Ok(BootedServices {
+        surreal,
         system_relational,
         system_analytics,
+        system_graph,
         system_cache,
         user_relational,
         user_analytics,
+        user_graph,
+        global_graph,
+        #[cfg(feature = "rro")]
+        vector,
+        #[cfg(feature = "inference")]
+        model_loader: model_loader_svc,
     })
 }
 

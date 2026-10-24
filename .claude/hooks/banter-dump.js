@@ -6,9 +6,8 @@
 //   2. INSERT into SurrealDB NS=platform_devpulse DB=chat TABLE=turns
 //
 // On Stop:
-//   1. Copy the full Claude Code transcript .jsonl from
-//      ~/.claude/projects/d--localdev-platform-devpulse/<sessionId>.jsonl
-//      to .claude/dumps/<YYYY-MM-DD>/<sessionId>.transcript.jsonl
+//   1. Copy the full Claude Code transcript .jsonl (the hook payload's
+//      `transcript_path`) to .claude/dumps/<YYYY-MM-DD>/<sessionId>.transcript.jsonl
 //   2. INSERT a session-end marker into SurrealDB sessions table
 //
 // SurrealDB: probes local 8842 first, falls back to cloud, via the
@@ -20,7 +19,6 @@
 
 const fs = require("node:fs");
 const path = require("node:path");
-const os = require("node:os");
 const surreal = require("./_surreal.js");
 
 const VERB = process.argv[2] || "user-prompt";
@@ -30,7 +28,6 @@ const DB = "chat";
 const HOOK_DIR = __dirname;
 const PROJECT_ROOT = path.resolve(HOOK_DIR, "..", "..");
 const DUMP_ROOT = path.join(PROJECT_ROOT, ".claude", "dumps");
-const TRANSCRIPT_ROOT = path.join(os.homedir(), ".claude", "projects", "d--localdev-platform-devpulse");
 
 function readStdin() {
 	try { return fs.readFileSync(0, "utf-8"); } catch { return ""; }
@@ -86,8 +83,10 @@ function handleStop(payload) {
 	const sessionId = payload.session_id || payload.sessionId || "unknown";
 	if (sessionId === "unknown") return;
 
-	const src = path.join(TRANSCRIPT_ROOT, `${sessionId}.jsonl`);
-	if (fs.existsSync(src)) {
+	// Claude Code passes the transcript's location in every hook payload;
+	// never derive it from the machine-specific project folder name.
+	const src = payload.transcript_path;
+	if (src && fs.existsSync(src)) {
 		try {
 			const dst = path.join(dumpDir(), `${sessionId}.transcript.jsonl`);
 			fs.copyFileSync(src, dst);

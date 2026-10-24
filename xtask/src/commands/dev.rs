@@ -102,7 +102,7 @@ impl Task for Dev {
         println!("  > pnpm tauri dev");
         let dev_bind = &platform_config.services.network.dev_server.bind;
         println!("  > Vite        → http://{dev_bind}:{dev_port}");
-        println!("  > Platform    → LibSQL + DuckDB + SurrealDB + Moka + RRO + Kokoros + Outlines");
+        println!("  > Platform    → Turso + DuckDB + SurrealDB + Moka + prepared context + Kokoros + Outlines");
         let graph_api = &platform_config.services.network.graph_api;
         println!(
             "  > SurrealDB   → http://{}:{} (HTTP server)",
@@ -191,16 +191,21 @@ fn run_backend_compile(
     platform_config.build.apply_env(ws.root());
 
     let compile_start = Instant::now();
-    // Run host-SDK detection for its env-export side effects (MSVC/CMAKE +
-    // prebuilt-lib paths consumed by nested native build scripts), but do NOT
-    // forward GPU/inference accel features to the desktop crate. The
-    // desktop is a pure UI client: it declares no
-    // gpu-vulkan / gpu-nvidia / cpu-mkl (candle/llama/burn are Clyffy's on
-    // GB10, reached over the gb10-client wire), so forwarding them errors. GPU
-    // acceleration is Clyffy's build concern, not DevPulse's.
-    let _ = crate::workspace::BuildConfig::detect_build_features();
-    let cargo_args = ["check", "-p", "devpulse_desktop_backend"];
-    let cargo_child = ws.spawn_in_stderr_piped(ws.root(), "cargo", &cargo_args)?;
+    // Auto-pick acceleration features (GPU + CPU MKL) based on host SDK
+    // detection. Falls through to a bare CPU build if no SDK is
+    // installed — pre-detection behavior is preserved.
+    let accel_feats = crate::workspace::BuildConfig::detect_build_features();
+    let mut cargo_args: Vec<String> = vec![
+        "check".into(),
+        "-p".into(),
+        "devpulse_desktop_backend".into(),
+    ];
+    if let Some(feats) = accel_feats.as_deref() {
+        cargo_args.push("--features".into());
+        cargo_args.push(feats.into());
+    }
+    let cargo_arg_refs: Vec<&str> = cargo_args.iter().map(String::as_str).collect();
+    let cargo_child = ws.spawn_in_stderr_piped(ws.root(), "cargo", &cargo_arg_refs)?;
 
     // Assign cargo to Job Object so it dies if we die
     #[cfg(windows)]
@@ -223,7 +228,7 @@ fn run_backend_compile(
         anyhow::bail!(
             "Backend compilation failed — fix the Rust errors above.\n  \
              Scope: Tauri backend, Platform facade, all 4 embedded services\n  \
-             (LibSQL, DuckDB, SurrealDB, Moka)."
+             (Turso, DuckDB, SurrealDB, Moka)."
         );
     }
     let compile_secs = compile_start.elapsed().as_secs_f64();

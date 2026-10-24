@@ -20,15 +20,6 @@
 		"deep-fg":   { "$value": "{text.primary}",           "$description": "Foreground / on-primary-deep text." }
 	},
 
-	"cta": {
-		"$type": "color",
-		"$description": "Call-to-action role — a pure vocabulary alias onto primary (which is BOUND to brand blue per locked requirement #6). Exists so surfaces can say 'CTA' instead of 'primary' without a second binding to drift; rebinding primary rebinds cta automatically.",
-		"main": { "$value": "{primary.main}", "$description": "CTA lead — aliases primary.main (brand blue)." },
-		"glow": { "$value": "{primary.glow}", "$description": "CTA glow — aliases primary.glow." },
-		"fill": { "$value": "{primary.fill}", "$description": "CTA area fill — aliases primary.fill." },
-		"fg":   { "$value": "{primary.fg}",   "$description": "Foreground / on-CTA text — aliases primary.fg." }
-	},
-
 	"secondary": {
 		"$type": "color",
 		"$description": "Secondary brand surface — paired with primary. Default: ember.",
@@ -40,61 +31,29 @@
 
 	"danger": {
 		"$type": "color",
-		"$description": "Destructive action / failure state. Bound to signal.error. glow/fill follow the accent convention: same hue as main, alpha 0.35 / 0.08.",
+		"$description": "Destructive action / failure state. Bound to signal.error.",
 		"main": { "$value": "{signal.error}",      "$description": "Danger indicator — bound to signal.error." },
-		"glow": {
-			"$value": { "colorSpace": "oklch", "components": [0.6, 0.2, 25], "alpha": 0.35, "hex": "#de3b3d" },
-			"$description": "Danger emission tint — signal.error hue at glow alpha."
-		},
-		"fill": {
-			"$value": { "colorSpace": "oklch", "components": [0.6, 0.2, 25], "alpha": 0.08, "hex": "#de3b3d" },
-			"$description": "Danger area fill — signal.error hue at fill alpha."
-		},
 		"fg":   { "$value": "{text.primary}",      "$description": "Foreground / on-danger text." }
 	},
 
 	"success": {
 		"$type": "color",
-		"$description": "Positive outcome / confirmed state. Bound to signal.success. glow/fill follow the accent convention: same hue as main, alpha 0.35 / 0.08.",
+		"$description": "Positive outcome / confirmed state. Bound to signal.success.",
 		"main": { "$value": "{signal.success}",    "$description": "Success indicator — bound to signal.success." },
-		"glow": {
-			"$value": { "colorSpace": "oklch", "components": [0.65, 0.18, 145], "alpha": 0.35, "hex": "#31aa40" },
-			"$description": "Success emission tint — signal.success hue at glow alpha."
-		},
-		"fill": {
-			"$value": { "colorSpace": "oklch", "components": [0.65, 0.18, 145], "alpha": 0.08, "hex": "#31aa40" },
-			"$description": "Success area fill — signal.success hue at fill alpha."
-		},
 		"fg":   { "$value": "{text.primary}",      "$description": "Foreground / on-success text." }
 	},
 
 	"warning": {
 		"$type": "color",
-		"$description": "Caution / degraded state. Bound to signal.warning. glow/fill follow the accent convention: same hue as main, alpha 0.35 / 0.08.",
+		"$description": "Caution / degraded state. Bound to signal.warning.",
 		"main": { "$value": "{signal.warning}",    "$description": "Warning indicator — bound to signal.warning." },
-		"glow": {
-			"$value": { "colorSpace": "oklch", "components": [0.75, 0.15, 85], "alpha": 0.35, "hex": "#d9a514" },
-			"$description": "Warning emission tint — signal.warning hue at glow alpha."
-		},
-		"fill": {
-			"$value": { "colorSpace": "oklch", "components": [0.75, 0.15, 85], "alpha": 0.08, "hex": "#d9a514" },
-			"$description": "Warning area fill — signal.warning hue at fill alpha."
-		},
 		"fg":   { "$value": "{text.inverse}",      "$description": "Foreground / on-warning text — dark text on bright warning." }
 	},
 
 	"info": {
 		"$type": "color",
-		"$description": "Informational / neutral status update. Bound to signal.info. glow/fill follow the accent convention: same hue as main, alpha 0.35 / 0.08.",
+		"$description": "Informational / neutral status update. Bound to signal.info.",
 		"main": { "$value": "{signal.info}",       "$description": "Info indicator — bound to signal.info." },
-		"glow": {
-			"$value": { "colorSpace": "oklch", "components": [0.65, 0.14, 230], "alpha": 0.35, "hex": "#139ccd" },
-			"$description": "Info emission tint — signal.info hue at glow alpha."
-		},
-		"fill": {
-			"$value": { "colorSpace": "oklch", "components": [0.65, 0.14, 230], "alpha": 0.08, "hex": "#139ccd" },
-			"$description": "Info area fill — signal.info hue at fill alpha."
-		},
 		"fg":   { "$value": "{text.primary}",      "$description": "Foreground / on-info text." }
 	},
 

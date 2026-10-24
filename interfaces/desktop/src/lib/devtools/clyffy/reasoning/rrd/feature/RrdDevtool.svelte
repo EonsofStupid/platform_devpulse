@@ -2,9 +2,9 @@
 	@file RrdDevtool.svelte
 	@module @devpulse/devtools/clyffy/reasoning/rrd
 
-	Reason Ready Daemon devtool — surfaces the RRD daemon's
-	(Clyffy's, clyffyos-rrd) pause/drain/swap/resume lifecycle. Subscribes to
-	`platform:rrd-phase-transition` (bridged through the engine via
+	Reason Ready Daemon devtool — surfaces the kernel daemon's
+	pause/drain/swap/resume lifecycle. Subscribes to
+	`platform:rrd-phase-transition` (bridged from the kernel via
 	`RrdLifecycleTranslator` → `InternalEvent::RrdPhaseTransition`) and
 	renders a rolling phase log + most-recent-state badge.
 
@@ -14,11 +14,11 @@
 	pre-instantiation diagnostic surface.
 -->
 <script lang="ts">
-import { Activity, RotateCw, Trash2, Upload } from "@lucide/svelte";
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Text } from "@devpulse/coldlight/components/text";
+import { Activity, Trash2, Upload } from "lucide-svelte";
 import { onMount } from "svelte";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Button } from "$lib/design/components/button/index.js";
-import { Text } from "$lib/design/components/text/index.js";
 import { type HealthBadge, ScopedLogPanel, ServiceDevtoolShell } from "$lib/devtools/index.js";
 import { laymanFor } from "$lib/sys/data-access/rrd/phase-labels.js";
 import { rrdState } from "$lib/sys/data-access/rrd/rrd.state.svelte.js";
@@ -67,11 +67,6 @@ function fmtTime(ms: number): string {
 </script>
 
 <ServiceDevtoolShell
-	title="RRD Daemon"
-	description="Hot-update lifecycle — pause · drain · swap · resume on the encoder"
-	icon={RotateCw}
-	axis="capabilities"
-	accent="purple"
 	health={stateBadge}
 >
 	{#snippet status()}
@@ -158,7 +153,7 @@ function fmtTime(ms: number): string {
 				<div class="flex items-center justify-between mb-1">
 					<Text size="sm" weight="bold">Swap encoder weights</Text>
 					<Button
-						preset="primary"
+						variant="primary"
 						size="sm"
 						onclick={() => {
 							swapDialogOpen = true;
@@ -181,7 +176,7 @@ function fmtTime(ms: number): string {
 			<div class="rounded-lg p-3" style="background: var(--surface-raised); border: 1px solid var(--border-subtle);">
 				<div class="flex items-center justify-between mb-1">
 					<Text size="sm" weight="bold">Clear history buffer</Text>
-					<Button preset="ghost" size="sm" onclick={() => rrdState.clear()}>
+					<Button variant="ghost" size="sm" onclick={() => rrdState.clear()}>
 						<Trash2 size={14} />
 						Clear
 					</Button>

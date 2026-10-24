@@ -14,12 +14,12 @@
  *   Y", "you can reassign models without restarting", etc.
  *
  * Content lives as a static array so Vite tree-shakes unused kinds
- * automatically. A future Clyffy-backed version will stream these from
- * libSQL / SurrealDB so Clyffy can adapt based on what the user is
+ * automatically. Future kernel-backed version will stream these from
+ * Turso / SurrealDB so Clyffy can adapt based on what the user is
  * doing (contextual DYK: "Did you know the model you just loaded
  * was trained on...").
  *
- * Layman-safe rule: NO internal vocabulary in content strings. No
+ * Layman-safe rule: NO kernel vocabulary in content strings. No
  * `HMM`, `BM25`, `CAG`, `reranker`, `RRF`. Use the public signal
  * vocabulary from `ip-protection.md`.
  */

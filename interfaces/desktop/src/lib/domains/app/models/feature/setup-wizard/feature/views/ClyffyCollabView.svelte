@@ -3,7 +3,7 @@
 	@module @devpulse/domains/app/models/feature/setup-wizard/feature/views/clyffy-collab
 
 	Wizard step where the customer brings their own Claude API key
-	(or notes their existing Claude Code subscription) so Clyffy
+	(or notes their existing Claude Code subscription) so the cortex
 	reasoning router can escalate hard turns to Claude alongside the
 	local llama.cpp brain.
 
@@ -22,7 +22,7 @@
 	   detected — convenience, not a hard dependency.
 
 	Skippable. Customer can move through without setting a key —
-	Clyffy's reasoning router will simply never escalate to Claude
+	the cortex reasoning router will simply never escalate to Claude
 	and will route every turn through the local brain.
 
 	## Token + design discipline
@@ -30,17 +30,17 @@
 	  - Mirrors the other view files (`OverlayShell` + scoped style)
 	  - Surface gradient blends an accent against
 	    `--surface-raised`; uses `--accent-blue-main` to harmonise
-	    with the Brain tile (both "deep thinking" surfaces)
+	    with the Cortex brain tile (both "deep thinking" surfaces)
 	  - All sizing via `clamp()` — no inline values
 	  - Layman copy throughout, no "API" jargon in primary text
 -->
 <script lang="ts">
-import { Check, ExternalLink, KeyRound, Sparkles } from "@lucide/svelte";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Button } from "$lib/design/components/button/index.js";
-import { Heading } from "$lib/design/components/heading/index.js";
-import { Spinner } from "$lib/design/components/spinner/index.js";
-import { Text } from "$lib/design/components/text/index.js";
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Heading } from "@devpulse/coldlight/components/heading";
+import { Spinner } from "@devpulse/coldlight/components/spinner";
+import { Text } from "@devpulse/coldlight/components/text";
+import { Check, ExternalLink, KeyRound, Sparkles } from "lucide-svelte";
 import { commands } from "$lib/sys/generated/bindings.js";
 import type { ClyffyCollabViewProps } from "../../util/wizard.types.js";
 import OverlayShell from "../OverlayShell.svelte";
@@ -145,7 +145,7 @@ async function saveKey(): Promise<void> {
 					autocomplete="off"
 				/>
 				<Button
-					preset="primary"
+					variant="primary"
 					size="md"
 					onclick={saveKey}
 					disabled={working || busy || keyInput.trim().length === 0}
@@ -196,11 +196,11 @@ async function saveKey(): Promise<void> {
 	</div>
 
 	{#snippet footer()}
-		<Button preset="ghost" size="sm" onclick={callbacks.onBack} disabled={busy}>
+		<Button variant="ghost" size="sm" onclick={callbacks.onBack} disabled={busy}>
 			Back
 		</Button>
 		<Button
-			preset="ghost"
+			variant="ghost"
 			size="sm"
 			onclick={callbacks.onSkip}
 			disabled={busy}
@@ -208,7 +208,7 @@ async function saveKey(): Promise<void> {
 			Skip — set it up later
 		</Button>
 		<div class="footer-spacer"></div>
-		<Button preset="primary" size="md" onclick={callbacks.onNext} disabled={busy}>
+		<Button variant="primary" size="md" onclick={callbacks.onNext} disabled={busy}>
 			Continue
 		</Button>
 	{/snippet}

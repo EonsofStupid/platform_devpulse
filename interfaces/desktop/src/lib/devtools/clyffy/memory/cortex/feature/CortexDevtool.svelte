@@ -7,11 +7,11 @@
 	not yet shipped — this page is intentionally honest about that
 	rather than showing disabled buttons or "TODO" stubs. Status lists
 	the planned surfaces; the other 4 tabs each describe what they
-	will hold when the corresponding backend command lands.
+	will hold when the corresponding kernel command lands.
 -->
 <script lang="ts">
-import { Brain, GitBranch, Search, Zap } from "@lucide/svelte";
-import { Text } from "$lib/design/components/text/index.js";
+import { Text } from "@devpulse/coldlight/components/text";
+import { Brain, GitBranch, Search, Zap } from "lucide-svelte";
 import { type HealthBadge, ServiceDevtoolShell } from "$lib/devtools/index.js";
 
 const badge: HealthBadge = {
@@ -44,12 +44,6 @@ const plannedSurfaces = [
 </script>
 
 <ServiceDevtoolShell
-	infoTerm="Brain"
-	title="Knowledge Engine"
-	description="Reasoning pipeline — prompt builder, memory, councils"
-	icon={Brain}
-	axis="capabilities"
-	accent="purple"
 	health={badge}
 >
 	{#snippet status()}

@@ -20,7 +20,7 @@ impl Task for Verify {
 
         // Apply build env from the [build.deps.*] SSOT before spawning cargo —
         // matches `run-dev` / `build-release`. Without this, native build
-        // scripts (e.g. llama-cpp-sys-2) fail to find cmake/ninja/nasm.
+        // scripts (C/C++ dependencies) fail to find cmake/ninja/nasm.
         let platform_config = ws.platform_config()?;
         println!("  > Build env from [build.deps.*] SSOT:");
         platform_config.build.apply_env(ws.root());

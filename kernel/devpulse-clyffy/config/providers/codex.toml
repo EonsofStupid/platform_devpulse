@@ -1,0 +1,39 @@
+# Codex CLI — OpenAI's coding agent, used through your ChatGPT plan or an API
+# key. Facts checked 2026-10-20 against github.com/openai/codex, the
+# developer-commands docs and the official install scripts.
+
+# What it is (name, docs, how DevPulse talks to it) is its registry row in
+# kernel/devpulse-clyffy/src/providers/registry.rs; this file is where this
+# machine keeps it.
+id = "codex"
+
+[detect]
+executables = ["codex"]
+# The official installer's locations, when they are not on PATH.
+paths = { windows = ["%LOCALAPPDATA%/Programs/OpenAI/Codex/bin/codex.exe"], macos = ["~/.local/bin/codex"], linux = ["~/.local/bin/codex"] }
+
+[version]
+# Prints "codex-cli 0.163.0".
+args = ["--version"]
+
+[latest]
+npm = "@openai/codex"
+
+[signed_in]
+# "exit with 0 when logged in"; prints "Not logged in" otherwise.
+args = ["login", "status"]
+output_signed_out = "Not logged in"
+
+[sign_in]
+args = ["login"]
+
+[update]
+args = ["update"]
+
+[connect]
+# Codex has no ACP mode of its own. The protocol maintainers' connector
+# (github.com/agentclientprotocol/codex-acp) speaks ACP for it; CODEX_PATH
+# makes it run your Codex, under your own login, instead of the copy it
+# bundles. Checked 2026-10-20 against codex-acp 2.2.2.
+env = { CODEX_PATH = "{program}" }
+connector = { npm = "@agentclientprotocol/codex-acp", bin = "codex-acp" }

@@ -1,0 +1,15 @@
+# Claude Desktop — Anthropic's desktop app. It has no programmatic chat, so it
+# cannot power Clyffy; DevPulse can offer it your context over MCP (plan 0001
+# R8). It updates itself. Facts checked 2026-10-20 against Anthropic's
+# deployment READMEs and code.claude.com/docs/en/desktop-linux.
+
+# What it is (name, docs, how DevPulse talks to it) is its registry row in
+# kernel/devpulse-clyffy/src/providers/registry.rs; this file is where this
+# machine keeps it.
+id = "claude-desktop"
+
+[detect]
+# Windows: the classic installer's launcher, or the per-user MSIX package's
+# data folder (the package itself is not readable from here). macOS: the
+# app bundle. Linux (beta): the apt package's program.
+paths = { windows = ["%LOCALAPPDATA%/AnthropicClaude/claude.exe", "%LOCALAPPDATA%/Packages/Claude_pzs8sxrjxfjjc"], macos = ["/Applications/Claude.app"], linux = ["/usr/bin/claude-desktop"] }

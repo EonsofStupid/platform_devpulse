@@ -1,0 +1,19 @@
+# Where projects usually live — first run's folder suggestions (plan 0001).
+#
+# Bundled default suggestions. `~` is your home folder. A candidate is
+# suggested only if it exists and holds git repositories, so listing a folder
+# you don't have costs nothing.
+#
+# Your copy at `.userdata/config/onboarding/folders.toml` replaces the list.
+candidates = [
+  "~/Documents/GitHub",   # GitHub Desktop's default
+  "~/source/repos",       # Visual Studio's default
+  "~/Projects",
+  "~/projects",
+  "~/Developer",          # macOS convention
+  "~/dev",
+  "~/code",
+  "~/src",
+  "~/repos",
+  "~/workspace",
+]

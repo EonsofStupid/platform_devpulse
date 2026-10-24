@@ -3,8 +3,12 @@
   @module @devpulse/layouts/app/Sidebar
   @layer lib
 
-  Vertical sidebar with Lucide icons and ColdLight components.
-  Supports child route submenu via globalState.
+  Vertical sidebar built from the route folders (plan 0008): hubs are the
+  route group's top-level pages and `footer` pages pin below the hubs. Icons,
+  order and placement are each folder's own `_nav`; names are copy. See
+  `sidebar-entries.ts`. A hub with child pages toggles its submenu, which
+  Frame draws beside this rail (`SidebarSubmenu.svelte`) — inside the rail
+  it was clipped.
 
   @consumers
   - Frame.svelte: Main app layout
@@ -21,186 +25,101 @@
 }
 -->
 <script lang="ts">
-import {
-	Bell,
-	Brain,
-	Database,
-	Home,
-	Palette,
-	PanelLeftClose,
-	PanelLeftOpen,
-	Radio,
-	Sparkles,
-	Wrench,
-} from "@lucide/svelte";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Text } from "@devpulse/coldlight/components/text";
+import { cn, stack } from "@devpulse/coldlight/utils";
+import { PanelLeftClose, PanelLeftOpen } from "lucide-svelte";
 import { page } from "$app/state";
-import { BackgroundScene } from "$lib/design/components/background-scene/index.js";
-import { Button } from "$lib/design/components/button/index.js";
-import { Text } from "$lib/design/components/text/index.js";
-import { box } from "$lib/design/utils/box/index.js";
-import { cn } from "$lib/design/utils/cn.js";
-import { stack } from "$lib/design/utils/stack/index.js";
-import { updatesState } from "$lib/domains/app/updates/index.js";
-import { getChildRoutes } from "$lib/sys/routing/child-routes";
+import { copyState } from "$lib/sys/copy/index.js";
+import { hrefOf, type RouteNode, routeCopy } from "$lib/sys/routing/index.js";
 import { globalState } from "$lib/sys/runes/global.svelte";
+import { footerEntries, groupOf, hubEntries, isActiveRoute, submenuOf } from "./sidebar-entries.js";
 
-interface NavHub {
-	id: string;
-	icon: typeof Home;
-	label: string;
-	href: string;
-}
+const group = $derived(groupOf(page.route.id));
+const hubs = $derived(hubEntries(group));
+const footer = $derived(footerEntries(group));
+const text = $derived(copyState.catalog?.layout.sidebar);
 
-const navHubs: NavHub[] = [
-	{ id: "latest", icon: Bell, label: "Latest", href: "/latest" },
-	{ id: "devpulse", icon: Home, label: "Home", href: "/devpulse" },
-	{ id: "ui-demo", icon: Palette, label: "UI Demo", href: "/ui-demo" },
-	{ id: "overmind", icon: Brain, label: "OverMind", href: "/overmind" },
-	{ id: "wiredfront", icon: Radio, label: "WiredFront", href: "/wiredfront" },
-	{ id: "devforge", icon: Wrench, label: "DevForge", href: "/devforge" },
-	{ id: "clyffy", icon: Sparkles, label: "Clyffy", href: "/clyffy" },
-];
+const isActive = (node: RouteNode): boolean => isActiveRoute(node, page.url.pathname);
 
-const latestHasBadge = $derived(updatesState.info?.available === true);
-
-function isActive(href: string): boolean {
-	return page.url.pathname === href || page.url.pathname.startsWith(`${href}/`);
-}
-
-function handleHubClick(hub: NavHub): void {
-	const children = getChildRoutes(hub.href);
-	if (children.length > 0) {
-		globalState.openSubmenu(hub.id);
+function handleHubClick(hub: RouteNode): void {
+	if (submenuOf(hub).length > 0) {
+		globalState.openSubmenu(hub.segment);
 	} else {
 		globalState.closeSubmenu();
 	}
-	globalState.setDomain(hub.id);
+	globalState.setDomain(hub.segment);
 }
-
-function handleSubmenuNav(): void {
-	globalState.closeSubmenu();
-}
-
-const submenuRoutes = $derived(
-	globalState.sidebar_submenu
-		? getChildRoutes(navHubs.find((h) => h.id === globalState.sidebar_submenu)?.href ?? "")
-		: [],
-);
 
 const isExpanded = $derived(globalState.sidebar_mode === "expanded");
 </script>
 
-<nav class={cn("sidebar relative z-10 grid h-full w-full grid-rows-[1fr_auto] gap-2 py-3", isExpanded ? "px-2" : "")} aria-label="Primary">
-	<!-- Sidebar-scoped cosmic backdrop — the zone owns its own backdrop; nav is
-	     position:relative so it stays clipped inside the rail/panel. -->
-	<BackgroundScene variation="cosmic-galaxy" palette="cosmic" speed="slow" intensity="strong" motion="on" />
+{#snippet entry(node: RouteNode, extraClass: string, onclick?: () => void)}
+	{@const copy = routeCopy(node)}
+	{@const label = copy?.label ?? ""}
+	{@const Icon = node.nav.icon}
+	<a href={hrefOf(node)} {onclick} class="contents">
+		<Button
+			variant={isActive(node) ? "primary" : "ghost"}
+			size="sm"
+			class={cn(
+				"relative",
+				isExpanded ? "w-full justify-start gap-3 px-3 py-2" : "h-11 w-11 justify-self-center",
+				extraClass,
+			)}
+			aria-label={label}
+			aria-current={isActive(node) ? "page" : undefined}
+			title={label}
+		>
+			{#if Icon}
+				<Icon size={20} />
+			{/if}
+			{#if isExpanded}
+				<Text size="sm" color="secondary" class="truncate">{label}</Text>
+			{/if}
+			{#if node.nav.badge?.()}
+				<span
+					aria-label={copy?.badge ?? undefined}
+					class="absolute right-1.5 top-1.5 h-2 w-2 rounded-full"
+					style="background: var(--accent-positive-main)"
+				></span>
+			{/if}
+		</Button>
+	</a>
+{/snippet}
+
+<nav class="relative z-10 grid h-full grid-rows-[1fr_auto] gap-2" aria-label={text?.label}>
 	<div class={`${stack({ gap: "1" })} pt-1`}>
-		{#each navHubs as hub (hub.id)}
-			<a href={hub.href} onclick={() => handleHubClick(hub)} class="contents">
-				<Button
-					preset={isActive(hub.href) ? "primary" : "ghost"}
-					size="sm"
-					class={cn(
-						"relative",
-						isExpanded
-							? "w-full justify-start gap-3 px-3 py-2"
-							: "h-11 w-11 justify-self-center",
-						isActive(hub.href) && "rounded-md",
-					)}
-					aria-label={hub.label}
-					aria-current={isActive(hub.href) ? "page" : undefined}
-					title={hub.label}
-				>
-					<hub.icon size={20} />
-					{#if isExpanded}
-						<Text size="sm" color="secondary" class="truncate">{hub.label}</Text>
-					{/if}
-					{#if hub.id === "latest" && latestHasBadge}
-						<span
-							aria-label="Update available"
-							class="absolute right-1.5 top-1.5 h-2 w-2 rounded-full"
-							style="background: var(--accent-positive-main)"
-						></span>
-					{/if}
-				</Button>
-			</a>
+		{#each hubs as hub (hub.path)}
+			{@render entry(hub, isActive(hub) ? "rounded-md" : "", () => handleHubClick(hub))}
 		{/each}
 	</div>
 
-	{#if import.meta.env.DEV}
+	{#if import.meta.env.DEV && footer.length > 0}
 		<div class={`${stack({ gap: "1" })} border-t border-[var(--border-soft)] pt-1`}>
-			<a href="/devpulse/models" class="contents">
-				<Button
-					preset={isActive("/devpulse/models") ? "primary" : "ghost"}
-					size="sm"
-					class={cn(
-						isExpanded
-							? "w-full justify-start gap-3 px-3 py-2"
-							: "h-11 w-11 justify-self-center",
-					)}
-					aria-label="Models"
-					title="Model Control"
-				>
-					<Database size={20} />
-					{#if isExpanded}
-						<Text size="sm" color="secondary" class="truncate">Models</Text>
-					{/if}
-				</Button>
-			</a>
+			{#each footer as pinned (pinned.path)}
+				{@render entry(pinned, "")}
+			{/each}
 		</div>
 	{/if}
 
 	<div class={`${stack({ gap: "1" })} pb-1`}>
 		<Button
-			preset="ghost"
+			variant="ghost"
 			size="sm"
 			class={isExpanded
 				? "w-full justify-start gap-3 px-3 py-2"
 				: "h-11 w-11 justify-self-center"}
-			title={isExpanded ? "Collapse sidebar" : "Expand sidebar"}
-			aria-label={isExpanded ? "Collapse sidebar" : "Expand sidebar"}
+			title={isExpanded ? text?.collapse : text?.expand}
+			aria-label={isExpanded ? text?.collapse : text?.expand}
 			onclick={() => globalState.toggleSidebar()}
 		>
 			{#if isExpanded}
 				<PanelLeftClose size={18} />
-				<Text size="sm" color="secondary" class="truncate">Collapse</Text>
+				<Text size="sm" color="secondary" class="truncate">{text?.collapse_short}</Text>
 			{:else}
 				<PanelLeftOpen size={18} />
 			{/if}
 		</Button>
 	</div>
-
-	{#if globalState.sidebar_submenu && submenuRoutes.length > 0}
-		<div
-			data-slot="submenu"
-			class={cn(box({}), "absolute left-full top-0 z-[var(--z-dropdown)] flex h-full w-48 flex-col gap-1 p-2")}
-			role="menu"
-		>
-			<Text size="xs" color="muted" class="mb-1 px-2 font-semibold uppercase tracking-wider">
-				{globalState.sidebar_submenu}
-			</Text>
-			{#each submenuRoutes as route (route.path)}
-				<a href={route.path} onclick={handleSubmenuNav} class="contents">
-					<Button
-						preset="ghost"
-						size="sm"
-						class="w-full justify-start px-3 py-2 capitalize"
-						aria-current={isActive(route.path) ? "page" : undefined}
-						role="menuitem"
-					>
-						<Text size="sm" color="secondary">{route.label}</Text>
-					</Button>
-				</a>
-			{/each}
-		</div>
-	{/if}
 </nav>
-
-<style>
-	/* Sidebar zone surface — colocated with the component, pulling from a
-	   ColdLight style token (the generated ingredients). The rail's fill is the
-	   BackgroundScene above; the zone owns only its right hairline here. */
-	.sidebar {
-		border-right: 0.0625rem solid var(--border-subtle);
-	}
-</style>

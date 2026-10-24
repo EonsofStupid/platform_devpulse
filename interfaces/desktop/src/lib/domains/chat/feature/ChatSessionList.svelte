@@ -1,17 +1,18 @@
 <!--
-  @feature ChatSessionList — grouped by project (single list for now)
+  @feature ChatSessionList — grouped by project (single list for now); a new
+  thread with one of your agents starts here.
 -->
 <script lang="ts">
-import Text from "$lib/design/components/text/Text.svelte";
+import { Text } from "@devpulse/coldlight/components/text";
 import { chatState } from "../data-access/chat.state.svelte.js";
 import { sessionsState } from "../data-access/sessions.state.svelte.js";
 import { SessionRow } from "../ui/index.js";
+import ChatAgentPicker from "./ChatAgentPicker.svelte";
 </script>
 
-<!-- Width rides the `chat` container seam (cqi): proportional in a wide
-     window, floored at 8.5rem in a narrow one — never 40% of the frame. -->
-<div class="flex w-[clamp(8.5rem,24cqi,13rem)] shrink-0 flex-col gap-1 overflow-y-auto border-r border-[var(--border-subtle)] pr-2">
+<div class="flex w-48 shrink-0 flex-col gap-1 overflow-y-auto border-r border-[var(--border-subtle)] pr-2">
 	<Text size="xs" weight="semibold" class="text-[var(--text-muted)] px-1">SESSIONS</Text>
+	<ChatAgentPicker />
 	{#if sessionsState.loading}
 		<Text size="xs" class="px-1">Loading…</Text>
 	{:else if sessionsState.error}

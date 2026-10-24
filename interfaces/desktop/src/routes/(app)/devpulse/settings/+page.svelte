@@ -4,18 +4,19 @@
   @domain devpulse
 -->
 <script lang="ts">
-import { Check, Pencil, X } from "@lucide/svelte";
-import { Widget } from "$lib/design/blocks/widgets/index.js";
-import { Button } from "$lib/design/components/button/index.js";
-import { Spinner } from "$lib/design/components/spinner/index.js";
-import { Text } from "$lib/design/components/text/index.js";
-import { cn } from "$lib/design/utils/cn.js";
-import { container } from "$lib/design/utils/container/index.js";
-import { hstack } from "$lib/design/utils/hstack/index.js";
-import { stack } from "$lib/design/utils/stack/index.js";
+import { Widget } from "@devpulse/coldlight/blocks/widgets";
+import { Button } from "@devpulse/coldlight/components/button";
+import { InlineMessage } from "@devpulse/coldlight/components/inline-message";
+import { Spinner } from "@devpulse/coldlight/components/spinner";
+import { Text } from "@devpulse/coldlight/components/text";
+import { cn, container, hstack, stack } from "@devpulse/coldlight/utils";
+import { Check, Pencil, X } from "lucide-svelte";
 import { profileSettingsState } from "$lib/domains/app/devpulse/index.js";
+import { onboardingState } from "$lib/domains/app/onboarding/index.js";
+import { copyState } from "$lib/sys/copy/index.js";
 
 const settingsState = profileSettingsState;
+const setupCopy = $derived(copyState.catalog?.onboarding.common ?? null);
 
 $effect(() => {
 	void settingsState.load();
@@ -53,24 +54,15 @@ $effect(() => {
 								placeholder="you@example.com"
 							/>
 						</div>
-						<div class={stack({ gap: "1" })}>
-							<Text size="xs" color="secondary">Experience</Text>
-							<div class={hstack({ gap: "2" })}>
-								{#each [1, 2, 3] as lvl}
-									<button
-										class="level-btn"
-										class:level-active={settingsState.editLevel === lvl}
-										onclick={() => (settingsState.editLevel = lvl)}
-									>{settingsState.levelLabel(lvl)}</button>
-								{/each}
-							</div>
-						</div>
+						{#if settingsState.saveError}
+							<InlineMessage tone="error">{settingsState.saveError}</InlineMessage>
+						{/if}
 						<div class={hstack({ gap: "2", justify: "end" })}>
-							<Button preset="ghost" size="sm" onclick={() => settingsState.cancelEdit()} disabled={settingsState.saving}>
+							<Button variant="ghost" size="sm" onclick={() => settingsState.cancelEdit()} disabled={settingsState.saving}>
 								<X size={14} />
 								Cancel
 							</Button>
-							<Button preset="primary" size="sm" onclick={() => settingsState.save()} disabled={settingsState.saving}>
+							<Button variant="primary" size="sm" onclick={() => settingsState.save()} disabled={settingsState.saving}>
 								{#if settingsState.saving}
 									<Spinner size="xs" />
 								{:else}
@@ -90,12 +82,8 @@ $effect(() => {
 							<Text color="secondary">Email</Text>
 							<Text>{settingsState.profile.email ?? "Not set"}</Text>
 						</div>
-						<div class={hstack({ justify: "between" })}>
-							<Text color="secondary">Experience</Text>
-							<Text>{settingsState.levelLabel(settingsState.profile.expertiseLevel)}</Text>
-						</div>
 						<div class={hstack({ justify: "end" })}>
-							<Button preset="ghost" size="sm" onclick={() => settingsState.startEdit()}>
+							<Button variant="ghost" size="sm" onclick={() => settingsState.startEdit()}>
 								<Pencil size={14} />
 								Edit
 							</Button>
@@ -133,6 +121,28 @@ $effect(() => {
 		<Widget title="Integrations">
 			<Text as="p" size="sm" color="muted">GitHub, GitLab, and Bitbucket integrations will be configured here.</Text>
 		</Widget>
+
+		<!-- First run can always be walked again; Rust reopens it and the app shell shows it. -->
+		{#if setupCopy}
+			<Widget title={setupCopy.run_again_title}>
+				<div class={stack({ gap: "3" })}>
+					<Text as="p" size="sm" color="muted">{setupCopy.run_again_hint}</Text>
+					{#if onboardingState.error}
+						<InlineMessage tone="error">{onboardingState.error}</InlineMessage>
+					{/if}
+					<div class={hstack({ justify: "end" })}>
+						<Button
+							variant="secondary"
+							size="sm"
+							onclick={onboardingState.reopen}
+							disabled={onboardingState.busy || onboardingState.isOpen}
+						>
+							{setupCopy.run_again}
+						</Button>
+					</div>
+				</div>
+			</Widget>
+		{/if}
 	</div>
 </div>
 
@@ -153,25 +163,5 @@ $effect(() => {
 	}
 	.settings-input::placeholder {
 		color: var(--text-muted);
-	}
-
-	.level-btn {
-		padding: 0.375rem 0.75rem;
-		border-radius: 0.375rem;
-		border: 0.0625rem solid var(--border-soft);
-		background: transparent;
-		color: var(--text-muted);
-		font-size: 0.75rem;
-		cursor: pointer;
-		transition: all 150ms ease-out;
-	}
-	.level-btn:hover {
-		border-color: var(--accent-teal-main);
-		color: var(--text-secondary);
-	}
-	.level-active {
-		border-color: var(--accent-teal-main);
-		background: color-mix(in oklch, var(--accent-teal-main) 15%, transparent);
-		color: var(--accent-teal-main);
 	}
 </style>

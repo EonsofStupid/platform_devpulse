@@ -11,11 +11,8 @@
 //!
 //! - `candle` — in-process Candle inference
 //! - `ollama` — Ollama as a managed child process
-//! - `llama_cpp_embedded` — in-process GGUF via `llama-cpp-2` crate.
-//!   TODO(reality-gap 2026-04-21): renamed from `ollama_embedded`.
-//!   Candle does not subsume this gap — Candle is architecture-by-
-//!   architecture, llama.cpp covers the GGUF long tail. Backend not
-//!   yet authored. See SPRINT-REALITY-GAP-CLOSE Phase 2 Option A.
+//! - `llama_server` — GGUF models served by llama.cpp's own `llama-server`,
+//!   a supervised subprocess (plan 0007); nothing of llama.cpp is compiled in.
 //! - `devforge` — VS Code Remote Extension Host
 //!
 //! See `config/platform/runtimes/` for the TOML layout.

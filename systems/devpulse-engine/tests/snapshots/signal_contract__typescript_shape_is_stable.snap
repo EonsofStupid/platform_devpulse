@@ -1,0 +1,64 @@
+---
+source: systems/devpulse-engine/tests/signal_contract.rs
+expression: ts
+---
+/**
+ * The master enum of all signal output types.
+ */
+export type SignalVariant = 
+/**
+ * Chat message (LLM response, user message)
+ */
+{ type: "chat"; data: ChatPayload } | 
+/**
+ * Analytics event
+ */
+{ type: "analytics"; data: AnalyticsPayload } | 
+/**
+ * Retrieved context (RAG)
+ */
+{ type: "context"; data: ContextPayload } | 
+/**
+ * Inference metrics
+ */
+{ type: "inference"; data: InferencePayload } | 
+/**
+ * System status change
+ */
+{ type: "system"; data: SystemPayload } | 
+/**
+ * Governance event (lane routing, rate limits, council)
+ */
+{ type: "governance"; data: GovernancePayload } | 
+/**
+ * Hardware snapshot (CPU / RAM / GPU / VRAM).
+ */
+{ type: "hardware"; data: HardwareMetrics } | 
+/**
+ * Models readiness (decides whether setup opens).
+ */
+{ type: "models"; data: ModelsReadiness } | 
+/**
+ * Platform boot progress (phase + per-step status).
+ */
+{ type: "boot"; data: BootStatus } | 
+/**
+ * First run: status, stage, what the stage still needs.
+ */
+{ type: "onboarding"; data: OnboardingState } | 
+/**
+ * Your live projects and the active one.
+ */
+{ type: "projects"; data: ProjectsState } | 
+/**
+ * Containers for your projects: what was found, the advice, the step running.
+ */
+{ type: "containers"; data: ContainersState } | 
+/**
+ * Your AI providers: installed, versions, signed in, the action running.
+ */
+{ type: "providers"; data: ProvidersState } | 
+/**
+ * The bridge fell behind: windows re-read the state snapshot.
+ */
+{ type: "resync" }

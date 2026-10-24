@@ -1,16 +1,8 @@
 # S1: Fluid Tokens + Tailwind Filtering
 
-**Status**: ✅ EXECUTED (verified 2026-07-07 against generated output — spacing/typography `clamp()`, accent.css, text-composed.css all live; radius shipped STATIC, deviating from Task 1.5 — deferred, not retired). **Extended by the S1.C container-fluid section below (2026-07-07).**
+**Status**: READY TO EXECUTE
 **Depends on**: Nothing — this is ground zero
 **Covers gap items**: 1.1, 1.2, 1.3, 1.5, 1.7, 5.1, 5.2, 5.3, 8.2
-
-> ⚠ **Implementation note (2026-07-07):** the shipped mechanism differs from Task 1's
-> sketch in a good way — fluidity is NOT baked into `$value`. The generator
-> (`dtcg-emit.mjs` → `dtcgFluidDimensionToken`) authors a static rem `$value` (the max)
-> plus a `$extensions["com.devpulse.coldlight"].fluid {min,max,minViewport,maxViewport}`
-> block; the SD5 transform `coldlight/fluid-dimension-to-clamp` (sd.config.mjs) computes
-> the `clamp()` at build time. Tokens whose range collapses (<2px) emit static rem.
-> That extension block is the seam S1.C builds on.
 
 ---
 
@@ -458,127 +450,12 @@ After full rebuild, confirm no unexpected files appear in `generated/` or `style
 
 ## Gate
 
-- [x] `pnpm ds:tokens:build` succeeds
-- [x] `pnpm svelte-check` — 0 errors
-- [x] `theme/color.css` has NO spectrum colors (red, orange, amber, etc.)
-- [x] `styles/primitives/spacing.css` has `clamp()` values
-- [x] `styles/primitives/typography.css` has `clamp()` values
-- [x] `theme/text-composed.css` exists with composed text utilities
-- [x] `styles/semantic/accent.css` exists with accent tokens
-- [x] `generated/aliases.css` deleted (or reduced to SVG-only if needed)
-- [x] All `.d.ts` type files regenerated correctly
-
----
-
-## S1.C: Container-Fluid Extension (2026-07-07)
-
-**Status**: EXECUTING
-**Depends on**: S1 (the `fluid` extension block + `coldlight/fluid-dimension-to-clamp` transform)
-**Goal**: "fluid **xy true resizing**" — dimensions rescale relative to **their container**
-(shell zone, overlay, chat window), not the global viewport.
-
-### Why viewport-fluid is not enough
-
-Every S1 clamp interpolates on `vw`. The app shell is a 6-zone CSS grid and the chat is a
-**separate OS window**: a `vw`-fluid token inside the narrow sidebar scales as if it owned
-the whole window's width; a panel inside the chat window wants that window's zone, not the
-screen. True resizing requires **container-query units** (`cqi` = 1% of the nearest
-container's inline size) resolved against declared container contexts.
-
-### The `basis` field (extension contract)
-
-`$extensions["com.devpulse.coldlight"].fluid` gains ONE optional field:
-
-```json
-"fluid": {
-  "min":         { "value": 2.5, "unit": "rem" },
-  "max":         { "value": 3,   "unit": "rem" },
-  "minViewport": { "value": 20,  "unit": "rem" },
-  "maxViewport": { "value": 90,  "unit": "rem" },
-  "basis":       "container"
-}
-```
-
-- `basis` ∈ `"viewport"` (default, omitted = today's behavior, emits `vw`) | `"container"` (emits `cqi`).
-- The clamp math is IDENTICAL — only the interpolation unit changes. `minViewport`/`maxViewport`
-  are read as min/max **container inline size** when `basis: "container"`.
-- Transform: `coldlight/fluid-dimension-to-clamp` reads `f.basis` and emits `cqi` instead of `vw`.
-  No new transform; no platform changes (`dimensionToCss` already passes `clamp(` through).
-- Generator: `dtcgFluidDimensionToken(...)` gains an optional `basis` param; `buildFluidDimensionFile`
-  threads it. The fork is per-scale in the generator MANIFEST.
-
-### Scale assignment (initial)
-
-| Scale | Basis | Rationale |
-| --- | --- | --- |
-| `size` (`--size-*`) | **container** | component dimensions (button heights, icons) live inside zones |
-| `padding` (`--padding-*`) | **container** | insets follow their surface, not the screen |
-| `space` (`--spacing-*`) | **viewport** (unchanged) | numeric utilities are global; flipping is decision D-spacing-sweep, deferred not retired |
-| `fontSize` (`--font-size-*`) | **viewport** (unchanged) | type rhythm stays window-coherent across zones; container type is a later, per-surface decision |
-| `radius` | **static** (unchanged) | S1 Task 1.5's fluid radius remains deferred, not retired |
-
-**Fallback semantics (the sequencing rule):** `cqi` with NO container ancestor resolves
-against the **small viewport**. Therefore container contexts land BEFORE any token flips to
-`basis: "container"`. Portaled components (JSDoc `@container false`) resolve against their
-portal target's nearest container — audit when adding new portals.
-
-### Container contract (who declares `container-type`)
-
-| Element | Declaration | Why |
-| --- | --- | --- |
-| App shell `content` zone (`layouts/app/Frame.svelte` SLOTS) | `[container-type:inline-size]` utility | main surface — pages/components size to it |
-| App shell `sidebar`/`sidebarExpanded` zones | same | rail vs panel is THE container-vs-viewport case |
-| App shell `contextExpanded` zone | same | chat portal / devtools panel |
-| Chat window `.chat-frame` (`ChatFrame.svelte` scoped style) | `container-type: inline-size` | the chat OS-window's root context |
-| Wizard `OverlayShell` `.shell-root` | same | overlays are `fixed` siblings of the zones — this is their only container seam |
-| **NOT** the frame grid root | — | inline-size containment on the root would re-anchor the `fixed` overlays (SetupWizard/Swap/HUD) + re-scope stacking |
-
-Verified 2026-07-07: the repo has **zero** pre-existing CSS `@container`/`container-type`
-rules (all `@container` hits are ColdLight JSDoc metadata parsed by `scan-annotations.mjs`)
-— this contract is greenfield; nothing retargets.
-
-### Consumption rule (components)
-
-- Real component dimensions use the named fluid tokens via arbitrary values —
-  `h-[var(--size-md)]`, `px-[var(--padding-md-x)]`, `text-[var(--font-size-base)]` —
-  the proven house idiom (ContextualHelp, DialogContent, `box()`).
-- **Numeric `--spacing-*` utilities are pixel-indexed** (`--spacing-8` ≈ 8–10px, NOT
-  Tailwind's ×4 convention). `h-8`-style numerics on component dimensions are a defect
-  class (found live in Button). Numerics remain fine for hairline gaps/nudges only.
-- The fluid `--font-size-*` scale is the ONLY fluid type scale — bare `text-sm` binds to
-  Tailwind's static built-ins, not the generated scale.
-
-### Gate (S1.C)
-
-- [x] Generated `--size-*` / `--padding-*` show `clamp(… cqi …)`; `--spacing-*` / `--font-size-*` unchanged (`vw`) — verified 2026-07-11 against `styles/primitives/spacing.css`
-- [x] Container contexts live on: shell content/sidebar/contextExpanded zones, `.chat-frame`, `.shell-root` — and NOT the frame root — verified 2026-07-11 (audit: these are the ONLY 6 `container-type` declarations in `src/`)
-- [ ] No overlay repositioning / zone collapse at runtime (fixed-descendant audit) — pending the L-phase run-and-observe sweep
-- [x] `pnpm ds:tokens:build` + `pnpm check` — 0 errors (2026-07-11)
-- [ ] Every token-source edit is followed by regeneration + committed output (regen is NOT hook-enforced — `tokens-regen` lefthook glob watches only legacy `tokens.ts`; flagged for follow-up)
-
-### S1.C adoption contract (added 2026-07-11 — the payoff phase)
-
-The plumbing above landed 2026-07-07 but adoption did not: only Button +
-ContextualHelp consumed the cqi tokens, and content views kept viewport
-breakpoints that ignore the seams. The adoption rules, now in force:
-
-1. **`Section` is the canonical fluid-token consumer** —
-   `src/lib/design/components/section/Section.svelte`. It owns section
-   rhythm via `--padding-*` (cqi), rebinds the `--accent-section-{main,
-   glow,fill}` trio from a named accent, and optionally declares a
-   container seam (`container` prop). Views compose `Section`; they do
-   not hand-author section headers, accent trios, or rhythm CSS.
-   First consumer: the devtools dashboard (`routes/(devtools)/devtools/
-   +page.svelte`) — its one-off `.ds-section` vocabulary is absorbed.
-2. **Content views respond to their ZONE, not the viewport** — new view
-   layout uses `@container` queries / cqi tokens against the enclosing
-   seam; `sm:`/`lg:` viewport variants in zone content are drift.
-3. **Fluid tokens stay inline-axis (`cqi`) only** — `cqh`/`cqb` skip
-   inline-size containers and silently fall back to the viewport
-   (css-contain-3 per-axis fallback).
-4. **Fixed-position overlays portal to the app root** — a zone container
-   is a containing block for fixed descendants; overlays must not live
-   inside one.
-5. **Seam inventory (post L2/L3):** app Frame zones (content, sidebar,
-   contextExpanded, topbar, statusbar), `.chat-frame`, `.shell-root`,
-   devtools window content wrapper. Frame ROOT stays container-free.
+- [ ] `pnpm ds:tokens:build` succeeds
+- [ ] `pnpm svelte-check` — 0 errors
+- [ ] `theme/color.css` has NO spectrum colors (red, orange, amber, etc.)
+- [ ] `styles/primitives/spacing.css` has `clamp()` values
+- [ ] `styles/primitives/typography.css` has `clamp()` values
+- [ ] `theme/text-composed.css` exists with composed text utilities
+- [ ] `styles/semantic/accent.css` exists with accent tokens
+- [ ] `generated/aliases.css` deleted (or reduced to SVG-only if needed)
+- [ ] All `.d.ts` type files regenerated correctly

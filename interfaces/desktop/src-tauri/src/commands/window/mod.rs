@@ -4,13 +4,16 @@
 //! - `open_window`: Open or focus a window by role
 //! - `close_child_window`: Close a window by role
 //! - `list_windows`: Get all currently open windows
+//! - `window_roles`: Every role with the page it opens
 //! - `focus_window`: Focus a window by label
-//! - `open_chat_window`: Legacy compat — delegates to `open_window(Chat)`
-//! - `close_window`: Legacy compat — close by label
+//!
+//! Every window is a normal top-level OS window: its own taskbar entry,
+//! resizable, draggable and minimizable on its own. None is owned by the
+//! main window or forced on top.
 
 pub mod types;
 
-pub use types::{WindowInfo, WindowRole};
+pub use types::{WindowInfo, WindowRole, WindowRoleInfo};
 
 use tauri::Manager;
 
@@ -36,49 +39,27 @@ pub async fn open_window(app: tauri::AppHandle, role: WindowRole) -> Result<Wind
         });
     }
 
-    // Spawn new child window. Proportional roles size against the main
-    // window's monitor (logical pixels — Tauri applies the DPI scale);
-    // the static default is only the no-monitor fallback. min_inner_size
-    // is the OS resize floor and the guard against bad persisted state.
-    let (min_width, min_height) = role.min_size();
-    let (width, height) = match role.size_fraction() {
-        Some((fw, fh)) => {
-            let monitor_logical = app
-                .get_webview_window("main")
-                .and_then(|w| w.current_monitor().ok().flatten())
-                .map(|m| m.size().to_logical::<f64>(m.scale_factor()));
-            match monitor_logical {
-                Some(logical) => (
-                    (logical.width * fw).clamp(min_width, logical.width),
-                    (logical.height * fh).clamp(min_height, logical.height),
-                ),
-                None => role.default_size(),
-            }
-        }
-        None => role.default_size(),
-    };
+    let (width, height) = role.default_size();
     let route = role.route();
 
-    let mut builder =
-        tauri::WebviewWindowBuilder::new(&app, label, tauri::WebviewUrl::App(route.into()))
-            .title(role.title())
-            .inner_size(width, height)
-            .min_inner_size(min_width, min_height)
-            .decorations(role.decorations())
-            .transparent(role.transparent());
+    // The window is named after the page it shows: that page's copy label.
+    let data_dir = crate::paths::resolve_data_dir(&app)?;
+    let catalog = devpulse_engine::platform::copy::load(&data_dir)
+        .map_err(|e| format!("{e:#}"))?
+        .copy;
+    let title = catalog
+        .nav
+        .get(route)
+        .map(|page| page.label.clone())
+        .ok_or_else(|| format!("the copy catalog has no name for {route}"))?;
 
-    if role.always_on_top() {
-        builder = builder.always_on_top(true);
-    }
-
-    // Set parent relationship to main window (OS child — stays on top, closes with parent)
-    if role != WindowRole::Main {
-        if let Some(main_win) = app.get_webview_window("main") {
-            builder = builder.parent(&main_win).map_err(|e| e.to_string())?;
-        }
-    }
-
-    builder.build().map_err(|e| e.to_string())?;
+    tauri::WebviewWindowBuilder::new(&app, label, tauri::WebviewUrl::App(route.into()))
+        .title(title)
+        .inner_size(width, height)
+        .decorations(role.decorations())
+        .transparent(role.transparent())
+        .build()
+        .map_err(|e| e.to_string())?;
 
     Ok(WindowInfo {
         role,
@@ -108,21 +89,13 @@ pub async fn close_child_window(app: tauri::AppHandle, role: WindowRole) -> Resu
 ///
 /// # Errors
 /// Infallible — the `Result` shape is preserved for binding parity with
-/// the sibling `open_window` / `close_window` commands so the TS
+/// the sibling `open_window` / `close_child_window` commands so the TS
 /// surface stays uniform.
 #[tauri::command]
 #[specta::specta]
 pub async fn list_windows(app: tauri::AppHandle) -> Result<Vec<WindowInfo>, String> {
-    let all_roles = [
-        WindowRole::Main,
-        WindowRole::Chat,
-        WindowRole::ConnectomeViewer,
-        WindowRole::ModelLoader,
-        WindowRole::DevTools,
-    ];
-
     let mut windows = Vec::new();
-    for role in &all_roles {
+    for role in &WindowRole::ALL {
         let label = role.label();
         let is_open = app.get_webview_window(label).is_some();
         windows.push(WindowInfo {
@@ -132,6 +105,24 @@ pub async fn list_windows(app: tauri::AppHandle) -> Result<Vec<WindowInfo>, Stri
         });
     }
     Ok(windows)
+}
+
+/// Every window role with the page it opens, so the frontend can name and
+/// draw a window from that page's own route folder (plan 0008).
+///
+/// # Errors
+/// Infallible — the `Result` shape matches the sibling window commands.
+#[tauri::command]
+#[specta::specta]
+pub async fn window_roles() -> Result<Vec<WindowRoleInfo>, String> {
+    Ok(WindowRole::ALL
+        .iter()
+        .map(|role| WindowRoleInfo {
+            role: role.clone(),
+            route: role.route().to_owned(),
+            detached: role.detached(),
+        })
+        .collect())
 }
 
 /// Focus a window by its label.
@@ -165,34 +156,6 @@ pub async fn toggle_devtools(app: tauri::AppHandle) -> Result<(), String> {
         window.close().map_err(|e| e.to_string())?;
     } else {
         open_window(app, WindowRole::DevTools).await?;
-    }
-    Ok(())
-}
-
-// ═══════════════════════════════════════════════════════════════
-// Legacy compat — existing frontend code calls these
-// ═══════════════════════════════════════════════════════════════
-
-/// Legacy: Open or focus the Chat window. Delegates to `open_window`.
-///
-/// # Errors
-/// Returns an error string if the window cannot be created or focused.
-#[tauri::command]
-#[specta::specta]
-pub async fn open_chat_window(app: tauri::AppHandle) -> Result<(), String> {
-    open_window(app, WindowRole::Chat).await?;
-    Ok(())
-}
-
-/// Legacy: Close a window by its label string.
-///
-/// # Errors
-/// Returns an error string if the window cannot be closed.
-#[tauri::command]
-#[specta::specta]
-pub async fn close_window(label: String, app: tauri::AppHandle) -> Result<(), String> {
-    if let Some(window) = app.get_webview_window(&label) {
-        window.close().map_err(|e| e.to_string())?;
     }
     Ok(())
 }

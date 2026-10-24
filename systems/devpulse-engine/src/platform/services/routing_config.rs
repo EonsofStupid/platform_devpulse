@@ -65,8 +65,8 @@ const TIER_TIMEOUT_MAX_MS: u32 = 60_000;
 /// Which Claude escalation lane is allowed after local-first routing.
 ///
 /// SSOT for the `response_source` decision the dispatcher consumes at
-/// chat dispatch time. Mirrors the assistant `RoutingMode` value-for-value
-/// — that type is internal, this is the public surface engine +
+/// chat dispatch time. Mirrors the kernel's `RoutingMode` value-for-value
+/// — the kernel type is private, this is the public surface engine +
 /// Tauri + frontend share via specta.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize, Type)]
 #[serde(rename_all = "snake_case")]
@@ -82,7 +82,7 @@ pub enum InferenceProvider {
 }
 
 impl InferenceProvider {
-    /// Wire-format string used for persistence + IPC events.
+    /// Wire-format string used for kernel persistence + IPC events.
     #[must_use]
     pub fn as_str(self) -> &'static str {
         match self {
@@ -93,7 +93,7 @@ impl InferenceProvider {
     }
 
     /// Parse from the wire-format string. Unknown values fall back to
-    /// `LocalFirst` so a malformed persisted value never crashes the UI.
+    /// `LocalFirst` so a malformed kernel persist never crashes the UI.
     ///
     /// Renamed away from `from_str` (clippy `should_implement_trait`
     /// flagged the name as confusable with `std::str::FromStr`) — this

@@ -6,7 +6,7 @@
   Single subsystem chip rendered inside StatusBar. Wraps a ColdLight
   Badge in a ColdLight Tooltip. The tooltip surfaces:
     - Friendly (prod) label + category from the terminology SSOT.
-    - Technical (dev) label — e.g. "LibSQL", "SurrealDB", vector store.
+    - Technical (dev) label — e.g. "Turso", "SurrealDB", vector store.
     - State + latency.
     - Live Clyffy narration line when Clyffy is active.
 
@@ -14,11 +14,10 @@
   the tooltip hook (ref-counted, ARIA-correct).
 -->
 <script lang="ts">
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Text } from "$lib/design/components/text/index.js";
-import { Tooltip, TooltipContent, TooltipTrigger } from "$lib/design/components/tooltip/index.js";
-import { hstack } from "$lib/design/utils/hstack/index.js";
-import { stack } from "$lib/design/utils/stack/index.js";
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Text } from "@devpulse/coldlight/components/text";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@devpulse/coldlight/components/tooltip";
+import { hstack, stack } from "@devpulse/coldlight/utils";
 import { clyffyStatus } from "$lib/domains/clyffy/index.js";
 import { DEV_MODE, devLabel, TERMS } from "$lib/sys/generated/terminology.js";
 import { getIcon } from "$lib/sys/generated/terminology-icons.js";
@@ -84,7 +83,7 @@ const clyffyLine = $derived.by<string | null>(() => {
 		</Badge>
 	</TooltipTrigger>
 
-	<TooltipContent preset="glass" class="max-w-xs">
+	<TooltipContent surface="glass" variant="deep" class="max-w-xs">
 		<div class={stack({ gap: "2" })}>
 			<div class={hstack({ gap: "2", align: "baseline", justify: "between" })}>
 				<Text size="sm" weight="semibold" preset="default">

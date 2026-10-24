@@ -89,7 +89,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "chat-bubble-user: Teal user message bubble (reference CHAT-REFERENCE-02)"
+			"$description": "chat-bubble-user: Teal user message bubble (reference CHAT-REFERENCE-02)",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Chat Bubble — User",
+					"family": "chat",
+					"variant": "bubble-user"
+				}
+			}
 		},
 		"chat-bubble-ai-developer": {
 			"background-color": {
@@ -168,7 +175,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "chat-bubble-ai-developer: AI bubble — developer mode rim + teal glow"
+			"$description": "chat-bubble-ai-developer: AI bubble — developer mode rim + teal glow",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Chat Bubble — AI (Developer)",
+					"family": "chat",
+					"variant": "bubble-ai-developer"
+				}
+			}
 		},
 		"chat-bubble-ai-planning": {
 			"background-color": {
@@ -247,7 +261,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "chat-bubble-ai-planning: AI bubble — planning purple rim + glow"
+			"$description": "chat-bubble-ai-planning: AI bubble — planning purple rim + glow",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Chat Bubble — AI (Planning)",
+					"family": "chat",
+					"variant": "bubble-ai-planning"
+				}
+			}
 		},
 		"chat-bubble-ai-image": {
 			"background-color": {
@@ -326,7 +347,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "chat-bubble-ai-image: AI bubble — image mode ember rim + glow"
+			"$description": "chat-bubble-ai-image: AI bubble — image mode ember rim + glow",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Chat Bubble — AI (Image)",
+					"family": "chat",
+					"variant": "bubble-ai-image"
+				}
+			}
 		},
 		"chat-bubble-ai-general": {
 			"background-color": {
@@ -405,7 +433,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "chat-bubble-ai-general: AI bubble — general neutral rim, no halo"
+			"$description": "chat-bubble-ai-general: AI bubble — general neutral rim, no halo",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Chat Bubble — AI (General)",
+					"family": "chat",
+					"variant": "bubble-ai-general"
+				}
+			}
 		},
 		"chat-bubble-system": {
 			"background-color": {
@@ -484,7 +519,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "chat-bubble-system: System rail — ember border + slow glow pulse"
+			"$description": "chat-bubble-system: System rail — ember border + slow glow pulse",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Chat Bubble — System",
+					"family": "chat",
+					"variant": "bubble-system"
+				}
+			}
 		},
 		"chat-mode-pill-active": {
 			"background-color": {
@@ -563,7 +605,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "chat-mode-pill-active: Active mode pill with teal glow pulse (colour set per-mode in feature)"
+			"$description": "chat-mode-pill-active: Active mode pill with teal glow pulse (colour set per-mode in feature)",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Chat Mode Pill — Active",
+					"family": "chat",
+					"variant": "mode-pill-active"
+				}
+			}
 		},
 		"chat-mode-pill-idle": {
 			"background-color": {
@@ -642,7 +691,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "chat-mode-pill-idle: Inactive pill — matte fill, subtle border"
+			"$description": "chat-mode-pill-idle: Inactive pill — matte fill, subtle border",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Chat Mode Pill — Idle",
+					"family": "chat",
+					"variant": "mode-pill-idle"
+				}
+			}
 		},
 		"chat-decision-card": {
 			"background-color": {
@@ -721,7 +777,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "chat-decision-card: Embedded task / decision card shell"
+			"$description": "chat-decision-card: Embedded task / decision card shell",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Chat Decision Card",
+					"family": "chat",
+					"variant": "decision-card"
+				}
+			}
 		},
 		"chat-voice-orb-idle": {
 			"background-color": {
@@ -800,7 +863,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "chat-voice-orb-idle: Mic at rest — teal rim"
+			"$description": "chat-voice-orb-idle: Mic at rest — teal rim",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Chat Voice Orb — Idle",
+					"family": "chat",
+					"variant": "voice-orb-idle"
+				}
+			}
 		},
 		"chat-voice-orb-listening": {
 			"background-color": {
@@ -879,7 +949,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "chat-voice-orb-listening: Mic live — voice-active fill + alert pulse shadow"
+			"$description": "chat-voice-orb-listening: Mic live — voice-active fill + alert pulse shadow",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Chat Voice Orb — Listening",
+					"family": "chat",
+					"variant": "voice-orb-listening"
+				}
+			}
 		},
 		"chat-cortex-node": {
 			"background-color": {
@@ -958,7 +1035,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "chat-cortex-node: Cortex memory graph node"
+			"$description": "chat-cortex-node: Cortex memory graph node",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Chat Cortex Node",
+					"family": "chat",
+					"variant": "cortex-node"
+				}
+			}
 		},
 		"chat-session-row-active": {
 			"background-color": {
@@ -1037,7 +1121,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "chat-session-row-active: Active session — teal fill (left-edge bar composed in layout)"
+			"$description": "chat-session-row-active: Active session — teal fill (left-edge bar composed in layout)",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Chat Session Row — Active",
+					"family": "chat",
+					"variant": "session-row-active"
+				}
+			}
 		},
 		"chat-frame-shell": {
 			"background-color": {
@@ -1049,7 +1140,7 @@
 				"$type": "dimension"
 			},
 			"box-shadow": {
-				"$value": "0 0.25rem 1rem 0 oklch(from {color.black} l c h / 0.45), 0 0 0.5rem 0 var(--accent-teal-glow), inset 0 0.0625rem 0 0 oklch(from {color.white} l c h / 0.06)",
+				"$value": "0 0.25rem 1rem 0 oklch(0 0 0 / 0.45), 0 0 0.5rem 0 var(--accent-teal-glow), inset 0 0.0625rem 0 0 oklch(1 0 0 / 0.06)",
 				"$type": "shadow"
 			},
 			"color": {
@@ -1116,7 +1207,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "chat-frame-shell: Outer chat window chrome — layered shadows + teal rim"
+			"$description": "chat-frame-shell: Outer chat window chrome — layered shadows + teal rim",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Chat Frame Shell",
+					"family": "chat",
+					"variant": "frame-shell"
+				}
+			}
 		}
 	}
 }

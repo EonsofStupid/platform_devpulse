@@ -3,23 +3,23 @@
 	@domain platform/_shared
 
 	One-click install of a HuggingFace (or JanAI — same infra) repo
-	into a slot. Click → list siblings → the engine picks the primary file
+	into a slot. Click → list siblings → kernel picks the primary file
 	(tier-aware) → bundle confirmation modal → on confirm, kick off
-	the engine's atomic install chain (download + assign + load) via
+	the kernel's atomic install chain (download + assign + load) via
 	the `install_to_slot` Tauri command.
 
-	The engine's `execute_download` auto-fetches every shard / config
-	/ tokenizer companion alongside the primary; the engine's
+	The kernel's `execute_download` auto-fetches every shard / config
+	/ tokenizer companion alongside the primary; the kernel's
 	`recommend_primary_for_slot` resolves which file to pass as the
 	primary based on the slot's required capability and the host's
 	hardware tier (GGUF quant for chat slots, safetensors shard for
 	embedder slots, ONNX for voice slots, etc.). This button just
-	wires those two engine verbs to one user click.
+	wires those two kernel verbs to one user click.
 
 	## Modes
 
 	With `slotId` (the layman one-button path):
-	  - the engine's `recommendPrimaryForSlot` picks the file
+	  - kernel `recommendPrimaryForSlot` picks the file
 	  - confirm → `installToSlot` runs download → scan → assign → load
 	  - the user never picks a quant, never picks a shard, never has
 	    to manually assign or load after download
@@ -41,11 +41,11 @@
 	```
 -->
 <script lang="ts">
-import { Download, FileArchive, X } from "@lucide/svelte";
+import { Button, type ButtonSize, type ButtonVariant } from "@devpulse/coldlight/components/button";
+import { Spinner } from "@devpulse/coldlight/components/spinner";
+import { Text } from "@devpulse/coldlight/components/text";
 import { invoke } from "@tauri-apps/api/core";
-import { Button, type ButtonPreset } from "$lib/design/components/button/index.js";
-import { Spinner } from "$lib/design/components/spinner/index.js";
-import { Text } from "$lib/design/components/text/index.js";
+import { Download, FileArchive, X } from "lucide-svelte";
 import { logInfo } from "$lib/sys/logger.js";
 import {
 	formatBytes,
@@ -59,7 +59,7 @@ interface Props {
 	/** HuggingFace repo id (e.g. `"microsoft/phi-4-mini-instruct"`). */
 	repoId: string;
 	/**
-	 * Slot to install into. When set, the engine picks the primary
+	 * Slot to install into. When set, the kernel picks the primary
 	 * file via `recommendPrimaryForSlot` and the confirm action runs
 	 * the atomic install chain (`installToSlot`). When unset, falls
 	 * back to in-TS `resolvePrimaryFile` + `download_model`.
@@ -68,9 +68,9 @@ interface Props {
 	/** Button label shown before click. */
 	label?: string;
 	/** Size forwarded to the inner Button. */
-	size?: "sm" | "md" | "lg";
-	/** Preset forwarded to the inner Button. */
-	preset?: ButtonPreset;
+	size?: ButtonSize;
+	/** Variant forwarded to the inner Button. */
+	variant?: ButtonVariant;
 	/** Disable the button (e.g. while a parent download is active). */
 	disabled?: boolean;
 	/**
@@ -85,7 +85,7 @@ let {
 	slotId,
 	label = "Install",
 	size = "sm",
-	preset = "primary",
+	variant = "primary",
 	disabled = false,
 	onComplete,
 }: Props = $props();
@@ -106,13 +106,13 @@ async function handleClick(): Promise<void> {
 	logInfo("repo.download", `list_repo_files begin repo=${repoId} slot=${slotId ?? "<none>"}`);
 
 	try {
-		// Sibling list always comes from the engine — used to render
+		// Sibling list always comes from the kernel — used to render
 		// the bundle summary regardless of which primary picker runs.
 		const result = await invoke<RepoFile[]>("list_repo_files", { repoId });
 		siblings = result;
 
 		if (slotId) {
-			// Slot-bound install — the engine picks the primary based on
+			// Slot-bound install — kernel picks the primary based on
 			// the slot's required capability + live hardware tier.
 			const primary = await invoke<string | null>("recommend_primary_for_slot", {
 				repoId,
@@ -234,7 +234,7 @@ const hasKnownSize = $derived(siblings.some((s) => typeof s.size === "number"));
 
 <!-- Trigger button -->
 <Button
-	{preset}
+	{variant}
 	{size}
 	onclick={handleClick}
 	disabled={disabled || stage === "listing" || stage === "starting"}
@@ -356,12 +356,12 @@ const hasKnownSize = $derived(siblings.some((s) => typeof s.size === "number"));
 
 			<!-- Actions -->
 			<div class="flex justify-end gap-2">
-				<Button preset="ghost" size="sm" onclick={cancel}>
+				<Button variant="ghost" size="sm" onclick={cancel}>
 					{stage === "done" ? "Close" : "Cancel"}
 				</Button>
 				{#if stage === "confirming"}
 					<Button
-						preset="primary"
+						variant="primary"
 						size="sm"
 						onclick={confirm}
 						disabled={!selectedPrimary}
@@ -370,7 +370,7 @@ const hasKnownSize = $derived(siblings.some((s) => typeof s.size === "number"));
 						{slotId ? "Install" : "Download"}
 					</Button>
 				{:else if stage === "starting"}
-					<Button preset="primary" size="sm" disabled>
+					<Button variant="primary" size="sm" disabled>
 						<Spinner size="xs" />
 						Starting…
 					</Button>

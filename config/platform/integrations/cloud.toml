@@ -1,0 +1,11 @@
+# The DevPulse account (devpulse.app): Supabase auth for the first-run account
+# step (plan 0001, Account step A1).
+#
+# Both values are public by design: the anon key ships to every client, and
+# the project's row-level security guards the data. An empty value means not
+# configured. The OS keychain entry `cloud_supabase_anon_key` overrides
+# `anon_key`, for a self-hosted project.
+[integrations.cloud.auth]
+url = "https://dcmgooupmorhqjbdaxtm.supabase.co"
+# The owner adds the project's anon key here (owner decision D2, 2026-10-23).
+anon_key = ""

@@ -9,7 +9,7 @@
 	Each node carries:
 
 	- a layman-first label (the bold text the user reads first)
-	- a small technical Badge underneath (the internal name for the
+	- a small technical Badge underneath (the kernel name for the
 	  reader who's actually debugging)
 	- a `StatusDot` whose tone is derived from the live RRD lifecycle
 	  phase (substring tone matching like `RrdDevtool:66`)
@@ -46,9 +46,9 @@
 	anything (devtools are diagnostics, not setup).
 -->
 <script lang="ts">
-import { Badge } from "$lib/design/components/badge/index.js";
-import { StatusDot, type StatusDotStatus } from "$lib/design/components/status-dot/index.js";
-import { Text } from "$lib/design/components/text/index.js";
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { StatusDot, type StatusDotStatus } from "@devpulse/coldlight/components/status-dot";
+import { Text } from "@devpulse/coldlight/components/text";
 import { rrdState } from "$lib/sys/data-access/rrd/rrd.state.svelte.js";
 
 interface Props {
@@ -197,15 +197,12 @@ const NODE_W = 130;
 const NODE_H = 64;
 </script>
 
-<!-- Reasoning-subtree identity accent (cyber), named ONCE here per the
-     binding-map rule 3; descendants consume the locals. -->
 <div
 	class="reasoning-topology"
 	data-cold={isCold}
 	data-flowing={isFlowing}
 	role="figure"
 	aria-label="Reasoning encoder pipeline: tokenizer to encoder to embedder to daemon"
-	style="--reasoning-accent: var(--accent-cyber-main); --reasoning-accent-soft: var(--accent-cyber-glow);"
 >
 	<svg
 		viewBox="0 0 660 180"
@@ -214,10 +211,10 @@ const NODE_H = 64;
 		aria-hidden="true"
 	>
 		<defs>
-			<!-- Edge gradient — soft glow to full accent, gives the trace a direction. -->
+			<!-- Edge gradient — cyan to electric, gives the trace a direction. -->
 			<linearGradient id="edge-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-				<stop offset="0%" stop-color="var(--reasoning-accent-soft)" />
-				<stop offset="100%" stop-color="var(--reasoning-accent)" />
+				<stop offset="0%" stop-color="var(--accent-cyber-soft, var(--accent-electric))" />
+				<stop offset="100%" stop-color="var(--accent-cyber, var(--accent-electric-strong))" />
 			</linearGradient>
 
 			<!-- Glow filter for active nodes. -->
@@ -257,7 +254,7 @@ const NODE_H = 64;
 							cy={from.y}
 							style:--travel-x="{endX - startX}px"
 							style:--delay="{i * 0.35}s"
-							fill="var(--reasoning-accent)"
+							fill="var(--accent-cyber, var(--accent-electric-strong))"
 						/>
 					{/each}
 				{/if}
@@ -281,7 +278,7 @@ const NODE_H = 64;
 					ry="10"
 					fill="var(--surface-raised)"
 					stroke={active
-						? "var(--reasoning-accent)"
+						? "var(--accent-cyber, var(--accent-electric))"
 						: "var(--border-subtle)"}
 					stroke-width={active ? 1.5 : 1}
 				/>
@@ -294,34 +291,45 @@ const NODE_H = 64;
 	<div class="overlay" aria-hidden="false">
 		{#each nodes as node (node.id)}
 			{@const active = activeNodes.has(node.id)}
-			<svelte:element
-				this={clickable ? "button" : "div"}
-				class="node-label"
-				class:node-label--active={active}
-				class:node-label--clickable={clickable}
-				class:node-label--compact={compact}
-				style:left="{(node.x / 660) * 100}%"
-				style:top="{(node.y / 180) * 100}%"
-				type={clickable ? "button" : undefined}
-				role={clickable ? "button" : undefined}
-				aria-label={clickable
-					? `${node.layman} — ${node.technical}, ${active ? "active" : "idle"}`
-					: undefined}
-				onclick={clickable ? () => handleNodeClick(node.id) : undefined}
-				onkeydown={clickable ? (e: KeyboardEvent) => handleNodeKey(e, node.id) : undefined}
-			>
-				<div class="node-label__head">
+			{#snippet label()}
+				<!-- span, not div: the label is a button's content when clickable. -->
+				<span class="node-label__head">
 					<StatusDot status={nodeStatusDot(node.id)} />
 					<Text size={compact ? "xs" : "sm"} weight="semibold">
 						{isCold ? node.skeletal : node.layman}
 					</Text>
-				</div>
+				</span>
 				{#if !compact && !isCold}
 					<Badge variant={active ? "informative" : "neutral"} size="sm" fillStyle="subtle">
 						{node.technical}
 					</Badge>
 				{/if}
-			</svelte:element>
+			{/snippet}
+			{#if clickable}
+				<button
+					type="button"
+					class="node-label node-label--clickable"
+					class:node-label--active={active}
+					class:node-label--compact={compact}
+					style:left="{(node.x / 660) * 100}%"
+					style:top="{(node.y / 180) * 100}%"
+					aria-label={`${node.layman} — ${node.technical}, ${active ? "active" : "idle"}`}
+					onclick={() => handleNodeClick(node.id)}
+					onkeydown={(e: KeyboardEvent) => handleNodeKey(e, node.id)}
+				>
+					{@render label()}
+				</button>
+			{:else}
+				<div
+					class="node-label"
+					class:node-label--active={active}
+					class:node-label--compact={compact}
+					style:left="{(node.x / 660) * 100}%"
+					style:top="{(node.y / 180) * 100}%"
+				>
+					{@render label()}
+				</div>
+			{/if}
 		{/each}
 	</div>
 
@@ -418,7 +426,7 @@ const NODE_H = 64;
 	.node-label--clickable:hover,
 	.node-label--clickable:focus-visible {
 		transform: translate(-50%, -50%) scale(1.04);
-		outline: 1px solid var(--reasoning-accent);
+		outline: 1px solid var(--accent-cyber, var(--accent-electric));
 		outline-offset: 2px;
 	}
 
@@ -438,7 +446,7 @@ const NODE_H = 64;
 		   feel like one surface. */
 		background: color-mix(
 			in oklch,
-			var(--reasoning-accent) 8%,
+			var(--accent-cyber, var(--accent-electric)) 8%,
 			transparent
 		);
 	}

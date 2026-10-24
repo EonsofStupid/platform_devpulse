@@ -6,6 +6,6 @@
 		"name": "ColdLight",
 		"version": "1.0.0",
 		"config": "interfaces/desktop/sd.config.js",
-		"root": "interfaces/desktop/src/lib/design"
+		"root": "packages/coldlight"
 	}
 }

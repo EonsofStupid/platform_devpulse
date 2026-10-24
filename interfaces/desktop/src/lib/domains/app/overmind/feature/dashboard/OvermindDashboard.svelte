@@ -4,26 +4,20 @@
   Experimental hub: Playground, Experiments. Model control is dev-gated under /devtools.
 -->
 <script lang="ts">
-import { Activity, FlaskConical, FlaskRound } from "@lucide/svelte";
-import { Widget } from "$lib/design/blocks/widgets/index.js";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { DynamicBackground } from "$lib/design/components/dynamic-background/index.js";
-import { Text } from "$lib/design/components/text/index.js";
-import { hstack } from "$lib/design/utils/hstack/index.js";
-import { stack } from "$lib/design/utils/stack/index.js";
+import { Widget } from "@devpulse/coldlight/blocks/widgets";
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Text } from "@devpulse/coldlight/components/text";
+import { hstack, stack } from "@devpulse/coldlight/utils";
+import { Activity, FlaskConical, FlaskRound } from "lucide-svelte";
 </script>
 
-<div class="relative" data-page="overmind-dashboard">
-	<!-- Magenta glow + purple grid — the overmind color identity
-	     (authored variant, mounted per the DevPulseDashboard pattern). -->
-	<DynamicBackground variant="overmind" animated />
-	<div class="relative grid grid-cols-12 gap-4">
+<div class="grid grid-cols-12 gap-4" data-page="overmind-dashboard">
 	<!-- Row 1: Prompt Playground (experimental primary) -->
 	<div class="col-span-8">
 		<Widget
 			title="Prompt Playground"
 			icon={FlaskConical}
-			surface="glass-deep"
+			surface="glass" variant="deep"
 			depth="z2"
 			bevel="subtle"
 			glow="purple"
@@ -42,7 +36,7 @@ import { stack } from "$lib/design/utils/stack/index.js";
 			<Widget
 				title="System Status"
 				icon={Activity}
-				surface="glass-deep"
+				surface="glass" variant="deep"
 				depth="z2"
 				bevel="subtle"
 				glow="teal"
@@ -68,7 +62,7 @@ import { stack } from "$lib/design/utils/stack/index.js";
 			<Widget
 				title="Playground"
 				icon={FlaskConical}
-				surface="glass-deep"
+				surface="glass" variant="deep"
 				depth="z1"
 				bevel="soft"
 				glow="purple"
@@ -87,7 +81,7 @@ import { stack } from "$lib/design/utils/stack/index.js";
 		<Widget
 			title="Experiments"
 			icon={FlaskRound}
-			surface="glass-deep"
+			surface="glass" variant="deep"
 			depth="z1"
 			bevel="subtle"
 			frame="soft"
@@ -102,6 +96,5 @@ import { stack } from "$lib/design/utils/stack/index.js";
 				Track A/B tests, prompt variations, and model comparisons.
 			</Text>
 		</Widget>
-	</div>
 	</div>
 </div>

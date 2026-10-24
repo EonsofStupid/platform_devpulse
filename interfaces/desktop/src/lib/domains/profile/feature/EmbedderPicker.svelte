@@ -23,11 +23,11 @@
 	immediately but aren't spammed by non-failure transitions.
 -->
 <script lang="ts">
-import { Button } from "$lib/design/components/button/index.js";
-import { Card } from "$lib/design/components/card/index.js";
-import { Heading } from "$lib/design/components/heading/index.js";
-import { Text } from "$lib/design/components/text/index.js";
-import { TextField } from "$lib/design/components/text-field/index.js";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Card } from "@devpulse/coldlight/components/card";
+import { Heading } from "@devpulse/coldlight/components/heading";
+import { Text } from "@devpulse/coldlight/components/text";
+import { TextField } from "@devpulse/coldlight/components/text-field";
 import { commands, type RuntimePickerCopy } from "$lib/sys/generated/bindings.js";
 import { profileState } from "../index.js";
 
@@ -112,7 +112,7 @@ function emptyCopy(): RuntimePickerCopy {
 </script>
 
 <div class={className ? `embedder-picker ${className}` : "embedder-picker"}>
-	<Card preset="glass" class="embedder-picker__primary" labelledBy="embedder-heading">
+	<Card surface="glass" variant="deep" class="embedder-picker__primary" labelledBy="embedder-heading">
 		<header class="embedder-picker__header">
 			<Heading level={2} size="md">
 				<span id="embedder-heading">{copy.heading}</span>
@@ -132,7 +132,7 @@ function emptyCopy(): RuntimePickerCopy {
 
 			<div class="embedder-picker__actions">
 				<Button
-					preset="primary"
+					variant="primary"
 					size="md"
 					type="submit"
 					aria-label={copy.apply_aria}
@@ -148,7 +148,7 @@ function emptyCopy(): RuntimePickerCopy {
 		</form>
 	</Card>
 
-	<Card preset="matte" class="embedder-picker__minion" labelledBy="minion-heading">
+	<Card surface="neuro" variant="solid" class="embedder-picker__minion" labelledBy="minion-heading">
 		<header class="embedder-picker__header embedder-picker__header--minor">
 			<Heading level={2} size="sm">
 				<span id="minion-heading">{copy.minion_section_heading}</span>

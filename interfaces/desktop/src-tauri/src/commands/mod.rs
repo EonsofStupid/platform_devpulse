@@ -59,9 +59,7 @@ pub struct StatusUpdate<T: Serialize> {
 /// This is THE function. Every domain. Every mutation. Every boot.
 /// The frontend listens and sets `$state` directly from `data`.
 ///
-/// ```rust,ignore
-/// // Illustrative call shape — needs a live tauri::AppHandle, so it
-/// // can't run as a doctest.
+/// ```rust
 /// emit_status(&app, "models", StatusKind::Data, &models_payload);
 /// emit_status(&app, "voice",  StatusKind::Error, &"TTS engine crashed");
 /// ```
@@ -80,13 +78,16 @@ pub fn emit_status<T: Serialize>(app: &tauri::AppHandle, domain: &str, kind: Sta
 // ── Domain Modules ──────────────────────────────────────────────
 
 pub mod _util;
+pub mod agents;
 pub mod analytics;
 pub mod candle;
 pub mod chat;
 pub mod claude;
 pub mod cloud;
 pub mod community;
-pub mod connectome;
+pub mod containers;
+pub mod copy;
+pub mod cortex;
 pub mod credentials;
 pub mod devclyffy;
 pub mod devforge;
@@ -95,15 +96,18 @@ pub mod intelligence;
 pub mod interactions;
 pub mod knowledge;
 pub mod llama;
-pub mod llama_cpp;
-pub mod llama_cpp_embedded;
+pub mod llama_server_config;
 pub mod models;
 pub mod ollama;
+pub mod onboarding;
 pub mod pixvix;
 pub mod projects;
 pub mod providers;
+pub mod providers_status;
+pub mod rooms;
 pub mod routing;
 pub mod sherpa;
+pub mod signals;
 pub mod surreal;
 pub mod sys;
 pub mod thinkclyffy;

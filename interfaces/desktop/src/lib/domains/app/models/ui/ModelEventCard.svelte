@@ -10,8 +10,8 @@
 	Sized for chat margins — narrow, single-line, dismissible.
 -->
 <script lang="ts">
-import { X } from "@lucide/svelte";
-import { Text } from "$lib/design/components/text/index.js";
+import { Text } from "@devpulse/coldlight/components/text";
+import { X } from "lucide-svelte";
 import { narrationState } from "../data-access/narration.state.svelte.js";
 import { ROLE_COLORS, roleForSlot } from "../util/roles.js";
 import { getSlotLabel } from "../util/slots.js";
@@ -35,7 +35,7 @@ function dismiss() {
 </script>
 
 {#if narration}
-	<aside class="event-card" data-tone={narration.tone} style:--event-accent={accent}>
+	<aside class="event-card" data-tone={narration.tone} style:--accent={accent}>
 		<div class="head">
 			<span class="strip"></span>
 			<Text size="xs" weight="bold">{label?.name ?? slotId}</Text>
@@ -72,7 +72,7 @@ function dismiss() {
 		display: inline-block;
 		width: 0.25rem;
 		height: 0.875rem;
-		background: var(--event-accent);
+		background: var(--accent);
 		border-radius: 0.125rem;
 	}
 	.dismiss {

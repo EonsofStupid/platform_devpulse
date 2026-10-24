@@ -81,8 +81,8 @@ const containerClass = $derived(`hero-bars hero-bars-${state}`);
 		height: var(--bar-base);
 		background: linear-gradient(
 			180deg,
-			color-mix(in oklch, var(--store-accent, var(--accent-primary-main)) 80%, transparent) 0%,
-			color-mix(in oklch, var(--store-accent, var(--accent-primary-main)) 30%, transparent) 100%
+			color-mix(in oklch, var(--accent-amber, gold) 80%, transparent) 0%,
+			color-mix(in oklch, var(--accent-amber, gold) 30%, transparent) 100%
 		);
 		border-radius: 0.125rem 0.125rem 0 0;
 		transform-origin: bottom;

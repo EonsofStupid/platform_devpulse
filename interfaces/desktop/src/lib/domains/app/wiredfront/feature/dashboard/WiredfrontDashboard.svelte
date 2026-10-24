@@ -4,6 +4,10 @@
   Hub: Screenshots, Video Editor, Audio Editor, Image Editor, Streaming, Notes, Voice.
 -->
 <script lang="ts">
+import { Widget } from "@devpulse/coldlight/blocks/widgets";
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Text } from "@devpulse/coldlight/components/text";
+import { hstack, stack } from "@devpulse/coldlight/utils";
 import {
 	AudioLines,
 	Camera,
@@ -13,26 +17,16 @@ import {
 	Radio,
 	StickyNote,
 	Video,
-} from "@lucide/svelte";
-import { Widget } from "$lib/design/blocks/widgets/index.js";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { DynamicBackground } from "$lib/design/components/dynamic-background/index.js";
-import { Text } from "$lib/design/components/text/index.js";
-import { hstack } from "$lib/design/utils/hstack/index.js";
-import { stack } from "$lib/design/utils/stack/index.js";
+} from "lucide-svelte";
 </script>
 
-<div class="relative" data-page="wiredfront-dashboard">
-	<!-- Cyber glow + cyber grid — the wiredfront color identity
-	     (authored variant, mounted per the DevPulseDashboard pattern). -->
-	<DynamicBackground variant="wiredfront" animated />
-	<div class="relative grid grid-cols-12 gap-4">
+<div class="grid grid-cols-12 gap-4" data-page="wiredfront-dashboard">
 	<!-- Row 1: Storage + Screenshots -->
 	<div class="col-span-4">
 		<Widget
 			title="Storage"
 			icon={HardDrive}
-			surface="glass-deep"
+			surface="glass" variant="deep"
 			depth="z2"
 			bevel="subtle"
 			glow="teal"
@@ -60,7 +54,7 @@ import { stack } from "$lib/design/utils/stack/index.js";
 		<Widget
 			title="Screenshots"
 			icon={Camera}
-			surface="glass-deep"
+			surface="glass" variant="deep"
 			depth="z2"
 			bevel="soft"
 			glow="purple"
@@ -82,7 +76,7 @@ import { stack } from "$lib/design/utils/stack/index.js";
 		<Widget
 			title="Video Editor"
 			icon={Video}
-			surface="glass-deep"
+			surface="glass" variant="deep"
 			depth="z1"
 			bevel="subtle"
 			frame="soft"
@@ -101,7 +95,7 @@ import { stack } from "$lib/design/utils/stack/index.js";
 		<Widget
 			title="Audio Editor"
 			icon={AudioLines}
-			surface="glass-deep"
+			surface="glass" variant="deep"
 			depth="z1"
 			bevel="subtle"
 			frame="soft"
@@ -116,7 +110,7 @@ import { stack } from "$lib/design/utils/stack/index.js";
 		<Widget
 			title="Image Editor"
 			icon={ImagePlus}
-			surface="glass-deep"
+			surface="glass" variant="deep"
 			depth="z1"
 			bevel="subtle"
 			frame="soft"
@@ -130,7 +124,7 @@ import { stack } from "$lib/design/utils/stack/index.js";
 		<Widget
 			title="Streaming"
 			icon={Radio}
-			surface="glass-deep"
+			surface="glass" variant="deep"
 			depth="z1"
 			bevel="subtle"
 			glow="ember"
@@ -161,7 +155,7 @@ import { stack } from "$lib/design/utils/stack/index.js";
 		<Widget
 			title="Notes"
 			icon={StickyNote}
-			surface="glass-deep"
+			surface="glass" variant="deep"
 			depth="z1"
 			bevel="subtle"
 			frame="soft"
@@ -175,7 +169,7 @@ import { stack } from "$lib/design/utils/stack/index.js";
 		<Widget
 			title="Voice"
 			icon={Mic}
-			surface="glass-deep"
+			surface="glass" variant="deep"
 			depth="z1"
 			bevel="subtle"
 			frame="soft"
@@ -192,6 +186,5 @@ import { stack } from "$lib/design/utils/stack/index.js";
 				</div>
 			</div>
 		</Widget>
-	</div>
 	</div>
 </div>

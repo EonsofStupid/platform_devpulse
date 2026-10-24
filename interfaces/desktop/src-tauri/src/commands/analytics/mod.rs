@@ -4,12 +4,14 @@
 //! The event vocabulary is owned by `model_loader::wizard::analytics`
 //! so the same Rust enum drives both the frontend SDK (via specta
 //! codegen) and the backend emit sites. Today this module is the only
-//! ingestion endpoint; future enhancements (libSQL persistence,
+//! ingestion endpoint; future enhancements (Turso persistence,
 //! Supabase batch upload, devtool analytics inspector) hang off the
 //! same Tauri command — the surface stays stable.
 
 use crate::commands::_util::CommandError;
-use devpulse_engine::platform::{emit_analytics_event as emit_to_tracing, AnalyticsEvent};
+use devpulse_engine::platform::services::model_loader::{
+    emit_analytics_event as emit_to_tracing, AnalyticsEvent,
+};
 
 /// Record a single analytics event.
 ///

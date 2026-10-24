@@ -1,0 +1,230 @@
+---
+source: systems/devpulse-engine/tests/signal_contract.rs
+expression: "serde_json::to_string_pretty(&samples).expect(\"samples render\")"
+---
+[
+  {
+    "data": {
+      "content": "hello",
+      "model": "qwen3-30b-a3b",
+      "role": "Assistant"
+    },
+    "type": "chat"
+  },
+  {
+    "data": {
+      "event_type": "FeatureUsed",
+      "properties": {
+        "action": null,
+        "error_code": null,
+        "label": null,
+        "session_id": null,
+        "source": null,
+        "target": "model-loader",
+        "user_id": null,
+        "value": null
+      }
+    },
+    "type": "analytics"
+  },
+  {
+    "data": {
+      "chunks": [
+        {
+          "content": "fn main() {}",
+          "score": 0.5,
+          "source": "src/main.rs"
+        }
+      ],
+      "query": "entry point"
+    },
+    "type": "context"
+  },
+  {
+    "data": {
+      "latency_ms": 56,
+      "model": "qwen3-30b-a3b",
+      "tokens_in": 12,
+      "tokens_out": 34
+    },
+    "type": "inference"
+  },
+  {
+    "data": {
+      "message": "Engine started",
+      "status": "Ready"
+    },
+    "type": "system"
+  },
+  {
+    "data": {
+      "detail": "fastest ready endpoint",
+      "event": "ProviderSelected",
+      "lane": "chat",
+      "provider": "local"
+    },
+    "type": "governance"
+  },
+  {
+    "data": {
+      "cpu_cores": 8,
+      "cpu_name": "test cpu",
+      "cpu_usage_percent": 0.0,
+      "gpu_error": null,
+      "gpu_name": null,
+      "gpu_temperature_c": null,
+      "gpu_utilization_percent": null,
+      "gpu_vram_free_mb": null,
+      "gpu_vram_total_mb": null,
+      "gpu_vram_used_mb": null,
+      "process_ram_mb": 0,
+      "process_vram_mb": 0,
+      "ram_available_mb": 0,
+      "ram_total_mb": 0,
+      "ram_used_mb": 0
+    },
+    "type": "hardware"
+  },
+  {
+    "data": {
+      "assigned_count": 1,
+      "first_run": true,
+      "model_count": 3,
+      "ready": false,
+      "setup_complete": false,
+      "slot_count": 16
+    },
+    "type": "models"
+  },
+  {
+    "data": {
+      "error": null,
+      "phase": "initializing",
+      "steps": [
+        {
+          "latency_us": null,
+          "message": "opening",
+          "status": "Running",
+          "step": "System relational"
+        }
+      ]
+    },
+    "type": "boot"
+  },
+  {
+    "data": {
+      "detected": {
+        "done": true,
+        "folders": [
+          {
+            "path": "/home/ada/code",
+            "repoCount": 4
+          }
+        ],
+        "gitName": "Ada Lovelace"
+      },
+      "flowProblem": null,
+      "needs": [
+        "name"
+      ],
+      "stage": "you",
+      "stages": [
+        "welcome",
+        "you"
+      ],
+      "status": "open"
+    },
+    "type": "onboarding"
+  },
+  {
+    "data": {
+      "activeId": "6f1c2a4e-0b7d-4c1e-9a3f-2d5e8b7c1a90",
+      "projects": [
+        {
+          "active": true,
+          "created_at": 1760000000,
+          "description": null,
+          "id": "6f1c2a4e-0b7d-4c1e-9a3f-2d5e8b7c1a90",
+          "last_active_at": 1760000100,
+          "name": "analytical-engine",
+          "project_type": "personal",
+          "root_path": "/home/ada/code/analytical-engine",
+          "slug": null,
+          "tech_stack": null,
+          "tool": null
+        }
+      ]
+    },
+    "type": "projects"
+  },
+  {
+    "data": {
+      "advice": null,
+      "answers": {
+        "needsGpu": false,
+        "prefersApp": true,
+        "usage": "personal"
+      },
+      "checking": false,
+      "lastRun": null,
+      "problem": null,
+      "report": null,
+      "running": null
+    },
+    "type": "containers"
+  },
+  {
+    "data": {
+      "checking": false,
+      "lastAction": {
+        "action": "test",
+        "agent": "Codex 2.2.2",
+        "command": "codex-acp",
+        "elapsedMs": 3200,
+        "finishedAt": 1760000100,
+        "guided": false,
+        "ok": true,
+        "output": "Hello!",
+        "providerId": "codex"
+      },
+      "problem": null,
+      "report": {
+        "catalogProblems": [],
+        "checkedAt": 1760000000,
+        "providers": [
+          {
+            "actions": [
+              "signIn",
+              "update",
+              "test",
+              "installConnector"
+            ],
+            "adapter": "acp_agent",
+            "connector": {
+              "installed": true,
+              "package": "@agentclientprotocol/codex-acp",
+              "version": "2.2.2"
+            },
+            "docs": "https://github.com/openai/codex",
+            "id": "codex",
+            "installed": true,
+            "kind": "subscription_agent",
+            "latest": "0.163.0",
+            "location": "/home/ada/.local/bin/codex",
+            "name": "Codex",
+            "note": null,
+            "problems": [],
+            "signedIn": "yes",
+            "updateAvailable": false,
+            "version": "0.163.0"
+          }
+        ]
+      },
+      "running": null
+    },
+    "type": "providers"
+  },
+  {
+    "type": "resync"
+  }
+]

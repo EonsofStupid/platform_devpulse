@@ -36,13 +36,13 @@
 	save-button label, badge tone, and disabled state.
 -->
 <script lang="ts">
-import { Check, Pencil } from "@lucide/svelte";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Button } from "$lib/design/components/button/index.js";
-import { Heading } from "$lib/design/components/heading/index.js";
-import { KeyValue } from "$lib/design/components/key-value/index.js";
-import { Spinner } from "$lib/design/components/spinner/index.js";
-import { Text } from "$lib/design/components/text/index.js";
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Heading } from "@devpulse/coldlight/components/heading";
+import { KeyValue } from "@devpulse/coldlight/components/key-value";
+import { Spinner } from "@devpulse/coldlight/components/spinner";
+import { Text } from "@devpulse/coldlight/components/text";
+import { Check, Pencil } from "lucide-svelte";
 
 export type SaveState = "ready" | "saving" | "saved" | "error";
 
@@ -61,14 +61,12 @@ interface Props {
 	/** One-line role description (e.g. "Encodes screenshots and uploads
 	 *  so Clyffy can reason about images"). */
 	tagline: string;
-	/** Layman model name (e.g. "SigLIP HD"). Absent when no model is
-	 *  assigned yet — a slot's model comes from Clyffy's
-	 *  advertised capability, not a local install, so it may be unresolved. */
-	modelName?: string;
-	/** Short model tagline (e.g. "Google's compact vision encoder"). Absent with modelName. */
-	modelTagline?: string;
-	/** On-disk size hint (e.g. "~400 MB"). Absent until a model is resolved. */
-	sizeHint?: string;
+	/** Layman model name (e.g. "SigLIP HD"). */
+	modelName: string;
+	/** Short model tagline (e.g. "Google's compact vision encoder"). */
+	modelTagline: string;
+	/** On-disk size hint (e.g. "~400 MB"). */
+	sizeHint: string;
 	/** Optional tier label (e.g. "Recommended for this machine"). */
 	tierLabel?: string;
 	/** Save lifecycle state. */
@@ -149,11 +147,9 @@ const buttonLabel = $derived(
 				{/if}
 			</div>
 			<Text size="sm" color="muted">{modelTagline}</Text>
-			{#if sizeHint}
-				<div class="model-meta">
-					<KeyValue label="On disk" value={sizeHint} size="sm" />
-				</div>
-			{/if}
+			<div class="model-meta">
+				<KeyValue label="On disk" value={sizeHint} size="sm" />
+			</div>
 		</section>
 
 		{#if state === "error" && errorText}
@@ -168,7 +164,7 @@ const buttonLabel = $derived(
 		<footer class="slot-footer">
 			<div class="footer-left">
 				{#if onPickDifferent && state !== "saving"}
-					<Button preset="ghost" size="sm" onclick={onPickDifferent}>
+					<Button variant="ghost" size="sm" onclick={onPickDifferent}>
 						<Pencil size={12} />
 						Pick a different one
 					</Button>
@@ -180,7 +176,7 @@ const buttonLabel = $derived(
 				{/if}
 			</div>
 			<Button
-				preset={state === "saved" ? "ghost" : "primary"}
+				variant={state === "saved" ? "ghost" : "primary"}
 				size="md"
 				onclick={onSave}
 				disabled={state === "saving" || state === "saved"}

@@ -13,8 +13,8 @@
 //! --- Backend (423 crates in dependency graph) ---
 //!   ├─ tls layer
 //!   │  compiling rustls                        2.1s    [  8/423]
-//!   ├─ relational service (LibSQL)
-//!   │  checking  libsql                        4.3s    [ 92/423]
+//!   ├─ relational service (Turso)
+//!   │  checking  turso                        4.3s    [ 92/423]
 //!   ├─ platform engine
 //!   │  checking  devpulse-engine               9.1s    [421/423]
 //!   └─ [OK] backend — 12 compiled + 411 checked (9.3s)
@@ -130,10 +130,11 @@ fn crate_layer(name: &str) -> &'static str {
         // Platform crates (ours)
         "devpulse_desktop_backend" | "devpulse-desktop-app" => "tauri backend",
         "devpulse-engine" => "platform engine",
+        "devpulse-clyffy" => "ai kernel",
         // Database drivers
         "surrealdb" | "surrealdb-core" | "surrealdb-core2" => "graph service (SurrealDB)",
         "surrealkv" | "surrealcs" => "graph service (kv engine)",
-        "libsql" | "libsql-sys" => "relational service (LibSQL)",
+        "turso" | "turso_core" | "turso_sdk_kit" => "relational service (Turso)",
         "duckdb" | "libduckdb-sys" => "analytics service (DuckDB)",
         "moka" => "cache service (Moka)",
         // Networking

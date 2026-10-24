@@ -17,7 +17,7 @@
 
 use super::{Service, ServiceRole, ServiceState};
 use anyhow::Result;
-use devpulse_store::DuckDbAdapter;
+use devpulse_clyffy::cortex::persistence::DuckDbAdapter;
 use std::path::Path;
 use std::sync::Arc;
 
@@ -344,7 +344,7 @@ CREATE TABLE IF NOT EXISTS vision_frame_metrics (
     rss_mb             INTEGER NOT NULL,
     governor_throttled BOOLEAN NOT NULL,
     hd_path            VARCHAR NOT NULL,        -- 'siglip1-candle' | 'siglip2-ort' | 'siglip1-tiled'
-    sink_list          VARCHAR NOT NULL,        -- comma-sep; e.g. 'disk,libsql,duckdb'
+    sink_list          VARCHAR NOT NULL,        -- comma-sep; e.g. 'disk,turso,duckdb'
     created_at         TIMESTAMP DEFAULT now(),
     PRIMARY KEY (session_id, frame_id)
 );
@@ -388,7 +388,7 @@ CREATE INDEX IF NOT EXISTS idx_vision_embeddings_session
 /// User-perceived metrics: time invested, perceived turn timing,
 /// daily rollups for the dashboard widgets, token economics
 /// (cost vs lines kept), mood trajectory, teaching moments. Boots
-/// alongside `user/libsql/user.db` so user/project data lives in
+/// alongside `user/turso/user.db` so user/project data lives in
 /// one user-scope folder.
 ///
 /// Lives on a separate `DuckDB` file from [`SYSTEM_ANALYTICS_SCHEMA`]
@@ -507,7 +507,7 @@ CREATE TABLE IF NOT EXISTS teaching_moments (
 // Schema baseline tests — chunk-by-chunk visual report.
 //
 // Built on the reusable harness in
-// `devpulse_store::duckdb::diagnostics`. Each
+// `devpulse_clyffy::cortex::persistence::duckdb::diagnostics`. Each
 // test produces streaming output of the form:
 //
 //   ── SCHEMA BISECT: SYSTEM_ANALYTICS_SCHEMA (17 chunks) ──
@@ -527,7 +527,7 @@ CREATE TABLE IF NOT EXISTS teaching_moments (
 #[cfg(test)]
 mod schema_baseline_tests {
     use super::{SYSTEM_ANALYTICS_SCHEMA, USER_ANALYTICS_SCHEMA};
-    use devpulse_store::duckdb::diagnostics::{
+    use devpulse_clyffy::cortex::persistence::duckdb::diagnostics::{
         assert_schema_idempotent, bisect_columns, bisect_schema, ColumnSpec,
     };
 

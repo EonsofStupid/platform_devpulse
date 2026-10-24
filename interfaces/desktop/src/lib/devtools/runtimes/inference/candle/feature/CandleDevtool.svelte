@@ -7,12 +7,12 @@
 	restart verbs. Previous Phase 4a harness has been removed.
 -->
 <script lang="ts">
-import { Cpu, PowerOff, RefreshCw, Send } from "@lucide/svelte";
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Spinner } from "@devpulse/coldlight/components/spinner";
+import { Text } from "@devpulse/coldlight/components/text";
+import { PowerOff, RefreshCw, Send } from "lucide-svelte";
 import { onMount } from "svelte";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Button } from "$lib/design/components/button/index.js";
-import { Spinner } from "$lib/design/components/spinner/index.js";
-import { Text } from "$lib/design/components/text/index.js";
 import { type CapturePayload, type HealthBadge, ServiceDevtoolShell } from "$lib/devtools/index.js";
 import type {
 	BackendMatrix,
@@ -262,12 +262,6 @@ function captureFor(tabId: string): CapturePayload | undefined {
 </script>
 
 <ServiceDevtoolShell
-	infoTerm="Candle"
-	title="Candle"
-	description="In-process model runtime · GGUF + SafeTensors"
-	icon={Cpu}
-	axis="runtimes"
-	accent="ember"
 	health={badge}
 	capture={captureFor}
 >
@@ -277,7 +271,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 				<Text size="sm" weight="bold">
 					{assignedCount} of {totalCount} slots assigned · {candleSlots.length} Candle-compatible
 				</Text>
-				<Button preset="ghost" size="sm" onclick={refresh} disabled={refreshing}>
+				<Button variant="ghost" size="sm" onclick={refresh} disabled={refreshing}>
 					<RefreshCw size={12} />
 					Refresh
 				</Button>
@@ -375,7 +369,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 
 					<div class="flex items-center gap-2 pt-2">
 						<Button
-							preset="primary"
+							variant="primary"
 							size="sm"
 							onclick={saveCfg}
 							disabled={cfgSaving || !cfgDirty}
@@ -388,7 +382,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 							{/if}
 						</Button>
 						<Button
-							preset="ghost"
+							variant="ghost"
 							size="sm"
 							onclick={resetCfg}
 							disabled={!cfgDirty || cfgSaving}
@@ -416,7 +410,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 				<Text size="sm" weight="semibold">
 					Scoped log — <span class="font-mono text-xs">devtools.candle</span>
 				</Text>
-				<Button preset="ghost" size="sm" onclick={loadLogs} disabled={logsLoading}>
+				<Button variant="ghost" size="sm" onclick={loadLogs} disabled={logsLoading}>
 					{#if logsLoading}
 						<Spinner size="xs" tone="accent" />
 					{:else}
@@ -478,7 +472,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 				</Text>
 				<div class="flex items-center gap-2">
 					<Button
-						preset="primary"
+						variant="primary"
 						size="sm"
 						onclick={restartPool}
 						disabled={restarting}
@@ -523,7 +517,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 							backend than you expected.
 						</Text>
 					</div>
-					<Button preset="ghost" size="sm" onclick={runProbes} disabled={probing}>
+					<Button variant="ghost" size="sm" onclick={runProbes} disabled={probing}>
 						{#if probing}
 							<Spinner size="xs" tone="accent" />
 						{:else}
@@ -605,7 +599,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 						disabled={testRunning}
 					/>
 					<Button
-						preset="primary"
+						variant="primary"
 						size="sm"
 						onclick={runTest}
 						disabled={testRunning || !testSlotId || !testPrompt.trim()}

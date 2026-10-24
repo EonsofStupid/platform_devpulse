@@ -2,7 +2,7 @@
   @component TypingIndicator — ONLY infinite cl-breathe in chat domain
 -->
 <script lang="ts">
-import { cn } from "$lib/design/utils/cn.js";
+import { cn } from "@devpulse/coldlight/utils";
 
 interface Props {
 	class?: string;

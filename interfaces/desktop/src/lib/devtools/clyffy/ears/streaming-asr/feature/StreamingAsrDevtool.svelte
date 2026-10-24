@@ -11,12 +11,12 @@
 	a clear banner instead of silently failing.
 -->
 <script lang="ts">
-import { Ear, Mic, Play, RefreshCw, StopCircle, Trash2 } from "@lucide/svelte";
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Spinner } from "@devpulse/coldlight/components/spinner";
+import { Text } from "@devpulse/coldlight/components/text";
+import { Mic, Play, RefreshCw, StopCircle, Trash2 } from "lucide-svelte";
 import { onMount } from "svelte";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Button } from "$lib/design/components/button/index.js";
-import { Spinner } from "$lib/design/components/spinner/index.js";
-import { Text } from "$lib/design/components/text/index.js";
 import { type HealthBadge, ServiceDevtoolShell } from "$lib/devtools/index.js";
 import { sherpaState } from "$lib/domains/infra/sherpa/index.js";
 
@@ -113,11 +113,6 @@ async function stopMic(): Promise<void> {
 </script>
 
 <ServiceDevtoolShell
-	title="Sherpa (streaming ASR)"
-	description="Real-time speech-to-text · zipformer streaming · sherpa-onnx"
-	icon={Ear}
-	axis="capabilities"
-	accent="coral"
 	health={badge}
 >
 	{#snippet status()}
@@ -195,7 +190,7 @@ async function stopMic(): Promise<void> {
 					<span class="font-mono text-[10px]">{sherpaState.modelsDir ?? "—"}</span>
 				</Text>
 				<Button
-					preset="ghost"
+					variant="ghost"
 					size="sm"
 					onclick={() => void sherpaState.loadModels()}
 					disabled={sherpaState.modelsLoading}
@@ -245,7 +240,7 @@ async function stopMic(): Promise<void> {
 									>
 									<td class="px-3 py-2 text-right">
 										<Button
-											preset="ghost"
+											variant="ghost"
 											size="sm"
 											onclick={() => void sherpaState.deleteModel(m.id)}
 											disabled={!sherpaState.featureEnabled ||
@@ -287,7 +282,7 @@ async function stopMic(): Promise<void> {
 					<div class="flex flex-wrap items-center gap-2">
 						{#each sherpaState.models as m (m.id)}
 							<Button
-								preset="primary"
+								variant="primary"
 								size="sm"
 								onclick={() => void startMic(m.id)}
 								disabled={!sherpaState.featureEnabled || sherpaState.starting}
@@ -305,7 +300,7 @@ async function stopMic(): Promise<void> {
 				{:else if sherpaState.streaming}
 					<div class="flex items-center gap-2">
 						<Button
-							preset="ghost"
+							variant="ghost"
 							size="sm"
 							onclick={() => void stopMic()}
 							disabled={sherpaState.stopping}

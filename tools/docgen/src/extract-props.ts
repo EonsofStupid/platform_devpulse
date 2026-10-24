@@ -69,7 +69,7 @@ interface DocsOutput {
 // ============================================
 
 const ROOT = resolve(import.meta.dirname, "../../..");
-const PRIMITIVES_PATH = resolve(ROOT, "interfaces/desktop/src/lib/design/primitives");
+const PRIMITIVES_PATH = resolve(ROOT, "packages/coldlight/primitives");
 const OUTPUT_DIR = resolve(ROOT, "docs/generated");
 const TSCONFIG_PATH = resolve(ROOT, "interfaces/desktop/src/tsconfig.json");
 

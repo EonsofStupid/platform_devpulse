@@ -1,0 +1,61 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+@layer tokens.semantic {
+  :root {
+  --gradient-duration-slow: 25000ms; /** Background ambient gradient — 25 s cycle. */
+  --gradient-duration-medium: 15000ms; /** Mid-speed gradient — 15 s cycle. */
+  --gradient-duration-fast: 8000ms; /** Active gradient — 8 s cycle. */
+  --transition-fade-duration-value: 150; /** Opacity fade for show / hide. */
+  --transition-fade-duration-unit: ms; /** Opacity fade for show / hide. */
+  --transition-fade-delay-value: 0; /** Opacity fade for show / hide. */
+  --transition-fade-delay-unit: ms; /** Opacity fade for show / hide. */
+  --transition-fade-timing-function: cubic-bezier(0, 0, 0.2, 1); /** Opacity fade for show / hide. */
+  --transition-color-duration-value: 150; /** Colour property transitions for hover / focus. */
+  --transition-color-duration-unit: ms; /** Colour property transitions for hover / focus. */
+  --transition-color-delay-value: 0; /** Colour property transitions for hover / focus. */
+  --transition-color-delay-unit: ms; /** Colour property transitions for hover / focus. */
+  --transition-color-timing-function: cubic-bezier(0, 0, 0.2, 1); /** Colour property transitions for hover / focus. */
+  --transition-expand-duration-value: 250; /** Expand / collapse for accordions, panels. */
+  --transition-expand-duration-unit: ms; /** Expand / collapse for accordions, panels. */
+  --transition-expand-delay-value: 0; /** Expand / collapse for accordions, panels. */
+  --transition-expand-delay-unit: ms; /** Expand / collapse for accordions, panels. */
+  --transition-expand-timing-function: cubic-bezier(0.4, 0, 0.2, 1); /** Expand / collapse for accordions, panels. */
+  --transition-slide-duration-value: 200; /** Slide translation for menus, drawers. */
+  --transition-slide-duration-unit: ms; /** Slide translation for menus, drawers. */
+  --transition-slide-delay-value: 0; /** Slide translation for menus, drawers. */
+  --transition-slide-delay-unit: ms; /** Slide translation for menus, drawers. */
+  --transition-slide-timing-function: cubic-bezier(0, 0, 0.2, 1); /** Slide translation for menus, drawers. */
+  --transition-scale-duration-value: 150; /** Scale pop for tooltips, popovers. */
+  --transition-scale-duration-unit: ms; /** Scale pop for tooltips, popovers. */
+  --transition-scale-delay-value: 0; /** Scale pop for tooltips, popovers. */
+  --transition-scale-delay-unit: ms; /** Scale pop for tooltips, popovers. */
+  --transition-scale-timing-function: cubic-bezier(0, 0, 0.2, 1); /** Scale pop for tooltips, popovers. */
+  --transition-shadow-duration-value: 200; /** Shadow elevation change. */
+  --transition-shadow-duration-unit: ms; /** Shadow elevation change. */
+  --transition-shadow-delay-value: 0; /** Shadow elevation change. */
+  --transition-shadow-delay-unit: ms; /** Shadow elevation change. */
+  --transition-shadow-timing-function: cubic-bezier(0.4, 0, 0.2, 1); /** Shadow elevation change. */
+  --transition-all-fast-duration-value: 150; /** Catch-all fast transition. */
+  --transition-all-fast-duration-unit: ms; /** Catch-all fast transition. */
+  --transition-all-fast-delay-value: 0; /** Catch-all fast transition. */
+  --transition-all-fast-delay-unit: ms; /** Catch-all fast transition. */
+  --transition-all-fast-timing-function: cubic-bezier(0, 0, 0.2, 1); /** Catch-all fast transition. */
+  --transition-all-normal-duration-value: 250; /** Catch-all normal transition. */
+  --transition-all-normal-duration-unit: ms; /** Catch-all normal transition. */
+  --transition-all-normal-delay-value: 0; /** Catch-all normal transition. */
+  --transition-all-normal-delay-unit: ms; /** Catch-all normal transition. */
+  --transition-all-normal-timing-function: cubic-bezier(0.4, 0, 0.2, 1); /** Catch-all normal transition. */
+  --transition-spring-duration-value: 250; /** Bouncy spring for playful interactions. */
+  --transition-spring-duration-unit: ms; /** Bouncy spring for playful interactions. */
+  --transition-spring-delay-value: 0; /** Bouncy spring for playful interactions. */
+  --transition-spring-delay-unit: ms; /** Bouncy spring for playful interactions. */
+  --transition-spring-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1); /** Bouncy spring for playful interactions. */
+  --transition-none-duration-value: 0; /** Disable transitions (reduced-motion mode). */
+  --transition-none-duration-unit: ms; /** Disable transitions (reduced-motion mode). */
+  --transition-none-delay-value: 0; /** Disable transitions (reduced-motion mode). */
+  --transition-none-delay-unit: ms; /** Disable transitions (reduced-motion mode). */
+  --transition-none-timing-function: cubic-bezier(0, 0, 1, 1); /** Disable transitions (reduced-motion mode). */
+  }
+}

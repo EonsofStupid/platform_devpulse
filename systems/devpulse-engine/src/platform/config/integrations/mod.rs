@@ -7,5 +7,18 @@
 //! # Modules (authored as S0 phases land)
 //!
 //! - `claude` — Anthropic API adapter + MCP sidecar
+//! - `cloud` — the `DevPulse` account's auth endpoint (`cloud.toml`)
 //!
 //! See `config/platform/integrations/` for the TOML layout.
+
+pub mod cloud;
+
+use serde::Deserialize;
+
+/// `[integrations]`: one table per external service.
+#[derive(Debug, Clone, Default, Deserialize)]
+pub struct IntegrationsConfig {
+    /// The `DevPulse` account (`[integrations.cloud]`).
+    #[serde(default)]
+    pub cloud: cloud::CloudConfig,
+}

@@ -1,0 +1,53 @@
+/**
+ * @file src/lib/design/index.css
+ * SSOT CSS Entry Point for ColdLight Design System.
+ * Run: pnpm ds:tokens:build
+ *
+ * Runtime CSS boundary (single pipeline: scripts/build/styledictionary/build.mjs):
+ * - styles/ — SD5-generated token custom properties only (@layer tokens.*)
+ * - theme/  — SD5-generated Tailwind v4 @theme registrations
+ * - generated/, svg/ — non-token glue (utilities, RenderForge, filters, presets)
+ */
+
+/* 1. SD5-generated token CSS — 3-tier @layer (primitives, semantic, components) */
+@import "./styles/index.css";
+
+/* 2. SD5-generated Tailwind @theme registrations */
+@import "./theme/index.css";
+
+/* 3. Non-token: typography utilities */
+@import "./generated/typography.css";
+
+/* 4. Non-token: focus ring styles */
+@import "./generated/focus.css";
+
+/* 5. Non-token: scrollbar theming */
+@import "./generated/scrollbars.css";
+
+/* 6. Non-token: animation keyframes */
+@import "./generated/keyframes.css";
+
+/* 7. Non-token: brand diagonal blends + multi-color utilities */
+@import "./generated/diagonal-blends.css";
+
+/* 8. Non-token: SVG Filters (neumorphism) */
+@import "./svg/filters/filters.css";
+
+/* 9. Non-token: RenderForge glue — maps canonical vars to CSS properties on [data-kind].
+ *    In the `components` layer: above Tailwind's `base`, below its `utilities`,
+ *    so a size or layout class on a component (`text-4xl`, `h-12`) wins over
+ *    the preset default. Unlayered, it overrode every one of them. */
+@import "./generated/render-base.css" layer(components);
+
+/* Kinds: one generated file per colocated kind tokens file (plan 0006 §0s),
+   in the same layer as render-base and after it, so a kind's own rules win. */
+@import "./styles/components/kinds/index.css" layer(components);
+
+/* 10. Non-token: SVG RenderForge glue — maps --svg-* vars to SVG elements on [data-svg-kind] */
+@import "./svg/svg-macro-base.css";
+
+/* 11. Non-token: SVG accent root fallbacks — teal default, overridden per-widget */
+@import "./svg/svg-accent-defaults.css";
+
+/* 12. SD5-generated SVG preset vars (emitted under svg/presets/) */
+@import "./svg/presets/svg-presets.generated.css";

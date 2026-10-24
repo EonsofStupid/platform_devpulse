@@ -12,17 +12,17 @@
 	- Transition history rows are color-coded by destination state.
 -->
 <script lang="ts">
-import { Activity, GitFork, Sparkles, Trash } from "@lucide/svelte";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Button } from "$lib/design/components/button/index.js";
-import { Callout } from "$lib/design/components/callout/index.js";
-import { Card } from "$lib/design/components/card/index.js";
-import { RadialGauge } from "$lib/design/components/radial-gauge/index.js";
-import { Slider } from "$lib/design/components/slider/index.js";
-import { Spinner } from "$lib/design/components/spinner/index.js";
-import { StatusDot, type StatusDotStatus } from "$lib/design/components/status-dot/index.js";
-import { Text } from "$lib/design/components/text/index.js";
-import { TextField } from "$lib/design/components/text-field/index.js";
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Callout } from "@devpulse/coldlight/components/callout";
+import { Card } from "@devpulse/coldlight/components/card";
+import { RadialGauge } from "@devpulse/coldlight/components/radial-gauge";
+import { Slider } from "@devpulse/coldlight/components/slider";
+import { Spinner } from "@devpulse/coldlight/components/spinner";
+import { StatusDot, type StatusDotStatus } from "@devpulse/coldlight/components/status-dot";
+import { Text } from "@devpulse/coldlight/components/text";
+import { TextField } from "@devpulse/coldlight/components/text-field";
+import { Activity, GitFork, Sparkles, Trash } from "lucide-svelte";
 import { rroState } from "$lib/sys/data-access/rro/rro.state.svelte.js";
 import { CapabilityHeader, ErrorCallout } from "../../ui/index.js";
 import {
@@ -112,7 +112,7 @@ const zoneBadgeVariant = $derived(proximityVariant(zone));
 <ErrorCallout prefix="Reasoning engine" message={rroState.rroStateError} />
 
 <!-- ═══════ CURRENT STATE — narration primary, state secondary ═══════ -->
-<Card preset="glass">
+<Card surface="glass" variant="deep">
 	<div class="p-4 space-y-3">
 		{#snippet icon()}
 			<Activity size={14} class="text-[var(--accent-service-main)]" />
@@ -161,7 +161,7 @@ const zoneBadgeVariant = $derived(proximityVariant(zone));
 </Card>
 
 <!-- ═══════ DEPTH — 3 layman-labeled buttons, real control ═══════ -->
-<Card preset="glass">
+<Card surface="glass" variant="deep">
 	<div class="p-4 space-y-3">
 		<CapabilityHeader
 			title="How hard should Clyffy think?"
@@ -171,7 +171,7 @@ const zoneBadgeVariant = $derived(proximityVariant(zone));
 		<div class="grid grid-cols-3 gap-2">
 			{#each DEPTHS as d}
 				<Button
-					preset={snapshot?.depth === d.value ? "primary" : "secondary"}
+					variant={snapshot?.depth === d.value ? "primary" : "secondary"}
 					size="sm"
 					onclick={() => rroState.setDepth(d.value)}
 					disabled={rroState.rroActionLoading.depth}
@@ -198,7 +198,7 @@ const zoneBadgeVariant = $derived(proximityVariant(zone));
 </Card>
 
 <!-- ═══════ PROXIMITY — radial gauge + color-zoned bar + slider ═══════ -->
-<Card preset="glass">
+<Card surface="glass" variant="deep">
 	<div class="p-4">
 		<div class="flex items-center gap-5">
 			<!-- Radial: instant glance, big-and-bold visual hit. -->
@@ -255,7 +255,7 @@ const zoneBadgeVariant = $derived(proximityVariant(zone));
 </Card>
 
 <!-- ═══════ ACTIONS — layman labels, per-button loading ═══════ -->
-<Card preset="glass">
+<Card surface="glass" variant="deep">
 	<div class="p-4 space-y-4">
 		{#snippet icon()}
 			<Sparkles size={14} class="text-[var(--accent-service-main)]" />
@@ -279,7 +279,7 @@ const zoneBadgeVariant = $derived(proximityVariant(zone));
 					/>
 				</div>
 				<Button
-					preset="primary"
+					variant="primary"
 					size="sm"
 					onclick={() => rroState.triggerGather()}
 					disabled={rroState.rroActionLoading.gather}
@@ -310,7 +310,7 @@ const zoneBadgeVariant = $derived(proximityVariant(zone));
 					/>
 				</div>
 				<Button
-					preset="danger"
+					variant="danger"
 					size="sm"
 					onclick={() => rroState.triggerPurge()}
 					disabled={rroState.rroActionLoading.purge}
@@ -343,7 +343,7 @@ const zoneBadgeVariant = $derived(proximityVariant(zone));
 					/>
 				</div>
 				<Button
-					preset="secondary"
+					variant="secondary"
 					size="sm"
 					onclick={() => rroState.triggerFork()}
 					disabled={rroState.rroActionLoading.fork}
@@ -367,7 +367,7 @@ const zoneBadgeVariant = $derived(proximityVariant(zone));
 
 <!-- ═══════ HISTORY — color-coded transition log ═══════ -->
 {#if snapshot && snapshot.history.length > 0}
-	<Card preset="flat">
+	<Card surface="flat" variant="minimal">
 		<div class="p-4 space-y-2">
 			<div class="flex items-center justify-between">
 				<Text size="sm" weight="semibold">What Clyffy has been doing</Text>

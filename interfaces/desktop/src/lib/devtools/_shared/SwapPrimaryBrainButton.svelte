@@ -19,23 +19,23 @@
 	# Lifecycle
 
 	1. Click → `logInfo("swap.primary", "begin", …)` → overlay opens.
-	2. `await commands.swapSlotModel(slotId, newModelId)` — the engine runs
+	2. `await commands.swapSlotModel(slotId, newModelId)` — kernel runs
 	   the atomic unload → reassign → load sequence.
 	3. On `ok`: `logInfo` complete, toast success, refresh `modelsState`,
 	   fire optional `onComplete(true)` callback.
 	4. On `error`: `logInfo` failed, toast error, fire optional
 	   `onComplete(false, errorText)`. The overlay closes either way.
 
-	The engine also emits the `model:swap-started`, `model:swap-complete`,
+	The kernel also emits the `model:swap-started`, `model:swap-complete`,
 	`model:swap-failed` Tauri events for OTHER listeners (status bars,
 	telemetry). This component does not need them — Promise resolution
 	carries the final outcome.
 -->
 <script lang="ts">
-import { BrainCog } from "@lucide/svelte";
-import { Button, type ButtonPreset } from "$lib/design/components/button/index.js";
-import { LoadingBlock } from "$lib/design/components/spinner/index.js";
+import { Button, type ButtonSize, type ButtonVariant } from "@devpulse/coldlight/components/button";
+import { BrainCog } from "lucide-svelte";
 import { modelsState } from "$lib/domains/app/models/index.js";
+import { ClyffyLoadingBlock } from "$lib/domains/clyffy/index.js";
 import { commands } from "$lib/sys/generated/bindings.js";
 import { logInfo } from "$lib/sys/logger.js";
 
@@ -47,9 +47,9 @@ interface Props {
 	/** Button label. Default: "Make primary brain". */
 	label?: string;
 	/** Size of the inner Button. */
-	size?: "sm" | "md" | "lg";
-	/** Visual preset forwarded to the inner Button. */
-	preset?: ButtonPreset;
+	size?: ButtonSize;
+	/** Variant forwarded to the inner Button. */
+	variant?: ButtonVariant;
 	/** Disable the button (e.g. when the target model is already primary). */
 	disabled?: boolean;
 	/**
@@ -65,7 +65,7 @@ let {
 	slotId = "chat.brain",
 	label = "Make primary brain",
 	size = "sm",
-	preset = "primary",
+	variant = "primary",
 	disabled = false,
 	onComplete,
 }: Props = $props();
@@ -132,7 +132,7 @@ async function handleClick(): Promise<void> {
 }
 </script>
 
-<Button {preset} {size} onclick={handleClick} disabled={disabled || pending}>
+<Button {variant} {size} onclick={handleClick} disabled={disabled || pending}>
 	<BrainCog size={14} />
 	{label}
 </Button>
@@ -150,11 +150,10 @@ async function handleClick(): Promise<void> {
 		aria-label="Swapping primary brain"
 	>
 		<div class="max-w-md w-full mx-4">
-			<LoadingBlock
+			<ClyffyLoadingBlock
 				title="Swapping primary brain…"
 				subtitle={`Safely loading ${newModelId} into VRAM — sit tight.`}
-				showContent
-				contentKind="dyk"
+				kind="dyk"
 			/>
 		</div>
 	</div>

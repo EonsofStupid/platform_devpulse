@@ -11,12 +11,12 @@
 	body → wells.
 -->
 <script lang="ts">
-import { ChevronRight } from "@lucide/svelte";
-import { Button } from "$lib/design/components/button/index.js";
-import { Card } from "$lib/design/components/card/index.js";
-import { Heading } from "$lib/design/components/heading/index.js";
-import { Spinner } from "$lib/design/components/spinner/index.js";
-import { Text } from "$lib/design/components/text/index.js";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Card } from "@devpulse/coldlight/components/card";
+import { Heading } from "@devpulse/coldlight/components/heading";
+import { Spinner } from "@devpulse/coldlight/components/spinner";
+import { Text } from "@devpulse/coldlight/components/text";
+import { ChevronRight } from "lucide-svelte";
 import { formatMb } from "../../../../util/format.js";
 import type { HardwareViewProps } from "../../util/wizard.types.js";
 import OverlayShell from "../OverlayShell.svelte";
@@ -37,14 +37,14 @@ let { copy, tier, gpuName, hasGpu, vramTotalMb, busy, callbacks }: HardwareViewP
 		<Text size="sm" class="text-frost-300">{tier.description}</Text>
 
 		<div class="metrics">
-			<Card preset="matte" class="hardware-view__well">
+			<Card surface="neuro" variant="solid" class="hardware-view__well">
 				<Text size="xs" class="text-frost-500">{copy.gpu_label}</Text>
 				<Text size="xs">
 					{gpuName ?? (hasGpu ? "Detecting…" : "—")}
 				</Text>
 			</Card>
 			{#if hasGpu}
-				<Card preset="matte" class="hardware-view__well">
+				<Card surface="neuro" variant="solid" class="hardware-view__well">
 					<Text size="xs" class="text-frost-500">{copy.vram_label}</Text>
 					<Text size="xs">
 						{vramTotalMb !== null ? formatMb(vramTotalMb) : "—"}
@@ -55,11 +55,11 @@ let { copy, tier, gpuName, hasGpu, vramTotalMb, busy, callbacks }: HardwareViewP
 	{/if}
 
 	{#snippet footer()}
-		<Button preset="ghost" size="sm" onclick={callbacks.onBack}>
+		<Button variant="ghost" size="sm" onclick={callbacks.onBack}>
 			Back
 		</Button>
 		<Button
-			preset="ghost"
+			variant="ghost"
 			size="sm"
 			onclick={callbacks.onSkip}
 			disabled={busy}
@@ -68,7 +68,7 @@ let { copy, tier, gpuName, hasGpu, vramTotalMb, busy, callbacks }: HardwareViewP
 		</Button>
 		<div class="flex-1"></div>
 		<Button
-			preset="primary"
+			variant="primary"
 			size="sm"
 			onclick={callbacks.onNext}
 			disabled={!copy || !tier || busy}

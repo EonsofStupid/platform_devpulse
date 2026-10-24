@@ -7,9 +7,9 @@
   Keyboard: ArrowLeft/Right to navigate, Enter to select.
 -->
 <script lang="ts">
-import { Card } from "$lib/design/components/card/index.js";
-import { Text } from "$lib/design/components/text/index.js";
-import { cn } from "$lib/design/utils/cn.js";
+import { Card } from "@devpulse/coldlight/components/card";
+import { Text } from "@devpulse/coldlight/components/text";
+import { cn } from "@devpulse/coldlight/utils";
 
 interface CarouselItem {
 	icon: string;
@@ -57,7 +57,6 @@ function select(index: number) {
 	<div class="flex gap-[var(--space-16)] transform-gpu" style="transform-style: preserve-3d;">
 		{#each items as item, i}
 			<Card
-				variant={i === activeIndex ? "elevated" : "default"}
 				class={cn(
 					"w-[12.5rem] h-[18.75rem] flex flex-col items-center justify-center cursor-pointer",
 					"backdrop-blur-[var(--blur-md)]",

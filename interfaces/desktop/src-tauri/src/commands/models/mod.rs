@@ -4,46 +4,16 @@
 //! Types flow from `model-loader` crate → specta → TypeScript bindings.
 #![expect(
     clippy::missing_errors_doc,
-    clippy::needless_pass_by_value,
-    reason = "Tauri command module — every Result-returning fn is a thin wrapper over `ModelLoaderService` / `Platform` whose docs hold the canonical # Errors copy. `State<…>` and deserialized payload args are Tauri-mandated by-value (you cannot take `&State`) and used only by-ref, so needless_pass_by_value is a framework false-positive across the whole command surface."
+    reason = "Tauri command module — every Result-returning fn is a thin wrapper over `ModelLoaderService` / `Platform` whose docs hold the canonical # Errors copy"
 )]
 
-use crate::state::{ClyffyConnectionState, PlatformState};
-use devpulse_engine::platform::ModelLoaderService;
-use devpulse_gb10_client::ConnectionState;
+use crate::state::PlatformState;
+use devpulse_engine::platform::services::model_loader::ModelLoaderService;
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use std::sync::Arc;
 use tauri::State;
-
-// ── Connection gate — model inference is Tier-2, served by headless Clyffy ──
-//
-// Model *management* (scan / catalog / download / registry / slots / hardware /
-// assistant config) is DevPulse-local (Tier-1) and stays as-is. Model
-// *inference* (loading weights, generate / embed / rerank / vision encode /
-// slot warm-swap-unload / VRAM occupancy / runtime fingerprints /
-// install-to-slot) is Clyffy's, reached over the gb10-client wire. Those
-// commands are connection-gated shells until `clyffyd` advertises them
-// (deferred, not retired). Messages describe *capability state*, never a URL.
-
-/// Standalone answer (Clyffy disconnected) — model inference is a Tier-2 capability.
-const MODEL_INFERENCE_TIER2_UNAVAILABLE: &str = "Model inference unavailable — loading model weights and running inference (generate / embed / rerank / vision encode / slot warm-swap-unload / VRAM occupancy / runtime fingerprints / install-to-slot) is a Tier-2 capability served by Clyffy over the gb10-client wire. Connect Clyffy to enable. Model management (scan, catalog, download, slot assignment, hardware) works standalone.";
-
-/// Connected, but Clyffy's advertised capability does not include model
-/// inference yet (deferred, not retired — lands when `clyffyd` advertises it).
-const MODEL_INFERENCE_ENDPOINT_PENDING: &str =
-    "Model inference pending — connected to Clyffy, but its advertised capability does not include model inference yet.";
-
-/// Connection gate: `Ok` only when Clyffy is connected (the caller may then
-/// proxy to the wire); the honest standalone `Err` otherwise.
-fn require_connected(clyffy: &State<'_, ClyffyConnectionState>) -> Result<(), String> {
-    match clyffy.current() {
-        ConnectionState::Connected { .. } => Ok(()),
-        ConnectionState::Disconnected | ConnectionState::Connecting { .. } => {
-            Err(MODEL_INFERENCE_TIER2_UNAVAILABLE.to_string())
-        }
-    }
-}
+use tauri_specta::Event;
 
 /// Serializable slot info for the frontend (maps from model-loader Slot).
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
@@ -81,7 +51,7 @@ pub struct SlotInfo {
     /// filter, wake-word detector). They live in the same slot table as user
     /// slots and use the same mutation path — this flag just drives the
     /// devtool grouping: Slots tab filters `!builtin`, System tab filters `builtin`.
-    /// SSOT: the engine's `config/slots.default.toml` with
+    /// Kernel SSOT: `kernel/model-loader/config/slots.default.toml` with
     /// `builtin = true` per entry.
     pub builtin: bool,
     /// Architecture of the assigned model (e.g. "qwen3", "llama"). None if unassigned.
@@ -119,7 +89,7 @@ pub struct ModelInfo {
 
 // ── Conversion helpers (reused by IPC commands AND boot push) ────
 
-/// Convert engine `ModelRegistryEntry` → frontend `ModelInfo`.
+/// Convert kernel `ModelRegistryEntry` → frontend `ModelInfo`.
 pub fn entry_to_model_info(e: &devpulse_engine::platform::ModelRegistryEntry) -> ModelInfo {
     ModelInfo {
         id: e.id.clone(),
@@ -143,7 +113,7 @@ pub fn entry_to_model_info(e: &devpulse_engine::platform::ModelRegistryEntry) ->
     }
 }
 
-/// Convert engine `Slot` → frontend `SlotInfo`, with registry for cross-ref.
+/// Convert kernel `Slot` → frontend `SlotInfo`, with registry for cross-ref.
 pub fn slot_to_slot_info(
     s: &devpulse_engine::platform::Slot,
     models: &[devpulse_engine::platform::ModelRegistryEntry],
@@ -180,11 +150,9 @@ pub fn slot_to_slot_info(
     }
 }
 
-/// Domain payload for `platform:models-status` events.
-///
-/// Emitted by [`emit_status`] after every mutation and at boot.
-/// The frontend `startStatusListener()` receives this and sets
-/// `$state` directly — zero IPC polling.
+/// Slot + registry lists, read from the loader's in-memory state (no disk
+/// scan). Returned by [`get_models_status`]; the UI refetches it whenever a
+/// newer `models` state signal arrives.
 #[derive(Debug, Clone, Serialize, Type)]
 #[serde(rename_all = "camelCase")]
 pub struct ModelsStatusData {
@@ -192,34 +160,27 @@ pub struct ModelsStatusData {
     pub slots: Vec<SlotInfo>,
     /// All discovered models in the registry.
     pub models: Vec<ModelInfo>,
-    /// Whether this is a fresh install with no prior configuration.
-    pub first_run: bool,
 }
 
-/// Read fresh state from the model loader and push via [`emit_status`].
+/// Slot + registry lists from the loader's in-memory state.
 ///
-/// Called after every write operation that mutates slots or registry.
-/// Uses read locks only — the write lock was just released by the
-/// completed operation, so these proceed instantly.
-pub async fn emit_models_status(app: &tauri::AppHandle, loader: &ModelLoaderService) {
+/// # Errors
+/// Returns an error when the model loader is not available.
+#[tauri::command]
+#[specta::specta]
+pub async fn get_models_status(
+    state: State<'_, PlatformState>,
+) -> Result<ModelsStatusData, String> {
+    let loader = get_loader(&state).await?;
     let slots = loader.list_slots().await;
     let registry = loader.get_registry().await;
-    let first_run = loader.is_first_run().await;
-    let slot_infos: Vec<SlotInfo> = slots
-        .iter()
-        .map(|s| slot_to_slot_info(s, &registry))
-        .collect();
-    let model_infos: Vec<ModelInfo> = registry.iter().map(entry_to_model_info).collect();
-    crate::commands::emit_status(
-        app,
-        "models",
-        crate::commands::StatusKind::Data,
-        &ModelsStatusData {
-            slots: slot_infos,
-            models: model_infos,
-            first_run,
-        },
-    );
+    Ok(ModelsStatusData {
+        slots: slots
+            .iter()
+            .map(|s| slot_to_slot_info(s, &registry))
+            .collect(),
+        models: registry.iter().map(entry_to_model_info).collect(),
+    })
 }
 
 /// Hardware metrics for the frontend.
@@ -322,7 +283,7 @@ async fn get_loader_typed(
 #[specta::specta]
 pub async fn get_hardware_metrics(state: State<'_, PlatformState>) -> Result<HardwareInfo, String> {
     let loader = get_loader(&state).await?;
-    let m = loader.hardware_metrics();
+    let m = loader.hardware_metrics().await;
 
     // Derive model_dir from platform data_dir — P0: lock-free atomic load.
     let model_dir = state
@@ -362,10 +323,7 @@ pub async fn get_hardware_metrics(state: State<'_, PlatformState>) -> Result<Har
 /// Scan the models directory for GGUF files.
 #[tauri::command]
 #[specta::specta]
-pub async fn scan_models(
-    app: tauri::AppHandle,
-    state: State<'_, PlatformState>,
-) -> Result<Vec<ModelInfo>, String> {
+pub async fn scan_models(state: State<'_, PlatformState>) -> Result<Vec<ModelInfo>, String> {
     tracing::info!("cmd scan_models: entry — acquiring platform read lock...");
     let loader = get_loader(&state).await?;
     tracing::info!("cmd scan_models: loader acquired — starting scan (blocking_write)...");
@@ -381,7 +339,7 @@ pub async fn scan_models(
     };
 
     // Push fresh state after scan
-    emit_models_status(&app, &loader).await;
+    loader.publish_readiness().await;
 
     Ok(entries
         .into_iter()
@@ -494,14 +452,29 @@ pub struct SlotBudgetEntryInfo {
 }
 
 /// Get the VRAM budget plan — per-slot VRAM allocation breakdown.
-///
-/// **Tier-2**: VRAM occupancy is a function of what Clyffy has loaded, served
-/// over the gb10-client wire. Connection-gated until `clyffyd` advertises it.
 #[tauri::command]
 #[specta::specta]
-pub fn get_vram_budget(clyffy: State<'_, ClyffyConnectionState>) -> Result<VramBudgetInfo, String> {
-    require_connected(&clyffy)?;
-    Err(MODEL_INFERENCE_ENDPOINT_PENDING.to_string())
+pub async fn get_vram_budget(state: State<'_, PlatformState>) -> Result<VramBudgetInfo, String> {
+    let loader = get_loader(&state).await?;
+    let budget = loader.vram_budget_plan().await;
+    Ok(VramBudgetInfo {
+        total_vram_mb: budget.total_vram_mb,
+        currently_used_mb: budget.currently_used_mb,
+        planned_load_mb: budget.planned_load_mb,
+        remaining_after_plan_mb: budget.remaining_after_plan_mb,
+        fits: budget.fits(),
+        per_slot: budget
+            .per_slot
+            .into_iter()
+            .map(|s| SlotBudgetEntryInfo {
+                slot_id: s.slot_id,
+                model_name: s.model_name,
+                vram_estimate_mb: s.vram_estimate_mb,
+                status: s.status.to_string(),
+                shared_with: s.shared_with,
+            })
+            .collect(),
+    })
 }
 
 /// Get the model download catalog from the TOML config.
@@ -521,42 +494,6 @@ pub async fn get_model_catalog(
     Ok(platform.model_loader_catalog().to_vec())
 }
 
-/// Check if this is the first run (no models configured).
-#[tauri::command]
-#[specta::specta]
-pub async fn is_first_run(state: State<'_, PlatformState>) -> Result<bool, String> {
-    let loader = get_loader(&state).await?;
-    Ok(loader.is_first_run().await)
-}
-
-/// Mark the setup wizard as complete. Persists to `LibSQL`.
-/// Called by the frontend when the user finishes the wizard.
-#[tauri::command]
-#[specta::specta]
-#[allow(clippy::missing_errors_doc)]
-pub async fn mark_setup_complete(
-    app: tauri::AppHandle,
-    state: State<'_, PlatformState>,
-) -> Result<(), String> {
-    let loader = get_loader(&state).await?;
-    loader
-        .mark_setup_complete()
-        .await
-        .map_err(|e| e.to_string())?;
-    emit_models_status(&app, &loader).await;
-    Ok(())
-}
-
-/// Check if the setup wizard was previously completed.
-/// Used at boot to decide whether to show the wizard overlay.
-#[tauri::command]
-#[specta::specta]
-#[allow(clippy::missing_errors_doc)]
-pub async fn is_setup_complete(state: State<'_, PlatformState>) -> Result<bool, String> {
-    let loader = get_loader(&state).await?;
-    Ok(loader.is_setup_complete().await)
-}
-
 /// Assign a model to a slot.
 #[tauri::command]
 #[specta::specta]
@@ -569,63 +506,213 @@ pub async fn assign_model_to_slot(
 ) -> Result<(), devpulse_engine::platform::LoadError> {
     tracing::info!("cmd assign_model_to_slot");
     let loader = get_loader_typed(&state).await?;
-    // `assign_model` is management — it returns the loader's own `LoaderError`.
-    // Map it onto this command's `LoadError` surface so the frontend binding
-    // stays stable (assignment failures carry the message via `Other`).
-    loader
-        .assign_model(&slot_id, &model_id)
-        .await
-        .map_err(|e| devpulse_engine::platform::LoadError::Other {
-            message: e.to_string(),
-        })?;
-    emit_models_status(&app, &loader).await;
+    loader.assign_model(&slot_id, &model_id).await?;
+    loader.publish_readiness().await;
     Ok(())
 }
 
 /// Load a slot's assigned model into memory.
 ///
-/// **Tier-2**: loading model weights and running inference is Clyffy's, reached
-/// over the gb10-client wire. Connection-gated until `clyffyd` advertises it.
-/// Slot *assignment* (which model a slot points at) is management and stays
-/// local via [`assign_model_to_slot`].
+/// Load a model into a slot.
 ///
-/// Returns a typed [`LoadError`] so the frontend keeps its targeted
-/// error-variant UI once Clyffy serves the load path.
+/// Routing logic:
+///   - GGUF files with `LlamaCpp` runtime → llama-server sidecar (HTTP)
+///   - `SafeTensors` with Candle runtime → kernel `BackendPool` (in-process)
+///   - ONNX/Sherpa → kernel `VoicePool` (in-process)
+///
+/// Returns a typed [`LoadError`] covering the full load-path failure
+/// surface — compatibility, filesystem, resources, backend init,
+/// slot state. The frontend renders each variant with targeted UI
+/// (alternatives for compatibility errors, retry for network errors,
+/// slot reassignment for `NoModelAssigned`, etc.).
 #[tauri::command]
 #[specta::specta]
-pub fn load_slot(
-    clyffy: State<'_, ClyffyConnectionState>,
+#[tracing::instrument(skip(app, state, llama_state), fields(slot_id))]
+pub async fn load_slot(
+    app: tauri::AppHandle,
+    state: State<'_, PlatformState>,
+    llama_state: State<'_, crate::commands::llama::LlamaServerState>,
     slot_id: String,
 ) -> Result<(), devpulse_engine::platform::LoadError> {
-    require_connected(&clyffy)
-        .map_err(|message| devpulse_engine::platform::LoadError::Other { message })?;
-    let _ = slot_id;
-    Err(devpulse_engine::platform::LoadError::Other {
-        message: MODEL_INFERENCE_ENDPOINT_PENDING.to_string(),
-    })
+    tracing::info!(slot = %slot_id, "cmd load_slot: entry");
+    let loader = get_loader_typed(&state).await?;
+
+    // Check if this slot should route to the llama-server sidecar.
+    // GGUF files with LlamaCpp runtime → sidecar HTTP, not kernel pool.
+    let use_sidecar = should_use_sidecar(&loader, &slot_id).await;
+
+    if use_sidecar {
+        tracing::info!(slot = %slot_id, "cmd load_slot: routing to llama-server sidecar");
+        let settings = state
+            .platform
+            .load_full()
+            .and_then(|p| p.llama_server_config_saved());
+        let result = load_via_sidecar(app.clone(), &loader, llama_state, &slot_id, settings).await;
+        if result.is_ok() {
+            loader.publish_readiness().await;
+        }
+        return result;
+    }
+
+    // Default: kernel pool (Candle for SafeTensors, ORT for ONNX, Sherpa for ASR)
+    match loader.load_slot(&slot_id).await {
+        Ok(()) => {
+            tracing::info!(slot = %slot_id, "cmd load_slot: exit ok (kernel pool)");
+            loader.publish_readiness().await;
+            Ok(())
+        }
+        Err(e) => {
+            tracing::error!(slot = %slot_id, error = %e, "cmd load_slot: exit failure");
+            Err(e)
+        }
+    }
+}
+
+/// Determine if a slot's assigned model should use the llama-server sidecar.
+///
+/// Returns true when:
+///   1. The slot has runtime = `LlamaCpp` (explicit) OR the assigned model is GGUF format
+///   2. The model file exists on disk
+async fn should_use_sidecar(loader: &ModelLoaderService, slot_id: &str) -> bool {
+    let slots = loader.list_slots().await;
+    let Some(slot) = slots.iter().find(|s| s.id == slot_id) else {
+        return false;
+    };
+
+    let Some(model_id) = slot.assigned_model.clone() else {
+        return false;
+    };
+
+    // Check if slot explicitly requests LlamaCpp runtime
+    let explicit_llamacpp = slot
+        .runtime
+        .as_ref()
+        .is_some_and(|r| r.to_string() == "LlamaCpp");
+
+    // Check if the model is GGUF format
+    let registry = loader.get_registry().await;
+    let is_gguf = registry
+        .iter()
+        .find(|e| e.id == model_id)
+        .is_some_and(|e| e.format.to_string() == "GGUF");
+
+    // Route to sidecar if either condition is true
+    explicit_llamacpp || is_gguf
+}
+
+/// Load a GGUF model via the llama-server sidecar.
+///
+/// Starts the sidecar process, waits for health check, then marks
+/// the slot as loaded. Uses the same port (8899) and GPU offload
+/// settings from the slot's extensions.
+async fn load_via_sidecar(
+    app: tauri::AppHandle,
+    loader: &ModelLoaderService,
+    llama_state: State<'_, crate::commands::llama::LlamaServerState>,
+    slot_id: &str,
+    settings: Option<devpulse_engine::platform::LlamaServerConfig>,
+) -> Result<(), devpulse_engine::platform::LoadError> {
+    let slots = loader.list_slots().await;
+    let slot = slots.iter().find(|s| s.id == slot_id).ok_or_else(|| {
+        devpulse_engine::platform::LoadError::Other {
+            message: format!("Slot '{slot_id}' not found"),
+        }
+    })?;
+
+    let model_id = slot.assigned_model.as_ref().ok_or_else(|| {
+        devpulse_engine::platform::LoadError::Other {
+            message: format!("No model assigned to slot '{slot_id}'"),
+        }
+    })?;
+
+    // Find the model file path from registry
+    let registry = loader.get_registry().await;
+    let entry = registry.iter().find(|e| e.id == *model_id).ok_or_else(|| {
+        devpulse_engine::platform::LoadError::Other {
+            message: format!("Model '{model_id}' not found in registry"),
+        }
+    })?;
+
+    let model_path = entry.path.to_string_lossy().to_string();
+
+    // A slot's own GPU-layer count wins over your settings.
+    let slot_gpu_layers = slot
+        .extensions
+        .get("llama_cpp_ngl")
+        .and_then(|s| s.parse::<i32>().ok());
+
+    // Your saved llama-server settings, else the defaults: every layer on
+    // the GPU and the model's own context length.
+    let mut flags = settings.map_or_else(
+        || {
+            let ctx_size = u32::try_from(entry.context_length).unwrap_or(0);
+            let ctx_size = if ctx_size == 0 { 8192 } else { ctx_size };
+            vec![
+                "-ngl".to_owned(),
+                "999".to_owned(),
+                "-c".to_owned(),
+                ctx_size.to_string(),
+            ]
+        },
+        |cfg| cfg.server_args(),
+    );
+    if let Some(layers) = slot_gpu_layers {
+        if let Some(i) = flags.iter().position(|f| f == "-ngl") {
+            if let Some(value) = flags.get_mut(i + 1) {
+                *value = layers.to_string();
+            }
+        }
+    }
+
+    tracing::info!(
+        slot = %slot_id,
+        model = %model_path,
+        flags = %flags.join(" "),
+        "Starting llama-server sidecar for slot"
+    );
+
+    match crate::commands::llama::start_server(app, llama_state, model_path, 8899, flags).await {
+        Ok(info) => {
+            tracing::info!(
+                slot = %slot_id,
+                port = info.port,
+                pid = info.pid,
+                "Sidecar started for slot"
+            );
+            Ok(())
+        }
+        Err(e) => {
+            tracing::error!(
+                slot = %slot_id,
+                error = %e,
+                "Failed to start sidecar for slot"
+            );
+            Err(devpulse_engine::platform::LoadError::Other {
+                message: format!("Sidecar failed: {e}"),
+            })
+        }
+    }
 }
 
 /// Unload a slot's model from memory.
-///
-/// **Tier-2**: model residency is Clyffy's, served over the gb10-client wire.
-/// Connection-gated until `clyffyd` advertises it.
 #[tauri::command]
 #[specta::specta]
-pub fn unload_slot(
-    clyffy: State<'_, ClyffyConnectionState>,
+#[tracing::instrument(skip(state), fields(slot_id))]
+pub async fn unload_slot(
+    app: tauri::AppHandle,
+    state: State<'_, PlatformState>,
     slot_id: String,
 ) -> Result<(), devpulse_engine::platform::LoadError> {
-    require_connected(&clyffy)
-        .map_err(|message| devpulse_engine::platform::LoadError::Other { message })?;
-    let _ = slot_id;
-    Err(devpulse_engine::platform::LoadError::Other {
-        message: MODEL_INFERENCE_ENDPOINT_PENDING.to_string(),
-    })
+    tracing::info!("cmd unload_slot");
+    let loader = get_loader_typed(&state).await?;
+    loader.unload_slot(&slot_id).await?;
+    loader.publish_readiness().await;
+    Ok(())
 }
 
 /// Clear the persisted model assignment from a slot.
 ///
-/// Distinct from `unload_slot`: this removes the libSQL
+/// Distinct from `unload_slot`: this removes the Turso
 /// `slot.<id>.model` key so the next app launch does NOT re-attempt
 /// the load. The use case is a stuck assignment whose load crashes the
 /// backend on every relaunch — clear it once, the slot stays empty
@@ -644,35 +731,30 @@ pub async fn clear_slot_assignment(
 ) -> Result<(), devpulse_engine::platform::LoadError> {
     tracing::info!("cmd clear_slot_assignment");
     let loader = get_loader_typed(&state).await?;
-    // `unassign_slot` is management — map its `LoaderError` onto this command's
-    // `LoadError` surface to keep the frontend binding stable.
-    loader.unassign_slot(&slot_id).await.map_err(|e| {
-        devpulse_engine::platform::LoadError::Other {
-            message: e.to_string(),
-        }
-    })?;
-    emit_models_status(&app, &loader).await;
+    loader.unassign_slot(&slot_id).await?;
+    loader.publish_readiness().await;
     Ok(())
 }
 
 /// Atomically swap the model on a slot (unload → reassign → load).
 ///
-/// **Tier-2**: the live unload/reload is Clyffy's inference path, served over
-/// the gb10-client wire. Connection-gated until `clyffyd` advertises it.
-/// Persisting a new slot assignment is management via [`assign_model_to_slot`].
+/// Blocks inference to the slot for the entire duration. The frontend
+/// should show `SwapOverlay` while this runs — events are emitted via
+/// `model:swap-started`, `model:swap-complete`, `model:swap-failed`.
 #[tauri::command]
 #[specta::specta]
-pub fn swap_slot_model(
-    clyffy: State<'_, ClyffyConnectionState>,
+#[tracing::instrument(skip(state), fields(slot_id, new_model_id))]
+pub async fn swap_slot_model(
+    app: tauri::AppHandle,
+    state: State<'_, PlatformState>,
     slot_id: String,
     new_model_id: String,
 ) -> Result<(), devpulse_engine::platform::LoadError> {
-    require_connected(&clyffy)
-        .map_err(|message| devpulse_engine::platform::LoadError::Other { message })?;
-    let _ = (slot_id, new_model_id);
-    Err(devpulse_engine::platform::LoadError::Other {
-        message: MODEL_INFERENCE_ENDPOINT_PENDING.to_string(),
-    })
+    tracing::info!("cmd swap_slot_model");
+    let loader = get_loader_typed(&state).await?;
+    loader.swap_model(&slot_id, &new_model_id).await?;
+    loader.publish_readiness().await;
+    Ok(())
 }
 
 /// Start downloading a model from `HuggingFace`.
@@ -692,7 +774,7 @@ pub async fn download_model(
     state: State<'_, PlatformState>,
     repo_id: String,
     filename: String,
-    scope: Option<devpulse_engine::platform::DownloadScope>,
+    scope: Option<devpulse_engine::platform::services::ModelDownloadScope>,
 ) -> Result<String, String> {
     let loader = get_loader(&state).await?;
     let scope = scope.unwrap_or_default();
@@ -717,25 +799,22 @@ pub async fn models_dir_path(state: State<'_, PlatformState>) -> Result<String, 
 /// to pick the right GGUF quant (or safetensors shard / onnx
 /// fallback) for the slot's required capability. Returns `None`
 /// when the repo ships no compatible files for the slot.
-///
-/// **Tier-2**: the tier-aware primary-file resolver runs against Clyffy's live
-/// hardware monitor over the gb10-client wire. Connection-gated until `clyffyd`
-/// advertises it. Browsing repo files ([`list_repo_files`]) is management and
-/// stays local.
 #[tauri::command]
 #[specta::specta]
-pub fn recommend_primary_for_slot(
-    clyffy: State<'_, ClyffyConnectionState>,
+pub async fn recommend_primary_for_slot(
+    state: State<'_, PlatformState>,
     repo_id: String,
     slot_id: String,
 ) -> Result<Option<String>, String> {
-    require_connected(&clyffy)?;
-    let _ = (repo_id, slot_id);
-    Err(MODEL_INFERENCE_ENDPOINT_PENDING.to_string())
+    let loader = get_loader(&state).await?;
+    loader
+        .recommend_primary_for_slot(&repo_id, &slot_id)
+        .await
+        .map_err(|e| e.to_string())
 }
 
 /// One-button install — download the bundle, scan, assign to slot,
-/// load. Composed from the four loader verbs into a single atomic
+/// load. Composed from the four kernel verbs into a single atomic
 /// chain so the wizard's "install" CTA fires once and tracks progress
 /// via `InstallStarted`/`InstallComplete`/`InstallFailed` events.
 ///
@@ -744,24 +823,21 @@ pub fn recommend_primary_for_slot(
 /// deserialises to `DownloadScope::Global`.
 ///
 /// Returns the `install_id` — the chain runs detached.
-///
-/// **Tier-2**: the install chain ends in a slot *load* (inference), which is
-/// Clyffy's over the gb10-client wire — so the composed verb is gated as a
-/// whole. Connection-gated until `clyffyd` advertises it. The individual
-/// management steps ([`download_model`], [`scan_models`],
-/// [`assign_model_to_slot`]) remain available standalone.
 #[tauri::command]
 #[specta::specta]
-pub fn install_to_slot(
-    clyffy: State<'_, ClyffyConnectionState>,
+pub async fn install_to_slot(
+    state: State<'_, PlatformState>,
     repo_id: String,
     primary_filename: String,
     slot_id: String,
-    scope: Option<devpulse_engine::platform::DownloadScope>,
+    scope: Option<devpulse_engine::platform::services::ModelDownloadScope>,
 ) -> Result<String, String> {
-    require_connected(&clyffy)?;
-    let _ = (repo_id, primary_filename, slot_id, scope);
-    Err(MODEL_INFERENCE_ENDPOINT_PENDING.to_string())
+    let loader = get_loader(&state).await?;
+    let scope = scope.unwrap_or_default();
+    loader
+        .install_to_slot(&repo_id, &primary_filename, &slot_id, &scope)
+        .await
+        .map_err(|e| e.to_string())
 }
 
 /// Cancel an active model download.
@@ -870,7 +946,7 @@ pub async fn hf_token_suffix(
 #[tracing::instrument(level = "debug", skip(state), err)]
 pub async fn get_assistant_config(
     state: State<'_, PlatformState>,
-) -> Result<devpulse_engine::platform::AssistantConfig, String> {
+) -> Result<devpulse_engine::platform::services::model_loader::AssistantConfig, String> {
     let loader = get_loader(&state).await?;
     Ok(loader.get_assistant_config().await)
 }
@@ -956,7 +1032,7 @@ pub async fn set_voice_profile(
 #[specta::specta]
 pub async fn register_voice_clone(
     state: State<'_, PlatformState>,
-    entry: devpulse_engine::platform::VoiceCloneEntry,
+    entry: devpulse_engine::platform::services::model_loader::VoiceCloneEntry,
 ) -> Result<(), String> {
     let loader = get_loader(&state).await?;
     loader
@@ -974,7 +1050,7 @@ pub async fn remove_voice_clone(
 ) -> Result<(), String> {
     let loader = get_loader(&state).await?;
     loader
-        .remove_voice_clone(&name)
+        .remove_voice_clone(name)
         .await
         .map_err(|e| e.to_string())
 }
@@ -984,7 +1060,7 @@ pub async fn remove_voice_clone(
 #[specta::specta]
 pub async fn add_keyword_action(
     state: State<'_, PlatformState>,
-    entry: devpulse_engine::platform::KeywordActionEntry,
+    entry: devpulse_engine::platform::services::model_loader::KeywordActionEntry,
 ) -> Result<(), String> {
     let loader = get_loader(&state).await?;
     loader
@@ -1002,7 +1078,7 @@ pub async fn remove_keyword_action(
 ) -> Result<(), String> {
     let loader = get_loader(&state).await?;
     loader
-        .remove_keyword_action(&phrase)
+        .remove_keyword_action(phrase)
         .await
         .map_err(|e| e.to_string())
 }
@@ -1014,11 +1090,11 @@ pub async fn remove_keyword_action(
 pub async fn update_keyword_action(
     state: State<'_, PlatformState>,
     phrase: String,
-    new_entry: devpulse_engine::platform::KeywordActionEntry,
+    new_entry: devpulse_engine::platform::services::model_loader::KeywordActionEntry,
 ) -> Result<(), String> {
     let loader = get_loader(&state).await?;
     loader
-        .update_keyword_action(&phrase, new_entry)
+        .update_keyword_action(phrase, new_entry)
         .await
         .map_err(|e| e.to_string())
 }
@@ -1114,16 +1190,68 @@ pub async fn upload_voice_sample(
     std::fs::copy(&src, &dest).map_err(|e| format!("Failed to copy voice sample: {e}"))?;
 
     let path_str = dest.to_string_lossy().into_owned();
+    let suggested_transcript = transcribe_for_clone_reference(&loader, &dest).await;
 
-    // The pre-filled transcript was a best-effort STT (Whisper) pass over the
-    // reference clip. STT is inference — Tier-2, Clyffy's over the gb10-client
-    // wire — so the copy (management) stays local and the transcript is left
-    // empty for the user to fill in by hand. `VoiceSampleUpload` documents the
-    // empty string as a valid non-blocking state.
     Ok(VoiceSampleUpload {
         path: path_str,
-        suggested_transcript: String::new(),
+        suggested_transcript,
     })
+}
+
+/// Best-effort Whisper transcription of an uploaded reference clip.
+///
+/// Returns `""` when the STT slot isn't loaded yet (fresh install,
+/// pre-setup), when the audio decoder can't open the file, or when
+/// the STT call itself errors. None of those cases are fatal — the
+/// user can edit the (empty) transcript by hand. All failures are
+/// logged at `warn` so the TTS devtool can surface them.
+async fn transcribe_for_clone_reference(
+    loader: &Arc<ModelLoaderService>,
+    audio_path: &std::path::Path,
+) -> String {
+    use devpulse_engine::platform::services::model_loader::AudioSamples;
+
+    let path_owned = audio_path.to_path_buf();
+    let pcm: Vec<f32> = match devpulse_telemetry::spawn_blocking(move || {
+        devpulse_media::decode_to_whisper(&path_owned)
+    })
+    .await
+    {
+        Ok(Ok(pcm)) => pcm,
+        Ok(Err(e)) => {
+            tracing::warn!(
+                path = %audio_path.display(),
+                error = %e,
+                "upload_voice_sample: audio decode failed; transcript will be empty"
+            );
+            return String::new();
+        }
+        Err(e) => {
+            tracing::warn!(
+                path = %audio_path.display(),
+                error = %e,
+                "upload_voice_sample: decode thread join failed; transcript will be empty"
+            );
+            return String::new();
+        }
+    };
+
+    let audio = AudioSamples {
+        data: pcm,
+        sample_rate: 16_000,
+        channels: 1,
+    };
+    match loader.transcribe("voice.stt", &audio).await {
+        Ok(t) => t,
+        Err(e) => {
+            tracing::warn!(
+                path = %audio_path.display(),
+                error = %e,
+                "upload_voice_sample: STT not available; transcript will be empty"
+            );
+            String::new()
+        }
+    }
 }
 
 /// A single Kokoro voice available via the bundled ONNX runtime.
@@ -1244,45 +1372,26 @@ pub struct HfFileInfoItem {
     pub quant_level: Option<String>,
 }
 
-/// Desktop presentation shape for one slot's runtime fingerprint — the engine
-/// identity of *which* runtime is fulfilling a capability slot, plus the
-/// version stamps used for rebind / hot-update detection.
-///
-/// This is DevPulse's Tier-2 presentation type (mirrors the `VoiceInfo`
-/// pattern): the data is produced on **Clyffy** (headless, on the GB10) and
-/// arrives over the gb10-client wire via `model:runtime-version-changed` /
-/// `model:capability-rebound` events and the hydration call below. Nothing here
-/// is hardcoded — every field is discovered at load time on Clyffy. The
-/// frontend `capabilityChannel` binds directly to this shape.
-#[derive(Debug, Clone, Serialize, Deserialize, Type)]
-pub struct RuntimeFingerprint {
-    /// Stable runtime handle — `"candle"`, `"llama-cpp-2"`, `"ort"`,
-    /// `"sherpa-onnx-asr"`, … Matches the `runtime_id` on the frontend
-    /// `DevtoolMeta` registry.
-    pub runtime_id: String,
-    /// Cargo crate version of the runtime crate. `None` for runtimes that
-    /// don't ship as a Rust crate (Ollama, system services).
-    pub crate_version: Option<String>,
-    /// Git commit SHA for vendored forks. `None` when consumed unmodified.
-    pub upstream_revision: Option<String>,
-    /// SHA-256 of the model weights — distinguishes "same runtime, new model
-    /// file" from "same model, new runtime version". `None` when unknown.
-    pub model_revision: Option<String>,
-}
-
 /// Snapshot every slot's currently-cached runtime fingerprint.
 ///
-/// **Tier-2**: runtime residency lives on Clyffy (headless, on the GB10) and is
-/// served over the gb10-client wire. Connection-gated until `clyffyd` advertises
-/// it; the frontend `capabilityChannel` still hydrates against this shape once
-/// Clyffy connects and streams `model:runtime-version-changed` events.
+/// Returns a `(slot_id → fingerprint)` map for slots that have a
+/// model loaded right now. The frontend `capabilityChannel` calls
+/// this on mount to hydrate state before `LoaderEvent::CapabilityRebound`
+/// events stream in — without it, already-loaded slots would
+/// briefly show "no runtime" in the UI.
 #[tauri::command]
 #[specta::specta]
-pub fn list_runtime_fingerprints(
-    clyffy: State<'_, ClyffyConnectionState>,
-) -> Result<std::collections::HashMap<String, RuntimeFingerprint>, String> {
-    require_connected(&clyffy)?;
-    Err(MODEL_INFERENCE_ENDPOINT_PENDING.to_string())
+pub async fn list_runtime_fingerprints(
+    state: State<'_, PlatformState>,
+) -> Result<
+    std::collections::HashMap<
+        String,
+        devpulse_engine::platform::services::model_loader::RuntimeFingerprint,
+    >,
+    String,
+> {
+    let loader = get_loader(&state).await?;
+    Ok(loader.list_runtime_fingerprints().await)
 }
 
 /// Result of `check_runtime_updates` — surfaces whether a newer
@@ -1303,7 +1412,8 @@ pub struct RuntimeUpdateInfo {
     pub status: RuntimeUpdateStatus,
     /// Fingerprint at the time of the check, if the runtime is
     /// currently loaded. `None` when the runtime isn't in any slot.
-    pub current_fingerprint: Option<RuntimeFingerprint>,
+    pub current_fingerprint:
+        Option<devpulse_engine::platform::services::model_loader::RuntimeFingerprint>,
     /// Layman-language summary of the result.
     pub message: String,
     /// Upstream source the user can inspect manually, if any.
@@ -1338,76 +1448,92 @@ pub enum RuntimeUpdateStatus {
 ///
 /// The current fingerprint is always included so the user can see
 /// what they're running today even when no upstream check exists.
-///
-/// **Tier-2**: the loaded fingerprint is read from Clyffy's live runtime
-/// residency over the gb10-client wire. Connection-gated until `clyffyd`
-/// advertises it.
 #[tauri::command]
 #[specta::specta]
-pub fn check_runtime_updates(
-    clyffy: State<'_, ClyffyConnectionState>,
+pub async fn check_runtime_updates(
+    state: State<'_, PlatformState>,
     runtime_id: String,
 ) -> Result<RuntimeUpdateInfo, String> {
-    require_connected(&clyffy)?;
-    let _ = runtime_id;
-    Err(MODEL_INFERENCE_ENDPOINT_PENDING.to_string())
+    let loader = get_loader(&state).await?;
+    let fingerprints = loader.list_runtime_fingerprints().await;
+
+    // Pick the first loaded fingerprint that matches this runtime
+    // (a runtime can fulfill multiple capability slots — they'll
+    // all carry the same crate_version / upstream_revision because
+    // the workspace is one Cargo target).
+    let current_fingerprint = fingerprints
+        .into_values()
+        .find(|fp| fp.runtime_id == runtime_id);
+
+    Ok(RuntimeUpdateInfo {
+        runtime_id: runtime_id.clone(),
+        status: RuntimeUpdateStatus::NoCheckConfigured,
+        current_fingerprint,
+        message: format!(
+            "No upstream update check is wired for `{runtime_id}` yet — \
+             the per-runtime check (HuggingFace / GitHub releases / crates.io) \
+             lands as a follow-up. Current fingerprint shown for reference."
+        ),
+        source_url: None,
+    })
 }
 
 /// Warm a slot — load weights to CPU RAM only, no GPU allocation.
 ///
-/// **Tier-2**: warming is a residency operation on Clyffy, served over the
-/// gb10-client wire. Connection-gated until `clyffyd` advertises it.
+/// Model enters "Warm" state: weights in RAM, fast activation to GPU later.
+/// Returns a typed [`LoadError`] with the same surface as `load_slot`.
 #[tauri::command]
 #[specta::specta]
-pub fn warm_slot(
-    clyffy: State<'_, ClyffyConnectionState>,
+#[tracing::instrument(skip(state), fields(slot_id))]
+pub async fn warm_slot(
+    app: tauri::AppHandle,
+    state: State<'_, PlatformState>,
     slot_id: String,
 ) -> Result<(), devpulse_engine::platform::LoadError> {
-    require_connected(&clyffy)
-        .map_err(|message| devpulse_engine::platform::LoadError::Other { message })?;
-    let _ = slot_id;
-    Err(devpulse_engine::platform::LoadError::Other {
-        message: MODEL_INFERENCE_ENDPOINT_PENDING.to_string(),
-    })
+    tracing::info!("cmd warm_slot");
+    let loader = get_loader_typed(&state).await?;
+    loader.warm_slot(&slot_id).await?;
+    loader.publish_readiness().await;
+    Ok(())
 }
 
 /// Delete a model from disk and remove from registry.
 ///
-/// **Tier-2**: deletion is refused while a model is loaded, and load state
-/// lives on Clyffy — so the guarded delete is served over the gb10-client wire.
-/// Connection-gated until `clyffyd` advertises it.
+/// Clears any slot assignments. Refuses if the model is currently loaded.
 #[tauri::command]
 #[specta::specta]
-pub fn delete_model(
-    clyffy: State<'_, ClyffyConnectionState>,
+#[tracing::instrument(skip(state), fields(model_id))]
+pub async fn delete_model(
+    app: tauri::AppHandle,
+    state: State<'_, PlatformState>,
     model_id: String,
 ) -> Result<(), devpulse_engine::platform::LoadError> {
-    require_connected(&clyffy)
-        .map_err(|message| devpulse_engine::platform::LoadError::Other { message })?;
-    let _ = model_id;
-    Err(devpulse_engine::platform::LoadError::Other {
-        message: MODEL_INFERENCE_ENDPOINT_PENDING.to_string(),
-    })
+    tracing::info!("cmd delete_model");
+    let loader = get_loader_typed(&state).await?;
+    loader.delete_model(&model_id).await?;
+    loader.publish_readiness().await;
+    Ok(())
 }
 
 /// Search `HuggingFace` for GGUF models.
-///
-/// HF search is a public, stateless network call (management, Tier-1). The
-/// engine exposes it as the free `search_huggingface` function, decoupled from
-/// the model-loader service — no platform-ready gate is required.
 #[tauri::command]
 #[specta::specta]
 pub async fn search_huggingface(
+    state: State<'_, PlatformState>,
     query: String,
     limit: Option<u32>,
 ) -> Result<Vec<HfSearchResultInfo>, String> {
-    let results =
-        devpulse_engine::platform::model_loader::search_huggingface(&query, limit.unwrap_or(20))
-            .await
-            .map_err(|e| {
-                tracing::error!(query = %query, error = %e, "search_huggingface: HF API failed");
-                e.to_string()
-            })?;
+    let loader = get_loader(&state).await.map_err(|e| {
+        tracing::error!(query = %query, error = %e, "search_huggingface: loader unavailable");
+        e
+    })?;
+    let results = loader
+        .search_huggingface(&query, limit.unwrap_or(20))
+        .await
+        .map_err(|e| {
+            tracing::error!(query = %query, error = %e, "search_huggingface: HF API failed");
+            e.to_string()
+        })?;
 
     Ok(results
         .into_iter()
@@ -1469,7 +1595,7 @@ pub async fn config_for_tier(
     state: State<'_, PlatformState>,
     tier: String,
 ) -> Result<String, String> {
-    use devpulse_engine::platform::HardwareTier;
+    use devpulse_engine::platform::services::model_loader::HardwareTier;
 
     let parsed = match tier.as_str() {
         "ultra" | "Ultra" => HardwareTier::Ultra,
@@ -1504,9 +1630,9 @@ pub async fn config_for_tier(
 #[specta::specta]
 pub async fn get_wizard_copy(
     app: tauri::AppHandle,
-) -> Result<devpulse_engine::platform::WizardCopy, String> {
+) -> Result<devpulse_engine::platform::services::model_loader::WizardCopy, String> {
     let userdata = crate::paths::resolve_data_dir(&app)?;
-    devpulse_engine::platform::WizardCopy::load(&userdata)
+    devpulse_engine::platform::services::model_loader::WizardCopy::load(&userdata)
         .map_err(|e| format!("Failed to load wizard copy: {e}"))
 }
 
@@ -1518,77 +1644,10 @@ pub async fn get_wizard_copy(
 #[specta::specta]
 pub async fn get_tier_display(
     state: State<'_, PlatformState>,
-) -> Result<devpulse_engine::platform::TierDisplay, String> {
+) -> Result<devpulse_engine::platform::services::model_loader::TierDisplay, String> {
     let loader = get_loader(&state).await?;
     let config = loader.auto_configure().await;
     Ok(config.tier.display())
-}
-
-/// Called when the setup wizard finishes.
-///
-/// 1. Re-scans the model registry to pick up any newly downloaded/imported models.
-/// 2. Auto-assigns unassigned models to matching slots by capability.
-/// 3. Verifies at least the chat.brain slot has an assigned model.
-/// 4. Only THEN emits the models-ready signal and opens the chat window.
-///
-/// Returns error if no text-generation model is available for chat.brain.
-#[tauri::command]
-#[specta::specta]
-pub async fn complete_model_setup(
-    app: tauri::AppHandle,
-    state: State<'_, PlatformState>,
-) -> Result<(), String> {
-    let loader = get_loader(&state).await?;
-
-    // Re-scan to pick up anything downloaded/imported during wizard
-    if let Err(e) = loader.scan_models().await {
-        tracing::warn!(error = %e, "Post-wizard scan failed (non-fatal)");
-    }
-
-    // Auto-assign loop REMOVED — wizard handles explicit per-slot assignment.
-    // complete_model_setup() now only verifies and signals.
-
-    // Verify: chat.brain MUST have a model assigned
-    let slots_after = loader.list_slots().await;
-    let brain = slots_after.iter().find(|s| s.id == "chat.brain");
-    let brain_assigned = brain.is_some_and(|s| s.assigned_model.is_some());
-
-    let assigned_count = slots_after
-        .iter()
-        .filter(|s| s.assigned_model.is_some())
-        .count();
-    let registry_count = loader.get_registry().await.len();
-
-    if !brain_assigned {
-        tracing::warn!(
-            models = registry_count,
-            assigned = assigned_count,
-            "Model setup incomplete — no chat brain model available"
-        );
-        crate::commands::emit_status(
-            &app,
-            "models",
-            crate::commands::StatusKind::Error,
-            &"No AI brain model found. Import or download a text-generation model (.gguf) to get started.",
-        );
-        return Err("No AI brain model available. Import or download a GGUF model first.".into());
-    }
-
-    tracing::info!(
-        models = registry_count,
-        assigned = assigned_count,
-        "Model setup verified — chat brain assigned, signaling ready"
-    );
-
-    // Push full state snapshot — frontend sets $state directly
-    emit_models_status(&app, &loader).await;
-
-    // Now safe to open chat window
-    if let Err(e) = crate::commands::window::open_chat_window(app).await {
-        tracing::warn!(error = %e, "Chat window failed to open after setup (non-fatal)");
-    }
-
-    Ok(())
 }
 
 /// Import a model from the local filesystem.
@@ -1599,7 +1658,6 @@ pub async fn complete_model_setup(
 #[tauri::command]
 #[specta::specta]
 pub async fn import_local_model(
-    app: tauri::AppHandle,
     state: State<'_, PlatformState>,
     target_slot: Option<String>,
     import_mode: Option<String>,
@@ -1703,7 +1761,7 @@ pub async fn import_local_model(
         .map_err(|e| format!("Scan failed: {e}"))?;
 
     // Push fresh state — frontend sees the new model immediately
-    emit_models_status(&app, &loader).await;
+    loader.publish_readiness().await;
 
     tracing::info!(filename = %filename, "Local model imported successfully");
     Ok(filename)
@@ -1711,17 +1769,17 @@ pub async fn import_local_model(
 
 /// Open a native folder picker dialog.
 ///
-/// Returns the selected directory path, or error if cancelled.
+/// Returns the chosen folder, or `None` if you closed the dialog without
+/// choosing (cancelling is not a failure — same contract as
+/// [`pick_audio_file`]).
 #[tauri::command]
 #[specta::specta]
-pub async fn pick_directory(title: String) -> Result<String, String> {
+pub async fn pick_directory(title: String) -> Result<Option<String>, String> {
     let picked = rfd::AsyncFileDialog::new()
         .set_title(&title)
         .pick_folder()
         .await;
-
-    let folder = picked.ok_or_else(|| "No folder selected".to_string())?;
-    Ok(folder.path().to_string_lossy().to_string())
+    Ok(picked.map(|f| f.path().to_string_lossy().to_string()))
 }
 
 /// Open a native audio-file picker dialog (mp3 / wav / flac).
@@ -1741,158 +1799,225 @@ pub async fn pick_audio_file(title: String) -> Result<Option<String>, String> {
     Ok(picked.map(|f| f.path().to_string_lossy().to_string()))
 }
 
-/// Create a developer profile and persist it as a preference.
-///
-/// Stores a JSON blob with name, experience level, and optional project path.
-/// Uses the same preferences.json storage as `set_preference`.
-#[tauri::command]
-#[specta::specta]
-pub async fn create_dev_profile(
-    state: State<'_, PlatformState>,
-    name: String,
-    experience: String,
-    project_path: Option<String>,
-) -> Result<(), String> {
-    let profile = serde_json::json!({
-        "type": "dev",
-        "name": name,
-        "experience": experience,
-        "project_path": project_path,
-        "created": chrono::Utc::now().to_rfc3339(),
-    });
-
-    // Write to preferences.json — same storage as set_preference command.
-    // P0: lock-free atomic load.
-    let platform = state.platform.load_full().ok_or("Platform not ready")?;
-    let prefs_path = platform.config().data_dir.clone();
-    drop(platform);
-
-    let prefs_file = std::path::PathBuf::from(&prefs_path).join("preferences.json");
-
-    let mut prefs: std::collections::HashMap<String, String> = if prefs_file.exists() {
-        let content = std::fs::read_to_string(&prefs_file).map_err(|e| e.to_string())?;
-        serde_json::from_str(&content).unwrap_or_default()
-    } else {
-        std::collections::HashMap::new()
-    };
-
-    prefs.insert("dev_profile".to_string(), profile.to_string());
-    let json = serde_json::to_string_pretty(&prefs).map_err(|e| e.to_string())?;
-
-    if let Some(parent) = prefs_file.parent() {
-        std::fs::create_dir_all(parent).map_err(|e| e.to_string())?;
-    }
-    std::fs::write(&prefs_file, json).map_err(|e| e.to_string())?;
-
-    tracing::info!(name = %name, experience = %experience, "Developer profile created");
-    Ok(())
-}
-
 /// Generate text using a loaded model slot.
 ///
-/// **Tier-2**: text generation runs on Clyffy (headless, on the GB10) over the
-/// gb10-client wire — token streaming is re-established from Clyffy's event
-/// stream once connected. Connection-gated until `clyffyd` advertises it.
+/// Routing:
+///   - GGUF models loaded via sidecar → `llama_chat` HTTP (localhost)
+///   - `SafeTensors` models loaded via Candle → kernel `BackendPool`
+///   - Cloud provider → `cloud_chat` (if configured)
+///
+/// Streams tokens via Tauri events (`inference-token` for Candle,
+/// `llama:token` for sidecar — frontend listens to both).
+/// Hard fails if no model is loaded — no silent fallback.
 #[tauri::command]
 #[specta::specta]
-pub fn inference_generate(
-    clyffy: State<'_, ClyffyConnectionState>,
+pub async fn inference_generate(
+    app: tauri::AppHandle,
+    state: State<'_, PlatformState>,
+    llama_state: State<'_, crate::commands::llama::LlamaServerState>,
     slot_id: String,
     prompt: String,
     max_tokens: u32,
     temperature: f32,
 ) -> Result<String, String> {
-    require_connected(&clyffy)?;
-    let _ = (slot_id, prompt, max_tokens, temperature);
-    Err(MODEL_INFERENCE_ENDPOINT_PENDING.to_string())
+    let loader = get_loader(&state).await?;
+
+    // ── Route 1: GGUF sidecar ────────────────────────────────
+    // If this slot uses the llama-server sidecar, route through HTTP.
+    // The sidecar was started by `load_slot` → `load_via_sidecar`.
+    if should_use_sidecar(&loader, &slot_id).await {
+        let port = *llama_state.port.lock().await;
+        if port == 0 {
+            return Err(format!(
+                "Slot '{slot_id}' is GGUF but llama-server is not running. \
+                 Load the slot first via Model Control."
+            ));
+        }
+
+        tracing::info!(
+            slot = %slot_id,
+            port,
+            prompt_len = prompt.len(),
+            max_tokens,
+            temperature,
+            "inference_generate: routing to llama-server sidecar"
+        );
+
+        // Build chat messages — single user turn with the prompt
+        let messages = vec![crate::commands::llama::LlamaChatMessage {
+            role: "user".to_string(),
+            content: prompt,
+        }];
+
+        // Call the sidecar — this streams tokens via `llama:token` events
+        // AND returns the full text. The frontend also gets `inference-token`
+        // events re-emitted below for compatibility.
+        let result = crate::commands::llama::llama_chat(
+            app.clone(),
+            llama_state,
+            messages,
+            Some(max_tokens),
+            Some(temperature),
+        )
+        .await?;
+
+        tracing::info!(
+            slot = %slot_id,
+            output_len = result.len(),
+            "inference_generate: sidecar complete"
+        );
+        return Ok(result);
+    }
+
+    // ── Route 2: Candle in-process (SafeTensors) ─────────────
+    let handle = loader
+        .inference_handle(&slot_id)
+        .await
+        .map_err(|e| e.to_string())?
+        .ok_or_else(|| {
+            format!("No model loaded in slot '{slot_id}'. Open Model Control to set up your AI.")
+        })?;
+
+    let trace_ctx = devpulse_engine::platform::telemetry::TraceContext::new();
+    tracing::info!(
+        trace_id = %trace_ctx.trace_id,
+        slot = %slot_id,
+        prompt_len = prompt.len(),
+        max_tokens,
+        temperature,
+        "inference_generate: routing to Candle in-process"
+    );
+
+    let token_rx = handle
+        .generate(prompt, max_tokens, temperature, trace_ctx.trace_id.clone())
+        .await
+        .map_err(|e| format!("Inference failed: {e:#}"))?;
+
+    let mut full_text = String::new();
+    let mut token_count: u32 = 0;
+    while let Ok(traced) = token_rx.recv_async().await {
+        match traced.value {
+            devpulse_engine::platform::integrations::InferenceResponse::Token { text, .. } => {
+                let _ = crate::events::InferenceTokenStreamed { text: text.clone() }.emit(&app);
+                full_text.push_str(&text);
+                token_count += 1;
+            }
+            devpulse_engine::platform::integrations::InferenceResponse::Done(text) => {
+                full_text = text;
+                break;
+            }
+            devpulse_engine::platform::integrations::InferenceResponse::Error(e) => {
+                tracing::error!(slot = %slot_id, error = %e, "inference_generate: exit failure");
+                return Err(format!("Generation error: {e}"));
+            }
+        }
+    }
+
+    tracing::info!(
+        slot = %slot_id,
+        tokens = token_count,
+        output_len = full_text.len(),
+        "inference_generate: Candle complete"
+    );
+    Ok(full_text)
 }
 
 /// Simplified inference for wizard test chat.
 ///
-/// **Tier-2**: thin wrapper over the same generation surface as
-/// [`inference_generate`]; connection-gated until `clyffyd` advertises it.
+/// Wraps `inference_generate` with sensible defaults so the frontend
+/// only needs to send `slot_id` and `prompt`.
 #[tauri::command]
 #[specta::specta]
-pub fn test_inference(
-    clyffy: State<'_, ClyffyConnectionState>,
+pub async fn test_inference(
+    app: tauri::AppHandle,
+    state: State<'_, PlatformState>,
+    llama_state: State<'_, crate::commands::llama::LlamaServerState>,
     slot_id: String,
     prompt: String,
 ) -> Result<String, String> {
-    require_connected(&clyffy)?;
-    let _ = (slot_id, prompt);
-    Err(MODEL_INFERENCE_ENDPOINT_PENDING.to_string())
+    inference_generate(app, state, llama_state, slot_id, prompt, 256, 0.7).await
 }
 
 // ── Capability commands: embedder / reranker / vision ───────────────
 
 /// Embed a batch of texts via the embedder model loaded in a slot.
 ///
-/// **Tier-2**: embedding runs on Clyffy over the gb10-client wire.
-/// Connection-gated until `clyffyd` advertises it.
+/// Returns one dense vector per input string, all the same dimensionality.
+/// Hard-fails if the slot has no embedder loaded — no silent fallback.
 #[tauri::command]
 #[specta::specta]
-pub fn embed_batch(
-    clyffy: State<'_, ClyffyConnectionState>,
+#[tracing::instrument(skip(state), fields(slot_id, count = texts.len()))]
+pub async fn embed_batch(
+    state: State<'_, PlatformState>,
     slot_id: String,
     texts: Vec<String>,
 ) -> Result<Vec<Vec<f32>>, String> {
-    require_connected(&clyffy)?;
-    let _ = (slot_id, texts);
-    Err(MODEL_INFERENCE_ENDPOINT_PENDING.to_string())
+    let loader = get_loader(&state).await?;
+    let refs: Vec<&str> = texts.iter().map(String::as_str).collect();
+    loader
+        .embed(&slot_id, &refs)
+        .await
+        .map_err(|e| format!("Embedding failed: {e:#}"))
 }
 
 /// Embed a single text — convenience wrapper over [`embed_batch`].
-///
-/// **Tier-2**: same embedding surface; connection-gated until `clyffyd`
-/// advertises it.
 #[tauri::command]
 #[specta::specta]
-pub fn embed_text(
-    clyffy: State<'_, ClyffyConnectionState>,
+pub async fn embed_text(
+    state: State<'_, PlatformState>,
     slot_id: String,
     text: String,
 ) -> Result<Vec<f32>, String> {
-    require_connected(&clyffy)?;
-    let _ = (slot_id, text);
-    Err(MODEL_INFERENCE_ENDPOINT_PENDING.to_string())
+    let mut vectors = embed_batch(state, slot_id, vec![text]).await?;
+    vectors
+        .pop()
+        .ok_or_else(|| "Embedding returned empty result".to_string())
 }
 
 /// Rerank documents against a query via the reranker model loaded in a slot.
 ///
-/// **Tier-2**: reranking runs on Clyffy over the gb10-client wire.
-/// Connection-gated until `clyffyd` advertises it.
+/// Returns one score in `[0.0, 1.0]` per document, higher = more relevant.
+/// Used as the second-stage refinement after initial vector search.
 #[tauri::command]
 #[specta::specta]
-pub fn rerank_documents(
-    clyffy: State<'_, ClyffyConnectionState>,
+#[tracing::instrument(skip(state, documents), fields(slot_id, count = documents.len()))]
+pub async fn rerank_documents(
+    state: State<'_, PlatformState>,
     slot_id: String,
     query: String,
     documents: Vec<String>,
 ) -> Result<Vec<f32>, String> {
-    require_connected(&clyffy)?;
-    let _ = (slot_id, query, documents);
-    Err(MODEL_INFERENCE_ENDPOINT_PENDING.to_string())
+    let loader = get_loader(&state).await?;
+    let refs: Vec<&str> = documents.iter().map(String::as_str).collect();
+    loader
+        .rerank(&slot_id, &query, &refs)
+        .await
+        .map_err(|e| format!("Rerank failed: {e:#}"))
 }
 
 /// Encode an image file on disk via the vision encoder loaded in a slot.
 ///
-/// **Tier-2**: vision encoding runs on Clyffy over the gb10-client wire.
-/// Connection-gated until `clyffyd` advertises it.
+/// Returns a dense embedding vector (e.g. 1152-dim for SigLIP2-SO400M).
+/// Used for screenshot understanding, visual search, cross-modal retrieval.
 #[tauri::command]
 #[specta::specta]
-pub fn encode_image(
-    clyffy: State<'_, ClyffyConnectionState>,
+#[tracing::instrument(skip(state), fields(slot_id, path))]
+pub async fn encode_image(
+    state: State<'_, PlatformState>,
     slot_id: String,
     path: String,
 ) -> Result<Vec<f32>, String> {
-    require_connected(&clyffy)?;
-    let _ = (slot_id, path);
-    Err(MODEL_INFERENCE_ENDPOINT_PENDING.to_string())
+    let loader = get_loader(&state).await?;
+    let img_path = std::path::PathBuf::from(path);
+    loader
+        .encode_image(&slot_id, &img_path)
+        .await
+        .map_err(|e| format!("Image encode failed: {e:#}"))
 }
 
 // ─────────────────────────────────────────────────────────────────
 // Compatibility registry — architecture × backend matrix and the
-// pre-download resolver. See the engine's `platform/model_registry/`
+// pre-download resolver. See `kernel/model-loader/src/registry/`
 // for the authoring source.
 // ─────────────────────────────────────────────────────────────────
 
@@ -1951,29 +2076,143 @@ pub async fn resolve_architecture_compatibility(
 }
 
 /// `true` when the Burn encoder is wired AND its weights are loaded.
+/// The Slots devtool "Encoder smoke" tab calls this to gate the Embed
+/// button — the button is disabled while this returns `false`, avoiding
+/// a misleading error path through `encoder_embed`.
 ///
-/// **Tier-2**: the Burn encoder runs on Clyffy over the gb10-client wire, so
-/// its residency is a wire query. Connection-gated until `clyffyd` advertises
-/// it — the Slots devtool "Encoder smoke" tab keeps the Embed button disabled
-/// while this returns `Err`.
+/// # Errors
+/// - Platform not ready / model loader disabled.
 #[tauri::command]
 #[specta::specta]
-pub fn encoder_is_loaded(clyffy: State<'_, ClyffyConnectionState>) -> Result<bool, String> {
-    require_connected(&clyffy)?;
-    Err(MODEL_INFERENCE_ENDPOINT_PENDING.to_string())
+#[tracing::instrument(skip(state))]
+pub async fn encoder_is_loaded(state: State<'_, PlatformState>) -> Result<bool, String> {
+    let loader = get_loader(&state).await?;
+    Ok(loader.burn_is_loaded())
 }
 
 /// Embed a batch of texts through the wired Burn encoder.
 ///
-/// **Tier-2**: the Burn encoder forward pass runs on Clyffy over the
-/// gb10-client wire. Connection-gated until `clyffyd` advertises it.
+/// Returns one L2-normalized dense vector per input string, in order.
+/// The encoder and its tokenizer must be loaded (via `load_slot` on the
+/// `rag.embedder` slot) before calling this — returns an error otherwise.
+///
+/// Intended call sites: RRO gather phase, devtool smoke-test button,
+/// semantic search queries from the UI. Async — the blocking forward
+/// pass is offloaded internally.
+///
+/// # Errors
+///
+/// - Platform not ready / model loader disabled.
+/// - Encoder or tokenizer not loaded.
+/// - Empty `texts` vec.
+/// - Forward pass non-finite output.
 #[tauri::command]
 #[specta::specta]
-pub fn encoder_embed(
-    clyffy: State<'_, ClyffyConnectionState>,
+#[tracing::instrument(skip(state), fields(text_count = texts.len()))]
+pub async fn encoder_embed(
+    state: State<'_, PlatformState>,
     texts: Vec<String>,
 ) -> Result<Vec<Vec<f32>>, String> {
-    require_connected(&clyffy)?;
-    let _ = texts;
-    Err(MODEL_INFERENCE_ENDPOINT_PENDING.to_string())
+    let loader = get_loader(&state).await?;
+    loader.burn_embed(texts).await.map_err(|e| format!("{e:#}"))
+}
+
+// ── Model setup (restored from e0b576ff^, master plan R4) ──────────
+
+/// Check if this is the first run (no models configured).
+#[tauri::command]
+#[specta::specta]
+pub async fn is_first_run(state: State<'_, PlatformState>) -> Result<bool, String> {
+    let loader = get_loader(&state).await?;
+    Ok(loader.is_first_run().await)
+}
+
+/// Mark the setup wizard as complete. Persists to `LibSQL`.
+/// Called by the frontend when the user finishes the wizard.
+#[tauri::command]
+#[specta::specta]
+#[allow(clippy::missing_errors_doc)]
+pub async fn mark_setup_complete(state: State<'_, PlatformState>) -> Result<(), String> {
+    let loader = get_loader(&state).await?;
+    loader
+        .mark_setup_complete()
+        .await
+        .map_err(|e| e.to_string())?;
+    loader.publish_readiness().await;
+    Ok(())
+}
+
+/// Check if the setup wizard was previously completed.
+/// Used at boot to decide whether to show the wizard overlay.
+#[tauri::command]
+#[specta::specta]
+#[allow(clippy::missing_errors_doc)]
+pub async fn is_setup_complete(state: State<'_, PlatformState>) -> Result<bool, String> {
+    let loader = get_loader(&state).await?;
+    Ok(loader.is_setup_complete().await)
+}
+
+/// Called when the setup wizard finishes.
+///
+/// 1. Re-scans the model registry to pick up any newly downloaded/imported models.
+/// 2. Auto-assigns unassigned models to matching slots by capability.
+/// 3. Verifies at least the chat.brain slot has an assigned model.
+/// 4. Only THEN emits the models-ready signal and opens the chat window.
+///
+/// Returns error if no text-generation model is available for chat.brain.
+#[tauri::command]
+#[specta::specta]
+pub async fn complete_model_setup(
+    app: tauri::AppHandle,
+    state: State<'_, PlatformState>,
+) -> Result<(), String> {
+    let loader = get_loader(&state).await?;
+
+    // Re-scan to pick up anything downloaded/imported during wizard
+    if let Err(e) = loader.scan_models().await {
+        tracing::warn!(error = %e, "Post-wizard scan failed (non-fatal)");
+    }
+
+    // Auto-assign loop REMOVED — wizard handles explicit per-slot assignment.
+    // complete_model_setup() now only verifies and signals.
+
+    // Verify: chat.brain MUST have a model assigned
+    let slots_after = loader.list_slots().await;
+    let brain = slots_after.iter().find(|s| s.id == "chat.brain");
+    let brain_assigned = brain.is_some_and(|s| s.assigned_model.is_some());
+
+    let assigned_count = slots_after
+        .iter()
+        .filter(|s| s.assigned_model.is_some())
+        .count();
+    let registry_count = loader.get_registry().await.len();
+
+    if !brain_assigned {
+        tracing::warn!(
+            models = registry_count,
+            assigned = assigned_count,
+            "Model setup incomplete — no chat brain model available"
+        );
+        crate::commands::emit_status(
+            &app,
+            "models",
+            crate::commands::StatusKind::Error,
+            &"No AI brain model found. Import or download a text-generation model (.gguf) to get started.",
+        );
+        return Err("No AI brain model available. Import or download a GGUF model first.".into());
+    }
+
+    tracing::info!(
+        models = registry_count,
+        assigned = assigned_count,
+        "Model setup verified — chat brain assigned, signaling ready"
+    );
+
+    // Push full state snapshot — frontend sets $state directly
+    loader.publish_readiness().await;
+
+    // The chat window opens only when you open it (owner ruling 2026-10-12,
+    // plan 0001 A0); this command no longer opens it.
+
+    Ok(())
 }

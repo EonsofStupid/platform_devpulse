@@ -2,8 +2,8 @@
 //!
 //! Two managed state structs:
 //! - `PlatformState`: holds the platform engine after boot completes.
-//! - `BootStateTracker`: accumulates boot events so the frontend can
-//!   catch up even if it mounts after boot finishes.
+//! - `BootStateTracker`: accumulates boot progress, published to every
+//!   window as the signal fabric's `Boot` state (replayed to late windows).
 //!
 //! # P0: Boot Never Freezes
 //!
@@ -13,12 +13,10 @@
 //! after service initialization completes.
 
 use crate::commands::devforge::paths::DevforgePaths;
-use arc_swap::{ArcSwap, ArcSwapOption};
-use devpulse_engine::platform::{InitEvent, SystemHealth};
-use devpulse_gb10_client::ConnectionState;
-use serde::Serialize;
-use specta::Type;
-use std::sync::{Arc, Mutex};
+use arc_swap::ArcSwapOption;
+use devpulse_engine::platform::InitEvent;
+use devpulse_engine::signals::{BootPhase, BootStatus};
+use std::sync::{Arc, Mutex, PoisonError};
 
 use devpulse_engine::platform::Platform;
 
@@ -36,7 +34,7 @@ use devpulse_engine::platform::Platform;
 /// directory and shared immutably — commands consult it for canonical
 /// workspace / user-data / install paths.
 pub struct PlatformState {
-    /// Platform engine (owns all services; Clyffy is reached over the wire).
+    /// Platform engine (owns all services, bridges to clyffy kernel).
     /// `None` while boot task is running, `Some` after completion.
     /// Readers: `state.platform.load_full()` — lock-free.
     /// Writer: `boot_task` stores exactly once via `state.platform.store(Some(Arc::new(p)))`.
@@ -56,120 +54,22 @@ impl PlatformState {
     }
 }
 
-/// Managed state for the Clyffy wire connection — held separately
-/// from [`PlatformState`] so the gb10-client keeps its own lean
-/// compile graph (the bisect boundary). Holds only the current
-/// [`ConnectionState`]; the background probe / auto-reconnect task (spawned in
-/// `boot_task`) owns the `ClyffyClient` and writes here on every transition.
-pub struct ClyffyConnectionState {
-    state: ArcSwap<ConnectionState>,
-    /// Target endpoint the probe loop dials each tick. `None` = standalone
-    /// (Tier-1). `connect_clyffy` sets `Some(url)`, `disconnect_clyffy` clears
-    /// it; the loop re-reads this every iteration, so the endpoint is
-    /// **re-pointable at runtime** with no restart.
-    endpoint: ArcSwapOption<String>,
+/// Boot progress as it accumulates.
+#[derive(Debug)]
+struct BootProgress {
+    phase: BootPhase,
+    /// Every init event in arrival order.
+    events: Vec<InitEvent>,
+    error: Option<String>,
 }
 
-impl Default for ClyffyConnectionState {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl ClyffyConnectionState {
-    /// Fresh state — `Disconnected` (standalone) until the probe task connects.
-    #[must_use]
-    pub fn new() -> Self {
-        Self {
-            state: ArcSwap::new(Arc::new(ConnectionState::Disconnected)),
-            endpoint: ArcSwapOption::empty(),
-        }
-    }
-
-    /// Current connection state (lock-free atomic load + clone).
-    #[must_use]
-    pub fn current(&self) -> ConnectionState {
-        (*self.state.load_full()).clone()
-    }
-
-    /// Atomically replace the connection state (the probe task writes here).
-    pub fn store(&self, next: ConnectionState) {
-        self.state.store(Arc::new(next));
-    }
-
-    /// Current target endpoint (`None` = standalone). The probe loop reads this
-    /// on every tick to decide what to dial — the seam that makes the endpoint
-    /// re-pointable at runtime.
-    #[must_use]
-    pub fn endpoint(&self) -> Option<String> {
-        self.endpoint.load_full().map(|url| (*url).clone())
-    }
-
-    /// Set or clear the target endpoint. The probe loop re-points on its next
-    /// tick — no restart. `None` returns DevPulse to standalone (Tier-1).
-    pub fn set_endpoint(&self, url: Option<String>) {
-        self.endpoint.store(url.map(Arc::new));
-    }
-}
-
-/// Boot phase — serialized to frontend as `PascalCase`.
-#[derive(Debug, Clone, Serialize, Type)]
-pub enum BootPhase {
-    /// Platform is still starting up — services initializing.
-    Initializing,
-    /// All services booted successfully (or degraded gracefully).
-    Ready,
-    /// Boot failed — see `BootSnapshot::error` for details.
-    Failed,
-}
-
-/// Model readiness snapshot — survives the frontend mount race.
-///
-/// Emitted as `platform:models-status` from the boot task, AND stored in
-/// the `BootStateTracker` so `get_boot_state` returns it to late-mounting
-/// frontends that missed the live event.
-#[derive(Debug, Clone, Serialize, Type, Default)]
-#[serde(rename_all = "camelCase")]
-pub struct ModelsStatusSnapshot {
-    /// Whether models are present AND at least one slot is assigned.
-    pub ready: bool,
-    /// No slot assignments exist — show setup wizard.
-    pub first_run: bool,
-    /// Number of model files found by the registry scan.
-    pub model_count: usize,
-    /// Total slots configured.
-    pub slot_count: usize,
-    /// Slots that have an assigned model.
-    pub assigned_count: usize,
-    /// Optional error from the model readiness check.
-    pub error: Option<String>,
-}
-
-/// Snapshot of boot state — returned by `get_boot_state` command.
-#[derive(Debug, Clone, Serialize, Type)]
-#[serde(rename_all = "camelCase")]
-pub struct BootSnapshot {
-    /// Current boot phase.
-    pub phase: BootPhase,
-    /// Ordered list of subsystem init events accumulated during boot.
-    pub events: Vec<InitEvent>,
-    /// Final health snapshot (populated once boot completes).
-    pub health: Option<SystemHealth>,
-    /// Error message if boot failed.
-    pub error: Option<String>,
-    /// Model readiness — populated after the model loader check runs.
-    /// Frontend reads this in `applySnapshot()` to catch up on
-    /// `platform:models-status` events that fired before the listener
-    /// was mounted.
-    pub models_status: Option<ModelsStatusSnapshot>,
-}
-
-/// Accumulates boot events so the frontend can catch up at any time.
+/// Accumulates boot progress; [`BootStateTracker::status`] renders it as
+/// the signal fabric's `Boot` state.
 ///
 /// Uses `Arc<Mutex<>>` internally (`std::sync` — short sync-only scopes,
-/// never held across await).
+/// never held across await). A poisoned lock is recovered, never panicked on.
 pub struct BootStateTracker {
-    inner: Arc<Mutex<BootSnapshot>>,
+    inner: Arc<Mutex<BootProgress>>,
 }
 
 impl Default for BootStateTracker {
@@ -179,15 +79,13 @@ impl Default for BootStateTracker {
 }
 
 impl BootStateTracker {
-    /// Create a new tracker in the `Initializing` phase with empty events.
+    /// Create a new tracker in the `Initializing` phase with no events.
     pub fn new() -> Self {
         Self {
-            inner: Arc::new(Mutex::new(BootSnapshot {
+            inner: Arc::new(Mutex::new(BootProgress {
                 phase: BootPhase::Initializing,
                 events: Vec::with_capacity(10),
-                health: None,
                 error: None,
-                models_status: None,
             })),
         }
     }
@@ -201,58 +99,41 @@ impl BootStateTracker {
     }
 
     /// Record a subsystem init event.
-    ///
-    /// # Panics
-    /// Panics if the internal mutex is poisoned.
-    #[allow(clippy::expect_used)]
     pub fn record_event(&self, event: InitEvent) {
-        let mut snap = self.inner.lock().expect("BootStateTracker lock poisoned");
-        snap.events.push(event);
+        self.lock().events.push(event);
     }
 
-    /// Mark boot as ready with final health snapshot.
-    ///
-    /// # Panics
-    /// Panics if the internal mutex is poisoned.
-    #[allow(clippy::expect_used)]
-    pub fn set_ready(&self, health: SystemHealth) {
-        let mut snap = self.inner.lock().expect("BootStateTracker lock poisoned");
-        snap.phase = BootPhase::Ready;
-        snap.health = Some(health);
+    /// Mark boot as ready.
+    pub fn set_ready(&self) {
+        self.lock().phase = BootPhase::Ready;
     }
 
-    /// Mark boot as failed with error message.
-    ///
-    /// # Panics
-    /// Panics if the internal mutex is poisoned.
-    #[allow(clippy::expect_used)]
+    /// Mark boot as failed with the reason shown to the user.
     pub fn set_failed(&self, error: String) {
-        let mut snap = self.inner.lock().expect("BootStateTracker lock poisoned");
-        snap.phase = BootPhase::Failed;
-        snap.error = Some(error);
+        let mut progress = self.lock();
+        progress.phase = BootPhase::Failed;
+        progress.error = Some(error);
     }
 
-    /// Store model readiness so late-mounting frontends can catch up via
-    /// `get_boot_state` instead of relying on the live `platform:models-status`
-    /// event which fires before the `SvelteKit` listener mounts in dev mode.
-    ///
-    /// # Panics
-    /// Panics if the internal mutex is poisoned.
-    #[allow(clippy::expect_used)]
-    pub fn set_models_status(&self, status: ModelsStatusSnapshot) {
-        let mut snap = self.inner.lock().expect("BootStateTracker lock poisoned");
-        snap.models_status = Some(status);
+    /// Boot progress as the signal fabric's `Boot` state: phase, error, and
+    /// the latest status of each step in the order steps first reported.
+    pub fn status(&self) -> BootStatus {
+        let progress = self.lock();
+        let mut steps: Vec<InitEvent> = Vec::new();
+        for event in &progress.events {
+            match steps.iter_mut().find(|known| known.step == event.step) {
+                Some(known) => *known = event.clone(),
+                None => steps.push(event.clone()),
+            }
+        }
+        BootStatus {
+            phase: progress.phase,
+            error: progress.error.clone(),
+            steps,
+        }
     }
 
-    /// Return a clone of the current boot snapshot.
-    ///
-    /// # Panics
-    /// Panics if the internal mutex is poisoned.
-    #[allow(clippy::expect_used)]
-    pub fn snapshot(&self) -> BootSnapshot {
-        self.inner
-            .lock()
-            .expect("BootStateTracker lock poisoned")
-            .clone()
+    fn lock(&self) -> std::sync::MutexGuard<'_, BootProgress> {
+        self.inner.lock().unwrap_or_else(PoisonError::into_inner)
     }
 }

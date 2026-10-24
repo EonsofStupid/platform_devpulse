@@ -62,7 +62,8 @@ enum Commands {
     /// every file. One-shot migration to the canonical-id SSOT so presets
     /// stop filename-string-matching against phantom inventory.
     ModelManifestBackfill {
-        /// Root models directory. Defaults to `<repo>/models`.
+        /// Root models directory. Defaults to the app's configured models
+        /// folder (`.userdata/models/` with the shipped config).
         #[arg(long)]
         dir: Option<PathBuf>,
         /// Overwrite existing `devpulse.json` files. Default: skip.
@@ -89,6 +90,25 @@ enum Commands {
     },
     /// Verify the setup: svelte-check + cargo check.
     Verify,
+    /// `cargo clippy` with `run-dev`'s build env and acceleration features,
+    /// so linting does not invalidate the dev loop's build artifacts.
+    /// Arguments after `--` go to cargo (default: `-- -D warnings`).
+    Clippy {
+        #[command(flatten)]
+        selection: commands::cargo_tool::Selection,
+        /// Forwarded to cargo verbatim.
+        #[arg(last = true)]
+        args: Vec<String>,
+    },
+    /// `cargo test` with `run-dev`'s build env and acceleration features.
+    /// Arguments after `--` go to cargo.
+    Test {
+        #[command(flatten)]
+        selection: commands::cargo_tool::Selection,
+        /// Forwarded to cargo verbatim.
+        #[arg(last = true)]
+        args: Vec<String>,
+    },
     /// Verify IP boundary: desktop must not depend on clyffy.
     VerifyIpBoundary,
     /// Download, verify, and extract a pinned `DevForge` REH release
@@ -115,10 +135,10 @@ enum Commands {
         #[arg(long)]
         pin: bool,
     },
-    /// Download the `SurrealDB` sidecar binary into
-    /// `interfaces/desktop/src-tauri/binaries/`. The release tag is
-    /// pinned in `fetch_surreal.rs` to match the `surrealdb` crate
-    /// version in the workspace.
+    /// Install upstream's `SurrealDB` server build inside the `DevPulse`
+    /// folder: the version and folder come from `[services.system.surreal]`,
+    /// the download is checked against the published SHA-256 (plan 0007
+    /// Part S).
     FetchSurreal {
         /// Target platform: `win32-x64`, `darwin-arm64`, `darwin-x64`,
         /// `linux-x64`, or `linux-arm64`.
@@ -185,6 +205,16 @@ fn main() -> anyhow::Result<()> {
             Box::new(commands::package_portable::PackagePortable { dry_run })
         }
         Commands::Verify => Box::new(commands::verify::Verify),
+        Commands::Clippy { selection, args } => Box::new(commands::cargo_tool::CargoTool {
+            tool: commands::cargo_tool::Tool::Clippy,
+            selection,
+            args,
+        }),
+        Commands::Test { selection, args } => Box::new(commands::cargo_tool::CargoTool {
+            tool: commands::cargo_tool::Tool::Test,
+            selection,
+            args,
+        }),
         Commands::VerifyIpBoundary => Box::new(commands::ip_boundary::IpBoundary),
         Commands::FetchDevforge {
             target,

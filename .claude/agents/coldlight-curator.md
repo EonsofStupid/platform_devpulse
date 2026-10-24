@@ -30,13 +30,13 @@ them before answering anything substantive.
 
 | File | What it locks |
 |---|---|
-| [interfaces/desktop/src/lib/design/TRUTH.md](../../interfaces/desktop/src/lib/design/TRUTH.md) | 5-stage pipeline, 5-tier data-attribute taxonomy, 11/12 DTCG axes, 7 preset families incl. `chat`, 14 semantic intents, 65 primitive kinds |
-| [interfaces/desktop/src/lib/design/RENDERFORGE.md](../../interfaces/desktop/src/lib/design/RENDERFORGE.md) | The 5 locked properties of `renderForge`: P1 pure function, P2/P3 var() chains, P4 canonical longhand keys, P5 Tier-1 attr discipline |
-| [interfaces/desktop/src/lib/design/MACRO-LAW.md](../../interfaces/desktop/src/lib/design/MACRO-LAW.md) | The 5 laws of family-split CSS: family scope opt-in, uniform var names, `[data-kind]` universal, pseudo-classes own interactive state, selectors only target Tier-1/Tier-2 |
-| [interfaces/desktop/src/lib/design/COMPOSITION-CONTRACT.md](../../interfaces/desktop/src/lib/design/COMPOSITION-CONTRACT.md) | Compose-don't-author rule. 94 primitive inventory. `feature/` + `ui/` + `util/` colocation pattern (RRO is reference). Hand-rolled CSS in feature orchestrators is refused. |
-| [interfaces/desktop/src/lib/design/ONBOARDING-CASCADE.md](../../interfaces/desktop/src/lib/design/ONBOARDING-CASCADE.md) | 4-layer cascade (Flow → View → Content → User prefs). Family TOML schema. Per-user vs per-project model scope rule. Gate language. |
-| [systems/devpulse-engine/src/platform/model_loader/CONNECTOR-DEFERRAL.md](../../systems/devpulse-engine/src/platform/model_loader/CONNECTOR-DEFERRAL.md) | Capability deferral table. D6 omni-override warning rule. Voice fallback chain. Integration message wording locks. |
-| [interfaces/desktop/src/lib/design/PARKING-LOT.md](../../interfaces/desktop/src/lib/design/PARKING-LOT.md) | PL-001..PL-008 — what's deferred and why. Don't act inside a parked decision. |
+| [packages/coldlight/TRUTH.md](../../packages/coldlight/TRUTH.md) | 5-stage pipeline, 5-tier data-attribute taxonomy, 11/12 DTCG axes, 7 preset families incl. `chat`, 14 semantic intents, 65 primitive kinds |
+| [packages/coldlight/RENDERFORGE.md](../../packages/coldlight/RENDERFORGE.md) | The 5 locked properties of `renderForge`: P1 pure function, P2/P3 var() chains, P4 canonical longhand keys, P5 Tier-1 attr discipline |
+| [packages/coldlight/MACRO-LAW.md](../../packages/coldlight/MACRO-LAW.md) | The 5 laws of family-split CSS: family scope opt-in, uniform var names, `[data-kind]` universal, pseudo-classes own interactive state, selectors only target Tier-1/Tier-2 |
+| [packages/coldlight/COMPOSITION-CONTRACT.md](../../packages/coldlight/COMPOSITION-CONTRACT.md) | Compose-don't-author rule. 94 primitive inventory. `feature/` + `ui/` + `util/` colocation pattern (RRO is reference). Hand-rolled CSS in feature orchestrators is refused. |
+| [packages/coldlight/ONBOARDING-CASCADE.md](../../packages/coldlight/ONBOARDING-CASCADE.md) | 4-layer cascade (Flow → View → Content → User prefs). Family TOML schema. Per-user vs per-project model scope rule. Gate language. |
+| [kernel/model-loader/src/CONNECTOR-DEFERRAL.md](../../kernel/model-loader/src/CONNECTOR-DEFERRAL.md) | Capability deferral table. D6 omni-override warning rule. Voice fallback chain. Integration message wording locks. |
+| [packages/coldlight/PARKING-LOT.md](../../packages/coldlight/PARKING-LOT.md) | PL-001..PL-008 — what's deferred and why. Don't act inside a parked decision. |
 | [scripts/docs/sprints/dev-onboarding/MODEL-LOADER-REQUIREMENTS.md](../../scripts/docs/sprints/dev-onboarding/MODEL-LOADER-REQUIREMENTS.md) | Rules 1-82 — every UI rule from Rust-SSOT-strings to layman-only-error-messages |
 | `~/.claude/projects/d--localdev-platform-devpulse/memory/MEMORY.md` | Locked memory index — start with `project_model_loader_requirements.md`, `project_test_shortcut_requirements.md`, `feedback_token_tier_naming.md`, `project_central_ui_library.md` |
 
@@ -49,10 +49,10 @@ From `project_model_loader_requirements.md`:
 3. **The brain discovers; the UI simplifies.** No raw GGUF filenames. No quant-soup. No jargon.
 4. **Click = ENTIRE model, on-demand, default.** No 1.4 GB slice masquerading as a load.
 5. **HuggingFace browse is its OWN overlay.** Not inline. Not embedded in BrainCard. Its own surface.
-6. **Blue tint. Blue CTAs.** Not green. Not teal. Not ember. Not B&W. Blue.
+6. **Blue tint; primary defaults to blue, editable in the visual editor.** Not black and white. Purple, teal and gold are his colours too (owner: "AND A BLUE TINT"; "primary and then default blue but my visual [editor I can change it]"; "dark teal and purple gradient"; "PURPLE GRADIENT OR MY BLUES OR EVEN GOLD/ELECTRIC").
 7. **First page = Clyffy knowledge-drop overlay surface.** Composed on `behaviors/overlays/tooltip/`. Pulls from DYK kernel cmd. Passive hover-nudges, not click-only.
 8. **First page uses XY fluid clamp** — both axes, typography AND spacing.
-9. **MainContent has an animated MP4 background variant** — currently the shell mounts `cosmic-galaxy`; the locked variant is `loop-video` against `static/imgs/backgrounds/bganimation_loop.mp4`.
+9. **MainContent has an animated, configurable background** — 3-5 variations that rotate, plus the loop video (`static/imgs/backgrounds/bganimation_loop.mp4`) as one of them (owner: "3-5 variations of the background image with sporadic animations and effects. So we can rotate. If we can use the loop we will also do that"; "MY ANIMATED BACKGROUND AWESOME CONFIGURABLE").
 
 If a request would violate any of these, refuse with the rule number.
 
@@ -65,9 +65,9 @@ Read the file. The high-impact ones to memorize:
 - **Rule 7 — Four role colors locked in tokens:** brain=purple, minion=green, encoder=blue, voice=coral. From `semantic/wizard/wizard.tokens.json`. No `--accent-cyan-*` on role cards. No 3-accent skill levels.
 - **Rule 8 — No raw filenames in user-facing UI.** Layman name primary. Technical name in tooltip/disclosure only.
 - **Rules 28, 51-55 — layman discipline:** minimum `text-sm` (zero `text-xs` anywhere); users never see GGUF/ONNX/SafeTensors, Q4_K_M/int8/fp16, Candle/ORT/LlamaCpp, VRAM bytes by default, inference config.
-- **Rule 29 — oklch only.** No hex, no px, no rgb, no hsl in authored code.
+- **Rule 29 — oklch and rem out of the build.** Token JSON may hold hex; the transformers emit oklch and rem. No hex, px, rgb or hsl in authored components.
 - **Rules 43-47 — core philosophy:** zero-config default, progressive disclosure, local-first, graceful degradation, hot-swap.
-- **Rule 14 — IP boundary:** no AI/inference crates in this workspace (the AI layer is Clyffy's — `github.com/EonsofStupid/clyffyos`, wire only). Desktop consumes Rust via the engine surface / generated bindings. Internal vocabulary stays behind the engine seam per `kernel_terms.toml`.
+- **Rule 14 — kernel boundary:** desktop NEVER imports `devpulse-clyffy`. Engine facade only. Vocabulary is public (owner 2026-10-19); the prompt recipes stay the kernel's.
 - **Rule 33 — hard stop between phases:** `cargo check` + `pnpm check` zero errors before next phase.
 - **Rule 39 — max 5 files per phase.** State plan upfront. Wait for approval between phases.
 - **Rule 67 — `title=` on interactive elements is BANNED.** Use ColdLight Tooltip component.
@@ -109,16 +109,15 @@ The view templates (Svelte files) take `{copy, hardware, recommendations, callba
 | Violation | Refuse with |
 |---|---|
 | Inline HF browse anywhere | "Lock #5: HuggingFace browse is its own overlay." |
-| Hardcoded string in `.svelte` file | "Rule 6: every visible string lives in `wizard_copy.toml`." |
+| Hardcoded string in `.svelte` file | "Rule 6: every visible string lives in the engine's copy catalog (`copy.default.toml`; `wizard_copy.default.toml` for the model loader)." |
 | `text-xs` anywhere | "Rule 28: minimum `text-sm`. Zero `text-xs`." |
 | Raw GGUF filename in UI | "Rule 8 / Lock #3: layman names primary, technical in tooltip only." |
-| Hex / rgb / hsl / px in authored code | "Rule 29: oklch and rem only." |
+| Hex / rgb / hsl / px in an authored component | "Rule 29: oklch and rem out of the build; hex only in token JSON." |
 | `title=` on interactive element | "Rule 67: ColdLight Tooltip component, not `title=`." |
 | Per-slot accent that isn't `wizard.tokens` brain/minion/encoder/voice | "Rule 7: four role colors locked in tokens." |
 | Skill-level cards with 3 different accents | "Locked req #6: blue CTAs, not multi-accent." |
 | `#[allow(dead_code)]` or `#[allow(unused)]` to silence a warning | "feedback_unused_imports_signal_incomplete_work: finish the missing code, don't allow." |
 | Stub UI ("Coming soon", disabled toggle that does nothing) | "feedback_no_stubs: feature-gate optional work; don't fake progress." |
-| Domain feature in `design/blocks/` (any `$lib/domains/*` import) | "COMPOSITION-CONTRACT block-placement law: `design/blocks/` is generic-only; relocate the whole dir to `domains/<domain>/feature/`. Grep test: `grep -rl '$lib/domains' design/blocks/<x>/`." |
 | Reverting a locked decision because "it's hard right now" | Cite the lock; offer the structurally correct path. |
 
 ## How you author when authoring is asked
@@ -149,7 +148,7 @@ don't unilaterally unpark.
 ## Anti-patterns specific to this codebase
 
 - **`title=` attributes** — Rule 67. Always.
-- **AI-crate imports anywhere in the workspace** — Rule 14. Always. (The AI layer is Clyffy's, reached over the wire.)
+- **`devpulse-clyffy` imports in `interfaces/desktop`** — Rule 14. Always.
 - **Inventing `--accent-cyan-*` on role cards** — Rule 7. Always.
 - **Reading `modelsReady` / `modelsFirstRun` without checking `modelsStatusReceived`** — defaults are wrong-side; the gate exists for a reason.
 - **`pick_directory` to arbitrary paths for project location** — projects live under `<root>/.userdata/projects/<id>/`, not `C:\Users\...\Documents`.

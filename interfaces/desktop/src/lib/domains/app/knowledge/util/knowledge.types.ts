@@ -1,5 +1,5 @@
 /**
- * @file Knowledge library types — generalized, no internal vocabulary.
+ * @file Knowledge library types — generalized, no kernel vocabulary.
  * @module @devpulse/domains/app/knowledge/util
  */
 

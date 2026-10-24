@@ -3,20 +3,27 @@
  * @module @devpulse/domains/chat/data-access/chat.state.svelte
  */
 
-import { announce } from "$lib/design/behaviors/_shared/live-region/index.js";
-import { devpulseState } from "$lib/domains/app/devpulse/index.js";
 import {
 	generateText,
 	isInferenceReady,
 	modelsState,
 	onInferenceToken,
 } from "$lib/domains/app/models/index.js";
+import { projectsState } from "$lib/domains/app/projects/index.js";
+import { providersState } from "$lib/domains/app/providers/index.js";
 import type { ChatMessage } from "$lib/sys/generated/bindings.js";
 import { logError, logInfo } from "$lib/sys/logger.js";
 import { globalState } from "$lib/sys/runes/global.svelte.js";
 import type { ChatMode } from "../util/chat.types.js";
 import { toBlockMessage } from "../util/format.js";
+import { agentsState } from "./agents.state.svelte.js";
 import * as chatService from "./chat.service.js";
+
+/** The display name of an agent that answered, from Rust's providers report. */
+function agentName(modelUsed: string | null): string | null {
+	if (!modelUsed) return null;
+	return providersState.current?.report?.providers.find((p) => p.id === modelUsed)?.name ?? null;
+}
 
 class ChatState {
 	messages = $state<ChatMessage[]>([]);
@@ -30,7 +37,14 @@ class ChatState {
 	streamingContent = $state("");
 	generatingTokens = $state(0);
 
-	blockMessages = $derived.by(() => this.messages.map(toBlockMessage));
+	/** Messages as the stream shows them; an agent's answers carry its name. */
+	blockMessages = $derived.by(() =>
+		this.messages.map((m) => {
+			const block = toBlockMessage(m);
+			const agent = m.role === "assistant" ? agentName(m.modelUsed) : null;
+			return agent ? { ...block, author: agent } : block;
+		}),
+	);
 
 	get mode(): ChatMode {
 		return globalState.chat_mode;
@@ -40,8 +54,9 @@ class ChatState {
 		globalState.setMode(mode);
 	}
 
+	/** The project you are working in (Rust's active project). */
 	projectId(): string | null {
-		return devpulseState.data.recentProjects[0]?.id ?? null;
+		return projectsState.activeProjectId;
 	}
 
 	async loadActive(): Promise<void> {
@@ -87,6 +102,12 @@ class ChatState {
 		const pid = this.projectId();
 		if (!pid || !content.trim() || this.sending || this.isGenerating) return;
 
+		// A thread with one of your agents goes to that agent.
+		if (agentsState.thread(this.activeSessionId)) {
+			await this.askAgent(content.trim());
+			return;
+		}
+
 		// Check brain is loaded
 		const brainStatus = modelsState.statuses["chat.brain"];
 		if (!brainStatus || !isInferenceReady(brainStatus)) {
@@ -113,9 +134,6 @@ class ChatState {
 		this.isGenerating = true;
 		this.streamingContent = "";
 		this.generatingTokens = 0;
-		// The streaming bubble is aria-hidden (token mutations would spam
-		// screen readers) — cue the turn start explicitly instead.
-		announce("Clyffy is responding");
 
 		const unlistenTokens = onInferenceToken((text) => {
 			this.streamingContent += text;
@@ -144,14 +162,10 @@ class ChatState {
 				latencyMs,
 			);
 			this.messages = [...this.messages, assistantTurn];
-			// The stored turn lands in the role=log stream, which reads the
-			// content; this cue marks the turn boundary for screen readers.
-			announce("Response complete");
 		} catch (e) {
 			const msg = e instanceof Error ? e.message : String(e);
 			this.error = msg;
 			logError("chat", `generateResponse: failed — ${msg}`);
-			announce("Response failed", "assertive");
 		} finally {
 			unlistenTokens();
 			this.isGenerating = false;
@@ -161,59 +175,34 @@ class ChatState {
 	}
 
 	/**
-	 * Send a message to the Claude Code CLI provider and append its answer.
-	 *
-	 * The first working provider path: no active project, no loaded local
-	 * brain, no persistence — just the operator's subscription-authed Claude
-	 * Code CLI answering live. v1 is non-streamed (the whole reply lands at
-	 * once); token streaming is the follow-up.
+	 * Send a message on an agent thread. Rust saves both sides of the turn;
+	 * the stream shows the turn as it runs and reloads the saved turns when
+	 * it ends.
 	 */
-	async generateViaClaudeCode(content: string): Promise<void> {
-		const text = content.trim();
-		if (!text || this.sending || this.isGenerating) return;
-
+	private async askAgent(content: string): Promise<void> {
+		const sessionId = this.activeSessionId;
+		if (!sessionId) return;
 		this.error = null;
-		this.sending = true;
-
-		const askedAt = Date.now();
-		const sessionId = this.activeSessionId ?? "claude-code";
-		const userMsg: ChatMessage = {
-			id: `local-u-${askedAt}`,
-			sessionId,
-			role: "user",
-			content: text,
-			createdAt: askedAt,
-			tokenCount: null,
-			modelUsed: null,
-			latencyMs: null,
-		};
-		this.messages = [...this.messages, userMsg];
-
-		const startMs = performance.now();
-		try {
-			logInfo("chat", "generateViaClaudeCode: asking claude CLI");
-			const answer = await chatService.claudeCodeChat(text);
-			const latencyMs = Math.round(performance.now() - startMs);
-			const doneAt = Date.now();
-			const assistantMsg: ChatMessage = {
-				id: `local-a-${doneAt}`,
+		this.isGenerating = true;
+		this.messages = [
+			...this.messages,
+			{
+				id: `pending-${Date.now()}`,
 				sessionId,
-				role: "assistant",
-				content: answer,
-				createdAt: doneAt,
+				role: "user",
+				content,
+				createdAt: Math.floor(Date.now() / 1000),
 				tokenCount: null,
-				modelUsed: "claude-code",
-				latencyMs,
-			};
-			this.messages = [...this.messages, assistantMsg];
-			announce("Response complete");
-		} catch (e) {
-			const msg = e instanceof Error ? e.message : String(e);
-			this.error = msg;
-			logError("chat", `generateViaClaudeCode: failed — ${msg}`);
-			announce("Response failed", "assertive");
+				modelUsed: null,
+				latencyMs: null,
+			},
+		];
+		try {
+			await agentsState.prompt(sessionId, content);
 		} finally {
-			this.sending = false;
+			this.isGenerating = false;
+			await this.loadActive();
+			if (agentsState.error) this.error = agentsState.error;
 		}
 	}
 

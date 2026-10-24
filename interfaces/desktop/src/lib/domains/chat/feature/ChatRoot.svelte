@@ -2,10 +2,11 @@
   @feature ChatRoot — golden chat composition (atmosphere + chrome + stream + composer)
 -->
 <script lang="ts">
-import DynamicBackground from "$lib/design/components/dynamic-background/DynamicBackground.svelte";
-import Text from "$lib/design/components/text/Text.svelte";
-import { devpulseState } from "$lib/domains/app/devpulse/index.js";
-import { ModelEventCard, modelsState } from "$lib/domains/app/models/index.js";
+import { DynamicBackground } from "@devpulse/coldlight/components/dynamic-background";
+import { Text } from "@devpulse/coldlight/components/text";
+import { isInferenceReady, ModelEventCard, modelsState } from "$lib/domains/app/models/index.js";
+import { projectsState } from "$lib/domains/app/projects/index.js";
+import { agentsState } from "../data-access/agents.state.svelte.js";
 import { chatState } from "../data-access/chat.state.svelte.js";
 import { sessionsState } from "../data-access/sessions.state.svelte.js";
 import ChatActionsMenu from "./ChatActionsMenu.svelte";
@@ -22,21 +23,26 @@ const activeModelEvents = $derived.by(() => {
 	for (const [slotId, status] of Object.entries(modelsState.statuses)) {
 		if (!status) continue;
 		if (dismissedEvents.has(slotId)) continue;
-		if (status.type === "loading" || status.type === "ready" || status.type === "failed") {
+		if (status.type === "loading" || isInferenceReady(status) || status.type === "failed") {
 			events.push({ slotId, status });
 		}
 	}
 	return events;
 });
 
+// Sessions and messages follow the active project; until Rust's projects
+// state has arrived and the platform answers, there is nothing to load.
 $effect(() => {
-	void devpulseState.data.recentProjects[0]?.id;
+	if (!projectsState.ready) return;
+	const project = projectsState.activeProjectId;
 	void sessionsState.refresh();
+	if (project) void agentsState.refresh(project);
 });
 
 $effect(() => {
 	void chatState.activeSessionId;
-	void devpulseState.data.recentProjects[0]?.id;
+	if (!projectsState.ready) return;
+	void projectsState.activeProjectId;
 	void chatState.loadActive();
 });
 </script>

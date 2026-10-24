@@ -1,0 +1,13 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+@layer tokens.primitives {
+  :root {
+  --layout-topbar-height: 4.125rem; /** Main topbar row height. 66 px at base=16. */
+  --layout-sidebar-collapsed: 3.75rem; /** Sidebar width when collapsed to icons only. 60 px. */
+  --layout-sidebar-expanded: 15rem; /** Sidebar width when expanded with labels. 240 px. */
+  --layout-context-width: 25rem; /** Right context panel width when open. 400 px. */
+  --layout-statusbar-height: 3.25rem; /** Bottom statusbar row height. 52 px. */
+  }
+}

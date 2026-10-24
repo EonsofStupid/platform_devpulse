@@ -14,10 +14,10 @@
 	  - rotateEveryMs prop (number): override rotation speed
 -->
 <script lang="ts">
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Text } from "@devpulse/coldlight/components/text";
+import { stack } from "@devpulse/coldlight/utils";
 import { onDestroy, onMount } from "svelte";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Text } from "$lib/design/components/text/index.js";
-import { stack } from "$lib/design/utils/stack/index.js";
 import { loadingContent } from "./learning.state.svelte.js";
 import type { LoadingContentKind } from "./loading-content.js";
 

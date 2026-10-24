@@ -1,101 +1,41 @@
 /**
- * @file Architecture test: IP boundary enforcement
+ * @file Architecture test: IP boundary, read from the term list
  *
- * Verifies that no kernel terms from kernel_terms.toml appear
- * in the frontend source code. This catches violations that
- * slip past pre-commit hooks (e.g., --no-verify).
+ * The term list — `systems/devpulse-engine/ip/kernel_terms.toml` — is the
+ * single source: its `enforcement` switch and its hard-severity `kernel`
+ * terms. This test reads both, as the pre-commit hook
+ * (`scripts/hooks/ip-boundary-check.sh`) does, and catches across the whole
+ * frontend what slips past the hook (e.g. `--no-verify`).
  *
- * Short terms (CAG, RRO, HMM, BM25) use word-boundary matching to
- * avoid false positives (e.g., "WCAG" contains "CAG", "ARROW" contains "RRO").
+ * Owner 2026-10-19: "keep the configuration so it can be used but for now I
+ * want everything public". With the switch "off" the scan reports as
+ * skipped; set it "on" and every hard term is enforced again.
  *
- * Known violations in existing UI code are baselined — the test catches
- * NEW violations only. Baselined files will be fixed in SPRINT-LAUNCHER-UI
- * when the frontend is migrated to use public equivalents.
+ * A term matches where a word starts, case-sensitively, as in the hook: it
+ * catches the term alone or as an identifier prefix (`RROService`), not
+ * inside an unrelated word ("RRO" in "ERROR").
  *
- * SSOT: systems/devpulse-engine/ip/kernel_terms.toml
+ * Known uses in existing UI code are baselined (paths below).
  */
 import { type Dirent, readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
+import { parse } from "smol-toml";
 import { describe, expect, it } from "vitest";
 
-// Terms that need word-boundary matching (short, appear as substrings).
-// These are matched with \b regex boundaries to avoid WCAG/ARROW/ERROR false positives.
-const SHORT_TERMS = ["CAG", "RRO", "HMM", "BM25", "RKYV", "COSTAR"] as const;
+const TERMS_FILE = join(__dirname, "../../../../systems/devpulse-engine/ip/kernel_terms.toml");
 
-// Multi-word and longer terms — safe for simple includes() matching.
-//
-// The list below is the kernel-only vocabulary that must NEVER appear in
-// frontend source. Several terms that were previously here have been
-// removed because `LOCKED_DECISIONS.md` (Section H "Industry-locked
-// terminology" + Section D "Council roster") promotes them to
-// customer-facing names — keeping them blacklisted would force a
-// rename across hundreds of UI files that intentionally use the
-// product vocabulary.
-//
-// Removed (now customer-facing per locks):
-//   Clyffy   — Council Conductor (locked decisions §D row 1, §H)
-//   Cortex   — public Cortex surfaces per `project_cortex_surfaces`
-//   Minion   — locked decisions §C-2 process model + §D Council seats
-//   OverMind — sidebar route + hotkeys (`project_hotkeys` memory)
-//   DIARY    — Fleece-the-sheep Council seat (locked decisions §D row 4)
-//   VISION   — Siggy-the-Johnny-Crane Council seat (§D row 2)
-//
-// Kept (genuinely kernel-only — algorithms, dead sub-agent names,
-// internal frame mechanics):
-const LONG_TERMS = [
-	// Dead / renamed sub-agent names — should not appear in any new code.
-	// SCRIBE was renamed to Translator (`Fox`) per locked decisions §D;
-	// the others sit in the kernel as old internal labels.
-	"GUARDIAN",
-	"PSYCH",
-	"TEACHER",
-	"SCRIBE",
-	"RESEARCHER",
-	"ENFORCER",
-	"sub-agent",
-	// Trinity is unconfirmed in the locked decisions; treat as kernel-only
-	// until it earns a customer-facing entry.
-	"Trinity",
-	// Rumination algorithm internals (NOT the product surface, which is
-	// the user-visible "Rumination" mode — those would need a separate
-	// case-sensitive treatment if/when they land).
-	"rumination",
-	"rumination layer",
-	"keystroke layer",
-	"pause layer",
-	"send layer",
-	"latency budget",
-	"KV cache warmth",
-	// COSTAR+ prompt framework — kernel-only kernel prompts vocabulary.
-	"COSTAR+",
-	"Context-Objective-Style-Tone-Audience-Response",
-	"vibe-speak",
-	"engineer-speak",
-	"translation layer",
-	"provider-specific frame",
-	"frame tuning",
-	// Algorithms — internal names for retrieval / reranking machinery.
-	"Hidden Markov Model",
-	"state transition matrix",
-	"RRF fusion",
-	"Reciprocal Rank Fusion",
-	"Context-Augmented Generation",
-	"RAG pipeline",
-	"Retrieval-Augmented Generation",
-	"zero-copy deserialization",
-	"cross-encoder",
-	"dense retrieval",
-	"hybrid search",
-	"reranking",
-	"speculative decoding",
-	"Reason Ready Object",
-] as const;
+type TermEntry = { kernel?: unknown; severity?: unknown };
+type TermList = { enforcement?: unknown; terms?: TermEntry[] };
 
-// NOTE: "background layer" removed — too many false positives in CSS/SVG contexts
-// where "background layer" refers to visual layers, not rumination architecture.
-
-// Build word-boundary regexes for short terms
-const SHORT_TERM_REGEXES = SHORT_TERMS.map((term) => [term, new RegExp(`\\b${term}\\b`)] as const);
+const termList = parse(readFileSync(TERMS_FILE, "utf8")) as TermList;
+const enforced = termList.enforcement === "on";
+const hardTerms = (termList.terms ?? [])
+	.filter((t) => t.severity === "hard" && typeof t.kernel === "string" && t.kernel !== "")
+	.map((t) => t.kernel as string);
+const escapeRegex = (term: string): string => term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const TERM_REGEXES = hardTerms.map(
+	(term) => [term, new RegExp(`\\b${escapeRegex(term)}`)] as const,
+);
 
 // Files/paths with KNOWN kernel term usage. These are baselined — not
 // ignored, just documented. Two categories live here:
@@ -191,60 +131,40 @@ describe("IP Boundary — Frontend", () => {
 	const srcRoot = join(import.meta.dirname ?? __dirname, "../../src");
 	const files = collectFiles(srcRoot, [".ts", ".svelte"]);
 
-	it("should not contain kernel terms in non-baselined frontend source", () => {
-		const violations: Array<{
-			file: string;
-			line: number;
-			term: string;
-			text: string;
-		}> = [];
+	it("reads its switch and its terms from the term list", () => {
+		expect(["on", "off"]).toContain(termList.enforcement);
+		expect(hardTerms.length).toBeGreaterThan(0);
+	});
 
-		for (const file of files) {
-			const relPath = relative(srcRoot, file);
+	it.skipIf(!enforced)(
+		"no hard term in non-baselined frontend source (enforcement on in kernel_terms.toml)",
+		() => {
+			const violations: Array<{ file: string; line: number; term: string; text: string }> = [];
 
-			// Skip baselined files (known violations, will be fixed in later sprint)
-			if (isBaselined(relPath)) continue;
+			for (const file of files) {
+				const relPath = relative(srcRoot, file);
+				if (isBaselined(relPath)) continue;
 
-			const content = readFileSync(file, "utf-8");
-			const lines = content.split("\n");
-			for (let i = 0; i < lines.length; i++) {
-				const line = lines[i];
-
-				// Check long terms with simple includes
-				for (const term of LONG_TERMS) {
-					if (line.includes(term)) {
-						violations.push({
-							file: relPath,
-							line: i + 1,
-							term,
-							text: line.trim(),
-						});
-					}
-				}
-
-				// Check short terms with word-boundary regex
-				for (const [term, regex] of SHORT_TERM_REGEXES) {
-					if (regex.test(line)) {
-						violations.push({
-							file: relPath,
-							line: i + 1,
-							term,
-							text: line.trim(),
-						});
+				const lines = readFileSync(file, "utf-8").split("\n");
+				for (let i = 0; i < lines.length; i++) {
+					for (const [term, regex] of TERM_REGEXES) {
+						if (regex.test(lines[i])) {
+							violations.push({ file: relPath, line: i + 1, term, text: lines[i].trim() });
+						}
 					}
 				}
 			}
-		}
 
-		if (violations.length > 0) {
-			const report = violations
-				.map((v) => `  ${v.file}:${v.line} — "${v.term}"\n    ${v.text}`)
-				.join("\n");
-			expect.fail(
-				`IP BOUNDARY VIOLATION: ${violations.length} kernel term(s) found in frontend:\n${report}`,
-			);
-		}
-	});
+			if (violations.length > 0) {
+				const report = violations
+					.map((v) => `  ${v.file}:${v.line} — "${v.term}"\n    ${v.text}`)
+					.join("\n");
+				expect.fail(
+					`IP BOUNDARY VIOLATION: ${violations.length} kernel term(s) found in frontend:\n${report}`,
+				);
+			}
+		},
+	);
 
 	it("should not have stale baseline entries", () => {
 		// Each baselined path must still match at least one file in src/.

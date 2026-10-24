@@ -32,61 +32,23 @@
 //! Rust type — used both for backend-side listeners and for the
 //! type contract that the frontend listener generation depends on.
 
-use devpulse_engine::platform::HardwareMetrics;
-use devpulse_gb10_client::ConnectionState;
+use devpulse_engine::signals::Signal;
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use tauri_specta::Event;
 
-// ── Platform boot lifecycle ─────────────────────────────────────────
+// ── Signal fabric bridge ────────────────────────────────────────────
 
-/// Emitted as the boot task transitions between phases. Replaces the
-/// stringly-typed `platform:boot-phase` event family.
+/// One engine signal forwarded to the UI.
 ///
-/// Frontend listens via `events.bootPhaseChanged.listen(cb)` and
-/// renders the appropriate splash / dashboard / error overlay based
-/// on the phase.
-///
-/// The boot health snapshot is intentionally NOT a field here — it's
-/// a deep `SystemHealth` tree that doesn't implement `specta::Type`
-/// without a wider derive sweep. Consumers that need the post-boot
-/// health blob call the `get_boot_state` Tauri command which returns
-/// it inside a typed `BootSnapshot`.
+/// The desktop shell subscribes to the engine's `SignalRouter` once and
+/// re-emits every signal whose variant routes to `SinkKind::Broadcast`.
+/// The frontend signal fabric (`$lib/sys/events/signal-fabric.svelte.ts`)
+/// is the single listener and dispatches on `signal.payload.type`.
 #[derive(Debug, Clone, Serialize, Deserialize, Type, Event)]
-pub struct BootPhaseChanged {
-    /// New phase value.
-    pub phase: BootPhaseValue,
-    /// Failure message — populated only when `phase == Failed`.
-    pub error: Option<String>,
-}
-
-/// Boot phase value. Mirrors [`crate::state::BootPhase`] but lives in
-/// the events module so the event-export crate doesn't pull the
-/// managed-state surface.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Type)]
-#[serde(rename_all = "lowercase")]
-pub enum BootPhaseValue {
-    /// Platform is still starting up.
-    Initializing,
-    /// All services booted successfully (or degraded gracefully).
-    Ready,
-    /// Boot failed — `BootPhaseChanged.error` carries the reason.
-    Failed,
-}
-
-// ── Hardware push (2s tick) ─────────────────────────────────────────
-
-/// Periodic hardware metrics push (CPU / RAM / GPU / VRAM). Replaces
-/// the stringly-typed `model:hardware` event.
-///
-/// Emitted every 2s by the hardware push task in [`crate::lib`].
-/// Frontend `hardwareState` rune listens and updates VRAM bar, GPU
-/// utilization, etc.
-#[derive(Debug, Clone, Serialize, Deserialize, Type, Event)]
-pub struct HardwareMetricsUpdated {
-    /// Full metrics snapshot. The frontend overwrites its rune state
-    /// from this struct directly — no diff merging.
-    pub metrics: HardwareMetrics,
+pub struct SignalBroadcast {
+    /// Provenance header + typed payload.
+    pub signal: Signal,
 }
 
 // ── llama-server sidecar lifecycle ──────────────────────────────────
@@ -132,7 +94,7 @@ pub struct InferenceTokenStreamed {
 /// invalidate slot-bound runes that depend on the active provider.
 #[derive(Debug, Clone, Serialize, Deserialize, Type, Event)]
 pub struct InferenceProviderChanged {
-    /// New provider identifier (matches `RoutingMode` on the engine
+    /// New provider identifier (matches `RoutingMode` on the kernel
     /// side, surfaced as a plain string here).
     pub provider: String,
 }
@@ -209,28 +171,29 @@ pub struct UpdateDownloadProgress {
 #[derive(Debug, Clone, Serialize, Deserialize, Type, Event)]
 pub struct UpdateInstallFinished {}
 
-// ── Clyffy wire connection ──────────────────────────────────────────
+// ── Agent threads ───────────────────────────────────────────────────
 
-/// The Clyffy (headless AI layer) connection state changed — emitted by the
-/// background probe task on every transition (Disconnected ↔ Connecting ↔
-/// Connected). Frontend listens via `events.clyffyConnectionChanged.listen(cb)`
-/// to flip the no-AI indicator and light up Tier-2 surfaces. The `capability`
-/// inside a `Connected` payload is always **computed** from the endpoint
-/// handshake, never assumed.
+/// One event of an agent thread's running turn (plan 0001 B3.3): part of
+/// the answer, its reasoning, a tool it uses, a permission it asks for, the
+/// turn's end or its failure.
 #[derive(Debug, Clone, Serialize, Deserialize, Type, Event)]
-pub struct ClyffyConnectionChanged {
-    /// New connection state (carries the computed capability when Connected).
-    pub connection: ConnectionState,
+#[serde(rename_all = "camelCase")]
+pub struct AgentStreamed {
+    /// The thread (its chat session id).
+    pub session_id: String,
+    /// What happened.
+    pub event: devpulse_engine::platform::agents::AgentEvent,
 }
 
-/// Live progress from the turnkey endpoint-discovery ladder — one event per
-/// rung scanned, per endpoint verified, and a final tally. The frontend
-/// renders honest per-source progress ("searched your network, your mesh…")
-/// and appends found endpoints as capability cards as they verify.
-/// Discovery is READ-ONLY: connecting stays the operator's confirm via
-/// `connect_clyffy`.
+// ── Rooms ───────────────────────────────────────────────────────────
+
+/// One event of a room answering (plan 0001 B4.2): part of a place's
+/// running turn, a place's finished turn, or the room's outcome.
 #[derive(Debug, Clone, Serialize, Deserialize, Type, Event)]
-pub struct ClyffyDiscoveryProgress {
-    /// What happened (source_scanned / found / finished).
-    pub event: crate::endpoint_discovery::DiscoveryEvent,
+#[serde(rename_all = "camelCase")]
+pub struct RoomStreamed {
+    /// The room (its chat session id).
+    pub session_id: String,
+    /// What happened.
+    pub event: devpulse_engine::platform::rooms::RoomEvent,
 }

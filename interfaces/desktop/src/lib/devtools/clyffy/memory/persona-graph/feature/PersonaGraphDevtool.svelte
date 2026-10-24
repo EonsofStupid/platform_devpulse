@@ -15,15 +15,15 @@
 	             the clyffy domain so the route hierarchy is honest.
 -->
 <script lang="ts">
-import { Brain, RefreshCw } from "@lucide/svelte";
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Callout } from "@devpulse/coldlight/components/callout";
+import { Card } from "@devpulse/coldlight/components/card";
+import { Spinner } from "@devpulse/coldlight/components/spinner";
+import { StatusDot } from "@devpulse/coldlight/components/status-dot";
+import { Text } from "@devpulse/coldlight/components/text";
+import { RefreshCw } from "lucide-svelte";
 import { onMount } from "svelte";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Button } from "$lib/design/components/button/index.js";
-import { Callout } from "$lib/design/components/callout/index.js";
-import { Card } from "$lib/design/components/card/index.js";
-import { Spinner } from "$lib/design/components/spinner/index.js";
-import { StatusDot } from "$lib/design/components/status-dot/index.js";
-import { Text } from "$lib/design/components/text/index.js";
 import {
 	BRAIN_NARRATION,
 	formatLatencyUs,
@@ -61,12 +61,6 @@ const totalRecords = $derived(
 </script>
 
 <ServiceDevtoolShell
-	title="Persona Graph"
-	description="Clyffy's identity in SurrealDB · 3 namespaces"
-	icon={Brain}
-	axis="capabilities"
-	accent="violet"
-	backdrop="persona-graph"
 	health={badge}
 >
 	<!-- ── STATUS — knowledge graph health + per-namespace cards -->
@@ -75,7 +69,7 @@ const totalRecords = $derived(
 			<div class="flex items-center justify-between">
 				<Text size="sm" weight="semibold">{BRAIN_NARRATION.headline}</Text>
 				<Button
-					preset="ghost"
+					variant="ghost"
 					size="sm"
 					onclick={() => rroState.loadBrain()}
 					disabled={rroState.brainLoading}
@@ -98,7 +92,7 @@ const totalRecords = $derived(
 			{/if}
 
 			{#if rroState.brainHealth}
-				<Card preset="flat">
+				<Card surface="flat" variant="minimal">
 					<div class="p-3 flex items-center justify-between">
 						<div class="flex items-center gap-2">
 							<StatusDot
@@ -123,7 +117,7 @@ const totalRecords = $derived(
 					{@const copy =
 						BRAIN_NARRATION.namespaces[ns as keyof typeof BRAIN_NARRATION.namespaces]}
 					{@const stats = rroState.brainStats[ns]}
-					<Card preset="glass">
+					<Card surface="glass" variant="deep">
 						<div class="p-3 space-y-2">
 							<div class="flex items-center justify-between">
 								<div>
@@ -198,7 +192,7 @@ const totalRecords = $derived(
 					</Card>
 				{/each}
 
-				<Card preset="flat">
+				<Card surface="flat" variant="minimal">
 					<div class="p-3 flex items-center justify-between">
 						<Text size="sm" weight="medium">Total knowledge</Text>
 						<Text size="sm" weight="semibold">

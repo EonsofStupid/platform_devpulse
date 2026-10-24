@@ -1,9 +1,9 @@
 //! # Internal Events
 //!
-//! Every event the engine can emit. These are the raw, unfiltered
+//! Every event the kernel can emit. These are the raw, unfiltered
 //! signals that flow through `tokio::broadcast` before hitting the facade.
 //!
-//! Design principle: **enumerate everything**. If the engine does it internally,
+//! Design principle: **enumerate everything**. If the kernel does it internally,
 //! there's a variant here. The whitelist controls what surfaces — not this enum.
 //!
 //! All variants carry enough context to translate into a `SurfaceEvent`
@@ -244,7 +244,7 @@ pub enum ToneLevel {
 // The main event enum
 // ─────────────────────────────────────────────────────────────────
 
-/// Every internal event the engine can emit.
+/// Every internal event the kernel can emit.
 ///
 /// Events are sent via `tokio::broadcast` which requires `Clone`.
 /// The `Observation::raw_json` field is the heaviest payload — consider
@@ -430,7 +430,7 @@ pub enum InternalEvent {
     /// audio pipeline, voice brain orchestrator) react without polling.
     RoutingConfigChanged {
         /// Selected response source / Claude lane. Round-tripped to
-        /// the `assistant.routing.mode` dispatch SSOT on save so the
+        /// the kernel `assistant.routing.mode` SSOT on save so the
         /// existing `inner_get_inference_provider` consumer is gated
         /// by this surface.
         response_source: crate::platform::services::routing_config::InferenceProvider,

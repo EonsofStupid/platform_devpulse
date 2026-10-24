@@ -4,24 +4,20 @@
   @domain devpulse
 
   Projects route — one active project at a time, with reference
-  directories linked to it. Reads from `projectsState` (libSQL SSOT
-  via tauri-specta bindings), not the legacy mock `devpulseState`.
+  directories linked to it. Renders `projectsState`, which follows Rust's
+  `projects` state signal (Turso is the source), not the legacy mock
+  `devpulseState`.
 -->
 <script lang="ts">
-import { Widget } from "$lib/design/blocks/widgets/index.js";
-import { Card } from "$lib/design/components/card/index.js";
-import { Text } from "$lib/design/components/text/index.js";
-import { gridLayout } from "$lib/design/utils/grid-layout/index.js";
-import { stack } from "$lib/design/utils/stack/index.js";
+import { Widget } from "@devpulse/coldlight/blocks/widgets";
+import { Card } from "@devpulse/coldlight/components/card";
+import { Text } from "@devpulse/coldlight/components/text";
+import { gridLayout, stack } from "@devpulse/coldlight/utils";
 import {
 	ProjectReferences,
 	ProjectSwitcher,
 	projectsState,
 } from "$lib/domains/app/projects/index.js";
-
-$effect(() => {
-	void projectsState.refresh("projects-route-mount");
-});
 </script>
 
 <div class={stack({ gap: "4" })} data-page="devpulse-projects">
@@ -31,7 +27,7 @@ $effect(() => {
 			{#if projectsState.activeProject}
 				<div>
 					<Text weight="semibold">{projectsState.activeProject.name}</Text>
-					<Text size="xs">{projectsState.activeProject.rootPath}</Text>
+					<Text size="xs">{projectsState.activeProject.root_path}</Text>
 					{#if projectsState.activeProject.description}
 						<Text size="sm">{projectsState.activeProject.description}</Text>
 					{/if}
@@ -53,11 +49,11 @@ $effect(() => {
 		<Widget title="All Projects">
 			<div class={gridLayout({ columns: "3", gap: "3" })}>
 				{#each projectsState.projects as project (project.id)}
-					<Card preset="default">
+					<Card>
 						<div class={stack({ gap: "2" })}>
 							<Text weight="semibold">{project.name}</Text>
-							<Text size="xs">{project.rootPath}</Text>
-							<Text size="xs">{project.projectType}</Text>
+							<Text size="xs">{project.root_path}</Text>
+							<Text size="xs">{project.project_type}</Text>
 						</div>
 					</Card>
 				{/each}

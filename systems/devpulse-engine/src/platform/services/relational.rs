@@ -1,4 +1,4 @@
-//! Relational service wrapper (`LibSQL`).
+//! Relational service wrapper (Turso).
 //!
 //! Three scoped schemas:
 //! - **System**: platform config, guardian state (git/file drift),
@@ -10,16 +10,43 @@
 //!   codebase patterns, conventions, anti-drift log
 
 use super::{Service, ServiceRole, ServiceState};
-use anyhow::Result;
-use devpulse_store::TursoAdapter;
-use std::path::Path;
+use crate::platform::db::{migrate, Migration};
+use anyhow::{Context, Result};
+use devpulse_clyffy::cortex::persistence::{TursoAdapter, TursoOptions};
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
-/// Relational store backed by `LibSQL`.
+/// What a relational store applies when it opens: the base schema
+/// (idempotent `CREATE ... IF NOT EXISTS`) and its versioned migrations.
+#[derive(Debug, Clone, Copy)]
+pub struct StoreSchema {
+    /// Base schema for the scope.
+    pub schema: &'static str,
+    /// Versioned migrations for the scope, in order.
+    pub migrations: &'static [Migration],
+}
+
+/// The system store: base schema + `migrations/system`.
+pub const SYSTEM_STORE: StoreSchema = StoreSchema {
+    schema: SYSTEM_SCHEMA,
+    migrations: crate::platform::db::migrations::SYSTEM,
+};
+
+/// The user store: base schema + `migrations/user`.
+pub const USER_STORE: StoreSchema = StoreSchema {
+    schema: USER_SCHEMA,
+    migrations: crate::platform::db::migrations::USER,
+};
+
+/// Relational store backed by Turso.
 pub struct RelationalService {
     adapter: Arc<TursoAdapter>,
+    /// The database file this service opened.
+    path: PathBuf,
     /// Scoped name for health checks (e.g., "System relational", "User relational").
     label: &'static str,
+    /// The migrations this build ships for the store's scope.
+    migrations: &'static [Migration],
 }
 
 impl RelationalService {
@@ -27,17 +54,40 @@ impl RelationalService {
     ///
     /// # Errors
     /// Returns error if the database cannot be opened or schema initialization fails.
-    pub async fn boot(path: &Path, schema: &str, label: &'static str) -> Result<Self> {
-        let adapter = TursoAdapter::open_with_schema(path, schema).await?;
+    pub async fn boot(
+        path: &Path,
+        store: StoreSchema,
+        label: &'static str,
+        options: TursoOptions,
+    ) -> Result<Self> {
+        let adapter = TursoAdapter::open_with_schema(path, store.schema, options).await?;
+        let applied = migrate(&adapter, store.migrations)
+            .await
+            .with_context(|| format!("{label}: schema migration"))?;
+        if applied > 0 {
+            tracing::info!(service = label, applied, "relational store migrated");
+        }
         Ok(Self {
             adapter: Arc::new(adapter),
+            path: path.to_path_buf(),
             label,
+            migrations: store.migrations,
         })
     }
 
     /// Get the underlying adapter for typed access.
     pub fn adapter(&self) -> &Arc<TursoAdapter> {
         &self.adapter
+    }
+
+    /// The database file this service opened.
+    pub fn path(&self) -> &Path {
+        &self.path
+    }
+
+    /// The migrations this build ships for the store's scope.
+    pub fn migrations(&self) -> &'static [Migration] {
+        self.migrations
     }
 }
 
@@ -59,7 +109,7 @@ impl Service for RelationalService {
     }
 
     async fn shutdown(&self) -> Result<()> {
-        tracing::info!(service = self.label, "Shutting down LibSQL service");
+        tracing::info!(service = self.label, "Shutting down Turso service");
         self.adapter.close().await;
         Ok(())
     }
@@ -180,9 +230,9 @@ CREATE TABLE IF NOT EXISTS profiles (
     id TEXT PRIMARY KEY,
     display_name TEXT,
     email TEXT UNIQUE,
-    hardware_profile TEXT DEFAULT '32g_engineer',
+    hardware_profile TEXT,
     onboarding_complete INTEGER DEFAULT 0,
-    expertise_level INTEGER DEFAULT 1,
+    expertise_level INTEGER,
     created_at INTEGER DEFAULT (unixepoch()),
     updated_at INTEGER DEFAULT (unixepoch()),
     last_active_at INTEGER
@@ -384,6 +434,23 @@ CREATE TABLE IF NOT EXISTS turns (
 );
 CREATE INDEX IF NOT EXISTS idx_turns_session ON turns(session_id, sequence_num);
 CREATE INDEX IF NOT EXISTS idx_turns_project ON turns(project_id);
+
+-- Agent threads: a session held with one of your agents (plan 0001 B3.3)
+CREATE TABLE IF NOT EXISTS agent_threads (
+    session_id TEXT PRIMARY KEY REFERENCES sessions(id) ON DELETE CASCADE,
+    provider_id TEXT NOT NULL,               -- registry id: claude-code, codex, …
+    resume_token TEXT,                       -- the agent's own id that continues it
+    created_at INTEGER DEFAULT (unixepoch())
+);
+
+-- Rooms: a chat session whose seats your agents hold (plan 0001 B4.2)
+CREATE TABLE IF NOT EXISTS room_threads (
+    session_id TEXT PRIMARY KEY REFERENCES sessions(id) ON DELETE CASCADE,
+    room_id TEXT NOT NULL,                   -- library room: council, debate, …
+    seating TEXT NOT NULL,                   -- JSON [{seat, place, provider, persona}]
+    resume_tokens TEXT,                      -- JSON {place: the agent's own id that continues it}
+    created_at INTEGER DEFAULT (unixepoch())
+);
 
 -- Session anchors (facts extracted during conversation)
 CREATE TABLE IF NOT EXISTS anchors (
@@ -600,20 +667,6 @@ CREATE TABLE IF NOT EXISTS model_registry (
 );
 CREATE INDEX IF NOT EXISTS idx_models_slot ON model_registry(slot_name, is_active);
 
--- Detected hardware (populated during onboarding)
-CREATE TABLE IF NOT EXISTS hardware_profile (
-    id              TEXT PRIMARY KEY,
-    detected_at     INTEGER NOT NULL DEFAULT (unixepoch()),
-    cpu_model       TEXT,
-    cpu_cores       INTEGER,
-    ram_total_mb    INTEGER,
-    gpu_count       INTEGER,
-    gpu_details     TEXT,                        -- JSON array of GPU info
-    vram_total_mb   INTEGER,
-    os_info         TEXT,
-    preset_tier     TEXT                         -- baseline_8gb | midrange_12gb | highend_24gb | custom
-);
-
 -- ── Internal / Dogfooding ───────────────────────────────────
 
 -- Raw observations during dogfooding (dev builds only)
@@ -685,10 +738,10 @@ CREATE TABLE IF NOT EXISTS knowledge_config (
 -- ── Vision Pipeline Frames ─────────────────────────────────────
 
 -- One row per captured frame the pipeline lands. Composite sink
--- writes to disk + libSQL + DuckDB; this table is the libSQL half.
+-- writes to disk + Turso + DuckDB; this table is the Turso half.
 -- `sink_path` mirrors the disk-sink path for that frame so a query
 -- here can locate the on-disk PNG; empty when disk sink is configured
--- out. `embedding_csv` is a comma-separated f32 list (libSQL has BLOB
+-- out. `embedding_csv` is a comma-separated f32 list (Turso has BLOB
 -- support but the SqlAdapter trait carries `&[&str]` params, and CSV
 -- round-trips cleanly).
 CREATE TABLE IF NOT EXISTS vision_frames (

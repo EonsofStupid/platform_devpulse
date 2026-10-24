@@ -32,8 +32,8 @@
  * # Locked product facts
  *
  *   - Customer never picks model size — recommendations come from
- *     the engine's tier-adaptive selector.
- *   - Harrier 0.6B ref-counts across 5 engine slots; Sparkles tile
+ *     the kernel's tier-adaptive selector.
+ *   - Harrier 0.6B ref-counts across 5 kernel slots; Sparkles tile
  *     triggers all 5 paired installs. See `slot-anatomy.ts.PAIRED_SLOTS`.
  *   - No multi-step wizard nav — devtool tabs replace it.
  */
@@ -67,11 +67,11 @@ interface AutoConfigPayload {
 }
 
 class SlotsBootstrapState {
-	/** Whether the engine reports this is the user's first launch. `null`
+	/** Whether the kernel reports this is the user's first launch. `null`
 	 *  before the first `refreshFirstRun()` resolves; `boolean` after. */
 	firstRun = $state<boolean | null>(null);
 
-	/** Layman copy loaded from the engine — used for completion strings,
+	/** Layman copy loaded from the kernel — used for completion strings,
 	 *  download progress copy, etc. */
 	copy = $state<WizardCopy | null>(null);
 
@@ -83,7 +83,7 @@ class SlotsBootstrapState {
 	 *  Cleared when the next call succeeds. */
 	error = $state<string | null>(null);
 
-	/** Recommendations from the engine's auto-config pass. Populated lazily
+	/** Recommendations from the kernel auto-config pass. Populated lazily
 	 *  by `recommend()`; never auto-dispatched. */
 	recommendations = $state<SlotRecommendation[]>([]);
 
@@ -105,7 +105,7 @@ class SlotsBootstrapState {
 	slotSaveErrors = $state<Record<string, string>>({});
 
 	/**
-	 * Refresh `firstRun` from the engine. Called by surfaces that need to
+	 * Refresh `firstRun` from the kernel. Called by surfaces that need to
 	 * branch on "is this the first launch?" before any UI render.
 	 */
 	async refreshFirstRun(): Promise<void> {
@@ -119,9 +119,9 @@ class SlotsBootstrapState {
 	}
 
 	/**
-	 * Mark setup complete with the engine. Used after the customer has
+	 * Mark setup complete with the kernel. Used after the customer has
 	 * saved at least one model and acknowledged the bootstrap surface.
-	 * Throws on engine-side failure so the caller can surface the error.
+	 * Throws on kernel-side failure so the caller can surface the error.
 	 */
 	async markComplete(): Promise<void> {
 		const r = await markSetupComplete();
@@ -134,7 +134,7 @@ class SlotsBootstrapState {
 
 	/**
 	 * Load layman copy + tier display in parallel. Idempotent — re-runs
-	 * overwrite whatever was loaded before (cheap engine reads).
+	 * overwrite whatever was loaded before (cheap kernel reads).
 	 */
 	async loadCopy(): Promise<void> {
 		const [copyR, tierR] = await Promise.all([getWizardCopy(), getTierDisplay()]);
@@ -152,12 +152,12 @@ class SlotsBootstrapState {
 	}
 
 	/**
-	 * Pull tier-aware recommendations from the engine. POPULATES only —
+	 * Pull tier-aware recommendations from the kernel. POPULATES only —
 	 * no installs dispatched here. Each customer tile click is what
 	 * actually drives the install chain via `saveOneSlot`.
 	 *
 	 * Re-runs are idempotent and overwrite the previous response. The
-	 * engine re-computes per call (tier may have shifted, e.g. GPU
+	 * kernel re-computes per call (tier may have shifted, e.g. GPU
 	 * reattached) so we never cache.
 	 */
 	async recommend(): Promise<void> {
@@ -244,7 +244,7 @@ class SlotsBootstrapState {
 	/**
 	 * Derived: one `SlotSaveEntry` per recommendation that has an
 	 * anatomy mapping in `SLOT_LAYMAN`. Recommendations without a
-	 * mapping (future engine slots not yet surfaced in UI) are
+	 * mapping (future kernel slots not yet surfaced in UI) are
 	 * intentionally dropped — they'll surface as a visible gap in the
 	 * constellation rather than render with placeholder copy.
 	 */
@@ -298,7 +298,7 @@ class SlotsBootstrapState {
 }
 
 /**
- * Derive a customer-facing model name from an engine recommendation.
+ * Derive a customer-facing model name from a kernel recommendation.
  * Preset author's `display_name` wins; absent, falls back to a clean
  * derivation of the HF repo id last segment (drops `-GGUF`,
  * `-Instruct`, version-and-quant suffixes). Never throws — worst case

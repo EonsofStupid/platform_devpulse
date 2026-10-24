@@ -53,25 +53,6 @@ async storeAssistantTurn(sessionId: string, projectId: string, content: string, 
 }
 },
 /**
- * Run one prompt through the local Claude Code CLI and return its answer.
- * 
- * The prompt is passed as a single argument (not shell-interpolated), so a
- * multi-line chat message is preserved verbatim. Requires the `claude` CLI
- * installed and authenticated on the operator's machine.
- * 
- * # Errors
- * Returns a formatted message when the `claude` CLI can't be launched, exits
- * non-zero, or emits output that isn't the expected JSON result object.
- */
-async claudeCodeChat(prompt: string) : Promise<Result<string, string>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("claude_code_chat", { prompt }) };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
-/**
  * Load recent turns for a project. When `session_id` is `None`, uses the latest session for the project.
  */
 async loadRecent(projectId: string, sessionId: string | null) : Promise<Result<ChatMessage[], string>> {
@@ -83,7 +64,18 @@ async loadRecent(projectId: string, sessionId: string | null) : Promise<Result<C
 }
 },
 /**
- * Recall top-`k` historical prompts most similar to the partial being typed.
+ * Recall top-`k` historical prompts most similar to the partial input
+ * the user is currently typing.
+ * 
+ * `persona_id` may be empty — the service falls back to the default
+ * persona for single-user installs.
+ * 
+ * # Errors
+ * - Platform is still booting.
+ * - Suggestion service cannot construct (`model_loader` or `user_graph`
+ * not yet ready).
+ * - Embedder failure (model not loaded).
+ * - `SurrealDB` query failure.
  */
 async suggestQuery(partial: string, personaId: string, k: number) : Promise<Result<Suggestion[], string>> {
     try {
@@ -94,7 +86,17 @@ async suggestQuery(partial: string, personaId: string, k: number) : Promise<Resu
 }
 },
 /**
- * Capture a committed prompt into Clyffy's recall corpus for future recall.
+ * Capture a committed prompt into the corpus for future recall.
+ * 
+ * `accepted` records whether the user accepted a prior suggestion to
+ * build this prompt — used by the recency × similarity × accepted
+ * ranking.
+ * 
+ * # Errors
+ * - Platform is still booting.
+ * - Suggestion service cannot construct.
+ * - Embedder failure.
+ * - `SurrealDB` write failure.
  */
 async suggestRecord(text: string, personaId: string, accepted: boolean) : Promise<Result<null, string>> {
     try {
@@ -219,7 +221,7 @@ async getPreference(key: string) : Promise<Result<string | null, string>> {
  * Set a user preference by key.
  * 
  * Writes to `{data_dir}/preferences.json`. Creates the file if it doesn't exist.
- * User scope only — does not mutate engine slot/preset defaults or project bindings.
+ * User scope only — does not mutate kernel slot/preset defaults or project bindings.
  * One key per call; other keys in the file are preserved.
  */
 async setPreference(key: string, value: string) : Promise<Result<null, string>> {
@@ -265,7 +267,7 @@ async log(level: string, target: string, message: string, runId: string | null) 
 /**
  * Read new lines from the action log starting at `from_offset` (byte offset).
  */
-async tailActionLog(fromOffset: number) : Promise<Result<ActionLogTail, string>> {
+async tailActionLog(fromOffset: number) : Promise<Result<ActionLogTail, CommandError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("tail_action_log", { fromOffset }) };
 } catch (e) {
@@ -276,7 +278,7 @@ async tailActionLog(fromOffset: number) : Promise<Result<ActionLogTail, string>>
 /**
  * Open the `logs` directory under the portable data dir in the OS file manager.
  */
-async openActionLogsFolder() : Promise<Result<null, string>> {
+async openActionLogsFolder() : Promise<Result<null, CommandError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("open_action_logs_folder") };
 } catch (e) {
@@ -294,26 +296,11 @@ async openActionLogsFolder() : Promise<Result<null, string>> {
  * 
  * # Errors
  * - Data dir resolution failed.
- * - Log directory listing failed (IO error).
- * - Most-recent session file could not be read.
+ * - The newest run's session file could not be read.
  */
 async queryScopedLog(targetPrefix: string, limit: number) : Promise<Result<ScopedLogEntry[], string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("query_scoped_log", { targetPrefix, limit }) };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
-/**
- * Return the current boot state snapshot.
- * 
- * Called by the frontend on mount before registering live event listeners.
- * This eliminates the race condition where events fire before listeners exist.
- */
-async getBootState() : Promise<Result<BootSnapshot, string>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("get_boot_state") };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -452,8 +439,7 @@ async getTelemetryRowCounts() : Promise<Result<TelemetryRowCounts, string>> {
  * Get the current retrieval configuration.
  * 
  * # Errors
- * Returns error if platform is still booting, the vector store is disabled,
- * or (standalone desktop) the store is a not-yet-connected Tier-2 capability.
+ * Returns error if platform is still booting or vector store is disabled.
  */
 async getVectorConfig() : Promise<Result<RetrievalConfig, string>> {
     try {
@@ -469,8 +455,7 @@ async getVectorConfig() : Promise<Result<RetrievalConfig, string>> {
  * Changes take effect immediately — no restart required.
  * 
  * # Errors
- * Returns error if platform is still booting, the vector store is disabled,
- * or (standalone desktop) the store is a not-yet-connected Tier-2 capability.
+ * Returns error if platform is still booting or vector store is disabled.
  */
 async setVectorConfig(config: RetrievalConfig) : Promise<Result<null, string>> {
     try {
@@ -484,8 +469,7 @@ async setVectorConfig(config: RetrievalConfig) : Promise<Result<null, string>> {
  * Get vector store health — collections, point counts, storage path.
  * 
  * # Errors
- * Returns error if platform is still booting, the vector store is disabled,
- * or (standalone desktop) the store is a not-yet-connected Tier-2 capability.
+ * Returns error if platform is still booting or vector store is disabled.
  */
 async getVectorHealth() : Promise<Result<VectorHealthReport, string>> {
     try {
@@ -503,9 +487,8 @@ async getVectorHealth() : Promise<Result<VectorHealthReport, string>> {
  * the encoder slot.
  * 
  * # Errors
- * Returns error if platform is booting, the vector store is disabled, the
- * search fails, or (standalone desktop) the store is a not-yet-connected
- * Tier-2 capability.
+ * Returns error if platform is booting, vector store is disabled,
+ * or the search fails.
  */
 async vectorTestSearch(collection: string, vector: number[], limit: number) : Promise<Result<VectorSearchResult[], string>> {
     try {
@@ -522,9 +505,8 @@ async vectorTestSearch(collection: string, vector: number[], limit: number) : Pr
  * Collection-level settings are fixed at creation.
  * 
  * # Errors
- * Returns error if platform is booting, the vector store is disabled, creation
- * fails, or (standalone desktop) the store is a not-yet-connected Tier-2
- * capability.
+ * Returns error if platform is booting, vector store is disabled,
+ * or collection creation fails.
  */
 async createVectorCollection(name: string, dimension: number) : Promise<Result<null, string>> {
     try {
@@ -538,9 +520,8 @@ async createVectorCollection(name: string, dimension: number) : Promise<Result<n
  * Delete a vector collection and all its points.
  * 
  * # Errors
- * Returns error if platform is booting, the vector store is disabled, deletion
- * fails, or (standalone desktop) the store is a not-yet-connected Tier-2
- * capability.
+ * Returns error if platform is booting, vector store is disabled,
+ * or collection deletion fails.
  */
 async deleteVectorCollection(name: string) : Promise<Result<null, string>> {
     try {
@@ -556,9 +537,6 @@ async deleteVectorCollection(name: string) : Promise<Result<null, string>> {
  * Returns field metadata (label, family, description, slider bounds)
  * so the frontend renders sliders generically without hardcoded labels.
  * 
- * Always available — pure metadata, independent of the vector store backend,
- * so the retrieval-config UI renders identically in Tier-1 and Tier-2.
- * 
  * # Errors
  * Infallible — the `Result` shape is kept for binding parity with the
  * sibling `Result`-returning retrieval-config commands so the TS
@@ -573,7 +551,7 @@ async getRetrievalParamMeta() : Promise<Result<RetrievalParamMeta[], string>> {
 }
 },
 /**
- * Get the current RRO state snapshot from headless Clyffy.
+ * Get the current RRO state snapshot.
  */
 async getRroState() : Promise<Result<RroStateSnapshot, string>> {
     try {
@@ -584,7 +562,7 @@ async getRroState() : Promise<Result<RroStateSnapshot, string>> {
 }
 },
 /**
- * Set the deliberation depth on Clyffy. Does not transition state.
+ * Set the deliberation depth. Does not transition state.
  */
 async setRroDepth(depth: RroDepth) : Promise<Result<RroStateSnapshot, string>> {
     try {
@@ -595,7 +573,7 @@ async setRroDepth(depth: RroDepth) : Promise<Result<RroStateSnapshot, string>> {
 }
 },
 /**
- * Trigger a gather on Clyffy. Transitions state → gathering.
+ * Trigger a gather. Transitions state → gathering.
  */
 async triggerRroGather(source: string) : Promise<Result<RroStateSnapshot, string>> {
     try {
@@ -606,7 +584,7 @@ async triggerRroGather(source: string) : Promise<Result<RroStateSnapshot, string
 }
 },
 /**
- * Trigger a purge on Clyffy. Transitions state → purged.
+ * Trigger a purge. Transitions state → purged.
  */
 async triggerRroPurge(reason: string) : Promise<Result<RroStateSnapshot, string>> {
     try {
@@ -617,7 +595,7 @@ async triggerRroPurge(reason: string) : Promise<Result<RroStateSnapshot, string>
 }
 },
 /**
- * Trigger a fork on Clyffy. Transitions state → forked.
+ * Trigger a fork. Transitions state → forked.
  */
 async triggerRroFork(label: string) : Promise<Result<RroStateSnapshot, string>> {
     try {
@@ -628,7 +606,7 @@ async triggerRroFork(label: string) : Promise<Result<RroStateSnapshot, string>> 
 }
 },
 /**
- * Set the proximity diagnostic indicator on Clyffy. Clamped to [0.0, 1.0].
+ * Set the proximity diagnostic indicator. Clamped to [0.0, 1.0].
  */
 async setRroProximity(value: number) : Promise<Result<RroStateSnapshot, string>> {
     try {
@@ -639,7 +617,7 @@ async setRroProximity(value: number) : Promise<Result<RroStateSnapshot, string>>
 }
 },
 /**
- * Get the current grammar snapshot from headless Clyffy.
+ * Get the current grammar snapshot.
  */
 async getGrammarState() : Promise<Result<GrammarSnapshot, string>> {
     try {
@@ -650,7 +628,7 @@ async getGrammarState() : Promise<Result<GrammarSnapshot, string>> {
 }
 },
 /**
- * Set the active grammar kind on Clyffy (does not imply enforcement).
+ * Set the active grammar kind (does not imply enforcement).
  */
 async setGrammarKind(kind: GrammarKind) : Promise<Result<GrammarSnapshot, string>> {
     try {
@@ -661,7 +639,10 @@ async setGrammarKind(kind: GrammarKind) : Promise<Result<GrammarSnapshot, string
 }
 },
 /**
- * Enable Clyffy's grammar engine with an opaque grammar id.
+ * Enable the grammar engine with an opaque grammar id.
+ * 
+ * The caller supplies the id; it's treated as an opaque handle for
+ * display (`active_grammar_id` in snapshots) and never parsed.
  */
 async enableGrammar(grammarId: string) : Promise<Result<GrammarSnapshot, string>> {
     try {
@@ -672,7 +653,7 @@ async enableGrammar(grammarId: string) : Promise<Result<GrammarSnapshot, string>
 }
 },
 /**
- * Disable Clyffy's grammar engine entirely.
+ * Disable the grammar engine entirely.
  */
 async disableGrammar() : Promise<Result<GrammarSnapshot, string>> {
     try {
@@ -683,10 +664,10 @@ async disableGrammar() : Promise<Result<GrammarSnapshot, string>> {
 }
 },
 /**
- * Ping a single graph namespace on Clyffy — reachable + latency.
+ * Ping a single graph namespace — returns reachable + latency.
  * 
  * # Errors
- * `Err` when Clyffy is disconnected, or connected but its capability lacks the graph surface.
+ * Returns error string if platform is still booting.
  */
 async pingGraph(namespace: GraphNamespace) : Promise<Result<GraphPingResult, string>> {
     try {
@@ -697,10 +678,10 @@ async pingGraph(namespace: GraphNamespace) : Promise<Result<GraphPingResult, str
 }
 },
 /**
- * Ping all three graph namespaces on Clyffy + check the graph server.
+ * Ping all three graph namespaces + check HTTP server.
  * 
  * # Errors
- * `Err` when Clyffy is disconnected, or connected but its capability lacks the graph surface.
+ * Returns error string if platform is still booting.
  */
 async graphHealthAll() : Promise<Result<GraphHealthAll, string>> {
     try {
@@ -711,10 +692,13 @@ async graphHealthAll() : Promise<Result<GraphHealthAll, string>> {
 }
 },
 /**
- * List tables and record counts for a namespace on Clyffy.
+ * List tables and record counts for a namespace.
+ * 
+ * Runs `INFO FOR DB` then `SELECT count() FROM {table} GROUP ALL`
+ * for each table discovered.
  * 
  * # Errors
- * `Err` when Clyffy is disconnected, or connected but its capability lacks the graph surface.
+ * Returns error string if platform is still booting or namespace unavailable.
  */
 async graphListTables(namespace: GraphNamespace) : Promise<Result<GraphTableInfo[], string>> {
     try {
@@ -725,10 +709,10 @@ async graphListTables(namespace: GraphNamespace) : Promise<Result<GraphTableInfo
 }
 },
 /**
- * Get aggregate stats for a namespace on Clyffy.
+ * Get aggregate stats for a namespace.
  * 
  * # Errors
- * `Err` when Clyffy is disconnected, or connected but its capability lacks the graph surface.
+ * Returns error string if platform is still booting or namespace unavailable.
  */
 async graphStats(namespace: GraphNamespace) : Promise<Result<GraphNamespaceStats, string>> {
     try {
@@ -739,10 +723,13 @@ async graphStats(namespace: GraphNamespace) : Promise<Result<GraphNamespaceStats
 }
 },
 /**
- * Execute a raw `SurrealQL` query against a namespace on Clyffy — devtools console.
+ * Execute a raw `SurrealQL` query against a namespace — devtools console.
+ * 
+ * Returns JSON-encoded string of the result.
  * 
  * # Errors
- * `Err` when Clyffy is disconnected, or connected but its capability lacks the graph surface.
+ * Returns error string if platform is still booting, namespace unavailable,
+ * or the query fails.
  */
 async graphQuery(namespace: GraphNamespace, query: string) : Promise<Result<string, string>> {
     try {
@@ -753,10 +740,10 @@ async graphQuery(namespace: GraphNamespace, query: string) : Promise<Result<stri
 }
 },
 /**
- * List all keys in the scoped kv table for a namespace on Clyffy.
+ * List all keys in the scoped kv table for a namespace.
  * 
  * # Errors
- * `Err` when Clyffy is disconnected, or connected but its capability lacks the graph surface.
+ * Returns error string if platform is still booting or namespace unavailable.
  */
 async graphKvList(namespace: GraphNamespace) : Promise<Result<GraphKvEntry[], string>> {
     try {
@@ -767,33 +754,88 @@ async graphKvList(namespace: GraphNamespace) : Promise<Result<GraphKvEntry[], st
 }
 },
 /**
- * Ping both `LibSQL` databases — returns health for each.
+ * Ping every Turso database.
  */
-async libsqlHealthAll() : Promise<Result<LibSqlHealthAll, string>> {
+async tursoHealthAll() : Promise<Result<TursoHealth[], string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("libsql_health_all") };
+    return { status: "ok", data: await TAURI_INVOKE("turso_health_all") };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
 }
 },
 /**
- * List tables and row counts for a `LibSQL` database.
+ * The tables in a database, with row and column counts.
  */
-async libsqlListTables(database: LibSqlDatabase) : Promise<Result<LibSqlTableInfo[], string>> {
+async tursoListTables(database: TursoDatabase) : Promise<Result<TableSummary[], string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("libsql_list_tables", { database }) };
+    return { status: "ok", data: await TAURI_INVOKE("turso_list_tables", { database }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
 }
 },
 /**
- * Execute a raw SQL query against a `LibSQL` database — devtools console.
+ * One page of a table's rows, with its columns.
  */
-async libsqlQuery(database: LibSqlDatabase, sql: string) : Promise<Result<LibSqlQueryResult, string>> {
+async tursoTableRows(database: TursoDatabase, table: string, offset: number, limit: number) : Promise<Result<RowPage, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("libsql_query", { database, sql }) };
+    return { status: "ok", data: await TAURI_INVOKE("turso_table_rows", { database, table, offset, limit }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Change some columns of one row; returns the row as stored.
+ */
+async tursoUpdateRow(database: TursoDatabase, table: string, rowid: number, changes: CellChange[]) : Promise<Result<Row, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("turso_update_row", { database, table, rowid, changes }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Add a row; returns it as stored (defaults filled in).
+ */
+async tursoInsertRow(database: TursoDatabase, table: string, values: CellChange[]) : Promise<Result<Row, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("turso_insert_row", { database, table, values }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Delete one row.
+ */
+async tursoDeleteRow(database: TursoDatabase, table: string, rowid: number) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("turso_delete_row", { database, table, rowid }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Every migration this build ships for a database, with when it was applied.
+ */
+async tursoMigrations(database: TursoDatabase) : Promise<Result<MigrationStatus[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("turso_migrations", { database }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Run one statement from the SQL console.
+ */
+async tursoQuery(database: TursoDatabase, sql: string) : Promise<Result<SqlOutcome, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("turso_query", { database, sql }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -885,122 +927,6 @@ async duckdbQuery(sql: string) : Promise<Result<DuckDbQueryResult, string>> {
 async cacheHealth() : Promise<Result<CacheHealth, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("cache_health") };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
-/**
- * Current Clyffy connection state.
- * 
- * Always succeeds — `Disconnected` is the honest standalone answer, not a
- * failure. The frontend derives `tier2Available` and the no-AI indicator from
- * the returned variant, and reads the computed `capability` when `Connected`.
- * 
- * # Errors
- * Never returns `Err` today; the `Result` keeps the specta signature stable if
- * a fallible read is introduced later.
- */
-async connectionStatus() : Promise<Result<ConnectionState, string>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("connection_status") };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
-/**
- * Connect the AI layer to a Clyffy endpoint (the operator's Local or GB10
- * address — discovered or entered, never hardcoded).
- * 
- * Sets the runtime target the probe loop dials; the connection lights up on the
- * next probe tick. Returns (and emits) the immediate `Connecting` cue so the
- * no-AI indicator flips instantly, then the probe settles it to `Connected`
- * (capability computed from the live handshake) or back to `Disconnected` if
- * unreachable — the loop keeps retrying so it reconnects seamlessly.
- * 
- * # Errors
- * Returns `Err` when `url` is empty/whitespace.
- */
-async connectClyffy(url: string) : Promise<Result<ConnectionState, string>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("connect_clyffy", { url }) };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
-/**
- * Disconnect the AI layer — return DevPulse to standalone (Tier-1).
- * 
- * Clears the target endpoint; the probe loop settles to `Disconnected` on its
- * next tick. Returns (and emits) `Disconnected` immediately so the indicator
- * flips without waiting for the tick.
- * 
- * # Errors
- * Never returns `Err`; the `Result` keeps the specta signature stable.
- */
-async disconnectClyffy() : Promise<Result<ConnectionState, string>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("disconnect_clyffy") };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
-/**
- * Whether the operator has made the connect-or-skip decision at least
- * once. The boot gate reads this: undecided → the wizard auto-opens on
- * the connect step; decided → it never force-opens again (re-entry
- * stays available from the status surfaces).
- * 
- * # Errors
- * Returns `Err` when the data dir can't be resolved.
- */
-async isClyffySetupDecided() : Promise<Result<boolean, string>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("is_clyffy_setup_decided") };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
-/**
- * Record the operator's "not now" — standalone is their decision, a
- * mode, never an error. Leaves any previously persisted endpoint
- * untouched (skipping the wizard must not silently drop a working
- * connection choice).
- * 
- * # Errors
- * Returns `Err` when the data dir can't be resolved or the record
- * can't be written.
- */
-async skipClyffySetup() : Promise<Result<null, string>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("skip_clyffy_setup") };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
-/**
- * Run the turnkey discovery ladder and return every endpoint that
- * answered the capability handshake. Streams `ClyffyDiscoveryProgress`
- * events (per rung scanned, per endpoint verified, final tally) while it
- * runs, so the UI shows honest per-source progress.
- * 
- * READ-ONLY: this never touches `ClyffyConnectionState` — the operator
- * confirms a result and the UI calls `connect_clyffy` with its URL; the
- * probe loop stays the sole connection-state writer. Only enumerated
- * candidates are probed, never address sweeps.
- * 
- * # Errors
- * Returns `Err` when discovery is disabled by config or the platform is
- * not booted yet (config SSOT unavailable).
- */
-async discoverClyffy() : Promise<Result<DiscoveredEndpoint[], string>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("discover_clyffy") };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -1282,13 +1208,11 @@ async candleSaveConfig(cfg: CandleConfig) : Promise<Result<CandleConfig, string>
 }
 },
 /**
- * Restart Clyffy's model pool — unload every loaded slot to force a fresh
- * start (all backends: Candle, llama.cpp, ORT voice).
+ * Unload every loaded slot — forces the backend pool to start fresh.
  * 
- * **Tier-2**: the model pool is Clyffy's (headless, on the GB10). Returns the
- * number of slots unloaded once `clyffyd` serves it; connection-gated until
- * then — disconnected reports "connect Clyffy", connected reports the
- * endpoint as not-yet-served (deferred, not retired).
+ * Applies to all backends (Candle, llama.cpp-embedded, ORT voice).
+ * Returns the number of slots actually unloaded so the devtool can
+ * show "Restarted N slots."
  */
 async candleRestartPool() : Promise<Result<number, string>> {
     try {
@@ -1299,89 +1223,172 @@ async candleRestartPool() : Promise<Result<number, string>> {
 }
 },
 /**
- * Load the persisted llama.cpp-embedded runtime config.
+ * The agent threads of a project, latest first.
  */
-async llamaCppEmbeddedLoadConfig() : Promise<Result<LlamaCppEmbeddedConfig, string>> {
+async agentThreads(projectId: string) : Promise<Result<AgentThread[], string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("llama_cpp_embedded_load_config") };
+    return { status: "ok", data: await TAURI_INVOKE("agent_threads", { projectId }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
 }
 },
 /**
- * Persist llama.cpp-embedded config atomically. Returns the clamped value.
+ * Start a thread with one of your installed agents.
  */
-async llamaCppEmbeddedSaveConfig(cfg: LlamaCppEmbeddedConfig) : Promise<Result<LlamaCppEmbeddedConfig, string>> {
+async agentThreadStart(projectId: string, providerId: ProviderId) : Promise<Result<AgentThread, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("llama_cpp_embedded_save_config", { cfg }) };
+    return { status: "ok", data: await TAURI_INVOKE("agent_thread_start", { projectId, providerId }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
 }
 },
 /**
- * Read the live FFI link state.
- * 
- * Combines three sources:
- * 1. The committed pin at `deps/llama-cpp-prebuilt/manifest.json` —
- * which release this workspace contracts to link against.
- * 2. The presence of `deps/llama-cpp-prebuilt/<target>/lib/llama.lib`
- * for each target — what's actually extracted on this box.
- * 3. The `LLAMA_CPP_PREBUILT_LIB_DIR` env var — what the running
- * process inherited (`apply_env` exports this at xtask boot).
- * 
- * The devtool's Status tab uses this to answer "is the foundation
- * healthy" without spelunking the file system or stderr.
+ * Send a prompt on a thread. Returns once the agent has the prompt; the
+ * turn's events follow as `AgentStreamed`.
  */
-async llamaCppBuildInfo() : Promise<Result<LlamaCppBuildInfo, string>> {
+async agentPrompt(sessionId: string, text: string) : Promise<Result<null, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("llama_cpp_build_info") };
+    return { status: "ok", data: await TAURI_INVOKE("agent_prompt", { sessionId, text }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
 }
 },
 /**
- * Open the per-target prebuilt extract directory in the OS file
- * manager. Useful when diagnosing layout drift after a release bump.
+ * Stop a thread's running turn.
  */
-async llamaCppOpenPrebuiltDir(target: string) : Promise<Result<null, string>> {
+async agentCancel(sessionId: string) : Promise<Result<null, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("llama_cpp_open_prebuilt_dir", { target }) };
+    return { status: "ok", data: await TAURI_INVOKE("agent_cancel", { sessionId }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
 }
 },
 /**
- * Replace `deps/llama-cpp-prebuilt/manifest.json` with a new manifest
- * after a release bump.
- * 
- * Validation gates BEFORE any write:
- * 1. JSON parses into the expected schema.
- * 2. `schema == 1`.
- * 3. Every artifact has a non-empty `sha256`.
- * 4. Every artifact's target matches the supported set
- * (`win32-x64-{vulkan,cuda,cpu}`).
- * 
- * The write itself is atomic — staged at `manifest.json.tmp` then
- * renamed.
- * 
- * **Does NOT fetch** — the fetch tooling left with the kernel cut and
- * lives with Clyffy (clyffyos repo, `tools/fetch-llama-cpp/`). That's
- * deliberate: a manifest bump is a contract change; a fetch is a
- * per-machine action on the workspace that actually builds llama.cpp.
- * 
- * # Errors
- * Returns the formatted error string when the incoming JSON does not
- * parse, declares an unsupported schema version, has zero artifacts,
- * contains a placeholder / empty `sha256`, targets an unknown
- * platform, or the manifest cannot be written to disk.
+ * Answer a permission request (`choice` is one of its choice ids; none
+ * refuses). Returns `false` when the request is no longer waiting.
  */
-async llamaCppBumpManifest(newManifestJson: string) : Promise<Result<BumpResult, string>> {
+async agentAnswer(sessionId: string, request: string, choice: string | null) : Promise<Result<boolean, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("llama_cpp_bump_manifest", { newManifestJson }) };
+    return { status: "ok", data: await TAURI_INVOKE("agent_answer", { sessionId, request, choice }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * End a thread's live conversation (its history stays).
+ */
+async agentClose(sessionId: string) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("agent_close", { sessionId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Your library: roles, rooms and personas, and the files that did not
+ * pass.
+ */
+async roomLibrary() : Promise<Result<Library, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("room_library") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * The rooms of a project, latest first.
+ */
+async roomThreads(projectId: string) : Promise<Result<RoomThread[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("room_threads", { projectId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Open a room of your library with your agents seated.
+ */
+async roomStart(projectId: string, roomId: string, seating: Assignment[]) : Promise<Result<RoomThread, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("room_start", { projectId, roomId, seating }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Ask a room. Returns once the room has the question; its events follow as
+ * `RoomStreamed`.
+ */
+async roomAsk(sessionId: string, text: string) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("room_ask", { sessionId, text }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Stop a room that is answering.
+ */
+async roomCancel(sessionId: string) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("room_cancel", { sessionId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Answer a permission request of a place that may use tools (`choice` is
+ * one of its choice ids; none refuses). Returns `false` when it is no
+ * longer waiting.
+ */
+async roomAnswer(sessionId: string, place: string, request: string, choice: string | null) : Promise<Result<boolean, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("room_answer", { sessionId, place, request, choice }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * End a room's live conversations (its history stays).
+ */
+async roomClose(sessionId: string) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("room_close", { sessionId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Your llama-server settings, or the defaults.
+ */
+async llamaServerLoadConfig() : Promise<Result<LlamaServerConfig, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("llama_server_load_config") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Save your llama-server settings atomically. Returns the clamped value;
+ * they apply the next time a GGUF slot is loaded.
+ */
+async llamaServerSaveConfig(cfg: LlamaServerConfig) : Promise<Result<LlamaServerConfig, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("llama_server_save_config", { cfg }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -1510,7 +1517,10 @@ async ollamaDeleteModel(name: string) : Promise<Result<null, string>> {
 }
 },
 /**
- * Runtime status of Clyffy's `SurrealDB` store.
+ * Runtime status of the `SurrealDB` sidecar (configured vs. actual port,
+ * managed/attached, bind URL, etc.).
+ * 
+ * Lock-free read — never spawns, never blocks.
  */
 async surrealStatus() : Promise<Result<SurrealStatus, string>> {
     try {
@@ -1521,7 +1531,8 @@ async surrealStatus() : Promise<Result<SurrealStatus, string>> {
 }
 },
 /**
- * Live-probe Clyffy's `SurrealDB` store and return a badge tri-state.
+ * Live-probe the sidecar via `GET /health` and return a badge-shaped
+ * tri-state (`up` / `down` / `stopped`).
  */
 async surrealHealth() : Promise<Result<SurrealHealth, string>> {
     try {
@@ -1532,7 +1543,11 @@ async surrealHealth() : Promise<Result<SurrealHealth, string>> {
 }
 },
 /**
- * Load the user-scope config overlay for Clyffy's store.
+ * Load the user-scope editable overlay from
+ * `{data_dir}/user/surreal.toml`.
+ * 
+ * Returns defaults if the file is missing or malformed — never errors
+ * on parse failure. The devtool mounts this as its Config draft.
  */
 async surrealConfigLoad() : Promise<Result<SurrealUserConfig, string>> {
     try {
@@ -1543,7 +1558,11 @@ async surrealConfigLoad() : Promise<Result<SurrealUserConfig, string>> {
 }
 },
 /**
- * Atomically persist the user-scope config overlay for Clyffy's store.
+ * Atomically persist the user-scope overlay.
+ * 
+ * The returned config is the clamped/normalized shape that was
+ * written to disk — the devtool should update its state from this
+ * rather than echoing the request back.
  */
 async surrealConfigSave(cfg: SurrealUserConfig) : Promise<Result<SurrealUserConfig, string>> {
     try {
@@ -1554,49 +1573,80 @@ async surrealConfigSave(cfg: SurrealUserConfig) : Promise<Result<SurrealUserConf
 }
 },
 /**
- * Create a new thought in the operator's reasoning tree on Clyffy.
+ * Create a new thought in the operator's reasoning tree.
  * 
- * Writes to Clyffy's user graph, scoped to `project_id`. Returns the
- * persisted [`ThoughtRecord`] whose `id` is the canonical Surreal record
- * reference for subsequent edges.
- */
-async connectomeThoughtCreate(projectId: string, branchId: string, content: string, rroState: RroState, depth: number, proximity: number) : Promise<Result<ThoughtRecord, string>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("connectome_thought_create", { projectId, branchId, content, rroState, depth, proximity }) };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
-/**
- * Load every thought in a branch from Clyffy, ordered by depth ascending.
- */
-async connectomeThoughtLoadBranch(projectId: string, branchId: string) : Promise<Result<ThoughtRecord[], string>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("connectome_thought_load_branch", { projectId, branchId }) };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
-/**
- * Hot-swap the live Burn encoder weights to a safetensors file on Clyffy.
+ * Writes to the user namespace under the given `project_id` per
+ * `CORTEX.md` §4.5. Returns the persisted `ThoughtRecord` whose `id`
+ * is the canonical Surreal record reference for subsequent edges.
  * 
- * Drives Clyffy's RRD daemon through one full
- * `pause → drain → load → validate → swap → resume` cycle and returns the
- * structured [`SwapStats`]. The matching UI surface is the `SwapDialog`
- * under `interfaces/desktop/src/lib/devtools/clyffy/reasoning/rrd/feature`.
+ * # Errors
+ * - Platform is still booting.
+ * - User graph service is not available.
+ * - Surreal write fails.
  */
-async connectomeSwapEncoder(weightsPath: string) : Promise<Result<SwapStats, string>> {
+async cortexThoughtCreate(projectId: string, branchId: string, content: string, rroState: RroState, depth: number, proximity: number) : Promise<Result<ThoughtRecord, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("connectome_swap_encoder", { weightsPath }) };
+    return { status: "ok", data: await TAURI_INVOKE("cortex_thought_create", { projectId, branchId, content, rroState, depth, proximity }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
 }
 },
 /**
- * Header status for the intelligence devtool, from headless Clyffy.
+ * Load every thought in a branch, ordered by depth ascending.
+ * 
+ * Returns an empty vector for unknown branches — never an error.
+ * 
+ * # Errors
+ * - Platform is still booting.
+ * - User graph service is not available.
+ * - Surreal query fails.
+ */
+async cortexThoughtLoadBranch(projectId: string, branchId: string) : Promise<Result<ThoughtRecord[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("cortex_thought_load_branch", { projectId, branchId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Hot-swap the live Burn encoder weights to a safetensors file on disk.
+ * 
+ * Drives the RRD daemon through one full
+ * `pause → drain → load → validate → swap → resume` cycle. Returns the
+ * structured [`SwapStats`] (renamed `SwapReport` on the TS side via the
+ * `swap.svc.ts` mirror) on a healthy swap; on failure the live encoder
+ * is unchanged and the daemon is resumed before the error returns.
+ * 
+ * The matching UI surface is the `SwapDialog` under
+ * `interfaces/desktop/src/lib/devtools/clyffy/reasoning/rrd/feature`.
+ * First-load (turning the slot from cold to ready) goes through the
+ * normal `load_slot` path on `rag.embedder`; only the second-and-later
+ * path uses this command.
+ * 
+ * # Errors
+ * - Platform is still booting.
+ * - Model Loader service is disabled or burn feature is off.
+ * - First-load has never run (daemon not constructed yet).
+ * - Source file missing / unreadable / wrong format.
+ * - Validate forward returned non-finite output (live unchanged).
+ */
+async cortexSwapEncoder(weightsPath: string) : Promise<Result<SwapStats, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("cortex_swap_encoder", { weightsPath }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Header status for the intelligence devtool.
+ * 
+ * # Errors
+ * - Platform is still booting.
+ * - Graph service is not available (Surreal not booted).
+ * - Surreal `INFO FOR NS` query fails.
  */
 async intelStatus() : Promise<Result<IntelStatus, string>> {
     try {
@@ -1607,7 +1657,16 @@ async intelStatus() : Promise<Result<IntelStatus, string>> {
 }
 },
 /**
- * Per-project memory + archive counts from headless Clyffy.
+ * Per-project memory + archive counts.
+ * 
+ * Returns one [`ProjectIntel`] per database under
+ * [`PROJECT_NAMESPACE`]. Empty vector when no project has
+ * bootstrapped its intelligence schema yet.
+ * 
+ * # Errors
+ * - Platform is still booting.
+ * - Graph service is not available.
+ * - Surreal queries fail.
  */
 async intelListProjects() : Promise<Result<ProjectIntel[], string>> {
     try {
@@ -1618,10 +1677,18 @@ async intelListProjects() : Promise<Result<ProjectIntel[], string>> {
 }
 },
 /**
- * Persist a memory row into the project's intelligence store on Clyffy.
+ * Persist a memory row into the project's intelligence store.
  * 
- * Returns the connector-assigned memory id. Idempotent at Clyffy's connector
- * layer when it dedupes by embedding similarity.
+ * Returns the connector-assigned memory id (typically a `UUIDv7` the
+ * command generates). Idempotent at the connector layer when the
+ * connector dedupes by embedding similarity.
+ * 
+ * # Errors
+ * 
+ * - Platform is still booting.
+ * - Graph service is not available (Surreal not booted).
+ * - `embedding.len() != EMBEDDING_DIM` (rejected before the write).
+ * - Connector write failed.
  */
 async intelSaveMemory(request: IntelSaveMemoryRequest) : Promise<Result<string, string>> {
     try {
@@ -1632,35 +1699,27 @@ async intelSaveMemory(request: IntelSaveMemoryRequest) : Promise<Result<string, 
 }
 },
 /**
- * Infer the capability bucket (`chat` / `rag` / `voice` / `vision`) for a
- * downloadable model filename — Clyffy owns the model catalog + keyword SSOT.
+ * Infer the capability bucket (`chat` / `rag` / `voice` / `vision`)
+ * for a downloadable model filename.
+ * 
+ * Wraps `model_loader::infer_download_folder` — the keyword SSOT
+ * that routes model files to their capability bucket. Surfaced for
+ * the model-downloader UI's preview ("this filename → RAG") and
+ * for the intelligence devtool's Debug tab so an operator can
+ * verify how a filename WOULD be classified before downloading.
+ * 
+ * Pure CPU work, no I/O — runs synchronously inside the async
+ * command body. Always available in `devpulse_desktop_backend`
+ * because the engine dep enables `candle` unconditionally.
+ * 
+ * # Errors
+ * Never errors today; the `Result` shape matches the rest of the
+ * command surface and reserves room for a future failure mode
+ * (e.g. quarantine flag on a known-bad filename).
  */
 async inferCapabilityBucket(filename: string) : Promise<Result<string, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("infer_capability_bucket", { filename }) };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
-/**
- * Load a parsed engine interaction template by id.
- * 
- * Supported ids: `"setup"`, `"welcome-back"`. Each id maps to the
- * matching `InteractionTemplate::<id>` constructor on the engine
- * side; templates are bundled at compile time via `include_str!`
- * so this command never touches disk except to read user
- * overrides at `{userdata_dir}/config/interactions/<id>.toml`.
- * 
- * # Errors
- * Returns the engine's parse / validation error message as a
- * string when the embedded default or the user override fails to
- * parse. Returns `"Unknown interaction id: <id>"` when the id
- * doesn't match a built-in template.
- */
-async getInteractionTemplate(id: string) : Promise<Result<InteractionTemplate, string>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("get_interaction_template", { id }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -1680,7 +1739,7 @@ async sherpaCompileInfo() : Promise<Result<SherpaCompileInfo, string>> {
 }
 },
 /**
- * List installed streaming-ASR models under `{data_dir}/models/sherpa/`.
+ * List installed streaming-ASR models under `{models}/sherpa/`.
  */
 async sherpaListModels() : Promise<Result<SherpaInstalledModel[], string>> {
     try {
@@ -1761,7 +1820,7 @@ async sherpaListSessions() : Promise<Result<SherpaSessionInfo[], string>> {
 },
 /**
  * Return the absolute path of the models root
- * (`{data_dir}/models/sherpa/`). The devtool shows this so users
+ * (`{models}/sherpa/`). The devtool shows this so users
  * know where to manually drop model dirs.
  */
 async sherpaModelsDir() : Promise<Result<string, string>> {
@@ -1838,7 +1897,7 @@ async unregisterDevpulseMcp(target: ClaudeTarget) : Promise<Result<ClaudeInstall
  * 
  * Synchronous (non-streaming) for the first cut. A streaming variant
  * (`ping_claude_stream`) returning through Tauri events can land in a
- * follow-up if the connectome reasoning surface needs incremental tokens.
+ * follow-up if the cortex reasoning surface needs incremental tokens.
  * 
  * # Errors
  * 
@@ -2024,7 +2083,7 @@ async pixvixCaptureWebcamOnce(index: number) : Promise<Result<CapturedFrame, Com
  * Fetch dashboard data from all services.
  * 
  * Queries:
- * - `LibSQL`: projects (recent 8), project count, message/session counts
+ * - Turso: projects (recent 8), project count, message/session counts
  * - `DuckDB`: `daily_stats` (last 20 days)
  * - Moka: cache stats (entry count / capacity)
  */
@@ -2037,7 +2096,7 @@ async fetchDashboard() : Promise<Result<DashboardPayload, string>> {
 }
 },
 /**
- * Fetch the current user profile. Creates a default if none exists.
+ * Fetch your profile. Creates it the first time.
  */
 async fetchUserProfile() : Promise<Result<UserProfile, string>> {
     try {
@@ -2048,18 +2107,18 @@ async fetchUserProfile() : Promise<Result<UserProfile, string>> {
 }
 },
 /**
- * Update the user profile. Only non-None fields are written.
+ * Change your name and email. `None` leaves a field; an empty string clears it.
  */
-async updateUserProfile(displayName: string | null, email: string | null, expertiseLevel: number | null) : Promise<Result<UserProfile, string>> {
+async updateUserProfile(displayName: string | null, email: string | null) : Promise<Result<UserProfile, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("update_user_profile", { displayName, email, expertiseLevel }) };
+    return { status: "ok", data: await TAURI_INVOKE("update_user_profile", { displayName, email }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
 }
 },
 /**
- * Fetch user preferences. Creates defaults if none exist.
+ * Fetch your preferences. Creates them with the defaults the first time.
  */
 async fetchUserPreferences() : Promise<Result<UserPreferences, string>> {
     try {
@@ -2070,12 +2129,7 @@ async fetchUserPreferences() : Promise<Result<UserPreferences, string>> {
 }
 },
 /**
- * Update user preferences. Only non-None fields in `patch` are written.
- * 
- * # Errors
- * Returns the formatted error string when the adapter cannot be
- * resolved, the profile / preferences row cannot be loaded, or the
- * `UPDATE preferences` statement fails.
+ * Change your preferences. Only the fields given are written.
  */
 async updateUserPreferences(patch: UpdateUserPreferencesInput) : Promise<Result<UserPreferences, string>> {
     try {
@@ -2086,13 +2140,125 @@ async updateUserPreferences(patch: UpdateUserPreferencesInput) : Promise<Result<
 }
 },
 /**
- * Create a new project row in user `LibSQL`.
- * 
- * Duplicate `root_path` values are rejected at the SQL level — the
- * `projects` table schema declares `root_path TEXT NOT NULL UNIQUE`,
- * so a second attempt returns an IPC-level error containing the
- * adapter's message. The frontend should catch this and re-render
- * with "a project at this path already exists".
+ * The copy catalog, and why your `copy.toml` was not used (if it wasn't).
+ */
+async getCopy() : Promise<Result<LoadedCopy, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_copy") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * The current first-run state (the same value the `onboarding` signal carries).
+ */
+async onboardingState() : Promise<Result<OnboardingState, CommandError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("onboarding_state") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Continue to the next stage (after the last one, first run is finished).
+ */
+async onboardingNext() : Promise<Result<OnboardingState, CommandError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("onboarding_next") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Go back one stage.
+ */
+async onboardingBack() : Promise<Result<OnboardingState, CommandError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("onboarding_back") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * "Set up later": leave first run; it can be reopened at any time.
+ */
+async onboardingLater() : Promise<Result<OnboardingState, CommandError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("onboarding_later") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Reopen first run where you left it.
+ */
+async onboardingReopen() : Promise<Result<OnboardingState, CommandError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("onboarding_reopen") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * The "You" form: its schema, your stored values, and suggestions found on
+ * this machine (git identity, folders that hold repositories).
+ */
+async onboardingYouForm() : Promise<Result<FormView, CommandError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("onboarding_you_form") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Save the "You" form. Refused fields come back in the outcome, with
+ * nothing written.
+ */
+async onboardingYouSubmit(values: JsonValue) : Promise<Result<FormOutcome, CommandError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("onboarding_you_submit", { values }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * The repositories in a folder, with their languages; `DevPulse` itself
+ * first; the ones already registered marked. `None` when the folder does
+ * not exist (an answer, not a failure).
+ */
+async onboardingScanProjects(folder: string) : Promise<Result<FoundRepo[] | null, CommandError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("onboarding_scan_projects", { folder }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Register the repositories you ticked as projects, in place (nothing is
+ * written inside them). Each folder gets its own outcome; a folder you
+ * removed earlier comes back. When no project is active yet, the first one
+ * becomes active.
+ */
+async onboardingRegisterProjects(paths: string[]) : Promise<Result<RegisterResult[], CommandError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("onboarding_register_projects", { paths }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Register a folder as a project, in place. A folder removed earlier comes
+ * back; a folder that already is a live project is refused.
  */
 async createProject(input: CreateProjectInput) : Promise<Result<Project, string>> {
     try {
@@ -2103,11 +2269,7 @@ async createProject(input: CreateProjectInput) : Promise<Result<Project, string>
 }
 },
 /**
- * List every project ordered newest-first.
- * 
- * Use `include_archived = false` (default) to match the dashboard's
- * "active projects" shape. Archived rows have `active = 0` and are
- * typically hidden from the main UI surface.
+ * Live projects, most recently used first (removed ones too when asked).
  */
 async listProjects(includeArchived: boolean | null) : Promise<Result<Project[], string>> {
     try {
@@ -2118,9 +2280,7 @@ async listProjects(includeArchived: boolean | null) : Promise<Result<Project[], 
 }
 },
 /**
- * Fetch a single project by id. Returns `None` for missing ids so the
- * frontend can render a "project not found" state without the IPC
- * boundary treating it as an error.
+ * One project by id; `None` when there is none.
  */
 async getProject(id: string) : Promise<Result<Project | null, string>> {
     try {
@@ -2131,9 +2291,8 @@ async getProject(id: string) : Promise<Result<Project | null, string>> {
 }
 },
 /**
- * Soft-delete: flip `active` to 0. Project row stays on disk and the
- * per-project `.userdata/project.db` is untouched. Reversible via
- * `restore_project`.
+ * Remove a project (its folder can be registered again). When it was the
+ * active one, the most recently used remaining project becomes active.
  */
 async deleteProject(id: string) : Promise<Result<boolean, string>> {
     try {
@@ -2144,7 +2303,7 @@ async deleteProject(id: string) : Promise<Result<boolean, string>> {
 }
 },
 /**
- * Reverse of [`delete_project`] — flip `active` back to 1.
+ * Bring a removed project back.
  */
 async restoreProject(id: string) : Promise<Result<boolean, string>> {
     try {
@@ -2155,7 +2314,7 @@ async restoreProject(id: string) : Promise<Result<boolean, string>> {
 }
 },
 /**
- * Return the currently-active project, or `None` if nothing is set.
+ * The active project, if any.
  */
 async getActiveProject() : Promise<Result<Project | null, string>> {
     try {
@@ -2166,9 +2325,7 @@ async getActiveProject() : Promise<Result<Project | null, string>> {
 }
 },
 /**
- * Set the active project by id. Validates that the project exists
- * before writing the singleton so we never end up pointing at a
- * deleted row.
+ * Make a live project the active one.
  */
 async setActiveProject(id: string) : Promise<Result<Project, string>> {
     try {
@@ -2179,8 +2336,7 @@ async setActiveProject(id: string) : Promise<Result<Project, string>> {
 }
 },
 /**
- * Clear the active-project singleton. `get_active_project` returns
- * `None` after this. Does NOT delete the project row itself.
+ * Leave no project active.
  */
 async clearActiveProject() : Promise<Result<null, string>> {
     try {
@@ -2191,9 +2347,7 @@ async clearActiveProject() : Promise<Result<null, string>> {
 }
 },
 /**
- * Link a reference directory to a project. The same `(project_id,
- * path)` pair cannot be added twice — schema UNIQUE constraint
- * enforces this and the caller gets the SQL error surfaced.
+ * Link a read-only directory to a project.
  */
 async addProjectReference(input: AddReferenceInput) : Promise<Result<ProjectReference, string>> {
     try {
@@ -2204,8 +2358,7 @@ async addProjectReference(input: AddReferenceInput) : Promise<Result<ProjectRefe
 }
 },
 /**
- * List every reference directory linked to a project, oldest first
- * (insertion order). Empty list is normal.
+ * A project's reference directories, oldest first.
  */
 async listProjectReferences(projectId: string) : Promise<Result<ProjectReference[], string>> {
     try {
@@ -2216,9 +2369,7 @@ async listProjectReferences(projectId: string) : Promise<Result<ProjectReference
 }
 },
 /**
- * Remove a reference link. Hard delete — references are cheap to
- * recreate and the RAG index for this reference can be rebuilt on
- * re-add. Returns `true` if a row was actually removed.
+ * Unlink a reference directory.
  */
 async removeProjectReference(id: string) : Promise<Result<boolean, string>> {
     try {
@@ -2229,9 +2380,86 @@ async removeProjectReference(id: string) : Promise<Result<boolean, string>> {
 }
 },
 /**
+ * The current containers state (the same value the `containers` signal carries).
+ */
+async containersState() : Promise<Result<ContainersState, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("containers_state") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Look at this machine again and recompute the advice.
+ */
+async containersCheck() : Promise<Result<ContainersState, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("containers_check") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Store your answers and recompute the advice.
+ */
+async containersAnswer(answers: Answers) : Promise<Result<ContainersState, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("containers_answer", { answers }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Run one step of the current advice (refused if it is not one of them).
+ */
+async containersRunStep(step: Step) : Promise<Result<ContainersState, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("containers_run_step", { step }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * The current providers state (the same value the `providers` signal carries).
+ */
+async providersState() : Promise<Result<ProvidersState, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("providers_state") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Look at every provider again.
+ */
+async providersCheck() : Promise<Result<ProvidersState, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("providers_check") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Run one action (update, or open the vendor's sign-in) on an installed provider.
+ */
+async providersRunAction(providerId: ProviderId, action: ProviderAction) : Promise<Result<ProvidersState, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("providers_run_action", { providerId, action }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Get a knowledge entry matching the given type and optional tool context.
  * 
- * Delegates to the engine's selector — affinity-weighted, cooldown-gated.
+ * Delegates to kernel selector — affinity-weighted, cooldown-gated.
  */
 async getKnowledgeEntry(entryType: string, tool: string | null) : Promise<Result<KnowledgeEntryDto | null, string>> {
     try {
@@ -2254,14 +2482,14 @@ async recordKnowledgeReaction(entryId: string, reaction: string) : Promise<Resul
 },
 /**
  * Pull the latest knowledge catalog from the configured Supabase
- * Storage bucket and upsert into libSQL.
+ * Storage bucket and upsert into Turso.
  * 
  * URL convention (public bucket, anon-keyed read):
  * 
  * - `{supabase_url}/storage/v1/object/public/knowledge/manifest.json`
  * - `{supabase_url}/storage/v1/object/public/knowledge/{filename}`
  * 
- * When the manifest version matches what's already stored, the engine
+ * When the manifest version matches what's already stored, the kernel
  * fast-paths to zero work (returns `Synced { upserted: 0, .. }`).
  * 
  * # Errors
@@ -2275,6 +2503,18 @@ async syncKnowledgeFromRemote() : Promise<Result<KnowledgeSyncResult, string>> {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
 }
+},
+/**
+ * The latest value of every state signal, for list-then-watch sync.
+ */
+async getSignalState() : Promise<StateSnapshot> {
+    return await TAURI_INVOKE("get_signal_state");
+},
+/**
+ * The calling window started (`interested = true`) or stopped watching `kind`.
+ */
+async setSignalInterest(kind: SignalKind, interested: boolean) : Promise<void> {
+    await TAURI_INVOKE("set_signal_interest", { kind, interested });
 },
 /**
  * Create a new thinking canvas session.
@@ -2324,7 +2564,7 @@ async closeChildWindow(role: WindowRole) : Promise<Result<null, string>> {
  * 
  * # Errors
  * Infallible — the `Result` shape is preserved for binding parity with
- * the sibling `open_window` / `close_window` commands so the TS
+ * the sibling `open_window` / `close_child_window` commands so the TS
  * surface stays uniform.
  */
 async listWindows() : Promise<Result<WindowInfo[], string>> {
@@ -2336,28 +2576,15 @@ async listWindows() : Promise<Result<WindowInfo[], string>> {
 }
 },
 /**
- * Legacy: Open or focus the Chat window. Delegates to `open_window`.
+ * Every window role with the page it opens, so the frontend can name and
+ * draw a window from that page's own route folder (plan 0008).
  * 
  * # Errors
- * Returns an error string if the window cannot be created or focused.
+ * Infallible — the `Result` shape matches the sibling window commands.
  */
-async openChatWindow() : Promise<Result<null, string>> {
+async windowRoles() : Promise<Result<WindowRoleInfo[], string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("open_chat_window") };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
-/**
- * Legacy: Close a window by its label string.
- * 
- * # Errors
- * Returns an error string if the window cannot be closed.
- */
-async closeWindow(label: string) : Promise<Result<null, string>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("close_window", { label }) };
+    return { status: "ok", data: await TAURI_INVOKE("window_roles") };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -2427,6 +2654,20 @@ async getSlots() : Promise<Result<SlotInfo[], string>> {
 }
 },
 /**
+ * Slot + registry lists from the loader's in-memory state.
+ * 
+ * # Errors
+ * Returns an error when the model loader is not available.
+ */
+async getModelsStatus() : Promise<Result<ModelsStatusData, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_models_status") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Get the model download catalog from the TOML config.
  * 
  * Returns the full catalog of downloadable models per slot.
@@ -2435,41 +2676,6 @@ async getSlots() : Promise<Result<SlotInfo[], string>> {
 async getModelCatalog() : Promise<Result<CatalogEntry[], string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("get_model_catalog") };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
-/**
- * Check if this is the first run (no models configured).
- */
-async isFirstRun() : Promise<Result<boolean, string>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("is_first_run") };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
-/**
- * Mark the setup wizard as complete. Persists to `LibSQL`.
- * Called by the frontend when the user finishes the wizard.
- */
-async markSetupComplete() : Promise<Result<null, string>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("mark_setup_complete") };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
-/**
- * Check if the setup wizard was previously completed.
- * Used at boot to decide whether to show the wizard overlay.
- */
-async isSetupComplete() : Promise<Result<boolean, string>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("is_setup_complete") };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -2489,13 +2695,18 @@ async assignModelToSlot(slotId: string, modelId: string) : Promise<Result<null, 
 /**
  * Load a slot's assigned model into memory.
  * 
- * **Tier-2**: loading model weights and running inference is Clyffy's, reached
- * over the gb10-client wire. Connection-gated until `clyffyd` advertises it.
- * Slot *assignment* (which model a slot points at) is management and stays
- * local via [`assign_model_to_slot`].
+ * Load a model into a slot.
  * 
- * Returns a typed [`LoadError`] so the frontend keeps its targeted
- * error-variant UI once Clyffy serves the load path.
+ * Routing logic:
+ * - GGUF files with `LlamaCpp` runtime → llama-server sidecar (HTTP)
+ * - `SafeTensors` with Candle runtime → kernel `BackendPool` (in-process)
+ * - ONNX/Sherpa → kernel `VoicePool` (in-process)
+ * 
+ * Returns a typed [`LoadError`] covering the full load-path failure
+ * surface — compatibility, filesystem, resources, backend init,
+ * slot state. The frontend renders each variant with targeted UI
+ * (alternatives for compatibility errors, retry for network errors,
+ * slot reassignment for `NoModelAssigned`, etc.).
  */
 async loadSlot(slotId: string) : Promise<Result<null, LoadError>> {
     try {
@@ -2507,9 +2718,6 @@ async loadSlot(slotId: string) : Promise<Result<null, LoadError>> {
 },
 /**
  * Unload a slot's model from memory.
- * 
- * **Tier-2**: model residency is Clyffy's, served over the gb10-client wire.
- * Connection-gated until `clyffyd` advertises it.
  */
 async unloadSlot(slotId: string) : Promise<Result<null, LoadError>> {
     try {
@@ -2522,7 +2730,7 @@ async unloadSlot(slotId: string) : Promise<Result<null, LoadError>> {
 /**
  * Clear the persisted model assignment from a slot.
  * 
- * Distinct from `unload_slot`: this removes the libSQL
+ * Distinct from `unload_slot`: this removes the Turso
  * `slot.<id>.model` key so the next app launch does NOT re-attempt
  * the load. The use case is a stuck assignment whose load crashes the
  * backend on every relaunch — clear it once, the slot stays empty
@@ -2543,9 +2751,9 @@ async clearSlotAssignment(slotId: string) : Promise<Result<null, LoadError>> {
 /**
  * Atomically swap the model on a slot (unload → reassign → load).
  * 
- * **Tier-2**: the live unload/reload is Clyffy's inference path, served over
- * the gb10-client wire. Connection-gated until `clyffyd` advertises it.
- * Persisting a new slot assignment is management via [`assign_model_to_slot`].
+ * Blocks inference to the slot for the entire duration. The frontend
+ * should show `SwapOverlay` while this runs — events are emitted via
+ * `model:swap-started`, `model:swap-complete`, `model:swap-failed`.
  */
 async swapSlotModel(slotId: string, newModelId: string) : Promise<Result<null, LoadError>> {
     try {
@@ -2595,11 +2803,6 @@ async modelsDirPath() : Promise<Result<string, string>> {
  * to pick the right GGUF quant (or safetensors shard / onnx
  * fallback) for the slot's required capability. Returns `None`
  * when the repo ships no compatible files for the slot.
- * 
- * **Tier-2**: the tier-aware primary-file resolver runs against Clyffy's live
- * hardware monitor over the gb10-client wire. Connection-gated until `clyffyd`
- * advertises it. Browsing repo files ([`list_repo_files`]) is management and
- * stays local.
  */
 async recommendPrimaryForSlot(repoId: string, slotId: string) : Promise<Result<string | null, string>> {
     try {
@@ -2611,7 +2814,7 @@ async recommendPrimaryForSlot(repoId: string, slotId: string) : Promise<Result<s
 },
 /**
  * One-button install — download the bundle, scan, assign to slot,
- * load. Composed from the four loader verbs into a single atomic
+ * load. Composed from the four kernel verbs into a single atomic
  * chain so the wizard's "install" CTA fires once and tracks progress
  * via `InstallStarted`/`InstallComplete`/`InstallFailed` events.
  * 
@@ -2620,12 +2823,6 @@ async recommendPrimaryForSlot(repoId: string, slotId: string) : Promise<Result<s
  * deserialises to `DownloadScope::Global`.
  * 
  * Returns the `install_id` — the chain runs detached.
- * 
- * **Tier-2**: the install chain ends in a slot *load* (inference), which is
- * Clyffy's over the gb10-client wire — so the composed verb is gated as a
- * whole. Connection-gated until `clyffyd` advertises it. The individual
- * management steps ([`download_model`], [`scan_models`],
- * [`assign_model_to_slot`]) remain available standalone.
  */
 async installToSlot(repoId: string, primaryFilename: string, slotId: string, scope: DownloadScope | null) : Promise<Result<string, string>> {
     try {
@@ -2902,10 +3099,11 @@ async listKokoroVoices() : Promise<Result<KokoroVoiceInfo[], string>> {
 /**
  * Snapshot every slot's currently-cached runtime fingerprint.
  * 
- * **Tier-2**: runtime residency lives on Clyffy (headless, on the GB10) and is
- * served over the gb10-client wire. Connection-gated until `clyffyd` advertises
- * it; the frontend `capabilityChannel` still hydrates against this shape once
- * Clyffy connects and streams `model:runtime-version-changed` events.
+ * Returns a `(slot_id → fingerprint)` map for slots that have a
+ * model loaded right now. The frontend `capabilityChannel` calls
+ * this on mount to hydrate state before `LoaderEvent::CapabilityRebound`
+ * events stream in — without it, already-loaded slots would
+ * briefly show "no runtime" in the UI.
  */
 async listRuntimeFingerprints() : Promise<Result<Partial<{ [key in string]: RuntimeFingerprint }>, string>> {
     try {
@@ -2928,10 +3126,6 @@ async listRuntimeFingerprints() : Promise<Result<Partial<{ [key in string]: Runt
  * 
  * The current fingerprint is always included so the user can see
  * what they're running today even when no upstream check exists.
- * 
- * **Tier-2**: the loaded fingerprint is read from Clyffy's live runtime
- * residency over the gb10-client wire. Connection-gated until `clyffyd`
- * advertises it.
  */
 async checkRuntimeUpdates(runtimeId: string) : Promise<Result<RuntimeUpdateInfo, string>> {
     try {
@@ -2944,8 +3138,8 @@ async checkRuntimeUpdates(runtimeId: string) : Promise<Result<RuntimeUpdateInfo,
 /**
  * Warm a slot — load weights to CPU RAM only, no GPU allocation.
  * 
- * **Tier-2**: warming is a residency operation on Clyffy, served over the
- * gb10-client wire. Connection-gated until `clyffyd` advertises it.
+ * Model enters "Warm" state: weights in RAM, fast activation to GPU later.
+ * Returns a typed [`LoadError`] with the same surface as `load_slot`.
  */
 async warmSlot(slotId: string) : Promise<Result<null, LoadError>> {
     try {
@@ -2958,9 +3152,7 @@ async warmSlot(slotId: string) : Promise<Result<null, LoadError>> {
 /**
  * Delete a model from disk and remove from registry.
  * 
- * **Tier-2**: deletion is refused while a model is loaded, and load state
- * lives on Clyffy — so the guarded delete is served over the gb10-client wire.
- * Connection-gated until `clyffyd` advertises it.
+ * Clears any slot assignments. Refuses if the model is currently loaded.
  */
 async deleteModel(modelId: string) : Promise<Result<null, LoadError>> {
     try {
@@ -2972,10 +3164,6 @@ async deleteModel(modelId: string) : Promise<Result<null, LoadError>> {
 },
 /**
  * Search `HuggingFace` for GGUF models.
- * 
- * HF search is a public, stateless network call (management, Tier-1). The
- * engine exposes it as the free `search_huggingface` function, decoupled from
- * the model-loader service — no platform-ready gate is required.
  */
 async searchHuggingface(query: string, limit: number | null) : Promise<Result<HfSearchResultInfo[], string>> {
     try {
@@ -3003,9 +3191,11 @@ async importLocalModel(targetSlot: string | null, importMode: string | null) : P
 /**
  * Open a native folder picker dialog.
  * 
- * Returns the selected directory path, or error if cancelled.
+ * Returns the chosen folder, or `None` if you closed the dialog without
+ * choosing (cancelling is not a failure — same contract as
+ * [`pick_audio_file`]).
  */
-async pickDirectory(title: string) : Promise<Result<string, string>> {
+async pickDirectory(title: string) : Promise<Result<string | null, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("pick_directory", { title }) };
 } catch (e) {
@@ -3024,20 +3214,6 @@ async pickDirectory(title: string) : Promise<Result<string, string>> {
 async pickAudioFile(title: string) : Promise<Result<string | null, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("pick_audio_file", { title }) };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
-/**
- * Create a developer profile and persist it as a preference.
- * 
- * Stores a JSON blob with name, experience level, and optional project path.
- * Uses the same preferences.json storage as `set_preference`.
- */
-async createDevProfile(name: string, experience: string, projectPath: string | null) : Promise<Result<null, string>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("create_dev_profile", { name, experience, projectPath }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -3125,6 +3301,86 @@ async getTierDisplay() : Promise<Result<TierDisplay, string>> {
 }
 },
 /**
+ * Generate text using a loaded model slot.
+ * 
+ * Routing:
+ * - GGUF models loaded via sidecar → `llama_chat` HTTP (localhost)
+ * - `SafeTensors` models loaded via Candle → kernel `BackendPool`
+ * - Cloud provider → `cloud_chat` (if configured)
+ * 
+ * Streams tokens via Tauri events (`inference-token` for Candle,
+ * `llama:token` for sidecar — frontend listens to both).
+ * Hard fails if no model is loaded — no silent fallback.
+ */
+async inferenceGenerate(slotId: string, prompt: string, maxTokens: number, temperature: number) : Promise<Result<string, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("inference_generate", { slotId, prompt, maxTokens, temperature }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Simplified inference for wizard test chat.
+ * 
+ * Wraps `inference_generate` with sensible defaults so the frontend
+ * only needs to send `slot_id` and `prompt`.
+ */
+async testInference(slotId: string, prompt: string) : Promise<Result<string, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("test_inference", { slotId, prompt }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Get the VRAM budget plan — per-slot VRAM allocation breakdown.
+ */
+async getVramBudget() : Promise<Result<VramBudgetInfo, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_vram_budget") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Check if this is the first run (no models configured).
+ */
+async isFirstRun() : Promise<Result<boolean, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("is_first_run") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Mark the setup wizard as complete. Persists to `LibSQL`.
+ * Called by the frontend when the user finishes the wizard.
+ */
+async markSetupComplete() : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("mark_setup_complete") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Check if the setup wizard was previously completed.
+ * Used at boot to decide whether to show the wizard overlay.
+ */
+async isSetupComplete() : Promise<Result<boolean, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("is_setup_complete") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Called when the setup wizard finishes.
  * 
  * 1. Re-scans the model registry to pick up any newly downloaded/imported models.
@@ -3143,43 +3399,23 @@ async completeModelSetup() : Promise<Result<null, string>> {
 }
 },
 /**
- * Generate text using a loaded model slot.
+ * Load a parsed kernel interaction template by id.
  * 
- * **Tier-2**: text generation runs on Clyffy (headless, on the GB10) over the
- * gb10-client wire — token streaming is re-established from Clyffy's event
- * stream once connected. Connection-gated until `clyffyd` advertises it.
- */
-async inferenceGenerate(slotId: string, prompt: string, maxTokens: number, temperature: number) : Promise<Result<string, string>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("inference_generate", { slotId, prompt, maxTokens, temperature }) };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
-/**
- * Simplified inference for wizard test chat.
+ * Supported ids: `"setup"`, `"welcome-back"`. Each id maps to the
+ * matching `InteractionTemplate::<id>` constructor on the kernel
+ * side; templates are bundled at compile time via `include_str!`
+ * so this command never touches disk except to read user
+ * overrides at `{userdata_dir}/config/interactions/<id>.toml`.
  * 
- * **Tier-2**: thin wrapper over the same generation surface as
- * [`inference_generate`]; connection-gated until `clyffyd` advertises it.
+ * # Errors
+ * Returns the kernel's parse / validation error message as a
+ * string when the embedded default or the user override fails to
+ * parse. Returns `"Unknown interaction id: <id>"` when the id
+ * doesn't match a built-in template.
  */
-async testInference(slotId: string, prompt: string) : Promise<Result<string, string>> {
+async getInteractionTemplate(id: string) : Promise<Result<InteractionTemplate, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("test_inference", { slotId, prompt }) };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
-/**
- * Get the VRAM budget plan — per-slot VRAM allocation breakdown.
- * 
- * **Tier-2**: VRAM occupancy is a function of what Clyffy has loaded, served
- * over the gb10-client wire. Connection-gated until `clyffyd` advertises it.
- */
-async getVramBudget() : Promise<Result<VramBudgetInfo, string>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("get_vram_budget") };
+    return { status: "ok", data: await TAURI_INVOKE("get_interaction_template", { id }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -3187,9 +3423,6 @@ async getVramBudget() : Promise<Result<VramBudgetInfo, string>> {
 },
 /**
  * Embed a single text — convenience wrapper over [`embed_batch`].
- * 
- * **Tier-2**: same embedding surface; connection-gated until `clyffyd`
- * advertises it.
  */
 async embedText(slotId: string, text: string) : Promise<Result<number[], string>> {
     try {
@@ -3202,8 +3435,8 @@ async embedText(slotId: string, text: string) : Promise<Result<number[], string>
 /**
  * Embed a batch of texts via the embedder model loaded in a slot.
  * 
- * **Tier-2**: embedding runs on Clyffy over the gb10-client wire.
- * Connection-gated until `clyffyd` advertises it.
+ * Returns one dense vector per input string, all the same dimensionality.
+ * Hard-fails if the slot has no embedder loaded — no silent fallback.
  */
 async embedBatch(slotId: string, texts: string[]) : Promise<Result<number[][], string>> {
     try {
@@ -3216,8 +3449,8 @@ async embedBatch(slotId: string, texts: string[]) : Promise<Result<number[][], s
 /**
  * Rerank documents against a query via the reranker model loaded in a slot.
  * 
- * **Tier-2**: reranking runs on Clyffy over the gb10-client wire.
- * Connection-gated until `clyffyd` advertises it.
+ * Returns one score in `[0.0, 1.0]` per document, higher = more relevant.
+ * Used as the second-stage refinement after initial vector search.
  */
 async rerankDocuments(slotId: string, query: string, documents: string[]) : Promise<Result<number[], string>> {
     try {
@@ -3230,8 +3463,8 @@ async rerankDocuments(slotId: string, query: string, documents: string[]) : Prom
 /**
  * Encode an image file on disk via the vision encoder loaded in a slot.
  * 
- * **Tier-2**: vision encoding runs on Clyffy over the gb10-client wire.
- * Connection-gated until `clyffyd` advertises it.
+ * Returns a dense embedding vector (e.g. 1152-dim for SigLIP2-SO400M).
+ * Used for screenshot understanding, visual search, cross-modal retrieval.
  */
 async encodeImage(slotId: string, path: string) : Promise<Result<number[], string>> {
     try {
@@ -3290,11 +3523,12 @@ async resolveArchitectureCompatibility(archRaw: string, modelType: string | null
 },
 /**
  * `true` when the Burn encoder is wired AND its weights are loaded.
+ * The Slots devtool "Encoder smoke" tab calls this to gate the Embed
+ * button — the button is disabled while this returns `false`, avoiding
+ * a misleading error path through `encoder_embed`.
  * 
- * **Tier-2**: the Burn encoder runs on Clyffy over the gb10-client wire, so
- * its residency is a wire query. Connection-gated until `clyffyd` advertises
- * it — the Slots devtool "Encoder smoke" tab keeps the Embed button disabled
- * while this returns `Err`.
+ * # Errors
+ * - Platform not ready / model loader disabled.
  */
 async encoderIsLoaded() : Promise<Result<boolean, string>> {
     try {
@@ -3307,8 +3541,20 @@ async encoderIsLoaded() : Promise<Result<boolean, string>> {
 /**
  * Embed a batch of texts through the wired Burn encoder.
  * 
- * **Tier-2**: the Burn encoder forward pass runs on Clyffy over the
- * gb10-client wire. Connection-gated until `clyffyd` advertises it.
+ * Returns one L2-normalized dense vector per input string, in order.
+ * The encoder and its tokenizer must be loaded (via `load_slot` on the
+ * `rag.embedder` slot) before calling this — returns an error otherwise.
+ * 
+ * Intended call sites: RRO gather phase, devtool smoke-test button,
+ * semantic search queries from the UI. Async — the blocking forward
+ * pass is offloaded internally.
+ * 
+ * # Errors
+ * 
+ * - Platform not ready / model loader disabled.
+ * - Encoder or tokenizer not loaded.
+ * - Empty `texts` vec.
+ * - Forward pass non-finite output.
  */
 async encoderEmbed(texts: string[]) : Promise<Result<number[][], string>> {
     try {
@@ -3319,7 +3565,10 @@ async encoderEmbed(texts: string[]) : Promise<Result<number[][], string>> {
 }
 },
 /**
- * Get the current voice subsystem status from headless Clyffy.
+ * Get the current voice subsystem status.
+ * 
+ * Derives STT/TTS loaded state from model loader slot statuses.
+ * Mic detection is best-effort until the audio sprint wires real device enumeration.
  */
 async getVoiceStatus() : Promise<Result<VoiceStatusInfo, string>> {
     try {
@@ -3330,10 +3579,10 @@ async getVoiceStatus() : Promise<Result<VoiceStatusInfo, string>> {
 }
 },
 /**
- * Speak text using TTS on Clyffy, then play the returned PCM locally.
+ * Speak text using TTS.
  * 
- * Tier-2: synthesis runs on Clyffy; audio playback is DevPulse-local
- * (`stop_speaking` / `is_speaking` drive the local `PlaybackState`).
+ * Synthesizes via the TTS model loaded in the voice.tts slot,
+ * then plays the PCM audio through rodio.
  */
 async speak(text: string, voice: string | null, slot: string | null, speed: number | null) : Promise<Result<null, string>> {
     try {
@@ -3366,10 +3615,12 @@ async isSpeaking() : Promise<Result<boolean, string>> {
 }
 },
 /**
- * List available TTS voices from Clyffy's voice registry.
+ * List available TTS voices.
  * 
- * The `slot_id` parameter is accepted for API symmetry but not used — the
- * registry is global, not per-slot.
+ * Reads the voice registry TOML (`voices.default.toml` plus any user
+ * override at `{userdata}/config/voices.toml`) — nothing is hardcoded.
+ * The `slot_id` parameter is accepted for API symmetry but not used:
+ * the registry is global, not per-slot.
  */
 async listVoices(slotId: string) : Promise<Result<VoiceInfo[], string>> {
     try {
@@ -3380,7 +3631,10 @@ async listVoices(slotId: string) : Promise<Result<VoiceInfo[], string>> {
 }
 },
 /**
- * Preview a voice by synthesizing its registry sample text on Clyffy.
+ * Preview a voice by synthesizing and playing its registry `sample_text`.
+ * 
+ * Looks up the voice in the registry — returns an error if the voice is
+ * not registered, rather than playing a canned fallback line.
  */
 async previewVoice(voice: string, slotId: string) : Promise<Result<null, string>> {
     try {
@@ -3402,9 +3656,10 @@ async testMicrophone() : Promise<Result<MicTestResult, string>> {
 }
 },
 /**
- * Transcribe microphone audio via Clyffy's STT.
+ * Transcribe audio from the microphone.
  * 
- * Mic capture is DevPulse-local; the transcription runs on Clyffy.
+ * Captures ~3 seconds of audio from the default input device via rodio/cpal,
+ * then runs it through the Whisper STT model loaded in voice.stt slot.
  */
 async transcribeAudio() : Promise<Result<string, string>> {
     try {
@@ -3415,9 +3670,11 @@ async transcribeAudio() : Promise<Result<string, string>> {
 }
 },
 /**
- * Transcribe an audio file on disk via Clyffy's STT.
+ * Transcribe an audio file on disk (MP3, WAV, FLAC, Vorbis).
  * 
- * Decoding is DevPulse-local; the transcription runs on Clyffy.
+ * Decodes via rodio → mono 16 kHz PCM → voice.stt slot. Lets the user
+ * upload any supported audio file and get back a transcript without
+ * going through the microphone path.
  */
 async transcribeAudioFile(path: string) : Promise<Result<string, string>> {
     try {
@@ -3428,10 +3685,16 @@ async transcribeAudioFile(path: string) : Promise<Result<string, string>> {
 }
 },
 /**
- * Run the full speech-to-speech pipeline (STT → brain → TTS) on Clyffy.
+ * Run the full speech-to-speech pipeline.
  * 
- * Decoding + playback are DevPulse-local; STT, brain inference, and TTS all
- * run on Clyffy.
+ * Stages:
+ * 1. **STT** — transcribe `audio_path` via voice.stt slot
+ * 2. **Brain** — generate a reply via `brain_slot` (defaults to `chat.brain`)
+ * 3. **TTS** — synthesize the reply via voice.tts slot with `voice`
+ * 4. **Playback** — play through the default output device
+ * 
+ * Errors from any stage are returned with enough context that the UI can
+ * show which stage failed.
  */
 async runStsPipeline(audioPath: string, brainSlot: string | null, voice: string | null, maxTokens: number | null) : Promise<Result<StsPipelineResult, string>> {
     try {
@@ -3442,7 +3705,12 @@ async runStsPipeline(audioPath: string, brainSlot: string | null, voice: string 
 }
 },
 /**
- * Closed-loop voice smoke test (TTS → STT) on Clyffy.
+ * Closed-loop voice smoke test: TTS → STT round-trip.
+ * 
+ * Synthesizes a fixed phrase via `voice.tts`, resamples to 16 kHz mono,
+ * and feeds it into `voice.stt`. No audio is played and no files are
+ * needed. Failure at any stage is captured in the report rather than
+ * bubbled up, so the UI can show a two-green-check or a pinpoint error.
  */
 async voiceSmokeTest() : Promise<Result<VoiceSmokeReport, string>> {
     try {
@@ -3546,10 +3814,10 @@ async voiceSttSaveConfig(cfg: VoiceSttConfig) : Promise<Result<VoiceSttConfig, s
 }
 },
 /**
- * Store an API key in the OS keychain and mirror a masked hint to libSQL.
+ * Store an API key in the OS keychain and mirror a masked hint to Turso.
  * 
  * Idempotent — re-storing for the same provider overwrites both halves.
- * The libSQL mirror is best-effort; failure there logs a warning but
+ * The Turso mirror is best-effort; failure there logs a warning but
  * does not roll back the keychain write (keychain is the source of truth).
  * 
  * # Errors
@@ -3585,7 +3853,7 @@ async getApiKey(provider: ProviderId) : Promise<Result<string | null, CommandErr
 }
 },
 /**
- * Delete an API key from the OS keychain and the libSQL mirror.
+ * Delete an API key from the OS keychain and the Turso mirror.
  * 
  * Idempotent — deleting a non-existent key is success.
  * 
@@ -3740,13 +4008,14 @@ async cloudChat(messages: CloudMessage[], systemPrompt: string | null, model: st
 /**
  * Load the Supabase credentials envelope.
  * 
- * Reads the anon key from the OS keychain. URL is the deployment
- * constant. Frontend instantiates `supabase-js` from the returned
- * envelope when `anon_key` is `Some`.
+ * The URL is the configured one; the anon key is the keychain's override,
+ * else the configured key. Without a configured URL nothing can sign in, so
+ * `anon_key` is `None`. Frontend instantiates `supabase-js` from the
+ * returned envelope when `anon_key` is `Some`.
  * 
  * # Errors
- * Keychain access failure (other than `NoEntry`, which returns
- * `anon_key: None`).
+ * Platform config unreadable, or keychain access failure (other than
+ * `NoEntry`).
  */
 async getSupabaseCredentials() : Promise<Result<SupabaseCredentials, CommandError>> {
     try {
@@ -3793,12 +4062,13 @@ async clearSupabaseAnonKey() : Promise<Result<null, CommandError>> {
 }
 },
 /**
- * Frontend-safe status check — never returns the raw key. Used by the
- * Cloud settings devtool to render "key stored" / "no key set" without
- * pulling the value into the JS heap.
+ * Frontend-safe status check — never returns the raw key: whether the
+ * configuration holds one, whether the keychain overrides it, and a masked
+ * preview of the keychain's.
  * 
  * # Errors
- * Keychain read failure (other than `NoEntry`).
+ * Platform config unreadable, or keychain read failure (other than
+ * `NoEntry`).
  */
 async getSupabaseCredentialsStatus() : Promise<Result<SupabaseCredentialsStatus, CommandError>> {
     try {
@@ -3865,8 +4135,8 @@ async emitAnalyticsEvent(event: AnalyticsEvent) : Promise<Result<null, CommandEr
  * tuning + response source).
  * 
  * Reads `{data_dir}/user/routing.toml` and reconciles
- * `latency.response_source` against the `assistant.routing.mode`
- * dispatch SSOT so the surface always reflects what the dispatcher will use.
+ * `latency.response_source` against the kernel `assistant.routing.mode`
+ * SSOT so the surface always reflects what the dispatcher will use.
  * Returns defaults when the file is missing or malformed — never errors
  * on parse failure.
  */
@@ -3886,7 +4156,7 @@ async routingLoadConfig() : Promise<Result<RoutingConfig, string>> {
  * 
  * Save flow inside the engine:
  * 1. Clamp + atomic temp-write + rename to `user/routing.toml`.
- * 2. Write through `latency.response_source` →
+ * 2. Write through `latency.response_source` → kernel
  * `assistant.routing.mode` so the chat dispatcher is gated.
  * 3. Dual-emit: `tracing::info!` on `routing.config` + broadcast
  * `InternalEvent::RoutingConfigChanged` for engine consumers.
@@ -4074,32 +4344,30 @@ async setCommunityEnabledCmd(enabled: boolean) : Promise<Result<null, string>> {
 
 
 export const events = __makeEvents__<{
-bootPhaseChanged: BootPhaseChanged,
+agentStreamed: AgentStreamed,
 chatSessionDeleted: ChatSessionDeleted,
 cloudCompletionFinished: CloudCompletionFinished,
 cloudTokenStreamed: CloudTokenStreamed,
-clyffyConnectionChanged: ClyffyConnectionChanged,
-clyffyDiscoveryProgress: ClyffyDiscoveryProgress,
-hardwareMetricsUpdated: HardwareMetricsUpdated,
 inferenceProviderChanged: InferenceProviderChanged,
 inferenceTokenStreamed: InferenceTokenStreamed,
 llamaServerReady: LlamaServerReady,
 llamaTokenStreamed: LlamaTokenStreamed,
+roomStreamed: RoomStreamed,
+signalBroadcast: SignalBroadcast,
 updateAvailable: UpdateAvailable,
 updateDownloadProgress: UpdateDownloadProgress,
 updateInstallFinished: UpdateInstallFinished
 }>({
-bootPhaseChanged: "boot-phase-changed",
+agentStreamed: "agent-streamed",
 chatSessionDeleted: "chat-session-deleted",
 cloudCompletionFinished: "cloud-completion-finished",
 cloudTokenStreamed: "cloud-token-streamed",
-clyffyConnectionChanged: "clyffy-connection-changed",
-clyffyDiscoveryProgress: "clyffy-discovery-progress",
-hardwareMetricsUpdated: "hardware-metrics-updated",
 inferenceProviderChanged: "inference-provider-changed",
 inferenceTokenStreamed: "inference-token-streamed",
 llamaServerReady: "llama-server-ready",
 llamaTokenStreamed: "llama-token-streamed",
+roomStreamed: "room-streamed",
+signalBroadcast: "signal-broadcast",
 updateAvailable: "update-available",
 updateDownloadProgress: "update-download-progress",
 updateInstallFinished: "update-install-finished"
@@ -4111,6 +4379,38 @@ updateInstallFinished: "update-install-finished"
 
 /** user-defined types **/
 
+/**
+ * The Action log devtool: today's wrapped app actions, tailed live.
+ */
+export type ActionLogCopy = { 
+/**
+ * Label of the filter field.
+ */
+filter_label: string; 
+/**
+ * Hint inside the empty filter field.
+ */
+filter_placeholder: string; 
+/**
+ * Accessible name of the list of log lines.
+ */
+log_label: string; 
+/**
+ * Shown while today's log has no lines yet.
+ */
+empty: string; 
+/**
+ * Shown when lines exist but none match the filter.
+ */
+no_match: string; 
+/**
+ * Button: open the folder that holds every day's action log.
+ */
+open_folder: string; 
+/**
+ * What that folder holds, beside the button.
+ */
+open_folder_body: string }
 /**
  * Incremental tail of today's action JSONL file.
  */
@@ -4176,25 +4476,214 @@ voice_enable_aria: string;
  */
 voice_disable_aria: string }
 /**
- * Input for [`add_project_reference`].
+ * The protocol `DevPulse` speaks to it.
+ */
+export type AdapterKind = 
+/**
+ * The Agent Client Protocol (the agent owns its login and billing).
+ */
+"acp_agent" | 
+/**
+ * The agent's own one-shot mode: the question as an argument, the
+ * answer on stdout (for a vendor that has not confirmed an ACP route).
+ */
+"headless" | 
+/**
+ * The Model Context Protocol: `DevPulse` offers context to the app.
+ */
+"mcp_client"
+/**
+ * What [`Projects::add_reference`] needs.
  */
 export type AddReferenceInput = { 
 /**
- * Target project id (FK to [`Project::id`]).
+ * The project to link it to.
  */
 project_id: string; 
 /**
- * Absolute path to the referenced directory. Trimmed; non-empty.
+ * The directory. Trimmed; must be non-empty.
  */
 path: string; 
 /**
- * Optional display label. UI falls back to the path basename.
+ * Display label.
  */
 label?: string | null; 
 /**
- * Defaults to `"other"`. Allowed values enforced at the command.
+ * Defaults to `"other"`.
  */
 kind?: string | null }
+/**
+ * The recommendation.
+ */
+export type Advice = { 
+/**
+ * The recommended product; `None` until your answers are needed and
+ * given.
+ */
+product: Product | null; 
+/**
+ * The product's licence, shown with the install step.
+ */
+licence: Source | null; 
+/**
+ * The engine already on this machine is kept.
+ */
+keep: boolean; 
+/**
+ * Your answers are needed before a product can be recommended.
+ */
+needsAnswers: boolean; 
+/**
+ * Why this product.
+ */
+reasons: Point[]; 
+/**
+ * Worth knowing, not blocking.
+ */
+warnings: Point[]; 
+/**
+ * Must be fixed first.
+ */
+blockers: Point[]; 
+/**
+ * The steps, in order.
+ */
+steps: Step[]; 
+/**
+ * Why your advice data was not used, if it wasn't.
+ */
+dataProblem: string | null }
+/**
+ * How a column stores values — `SQLite`'s type affinity, derived from the
+ * declared type by the rules in <https://sqlite.org/datatype3.html> §3.1.
+ */
+export type Affinity = 
+/**
+ * Whole numbers (`INTEGER`, `INT`, `BIGINT`, …).
+ */
+"integer" | 
+/**
+ * Text (`TEXT`, `VARCHAR`, `CLOB`, …).
+ */
+"text" | 
+/**
+ * Declared without a type, or `BLOB`: stores any value as given.
+ */
+"blob" | 
+/**
+ * Decimal numbers (`REAL`, `DOUBLE`, `FLOAT`).
+ */
+"real" | 
+/**
+ * Numbers of either kind (`NUMERIC`, `DECIMAL`, `BOOLEAN`, `DATE`, …).
+ */
+"numeric"
+/**
+ * Threads with your agents in the chat (plan 0001 B3.4).
+ */
+export type AgentChatCopy = { 
+/**
+ * Label of the agent picker.
+ */
+new_thread: string; 
+/**
+ * Shown when no agent can hold a conversation yet.
+ */
+none_ready: string; 
+/**
+ * The local brain, as the author of its answers.
+ */
+local: string; 
+/**
+ * While the agent works and has not answered yet.
+ */
+working: string; 
+/**
+ * "Using: {title}" — a tool the agent is using.
+ */
+using_tool: string; 
+/**
+ * "{agent} asks:" — before a permission request.
+ */
+asks: string; 
+/**
+ * Button: refuse a permission request.
+ */
+refuse: string; 
+/**
+ * Button: stop the running turn.
+ */
+stop: string }
+/**
+ * Something that happened during a turn.
+ */
+export type AgentEvent = 
+/**
+ * Part of its answer.
+ */
+{ kind: "text"; text: string } | 
+/**
+ * Part of its reasoning, when it shares it.
+ */
+{ kind: "thought"; text: string } | 
+/**
+ * A tool it is using (reading a file, running a command, …).
+ */
+{ kind: "tool"; id: string; title: string; status: string } | 
+/**
+ * It asks for permission; answer with [`AgentSession::answer`].
+ */
+{ kind: "permissionAsked"; request: string; title: string; choices: PermissionChoice[] } | 
+/**
+ * The turn finished (`end_turn`, `cancelled`, `max_tokens`, …).
+ */
+{ kind: "turnEnded"; stop: string } | 
+/**
+ * The turn could not run or failed, in the agent's own words.
+ */
+{ kind: "failed"; message: string }
+/**
+ * One event of an agent thread's running turn (plan 0001 B3.3): part of
+ * the answer, its reasoning, a tool it uses, a permission it asks for, the
+ * turn's end or its failure.
+ */
+export type AgentStreamed = { 
+/**
+ * The thread (its chat session id).
+ */
+sessionId: string; 
+/**
+ * What happened.
+ */
+event: AgentEvent }
+/**
+ * A thread with one of your agents.
+ */
+export type AgentThread = { 
+/**
+ * The chat session it is (load its turns with the chat's history).
+ */
+sessionId: string; 
+/**
+ * The project it belongs to.
+ */
+projectId: string; 
+/**
+ * The agent.
+ */
+providerId: ProviderId; 
+/**
+ * Its title.
+ */
+title: string; 
+/**
+ * How many turns it holds.
+ */
+turnCount: number; 
+/**
+ * Unix seconds of its last turn.
+ */
+updatedAt: number }
 /**
  * A suggested alternative path the user could take. The frontend
  * renders each as a one-click action.
@@ -4341,7 +4830,7 @@ bytes_downloaded: number } } |
  */
 repo_id: string; 
 /**
- * Error message from the engine.
+ * Error message from the kernel.
  */
 error: string } } | 
 /**
@@ -4379,7 +4868,7 @@ slot_id: string;
  */
 runtime: string; 
 /**
- * Error message from the runtime.
+ * Error message from the kernel.
  */
 error: string } } | 
 /**
@@ -4397,7 +4886,7 @@ error: string } } |
 slot_id: string; 
 /**
  * Runtime that hosted the embedder
- * (`candle`, `burn-cpu`, `llama-cpp-2`).
+ * (`candle`, `burn-cpu`, `llama-server`).
  */
 runtime: string; 
 /**
@@ -4416,7 +4905,7 @@ latency_ms: number } } |
  */
 slot_id: string; 
 /**
- * Error message from the runtime.
+ * Error message from the kernel.
  */
 error: string; 
 /**
@@ -4449,6 +4938,99 @@ user_id: string } } |
  * Supabase user id of the signed-out session.
  */
 user_id: string } }
+/**
+ * Analytics event classification.
+ */
+export type AnalyticsEventType = 
+/**
+ * User viewed a page/screen.
+ */
+"PageView" | 
+/**
+ * User interacted with a feature.
+ */
+"FeatureUsed" | 
+/**
+ * An error occurred.
+ */
+"Error" | 
+/**
+ * Performance metric recorded.
+ */
+"Performance" | 
+/**
+ * User session event.
+ */
+"Session" | 
+/**
+ * Custom event type.
+ */
+{ Custom: string }
+/**
+ * Analytics event payload - metrics, usage tracking.
+ */
+export type AnalyticsPayload = { 
+/**
+ * Event classification (e.g., `page_view`, `feature_used`, `error`).
+ */
+event_type: AnalyticsEventType; 
+/**
+ * Structured event properties.
+ */
+properties: AnalyticsProperties }
+/**
+ * Structured analytics properties.
+ */
+export type AnalyticsProperties = { 
+/**
+ * User identifier (anonymized).
+ */
+user_id: string | null; 
+/**
+ * Session identifier.
+ */
+session_id: string | null; 
+/**
+ * Feature or page name.
+ */
+target: string | null; 
+/**
+ * Action taken (e.g., "click", "submit", "navigate").
+ */
+action: string | null; 
+/**
+ * Numeric value (e.g., `duration_ms`, count).
+ */
+value: number | null; 
+/**
+ * Additional context label.
+ */
+label: string | null; 
+/**
+ * Error code if applicable.
+ */
+error_code: string | null; 
+/**
+ * Component or module source.
+ */
+source: string | null }
+/**
+ * Your answers to the few questions the machine cannot answer.
+ */
+export type Answers = { 
+/**
+ * The licence question.
+ */
+usage: Usage; 
+/**
+ * Containers will use the GPU (AI or ML work).
+ */
+needsGpu: boolean; 
+/**
+ * A desktop app to see and manage containers, rather than the command
+ * line alone.
+ */
+prefersApp: boolean }
 /**
  * Stored-key status for a single provider — what the devtool renders.
  * 
@@ -4547,7 +5129,7 @@ export type ArchId =
 /**
  * Phi-4 vision-language with bundled `SigLIP` encoder. The `phi4-siglip`
  * arch tag — distinct from Phi3 because the projection head and
- * vision tower require a separate loader (llama.cpp FFI + mmproj).
+ * vision tower require a separate loader (llama-server + mmproj).
  */
 "phi-4-vision" | 
 /**
@@ -4579,7 +5161,7 @@ export type ArchId =
  * 
  * Serialize-only because the `&'static str` fields can't cleanly
  * round-trip through serde's `Deserialize` (would need `Cow<str>`).
- * This type flows one direction: engine registry → Tauri command
+ * This type flows one direction: kernel registry → Tauri command
  * return → frontend. Never accepted as an input.
  */
 export type ArchitectureSpec = { 
@@ -4618,6 +5200,26 @@ requires_benchmark: boolean;
  * Short free-form note shown to the user in the detail panel.
  */
 note: string }
+/**
+ * Who sits in one place of a room, as you chose it.
+ */
+export type Assignment = { 
+/**
+ * The room's seat (`answerer`).
+ */
+seat: string; 
+/**
+ * Which of the seat's places, from 0.
+ */
+place: number; 
+/**
+ * The agent in it.
+ */
+provider: ProviderId; 
+/**
+ * The id of the persona it speaks as.
+ */
+persona?: string | null }
 /**
  * Built-in keyword action types the assistant can dispatch.
  * 
@@ -4706,7 +5308,7 @@ offload: OffloadConfig }
  * 
  * Renamed from `RoutingConfig` so the user-facing engine `RoutingConfig`
  * (escalation chain + latency tuning) keeps the canonical short name
- * at the specta / TS boundary. This struct only holds the engine-side
+ * at the specta / TS boundary. This struct only holds the kernel-side
  * `mode` field consumed by `set_routing_mode`.
  */
 export type AssistantRoutingConfig = { 
@@ -4847,8 +5449,8 @@ error_invalid_credentials: string;
  */
 error_network: string; 
 /**
- * Banner text rendered when no Supabase anon key is in the OS
- * keychain. Tells the operator where to set it.
+ * Banner text when this copy of `DevPulse` has no sign-in configured
+ * (no anon key in `[integrations.cloud.auth]` or the keychain).
  */
 error_supabase_not_configured: string; 
 /**
@@ -4937,11 +5539,11 @@ export type BackendId =
  */
 "sherpa-onnx-kws" | 
 /**
- * llama.cpp FFI — GGUF inference via the llama-cpp-2 crate. Carries
- * archs Candle's arch-native loaders don't cover (Phi-4 vision /
- * phi4-siglip with mmproj projection, future fine-tune families).
+ * llama.cpp's own `llama-server`, a separate process: every GGUF
+ * architecture llama.cpp loads (`router::llamacpp_supports_architecture`).
+ * Vision GGUFs through `--mmproj` are plan 0007 phase 2.
  */
-"llama-cpp-ffi"
+"llama-server"
 /**
  * Metadata for a single backend row. Field-level `pub` so specta can
  * walk the struct.
@@ -4983,89 +5585,38 @@ backends: BackendInfo[];
  */
 architectures: ArchitectureSpec[] }
 /**
- * Boot phase — serialized to frontend as `PascalCase`.
+ * Platform boot phase.
  */
 export type BootPhase = 
 /**
- * Platform is still starting up — services initializing.
- */
-"Initializing" | 
-/**
- * All services booted successfully (or degraded gracefully).
- */
-"Ready" | 
-/**
- * Boot failed — see `BootSnapshot::error` for details.
- */
-"Failed"
-/**
- * Emitted as the boot task transitions between phases. Replaces the
- * stringly-typed `platform:boot-phase` event family.
- * 
- * Frontend listens via `events.bootPhaseChanged.listen(cb)` and
- * renders the appropriate splash / dashboard / error overlay based
- * on the phase.
- * 
- * The boot health snapshot is intentionally NOT a field here — it's
- * a deep `SystemHealth` tree that doesn't implement `specta::Type`
- * without a wider derive sweep. Consumers that need the post-boot
- * health blob call the `get_boot_state` Tauri command which returns
- * it inside a typed `BootSnapshot`.
- */
-export type BootPhaseChanged = { 
-/**
- * New phase value.
- */
-phase: BootPhaseValue; 
-/**
- * Failure message — populated only when `phase == Failed`.
- */
-error: string | null }
-/**
- * Boot phase value. Mirrors [`crate::state::BootPhase`] but lives in
- * the events module so the event-export crate doesn't pull the
- * managed-state surface.
- */
-export type BootPhaseValue = 
-/**
- * Platform is still starting up.
+ * Services are starting.
  */
 "initializing" | 
 /**
- * All services booted successfully (or degraded gracefully).
+ * All critical services are up (or degraded gracefully).
  */
 "ready" | 
 /**
- * Boot failed — `BootPhaseChanged.error` carries the reason.
+ * Boot failed — `BootStatus::error` says why.
  */
 "failed"
 /**
- * Snapshot of boot state — returned by `get_boot_state` command.
+ * Platform boot progress — Rust-owned state. Every window renders it; a
+ * window opened later receives it from the state snapshot.
  */
-export type BootSnapshot = { 
+export type BootStatus = { 
 /**
- * Current boot phase.
+ * Where boot is.
  */
 phase: BootPhase; 
 /**
- * Ordered list of subsystem init events accumulated during boot.
- */
-events: InitEvent[]; 
-/**
- * Final health snapshot (populated once boot completes).
- */
-health: SystemHealth | null; 
-/**
- * Error message if boot failed.
+ * Why boot failed; set only when `phase` is `failed`.
  */
 error: string | null; 
 /**
- * Model readiness — populated after the model loader check runs.
- * Frontend reads this in `applySnapshot()` to catch up on
- * `platform:models-status` events that fired before the listener
- * was mounted.
+ * Latest status of each boot step, in the order steps first reported.
  */
-modelsStatus: ModelsStatusSnapshot | null }
+steps: InitEvent[] }
 /**
  * Browse / Search models screen.
  */
@@ -5243,33 +5794,17 @@ load_more_label: string;
  */
 loading_more_label: string }
 /**
- * Returned by [`llama_cpp_bump_manifest`] after a successful write.
- * 
- * Surfaces a confirmation summary so the devtool can render
- * "manifest at $path pinned to `$new_version` (upstream $sha)" without
- * re-reading the file.
+ * How much one seat may say.
  */
-export type BumpResult = { 
+export type Budget = { 
 /**
- * Absolute path of the manifest that was overwritten.
+ * Turns it may take in a room (1–20).
  */
-manifest_path: string; 
+max_turns: number; 
 /**
- * New `version` field (matches sub-repo's `release.version`).
+ * The longest answer it may give.
  */
-new_version: string; 
-/**
- * New `tag` field (e.g. `v0.1.2`).
- */
-new_tag: string; 
-/**
- * Upstream `ggml-org/llama.cpp` SHA the new release pins.
- */
-upstream_sha: string; 
-/**
- * Target ids the new manifest carries — operator must re-fetch each.
- */
-targets: string[] }
+max_output_tokens?: number | null }
 /**
  * Health of the Moka cache service.
  */
@@ -5314,73 +5849,6 @@ gpu_layers: number;
  * Dtype hint: `"auto" | "f32" | "f16" | "bf16" | "q4" | "q5" | "q8"`.
  */
 dtype: string }
-/**
- * Capability confirm step — presents the CONNECTED Clyffy's advertised
- * slots as layman sense tiles. Everything rendered is a pure function
- * of the live capability handshake — honest empty when standalone.
- * There is no embedded kernel; Clyffy is reached over the wire.
- */
-export type CapabilityCopy = { 
-/**
- * Heading for the capability confirm step.
- */
-title: string; 
-/**
- * Supporting line — states the wire-truth deal.
- */
-subtitle: string; 
-/**
- * Shown while standalone: the tiles light up on connect.
- */
-standalone_hint: string; 
-/**
- * Tooltip on the Brain tile (deep reasoner).
- */
-tile_brain_tip: string; 
-/**
- * Tooltip on the Sparkles tile (indexing helper).
- */
-tile_sparkles_tip: string; 
-/**
- * Tooltip on the Eyes tile (vision).
- */
-tile_eyes_tip: string; 
-/**
- * Tooltip on the Ears tile (speech-to-text).
- */
-tile_ears_tip: string; 
-/**
- * Tooltip on the Mouth tile (text-to-speech).
- */
-tile_mouth_tip: string; 
-/**
- * Caption above the knowledge term strip.
- */
-terms_caption: string; 
-/**
- * Visible label on the footer Back button (returns to connect).
- */
-back_label: string; 
-/**
- * Tooltip on the footer Back button.
- */
-back_tooltip: string; 
-/**
- * Visible label on the footer Skip button.
- */
-skip_label: string; 
-/**
- * Tooltip on the footer Skip button.
- */
-skip_tooltip: string; 
-/**
- * Visible label on the footer Continue button.
- */
-continue_label: string; 
-/**
- * Tooltip on the footer Continue button.
- */
-continue_tooltip: string }
 /**
  * One capturable window reported by xcap.
  * 
@@ -5482,6 +5950,18 @@ captureMs: number;
  */
 encodeMs: number }
 /**
+ * What passes from one phase to the next.
+ */
+export type CarryForward = 
+/**
+ * Only each seat's structured answer.
+ */
+"structured-outputs" | 
+/**
+ * Everything said.
+ */
+"full-transcript"
+/**
  * A download catalog entry — one per slot. Each has one or more download options.
  */
 export type CatalogEntry = { 
@@ -5531,6 +6011,50 @@ size_mb: number;
  */
 is_dir?: boolean }
 /**
+ * One cell value as the devtool shows and edits it.
+ */
+export type Cell = 
+/**
+ * Empty (NULL).
+ */
+{ kind: "null" } | 
+/**
+ * A whole number.
+ */
+{ kind: "integer"; value: number } | 
+/**
+ * A decimal number.
+ */
+{ kind: "real"; value: number } | 
+/**
+ * Text.
+ */
+{ kind: "text"; value: string } | 
+/**
+ * Binary data, shown as its size in bytes; not editable here.
+ */
+{ kind: "blob"; value: number }
+/**
+ * One column's new value in an insert or update.
+ */
+export type CellChange = { 
+/**
+ * Column name.
+ */
+column: string; 
+/**
+ * The new value.
+ */
+value: Cell }
+/**
+ * The chat.
+ */
+export type ChatCopy = { 
+/**
+ * Threads with your agents.
+ */
+agents: AgentChatCopy }
+/**
  * A chat turn returned to the frontend (`turns.id` is a string key).
  */
 export type ChatMessage = { 
@@ -5566,6 +6090,38 @@ modelUsed: string | null;
  * Inference latency in milliseconds (populated for assistant turns).
  */
 latencyMs: number | null }
+/**
+ * Chat message payload - LLM responses, user messages.
+ */
+export type ChatPayload = { 
+/**
+ * The message content.
+ */
+content: string; 
+/**
+ * Who sent the message.
+ */
+role: ChatRole; 
+/**
+ * Model used for generation (if assistant).
+ */
+model: string | null }
+/**
+ * Chat message role.
+ */
+export type ChatRole = 
+/**
+ * Human user message.
+ */
+"User" | 
+/**
+ * AI assistant response.
+ */
+"Assistant" | 
+/**
+ * System instruction or context.
+ */
+"System"
 /**
  * Session row for sidebar / grouping.
  */
@@ -5727,32 +6283,6 @@ export type CloudTokenStreamed = {
  */
 content: string }
 /**
- * The Clyffy (headless AI layer) connection state changed — emitted by the
- * background probe task on every transition (Disconnected ↔ Connecting ↔
- * Connected). Frontend listens via `events.clyffyConnectionChanged.listen(cb)`
- * to flip the no-AI indicator and light up Tier-2 surfaces. The `capability`
- * inside a `Connected` payload is always **computed** from the endpoint
- * handshake, never assumed.
- */
-export type ClyffyConnectionChanged = { 
-/**
- * New connection state (carries the computed capability when Connected).
- */
-connection: ConnectionState }
-/**
- * Live progress from the turnkey endpoint-discovery ladder — one event per
- * rung scanned, per endpoint verified, and a final tally. The frontend
- * renders honest per-source progress ("searched your network, your mesh…")
- * and appends found endpoints as capability cards as they verify.
- * Discovery is READ-ONLY: connecting stays the operator's confirm via
- * `connect_clyffy`.
- */
-export type ClyffyDiscoveryProgress = { 
-/**
- * What happened (source_scanned / found / finished).
- */
-event: DiscoveryEvent }
-/**
  * Layman explanations rendered by `ClyffyTooltip` components.
  * 
  * Every "?" icon in the overlay pulls its body text from this struct.
@@ -5804,6 +6334,34 @@ name: string;
  * Number of points in the collection.
  */
 point_count: number }
+/**
+ * One column of a table, as `PRAGMA table_info` describes it.
+ */
+export type Column = { 
+/**
+ * Column name.
+ */
+name: string; 
+/**
+ * The type as written in `CREATE TABLE` (may be empty).
+ */
+declaredType: string; 
+/**
+ * How the column stores values.
+ */
+affinity: Affinity; 
+/**
+ * Whether the column may be empty (NULL).
+ */
+nullable: boolean; 
+/**
+ * The default, as SQL text, when the column has one.
+ */
+defaultValue: string | null; 
+/**
+ * Whether the column is part of the primary key.
+ */
+primaryKey: boolean }
 /**
  * Classified failure with a human-readable message + optional context.
  * 
@@ -5877,310 +6435,335 @@ launch_label: string;
  */
 hint: string }
 /**
- * Connect (endpoint-entry) step — linking standalone DevPulse to a
- * Clyffy endpoint. Two modes surface here: Local (this machine / LAN)
- * and GB10 (the box over the operator's private mesh). The endpoint
- * address is ALWAYS operator-entered or discovered at runtime — the
- * only address-shaped string in this copy is a placeholder example the
- * operator can edit in their `wizard_copy.toml` override. Layman
- * English only: "AI brain", never "inference endpoint".
+ * A provider's connector, as found.
  */
-export type ConnectCopy = { 
+export type ConnectorReport = { 
 /**
- * Heading for the connect step.
+ * The npm package.
+ */
+package: string; 
+/**
+ * It is installed in the `DevPulse` folder.
+ */
+installed: boolean; 
+/**
+ * Its installed version.
+ */
+version: string | null }
+/**
+ * The "Your dev environment" stage (containers).
+ */
+export type ContainersCopy = { 
+/**
+ * Heading.
  */
 title: string; 
 /**
- * Supporting line — states the honest two-tier deal: DevPulse
- * already works standalone; connecting lights up the AI features.
+ * What the stage does.
  */
 subtitle: string; 
 /**
- * Alt text for the Clyffy mascot illustration on this step.
+ * Section: what was found.
  */
-mascot_alt: string; 
+found_heading: string; 
 /**
- * Visible label on the Local mode card (this machine / home network).
+ * While the machine is being checked.
  */
-mode_local_label: string; 
+checking: string; 
 /**
- * One-line layman hint under the Local mode label.
+ * Button: check again.
  */
-mode_local_hint: string; 
+check_again: string; 
 /**
- * Visible label on the GB10 mode card (the box over the mesh).
+ * Engine not installed.
  */
-mode_gb10_label: string; 
+engine_missing: string; 
 /**
- * One-line layman hint under the GB10 mode label.
+ * "Running · {version}".
  */
-mode_gb10_hint: string; 
+engine_running: string; 
 /**
- * Label above the endpoint address input.
+ * "Installed · {version}, not running".
  */
-url_label: string; 
+engine_stopped: string; 
 /**
- * Placeholder inside the address input — an editable EXAMPLE, not
- * a wired endpoint (the real address is what the operator types).
+ * "Compose {version}".
  */
-url_placeholder: string; 
+compose: string; 
 /**
- * `aria-label` on the address input.
+ * "Machine {name}: running".
  */
-url_aria: string; 
+machine_running: string; 
 /**
- * Visible label on the Connect button.
+ * "Machine {name}: stopped".
  */
-connect_cta: string; 
+machine_stopped: string; 
 /**
- * `aria-label` on the Connect button.
+ * "{gb} GB memory".
  */
-connect_aria: string; 
+host_ram: string; 
 /**
- * Visible label on the footer Back button.
+ * "{count} CPU cores".
  */
-back_label: string; 
+host_cores: string; 
 /**
- * Visible label on the footer Continue button (advances the
- * wizard — distinct from `connect_cta`, which dials the endpoint).
+ * "GPU: {name}".
  */
-continue_label: string; 
+host_gpu: string; 
 /**
- * Visible label on the Skip button — standalone is a mode, not a
- * failure, so this reads as a real choice.
+ * "WSL {version}".
  */
-skip_label: string; 
+wsl_ok: string; 
 /**
- * `aria-label` on the Skip button.
+ * WSL not installed.
  */
-skip_aria: string; 
+wsl_missing: string; 
 /**
- * Small reassurance under the actions: connecting is available
- * any time later.
+ * Virtualization switched on.
  */
-skip_hint: string; 
+virtualization_on: string; 
 /**
- * Status line while the probe dials the entered endpoint.
+ * Virtualization switched off in the firmware.
  */
-status_connecting: string; 
+virtualization_off: string; 
 /**
- * Status line once the capability handshake lands.
+ * Section: the questions.
  */
-status_connected: string; 
+questions_heading: string; 
 /**
- * Status line when the endpoint can't be reached — includes the
- * honest note that the probe keeps retrying in the background.
+ * The licence question.
  */
-status_failed: string; 
+usage_label: string; 
 /**
- * Inline error when Connect is pressed with an empty address.
+ * The GPU question.
  */
-error_empty: string; 
+gpu_label: string; 
 /**
- * Visible label on the primary "find my Clyffy" button.
+ * The desktop-app question.
  */
-discover_cta: string; 
+app_label: string; 
 /**
- * `aria-label` on the discover button.
+ * Yes.
  */
-discover_aria: string; 
+yes: string; 
 /**
- * Status line while the ladder runs (per-source progress renders
- * beneath it).
+ * No.
  */
-discovering: string; 
+no: string; 
 /**
- * Heading above the verified-endpoint result cards.
+ * Button: use these answers.
  */
-found_title: string; 
+save_answers: string; 
 /**
- * Visible label on a result card's confirm/connect button.
+ * Section: the recommendation.
  */
-confirm_cta: string; 
+advice_heading: string; 
 /**
- * Honest empty state after the ladder finishes with nothing —
- * names what was searched and points at the manual field.
+ * "Keep {name}" (an engine already here).
  */
-none_found: string; 
+keep: string; 
 /**
- * Hint when a rung was degraded (multicast blocked / no mesh
- * client) — a mode, never an error.
+ * "Set up {name}".
  */
-degraded_hint: string; 
+recommend: string; 
 /**
- * Reveal label for the manual address entry fallback.
+ * Shown before the answers are given.
  */
-manual_reveal: string; 
+answer_first: string; 
 /**
- * Visible label on the Network mode card (another box on the LAN).
+ * Sub-heading: why.
  */
-mode_network_label: string; 
+why: string; 
 /**
- * One-line layman hint under the Network mode label.
+ * Sub-heading: warnings.
  */
-mode_network_hint: string; 
+warnings_heading: string; 
 /**
- * Tooltip on the Local mode card.
+ * Sub-heading: blockers.
  */
-mode_local_tooltip: string; 
+blockers_heading: string; 
 /**
- * Tooltip on the Network mode card.
+ * "Source: {title}".
  */
-mode_network_tooltip: string; 
+source: string; 
 /**
- * Tooltip on the GB10 mode card.
+ * Sub-heading: the steps.
  */
-mode_gb10_tooltip: string; 
+steps_heading: string; 
 /**
- * Tooltip on the discover (Find my Clyffy) button.
+ * Button: run a step.
  */
-discover_tooltip: string; 
+run: string; 
 /**
- * Tooltip on the manual-entry reveal button.
+ * While a step runs.
  */
-manual_tooltip: string; 
+running: string; 
 /**
- * Tooltip on the footer Skip button.
+ * A step finished.
  */
-skip_tooltip: string; 
+done: string; 
 /**
- * Tooltip on the footer Continue button.
+ * A step did not work.
  */
-continue_tooltip: string; 
+failed: string; 
 /**
- * Tooltip on the footer Back button.
+ * A step to run yourself.
  */
-back_tooltip: string; 
+guided: string; 
 /**
- * Tooltip on a found-endpoint card's confirm button.
+ * After installing WSL.
  */
-confirm_tooltip: string; 
+restart: string; 
 /**
- * Tooltip on the manual address input.
+ * Under the install step: "Installing accepts {name}'s licence terms."
  */
-url_tooltip: string; 
+install_consent: string; 
 /**
- * Heading on the live scan panel.
+ * The way back to this stage later.
  */
-scan_title: string; 
+later_hint: string; 
 /**
- * Supporting line under the scan heading.
+ * Usage answers, by `Usage` value.
  */
-scan_subtitle: string; 
+usage: Partial<{ [key in string]: string }>; 
 /**
- * Rung label: the operator's persisted last endpoint.
+ * Reasons, warnings and blockers, by `PointCode` (`{name}` etc. filled).
  */
-scan_rung_persisted: string; 
+points: Partial<{ [key in string]: string }>; 
 /**
- * Rung label: the configured `base_url`.
+ * Step names, by `StepKind`.
  */
-scan_rung_configured: string; 
+steps: Partial<{ [key in string]: string }>; 
 /**
- * Rung label: loopback probe on this machine.
+ * OS names, by `std::env::consts::OS`.
  */
-scan_rung_localhost: string; 
+os: Partial<{ [key in string]: string }> }
 /**
- * Rung label: mDNS browse on the local network.
+ * Everything detection found.
  */
-scan_rung_mdns: string; 
+export type ContainersReport = { 
 /**
- * Rung label: enumerated private-mesh peers.
+ * Each engine in the list.
  */
-scan_rung_mesh: string; 
+engines: EngineReport[]; 
 /**
- * Rung tooltip: persisted endpoint.
+ * This machine.
  */
-scan_rung_persisted_tip: string; 
+host: HostReport; 
 /**
- * Rung tooltip: configured base_url.
+ * Why your engine list was not used, if it wasn't.
  */
-scan_rung_configured_tip: string; 
+listProblem: string | null; 
 /**
- * Rung tooltip: loopback.
+ * Unix seconds when this was checked.
  */
-scan_rung_localhost_tip: string; 
+checkedAt: number }
 /**
- * Rung tooltip: mDNS.
+ * The `containers` state.
  */
-scan_rung_mdns_tip: string; 
+export type ContainersState = { 
 /**
- * Rung tooltip: mesh peers.
+ * A check of this machine is running.
  */
-scan_rung_mesh_tip: string; 
+checking: boolean; 
 /**
- * Rung status while no signal has arrived yet.
+ * What the last check found; `None` before the first check finishes.
  */
-scan_rung_waiting: string; 
+report: ContainersReport | null; 
 /**
- * Rung status: enumerated, zero candidates.
+ * Your answers, once given.
  */
-scan_rung_done_none: string; 
+answers: Answers | null; 
 /**
- * Rung status template: `{count}` candidates answered.
+ * The recommendation for the report and your answers.
  */
-scan_rung_done_some: string; 
+advice: Advice | null; 
 /**
- * Rung status after the stream finished without this rung speaking.
+ * The step running now.
  */
-scan_rung_not_run: string; 
+running: Step | null; 
 /**
- * Tooltip explaining a skipped rung.
+ * The last step that finished.
  */
-scan_rung_not_run_tip: string; 
+lastRun: StepRun | null; 
 /**
- * Probe line template: `{url}` was tried.
+ * Why a check could not run, if it couldn't.
  */
-scan_probe_trying: string; 
+problem: string | null }
 /**
- * Probe outcome suffix: the handshake answered.
+ * A single context chunk from retrieval.
  */
-scan_probe_answered: string; 
+export type ContextChunk = { 
 /**
- * Probe outcome suffix: no answer.
+ * The retrieved text content.
  */
-scan_probe_silent: string; 
+content: string; 
 /**
- * Finish line template: `{found}` found, `{probed}` checked.
+ * Source document/location.
  */
-scan_finished_some: string; 
+source: string; 
 /**
- * Finish line template when nothing answered: `{probed}` checked.
+ * Relevance score (0.0 - 1.0).
  */
-scan_finished_none: string; 
+score: number }
 /**
- * Error line template: the search failed with `{error}`.
+ * Context payload - RAG results, retrieved context.
  */
-scan_error: string }
+export type ContextPayload = { 
 /**
- * Connection lifecycle from DevPulse's perspective. Drives the no-AI indicator
- * and every Tier-2 feature gate; the capability is always **computed** from the
- * endpoint, never assumed.
+ * Retrieved context chunks.
  */
-export type ConnectionState = 
+chunks: ContextChunk[]; 
 /**
- * No endpoint reachable — DevPulse runs standalone (Tier-1, Turso only).
+ * Original query that triggered retrieval.
  */
-{ state: "disconnected" } | 
+query: string }
 /**
- * A capability probe is in flight against `url`.
+ * The whole catalog.
  */
-{ state: "connecting"; url: string } | 
+export type CopyCatalog = { 
 /**
- * Connected; `capability` was computed from the endpoint handshake.
+ * First run.
  */
-{ state: "connected"; url: string; capability: EndpointCapability }
+onboarding: OnboardingCopy; 
 /**
- * Input for [`create_project`]. Only `name` and `root_path` are
- * required; every other field has a sensible default or is nullable.
+ * Forms.
+ */
+forms: FormsCopy; 
+/**
+ * Layouts.
+ */
+layout: LayoutCopy; 
+/**
+ * Devtools.
+ */
+devtools: DevtoolsCopy; 
+/**
+ * The chat.
+ */
+chat: ChatCopy; 
+/**
+ * The `DevPulse` account: sign-in, sign-up, sign-out (moved from the
+ * model-loader wizard copy; auth is not AI, so its text is the engine's).
+ */
+auth: AuthCopy; 
+/**
+ * Route names, keyed by the URL path the route folders give
+ * (`/devtools/system/datastores/turso`). The desktop's architecture
+ * test holds these keys equal to its route tree.
+ */
+nav: Partial<{ [key in string]: RouteCopy }> }
+/**
+ * What [`Projects::create`] needs. Only `name` and `root_path` are
+ * required.
  */
 export type CreateProjectInput = { 
 /**
- * Human-readable project name. Trimmed; must be non-empty.
+ * Display name. Trimmed; must be non-empty.
  */
 name: string; 
 /**
- * Absolute path to the project root on disk. Trimmed; must be
- * non-empty. Uniqueness is enforced at the SQL layer.
+ * The project folder. Trimmed; must be non-empty.
  */
 root_path: string; 
 /**
@@ -6188,21 +6771,20 @@ root_path: string;
  */
 project_type?: string | null; 
 /**
- * Optional one-line description. Stored as empty string when
- * omitted to keep the column NOT NULL.
+ * One-line description; empty is stored as NULL.
  */
 description?: string | null; 
 /**
- * Optional source-tool hint (e.g. `"vscode"`, `"cursor"`). Free-form.
+ * Source tool hint; empty is stored as NULL.
  */
 tool?: string | null; 
 /**
- * Optional JSON string. Caller is responsible for the shape.
+ * JSON array as a string; empty is stored as NULL.
  */
 tech_stack?: string | null; 
 /**
- * If `true`, the new project is immediately set as the active
- * project. Convenient for the wizard "Create + Start" flow.
+ * Make it the active project. A project is also made active when it is
+ * the first one.
  */
 set_active?: boolean }
 /**
@@ -6274,7 +6856,7 @@ avg_latency_ms: number }
 /**
  * Single IPC response for the dashboard route. Assembles data from all services.
  * 
- * `LibSQL` may be unavailable during early boot — fields fall back to empty/zero.
+ * Turso may be unavailable during early boot — fields fall back to empty/zero.
  */
 export type DashboardPayload = { 
 /**
@@ -6294,7 +6876,7 @@ daily_stats: DailyStatsRow[];
  */
 cache_stats: CacheStats; 
 /**
- * Both fields zero if `LibSQL` is unavailable.
+ * Both fields zero if Turso is unavailable.
  */
 message_stats: MessageStats; 
 /**
@@ -6306,7 +6888,7 @@ uptime_secs: number }
  */
 export type DataScope = 
 /**
- * Engine internals — never user-facing.
+ * Kernel/engine internals — never user-facing.
  */
 "System" | 
 /**
@@ -6321,6 +6903,34 @@ export type DataScope =
  * Per-project namespaced data.
  */
 "Project"
+/**
+ * What first run found on this machine without asking (Welcome's chips).
+ */
+export type Detected = { 
+/**
+ * Detection has finished; until then the UI says it is looking.
+ */
+done: boolean; 
+/**
+ * Your name, as git knows it.
+ */
+gitName: string | null; 
+/**
+ * Folders that hold repositories, most first.
+ */
+folders: DetectedFolder[] }
+/**
+ * A folder on this machine that holds git repositories.
+ */
+export type DetectedFolder = { 
+/**
+ * The folder.
+ */
+path: string; 
+/**
+ * Git repositories directly inside it.
+ */
+repoCount: number }
 /**
  * Unified status returned by [`devforge_get_status`](super::devforge_get_status)
  * and emitted on the `devforge://ready` event after bootstrap.
@@ -6477,67 +7087,21 @@ export type DevforgeHealthState =
  */
 "unknown"
 /**
- * A verified endpoint: it answered the capability handshake.
+ * The devtools' shared text; each devtool's own name and lines are `nav`.
  */
-export type DiscoveredEndpoint = { 
+export type DevtoolsCopy = { 
 /**
- * Base URL, no trailing slash — what `connect_clyffy` takes verbatim.
+ * Marker on a devtool that is not built yet.
  */
-url: string; 
+planned: string; 
 /**
- * Which rung found it.
+ * What a planned devtool's page says.
  */
-source: DiscoverySource; 
+planned_body: string; 
 /**
- * What it advertised (computed from the live handshake, never assumed).
+ * The Action log devtool's own text (its name and lines are `nav`).
  */
-capability: EndpointCapability }
-/**
- * Live progress from the ladder — the Tauri seam maps these onto the
- * typed `ClyffyDiscoveryProgress` event.
- */
-export type DiscoveryEvent = 
-/**
- * A rung finished enumerating; `candidates` is how many it contributed.
- */
-{ kind: "source_scanned"; source: DiscoverySource; candidates: number } | 
-/**
- * A candidate URL was actually probed — true attempt telemetry.
- * No-mock law: the UI may only render attempts that happened.
- */
-{ kind: "candidate_probed"; url: string; source: DiscoverySource; reached: boolean } | 
-/**
- * A candidate answered the capability handshake.
- */
-{ kind: "found"; endpoint: DiscoveredEndpoint } | 
-/**
- * The ladder is done.
- */
-{ kind: "finished"; found: number; probed: number }
-/**
- * Which rung of the ladder produced a candidate.
- */
-export type DiscoverySource = 
-/**
- * The operator's persisted last-connected endpoint.
- */
-"persisted" | 
-/**
- * The configured `base_url` from `services.system.clyffy`.
- */
-"configured" | 
-/**
- * Loopback probe on a configured discovery port.
- */
-"localhost" | 
-/**
- * DNS-SD answer on the LAN.
- */
-"mdns" | 
-/**
- * Enumerated tailscale/Headscale mesh peer.
- */
-"mesh_peer"
+action_log: ActionLogCopy }
 /**
  * Where on disk a downloaded model lands.
  */
@@ -6806,15 +7370,15 @@ eta_seconds_template: string;
  */
 eta_computing_label: string; 
 /**
- * Label while the engine is starting the HF request.
+ * Label while the kernel is starting the HF request.
  */
 starting_label: string; 
 /**
- * Label while the engine is hashing / verifying the file after download.
+ * Label while the kernel is hashing / verifying the file after download.
  */
 verifying_label: string; 
 /**
- * Label while the engine is symlinking / copying into the registry.
+ * Label while the kernel is symlinking / copying into the registry.
  */
 importing_label: string; 
 /**
@@ -6898,32 +7462,97 @@ name: string;
  */
 row_count: number }
 /**
- * Snapshot of what a ClyffyOS endpoint can serve right now.
+ * How hard the seat's agent should think.
  */
-export type EndpointCapability = { 
+export type Effort = 
 /**
- * Endpoint family. `"clyffyos"` for a clyffyd daemon. Reserved
- * strings for future relatives (e.g. `"clyffyos-relay"`).
+ * A quick answer.
  */
-kind: string; 
+"low" | 
 /**
- * Daemon semver. The Cargo crate version of the `clyffyd` binary
- * at build time. Clients can warn when the wire crate they ship
- * expects shapes only this version's daemon exposes.
+ * The agent's usual effort.
  */
-version: string; 
+"medium" | 
 /**
- * Short git SHA the daemon was built from. Tooling can correlate
- * against the clyffyos repo to identify exactly what binary is
- * running. Empty string when the build context isn't a git tree.
+ * Its most careful answer.
  */
-build_sha: string; 
+"high"
 /**
- * All loaded slots on this endpoint. Empty when the daemon has
- * booted but no slot is warm yet (e.g. headless first run before
- * any model has been pulled).
+ * One engine, as it answered.
  */
-slots: LoadedSlotSummary[] }
+export type EngineReport = { 
+/**
+ * Engine id from the list.
+ */
+id: string; 
+/**
+ * Display name.
+ */
+name: string; 
+/**
+ * The program is on this machine.
+ */
+installed: boolean; 
+/**
+ * The client's version, when it answered.
+ */
+clientVersion: string | null; 
+/**
+ * The engine's version — reported only by a running engine.
+ */
+engineVersion: string | null; 
+/**
+ * The engine answered (it is running and reachable).
+ */
+running: boolean; 
+/**
+ * Compose version, when compose is available.
+ */
+compose: string | null; 
+/**
+ * Machines (engines that run in a VM); empty when not applicable.
+ */
+machines: MachineReport[]; 
+/**
+ * Why the engine is not reachable, in the tool's own words.
+ */
+problem: string | null }
+/**
+ * Why a field was refused.
+ */
+export type ErrorCode = 
+/**
+ * The field is required and empty.
+ */
+"required" | 
+/**
+ * Shorter than `limit`.
+ */
+"tooShort" | 
+/**
+ * Longer than `limit`.
+ */
+"tooLong" | 
+/**
+ * A number below its floor, `limit`.
+ */
+"belowMinimum" | 
+/**
+ * Not an email address.
+ */
+"email" | 
+/**
+ * Not a folder that exists.
+ */
+"notAFolder" | 
+/**
+ * The form has no such field.
+ */
+"unknown" | 
+/**
+ * Any other rule.
+ */
+"invalid"
 /**
  * Wire-stable failure classification.
  * 
@@ -7047,6 +7676,22 @@ export type EscalationTierId =
  */
 "cloud_api"
 /**
+ * How strong the evidence behind a role or room is.
+ */
+export type Evidence = 
+/**
+ * Peer-reviewed and replicated.
+ */
+"strong" | 
+/**
+ * One or a few studies.
+ */
+"moderate" | 
+/**
+ * A long-used method with little controlled evidence.
+ */
+"practice"
+/**
  * Hardware execution lane in the inference pipeline.
  * 
  * Each variant maps to a model slot + device combination.
@@ -7090,7 +7735,7 @@ export type ExecutionLane =
  */
 "VectorRetrieval" | 
 /**
- * Relational query (libSQL). File-backed.
+ * Relational query (Turso). File-backed.
  */
 "RelationalQuery" | 
 /**
@@ -7138,12 +7783,13 @@ rowsExported: number;
  */
 path: string }
 /**
- * A single community feed item, both as fetched from the remote endpoint and
- * as stored in the local `community_feed` cache.
+ * A single community feed item, both as fetched from the remote
+ * endpoint and as stored in Turso.
  * 
- * `payload_json` is the JSON-encoded kind-specific payload, kept as `String`
- * (not `serde_json::Value`) so the type is trivially `specta::Type`-able; the
- * UI parses on receive.
+ * `payload_json` is the JSON-encoded form of the kind-specific payload
+ * shape. Kept as `String` (not `serde_json::Value`) so the type is
+ * trivially `specta::Type`-able across the IP boundary; the UI layer
+ * parses on receive. Mirrors the existing knowledge-entry pattern.
  */
 export type FeedItem = { 
 /**
@@ -7185,9 +7831,10 @@ payloadJson: string }
 /**
  * Discriminant for the kind of community item.
  * 
- * Extensible by appending — the `kind` column stores a string slug and
- * unknown values fall back to [`FeedKind::Activity`], so a row written by a
- * newer build never breaks an older reader.
+ * Three kinds today; extensible by appending to this enum without
+ * breaking persisted rows (the kernel matches on a string slug stored
+ * in the `kind` column, falling back to [`FeedKind::Activity`] for
+ * unknown values).
  */
 export type FeedKind = 
 /**
@@ -7199,10 +7846,123 @@ export type FeedKind =
  */
 "knowledge_contribution" | 
 /**
- * Friend/group lifecycle: someone joined a group, started a session,
- * posted a tip, etc.
+ * Friend/group lifecycle: someone joined a group, started a
+ * session, posted a tip, etc.
  */
 "activity"
+/**
+ * One refused field.
+ */
+export type FieldError = { 
+/**
+ * The field name, as in the schema.
+ */
+field: string; 
+/**
+ * Why.
+ */
+code: ErrorCode; 
+/**
+ * The limit: the length for `tooShort` / `tooLong`, the floor for
+ * `belowMinimum`.
+ */
+limit: number | null }
+/**
+ * A value the UI can offer for a field.
+ */
+export type FieldSuggestion = { 
+/**
+ * The value.
+ */
+value: string; 
+/**
+ * Where it came from.
+ */
+source: FieldSuggestionSource; 
+/**
+ * Extra facts shown with it (for a folder: how many repositories).
+ */
+detail: string | null }
+/**
+ * Where a suggested value came from.
+ */
+export type FieldSuggestionSource = 
+/**
+ * Your git configuration.
+ */
+"gitConfig" | 
+/**
+ * A folder on this machine that holds repositories.
+ */
+"folder"
+/**
+ * Why a form field was refused, one line per code (`{limit}` is filled).
+ */
+export type FormErrorsCopy = { 
+/**
+ * Required and empty.
+ */
+required: string; 
+/**
+ * Too short.
+ */
+too_short: string; 
+/**
+ * Too long.
+ */
+too_long: string; 
+/**
+ * A number below its floor.
+ */
+below_minimum: string; 
+/**
+ * Not an email.
+ */
+email: string; 
+/**
+ * Folder does not exist.
+ */
+not_a_folder: string; 
+/**
+ * No such field.
+ */
+unknown: string; 
+/**
+ * Anything else.
+ */
+invalid: string }
+/**
+ * The result of a submission.
+ */
+export type FormOutcome = { 
+/**
+ * Whether the values were written.
+ */
+saved: boolean; 
+/**
+ * Refused fields; empty when saved.
+ */
+errors: FieldError[] }
+/**
+ * Everything the UI needs to render a form.
+ */
+export type FormView = { 
+/**
+ * JSON Schema of the form, generated from its Rust type.
+ */
+schema: JsonValue; 
+/**
+ * Current values, as stored.
+ */
+values: JsonValue; 
+/**
+ * The field names, in the order they are shown.
+ */
+fields: string[]; 
+/**
+ * Suggested values per field.
+ */
+suggestions: Partial<{ [key in string]: FieldSuggestion[] }> }
 /**
  * A single `(arch, format)` support declaration. The resolver
  * iterates backends looking for an entry that matches its query.
@@ -7223,6 +7983,90 @@ format: ModelFormat;
  * Maturity of this `(arch, format)` path.
  */
 status: SupportStatus }
+/**
+ * Text shared by every form.
+ */
+export type FormsCopy = { 
+/**
+ * Field errors.
+ */
+errors: FormErrorsCopy }
+/**
+ * A repository found in the folder.
+ */
+export type FoundRepo = { 
+/**
+ * Folder name.
+ */
+name: string; 
+/**
+ * Full path.
+ */
+path: string; 
+/**
+ * The most-used languages, most first.
+ */
+languages: LanguageShare[]; 
+/**
+ * This is `DevPulse`'s own repository.
+ */
+isDevpulse: boolean; 
+/**
+ * Already registered as a project.
+ */
+registered: boolean }
+/**
+ * Governance event classification.
+ */
+export type GovernanceEvent = 
+/**
+ * A provider was selected for a request.
+ */
+"ProviderSelected" | 
+/**
+ * Rate limit hit — request queued or rejected.
+ */
+"RateLimitHit" | 
+/**
+ * Daily budget threshold reached (warning or hard stop).
+ */
+"BudgetThresholdReached" | 
+/**
+ * Cooldown period started after 429 response.
+ */
+"CooldownStarted" | 
+/**
+ * Cooldown period ended — lane available again.
+ */
+"CooldownEnded" | 
+/**
+ * Council chose between multiple lane responses.
+ */
+"CouncilArbitration" | 
+/**
+ * Request escalated from one lane to another.
+ */
+"LaneEscalation"
+/**
+ * Governance event payload — lane routing, rate limiting, council arbitration.
+ */
+export type GovernancePayload = { 
+/**
+ * What happened.
+ */
+event: GovernanceEvent; 
+/**
+ * Which lane triggered this. "internal" or "api".
+ */
+lane: string; 
+/**
+ * Provider involved (if applicable). "claude", "gpt", "gemini".
+ */
+provider: string | null; 
+/**
+ * Human-readable detail.
+ */
+detail: string }
 /**
  * A single enforcement failure. Held in a bounded ring for replay.
  */
@@ -7264,14 +8108,14 @@ export type GrammarKind =
  */
 "enum" | 
 /**
- * Custom Clyffy-defined grammar (public label only).
+ * Custom kernel-defined grammar (public label only).
  */
 "custom"
 /**
  * A snapshot of the grammar machine.
  * 
- * Returned by the `get_grammar_state` client command and emitted as the
- * payload of `platform:grammar-changed` events on every change.
+ * Returned by `get_grammar_state` Tauri command. Emitted as the payload
+ * of `platform:grammar-changed` Tauri events on every change.
  */
 export type GrammarSnapshot = { 
 /**
@@ -7303,7 +8147,7 @@ enabled: boolean;
  */
 last_change_at_ms: number; 
 /**
- * Recent failures (newest first).
+ * Recent failures (newest first, capped at `FAILURE_HISTORY_CAP`).
  */
 recent_failures: GrammarFailure[] }
 /**
@@ -7335,7 +8179,7 @@ export type GraphHealthAll = {
  */
 namespaces: GraphPingResult[]; 
 /**
- * Whether the HTTP server is reachable.
+ * Whether the HTTP server on :8822 is reachable.
  */
 http_server_up: boolean; 
 /**
@@ -7676,20 +8520,6 @@ process_ram_mb: number;
  */
 process_vram_mb: number }
 /**
- * Periodic hardware metrics push (CPU / RAM / GPU / VRAM). Replaces
- * the stringly-typed `model:hardware` event.
- * 
- * Emitted every 2s by the hardware push task in [`crate::lib`].
- * Frontend `hardwareState` rune listens and updates VRAM bar, GPU
- * utilization, etc.
- */
-export type HardwareMetricsUpdated = { 
-/**
- * Full metrics snapshot. The frontend overwrites its rune state
- * from this struct directly — no diff merging.
- */
-metrics: HardwareMetrics }
-/**
  * Health status enum.
  */
 export type HealthStatus = 
@@ -7838,6 +8668,47 @@ save_error_template: string;
  */
 lock_icon_aria: string }
 /**
+ * The facts about this machine that decide what can run.
+ */
+export type HostReport = { 
+/**
+ * `windows`, `macos` or `linux`.
+ */
+os: string; 
+/**
+ * CPU architecture (`x86_64`, `aarch64`).
+ */
+arch: string; 
+/**
+ * The OS's own long name and version.
+ */
+osVersion: string | null; 
+/**
+ * The OS build number (Windows: 19045 is Windows 10 22H2, 22000 and up
+ * is Windows 11), when the OS reports one.
+ */
+osBuild: number | null; 
+/**
+ * Installed memory, in MiB.
+ */
+ramTotalMb: number; 
+/**
+ * Logical CPU cores.
+ */
+cpuCores: number; 
+/**
+ * NVIDIA GPU names, as the driver reports them.
+ */
+nvidiaGpus: string[]; 
+/**
+ * WSL (Windows only).
+ */
+wsl: WslReport | null; 
+/**
+ * Virtualization (Windows only).
+ */
+virtualization: VirtualizationReport | null }
+/**
  * Identity of the local assistant.
  * 
  * `name` drives every prompt template via `{assistant_name}` and the
@@ -7855,11 +8726,31 @@ name: string;
  */
 tagline: string }
 /**
+ * Inference metrics payload - model performance data.
+ */
+export type InferencePayload = { 
+/**
+ * Input token count.
+ */
+tokens_in: number; 
+/**
+ * Output token count.
+ */
+tokens_out: number; 
+/**
+ * Total latency in milliseconds.
+ */
+latency_ms: number; 
+/**
+ * Model identifier.
+ */
+model: string }
+/**
  * Which Claude escalation lane is allowed after local-first routing.
  * 
  * SSOT for the `response_source` decision the dispatcher consumes at
- * chat dispatch time. Mirrors the assistant `RoutingMode` value-for-value
- * — that type is internal, this is the public surface engine +
+ * chat dispatch time. Mirrors the kernel's `RoutingMode` value-for-value
+ * — the kernel type is private, this is the public surface engine +
  * Tauri + frontend share via specta.
  */
 export type InferenceProvider = 
@@ -7883,7 +8774,7 @@ export type InferenceProvider =
  */
 export type InferenceProviderChanged = { 
 /**
- * New provider identifier (matches `RoutingMode` on the engine
+ * New provider identifier (matches `RoutingMode` on the kernel
  * side, surfaced as a plain string here).
  */
 provider: string }
@@ -7944,13 +8835,17 @@ export type InitStatus =
 /**
  * Request shape for [`intel_save_memory`].
  * 
- * The embedding is supplied by the caller so the save can be composed before
- * the chat → embedder hook lands; when connected, Clyffy validates it against
- * its active embedder dimension.
+ * Embedding is supplied by the caller so this command can ship
+ * before the chat → Burn-embedder hook lands. Future "capture this
+ * chat turn" verbs will compose this command on the engine side
+ * after running the text through the active embedder.
  */
 export type IntelSaveMemoryRequest = { 
 /**
- * Project slug — the database name in Clyffy's `projects` namespace.
+ * Project slug — the `SurrealDB` database name under the
+ * `projects` namespace. Derive on the frontend via the
+ * `intel_list_projects` output or hardcode for single-project
+ * dev flows.
  */
 projectSlug: string; 
 /**
@@ -7958,12 +8853,15 @@ projectSlug: string;
  */
 text: string; 
 /**
- * Pre-computed embedding. Length MUST match Clyffy's active embedder
- * dimension; validated Clyffy-side before the write.
+ * Pre-computed embedding. MUST be [`EMBEDDING_DIM`] long; any
+ * other length is rejected up front rather than corrupting the
+ * HNSW index downstream.
  */
 embedding: number[]; 
 /**
- * Memory classification blended into recall scoring. See [`MemoryKind`].
+ * `"Prompt"` (user input) or `"Response"` (assistant reply) or
+ * `"Reflection"` (summary). Passed verbatim as a serde tag —
+ * see [`MemoryKind`].
  */
 kind: MemoryKind; 
 /**
@@ -7975,19 +8873,22 @@ priority: number }
  */
 export type IntelStatus = { 
 /**
- * Backing connector identifier reported by Clyffy (e.g.
- * `"embedded-surrealkv"`). Computed from the connected capability, never
- * hardcoded.
+ * Backing connector identifier — fixed at `"embedded-surrealkv"`
+ * while we ship only the local connector. Replaced with the
+ * active connector kind once the cloud connector ships.
  */
 connector_kind: string; 
 /**
- * HNSW embedding dimension of Clyffy's active embedder. Surfaced so the
- * devtool can flag a mismatch.
+ * HNSW embedding dimension locked in
+ * `cortex::intelligence::EMBEDDING_DIM`. Surfaced so the
+ * devtool can flag a mismatch when a different embedder
+ * would be wired in.
  */
 embedding_dim: number; 
 /**
- * Number of project-local databases Clyffy tracks. Zero when no project
- * has bootstrapped its intelligence schema yet.
+ * Number of project-local databases under
+ * [`PROJECT_NAMESPACE`]. Zero when no project has bootstrapped
+ * its intelligence schema yet.
  */
 project_count: number }
 /**
@@ -8032,8 +8933,8 @@ terminal?: boolean }
 /**
  * A complete interaction template.
  * 
- * Templates are **data**, not code. The engine's loader parses them
- * from TOML and hands them to the facade, which in turn hands
+ * Templates are **data**, not code. The kernel loader parses them
+ * from TOML and hands them to the engine facade, which in turn hands
  * them to the frontend overlay via a Tauri command. Every phase
  * transition fires a `SignalVariant::System` event through the
  * (future) `SignalBridge` so the `Monitor` tab in Slot Config can see
@@ -8070,7 +8971,7 @@ entry_phase: string }
 /**
  * A declarative trigger that opens an interaction.
  * 
- * Triggers are evaluated by the engine's interaction dispatcher. The
+ * Triggers are evaluated by the kernel's interaction dispatcher. The
  * frontend overlay never decides on its own whether to open — it
  * receives a "show this template now" signal from the platform
  * based on trigger evaluation.
@@ -8104,6 +9005,19 @@ export type InteractionTrigger =
  */
 { kind: "long_absence"; days: number }
 /**
+ * One problem with a library file, at a place you can find.
+ */
+export type Issue = { 
+/**
+ * `role skeptic · rubric`, or the file name.
+ */
+at: string; 
+/**
+ * What is wrong.
+ */
+problem: string }
+export type JsonValue = null | boolean | number | string | JsonValue[] | Partial<{ [key in string]: JsonValue }>
+/**
  * A named action the assistant can run when its associated phrase is
  * detected after the wake phrase fires.
  * 
@@ -8131,7 +9045,7 @@ payload?: string;
  */
 enabled: boolean }
 /**
- * A knowledge entry as the frontend sees it — no internal vocabulary.
+ * A knowledge entry as the frontend sees it — no kernel vocabulary.
  */
 export type KnowledgeEntryDto = { 
 /**
@@ -8276,6 +9190,18 @@ verbose: boolean;
  */
 persist_to_duckdb: boolean }
 /**
+ * Lines of code in one language.
+ */
+export type LanguageShare = { 
+/**
+ * Language name, as tokei reports it.
+ */
+name: string; 
+/**
+ * Lines of code (comments and blank lines excluded).
+ */
+lines: number }
+/**
  * Persisted latency / response-source tuning.
  */
 export type LatencyConfig = { 
@@ -8301,81 +9227,34 @@ vad_silence_ms: number;
  */
 stream_chunk_size: number }
 /**
- * Which `LibSQL` database to target.
+ * Text owned by the app's layouts.
  */
-export type LibSqlDatabase = 
+export type LayoutCopy = { 
 /**
- * System database — platform.db (sessions, projects, config).
+ * The app sidebar.
  */
-"System" | 
+sidebar: SidebarCopy }
 /**
- * User database — user.db (turns, preferences, `api_keys`).
+ * Everything you can seat and open: the bundled roles and rooms plus your
+ * files, with every file that did not pass named.
  */
-"User"
+export type Library = { 
 /**
- * Health of a single `LibSQL` database.
+ * By name.
  */
-export type LibSqlHealth = { 
+roles: RoleCard[]; 
 /**
- * Which database.
+ * By name.
  */
-database: string; 
+rooms: RoomSpec[]; 
 /**
- * Whether SELECT 1 succeeded.
+ * By name. None ship; these are yours.
  */
-reachable: boolean; 
+personas: Persona[]; 
 /**
- * Latency in microseconds.
+ * Files that were not loaded, and why.
  */
-latency_us: number; 
-/**
- * Error message if unreachable.
- */
-error: string | null; 
-/**
- * Database file path.
- */
-path: string }
-/**
- * Combined health of both databases.
- */
-export type LibSqlHealthAll = { 
-/**
- * Per-database health.
- */
-databases: LibSqlHealth[] }
-/**
- * Result of a raw SQL query (JSON-serialized rows).
- */
-export type LibSqlQueryResult = { 
-/**
- * Column names.
- */
-columns: string[]; 
-/**
- * Rows as JSON string (serialized array of arrays).
- */
-rows_json: string; 
-/**
- * Number of rows returned.
- */
-row_count: number; 
-/**
- * Number of rows affected (for INSERT/UPDATE/DELETE).
- */
-rows_affected: number }
-/**
- * A table in the database with its row count.
- */
-export type LibSqlTableInfo = { 
-/**
- * Table name.
- */
-name: string; 
-/**
- * Number of rows.
- */
-row_count: number }
+rejected: Rejected[] }
 /**
  * Where the license verdict came from. Drives UX copy on the
  * "subscription" panel — `Dev` shows a "developer bypass" badge,
@@ -8459,29 +9338,6 @@ export type LicenseTier =
  */
 "enterprise"
 /**
- * Composite link state derived from on-disk artifacts + runtime env.
- * 
- * Frontend matches this to drive the Status tab's health badge:
- * `Prebuilt` is the only green state; the other two are degraded.
- */
-export type LinkMode = 
-/**
- * `LLAMA_CPP_PREBUILT_LIB_DIR` exported AND target dir exists.
- * The fast-path is engaged.
- */
-"prebuilt" | 
-/**
- * Prebuilt staged on disk but env var unset — `apply_env` didn't
- * fire, or this dev box doesn't run through xtask. Build falls
- * through to the in-tree cmake path.
- */
-"prebuilt-staged-but-not-exported" | 
-/**
- * No prebuilt staged — the normal state since the kernel cut (the
- * fetch tooling is Clyffy's; nothing here links llama.cpp).
- */
-"fallback-cmake-or-unbuilt"
-/**
  * Convenience for the Config tab's model picker — same call as
  * `validate_provider`, returns just the model list (or an empty list
  * on failure, with the failure message in the Tauri error channel).
@@ -8508,79 +9364,6 @@ role: string;
  */
 content: string }
 /**
- * Composite snapshot of the FFI prebuilt-link state.
- * 
- * Returned by [`llama_cpp_build_info`]. Combines the committed
- * manifest pin, per-target extract state on disk, and the runtime
- * env var into one shape the devtool's Status tab can render.
- */
-export type LlamaCppBuildInfo = { 
-/**
- * Absolute path of the committed manifest file.
- */
-manifest_path: string; 
-/**
- * Manifest's `version` (matches sub-repo's `release.version`).
- */
-manifest_version: string; 
-/**
- * Release tag (e.g. `v0.1.1`).
- */
-manifest_tag: string; 
-/**
- * Pinned upstream `ggml-org/llama.cpp` SHA.
- */
-upstream_sha: string; 
-/**
- * Pinned upstream tag / branch label.
- */
-upstream_tag: string; 
-/**
- * Sub-repo URL.
- */
-repository: string; 
-/**
- * Browser-facing release URL (when present).
- */
-release_url: string | null; 
-/**
- * Target id currently in the process env (e.g. `win32-x64-vulkan`).
- * `None` when `LLAMA_CPP_PREBUILT_LIB_DIR` was unset at boot.
- */
-active_target: string | null; 
-/**
- * Absolute path env var value (when set).
- */
-active_lib_dir: string | null; 
-/**
- * Composite link state — what's actually true on disk + env.
- */
-link_mode: LinkMode; 
-/**
- * Per-target stage state. One entry per manifest artifact.
- */
-targets: TargetState[] }
-/**
- * Persisted llama.cpp embedded runtime preferences.
- */
-export type LlamaCppEmbeddedConfig = { 
-/**
- * Context window in tokens. Clamped to `[512, 131_072]`.
- */
-context_size: number; 
-/**
- * GPU layers to offload. `0` = CPU only, `u32::MAX` = all.
- */
-gpu_layers: number; 
-/**
- * KV-cache element type. `"f16" | "q8_0" | "q4_0"`.
- */
-kv_dtype: string; 
-/**
- * Tokens per forward pass. Clamped to `[1, 4096]`.
- */
-n_batch: number }
-/**
  * Health status of the llama-server sidecar.
  */
 export type LlamaHealthStatus = { 
@@ -8596,6 +9379,26 @@ status: string;
  * Port the server is bound to (0 if not started).
  */
 port: number }
+/**
+ * Your llama-server settings.
+ */
+export type LlamaServerConfig = { 
+/**
+ * Context window in tokens (`-c`). Clamped to `[512, 131_072]`.
+ */
+context_size: number; 
+/**
+ * GPU layers to offload (`-ngl`). `0` = CPU only, `u32::MAX` = all.
+ */
+gpu_layers: number; 
+/**
+ * KV-cache element type (`--cache-type-k/-v`). `"f16" | "q8_0" | "q4_0"`.
+ */
+kv_dtype: string; 
+/**
+ * Tokens per forward pass (`-b`). Clamped to `[1, 4096]`.
+ */
+n_batch: number }
 /**
  * Info returned when llama-server starts successfully.
  */
@@ -8643,14 +9446,14 @@ content: string }
  * 
  * # Why one type
  * 
- * Historically the load path raised several different error types
+ * Historically the kernel raised several different error types
  * (`LoaderError`, `anyhow::Error`, raw strings) and the frontend got
  * opaque `String` errors at the Tauri boundary. This discarded every
  * bit of actionable context — the UI couldn't show alternatives,
  * couldn't offer a retry, couldn't distinguish VRAM exhaustion from
  * a missing file.
  * 
- * `LoadError` is the funnel point. Internal loader errors
+ * `LoadError` is the funnel point. Internal kernel errors
  * ([`crate::traits::errors::LoaderError`], [`anyhow::Error`]) are
  * converted into `LoadError` at the engine facade boundary via
  * [`From<LoaderError>`] and [`LoadError::from_anyhow`]. From there
@@ -8765,7 +9568,7 @@ export type LoadError =
  */
 { kind: "boot-failed"; step: string; reason: string } | 
 /**
- * `ConfigBackend` trait operation failed (libsql write, memory-
+ * `ConfigBackend` trait operation failed (turso write, memory-
  * config invariant violation, etc.). Usually transient unless
  * the backing store is itself corrupt.
  */
@@ -8784,30 +9587,17 @@ export type LoadError =
  */
 { kind: "other"; message: string }
 /**
- * One loaded model on the daemon side.
+ * The catalog in effect, and why your file was not used (if it wasn't).
  */
-export type LoadedSlotSummary = { 
+export type LoadedCopy = { 
 /**
- * Stable slot identifier — `clyffy`, `minion`, `voice`, `rag_embed`.
- * The same enum lives kernel-side in the model-loader crate; the
- * wire form is a plain string so the daemon and clients can evolve
- * the kernel enum independently.
+ * The catalog.
  */
-slot_id: string; 
+copy: CopyCatalog; 
 /**
- * HuggingFace-style `org/repo` (or local model identifier) of the
- * model currently loaded into this slot.
+ * Why your `copy.toml` was not used; `None` when it was, or there is none.
  */
-model_id: string; 
-/**
- * Role label (e.g. `"chat"`, `"embed"`, `"vision"`). Free-form to
- * avoid coupling clients to the kernel's role taxonomy.
- */
-role: string; 
-/**
- * Lifecycle state of the slot.
- */
-status: SlotStatus }
+overrideProblem: string | null }
 /**
  * Copy for the per-slot model loading feedback. Rendered by
  * `ClyffyLoadSpinner` inside each role card while the slot is loading.
@@ -8858,6 +9648,22 @@ mascot_alt: string;
  */
 progress_aria_template: string }
 /**
+ * One Podman machine.
+ */
+export type MachineReport = { 
+/**
+ * Machine name.
+ */
+name: string; 
+/**
+ * It is running.
+ */
+running: boolean; 
+/**
+ * It is the default machine.
+ */
+default: boolean }
+/**
  * Snapshot of the MCP integration — what the devtool renders.
  */
 export type McpStatus = { 
@@ -8884,9 +9690,12 @@ protocolVersion: string;
  */
 installs: ClaudeInstalls }
 /**
- * Classification of a stored memory, blended into recall scoring on the
- * Clyffy side. Serialized as a snake_case string to match the `kind`
- * field of Clyffy's `memories` table.
+ * Kind taxonomy for stored memories.
+ * 
+ * Carries both serde and rkyv derives so the same value flows
+ * through the JSON-shaped graph row ([`MemoryRecord`]) and the
+ * zero-copy archive ([`RroRecord`]) with no translation step.
+ * Variants are unit-only — the archived layout is a compact tag.
  */
 export type MemoryKind = 
 /**
@@ -8922,7 +9731,7 @@ export type MemoryKind =
  */
 "reflection"
 /**
- * Aggregate counts from `LibSQL` — cheap `COUNT(*)` queries, not row scans.
+ * Aggregate counts from Turso — cheap `COUNT(*)` queries, not row scans.
  */
 export type MessageStats = { 
 /**
@@ -8933,6 +9742,18 @@ total_messages: number;
  * Distinct sessions (open + closed). A session with 0 messages still counts.
  */
 total_sessions: number }
+/**
+ * The named technique and its steps.
+ */
+export type Method = { 
+/**
+ * The technique's name.
+ */
+name: string; 
+/**
+ * What the seat does, in order.
+ */
+steps: string[] }
 /**
  * Microphone test result.
  */
@@ -8953,6 +9774,22 @@ avg_amplitude: number;
  * Noise floor estimate.
  */
 noise_floor: number }
+/**
+ * A migration this build ships, and when the database applied it.
+ */
+export type MigrationStatus = { 
+/**
+ * Migration version.
+ */
+version: number; 
+/**
+ * Migration name.
+ */
+name: string; 
+/**
+ * Unix timestamp when it was applied; `None` while pending.
+ */
+appliedAt: number | null }
 /**
  * High-level file format. Matches the frontend's storage convention.
  * 
@@ -8977,14 +9814,7 @@ export type ModelFormat =
 /**
  * Raw `PyTorch` checkpoints.
  */
-"pytorch" | 
-/**
- * Sherpa model directory (Whisper / Kokoro — a directory carrying
- * `tokens.txt` + config, discovered as a unit rather than a single
- * weight file). The model-loader's discovery scanner emits this
- * for `tokens.txt`-bearing directories.
- */
-"sherpa-dir"
+"pytorch"
 /**
  * Serializable model entry for the frontend (maps from model-loader `ModelRegistryEntry`).
  */
@@ -9029,6 +9859,23 @@ supported_backends: string[];
  * Which slot capabilities this model can serve.
  */
 compatible_capabilities: string[] }
+/**
+ * Which agents suit the seat.
+ */
+export type ModelPrefs = { 
+/**
+ * Vendors that suit the role, best first.
+ */
+preferred_vendors?: string[]; 
+/**
+ * Role ids whose vendor this seat must differ from (a critic never
+ * shares the author's vendor).
+ */
+avoid_same_vendor_as: string[]; 
+/**
+ * How hard the seat's agent should think.
+ */
+effort?: Effort | null }
 /**
  * Models setup screen — preset card, recommendations.
  */
@@ -9086,37 +9933,49 @@ continue_label: string;
  */
 back_label: string }
 /**
- * Model readiness snapshot — survives the frontend mount race.
- * 
- * Emitted as `platform:models-status` from the boot task, AND stored in
- * the `BootStateTracker` so `get_boot_state` returns it to late-mounting
- * frontends that missed the live event.
+ * Models readiness — computed once, in Rust. `ready` decides whether the app
+ * opens the setup flow; the UI renders it and never recomputes it.
  */
-export type ModelsStatusSnapshot = { 
+export type ModelsReadiness = { 
 /**
- * Whether models are present AND at least one slot is assigned.
+ * Setup is complete AND at least one model is registered AND at least
+ * one slot has a model assigned.
  */
 ready: boolean; 
 /**
- * No slot assignments exist — show setup wizard.
+ * The user finished (or skipped) setup.
  */
-firstRun: boolean; 
+setup_complete: boolean; 
 /**
- * Number of model files found by the registry scan.
+ * No prior configuration exists on this machine.
  */
-modelCount: number; 
+first_run: boolean; 
 /**
- * Total slots configured.
+ * Models in the registry.
  */
-slotCount: number; 
+model_count: number; 
 /**
- * Slots that have an assigned model.
+ * Slots defined.
  */
-assignedCount: number; 
+slot_count: number; 
 /**
- * Optional error from the model readiness check.
+ * Slots with a model assigned.
  */
-error: string | null }
+assigned_count: number }
+/**
+ * Slot + registry lists, read from the loader's in-memory state (no disk
+ * scan). Returned by [`get_models_status`]; the UI refetches it whenever a
+ * newer `models` state signal arrives.
+ */
+export type ModelsStatusData = { 
+/**
+ * All registered slots with their assignments.
+ */
+slots: SlotInfo[]; 
+/**
+ * All discovered models in the registry.
+ */
+models: ModelInfo[] }
 /**
  * One physical/virtual monitor reported by xcap.
  * 
@@ -9254,8 +10113,9 @@ export type OllamaHealthState =
 /**
  * A model reported by `GET /api/tags`.
  * 
- * Crosses the Tauri IPC boundary verbatim — no additional wrapper. The
- * engine always links `specta`, so `Type` is derived unconditionally.
+ * Crosses the Tauri IPC boundary verbatim — no engine-side wrapper.
+ * `specta::Type` is gated on the optional `specta` feature so kernel-only
+ * builds don't pull specta into their dep tree.
  */
 export type OllamaModel = { 
 /**
@@ -9304,6 +10164,279 @@ managed: boolean | null;
  */
 version: string | null }
 /**
+ * Text shared by every first-run stage.
+ */
+export type OnboardingCommonCopy = { 
+/**
+ * Continue button.
+ */
+continue: string; 
+/**
+ * Back button.
+ */
+back: string; 
+/**
+ * "Set up later" button.
+ */
+later: string; 
+/**
+ * Final button.
+ */
+finish: string; 
+/**
+ * "Step {current} of {total}".
+ */
+progress: string; 
+/**
+ * Shown when your flow file was not used.
+ */
+flow_problem: string; 
+/**
+ * The top-bar chip that reopens first run.
+ */
+reopen: string; 
+/**
+ * Settings: heading of the section that runs first run again.
+ */
+run_again_title: string; 
+/**
+ * Settings: what running it again does.
+ */
+run_again_hint: string; 
+/**
+ * Settings: the button that runs first run again (after it finished).
+ */
+run_again: string }
+/**
+ * First run.
+ */
+export type OnboardingCopy = { 
+/**
+ * Shared text.
+ */
+common: OnboardingCommonCopy; 
+/**
+ * Welcome.
+ */
+welcome: WelcomeCopy; 
+/**
+ * You.
+ */
+you: YouCopy; 
+/**
+ * Your AI.
+ */
+your_ai: YourAiCopy; 
+/**
+ * Your dev environment.
+ */
+containers: ContainersCopy }
+/**
+ * The first-run state published as the `onboarding` signal.
+ */
+export type OnboardingState = { 
+/**
+ * Where first run stands.
+ */
+status: OnboardingStatus; 
+/**
+ * The stage to show.
+ */
+stage: Stage; 
+/**
+ * Every stage, in order.
+ */
+stages: Stage[]; 
+/**
+ * What the stage still needs; empty means you can continue.
+ */
+needs: Requirement[]; 
+/**
+ * Why your flow file was not used, if it wasn't.
+ */
+flowProblem: string | null; 
+/**
+ * What was found on this machine so far.
+ */
+detected: Detected }
+/**
+ * Where first run stands.
+ */
+export type OnboardingStatus = 
+/**
+ * First run is showing.
+ */
+"open" | 
+/**
+ * You chose "Set up later"; the dashboard shows, and first run can be
+ * reopened at any time.
+ */
+"later" | 
+/**
+ * First run is finished.
+ */
+"complete"
+/**
+ * How a run ended.
+ */
+export type Outcome = { 
+/**
+ * Rounds run.
+ */
+rounds: number; 
+/**
+ * Why they stopped.
+ */
+stopped: Stopped; 
+/**
+ * What the selector picked, in a room that picks.
+ */
+pick: Pick | null; 
+/**
+ * Authors that changed their answer (`pro-1 in round 2`).
+ */
+flips: string[] }
+/**
+ * A value a room fills in (a domain expert's domain).
+ */
+export type Parameter = { 
+/**
+ * Its `{placeholder}` name in the role's text.
+ */
+name: string; 
+/**
+ * What the room should fill in.
+ */
+description: string }
+/**
+ * One choice of a permission request, as the agent worded it.
+ */
+export type PermissionChoice = { 
+/**
+ * The agent's id for it.
+ */
+id: string; 
+/**
+ * What the agent calls it.
+ */
+label: string; 
+/**
+ * It allows the action (as opposed to refusing it).
+ */
+allows: boolean }
+/**
+ * A character a seat speaks as (`dpl.persona/1`).
+ */
+export type Persona = { 
+/**
+ * Always [`PERSONA_SCHEMA`].
+ */
+schema: string; 
+/**
+ * Stable kebab-case key.
+ */
+id: string; 
+/**
+ * Semver; a breaking change bumps the major.
+ */
+version: string; 
+/**
+ * The character's name.
+ */
+name: string; 
+/**
+ * One line shown where you pick a persona for a seat.
+ */
+summary: string; 
+/**
+ * How the character speaks.
+ */
+tone: VoiceTone; 
+/**
+ * Who the character is.
+ */
+backstory: string; 
+/**
+ * What the character knows well.
+ */
+expertise: string[]; 
+/**
+ * Anything else about how the character answers.
+ */
+instructions?: string; 
+/**
+ * Words to find it by.
+ */
+tags?: string[] }
+/**
+ * One step of a room.
+ */
+export type Phase = { 
+/**
+ * Its kebab-case name.
+ */
+name: string; 
+/**
+ * The seats that speak in it.
+ */
+seats: string[]; 
+/**
+ * All at once, or one after another.
+ */
+mode: PhaseMode; 
+/**
+ * What each seat sees of the others in it.
+ */
+visibility: Visibility; 
+/**
+ * Turns each seat may take in it (1–10).
+ */
+max_turns: number }
+/**
+ * How a phase's seats take their turns.
+ */
+export type PhaseMode = 
+/**
+ * All at once.
+ */
+"parallel" | 
+/**
+ * One after another.
+ */
+"sequential"
+/**
+ * What the selector picked.
+ */
+export type Pick = { 
+/**
+ * The winning candidate's letter.
+ */
+winner: string | null; 
+/**
+ * The place that wrote it.
+ */
+winnerPlace: string | null; 
+/**
+ * The next best candidate's letter.
+ */
+runnerUp: string | null; 
+/**
+ * The two orders, or the panel, disagreed.
+ */
+tie: boolean; 
+/**
+ * Why it was picked.
+ */
+rationale: string[]; 
+/**
+ * Who disagreed, and why.
+ */
+dissent: string[]; 
+/**
+ * Why nothing could be picked.
+ */
+problem: string | null }
+/**
  * What the wizard / chat command sends.
  */
 export type PingClaudeRequest = { 
@@ -9325,7 +10458,7 @@ maxTokens: number | null }
  * What `ping_claude` returns to the frontend.
  * 
  * The shape mirrors the parts of the Anthropic Messages API response
- * the connectome actually needs (text + usage), not the full envelope.
+ * the cortex actually needs (text + usage), not the full envelope.
  */
 export type PingClaudeResponse = { 
 /**
@@ -9372,6 +10505,95 @@ data_dir: string;
  */
 portable: boolean }
 /**
+ * One reason, warning or blocker, with what it rests on.
+ */
+export type Point = { 
+/**
+ * What it says.
+ */
+code: PointCode; 
+/**
+ * Values for the text's placeholders (`{name}`, `{version}`, …).
+ */
+values: Partial<{ [key in string]: string }>; 
+/**
+ * Where it comes from.
+ */
+source: Source | null }
+/**
+ * What a reason, warning or blocker says (its text is in the copy catalog
+ * under `containers.points.<code>`).
+ */
+export type PointCode = 
+/**
+ * An engine already works.
+ */
+"keep_working" | 
+/**
+ * An engine is installed but not running.
+ */
+"keep_installed" | 
+/**
+ * Docker Desktop is free for your use.
+ */
+"licence_free" | 
+/**
+ * Docker Desktop needs a paid plan for your use.
+ */
+"licence_required" | 
+/**
+ * Podman is free and open source.
+ */
+"free_and_open" | 
+/**
+ * Podman installs for your user only, without administrator rights.
+ */
+"no_admin_needed" | 
+/**
+ * VS Code Dev Containers use Docker without extra settings.
+ */
+"dev_containers_ready" | 
+/**
+ * VS Code Dev Containers use Podman after one setting.
+ */
+"dev_containers_setting" | 
+/**
+ * Docker Desktop runs GPU containers on the WSL 2 backend.
+ */
+"gpu_docker" | 
+/**
+ * Podman runs GPU containers through CDI, on WSL 2 only.
+ */
+"gpu_podman" | 
+/**
+ * Linux runs an engine natively, without a VM.
+ */
+"linux_native" | 
+/**
+ * Podman 6 does not support Windows 10.
+ */
+"windows_10" | 
+/**
+ * Podman 6 does not support Intel Macs.
+ */
+"intel_mac" | 
+/**
+ * Hardware virtualization is off in the firmware.
+ */
+"virtualization_off" | 
+/**
+ * WSL is not installed.
+ */
+"wsl_missing" | 
+/**
+ * WSL is older than Docker Desktop needs.
+ */
+"wsl_old" | 
+/**
+ * Less RAM than the product asks for.
+ */
+"ram_low"
+/**
  * Real process metrics from the OS. Every field is a measurement, not a guess.
  */
 export type ProcessMetrics = { 
@@ -9396,6 +10618,47 @@ uptime_secs: number;
  * Process ID.
  */
 pid: number }
+/**
+ * A product `DevPulse` can recommend.
+ */
+export type Product = { 
+/**
+ * Stable id (`docker-desktop`, `podman`, `podman-desktop`).
+ */
+id: string; 
+/**
+ * The engine it provides (`docker`, `podman`).
+ */
+engine: string; 
+/**
+ * Display name.
+ */
+name: string; 
+/**
+ * The source naming its licence.
+ */
+licence: string; 
+/**
+ * `winget` package ids installed on Windows, in order.
+ */
+windows_winget?: string[]; 
+/**
+ * `brew` argument sets run on macOS, in order.
+ */
+macos_brew?: string[][]; 
+/**
+ * How to install it on Linux — shown, never run (it needs your password).
+ */
+linux_install: string; 
+/**
+ * Engine arguments that start it, in order; empty when starting means
+ * creating or starting a Podman machine.
+ */
+start?: string[][]; 
+/**
+ * The image the Test step runs.
+ */
+test_image: string }
 /**
  * Project setup / About You screen.
  */
@@ -9449,52 +10712,55 @@ continue_template: string;
  */
 back_label: string }
 /**
- * A full project row returned to the frontend.
+ * A project as stored.
  */
 export type Project = { 
 /**
- * `UUIDv4` identifier assigned at `create_project` time. Stable for
- * the life of the row.
+ * `UUIDv4` assigned when the project is first registered; stable for
+ * the life of the row, including a removal and a re-add.
  */
 id: string; 
 /**
- * Human-readable display name shown in the UI.
+ * Display name.
  */
 name: string; 
 /**
- * Absolute path to the project root on disk. `UNIQUE` at the SQL
- * level — the same directory cannot be tracked twice.
+ * The project folder on disk. Unique: a folder is one project.
  */
 root_path: string; 
 /**
- * One of: `"general" | "personal" | "team" | "archived"`.
+ * One of `general | personal | team | archived`.
  */
 project_type: string; 
 /**
- * Optional URL-safe slug derived from `name`. Populated by the UI
- * when the user customises the link path.
+ * Optional URL-safe slug.
  */
 slug: string | null; 
 /**
- * Free-form one-line description shown in project cards.
+ * One-line description.
  */
 description: string | null; 
 /**
- * Source tool hint: `"lovable" | "cursor" | "vscode" | …`. Free-form.
+ * Source tool hint (`vscode`, `cursor`, …). Free-form.
  */
 tool: string | null; 
 /**
- * JSON array serialized as a string, per the schema.
+ * JSON array, as a string.
  */
 tech_stack: string | null; 
 /**
- * Whether the project is active (soft-delete flag flipped to 0).
+ * `false` once removed (the row stays; registering the folder again
+ * brings it back).
  */
 active: boolean; 
 /**
  * Unix seconds.
  */
-created_at: number }
+created_at: number; 
+/**
+ * Unix seconds it was last made the active project; `None` if never.
+ */
+last_active_at: number | null }
 /**
  * Health of a project database.
  */
@@ -9560,12 +10826,14 @@ name: string;
  */
 row_count: number }
 /**
- * One row in the per-project inventory table the devtool renders in its
- * Status tab.
+ * One row in the per-project inventory table the devtool renders
+ * in its Status tab.
  */
 export type ProjectIntel = { 
 /**
- * Project slug — the database name in Clyffy's `projects` namespace.
+ * Project slug — the `SurrealDB` database name under
+ * [`PROJECT_NAMESPACE`]. Derived from the project root path
+ * via `cortex::intelligence::slug_for_cwd`.
  */
 slug: string; 
 /**
@@ -9577,38 +10845,35 @@ memory_count: number;
  */
 archive_count: number }
 /**
- * A read-only reference directory linked to a project.
+ * A read-only directory linked to a project for context.
  */
 export type ProjectReference = { 
 /**
- * `UUIDv4` identifier for this reference link.
+ * `UUIDv4` of the link.
  */
 id: string; 
 /**
- * FK to [`Project::id`] — the project this reference is attached to.
+ * The project it belongs to.
  */
 project_id: string; 
 /**
- * Absolute path to the referenced directory on disk.
+ * The directory.
  */
 path: string; 
 /**
- * Optional display label; UI falls back to the path's basename
- * when `None`.
+ * Display label; the UI falls back to the folder name.
  */
 label: string | null; 
 /**
- * `"docs" | "source" | "examples" | "other"`. Free-form; the UI
- * maps this to a color / icon and the indexer uses it to bias
- * scan depth (e.g. `source` gets AST indexing, `docs` gets text).
+ * `docs | source | examples | other`.
  */
 kind: string; 
 /**
- * Unix seconds at which the reference was linked.
+ * Unix seconds.
  */
 created_at: number }
 /**
- * A project row from `LibSQL` — maps 1:1 to the `projects` table.
+ * A project row from Turso — maps 1:1 to the `projects` table.
  */
 export type ProjectRow = { 
 /**
@@ -9636,6 +10901,108 @@ created_at: number;
  */
 last_accessed: number }
 /**
+ * The `projects` state every window renders.
+ */
+export type ProjectsState = { 
+/**
+ * Live projects, most recently used first.
+ */
+projects: Project[]; 
+/**
+ * The active project's id; when set, always one of `projects`.
+ */
+activeId: string | null }
+/**
+ * Where a role or room comes from.
+ */
+export type Provenance = { 
+/**
+ * Reference keys in the research page (`8`, `A2`…).
+ */
+sources: string[]; 
+/**
+ * How strong the evidence is.
+ */
+evidence: Evidence; 
+/**
+ * Anything the sources leave unsaid.
+ */
+note?: string | null }
+/**
+ * Which action.
+ */
+export type ProviderAction = 
+/**
+ * Run the vendor's updater.
+ */
+"update" | 
+/**
+ * Open the vendor's login in a terminal window.
+ */
+"signIn" | 
+/**
+ * Ask it one question and show the answer.
+ */
+"test" | 
+/**
+ * Install (or update) its connector in the `DevPulse` folder.
+ */
+"installConnector"
+/**
+ * An action on one provider.
+ */
+export type ProviderActionRef = { 
+/**
+ * The provider.
+ */
+providerId: ProviderId; 
+/**
+ * The action.
+ */
+action: ProviderAction }
+/**
+ * What an action did.
+ */
+export type ProviderActionRun = { 
+/**
+ * The provider.
+ */
+providerId: ProviderId; 
+/**
+ * The action.
+ */
+action: ProviderAction; 
+/**
+ * It worked (for Sign in: the terminal window opened).
+ */
+ok: boolean; 
+/**
+ * It could not be done from here: `command` is what to run yourself,
+ * and `output` says why.
+ */
+guided: boolean; 
+/**
+ * The command, as typed.
+ */
+command: string; 
+/**
+ * The tool's own output (the end of it, when long); for Try it, the
+ * answer.
+ */
+output: string; 
+/**
+ * The agent's own name and version, when it gave them (Try it).
+ */
+agent: string | null; 
+/**
+ * How long it took, in milliseconds.
+ */
+elapsedMs: number; 
+/**
+ * Unix seconds when it finished.
+ */
+finishedAt: number }
+/**
  * Stable wire identifier for a provider.
  * 
  * Used in config files, telemetry, devtool URLs, lane router selection.
@@ -9647,12 +11014,43 @@ export type ProviderId =
  */
 "anthropic-api" | 
 /**
- * Anthropic Claude via Claude Code / Claude Desktop subprocess MCP.
- * Dev-only — release builds hide this and the lane router refuses it
- * unless the operator has prior approval from Anthropic per the Agent
- * SDK Terms of Service.
+ * Claude Code — Anthropic's coding agent on your own subscription.
+ * Reached only through Claude Code's own program: its headless mode,
+ * and as the host that spawns `DevPulse`'s MCP server. Never the Agent
+ * SDK, never a token in `DevPulse` (owner ruling 2026-10-20).
  */
-"anthropic-subscription" | 
+"claude-code" | 
+/**
+ * Claude Desktop — Anthropic's desktop app. No programmatic chat;
+ * `DevPulse` offers it context over MCP.
+ */
+"claude-desktop" | 
+/**
+ * Codex — `OpenAI`'s coding agent on your `ChatGPT` plan, through its
+ * ACP connector running your own Codex.
+ */
+"codex" | 
+/**
+ * Gemini CLI — Google's coding agent (native ACP).
+ */
+"gemini-cli" | 
+/**
+ * Cursor CLI — Cursor's coding agent (`agent acp`).
+ */
+"cursor" | 
+/**
+ * Grok Build — xAI's coding agent (`grok agent stdio`, ACP).
+ */
+"grok-build" | 
+/**
+ * Antigravity — Google's agent IDE (desktop app); hosts MCP servers.
+ */
+"antigravity" | 
+/**
+ * Antigravity CLI (`agy`) — Google's terminal agent on your Google
+ * subscription.
+ */
+"antigravity-cli" | 
 /**
  * `OpenAI` (api.openai.com).
  */
@@ -9710,6 +11108,18 @@ export type ProviderId =
  */
 "vllm"
 /**
+ * What kind of provider this is.
+ */
+export type ProviderKind = 
+/**
+ * A coding agent you use through your own subscription (its CLI).
+ */
+"subscription_agent" | 
+/**
+ * A desktop app (no programmatic chat; it can be given context over MCP).
+ */
+"desktop_app"
+/**
  * One row from a `/v1/models` response — projected to what the UI shows.
  * 
  * Vendor responses include more (`created_at`, `owned_by`, capabilities,
@@ -9728,6 +11138,71 @@ id: string;
  * it as a subtitle when present.
  */
 ownedBy: string | null }
+/**
+ * One provider, as found.
+ */
+export type ProviderReport = { 
+/**
+ * Registry id.
+ */
+id: ProviderId; 
+/**
+ * Display name.
+ */
+name: string; 
+/**
+ * What it is.
+ */
+kind: ProviderKind; 
+/**
+ * How `DevPulse` talks to it.
+ */
+adapter: AdapterKind; 
+/**
+ * The vendor's documentation.
+ */
+docs: string; 
+/**
+ * The vendor's note, if any.
+ */
+note: string | null; 
+/**
+ * It is on this machine.
+ */
+installed: boolean; 
+/**
+ * Where it was found.
+ */
+location: string | null; 
+/**
+ * The installed version, as the program reports it.
+ */
+version: string | null; 
+/**
+ * The latest published version.
+ */
+latest: string | null; 
+/**
+ * A newer version is published than the one installed.
+ */
+updateAvailable: boolean; 
+/**
+ * Signed in, as far as can be told.
+ */
+signedIn: SignedIn; 
+/**
+ * The actions its definition offers (the vendor's own commands, and
+ * Try it when it says how to talk to it).
+ */
+actions: ProviderAction[]; 
+/**
+ * The connector that speaks for it, when it needs one.
+ */
+connector: ConnectorReport | null; 
+/**
+ * What could not be read, in the tool's own words (one per line).
+ */
+problems: string[] }
 /**
  * Aggregated row for the Status tab grid — one per visible provider.
  */
@@ -9775,6 +11250,86 @@ lastError: string | null;
  */
 modelCount: number | null }
 /**
+ * Every provider.
+ */
+export type ProvidersReport = { 
+/**
+ * One per definition, in catalog order.
+ */
+providers: ProviderReport[]; 
+/**
+ * Your definition files that were not used, and why.
+ */
+catalogProblems: string[]; 
+/**
+ * Unix seconds when this was checked.
+ */
+checkedAt: number }
+/**
+ * The `providers` state.
+ */
+export type ProvidersState = { 
+/**
+ * A check of this machine is running.
+ */
+checking: boolean; 
+/**
+ * What the last check found; `None` before the first check finishes.
+ */
+report: ProvidersReport | null; 
+/**
+ * The action running now.
+ */
+running: ProviderActionRef | null; 
+/**
+ * The last action that finished.
+ */
+lastAction: ProviderActionRun | null; 
+/**
+ * Why a check could not run, if it couldn't.
+ */
+problem: string | null }
+/**
+ * What the room keeps when it ends.
+ */
+export type RecordItem = 
+/**
+ * The chosen answer.
+ */
+"winner" | 
+/**
+ * The next best.
+ */
+"runner-up" | 
+/**
+ * Why it was chosen.
+ */
+"rationale" | 
+/**
+ * Who disagreed, and why.
+ */
+"dissent" | 
+/**
+ * Who changed their answer, and why.
+ */
+"flips"
+/**
+ * The outcome for one folder you asked to register.
+ */
+export type RegisterResult = { 
+/**
+ * The folder.
+ */
+path: string; 
+/**
+ * The project's id, when it was registered (or brought back).
+ */
+projectId: string | null; 
+/**
+ * Why it was not.
+ */
+error: string | null }
+/**
  * Runtime status of the REH web server.
  * 
  * Returned from `spawn_reh_server` and `get_reh_status`. All optional
@@ -9798,6 +11353,18 @@ url: string | null;
  */
 pid: number | null }
 /**
+ * A file that was not loaded, and why.
+ */
+export type Rejected = { 
+/**
+ * The file name (`bundled skeptic.json` for a bundled one).
+ */
+file: string; 
+/**
+ * Everything wrong with it.
+ */
+issues: Issue[] }
+/**
  * Single repo file entry — serializable snapshot of one sibling
  * returned by the HF Hub's repo info endpoint. Consumed by the
  * frontend's `RepoDownloadButton` to render the bundle confirmation.
@@ -9812,6 +11379,14 @@ name: string;
  * otherwise. UI treats `None` as "unknown".
  */
 size: number | null }
+/**
+ * Something the current stage still needs before you can continue.
+ */
+export type Requirement = 
+/**
+ * Your name.
+ */
+"name"
 /**
  * Resolver output. Either a concrete plan or a typed failure with
  * alternatives.
@@ -9890,6 +11465,94 @@ max: number;
  * Slider step increment.
  */
 step: number }
+/**
+ * One role a seat plays (`dpl.role/1`).
+ */
+export type RoleCard = { 
+/**
+ * Always [`ROLE_SCHEMA`].
+ */
+schema: string; 
+/**
+ * Stable kebab-case key.
+ */
+id: string; 
+/**
+ * Semver; a breaking change bumps the major.
+ */
+version: string; 
+/**
+ * What it is called.
+ */
+name: string; 
+/**
+ * One line a router or selector uses to pick this seat.
+ */
+summary: string; 
+/**
+ * The job.
+ */
+purpose: string; 
+/**
+ * What it does to the conversation.
+ */
+stance: Stance; 
+/**
+ * The named technique and its steps.
+ */
+method: Method; 
+/**
+ * The role's prompt.
+ */
+instructions: string; 
+/**
+ * Hard limits.
+ */
+must_not: string[]; 
+/**
+ * A JSON Schema of what the role must produce.
+ */
+output_contract: JsonValue; 
+/**
+ * Pass/fail criteria its output is scored against.
+ */
+rubric: string[]; 
+/**
+ * The room phases or triggers it answers in.
+ */
+speaks_when: string[]; 
+/**
+ * What it sees of its peers before it answers.
+ */
+visibility: Visibility; 
+/**
+ * What it may use besides talking.
+ */
+permissions: RolePermissions; 
+/**
+ * Which agents suit the seat.
+ */
+model_prefs: ModelPrefs; 
+/**
+ * How much it may say.
+ */
+budget: Budget; 
+/**
+ * Sample answers.
+ */
+examples?: string[]; 
+/**
+ * Words to find it by.
+ */
+tags: string[]; 
+/**
+ * Values a room fills in.
+ */
+parameters?: Parameter[]; 
+/**
+ * Where it comes from and how strong the evidence is.
+ */
+provenance: Provenance }
 /**
  * Copy for the four role cards (Thinking / Helpers / Searching / Talking).
  * 
@@ -10010,6 +11673,244 @@ status_error: string;
  */
 vram_estimate_template: string }
 /**
+ * What the seat may use besides talking.
+ */
+export type RolePermissions = { 
+/**
+ * No tools, no files: the role only answers.
+ */
+talk_only: boolean; 
+/**
+ * The tools it may use when it is not talk-only.
+ */
+tools_allowed: string[] }
+/**
+ * Something that happened while a room answers.
+ */
+export type RoomEvent = 
+/**
+ * Part of one place's running turn.
+ */
+{ kind: "agent"; place: string; event: AgentEvent } | 
+/**
+ * A place's turn, finished and saved.
+ */
+{ kind: "turn"; turn: RoomTurn } | 
+/**
+ * The room's answer: rounds run, why they stopped, what was picked.
+ * Saved.
+ */
+{ kind: "finished"; outcome: Outcome }
+/**
+ * A room (`dpl.room/1`).
+ */
+export type RoomSpec = { 
+/**
+ * Always [`ROOM_SCHEMA`].
+ */
+schema: string; 
+/**
+ * Stable kebab-case key.
+ */
+id: string; 
+/**
+ * Semver; a breaking change bumps the major.
+ */
+version: string; 
+/**
+ * What it is called.
+ */
+name: string; 
+/**
+ * The kind of room.
+ */
+type: RoomType; 
+/**
+ * One line on what it is for.
+ */
+summary: string; 
+/**
+ * Who sits in it.
+ */
+seats: Seat[]; 
+/**
+ * Its steps, in order.
+ */
+phases: Phase[]; 
+/**
+ * Who speaks next.
+ */
+turn_policy: TurnPolicy; 
+/**
+ * When it stops.
+ */
+stop: StopRule; 
+/**
+ * How one answer is chosen, when it chooses one.
+ */
+selection?: Selection | null; 
+/**
+ * What passes from one phase to the next.
+ */
+carry_forward: CarryForward; 
+/**
+ * What it keeps when it ends.
+ */
+record: RecordItem[]; 
+/**
+ * Where it comes from and how strong the evidence is.
+ */
+provenance: Provenance }
+/**
+ * One event of a room answering (plan 0001 B4.2): part of a place's
+ * running turn, a place's finished turn, or the room's outcome.
+ */
+export type RoomStreamed = { 
+/**
+ * The room (its chat session id).
+ */
+sessionId: string; 
+/**
+ * What happened.
+ */
+event: RoomEvent }
+/**
+ * A room of yours.
+ */
+export type RoomThread = { 
+/**
+ * The chat session it is (load its turns with the chat's history).
+ */
+sessionId: string; 
+/**
+ * The project it belongs to.
+ */
+projectId: string; 
+/**
+ * The library room it is (`council`).
+ */
+roomId: string; 
+/**
+ * Its title.
+ */
+title: string; 
+/**
+ * Who sits where.
+ */
+seating: Assignment[]; 
+/**
+ * How many turns it holds.
+ */
+turnCount: number; 
+/**
+ * Unix seconds of its last turn.
+ */
+updatedAt: number }
+/**
+ * One finished turn of a place.
+ */
+export type RoomTurn = { 
+/**
+ * Its order in this run, from 1.
+ */
+seq: number; 
+/**
+ * The round it was in, from 1.
+ */
+round: number; 
+/**
+ * The phase it was in.
+ */
+phase: string; 
+/**
+ * The place (`answerer-1`).
+ */
+place: string; 
+/**
+ * The place's seat.
+ */
+seat: string; 
+/**
+ * The seat's role id.
+ */
+role: string; 
+/**
+ * The persona's id, when the place has one.
+ */
+persona: string | null; 
+/**
+ * The agent that answered.
+ */
+provider: ProviderId; 
+/**
+ * Its letter as a candidate, when it is one.
+ */
+candidate: string | null; 
+/**
+ * The answer, as the agent gave it.
+ */
+text: string; 
+/**
+ * The JSON object the answer ended with.
+ */
+output: JsonValue | null; 
+/**
+ * How the answer broke its role's output contract.
+ */
+contractProblem: string | null; 
+/**
+ * Why the agent could not answer.
+ */
+failed: string | null }
+/**
+ * The kind of room.
+ */
+export type RoomType = 
+/**
+ * Everyone answers blind; a selector picks one answer.
+ */
+"council" | 
+/**
+ * Two sides argue; a judge selects.
+ */
+"debate" | 
+/**
+ * An author drafts; a critic from another vendor scores it.
+ */
+"author-critic" | 
+/**
+ * One seat, matched to the question.
+ */
+"router" | 
+/**
+ * Ideas first, then grouping, critique and a shortlist.
+ */
+"brainstorm"
+/**
+ * A route's name and the lines shown with it.
+ */
+export type RouteCopy = { 
+/**
+ * Name in navigation, tiles and section headers.
+ */
+label: string; 
+/**
+ * One line under the name on a tile.
+ */
+blurb?: string | null; 
+/**
+ * One line under the name on the page or section itself.
+ */
+description?: string | null; 
+/**
+ * Glossary term shown as an info chip next to the name.
+ */
+term?: string | null; 
+/**
+ * What the entry's attention dot means, for a route that shows one.
+ */
+badge?: string | null }
+/**
  * Persisted user-scope routing configuration.
  * 
  * One TOML file (`{data_dir}/user/routing.toml`), one accessor pair
@@ -10046,7 +11947,45 @@ export type RoutingMode =
  */
 "local_claude_api_council"
 /**
+ * One row: its `rowid` and a cell per column, in column order.
+ */
+export type Row = { 
+/**
+ * The row's `rowid` — how edits address it.
+ */
+rowid: number; 
+/**
+ * One cell per column of the table, in column order.
+ */
+cells: Cell[] }
+/**
+ * A page of a table's rows, with the columns that describe them.
+ */
+export type RowPage = { 
+/**
+ * The table.
+ */
+table: string; 
+/**
+ * The table's columns, in order.
+ */
+columns: Column[]; 
+/**
+ * The rows on this page, in `rowid` order.
+ */
+rows: Row[]; 
+/**
+ * Rows in the whole table.
+ */
+total: number; 
+/**
+ * Index of the first row on this page.
+ */
+offset: number }
+/**
  * Deliberation depth — how deeply Clyffy ruminates before acting.
+ * 
+ * SSOT: `signals.registry.yaml` → group `rro` → attribute `rro.depth`.
  */
 export type RroDepth = 
 /**
@@ -10063,6 +12002,8 @@ export type RroDepth =
 "deep"
 /**
  * RRO lifecycle state.
+ * 
+ * SSOT: `signals.registry.yaml` → group `rro` → attribute `rro.state`.
  */
 export type RroState = 
 /**
@@ -10096,8 +12037,8 @@ export type RroState =
 /**
  * A snapshot of the RRO machine at a point in time.
  * 
- * Returned by the `get_rro_state` client command and emitted as the payload
- * of `platform:rro-state-changed` events on every transition.
+ * Returned by `get_rro_state` Tauri command. Emitted as the payload of
+ * `platform:rro-state-changed` Tauri events.
  */
 export type RroStateSnapshot = { 
 /**
@@ -10121,15 +12062,15 @@ last_transition_at_ms: number;
  */
 proximity: number; 
 /**
- * Recent transitions (newest first).
+ * Recent transitions (newest first, capped at `TRANSITION_HISTORY_CAP`).
  */
 history: RroStateTransition[] }
 /**
- * A single transition record. Held in a ring buffer for replay.
+ * A single transition record. Held in the ring buffer for replay.
  */
 export type RroStateTransition = { 
 /**
- * Previous state (`None` for the initial transition into `idle`).
+ * Previous state (None for the initial transition into `idle`).
  */
 from: RroState | null; 
 /**
@@ -10145,36 +12086,44 @@ at_ms: number;
  */
 reason: string }
 /**
- * Desktop presentation shape for one slot's runtime fingerprint — the engine
- * identity of *which* runtime is fulfilling a capability slot, plus the
- * version stamps used for rebind / hot-update detection.
+ * Identifies the engine fulfilling a capability slot at a moment in time.
  * 
- * This is DevPulse's Tier-2 presentation type (mirrors the `VoiceInfo`
- * pattern): the data is produced on **Clyffy** (headless, on the GB10) and
- * arrives over the gb10-client wire via `model:runtime-version-changed` /
- * `model:capability-rebound` events and the hydration call below. Nothing here
- * is hardcoded — every field is discovered at load time on Clyffy. The
- * frontend `capabilityChannel` binds directly to this shape.
+ * The loader stamps a fingerprint on every successful load and caches
+ * the previous one per slot. When the next load produces a different
+ * `runtime_id`, the engine fires [`LoaderEvent::CapabilityRebound`] —
+ * when only `crate_version` / `upstream_revision` / `model_revision`
+ * differ, it fires [`LoaderEvent::RuntimeVersionChanged`] instead.
+ * 
+ * All four version fields are optional because they're discovered at
+ * load time from heterogeneous sources (cargo metadata, vendored fork
+ * SHA stamps, `HuggingFace` LFS oid). A missing field means "not known
+ * for this runtime"; the loader still produces a stable fingerprint
+ * because `runtime_id` alone is sufficient for rebind detection.
  */
 export type RuntimeFingerprint = { 
 /**
- * Stable runtime handle — `"candle"`, `"llama-cpp-2"`, `"ort"`,
- * `"sherpa-onnx-asr"`, … Matches the `runtime_id` on the frontend
- * `DevtoolMeta` registry.
+ * Stable runtime handle — `"candle"`, `"llama-server"`, `"ort"`,
+ * `"sherpa-onnx-asr"`, `"qwen3-tts-candle"`, `"ollama-external"`,
+ * `"mistralrs"`, `"siglip2-onnx-fixres"`, … Matches the
+ * `runtimeId` a desktop devtool folder declares in `_devtool`.
  */
 runtime_id: string; 
 /**
- * Cargo crate version of the runtime crate. `None` for runtimes that
- * don't ship as a Rust crate (Ollama, system services).
+ * Cargo crate version of the runtime crate
+ * (`env!("CARGO_PKG_VERSION")` at runtime). `None` for runtimes
+ * that don't ship as a Rust crate (Ollama, system services).
  */
 crate_version: string | null; 
 /**
- * Git commit SHA for vendored forks. `None` when consumed unmodified.
+ * Git commit SHA for vendored forks (`deps/moshi/`, `deps/ort/`,
+ * kokoros, …). `None` when the runtime is consumed unmodified.
  */
 upstream_revision: string | null; 
 /**
- * SHA-256 of the model weights — distinguishes "same runtime, new model
- * file" from "same model, new runtime version". `None` when unknown.
+ * SHA-256 of the model weights — already computed by the LFS
+ * download verifier for HuggingFace-sourced models. Lets the UI
+ * distinguish "same runtime, new model file" from "same model,
+ * new runtime version".
  */
 model_revision: string | null }
 /**
@@ -10336,7 +12285,7 @@ timestamp: string;
 level: string; 
 /**
  * Tracing target — e.g. `devtools.claude`, `mcp_stdio_server`,
- * `claude::mcp::tools::query_libsql`.
+ * `claude::mcp::tools::query_database`.
  */
 target: string; 
 /**
@@ -10344,6 +12293,79 @@ target: string;
  * Empty string if the entry was a span event without a message.
  */
 message: string }
+/**
+ * One seat: a role, how many sit in it, and the role's parameters filled.
+ */
+export type Seat = { 
+/**
+ * The seat's name in this room; phases refer to it.
+ */
+seat: string; 
+/**
+ * `role-id@major` (`skeptic@1`).
+ */
+role: string; 
+/**
+ * How many sit in it (1–6).
+ */
+count: number; 
+/**
+ * The role's parameters, filled.
+ */
+parameters?: Partial<{ [key in string]: string }> }
+/**
+ * How the room chooses one answer (select, never blend).
+ * 
+ * Four independent switches, field for field the `selection` object of
+ * `dpl.room/1` (as `Capabilities` mirrors its published shape). Grouping
+ * them would need serde's `flatten`, which cannot be combined with
+ * refusing unknown fields.
+ */
+export type Selection = { 
+/**
+ * Who picks.
+ */
+method: SelectionMethod; 
+/**
+ * The selector's seat.
+ */
+seat: string; 
+/**
+ * The selector does not see who wrote what.
+ */
+blind: boolean; 
+/**
+ * Judge in both orders; a disagreement is a tie or a rerun.
+ */
+swap_order: boolean; 
+/**
+ * The selector's vendor wrote none of the answers.
+ */
+exclude_author_vendors: boolean; 
+/**
+ * "None passes" is a valid outcome.
+ */
+allow_none: boolean }
+/**
+ * How one answer is chosen.
+ */
+export type SelectionMethod = 
+/**
+ * One selector picks.
+ */
+"judge" | 
+/**
+ * Several selectors pick together.
+ */
+"panel" | 
+/**
+ * The seats vote.
+ */
+"vote" | 
+/**
+ * You pick.
+ */
+"human"
 /**
  * Identifies a service's role in the platform.
  * 
@@ -10353,7 +12375,7 @@ message: string }
  */
 export type ServiceRole = 
 /**
- * Relational service (`LibSQL`).
+ * Relational service (Turso).
  */
 "Relational" | 
 /**
@@ -10372,6 +12394,10 @@ export type ServiceRole =
  * Vector service (`RRO`).
  */
 "Vector" | 
+/**
+ * Grammar service (kernel-owned constrained decoding).
+ */
+"Grammar" | 
 /**
  * `DevForge` service (managed REH web server).
  */
@@ -10463,7 +12489,7 @@ scope: DataScope;
  */
 stage: number; 
 /**
- * Public name ("Vector Store", "Model Manager", …).
+ * Public name ("Vector Store", "Grammar Engine", …).
  */
 public_name: string; 
 /**
@@ -10510,7 +12536,7 @@ enabled: boolean }
  */
 export type SherpaInstalledModel = { 
 /**
- * Directory name (unique id within `{data_dir}/models/sherpa/`).
+ * Directory name (unique id within `{models}/sherpa/`).
  */
 id: string; 
 /**
@@ -10558,6 +12584,240 @@ transcript: string;
  * Total audio samples fed (16 kHz f32 mono).
  */
 samples_fed: number }
+/**
+ * The app sidebar's own text; its entries are route names (`nav`).
+ */
+export type SidebarCopy = { 
+/**
+ * Accessible name of the navigation landmark.
+ */
+label: string; 
+/**
+ * The expand button (accessible name and tooltip).
+ */
+expand: string; 
+/**
+ * The collapse button (accessible name and tooltip).
+ */
+collapse: string; 
+/**
+ * The collapse button's text while the sidebar is expanded.
+ */
+collapse_short: string }
+/**
+ * The complete signal packet for broadcast.
+ * 
+ * Uses `Arc<SignalVariant>` for zero-copy fanout to multiple subscribers.
+ */
+export type Signal = { 
+/**
+ * The 4 atomic metadata fields.
+ */
+header: SignalHeader; 
+/**
+ * The typed payload (Arc-wrapped for zero-copy).
+ */
+payload: SignalVariant }
+/**
+ * One engine signal forwarded to the UI.
+ * 
+ * The desktop shell subscribes to the engine's `SignalRouter` once and
+ * re-emits every signal whose variant routes to `SinkKind::Broadcast`.
+ * The frontend signal fabric (`$lib/sys/events/signal-fabric.svelte.ts`)
+ * is the single listener and dispatches on `signal.payload.type`.
+ */
+export type SignalBroadcast = { 
+/**
+ * Provenance header + typed payload.
+ */
+signal: Signal }
+/**
+ * The 4 atomic requirements for every signal.
+ * 
+ * This enables:
+ * - Tracing: Follow any output back to its input via `correlation_id`
+ * - Replay: Reconstruct sessions from stored headers
+ * - Debugging: Know exactly when/where/who created each signal
+ */
+export type SignalHeader = { 
+/**
+ * Unique identity for this signal (Uuid v7 for time-ordering)
+ */
+id: string; 
+/**
+ * Links to parent signal for causality tracking (None = root/user input)
+ */
+correlation_id: string | null; 
+/**
+ * Unix millis at creation time (not emission time)
+ */
+timestamp: number; 
+/**
+ * Who created this signal
+ */
+source: SignalSource; 
+/**
+ * Position in the state store's history. Set only on state signals
+ * (stamped by `StateStore::record`); `None` on events. Consumers apply
+ * a state signal only when its revision is newer than the one they hold.
+ */
+revision: number | null }
+/**
+ * Payload-free kind of a signal — the registry key (see `SignalSpec`).
+ */
+export type SignalKind = 
+/**
+ * Chat message (LLM response, user message)
+ */
+"chat" | 
+/**
+ * Analytics event
+ */
+"analytics" | 
+/**
+ * Retrieved context (RAG)
+ */
+"context" | 
+/**
+ * Inference metrics
+ */
+"inference" | 
+/**
+ * System status change
+ */
+"system" | 
+/**
+ * Governance event (lane routing, rate limits, council)
+ */
+"governance" | 
+/**
+ * Hardware snapshot (CPU / RAM / GPU / VRAM).
+ */
+"hardware" | 
+/**
+ * Models readiness (decides whether setup opens).
+ */
+"models" | 
+/**
+ * Platform boot progress (phase + per-step status).
+ */
+"boot" | 
+/**
+ * First run: status, stage, what the stage still needs.
+ */
+"onboarding" | 
+/**
+ * Your live projects and the active one.
+ */
+"projects" | 
+/**
+ * Containers for your projects: what was found, the advice, the step running.
+ */
+"containers" | 
+/**
+ * Your AI providers: installed, versions, signed in, the action running.
+ */
+"providers" | 
+/**
+ * The bridge fell behind: windows re-read the state snapshot.
+ */
+"resync"
+/**
+ * Who created this signal - provenance tracking.
+ */
+export type SignalSource = 
+/**
+ * Human input (keyboard, mouse, voice)
+ */
+"User" | 
+/**
+ * System events (OS, file watcher, process monitor)
+ */
+"System" | 
+/**
+ * Expert/sub-agent output (LLM reaction)
+ */
+"Expert" | 
+/**
+ * Timer/scheduled events
+ */
+"Clock"
+/**
+ * The master enum of all signal output types.
+ */
+export type SignalVariant = 
+/**
+ * Chat message (LLM response, user message)
+ */
+{ type: "chat"; data: ChatPayload } | 
+/**
+ * Analytics event
+ */
+{ type: "analytics"; data: AnalyticsPayload } | 
+/**
+ * Retrieved context (RAG)
+ */
+{ type: "context"; data: ContextPayload } | 
+/**
+ * Inference metrics
+ */
+{ type: "inference"; data: InferencePayload } | 
+/**
+ * System status change
+ */
+{ type: "system"; data: SystemPayload } | 
+/**
+ * Governance event (lane routing, rate limits, council)
+ */
+{ type: "governance"; data: GovernancePayload } | 
+/**
+ * Hardware snapshot (CPU / RAM / GPU / VRAM).
+ */
+{ type: "hardware"; data: HardwareMetrics } | 
+/**
+ * Models readiness (decides whether setup opens).
+ */
+{ type: "models"; data: ModelsReadiness } | 
+/**
+ * Platform boot progress (phase + per-step status).
+ */
+{ type: "boot"; data: BootStatus } | 
+/**
+ * First run: status, stage, what the stage still needs.
+ */
+{ type: "onboarding"; data: OnboardingState } | 
+/**
+ * Your live projects and the active one.
+ */
+{ type: "projects"; data: ProjectsState } | 
+/**
+ * Containers for your projects: what was found, the advice, the step running.
+ */
+{ type: "containers"; data: ContainersState } | 
+/**
+ * Your AI providers: installed, versions, signed in, the action running.
+ */
+{ type: "providers"; data: ProvidersState } | 
+/**
+ * The bridge fell behind: windows re-read the state snapshot.
+ */
+{ type: "resync" }
+/**
+ * Signed in, as far as can be told.
+ */
+export type SignedIn = 
+/**
+ * The vendor says so (or its login file is there).
+ */
+"yes" | 
+/**
+ * The vendor says not (or no login file is there).
+ */
+"no" | 
+/**
+ * It could not be told (not installed, or the check failed).
+ */
+"unknown"
 /**
  * A single slot's VRAM contribution.
  */
@@ -10646,7 +12906,7 @@ bundled_path: string | null;
  * filter, wake-word detector). They live in the same slot table as user
  * slots and use the same mutation path — this flag just drives the
  * devtool grouping: Slots tab filters `!builtin`, System tab filters `builtin`.
- * SSOT: the engine's `config/slots.default.toml` with
+ * Kernel SSOT: `kernel/model-loader/config/slots.default.toml` with
  * `builtin = true` per entry.
  */
 builtin: boolean; 
@@ -10663,26 +12923,17 @@ context_length: number | null;
  */
 backend: string | null }
 /**
- * Lifecycle state of one loaded slot.
+ * A source shown with a reason.
  */
-export type SlotStatus = 
+export type Source = { 
 /**
- * Model file resolved, weights memory-mapped, warm and serving.
+ * Its title.
  */
-"ready" | 
+title: string; 
 /**
- * Daemon is loading weights / warming the runtime. Not yet ready.
+ * Where to read it.
  */
-"loading" | 
-/**
- * Slot is registered but no model is bound yet.
- */
-"empty" | 
-/**
- * Last load attempt failed; the daemon kept the prior state if any.
- * The associated string is a one-line human-readable reason.
- */
-{ failed: string }
+url: string }
 /**
  * A span trace row from `DuckDB`, serialized for the frontend.
  */
@@ -10723,6 +12974,187 @@ fields_json: string | null;
  * ISO-8601 timestamp when the span was created.
  */
 created_at: string }
+/**
+ * The result of a statement typed into the SQL console.
+ */
+export type SqlOutcome = { 
+/**
+ * Rows returned (statements that read).
+ */
+rows: Cell[][]; 
+/**
+ * Rows changed (statements that write).
+ */
+rowsAffected: number }
+/**
+ * One first-run stage. A stage exists here only once it works end to end.
+ */
+export type Stage = 
+/**
+ * Clyffy greets you; detection starts.
+ */
+"welcome" | 
+/**
+ * Your name, email and projects folder.
+ */
+"you" | 
+/**
+ * Your AI: the subscriptions and apps you already have.
+ */
+"your_ai" | 
+/**
+ * Your dev environment: a container engine for your projects.
+ */
+"containers"
+/**
+ * What a role does to the conversation.
+ */
+export type Stance = 
+/**
+ * Produces ideas or answers.
+ */
+"generate" | 
+/**
+ * Checks claims against sources.
+ */
+"ground" | 
+/**
+ * Finds weaknesses in an answer.
+ */
+"critique" | 
+/**
+ * Attacks an answer to make it fail.
+ */
+"adversarial" | 
+/**
+ * Turns ideas into steps.
+ */
+"plan" | 
+/**
+ * Picks one answer, never merging several.
+ */
+"select"
+/**
+ * Every state signal's latest value at one revision.
+ */
+export type StateSnapshot = { 
+/**
+ * Identifies this process run (UUID v7). A different epoch means the
+ * consumer's copy is from an earlier run and must be discarded.
+ */
+epoch: string; 
+/**
+ * Highest revision recorded when the snapshot was taken.
+ */
+revision: number; 
+/**
+ * The latest signal of every state kind, oldest revision first.
+ */
+signals: Signal[] }
+/**
+ * One step of the recommendation.
+ */
+export type Step = { 
+/**
+ * What it does.
+ */
+kind: StepKind; 
+/**
+ * The product it acts on.
+ */
+product: string }
+/**
+ * A setup step, run only when you click it.
+ */
+export type StepKind = 
+/**
+ * Install WSL (Windows; administrator, then a restart).
+ */
+"install_wsl" | 
+/**
+ * Update WSL (Windows).
+ */
+"update_wsl" | 
+/**
+ * Install the product.
+ */
+"install" | 
+/**
+ * Start the engine (or create and start its machine).
+ */
+"start" | 
+/**
+ * Run a test container.
+ */
+"test"
+/**
+ * What running a step did.
+ */
+export type StepRun = { 
+/**
+ * The step.
+ */
+step: Step; 
+/**
+ * It finished successfully.
+ */
+ok: boolean; 
+/**
+ * Nothing was run: the output is what to do yourself.
+ */
+guided: boolean; 
+/**
+ * Windows must restart before the next step.
+ */
+restartNeeded: boolean; 
+/**
+ * The commands run, one per line, as typed.
+ */
+commands: string[]; 
+/**
+ * The tools' own output (the end of it, when long).
+ */
+output: string; 
+/**
+ * Unix seconds when it finished.
+ */
+finishedAt: number }
+/**
+ * When the room stops.
+ */
+export type StopRule = { 
+/**
+ * Rounds at most (1–10).
+ */
+max_rounds: number; 
+/**
+ * Tokens the whole room may spend.
+ */
+budget_tokens?: number | null; 
+/**
+ * Stop when no answer changed in a round.
+ */
+stability?: boolean; 
+/**
+ * Stop when the rubric passes.
+ */
+pass_threshold?: boolean }
+/**
+ * Why the rounds stopped.
+ */
+export type Stopped = 
+/**
+ * The room's last round ran.
+ */
+"rounds" | 
+/**
+ * No author changed its answer in a round.
+ */
+"stable" | 
+/**
+ * Every critique reported no defects.
+ */
+"passed"
 /**
  * Result of a full STS (speech-to-speech) pipeline run.
  * 
@@ -10770,8 +13202,7 @@ latency_us: number | null;
  */
 message: string | null }
 /**
- * A recalled prompt suggestion — DevPulse's presentation shape for one entry
- * Clyffy's embedder recall returns once connected.
+ * One suggestion returned by [`SuggestionService::query`].
  */
 export type Suggestion = { 
 /**
@@ -10783,11 +13214,12 @@ id: string;
  */
 text: string; 
 /**
- * Cosine similarity in `[0.0, 1.0]`. Higher is closer.
+ * Cosine similarity score in `[0.0, 1.0]`. Higher is closer.
  */
 similarity: number; 
 /**
- * Unix-seconds capture time — feeds the recency factor in the final rank.
+ * Unix-seconds capture time. Used by the recency factor in the
+ * final rank.
  */
 capturedAt: number; 
 /**
@@ -10795,7 +13227,8 @@ capturedAt: number;
  */
 accepted: boolean; 
 /**
- * Final fused score (recency × similarity × accepted-boost), descending.
+ * Final fused score after recency × similarity × accepted-boost
+ * reweighting. Sorted in descending order in the returned vec.
  */
 score: number }
 /**
@@ -10812,8 +13245,8 @@ export type SupabaseCredentials = {
  */
 url: string; 
 /**
- * The public anon key from the Supabase dashboard. `None` when
- * not yet stored in the keychain.
+ * The public anon key: the keychain's override, else the configured
+ * key. `None` when neither is set, or no URL is configured.
  */
 anonKey: string | null }
 /**
@@ -10826,7 +13259,11 @@ export type SupabaseCredentialsStatus = {
  */
 url: string; 
 /**
- * `true` when an anon key is in the OS keychain.
+ * `true` when the configuration holds an anon key.
+ */
+anonKeyConfigured: boolean; 
+/**
+ * `true` when an anon key is in the OS keychain (it overrides the configured one).
  */
 anonKeyStored: boolean; 
 /**
@@ -10877,7 +13314,7 @@ export type SupportTier =
  */
 "planned"
 /**
- * Badge-shaped tri-state health of Clyffy's `SurrealDB` store.
+ * Serde-friendly health probe result.
  */
 export type SurrealHealth = { 
 /**
@@ -10889,16 +13326,21 @@ state: string;
  */
 label: string }
 /**
- * Runtime status of Clyffy's `SurrealDB` store — DevPulse's presentation shape.
+ * Runtime status of the Surreal service — what the devtool renders.
+ * 
+ * Embedded path: no host/port/HTTP/WS — `DevPulse` holds the file lock
+ * directly. The devtool surfaces `data_path` so a layman can see
+ * exactly where the bytes live.
  */
 export type SurrealStatus = { 
 /**
- * True iff the store is present in Clyffy's slot table.
+ * True iff the service is present in the platform slot.
  */
 running: boolean; 
 /**
- * True iff Clyffy owns the embedded store (always `true` for the
- * embedded path — retained for source-compat).
+ * True iff `DevPulse` owns the embedded store. Always `true`
+ * for the embedded path — retained for source-compat with the
+ * prior managed/attached sidecar distinction.
  */
 managed: boolean; 
 /**
@@ -10906,39 +13348,44 @@ managed: boolean;
  */
 backend: string; 
 /**
- * Absolute path to the `SurrealKV` data directory on the node.
+ * Absolute path to the `SurrealKV` data directory.
  */
 dataPath: string }
 /**
- * Persisted user overrides for the store. Empty today — reserved for future
- * tuning knobs (cache size, compaction policy, snapshot retention).
+ * Persisted user overrides for the Surreal embedded store.
+ * 
+ * Reserved for future tuning knobs (cache size, compaction policy,
+ * snapshot retention). Empty today — the embedded path has no
+ * port / binary / auth fields a user would override.
  */
 export type SurrealUserConfig = Record<string, never>
 /**
- * Result of a single Burn encoder hot-swap cycle
- * (`pause → drain → load → validate → swap → resume`).
+ * Result of a single [`BurnEncoderAdapter::swap_blocking`] cycle.
  * 
- * Mirrors the `SwapReport` interface the desktop devtool consumes via the
- * `connectome_swap_encoder` command. Fields are flat + plain so the value
- * crosses straight to the frontend under `specta`.
+ * Mirrors the `SwapReport` interface the desktop devtool consumes via
+ * the `cortex_swap_encoder` Tauri command (see
+ * `interfaces/desktop/src/lib/devtools/clyffy/reasoning/rrd/data-access/swap.svc.ts`).
+ * Fields are flat + plain types so the value crosses straight to the
+ * frontend under specta when the consuming crate enables the feature.
  */
 export type SwapStats = { 
 /**
- * Output dimension of the new encoder (e.g. 1024 for Harrier 0.6B),
- * read off the live forward pass — authoritative against the loaded
- * weights, not a `config.json` shadow.
+ * Output dimension of the new encoder (e.g. 1024 for Harrier 0.6B).
+ * Read off the live forward pass — authoritative against the
+ * loaded weights, not a config.json shadow.
  */
 dim: number; 
 /**
- * Total wall-clock time the maintenance window was held, in ms —
- * pause/drain + load + validate + swap + resume.
+ * Total wall-clock time the maintenance window was held, in ms.
+ * Includes pause/drain + load + validate + swap + resume.
  */
 elapsed_ms: number; 
 /**
- * Phase names the daemon traversed, in order. Canonical healthy
- * sequence: `pause_requested`, `drain_complete`, `load_complete`,
- * `validate_pass`, `swap_commit`, `resume_complete`. Check
- * `phases_observed.last()` for `resume_complete`.
+ * Phase names the daemon traversed during the swap, in order. The
+ * canonical sequence on a healthy swap is `pause_requested`,
+ * `drain_complete`, `load_complete`, `validate_pass`, `swap_commit`,
+ * `resume_complete`. Use `phases_observed.last()` to confirm the
+ * daemon settled at `resume_complete`.
  */
 phases_observed: string[] }
 /**
@@ -10978,41 +13425,53 @@ uptime_secs: number;
  */
 subsystems: SubsystemHealth[] }
 /**
- * Per-target stage state — one entry per manifest artifact.
- * 
- * Populated even when the target is not extracted (`extracted: false`)
- * so the UI can offer "fetch this target" affordances for all three.
+ * System status payload - health checks, state changes.
  */
-export type TargetState = { 
+export type SystemPayload = { 
 /**
- * Full target id (e.g. `win32-x64-vulkan`).
+ * Current system status.
  */
-target: string; 
+status: SystemStatus; 
 /**
- * Backend label (`vulkan` / `cuda` / `cpu`).
+ * Human-readable status message.
  */
-backend: string; 
+message: string }
 /**
- * First 12 chars of the artifact's sha256.
+ * System status enum.
  */
-sha256_short: string; 
+export type SystemStatus = 
 /**
- * `true` if `lib/llama.lib` exists in the extract dir.
+ * System is ready to process requests.
  */
-extracted: boolean; 
+"Ready" | 
 /**
- * Content of `.llama-cpp-prebuilt-version` marker, if present.
+ * System is actively processing.
  */
-cached_version: string | null; 
+"Processing" | 
 /**
- * `true` when `cached_version != manifest.version` — the operator
- * bumped the manifest but didn't re-fetch.
+ * System encountered an error.
  */
-drift: boolean; 
+"Error" | 
 /**
- * Absolute path of the per-target extract dir.
+ * System is shutting down.
  */
-extract_dir: string }
+"Shutdown"
+/**
+ * A table and how many rows it holds.
+ */
+export type TableSummary = { 
+/**
+ * Table name.
+ */
+name: string; 
+/**
+ * Number of rows.
+ */
+rowCount: number; 
+/**
+ * Number of columns.
+ */
+columnCount: number }
 /**
  * Live snapshot of the telemetry pipeline for the devtool Status panel.
  * 
@@ -11094,9 +13553,9 @@ modified_ms: number;
  */
 is_current: boolean }
 /**
- * One thought in a reasoning tree — a `thought` node in Clyffy's user
- * graph. `id` is the Surreal record id (`thought:<uuid>`) so callers can
- * use it directly as a relation endpoint.
+ * One thought in a reasoning tree — mirrors the `thought` table in
+ * `USER_GRAPH_SCHEMA`. `id` is the Surreal record id (`thought:<uuid>`)
+ * so callers can use it directly as a relation endpoint.
  */
 export type ThoughtRecord = { 
 /**
@@ -11108,8 +13567,8 @@ id: string;
  */
 content: string; 
 /**
- * RRO state at thought-creation time, canonical lowercase string per
- * `signals.registry.yaml` group `rro` (`"idle"`, `"gathering"`,
+ * RRO state at thought creation time, canonical lowercase string
+ * per `signals.registry.yaml` group `rro` (`"idle"`, `"gathering"`,
  * `"processing"`, `"ruminating"`, `"ready"`, `"purged"`, `"forked"`).
  */
 rro_state: string; 
@@ -11118,18 +13577,18 @@ rro_state: string;
  */
 depth: number; 
 /**
- * Proximity diagnostic at thought-creation time (0.0..1.0).
+ * Proximity diagnostic at thought creation time (0.0..1.0).
  */
 proximity: number; 
 /**
- * Branch grouping id (UUID) — every thought in the same branch shares
- * this value, regardless of depth.
+ * Branch grouping id (UUID) — every thought in the same branch
+ * shares this value, regardless of depth.
  */
 branch_id: string; 
 /**
- * Project this thought belongs to. Per-project scope is the default;
- * cross-project happens via an explicit `@<project>` mention in
- * `content`, never an implicit edge.
+ * Project this thought belongs to. `CORTEX.md` §4.5 — per-project
+ * scope is the default; cross-project happens via explicit
+ * `@<project>` mention in `content`, never an implicit edge.
  */
 project_id: string; 
 /**
@@ -11224,6 +13683,62 @@ rate: number;
  * Output gain in decibels. `0` = unchanged.
  */
 gain_db: number }
+/**
+ * Who speaks next.
+ */
+export type TurnPolicy = 
+/**
+ * The phases' order, as written.
+ */
+"fixed" | 
+/**
+ * Each seat in turn.
+ */
+"round-robin" | 
+/**
+ * The selector seat decides.
+ */
+"selector" | 
+/**
+ * The router matches one seat to the question.
+ */
+"router"
+/**
+ * Which Turso database to target.
+ */
+export type TursoDatabase = 
+/**
+ * System database — `platform.db` (platform state, never user data).
+ */
+"System" | 
+/**
+ * User database — `user.db` (profile, preferences, projects, chat).
+ */
+"User"
+/**
+ * Health of one Turso database.
+ */
+export type TursoHealth = { 
+/**
+ * Which database.
+ */
+database: TursoDatabase; 
+/**
+ * Whether it answered `SELECT 1`.
+ */
+reachable: boolean; 
+/**
+ * Round-trip time in microseconds.
+ */
+latencyUs: number; 
+/**
+ * Why it is unreachable.
+ */
+error: string | null; 
+/**
+ * The database file the service opened; `None` when it is not open.
+ */
+path: string | null }
 /**
  * Why a known architecture cannot be loaded in the requested format.
  */
@@ -11358,29 +13873,27 @@ published_at: string | null }
  */
 export type UpdateInstallFinished = Record<string, never>
 /**
- * Patch input for [`update_user_preferences`]. Every field is optional;
- * only the keys the caller supplies are written. Mirrors the
- * camelCase TS shape via tauri-specta.
+ * A change to preferences. Only the fields given are written.
  */
 export type UpdateUserPreferencesInput = { 
 /**
- * New theme selection.
+ * New theme.
  */
 theme: string | null; 
 /**
- * New context-density mode.
+ * New context density mode.
  */
 contextMode: string | null; 
 /**
- * Whether model reasoning should be shown.
+ * Whether model reasoning is shown.
  */
 showThinking: boolean | null; 
 /**
- * New explanation verbosity preset.
+ * New verbosity preset.
  */
 verbosity: string | null; 
 /**
- * Default model temperature for freeform generation.
+ * Default model temperature.
  */
 defaultTemperature: number | null; 
 /**
@@ -11392,39 +13905,67 @@ allowTelemetry: boolean | null;
  */
 screenCaptureEnabled: boolean | null }
 /**
- * User preferences row from the `preferences` table.
+ * What the containers will be used for — the licence question.
+ */
+export type Usage = 
+/**
+ * Your own projects.
+ */
+"personal" | 
+/**
+ * School or university.
+ */
+"education" | 
+/**
+ * A non-commercial open-source project.
+ */
+"openSource" | 
+/**
+ * Work, at an organization below both licence thresholds.
+ */
+"smallBusiness" | 
+/**
+ * Work, at an organization at or above either threshold.
+ */
+"largeOrganization" | 
+/**
+ * Work for a government body.
+ */
+"government"
+/**
+ * The `preferences` row.
  */
 export type UserPreferences = { 
 /**
- * Primary key for the preferences row.
+ * Primary key.
  */
 id: string; 
 /**
- * Foreign key pointing at the owning profile row.
+ * The owning profile.
  */
 userId: string; 
 /**
- * Active theme selection.
+ * Active theme.
  */
 theme: string; 
 /**
- * Preferred context density mode for the UI.
+ * Context density mode.
  */
 contextMode: string; 
 /**
- * Whether model reasoning should be shown in supported surfaces.
+ * Whether model reasoning is shown where supported.
  */
 showThinking: boolean; 
 /**
- * Optional serialized list of preferred programming languages.
+ * Preferred programming languages (JSON list).
  */
 preferredLanguages: string | null; 
 /**
- * Preferred editor tab width.
+ * Editor tab width.
  */
 tabSize: number; 
 /**
- * Whether generated code should default to semicolons.
+ * Whether generated code uses semicolons by default.
  */
 useSemicolons: boolean; 
 /**
@@ -11432,7 +13973,7 @@ useSemicolons: boolean;
  */
 defaultTemperature: number; 
 /**
- * Preferred explanation verbosity preset.
+ * Explanation verbosity preset.
  */
 verbosity: string; 
 /**
@@ -11444,43 +13985,48 @@ allowTelemetry: boolean;
  */
 screenCaptureEnabled: boolean }
 /**
- * User profile row from the `profiles` table.
+ * The profile row from the `profiles` table.
  */
 export type UserProfile = { 
 /**
- * Primary key for the profile row.
+ * Primary key.
  */
 id: string; 
 /**
- * Optional display name shown across the desktop app.
+ * Your name, shown across the app; `None` until you give it.
  */
 displayName: string | null; 
 /**
- * Optional email associated with the local profile.
+ * Your email; `None` until you give it.
  */
 email: string | null; 
 /**
- * Hardware profile identifier chosen for onboarding defaults.
+ * Id of the hardware preset you selected; `None` until one is chosen.
  */
-hardwareProfile: string; 
+hardwareProfile: string | null; 
 /**
- * Whether onboarding has been completed for this profile.
+ * Whether first run is finished.
  */
 onboardingComplete: boolean; 
 /**
- * Numeric expertise level used for adaptive UX.
+ * Skill level inferred from your projects and GitHub; `None` until
+ * inferred. Never asked.
  */
-expertiseLevel: number; 
+expertiseLevel: number | null; 
 /**
- * Unix timestamp when the profile row was created.
+ * The folder your projects live in; `None` until you choose it.
+ */
+projectsRoot: string | null; 
+/**
+ * Unix timestamp when the row was created.
  */
 createdAt: number; 
 /**
- * Unix timestamp when the profile row was last updated.
+ * Unix timestamp when the row was last updated.
  */
 updatedAt: number; 
 /**
- * Unix timestamp for the last active session, if recorded.
+ * Unix timestamp of the last active session, if recorded.
  */
 lastActiveAt: number | null }
 /**
@@ -11541,6 +14087,35 @@ score: number;
  */
 payload_json: string }
 /**
+ * Hardware virtualization on Windows, as CIM reports it.
+ */
+export type VirtualizationReport = { 
+/**
+ * The firmware has virtualization switched on (`None`: not reported —
+ * Windows hides it while a hypervisor already runs).
+ */
+firmwareEnabled: boolean | null; 
+/**
+ * A hypervisor is already running (Hyper-V / WSL 2 are active).
+ */
+hypervisorPresent: boolean | null }
+/**
+ * What a seat sees of the others before it answers.
+ */
+export type Visibility = 
+/**
+ * No other answers.
+ */
+"none" | 
+/**
+ * Others' answers without their names.
+ */
+"anonymized" | 
+/**
+ * Everything said.
+ */
+"full"
+/**
  * 24/7 full-duplex voice brain (Moshi) configuration.
  * 
  * When `enabled_24_7 = true`, `voice.brain` stays hot and handles
@@ -11555,7 +14130,7 @@ export type VoiceBrainConfig = {
 enabled_24_7: boolean; 
 /**
  * Whether Moshi may hand complex queries off to `chat.brain`
- * (Qwen3-30B-A3B) via the escalation path.
+ * (Qwen3-30B-A3B) via the kernel escalation path.
  */
 escalate_on_complex: boolean; 
 /**
@@ -11592,9 +14167,10 @@ reference_path: string;
  */
 transcript?: string }
 /**
- * Voice information for the frontend — the devtool's presentation shape for
- * one entry in Clyffy's voice registry. Populated once Clyffy serves the
- * voice surface; nothing here is hardcoded.
+ * Voice information for the frontend.
+ * 
+ * Mirrors [`model_loader::VoiceEntry`] — every field comes from the
+ * voice registry TOML (`voices.default.toml`). Nothing here is hardcoded.
  */
 export type VoiceInfo = { 
 /**
@@ -11750,6 +14326,27 @@ beam_size: number;
  */
 vad_threshold: number }
 /**
+ * Defined Emotional/Tonal States. Also the tone of a persona a seat speaks
+ * as (`crate::rooms::persona`), by its lowercase name.
+ */
+export type VoiceTone = 
+/**
+ * Pure Facts (Default)
+ */
+"objective" | 
+/**
+ * Gentle/Teaching
+ */
+"empathetic" | 
+/**
+ * Warning/Safety
+ */
+"strict" | 
+/**
+ * High-Bandwidth/Expert
+ */
+"concise"
+/**
  * Persisted user TTS preferences.
  */
 export type VoiceTtsConfig = { 
@@ -11841,6 +14438,50 @@ description: string;
  */
 backendHandle: string }
 /**
+ * The Welcome stage.
+ */
+export type WelcomeCopy = { 
+/**
+ * Greeting.
+ */
+title: string; 
+/**
+ * What first run does.
+ */
+subtitle: string; 
+/**
+ * Mascot image description.
+ */
+mascot_alt: string; 
+/**
+ * Main button.
+ */
+cta: string; 
+/**
+ * Under "Set up later".
+ */
+later_hint: string; 
+/**
+ * While detection runs.
+ */
+looking: string; 
+/**
+ * Above the found chips.
+ */
+found_heading: string; 
+/**
+ * When detection found nothing.
+ */
+nothing_found: string; 
+/**
+ * Chip: "Git knows you as {name}".
+ */
+found_git: string; 
+/**
+ * Chip: "{path} · {count} repositories".
+ */
+found_folder: string }
+/**
  * Wayland degraded-capability flag returned with `list_windows`.
  * 
  * xcap on Wayland (issues #112, #136) cannot reliably enumerate or
@@ -11919,9 +14560,9 @@ export type WindowRole =
  */
 "Chat" | 
 /**
- * Connectome viewer — telemetry / devtools
+ * Knowledge viewer — telemetry / devtools
  */
-"ConnectomeViewer" | 
+"KnowledgeViewer" | 
 /**
  * Model loader — slot management
  */
@@ -11930,6 +14571,22 @@ export type WindowRole =
  * Unified dev toolbox panel (Ctrl+Shift+Z)
  */
 "DevTools"
+/**
+ * A window role and the page it opens.
+ */
+export type WindowRoleInfo = { 
+/**
+ * The role.
+ */
+role: WindowRole; 
+/**
+ * The page it opens (a generated route constant).
+ */
+route: string; 
+/**
+ * Whether the devtools dashboard offers it as a detached surface.
+ */
+detached: boolean }
 /**
  * All wizard copy. One root struct, one Tauri call to fetch everything.
  */
@@ -12004,37 +14661,269 @@ clyffy_tooltips?: ClyffyTooltipsCopy;
  */
 downloader?: DownloaderCopy; 
 /**
- * Copy for the auth shell — sign-in route, sign-up route, sign-out
- * affordances, error templates. Strings flow through this struct
- * instead of being inlined in Svelte so Rule 6 (Rust SSOT for every
- * visible string) stays satisfied. `#[serde(default)]` keeps older
- * user `wizard_copy.toml` overrides parsing without `[auth]`.
- */
-auth?: AuthCopy; 
-/**
  * Copy for the post-login runtime picker — the embedder selector
  * with the minion read-only section that lives at `/profile`.
  * Distinct from `profile: ProfileCopy` (which is the wizard's
  * "tell me about yourself" step). `#[serde(default)]` keeps
  * older overrides parsing without `[runtime_picker]`.
  */
-runtime_picker?: RuntimePickerCopy; 
+runtime_picker?: RuntimePickerCopy }
 /**
- * Copy for the connect (endpoint-entry) step — where the operator
- * links the standalone Tier-1 app to a Clyffy endpoint (Local /
- * GB10 over the mesh). The address itself is always operator-
- * entered or discovered, never shipped in copy; these strings are
- * the layman framing around that choice. `#[serde(default)]`
- * keeps older user overrides parsing without `[connect]`.
+ * WSL on Windows.
  */
-connect?: ConnectCopy; 
+export type WslReport = { 
 /**
- * Copy for the capability confirm step (wizard step 2) — the
- * connected Clyffy's advertised senses, wire-truth only.
- * `#[serde(default)]` keeps older overrides parsing without
- * `[capability]`.
+ * `wsl --version` answered: the WSL package is installed.
  */
-capability?: CapabilityCopy }
+installed: boolean; 
+/**
+ * The WSL version it reported.
+ */
+version: string | null; 
+/**
+ * Linux distributions registered.
+ */
+distributions: number; 
+/**
+ * Why WSL did not answer, in its own words.
+ */
+problem: string | null }
+/**
+ * The "You" stage.
+ */
+export type YouCopy = { 
+/**
+ * Heading.
+ */
+title: string; 
+/**
+ * What the stage is for.
+ */
+subtitle: string; 
+/**
+ * Name field label.
+ */
+name_label: string; 
+/**
+ * Name field hint.
+ */
+name_hint: string; 
+/**
+ * Email field label.
+ */
+email_label: string; 
+/**
+ * Email field hint.
+ */
+email_hint: string; 
+/**
+ * Projects folder field label.
+ */
+projects_label: string; 
+/**
+ * Projects folder field hint.
+ */
+projects_hint: string; 
+/**
+ * Folder picker button.
+ */
+browse: string; 
+/**
+ * Folder picker window title.
+ */
+picker_title: string; 
+/**
+ * Shown with a suggestion from git.
+ */
+from_git: string; 
+/**
+ * "{count} repositories" next to a suggested folder.
+ */
+folder_repos: string; 
+/**
+ * Above the repository list.
+ */
+repos_heading: string; 
+/**
+ * Under the heading.
+ */
+repos_hint: string; 
+/**
+ * Scan button.
+ */
+repos_find: string; 
+/**
+ * While scanning.
+ */
+repos_finding: string; 
+/**
+ * When the folder holds no repositories.
+ */
+repos_none: string; 
+/**
+ * "Add {count} to `DevPulse`".
+ */
+repos_add: string; 
+/**
+ * Badge on `DevPulse`'s own repository.
+ */
+repo_devpulse: string; 
+/**
+ * Badge on a repository registered before.
+ */
+repo_registered: string; 
+/**
+ * Badge on a repository just added.
+ */
+repo_added: string }
+/**
+ * The "Your AI" stage (subscriptions and desktop apps).
+ */
+export type YourAiCopy = { 
+/**
+ * Heading.
+ */
+title: string; 
+/**
+ * What the stage does.
+ */
+subtitle: string; 
+/**
+ * Section: your subscriptions.
+ */
+subscriptions_heading: string; 
+/**
+ * Section: desktop apps.
+ */
+apps_heading: string; 
+/**
+ * While the machine is being checked.
+ */
+checking: string; 
+/**
+ * Button: check again.
+ */
+check_again: string; 
+/**
+ * Not installed.
+ */
+not_installed: string; 
+/**
+ * "Installed · {version}".
+ */
+installed_version: string; 
+/**
+ * Installed, version not reported.
+ */
+installed: string; 
+/**
+ * "Latest {version}".
+ */
+latest: string; 
+/**
+ * The installed version is the latest.
+ */
+up_to_date: string; 
+/**
+ * "Update available: {version}".
+ */
+update_available: string; 
+/**
+ * Signed in.
+ */
+signed_in: string; 
+/**
+ * Not signed in.
+ */
+signed_out: string; 
+/**
+ * Sign-in state can't be told.
+ */
+signed_in_unknown: string; 
+/**
+ * Button: update.
+ */
+update: string; 
+/**
+ * While updating.
+ */
+updating: string; 
+/**
+ * Button: sign in.
+ */
+sign_in: string; 
+/**
+ * While the sign-in window opens.
+ */
+opening: string; 
+/**
+ * Button: ask it one question.
+ */
+test: string; 
+/**
+ * While it is being asked.
+ */
+testing: string; 
+/**
+ * The question Try it asks each AI.
+ */
+test_prompt: string; 
+/**
+ * "I asked: “{prompt}”".
+ */
+asked: string; 
+/**
+ * "Answered in {seconds} s".
+ */
+answered: string; 
+/**
+ * It needs a connector that is not installed yet.
+ */
+connector_needed: string; 
+/**
+ * "Connector {version}".
+ */
+connector_installed: string; 
+/**
+ * The connector is installed, version not reported.
+ */
+connector_ready: string; 
+/**
+ * Button: install its connector.
+ */
+install_connector: string; 
+/**
+ * While the connector installs.
+ */
+installing: string; 
+/**
+ * Link to the vendor's docs, for one that is not installed.
+ */
+docs: string; 
+/**
+ * Link to the vendor's docs, for one that is installed.
+ */
+help: string; 
+/**
+ * A desktop app updates itself.
+ */
+app_updates_itself: string; 
+/**
+ * An action finished.
+ */
+done: string; 
+/**
+ * An action did not work.
+ */
+failed: string; 
+/**
+ * Nothing could be opened: run this yourself.
+ */
+guided: string; 
+/**
+ * The way back to this stage later.
+ */
+later_hint: string }
 
 /** tauri-specta globals **/
 

@@ -3,7 +3,9 @@
   @module @devpulse/layouts/app/TopBar
 
   Top navigation bar. Reference: refernece-dashboard3.png / dashboard4.png
-  Layout: [hamburger + brand] — [center: PULSE FEED pill] — [right: search + notifications + chat + clyffy + avatar]
+  Layout: [hamburger + brand] — [center: PULSE FEED pill] — [right: search + notifications + chat + DevPulse Tools + clyffy + avatar]
+  The DevPulse Tools button and the avatar (→ Profile) take their names and
+  icon from the route folders they open (plan 0008 R18).
   Height: 4.125rem (set by Frame.svelte topbar slot)
 
   @defaults {
@@ -14,46 +16,65 @@
 }
 -->
 <script lang="ts">
-import { Bell, Menu, MessageCircle, Search } from "@lucide/svelte";
-import { invoke } from "@tauri-apps/api/core";
-import { Avatar } from "$lib/design/components/avatar/index.js";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Button } from "$lib/design/components/button/index.js";
-import { TextField as Input } from "$lib/design/components/text-field/index.js";
-import { Parasite } from "$lib/design/plugins/parasite";
-import { cn } from "$lib/design/utils/cn.js";
-import { hstack } from "$lib/design/utils/hstack/index.js";
-import { wizardState } from "$lib/domains/app/models/feature/setup-wizard/index.js";
+import { Avatar } from "@devpulse/coldlight/components/avatar";
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Button } from "@devpulse/coldlight/components/button";
+import { TextField as Input } from "@devpulse/coldlight/components/text-field";
+import { Parasite } from "@devpulse/coldlight/plugins/parasite";
+import { cn, hstack } from "@devpulse/coldlight/utils";
+import { Bell, Menu, MessageCircle, Search } from "lucide-svelte";
+import { onboardingState } from "$lib/domains/app/onboarding/index.js";
 import { ProjectSwitcher } from "$lib/domains/app/projects/index.js";
-import { ClyffyStatusOrb, clyffyConnection } from "$lib/domains/clyffy/index.js";
+import { ClyffyStatusOrb } from "$lib/domains/clyffy/index.js";
+import { openWindow } from "$lib/sys/bindings/window/index.js";
+import { copyState } from "$lib/sys/copy/index.js";
+import { logError } from "$lib/sys/logger.js";
+import { hrefOf, routeAt, routeCopy } from "$lib/sys/routing/index.js";
 import { globalState } from "$lib/sys/runes/global.svelte";
 
 let searchOpen = $state(false);
 let searchQuery = $state("");
-
-// Wire connection (Tier-1/Tier-2) — drives the platform-chrome no-AI
-// indicator next to the orb. Ref-counted; teardown returned to $effect.
-$effect(() => clyffyConnection.subscribe());
 
 function toggleSearch(): void {
 	searchOpen = !searchOpen;
 	if (!searchOpen) searchQuery = "";
 }
 
-function openChat(): void {
-	invoke("open_chat_window");
+async function openChat(): Promise<void> {
+	const result = await openWindow("Chat");
+	if (result.status === "error") {
+		logError("layouts.app.TopBar", `open chat window failed: ${result.error}`);
+	}
 }
+
+/** The DevPulse Tools window: opened, or brought forward if it is already open. */
+const tools = routeAt("/devtools");
+const toolsLabel = $derived(tools ? routeCopy(tools)?.label : undefined);
+
+async function openTools(): Promise<void> {
+	const result = await openWindow("DevTools");
+	if (result.status === "error") {
+		logError("layouts.app.TopBar", `open devtools window failed: ${result.error}`);
+	}
+}
+
+const profile = routeAt("/profile");
+const profileLabel = $derived(profile ? routeCopy(profile)?.label : undefined);
+
+$effect(() => {
+	void copyState.load();
+});
 
 function onKey(e: KeyboardEvent): void {
 	if (e.key === "Escape" && searchOpen) toggleSearch();
 }
 </script>
 
-<div class="topbar flex h-full w-full items-center justify-between gap-4 px-4" role="toolbar" tabindex="0" onkeydown={onKey} data-tauri-drag-region>
+<div class="flex w-full items-center justify-between gap-4" role="toolbar" tabindex="0" onkeydown={onKey} data-tauri-drag-region>
 	<!-- Left: hamburger + brand -->
 	<div class={hstack({ gap: "3", align: "center" })}>
 		<Button
-			preset="ghost"
+			variant="ghost"
 			size="sm"
 			class="h-9 w-9"
 			title="Toggle sidebar"
@@ -68,6 +89,12 @@ function onKey(e: KeyboardEvent): void {
 		<!-- Active-project pill — next to brand so "what am I working on"
 		     is the first thing the user sees after the app identity. -->
 		<ProjectSwitcher />
+		<!-- First run was set for later: the way back in (Rust reopens it). -->
+		{#if onboardingState.current?.status === "later" && copyState.catalog}
+			<Button variant="secondary" size="sm" onclick={onboardingState.reopen} disabled={onboardingState.busy}>
+				{copyState.catalog.onboarding.common.reopen}
+			</Button>
+		{/if}
 	</div>
 
 	<!-- Center: PULSE FEED pill -->
@@ -81,17 +108,26 @@ function onKey(e: KeyboardEvent): void {
 
 	<!-- Right: actions + clyffy + avatar -->
 	<div class={hstack({ gap: "2", align: "center" })}>
-		<Button preset="ghost" size="sm" class="h-9 w-9 rounded-full" title="Search" aria-label="Search" onclick={toggleSearch}>
+		<Button variant="ghost" size="sm" class="h-9 w-9 rounded-full" title="Search" aria-label="Search" onclick={toggleSearch}>
 			<Search size={16} />
 		</Button>
 
-		<Button preset="ghost" size="sm" class="h-9 w-9 rounded-full" title="Notifications" aria-label="Notifications">
+		<Button variant="ghost" size="sm" class="h-9 w-9 rounded-full" title="Notifications" aria-label="Notifications">
 			<Bell size={16} />
 		</Button>
 
-		<Button preset="ghost" size="sm" class="h-9 w-9 rounded-full" title="Open Chat" aria-label="Open Chat" onclick={openChat}>
+		<Button variant="ghost" size="sm" class="h-9 w-9 rounded-full" title="Open Chat" aria-label="Open Chat" onclick={openChat}>
 			<MessageCircle size={16} />
 		</Button>
+
+		{#if tools}
+			{@const ToolsIcon = tools.nav.icon}
+			<Button variant="ghost" size="sm" class="h-9 w-9 rounded-full" title={toolsLabel} aria-label={toolsLabel} onclick={openTools}>
+				{#if ToolsIcon}
+					<ToolsIcon size={16} />
+				{/if}
+			</Button>
+		{/if}
 
 		{#if searchOpen}
 			<div class={cn("absolute right-4 top-16 z-50 rounded-lg border p-2")} style="background: var(--background-color); border-color: var(--border-color);">
@@ -106,71 +142,15 @@ function onKey(e: KeyboardEvent): void {
 			</div>
 		{/if}
 
-		<!-- No-AI indicator (platform-chrome surface of the three: statusbar /
-		     topbar / chat). Subtle absence cue: renders ONLY while standalone —
-		     the AI layer is a connection, so this is a mode, never an error.
-		     Clicking it is the RE-ENTRY point: opens the wizard on the
-		     endpoint (connect) step. The mood orb next door is a separate
-		     concern (clyffyStatus, not the wire) and stays connection-blind
-		     by design. -->
-		{#if clyffyConnection.tier === "tier1"}
-			<Button
-				preset="ghost"
-				size="sm"
-				aria-label="Connect the AI layer"
-				onclick={() => {
-					wizardState.goTo("endpoint");
-					wizardState.open();
-				}}
-			>
-				<Badge variant="neutral" size="sm" class="gap-1.5">
-					<span class="status-dot h-1.5 w-1.5 rounded-full" data-subsystem-state="pending" style="background: currentColor; opacity: 0.55;"></span>
-					<span class="text-xs">AI</span>
-				</Badge>
-			</Button>
-		{/if}
-
 		<!-- Clyffy presence orb -->
 		<ClyffyStatusOrb size="sm" />
 
-		<Avatar size={32} alt="User avatar" fallback="DP" />
+		{#if profile}
+			<a href={hrefOf(profile)} class="rounded-full" title={profileLabel} aria-label={profileLabel}>
+				<Avatar size={32} alt="User avatar" fallback="DP" />
+			</a>
+		{:else}
+			<Avatar size={32} alt="User avatar" fallback="DP" />
+		{/if}
 	</div>
 </div>
-
-<style>
-	/* Topbar zone surface — colocated with the component, pulling from ColdLight
-	   style tokens (the generated ingredients). No raw literals, no arbitrary
-	   values: every value is a var() into an emitted token. */
-	.topbar {
-		/* Teal→purple blend — two accent ingredients merging across the bar,
-		   layered over the deep-glass base so text + icons keep contrast. Both
-		   stops are emitted accent tokens; the mix carries the operator palette
-		   into a surface, it does not redefine it. */
-		background:
-			linear-gradient(
-				100deg,
-				color-mix(in oklch, var(--accent-teal-main) 50%, transparent) 0%,
-				color-mix(in oklch, var(--accent-purple-main) 50%, transparent) 100%
-			),
-			var(--surface-overlay);
-		backdrop-filter: blur(var(--blur-lg));
-		-webkit-backdrop-filter: blur(var(--blur-lg));
-		border-bottom: 0.0625rem solid var(--border-soft);
-	}
-
-	/* Action-cluster icons.
-	   1. LAYOUT FIX — the fixed-width icon buttons carry horizontal padding that
-	      eats their whole width, leaving a 0px content box; a shrinkable SVG
-	      (flex: 0 1 auto) then collapses to width 0 and never paints. Pin them
-	      non-shrinking (matching the project-switcher chevron that already
-	      survives on flex: 0 0 auto) so they keep their intrinsic size.
-	   2. CONTRAST — riding on the teal→purple blend, the muted default stroke
-	      drops out; lift to primary text with a soft accent glow so the
-	      search / notifications / chat cluster reads clearly.
-	   `:global` because the lucide SVGs render in their own component scope. */
-	.topbar :global(button svg) {
-		flex-shrink: 0;
-		color: var(--text-primary);
-		filter: drop-shadow(0 0 0.125rem var(--accent-teal-glow));
-	}
-</style>

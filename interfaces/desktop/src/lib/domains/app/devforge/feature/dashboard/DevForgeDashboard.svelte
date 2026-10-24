@@ -12,17 +12,14 @@
   terms first with the raw figures shown alongside.
 -->
 <script lang="ts">
-import { Activity, FolderOpen, Play, Power, RefreshCw, ServerCog, Terminal } from "@lucide/svelte";
+import { Widget } from "@devpulse/coldlight/blocks/widgets";
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Spinner } from "@devpulse/coldlight/components/spinner";
+import { Text } from "@devpulse/coldlight/components/text";
+import { cn, hstack, stack } from "@devpulse/coldlight/utils";
+import { Activity, FolderOpen, Play, Power, RefreshCw, ServerCog, Terminal } from "lucide-svelte";
 import { onMount } from "svelte";
-import { Widget } from "$lib/design/blocks/widgets/index.js";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Button } from "$lib/design/components/button/index.js";
-import { DynamicBackground } from "$lib/design/components/dynamic-background/index.js";
-import { Spinner } from "$lib/design/components/spinner/index.js";
-import { Text } from "$lib/design/components/text/index.js";
-import { cn } from "$lib/design/utils/cn.js";
-import { hstack } from "$lib/design/utils/hstack/index.js";
-import { stack } from "$lib/design/utils/stack/index.js";
 import { devforgeState } from "$lib/domains/app/devforge/index.js";
 import { commands } from "$lib/sys/generated/bindings.js";
 
@@ -55,8 +52,8 @@ async function loadLifecycle(): Promise<void> {
 			lifecycleEvents = [];
 			return;
 		}
-		// Filter to DevForge rows only. `ScopedLogEntry` does not
-		// carry a structured `fields` map (the engine flattens the
+		// Filter to DevForge rows only. `ScopedLogEntry` no longer
+		// carries a structured `fields` map (the kernel flattened the
 		// payload into `message` + `target`); match on the target /
 		// message text instead, both of which carry the service label.
 		const filtered = r.data.filter((entry) => {
@@ -128,17 +125,13 @@ function formatTime(iso: string): string {
 }
 </script>
 
-<div class="relative" data-page="devforge-dashboard">
-	<!-- Ember glow + ember grid — the devforge color identity
-	     (authored variant, mounted per the DevPulseDashboard pattern). -->
-	<DynamicBackground variant="devforge" animated />
-	<div class="relative grid grid-cols-12 gap-4">
+<div class="grid grid-cols-12 gap-4" data-page="devforge-dashboard">
 	<!-- Row 0: Launch widget — always present, badge live-tied to status. -->
 	<div class="col-span-12">
 		<Widget
 			title="DevForge IDE"
 			icon={ServerCog}
-			surface="glass-deep"
+			surface="glass" variant="deep"
 			depth="z2"
 			bevel="soft"
 			glow="teal"
@@ -163,7 +156,7 @@ function formatTime(iso: string): string {
 				</div>
 				<div class={hstack({ gap: "2" })}>
 					<Button
-						preset="ghost"
+						variant="ghost"
 						size="md"
 						onclick={refreshAll}
 						disabled={devforgeState.statusLoading || lifecycleLoading}
@@ -176,7 +169,7 @@ function formatTime(iso: string): string {
 						Refresh
 					</Button>
 					<Button
-						preset="primary"
+						variant="primary"
 						size="md"
 						onclick={openDevForgeWindow}
 						disabled={opening || !devforgeState.installed}
@@ -185,7 +178,7 @@ function formatTime(iso: string): string {
 						{opening ? "Opening…" : devforgeState.running ? "Focus DevForge" : "Open DevForge"}
 					</Button>
 					{#if devforgeState.running}
-						<Button preset="ghost" size="md" onclick={() => devforgeState.closeWindow()}>
+						<Button variant="ghost" size="md" onclick={() => devforgeState.closeWindow()}>
 							<Power size={14} />
 							Close window
 						</Button>
@@ -200,7 +193,7 @@ function formatTime(iso: string): string {
 		<Widget
 			title="Runtime"
 			icon={Activity}
-			surface="glass-deep"
+			surface="glass" variant="deep"
 			depth="z2"
 			bevel="soft"
 			frame="soft"
@@ -231,7 +224,7 @@ function formatTime(iso: string): string {
 		<Widget
 			title="Connection"
 			icon={Terminal}
-			surface="glass-deep"
+			surface="glass" variant="deep"
 			depth="z2"
 			bevel="soft"
 			frame="soft"
@@ -267,7 +260,7 @@ function formatTime(iso: string): string {
 		<Widget
 			title="Recent activity"
 			icon={Activity}
-			surface="glass-deep"
+			surface="glass" variant="deep"
 			depth="z1"
 			bevel="subtle"
 			frame="soft"
@@ -303,7 +296,7 @@ function formatTime(iso: string): string {
 		<Widget
 			title="Recent projects"
 			icon={FolderOpen}
-			surface="glass-deep"
+			surface="glass" variant="deep"
 			depth="z1"
 			bevel="subtle"
 			frame="soft"
@@ -323,6 +316,5 @@ function formatTime(iso: string): string {
 				</div>
 			{/if}
 		</Widget>
-	</div>
 	</div>
 </div>

@@ -11,8 +11,8 @@
 	renders an empty-state directing the user to the switcher.
 -->
 <script lang="ts">
-import { FileText, Folder, FolderPlus, Layers, Trash2 } from "@lucide/svelte";
-import { invoke } from "@tauri-apps/api/core";
+import { FileText, Folder, FolderPlus, Layers, Trash2 } from "lucide-svelte";
+import { pickDirectory } from "$lib/sys/bindings/models/index.js";
 import { logError } from "$lib/sys/logger.js";
 import { projectsState, type ReferenceKind } from "../data-access/projects.state.svelte.js";
 
@@ -30,17 +30,15 @@ async function handleAdd(): Promise<void> {
 	if (pickingRef || !projectsState.activeProject) return;
 	pickingRef = true;
 	try {
-		const path = await invoke<string>("pick_directory", {
-			title: "Pick reference directory",
-		});
+		const picked = await pickDirectory("Pick reference directory");
+		if (picked.status === "error") throw new Error(picked.error);
+		const path = picked.data;
 		if (!path) return;
 		const label = path.split(/[/\\]/).filter(Boolean).pop() ?? null;
 		await projectsState.addReference(path, label, selectedKind);
 	} catch (e) {
 		const msg = e instanceof Error ? e.message : String(e);
-		if (!msg.toLowerCase().includes("cancel") && msg !== "No folder selected") {
-			logError("projects.references", `add failed — ${msg}`);
-		}
+		logError("projects.references", `add failed — ${msg}`);
 	} finally {
 		pickingRef = false;
 	}

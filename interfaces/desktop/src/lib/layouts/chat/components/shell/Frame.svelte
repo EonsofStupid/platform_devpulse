@@ -3,22 +3,21 @@
   @module @devpulse/layouts/chat/Frame
 
   Chat window layout — single-column grid (topbar, messages, footer).
-  TopBar includes buttons to spawn peer child windows (ConnectomeViewer, ModelLoader).
-  Per cockpit architecture — these are separate OS windows, not grid columns.
+  The chat is its own native OS window: the system title bar owns
+  minimize, maximize and close. The TopBar adds buttons that open the
+  peer windows (Knowledge Viewer, Model Control).
 
   Layout chrome only — message stream + composer live inside `ChatRoot` on the route.
-  Rendered in a separate Tauri child window via open_chat_window.
 -->
 <script lang="ts">
-import { Brain, Cpu } from "@lucide/svelte";
-import { invoke } from "@tauri-apps/api/core";
+import { Button } from "@devpulse/coldlight/components/button";
+import { ChatDashboard } from "@devpulse/coldlight/components/chat-dashboard";
+import { ChatFrame } from "@devpulse/coldlight/components/chat-frame";
+import { ChatTopBar } from "@devpulse/coldlight/components/chat-topbar";
+import { Brain, Cpu } from "lucide-svelte";
 import type { Snippet } from "svelte";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Button } from "$lib/design/components/button/index.js";
-import { ChatDashboard } from "$lib/design/components/chat-dashboard/index.js";
-import { ChatFrame } from "$lib/design/components/chat-frame/index.js";
-import { ChatTopBar } from "$lib/design/components/chat-topbar/index.js";
-import { clyffyConnection } from "$lib/domains/clyffy/index.js";
+import { openWindow, type WindowRole } from "$lib/sys/bindings/window/index.js";
+import { logError } from "$lib/sys/logger.js";
 import { globalState } from "$lib/sys/runes/global.svelte.js";
 
 interface Props {
@@ -27,48 +26,21 @@ interface Props {
 
 let { children }: Props = $props();
 
-// Wire connection (Tier-1/Tier-2) — the chat window is one of the three
-// no-AI indicator surfaces (statusbar / topbar / chat). Ref-counted.
-$effect(() => clyffyConnection.subscribe());
-
-const frameState = $derived<"open" | "minimized" | "closed">(
-	globalState.chat_minimized ? "minimized" : "open",
-);
-
-function handleMinimize(): void {
-	globalState.minimizeChat();
-}
-
-function handleClose(): void {
-	invoke("close_window", { label: "chat" });
-}
-
-function openConnectomeViewer(): void {
-	invoke("open_window", { role: "ConnectomeViewer" });
-}
-
-function openModelLoader(): void {
-	invoke("open_window", { role: "ModelLoader" });
+async function open(role: WindowRole): Promise<void> {
+	const result = await openWindow(role);
+	if (result.status === "error") {
+		logError("layouts.chat.Frame", `open ${role} window failed: ${result.error}`);
+	}
 }
 </script>
 
-<ChatFrame state={frameState} engaged={true}>
-	<ChatTopBar
-		hubLabel={globalState.current_domain.toUpperCase()}
-		title="CORTEX MEMORY"
-		onMinimize={handleMinimize}
-		onClose={handleClose}
-	>
+<ChatFrame state="open" engaged={true}>
+	<ChatTopBar hubLabel={globalState.current_domain.toUpperCase()} title="CORTEX MEMORY">
 		{#snippet children()}
-			<!-- No-AI indicator (chat surface). Subtle absence cue — renders
-			     only while standalone; a mode, never an error. -->
-			{#if clyffyConnection.tier === "tier1"}
-				<Badge variant="neutral" size="sm">AI</Badge>
-			{/if}
-			<Button preset="ghost" size="sm" onclick={openConnectomeViewer} title="Connectome Viewer" aria-label="Open Connectome Viewer">
+			<Button variant="ghost" size="sm" onclick={() => open("KnowledgeViewer")} title="Knowledge Viewer" aria-label="Open Knowledge Viewer">
 				<Brain size={14} />
 			</Button>
-			<Button preset="ghost" size="sm" onclick={openModelLoader} title="Model Control" aria-label="Open Model Control">
+			<Button variant="ghost" size="sm" onclick={() => open("ModelLoader")} title="Model Control" aria-label="Open Model Control">
 				<Cpu size={14} />
 			</Button>
 		{/snippet}

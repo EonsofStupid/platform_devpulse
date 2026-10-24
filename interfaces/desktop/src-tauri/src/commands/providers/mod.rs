@@ -35,7 +35,7 @@ use super::credentials;
 
 /// Per-provider validation cache.
 ///
-/// In-memory only — cleared on restart. Promoted to libSQL only if the
+/// In-memory only — cleared on restart. Promoted to Turso only if the
 /// devtool ever needs cross-restart "last seen healthy" UX, which the
 /// validate-on-save model deliberately avoids.
 struct CacheEntry {

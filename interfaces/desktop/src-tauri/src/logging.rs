@@ -14,7 +14,9 @@
 //! Its `BufferingProcessor` holds spans in RAM until `install_exporter()`
 //! wires the real file exporter after `data_dir` resolves.
 //!
-//! Log rotation: keeps last 3 session logs, deletes older ones.
+//! Every file this module writes is in this boot's run folder
+//! ([`crate::log_runs`]): `session.jsonl` and `crash.jsonl`. Which runs stay
+//! is the retention policy's call, not this module's.
 //!
 //! # Panic hook
 //!
@@ -22,10 +24,10 @@
 //! 1. emits `tracing::error!(target = "panic", ...)` with location, message,
 //!    thread name, and a forced backtrace — so every panic lands in the
 //!    session JSONL alongside regular logs.
-//! 2. writes a dedicated `{data_dir}/logs/crash-{ts}.json` file via direct
-//!    `std::fs::write` (bypassing the tracing-appender background worker,
-//!    which may not flush before the process dies). The JSON is structured
-//!    so a post-mortem tool can index it.
+//! 2. appends one JSON line to the run's `crash.jsonl` synchronously
+//!    (bypassing the tracing-appender background worker, which may not
+//!    flush before the process dies), so every panic of the run is kept and
+//!    a post-mortem tool can index them.
 //! 3. delegates to the previous hook so the default stderr printout is
 //!    preserved (panic message still appears in the terminal).
 
@@ -38,7 +40,16 @@ use tracing_subscriber::util::SubscriberInitExt;
 use tracing_subscriber::EnvFilter;
 
 use devpulse_engine::platform::services::rrd_translator::RrdLifecycleTranslator;
+
+use crate::log_runs::{LogFile, Run};
 use devpulse_engine::platform::telemetry::{DuckDbLayer, SpanRecord, SPAN_CHANNEL_CAPACITY};
+
+/// Libraries held at INFO in the session JSONL whatever its level. In a
+/// debug build their DEBUG/TRACE output was ~280 MB per boot: `surrealkv`'s
+/// WAL recovery (~406k "Replayed batch" lines, ~247 MB), `turso_core`
+/// (26–37 MB) and the ACP SDK (up to 6 MB), burying `DevPulse`'s own lines
+/// (master plan M7, measured 2026-10-21).
+const JSONL_QUIET_TARGETS: &str = "surrealkv=info,turso_core=info,agent_client_protocol=info";
 
 /// Result of logging initialization — holds non-blocking writer guards and
 /// the span receiver that must be connected to `SpanTraceWriter` after
@@ -65,7 +76,7 @@ pub struct LoggingHandle {
 }
 
 /// Initialize all logging — stderr + file + `DuckDB` span layer + `OTel` layer.
-/// Must be called once `data_dir` is known (in setup).
+/// Must be called once this boot's run folder exists (in setup).
 ///
 /// The `otel_layer` parameter comes from `devpulse_telemetry::boot::prepare()`.
 /// Pass it here so all layers are composed into a single global subscriber.
@@ -76,18 +87,13 @@ pub struct LoggingHandle {
 /// # Errors
 /// Returns error if log directory or file creation fails.
 pub fn init(
-    data_dir: &Path,
+    run: &Run,
     otel_layer: devpulse_telemetry::boot::TelemetryLayer,
 ) -> anyhow::Result<LoggingHandle> {
     use tracing_subscriber::filter::LevelFilter;
     use tracing_subscriber::Layer as _;
 
-    let logs_dir = data_dir.join("logs");
-    std::fs::create_dir_all(&logs_dir)?;
-
-    let timestamp = chrono::Local::now().format("%Y-%m-%d-%H%M%S");
-    let filename = format!("session-{timestamp}.jsonl");
-    let file = std::fs::File::create(logs_dir.join(filename))?;
+    let file = std::fs::File::create(run.file(LogFile::Session))?;
     let (file_writer, file_guard) = tracing_appender::non_blocking(file);
 
     // Wrap stderr in the same non-blocking appender as the session file.
@@ -116,27 +122,17 @@ pub fn init(
     // volume bounded.
     let faithful = std::env::var("DEVPULSE_LOG_FAITHFUL").is_ok() || cfg!(debug_assertions);
     let jsonl_filter = if faithful {
-        EnvFilter::new("trace")
+        EnvFilter::new(format!("trace,{JSONL_QUIET_TARGETS}"))
     } else {
         // Default JSONL is verbose-but-readable: all debug globally, trace
         // for devpulse crates. Users don't need DEVPULSE_LOG_FAITHFUL unless
         // they want third-party crates at trace level too.
         EnvFilter::try_from_default_env().unwrap_or_else(|_| {
-            EnvFilter::new(
-                "debug,devpulse=trace,devpulse_desktop_backend=trace,devpulse_clyffy=trace",
-            )
+            EnvFilter::new(format!(
+                "debug,devpulse=trace,devpulse_desktop_backend=trace,devpulse_clyffy=trace,{JSONL_QUIET_TARGETS}"
+            ))
         })
-    }
-    // Cap known-firehose dependency internals. `turso_core` (the embedded SQL
-    // VM) emits a tracing event per VDBE instruction + per btree/pager/WAL
-    // page access at DEBUG/TRACE — uncapped it wrote 30 GB+ of JSONL per dev
-    // session and filled the disk. WARN keeps real turso faults visible while
-    // killing the per-instruction firehose; our own `devpulse*` crates stay at
-    // TRACE. Applied in EVERY mode (faithful included) — this noise is never
-    // useful for post-mortem. Add further `<crate>=warn` directives here if a
-    // new dependency starts flooding the session log.
-    .add_directive("turso_core=warn".parse()?)
-    .add_directive("turso=warn".parse()?);
+    };
 
     if faithful {
         eprintln!("[logging] DEVPULSE_LOG_FAITHFUL=1 — JSONL captures at TRACE level (every crate, every span)");
@@ -187,7 +183,7 @@ pub fn init(
         .with(RrdLifecycleTranslator::new_lazy())
         .init();
 
-    install_panic_hook(&logs_dir);
+    install_panic_hook(run.file(LogFile::Crash));
 
     Ok(LoggingHandle {
         file_guard,
@@ -196,19 +192,16 @@ pub fn init(
     })
 }
 
-/// Install a global panic hook that routes panics into tracing AND a
-/// dedicated `crash-{ts}.json` file.
+/// Install a global panic hook that routes panics into tracing AND the
+/// run's `crash.jsonl`, one line per panic.
 ///
 /// The file write uses synchronous `std::fs::write` (not tracing-appender)
 /// because the process may exit before the async appender flushes its
 /// buffer — a crash dump that arrives after the process dies is useless.
-fn install_panic_hook(logs_dir: &Path) {
-    let logs_dir = logs_dir.to_path_buf();
+fn install_panic_hook(crash_path: PathBuf) {
     let prev = std::panic::take_hook();
     std::panic::set_hook(Box::new(move |info| {
-        let timestamp_raw = chrono::Local::now();
-        let ts_file = timestamp_raw.format("%Y-%m-%d-%H%M%S").to_string();
-        let ts_iso = timestamp_raw.to_rfc3339();
+        let ts_iso = chrono::Utc::now().to_rfc3339();
 
         let location = info.location().map_or_else(
             || "<unknown>".to_string(),
@@ -243,10 +236,9 @@ fn install_panic_hook(logs_dir: &Path) {
             "Rust panic"
         );
 
-        // 2. Write a dedicated crash JSON synchronously. Bypasses the
+        // 2. Append the crash record synchronously. Bypasses the
         //    tracing-appender non-blocking worker — if the process is
         //    about to die, the async write may never complete.
-        let crash_path = logs_dir.join(format!("crash-{ts_file}.json"));
         let crash_json = serde_json::json!({
             "timestamp": ts_iso,
             "location": location,
@@ -254,9 +246,14 @@ fn install_panic_hook(logs_dir: &Path) {
             "message": message,
             "backtrace": backtrace_str,
         });
-        let serialized =
-            serde_json::to_string_pretty(&crash_json).unwrap_or_else(|_| crash_json.to_string());
-        let _ = std::fs::write(&crash_path, serialized);
+        if let Ok(mut file) = std::fs::OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open(&crash_path)
+        {
+            use std::io::Write as _;
+            let _ = writeln!(file, "{crash_json}");
+        }
 
         // 3. Delegate to the previous hook (default: prints to stderr).
         prev(info);
@@ -280,7 +277,10 @@ pub fn init_stderr_only() {
         .init();
 }
 
-/// Rotate logs — keep the last 3 session files, delete older ones.
+/// Rotate the daily action logs (`action-YYYY-MM-DD.jsonl`), keeping the
+/// last 3. Session logs live in run folders now and the retention policy
+/// keeps them ([`crate::log_runs`]); the action logs move there in master
+/// plan M8c, and this goes with them.
 ///
 /// # Errors
 /// Returns error if the logs directory cannot be read.
@@ -289,32 +289,7 @@ pub fn rotate_logs(data_dir: &Path) -> anyhow::Result<()> {
     if !logs_dir.exists() {
         return Ok(());
     }
-
-    let mut sessions: Vec<PathBuf> = std::fs::read_dir(&logs_dir)?
-        .filter_map(|entry| {
-            let entry = entry.ok()?;
-            let name = entry.file_name().to_string_lossy().to_string();
-            if name.starts_with("session-")
-                && std::path::Path::new(&name)
-                    .extension()
-                    .is_some_and(|ext| ext.eq_ignore_ascii_case("jsonl"))
-            {
-                Some(entry.path())
-            } else {
-                None
-            }
-        })
-        .collect();
-
-    sessions.sort();
-
     let keep = 3;
-    if sessions.len() > keep {
-        let to_delete = sessions.len() - keep;
-        for path in sessions.iter().take(to_delete) {
-            let _ = std::fs::remove_file(path);
-        }
-    }
 
     // Rotate daily action JSONL files — keep last 3 calendar files.
     let mut action_files: Vec<PathBuf> = std::fs::read_dir(&logs_dir)?

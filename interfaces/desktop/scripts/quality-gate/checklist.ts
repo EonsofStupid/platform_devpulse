@@ -190,7 +190,7 @@ const SVELTE_TS_RULES: Rule[] = [
 				line: 1,
 				rule: "must-use-render-forge",
 				message: "ColdLight component does not call `renderForge()`",
-				fix: "Import `renderForge` from `$lib/design/renderforge` and call it with `{ kind, preset }`.",
+				fix: "Import `renderForge` from `@devpulse/coldlight/renderforge` and call it with `{ kind, preset }`.",
 			});
 		}
 		return violations;

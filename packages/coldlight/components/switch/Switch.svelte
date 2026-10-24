@@ -1,0 +1,96 @@
+<!--
+	@component Switch
+	@kind switch
+	@layer component
+	@category interactive
+	@description Toggle control for switching between two mutually exclusive states like on and off
+	@aria https://www.w3.org/WAI/ARIA/apg/patterns/switch/
+	@container false
+	@compound true
+	@blockCategory form
+	@defaultStyle switch-default
+	@styleIds switch-default
+	@requiredAxes backgroundColor, border, borderRadius, color
+	@slots root:all, thumb:none, label:none
+	@defaults {
+		"background-color": "oklch(0.0901 0.017 224.61 / 0.8)",
+		"border-radius": "0.75rem",
+		"box-shadow": "0 0.0625rem 0.1875rem oklch(0 0 0 / 0.12), 0 0.0625rem 0.125rem oklch(0 0 0 / 0.24)",
+		"color": "oklch(0.9319 0.015 224)",
+		"border-color": "oklch(0.4234 0.081 173.37 / 0.22)",
+		"border-width": "0.0625rem"
+}
+-->
+<script lang="ts">
+import { switchAnatomy } from "#coldlight/behaviors/inputs/switch/index.js";
+import { useSwitch } from "#coldlight/behaviors/inputs/switch/use-switch.svelte.js";
+import { cssVarString, renderForge } from "#coldlight/renderforge/index.js";
+import { cn } from "#coldlight/utils/cn.js";
+import { mergeProps } from "#coldlight/utils/merge-props.js";
+import type { SwitchProps, SwitchSize } from "./types.js";
+
+const SIZE: Record<SwitchSize, { track: string; thumb: string }> = {
+	sm: { track: "h-5 w-9", thumb: "size-3.5" },
+	md: { track: "h-6 w-11", thumb: "size-4" },
+	lg: { track: "h-7 w-13", thumb: "size-5" },
+};
+
+let {
+	size = "md",
+	checked,
+	defaultChecked,
+	disabled = false,
+	onCheckedChange,
+	onclick,
+	children,
+	preset = "default",
+	class: className,
+	...rest
+}: SwitchProps = $props();
+
+// Controlled when `checked` is given, otherwise the switch holds its state (from `defaultChecked`).
+const sw = useSwitch({
+	get checked() {
+		return checked;
+	},
+	get defaultChecked() {
+		return defaultChecked;
+	},
+	get disabled() {
+		return disabled;
+	},
+	onCheckedChange: (v) => onCheckedChange?.(v),
+});
+
+const sizeClasses = $derived(SIZE[size] ?? SIZE.md);
+const m = $derived(renderForge({ kind: "switch", preset }));
+
+// The caller's handlers add to the behavior's (mergeProps chains them); its click runs after the
+// behavior's and not while disabled.
+const attrs = $derived(
+	mergeProps(switchAnatomy.attrs.root, sw.root, rest, {
+		onclick: disabled ? undefined : onclick,
+	}),
+);
+</script>
+
+<button
+		{...attrs}
+		{...m.dataAttrs}
+		style={cssVarString(m.cssVars)}
+		class={cn(
+			"relative inline-flex shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent",
+			"transition-colors focus-visible:outline-2 focus-visible:outline-offset-2",
+			"disabled:pointer-events-none disabled:opacity-50",
+			sizeClasses.track,
+			className)}
+	>
+		<span
+			{...switchAnatomy.attrs.thumb}
+			{...sw.thumb}
+			class={cn(
+				"pointer-events-none block rounded-full shadow-sm transition-transform",
+				sizeClasses.thumb)}
+		></span>
+		{@render children?.()}
+	</button>

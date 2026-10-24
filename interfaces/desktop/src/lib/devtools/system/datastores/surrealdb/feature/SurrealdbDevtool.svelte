@@ -2,8 +2,8 @@
 	@file SurrealdbDevtool.svelte
 	@module @devpulse/devtools/system/datastores/surrealdb
 
-	Unified SurrealDB surface. The previous split (`/devtools/surreal`
-	+ `/devtools/surreal/sidecar`) was the overlap the user banned in
+	Unified SurrealDB surface. The previous split into a surreal page and
+	a separate sidecar page was the overlap the user banned in
 	the locked memory `feedback_command_naming_convention.md` —
 	"surrealdb is surrealdb, no `_sidecar` decorator at any layer."
 	The two devtools are folded into one tabbed shell here:
@@ -24,12 +24,12 @@
 	makes that constraint visible.
 -->
 <script lang="ts">
-import { Database, Globe, Network, RefreshCw, ServerCog, Terminal } from "@lucide/svelte";
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Spinner } from "@devpulse/coldlight/components/spinner";
+import { Text } from "@devpulse/coldlight/components/text";
+import { Database, Globe, Network, RefreshCw, ServerCog, Terminal } from "lucide-svelte";
 import { onMount } from "svelte";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Button } from "$lib/design/components/button/index.js";
-import { Spinner } from "$lib/design/components/spinner/index.js";
-import { Text } from "$lib/design/components/text/index.js";
 import {
 	type ExtraTab,
 	type HealthBadge,
@@ -110,12 +110,6 @@ const heroHealthLabel = $derived(
 						: `${surrealState.reachableCount}/${surrealState.health.namespaces.length} reachable`
 					: "Not probed yet",
 );
-let activityTick = $state(0);
-$effect(() => {
-	if (surrealState.health) {
-		activityTick = activityTick + 1;
-	}
-});
 
 // ── Unified health badge ──────────────────────────────────
 // Sidecar liveness gates everything — if the process isn't up, the
@@ -163,13 +157,6 @@ function handleKeydown(e: KeyboardEvent): void {
 </script>
 
 <ServiceDevtoolShell
-	infoTerm="SurrealDB"
-	title="SurrealDB"
-	description="Multi-model engine · graph + document · 3 namespaces"
-	icon={Network}
-	axis="stores"
-	accent="violet"
-	backdrop="surrealdb"
 	health={badge}
 	{extraTabs}
 >
@@ -182,7 +169,7 @@ function handleKeydown(e: KeyboardEvent): void {
 				<div class="flex items-center justify-between mb-2">
 					<Text size="sm" weight="semibold">Runtime</Text>
 					<Button
-						preset="ghost"
+						variant="ghost"
 						size="sm"
 						onclick={() => {
 							void surrealdbSidecar.loadStatus();
@@ -253,14 +240,11 @@ function handleKeydown(e: KeyboardEvent): void {
 			<!-- Namespaces hero + per-namespace breakdown -->
 			<div class="space-y-3">
 				<StoreHeroCard
-					icon={Network}
-					name="SurrealDB"
 					purpose="Graph + document multi-model — persona, projects, agents linked across namespaces"
 					health={heroState}
 					latencyMs={heroLatencyMs}
 					healthLabel={heroHealthLabel}
-					{activityTick}
-					accentVar="--accent-purple-main"
+					activityTick={surrealState.healthChecks}
 				>
 					<SurrealdbHero state={heroState} />
 				</StoreHeroCard>
@@ -275,7 +259,7 @@ function handleKeydown(e: KeyboardEvent): void {
 						<span></span>
 					{/if}
 					<Button
-						preset="ghost"
+						variant="ghost"
 						size="sm"
 						onclick={() => surrealState.loadHealth()}
 						disabled={surrealState.healthLoading}
@@ -343,7 +327,7 @@ function handleKeydown(e: KeyboardEvent): void {
 						title="Probe SurrealDB to see its namespaces"
 						hint="The sidecar may be up but no namespaces have been queried yet. Click Re-probe to enumerate them."
 						logTarget="surreal.lifecycle"
-						accentVar="--accent-purple-main"
+						accentVar="--accent-purple"
 					/>
 				{/if}
 			</div>
@@ -352,7 +336,7 @@ function handleKeydown(e: KeyboardEvent): void {
 
 	<!-- ── CONFIG ────────────────────────────────────────── -->
 	<!-- Embedded SurrealKV has no runtime knobs to override; the
-	     Config tab surfaces the data path the backend boots against. -->
+	     Config tab surfaces the data path the kernel boots against. -->
 	{#snippet config()}
 		<div class="space-y-3">
 			{#if surrealdbSidecar.configError}
@@ -402,7 +386,7 @@ function handleKeydown(e: KeyboardEvent): void {
 						Re-poll the sidecar liveness and ping every namespace.
 					</Text>
 					<Button
-						preset="primary"
+						variant="primary"
 						size="sm"
 						onclick={() => {
 							void surrealdbSidecar.loadStatus();
@@ -426,7 +410,7 @@ function handleKeydown(e: KeyboardEvent): void {
 						Refresh the table catalog for the active namespace.
 					</Text>
 					<Button
-						preset="primary"
+						variant="primary"
 						size="sm"
 						onclick={() => surrealState.loadTables()}
 						disabled={surrealState.browserLoading}
@@ -457,7 +441,7 @@ function handleKeydown(e: KeyboardEvent): void {
 				<div class="flex items-center justify-between mb-2">
 					<Text size="sm" weight="semibold">Sanity probe</Text>
 					<Button
-						preset="primary"
+						variant="primary"
 						size="sm"
 						onclick={async () => {
 							surrealState.queryInput = "INFO FOR DB;";
@@ -574,7 +558,7 @@ function handleKeydown(e: KeyboardEvent): void {
 				</select>
 			</div>
 			<Button
-				preset="ghost"
+				variant="ghost"
 				size="sm"
 				onclick={() => surrealState.loadTables()}
 				disabled={surrealState.browserLoading}
@@ -693,7 +677,7 @@ function handleKeydown(e: KeyboardEvent): void {
 			<div class="absolute bottom-2 right-2 flex items-center gap-2">
 				<span class="text-[10px] text-[var(--text-secondary)]">Ctrl+Enter to run</span>
 				<Button
-					preset="primary"
+					variant="primary"
 					size="sm"
 					onclick={handleQuerySubmit}
 					disabled={surrealState.queryLoading || !surrealState.queryInput.trim()}

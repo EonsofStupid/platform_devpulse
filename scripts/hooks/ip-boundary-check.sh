@@ -17,6 +17,12 @@ if [ ! -f "$TERMS_FILE" ]; then
   exit 0
 fi
 
+# Owner 2026-10-19: every term is public for now; the list stays configured
+# and comes back into force with `enforcement = "on"` in the terms file.
+if grep -qE '^enforcement = "off"' "$TERMS_FILE"; then
+  exit 0
+fi
+
 # Extract ONLY hard-severity kernel terms from TOML.
 # Strategy: grep for entries that have severity = "hard" on the next few lines
 # after a kernel = "..." line. Uses awk to pair kernel/severity within [[terms]] blocks.
@@ -52,16 +58,24 @@ done <<< "$TERMS"
 
 # Scan staged diff — added lines only, outside kernel/
 # Excludes enforcement files that list kernel terms by design.
-VIOLATIONS=$(git diff --cached --diff-filter=ACMR \
+# A term matches where a word starts (`\b`): it still catches a term used
+# alone or as an identifier prefix (CortexViewer, RROService), but not a
+# term that happens to sit inside an unrelated word ("RRO" in "ERROR").
+# `+++ b/<path>` file headers are not added lines: editing a file whose
+# name already holds a term is not a new use of it.
+# The raised rename limit keeps a large move a set of renames: past git's
+# default (1000) every moved line would read as added.
+VIOLATIONS=$(git -c diff.renameLimit=32767 diff --cached --diff-filter=ACMR \
   -- ':!kernel/' \
   -- ':!systems/devpulse-engine/' \
   -- ':!scripts/docs/sprints/SPRINT-IP*' \
   -- ':!.claude/rules/ip-protection.md' \
   -- ':!.claude/plans/' \
   -- ':!interfaces/desktop/tests/architecture/' \
-  -- ':!interfaces/desktop/gritql/' \
+  -- ':!scripts/biome/gritql/' \
   -- '*.rs' '*.ts' '*.svelte' '*.json' \
-  | grep -nE "^\+.*(${PATTERN})" || true)
+  | grep -vE '^\+\+\+ ' \
+  | grep -nE "^\+.*\b(${PATTERN})" || true)
 
 if [ -n "$VIOLATIONS" ]; then
   echo ""

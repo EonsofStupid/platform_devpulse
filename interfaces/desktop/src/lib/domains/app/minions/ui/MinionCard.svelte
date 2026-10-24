@@ -3,10 +3,10 @@
   ALL styling via renderForge + cssVarString.
 -->
 <script lang="ts">
-import { Text } from "$lib/design/components/text/index.js";
-import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
-import { hstack } from "$lib/design/utils/hstack/index.js";
-import type { SemanticIntent } from "$lib/design/visual/preset-id.js";
+import { Text } from "@devpulse/coldlight/components/text";
+import { cssVarString, renderForge } from "@devpulse/coldlight/renderforge";
+import { hstack } from "@devpulse/coldlight/utils";
+import type { SemanticIntent } from "@devpulse/coldlight/visual";
 
 interface Props {
 	name: string;

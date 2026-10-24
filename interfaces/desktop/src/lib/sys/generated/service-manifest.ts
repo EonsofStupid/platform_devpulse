@@ -51,8 +51,7 @@ export const BOOT_STEP_MANIFEST: readonly BootStepMeta[] = Object.freeze([
 	{ step_id: "SurrealDB HTTP",         group: "graph",  feature_gate: null,        service_role: null,           data_scope: null      },
 	{ step_id: "Model Loader",           group: "ai",     feature_gate: "inference", service_role: "ModelLoader",  data_scope: "System"  },
 	{ step_id: "Vector store",           group: "ai",     feature_gate: "rro",       service_role: "Vector",       data_scope: "System"  },
-	// No "Grammar service" step — grammar / constrained decoding is Clyffy's
-	// (wire-served); the desktop's grammar commands are connection-gated.
+	{ step_id: "Grammar service",        group: "system", feature_gate: null,        service_role: "Grammar",      data_scope: "System"  },
 ]) as readonly BootStepMeta[];
 
 /** Map from step_id → group for O(1) classification. Frozen at module load. */

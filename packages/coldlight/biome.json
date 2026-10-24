@@ -1,0 +1,62 @@
+{
+	"$schema": "https://biomejs.dev/schemas/2.4.0/schema.json",
+	"extends": "//",
+	"overrides": [
+		{
+			"includes": ["**/coldlight/builders/**/*.ts", "**/coldlight/builders/**/*.svelte.ts"],
+			"linter": {
+				"rules": {
+					"style": {
+						"noRestrictedImports": {
+							"level": "error",
+							"options": {
+								"paths": {
+									"@melt-ui/svelte": "builders/ must not import third-party headless libraries. ColdLight-owned only.",
+									"@melt-ui/svelte/internal/helpers": "builders/ must not import third-party headless internals."
+								},
+								"patterns": [
+									{
+										"group": ["**/_archive/*", "**/_archive/**"],
+										"message": "Archive imports are banned. Build from taxonomy contracts."
+									}
+								]
+							}
+						}
+					}
+				}
+			}
+		},
+		{
+			"includes": [
+				"**/coldlight/styles/**",
+				"**/coldlight/css/**",
+				"**/coldlight/theme/**",
+				"**/coldlight/generated/**",
+				"**/coldlight/svg/**",
+				"**/coldlight/plugins/**"
+			],
+			"linter": {
+				"rules": {
+					"nursery": {
+						"noHexColors": "off"
+					}
+				}
+			}
+		}
+	],
+	"files": {
+		"includes": [
+			"!**/coldlight/.cowlevel",
+			"!**/coldlight/style",
+			"!**/coldlight/styles",
+			"!**/coldlight/css",
+			"!**/coldlight/theme",
+			"!**/coldlight/generated",
+			"!**/coldlight/svg",
+			"!**/coldlight/plugins",
+			"!**/coldlight/primitives/_archive",
+			"!**/coldlight/primitives/tanstack/flex-render.svelte",
+			"!**/coldlight/taxonomy/.generated/coldlight.manifest.json"
+		]
+	}
+}

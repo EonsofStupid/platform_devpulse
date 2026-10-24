@@ -7,13 +7,13 @@
 	surface — those would misrepresent Moka's TTL-driven behavior.
 -->
 <script lang="ts">
-import { Database, RefreshCw } from "@lucide/svelte";
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Button } from "@devpulse/coldlight/components/button";
+import { InlineMessage } from "@devpulse/coldlight/components/inline-message";
+import { Text } from "@devpulse/coldlight/components/text";
 import { invoke } from "@tauri-apps/api/core";
+import { RefreshCw } from "lucide-svelte";
 import { onMount } from "svelte";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Button } from "$lib/design/components/button/index.js";
-import { InlineMessage } from "$lib/design/components/inline-message/index.js";
-import { Text } from "$lib/design/components/text/index.js";
 import { type HealthBadge, ScopedLogPanel, ServiceDevtoolShell } from "$lib/devtools/index.js";
 
 // Local type — replaced by the generated binding on the next
@@ -61,12 +61,6 @@ onMount(() => {
 </script>
 
 <ServiceDevtoolShell
-	infoTerm="Moka cache"
-	title="Cache"
-	description="In-memory Moka store · non-persistent · TTL-driven"
-	icon={Database}
-	axis="stores"
-	accent="frost"
 	health={badge}
 >
 	{#snippet status()}
@@ -75,7 +69,7 @@ onMount(() => {
 				<Text size="sm" weight="bold">
 					{health?.reachable ? "Service booted" : "Service down"}
 				</Text>
-				<Button preset="ghost" size="sm" onclick={refresh} disabled={refreshing}>
+				<Button variant="ghost" size="sm" onclick={refresh} disabled={refreshing}>
 					<RefreshCw size={12} />
 					Refresh
 				</Button>
@@ -126,7 +120,7 @@ onMount(() => {
 			<div class="rounded-lg p-3" style="background: var(--surface-base); border: 1px solid var(--border-subtle);">
 				<div class="flex items-center justify-between mb-2">
 					<Text size="sm" weight="bold">Re-ping cache</Text>
-					<Button preset="primary" size="sm" onclick={refresh} disabled={refreshing}>
+					<Button variant="primary" size="sm" onclick={refresh} disabled={refreshing}>
 						<RefreshCw size={12} />
 						Re-ping
 					</Button>

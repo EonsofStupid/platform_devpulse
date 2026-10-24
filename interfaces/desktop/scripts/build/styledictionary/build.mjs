@@ -7,117 +7,139 @@
  * Usage: node scripts/build/styledictionary/build.mjs
  *
  * Pipeline:
- *   1. collect-element-seed-defs — per-kind @defaults → style-defaults.json
- *   2. derive-kind-families — KIND_FAMILIES + PRESET_FAMILIES → kind-families.ts
- *   3. SD5 buildAllPlatforms() → CSS, @theme, types, manifest
- *   4. Write barrel index files (CSS, theme, types)
+ *   1. Collect colocated component tokens.ts → DTCG JSON
+ *   2. SD5 buildAllPlatforms() → CSS, @theme, types, manifest
+ *   3. Write barrel index files (CSS, theme, types)
  *
  * Output boundary (no second token pipeline):
- * - src/lib/design/styles/  — token custom properties (@layer tokens.*)
- * - src/lib/design/theme/   — Tailwind @theme blocks
- * - src/lib/design/types/   — generated .d.ts unions
- * - src/lib/design/manifest/token-manifest.json — VPB manifest (JSON, isolated from CSS)
- * Non-token CSS (generated/keyframes, glue/*, svg glue) is authored separately
- * and imported from src/lib/design/index.css — not emitted here.
+ * - packages/coldlight/styles/  — token custom properties (@layer tokens.*)
+ * - packages/coldlight/theme/   — Tailwind @theme blocks
+ * - packages/coldlight/types/   — generated .d.ts unions
+ * - packages/coldlight/generated/token-manifest.json — VPB manifest
+ * Non-token CSS (generated/*.css outside SD5, svg glue) is authored separately
+ * and imported from packages/coldlight/index.css — not emitted here.
  */
 
 import { execSync } from 'node:child_process';
-import { readFileSync, readdirSync, unlinkSync, writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import StyleDictionary from 'style-dictionary';
-import config from './sd.config.mjs';
+import { kindTypes } from './kind-css.mjs';
+import config, { KIND_FILES, SURFACE_DEFAULT, SURFACE_FAMILIES } from './sd.config.mjs';
+import { surfaceTypes } from './surface-scopes.mjs';
 
-const OUT = 'src/lib/design';
+const OUT = '../../packages/coldlight';
 
-const HAS_DECL = /^\s*--[a-z0-9-]+\s*:/im;
+// ─── Barrel: CSS imports with layer order ────────────────────────────
 
-/** .css files in `${OUT}/${dir}` that hold ≥1 custom-property decl, sorted. */
-function cssFilesWithDecls(dir) {
-	const abs = `${OUT}/${dir}`;
-	return readdirSync(abs)
-		.filter((f) => f.endsWith('.css') && f !== 'index.css')
-		.filter((f) => HAS_DECL.test(readFileSync(`${abs}/${f}`, 'utf8')))
-		.sort();
-}
+/** `@import` lines for a platform's files, in the order the config lists them. */
+const importsOf = (platform, dir) =>
+	config.platforms[platform].files.map((file) => `@import "./${dir}/${file.destination}";`).join('\n');
 
-/**
- * Delete theme/*.css the F9 namespace guard emitted empty (skipped, non-namespace
- * domains). SD5 leaves stale empties on disk; without this they linger and the
- * derived barrel would re-import an unlayered collision.
- */
-function pruneEmptyThemeFiles() {
-	const abs = `${OUT}/generated/theme`;
-	const removed = [];
-	for (const f of readdirSync(abs)) {
-		if (!f.endsWith('.css') || f === 'index.css') continue;
-		if (!HAS_DECL.test(readFileSync(`${abs}/${f}`, 'utf8'))) {
-			unlinkSync(`${abs}/${f}`);
-			removed.push(f);
-		}
-	}
-	return removed;
-}
+// The imports come from the config's file lists, so a file the config emits
+// is always imported (claude.css was emitted and never imported).
+const INDEX_CSS = `/* AUTO-GENERATED — DO NOT EDIT */
 
-/**
- * Barrels are DERIVED from what SD5 actually emitted — never hand-listed. A file
- * emitted but omitted from a hand-typed barrel is dead on arrival (the claude.css
- * bug); a file removed but left in the barrel is a broken import. Deriving makes
- * both impossible.
- */
-function deriveIndexCss() {
-	const tiers = ['primitives', 'semantic', 'components'];
-	const blocks = tiers.map((tier) => {
-		const imports = cssFilesWithDecls(`generated/styles/${tier}`)
-			.map((f) => `@import "./${tier}/${f}";`)
-			.join('\n');
-		return `/* ── ${tier} ──────────────────────────────────────── */\n${imports}`;
-	});
-	return (
-		`/* AUTO-GENERATED — DO NOT EDIT (derived from emitted files) */\n\n` +
-		`@layer tokens.primitives, tokens.semantic, tokens.components;\n\n` +
-		`${blocks.join('\n\n')}\n`
-	);
-}
+/* ── Layer order declaration ─────────────────────────────── */
+@layer tokens.primitives, tokens.semantic, tokens.components, tokens.scopes;
 
-function deriveIndexTheme() {
-	const imports = cssFilesWithDecls('generated/theme')
-		.map((f) => `@import "./${f}";`)
-		.join('\n');
-	return (
-		`/* AUTO-GENERATED — DO NOT EDIT (derived from emitted files) */\n` +
-		`/* Tailwind-namespace @theme domains only — F9 guard in sd.config.mjs */\n\n` +
-		`${imports}\n`
-	);
-}
+/* ── Primitives ──────────────────────────────────────────── */
+${importsOf('css-primitives', 'primitives')}
 
-function deriveIndexDts() {
-	const abs = `${OUT}/generated/types`;
-	const exports = readdirSync(abs)
-		.filter((f) => f.endsWith('.d.ts') && f !== 'index.d.ts')
-		.filter((f) => /export/.test(readFileSync(`${abs}/${f}`, 'utf8')))
-		.sort()
-		.map((f) => `export * from './${f.replace(/\.d\.ts$/, '.js')}';`)
-		.join('\n');
-	return `/* AUTO-GENERATED — DO NOT EDIT (derived from emitted files) */\n\n${exports}\n`;
-}
+/* ── Semantic ────────────────────────────────────────────── */
+${importsOf('css-semantic', 'semantic')}
+
+/* ── Components ──────────────────────────────────────────── */
+@import "./components/components.generated.css";
+
+/* ── Scopes ──────────────────────────────────────────────── */
+${importsOf('css-scopes', 'scopes')}
+`;
+
+// ─── Barrel: Theme imports (per-domain composable) ───────────────────
+
+const INDEX_THEME = `/* AUTO-GENERATED — DO NOT EDIT */
+/* Per-domain @theme files — import individually for composable presets */
+
+/* ── Primitives ──────────────────────────────────────────── */
+@import "./color.css";
+@import "./shadow.css";
+@import "./bevel.css";
+@import "./glow.css";
+@import "./blur.css";
+@import "./surface.css";
+@import "./radius.css";
+@import "./spacing.css";
+@import "./typography.css";
+@import "./motion.css";
+@import "./gradient.css";
+
+/* ── Semantic ────────────────────────────────────────────── */
+@import "./elevation.css";
+@import "./text-style.css";
+@import "./transition.css";
+@import "./border.css";
+@import "./interaction.css";
+@import "./overlay.css";
+@import "./scrollbar.css";
+@import "./backdrop.css";
+@import "./text.css";
+@import "./signal.css";
+@import "./accent.css";
+@import "./role.css";
+@import "./icon.css";
+@import "./text-composed.css";
+`;
+
+// ─── Barrel: TypeScript re-exports ───────────────────────────────────
+
+const INDEX_DTS = `/* AUTO-GENERATED — DO NOT EDIT */
+
+export * from './color.js';
+export * from './shadow.js';
+export * from './blur.js';
+export * from './surface.js';
+export * from './spacing.js';
+export * from './typography.js';
+export * from './motion.js';
+export * from './elevation.js';
+export * from './border.js';
+export * from './interaction.js';
+export * from './backdrop.js';
+export * from './component.js';
+export * from './gradient.js';
+export * from './text.js';
+export * from './signal.js';
+export * from './accent.js';
+export * from './role.js';
+export * from './icon.js';
+`;
 
 // ─── Build ───────────────────────────────────────────────────────────
 
 async function build() {
-	// Step 0: Emit the PER-KIND style layer from component @defaults
-	// doc-headers (tokens/src/style-defaults.json → --style-{kind}-{variant}-*).
-	//
-	// The shared --preset-* layer is HAND-MAINTAINED as one file per visual
-	// family under tokens/src/presets/*.tokens.json (glass, neuro, chrome,
-	// flat, retro, stark, chat, button, wizard). No generator writes it.
-	console.log('[SD5] Collecting element @defaults (per-kind style layer)...');
+	// Step 0: Scan element annotations → ui-catalog.json
+	console.log('[SD5] Scanning element seed definitions...');
 	execSync('node scripts/build/styledictionary/collect-element-seed-defs.mjs', {
 		cwd: process.cwd(),
 		stdio: 'inherit',
 	});
 
-	// Step 1: Derive KIND_FAMILIES (from style-defaults.json) +
-	// PRESET_FAMILIES (from style-presets.json, full preset ids).
-	console.log('[SD5] Deriving kind + preset families...');
+	// Step 1: Collect colocated component tokens.ts → JSON for SD5
+	console.log('[SD5] Collecting colocated component tokens...');
+	execSync('npx tsx scripts/build/styledictionary/collect-component-tokens.ts', {
+		cwd: process.cwd(),
+		stdio: 'inherit',
+	});
+
+	// Step 2: Expand preset shorthand → 11-axis DTCG in component.json
+	console.log('[SD5] Expanding preset styles...');
+	execSync('node scripts/build/styledictionary/collect-preset-styles.mjs', {
+		cwd: process.cwd(),
+		stdio: 'inherit',
+	});
+
+	// Step 3: Derive kind → family mapping from enriched presets
+	console.log('[SD5] Deriving kind families...');
 	execSync('node scripts/build/styledictionary/derive-kind-families.mjs', {
 		cwd: process.cwd(),
 		stdio: 'inherit',
@@ -130,21 +152,36 @@ async function build() {
 	const sd = new StyleDictionary(config);
 	await sd.buildAllPlatforms();
 
-	// SD5 leaves empty files on disk for F9-skipped theme domains; drop them so
-	// the derived barrel imports only what was actually emitted.
-	const pruned = pruneEmptyThemeFiles();
-	if (pruned.length) {
-		console.log(`[SD5] Pruned ${pruned.length} empty theme file(s): ${pruned.join(', ')}`);
-	}
+	// The preset catalog, from the one preset source (plan 0006 0s.2)
+	execSync('node scripts/build/styledictionary/generate-preset-catalog.mjs', {
+		cwd: process.cwd(),
+		stdio: 'inherit',
+	});
 
-	// Barrels are DERIVED from emitted files — never hand-listed (see helpers).
-	writeFileSync(`${OUT}/generated/styles/index.css`, deriveIndexCss());
-	writeFileSync(`${OUT}/generated/theme/index.css`, deriveIndexTheme());
-	writeFileSync(`${OUT}/generated/types/index.d.ts`, deriveIndexDts());
+	// Kinds (plan 0006 §0s): each kind file's typed unions beside it, and the
+	// barrel importing every kind's generated CSS.
+	for (const { kind, group, meta } of KIND_FILES) {
+		writeFileSync(`${OUT}/components/${kind}/${kind}.generated.ts`, kindTypes(kind, group, meta));
+	}
+	mkdirSync(`${OUT}/styles/components/kinds`, { recursive: true });
+	const kindImports = KIND_FILES.map(({ kind }) => `@import "./${kind}.css";`);
+	writeFileSync(
+		`${OUT}/styles/components/kinds/index.css`,
+		['/* AUTO-GENERATED — DO NOT EDIT. One file per colocated kind tokens file. */', ...kindImports, ''].join('\n'),
+	);
+	console.log(`[SD5] Kinds: ${KIND_FILES.map(({ kind }) => kind).join(', ') || '(none yet)'}`);
+
+	// The family scope's typed families and roles, beside styleAttrs (plan 0006 0s.5).
+	writeFileSync(`${OUT}/renderforge/generated/surfaces.ts`, surfaceTypes(SURFACE_FAMILIES, SURFACE_DEFAULT));
+	console.log(`[SD5] Surface families: ${SURFACE_FAMILIES.map(({ family }) => family).join(', ')} (root: ${SURFACE_DEFAULT})`);
+
+	writeFileSync(`${OUT}/styles/index.css`, INDEX_CSS);
+	writeFileSync(`${OUT}/theme/index.css`, INDEX_THEME);
+	writeFileSync(`${OUT}/types/index.d.ts`, INDEX_DTS);
 
 	// Format generated .d.ts files to pass biome checks
 	try {
-		execSync(`npx biome format --write ${OUT}/generated/types/`, { stdio: 'pipe' });
+		execSync(`npx biome format --write ${OUT}/types/`, { stdio: 'pipe' });
 	} catch {
 		// Non-fatal — formatting is a convenience, not a build requirement
 	}

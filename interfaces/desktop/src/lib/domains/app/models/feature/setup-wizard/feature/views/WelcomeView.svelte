@@ -12,10 +12,10 @@
 	Orchestrator devtool for users who already have GGUFs on disk.
 -->
 <script lang="ts">
-import { ChevronRight } from "@lucide/svelte";
-import { Button } from "$lib/design/components/button/index.js";
-import { Spinner } from "$lib/design/components/spinner/index.js";
-import { Text } from "$lib/design/components/text/index.js";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Spinner } from "@devpulse/coldlight/components/spinner";
+import { Text } from "@devpulse/coldlight/components/text";
+import { ChevronRight } from "lucide-svelte";
 import type { WelcomeViewProps } from "../../util/wizard.types.js";
 import OverlayShell from "../OverlayShell.svelte";
 
@@ -37,7 +37,7 @@ let { copy, busy, callbacks }: WelcomeViewProps = $props();
 
 	{#snippet footer()}
 		<Button
-			preset="ghost"
+			variant="ghost"
 			size="sm"
 			onclick={callbacks.onSkip}
 			disabled={busy}
@@ -46,7 +46,7 @@ let { copy, busy, callbacks }: WelcomeViewProps = $props();
 		</Button>
 		<div class="flex-1"></div>
 		<Button
-			preset="primary"
+			variant="primary"
 			size="sm"
 			onclick={callbacks.onNext}
 			disabled={!copy || busy}

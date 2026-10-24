@@ -14,16 +14,16 @@
 	Every number on this page is read live from Rust. No mocks. No placeholders.
 -->
 <script lang="ts">
-import { Activity, BarChart3, Folder, Gauge, RefreshCw, Zap } from "@lucide/svelte";
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Callout } from "@devpulse/coldlight/components/callout";
+import { Card } from "@devpulse/coldlight/components/card";
+import { Spinner } from "@devpulse/coldlight/components/spinner";
+import { Stat } from "@devpulse/coldlight/components/stat";
+import { StatusDot } from "@devpulse/coldlight/components/status-dot";
+import { Text } from "@devpulse/coldlight/components/text";
+import { Activity, BarChart3, Folder, Gauge, RefreshCw, Zap } from "lucide-svelte";
 import { onMount } from "svelte";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Button } from "$lib/design/components/button/index.js";
-import { Callout } from "$lib/design/components/callout/index.js";
-import { Card } from "$lib/design/components/card/index.js";
-import { Spinner } from "$lib/design/components/spinner/index.js";
-import { Stat } from "$lib/design/components/stat/index.js";
-import { StatusDot } from "$lib/design/components/status-dot/index.js";
-import { Text } from "$lib/design/components/text/index.js";
 import { type ExtraTab, type HealthBadge, ServiceDevtoolShell } from "$lib/devtools/index.js";
 import {
 	formatBytes,
@@ -107,11 +107,6 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 </script>
 
 <ServiceDevtoolShell
-	title="Telemetry"
-	description="OTel pipeline — traces, spans, baselines"
-	icon={Activity}
-	axis="runtime"
-	accent="green"
 	health={badge}
 	{extraTabs}
 >
@@ -127,7 +122,7 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 				<div class="flex items-center justify-between">
 					<Text size="sm" weight="semibold">Pipeline</Text>
 					<Button
-						preset="ghost"
+						variant="ghost"
 						size="sm"
 						onclick={() => telemetryState.refreshStatus()}
 						disabled={telemetryState.pipelineLoading}
@@ -142,7 +137,7 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 				</div>
 
 				<div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-					<Card preset="glass">
+					<Card surface="glass" variant="deep">
 						<div class="p-3 space-y-1">
 							<Text size="xs" weight="semibold">Recording</Text>
 							<div class="flex items-center gap-2">
@@ -163,7 +158,7 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 						</div>
 					</Card>
 
-					<Card preset="glass">
+					<Card surface="glass" variant="deep">
 						<Stat
 							label="Uptime"
 							value={formatUptime(uptimeMs)}
@@ -172,7 +167,7 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 						/>
 					</Card>
 
-					<Card preset="glass">
+					<Card surface="glass" variant="deep">
 						<Stat
 							label="Watched lanes"
 							value={telemetryState.enabledLaneCount}
@@ -184,7 +179,7 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 				</div>
 
 				<!-- Service identity -->
-				<Card preset="glass">
+				<Card surface="glass" variant="deep">
 					<div class="p-3 space-y-2">
 						<Text size="sm" weight="semibold">Service identity</Text>
 						<div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
@@ -217,11 +212,11 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 				</Card>
 
 				<!-- Storage -->
-				<Card preset="glass">
+				<Card surface="glass" variant="deep">
 					<div class="p-3 space-y-2">
 						<div class="flex items-center justify-between">
 							<Text size="sm" weight="semibold">Storage</Text>
-							<Button preset="ghost" size="sm" onclick={() => telemetryState.revealFolder()}>
+							<Button variant="ghost" size="sm" onclick={() => telemetryState.revealFolder()}>
 								<Folder size={14} />
 								Reveal
 							</Button>
@@ -260,7 +255,7 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 
 				<!-- DuckDB stats -->
 				{#if telemetryState.rowCounts}
-					<Card preset="glass">
+					<Card surface="glass" variant="deep">
 						<div class="p-3 space-y-2">
 							<Text size="sm" weight="semibold">Recorded to database</Text>
 							<div class="grid grid-cols-3 gap-3">
@@ -288,12 +283,12 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 				{/if}
 
 				<!-- Session files -->
-				<Card preset="glass">
+				<Card surface="glass" variant="deep">
 					<div class="p-3 space-y-2">
 						<div class="flex items-center justify-between">
 							<Text size="sm" weight="semibold">Session files</Text>
 							<Button
-								preset="ghost"
+								variant="ghost"
 								size="sm"
 								onclick={() => telemetryState.loadSessions()}
 								disabled={telemetryState.sessionsLoading}
@@ -362,20 +357,20 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 				<Callout variant="error">{telemetryState.laneError}</Callout>
 			{:else if telemetryState.laneConfig}
 				<!-- Quick presets -->
-				<Card preset="glass">
+				<Card surface="glass" variant="deep">
 					<div class="p-3 space-y-2">
 						<Text size="sm" weight="semibold">Quick presets</Text>
 						<Text size="xs">
 							Pick how much detail to record. "Standard" is good for most sessions.
 						</Text>
 						<div class="flex items-center gap-2 pt-1">
-							<Button preset="ghost" size="sm" onclick={() => telemetryState.applyPreset("off")}>
+							<Button variant="ghost" size="sm" onclick={() => telemetryState.applyPreset("off")}>
 								Off
 							</Button>
-							<Button preset="primary" size="sm" onclick={() => telemetryState.applyPreset("standard")}>
+							<Button variant="primary" size="sm" onclick={() => telemetryState.applyPreset("standard")}>
 								Standard
 							</Button>
-							<Button preset="ghost" size="sm" onclick={() => telemetryState.applyPreset("debug")}>
+							<Button variant="ghost" size="sm" onclick={() => telemetryState.applyPreset("debug")}>
 								Debug (everything)
 							</Button>
 						</div>
@@ -383,7 +378,7 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 				</Card>
 
 				<!-- Global toggles — GUARDRAILED -->
-				<Card preset="glass">
+				<Card surface="glass" variant="deep">
 					<div class="p-3 space-y-3">
 						<Text size="sm" weight="semibold">Recording options</Text>
 
@@ -435,7 +430,7 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 
 				<!-- Per-lane toggles, grouped -->
 				{#each telemetryState.laneGroups as group}
-					<Card preset="glass">
+					<Card surface="glass" variant="deep">
 						<div class="p-3 space-y-1">
 							<Text size="sm" weight="semibold">{group.label}</Text>
 							{#each group.lanes as lane}
@@ -476,12 +471,12 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 						if (e.key === "Enter") handleSpanQuery();
 					}}
 				/>
-				<Button preset="primary" size="sm" onclick={handleSpanQuery}>
+				<Button variant="primary" size="sm" onclick={handleSpanQuery}>
 					{#if telemetryState.spansLoading}<Spinner size="xs" tone="accent" />{:else}<RefreshCw size={12} />{/if}
 					Load
 				</Button>
 				{#if telemetryState.spans.length > 0}
-					<Button preset="ghost" size="sm" onclick={() => telemetryState.clearSpans()}>
+					<Button variant="ghost" size="sm" onclick={() => telemetryState.clearSpans()}>
 						Clear
 					</Button>
 				{/if}
@@ -497,7 +492,7 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 				</Callout>
 			{:else}
 				<Text size="xs">{telemetryState.spans.length} events</Text>
-				<Card preset="flat">
+				<Card surface="flat" variant="minimal">
 					<table class="w-full text-xs">
 						<thead>
 							<tr class="border-b border-[var(--border-subtle)]">
@@ -546,7 +541,7 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 	<!-- ══════════════════ ACTIONS ══════════════════ -->
 	{#snippet actions()}
 		<div class="space-y-3">
-			<Card preset="glass">
+			<Card surface="glass" variant="deep">
 				<div class="p-3 space-y-2">
 					<Text size="sm" weight="semibold">Storage</Text>
 					<Text size="xs">
@@ -555,7 +550,7 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 					</Text>
 					<div class="pt-1">
 						<Button
-							preset="primary"
+							variant="primary"
 							size="sm"
 							onclick={() => telemetryState.revealFolder()}
 							disabled={!telemetryState.pipeline?.telemetry_dir}
@@ -567,7 +562,7 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 				</div>
 			</Card>
 
-			<Card preset="glass">
+			<Card surface="glass" variant="deep">
 				<div class="p-3 space-y-2">
 					<Text size="sm" weight="semibold">Reload data</Text>
 					<Text size="xs">
@@ -576,7 +571,7 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 					</Text>
 					<div class="flex gap-2 pt-1">
 						<Button
-							preset="primary"
+							variant="primary"
 							size="sm"
 							onclick={() => telemetryState.refreshStatus()}
 							disabled={telemetryState.pipelineLoading}
@@ -589,7 +584,7 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 							Refresh pipeline status
 						</Button>
 						<Button
-							preset="ghost"
+							variant="ghost"
 							size="sm"
 							onclick={() => telemetryState.loadRowCounts()}
 							disabled={telemetryState.rowCountsLoading}
@@ -600,7 +595,7 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 				</div>
 			</Card>
 
-			<Card preset="glass">
+			<Card surface="glass" variant="deep">
 				<div class="p-3 space-y-2">
 					<Text size="sm" weight="semibold">Rotation</Text>
 					<Text size="xs">
@@ -627,7 +622,7 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 				<div class="flex items-center justify-between mb-2">
 					<Text size="sm" weight="semibold">Force exporter flush</Text>
 					<Button
-						preset="ghost"
+						variant="ghost"
 						size="sm"
 						onclick={async () => {
 							await Promise.all([
@@ -702,7 +697,7 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 				</Text>
 			</div>
 			<Button
-				preset="ghost"
+				variant="ghost"
 				size="sm"
 				onclick={() => telemetryState.loadSpans(undefined, 100)}
 			>
@@ -722,7 +717,7 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 				No activity yet. Use the app for a moment, then come back.
 			</Callout>
 		{:else}
-			<Card preset="flat">
+			<Card surface="flat" variant="minimal">
 				<table class="w-full text-xs">
 					<thead>
 						<tr class="border-b border-[var(--border-subtle)]">
@@ -770,7 +765,7 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 				</Text>
 			</div>
 			<Button
-				preset="ghost"
+				variant="ghost"
 				size="sm"
 				onclick={() => telemetryState.loadBaselines()}
 				disabled={telemetryState.baselinesLoading}
@@ -793,7 +788,7 @@ function levelVariant(level: string): "negative" | "notice" | "accent" | "neutra
 		{:else}
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
 				{#each telemetryState.baselines as baseline}
-					<Card preset="glass">
+					<Card surface="glass" variant="deep">
 						<div class="p-3 space-y-2">
 							<div class="flex items-center justify-between">
 								<div class="min-w-0">

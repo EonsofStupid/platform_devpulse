@@ -30,14 +30,15 @@ rustc-wrapper = "sccache"
 # builds use /MD too. This is NOT a hack — it's the correct way to unify CRT
 # linkage across all native deps in one binary.
 #
-# NOTE: The fast linker (rust-lld) is NOT pinned here. Hardcoding the path
-# would couple `.cargo/config.toml` to the current developer's rustup install
-# (~/.rustup/toolchains/<ver>/...) and break portability. Instead, xtask
-# resolves rust-lld at runtime via `rustc --print sysroot` and injects
-# `CARGO_TARGET_X86_64_PC_WINDOWS_MSVC_LINKER` — see workspace.rs::apply_env.
-# Direct `cargo check -p X` calls don't link, so they don't need rust-lld;
-# `cargo xtask run-dev` / `cargo xtask build-release` do, and they get it.
+# Fast linker: rust-lld from the `llvm-tools-preview` component that
+# rust-toolchain.toml installs. The bare name is portable — rustc finds it in
+# its own sysroot tools dir, no machine path. It MUST be declared here, not
+# injected as an env var by xtask: cargo hashes the target linker into every
+# unit's fingerprint (check-only units too), so a linker that only some cargo
+# invocations see makes the others (the `cargo xtask` outer build, plain
+# cargo, rust-analyzer) rebuild the shared units in place on every switch.
 [target.x86_64-pc-windows-msvc]
+linker = "rust-lld.exe"
 rustflags = ["-C", "target-feature=-crt-static"]
 
 [env]
@@ -48,6 +49,9 @@ PYO3_USE_ABI3_FORWARD_COMPATIBILITY = "1"
 # `warn` keeps real errors visible (cache write failures, server crashes)
 # without the per-invocation noise.
 SCCACHE_LOG = "warn"
-# `LLAMA_CPP_PREBUILT_LIB_DIR` is gone from this workspace — nothing here
-# links llama-cpp-sys-2 since the kernel cut. The prebuilt pipeline + fetch
-# tooling live with Clyffy (clyffyos repo, tools/fetch-llama-cpp/).
+# aws-lc-sys (TLS via rustls) assembles x86_64 code with NASM. When `nasm` is
+# on PATH it is used; otherwise this allows the crate's own shipped prebuilt
+# NASM objects (`aws-lc-sys/builder/prebuilt-nasm/`) instead of panicking.
+# Keeps plain `cargo check -p <crate>` working on any machine without a
+# machine-specific NASM path.
+AWS_LC_SYS_PREBUILT_NASM = "1"

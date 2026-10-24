@@ -10,14 +10,12 @@ const CATALOG: Record<string, readonly string[]> = {
 		"Slots hold model weights in RAM or VRAM — loading once and reusing many times is what makes replies fast.",
 		"GGUF files are single-file checkpoints; the engine maps layers to CPU or GPU based on your tier.",
 		"Warming loads tensors to CPU RAM first so switching models skips cold disk reads.",
+		"Presets bundle VRAM, model picks, and download hints so you are not tuning twenty knobs on day one.",
+		"Hugging Face downloads resume — if something interrupts, pick up where you left off.",
 	],
 	chat: [
 		"Sessions group turns per project — the brain reads recent context from the active session.",
 		"Export writes the same structured history the engine stores — good for backups or sharing.",
-	],
-	wizard: [
-		"Presets bundle VRAM, model picks, and download hints so you are not tuning twenty knobs on day one.",
-		"Hugging Face downloads resume — if something interrupts, pick up where you left off.",
 	],
 	default: ["The activity HUD shows exactly which call is in flight — no more mystery spinners."],
 };

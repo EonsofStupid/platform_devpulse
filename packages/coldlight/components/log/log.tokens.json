@@ -1,0 +1,51 @@
+{
+	"$description": "Log's tokens (plan 0006 LG3). The build generates styles/components/kinds/log.css and log.generated.ts from the log group.",
+	"log": {
+		"$description": "Styles the log's scrolling region (its root). Each variant is a surface role read from the family in scope, elevated by default as a raised panel. The text is mono at the size the code text style gives terminal output, no smaller than the UI's smallest text (font-size.sm). Lines, their parts and the level tones are parts; layout (gaps, padding, scrolling) is the component's Tailwind.",
+		"$extensions": {
+			"com.coldlight": {
+				"slot": "root",
+				"accepts": ["surface", "text", "frame"],
+				"defaults": { "variant": "elevated" }
+			}
+		},
+		"base": {
+			"border-style": { "$value": "solid", "$type": "strokeStyle" },
+			"border-width": { "$value": "{borderWidth.hairline}", "$type": "dimension" },
+			"border-radius": { "$value": "{radius.md}", "$type": "dimension" },
+			"font-family": { "$value": "{font.mono}", "$type": "fontFamily" },
+			"font-size": { "$value": "{font-size.sm}", "$type": "dimension" },
+			"line-height": { "$value": 1.6, "$type": "number" }
+		},
+		"variant": {
+			"elevated": { "$extensions": { "com.coldlight": { "role": "elevated" } } },
+			"deep": { "$extensions": { "com.coldlight": { "role": "deep" } } },
+			"minimal": { "$extensions": { "com.coldlight": { "role": "minimal" } } },
+			"solid": { "$extensions": { "com.coldlight": { "role": "solid" } } },
+			"glow": { "$extensions": { "com.coldlight": { "role": "glow" } } },
+			"muted": { "$extensions": { "com.coldlight": { "role": "muted" } } }
+		},
+		"part": {
+			"line": {
+				"$description": "A hairline between entries.",
+				"border-bottom": { "$value": "{borderWidth.hairline} solid {border.subtle}" }
+			},
+			"time": {
+				"color": { "$value": "{text.muted}", "$type": "color" }
+			},
+			"source": {
+				"color": { "$value": "{text.secondary}", "$type": "color" }
+			},
+			"level": {
+				"$description": "A level's tone: error, warning and info are ColdLight's signal colours; debug and trace are muted.",
+				"font-weight": { "$value": 600, "$type": "fontWeight" },
+				"tone": {
+					"error": { "color": { "$value": "{signal.error}", "$type": "color" } },
+					"warning": { "color": { "$value": "{signal.warning}", "$type": "color" } },
+					"info": { "color": { "$value": "{signal.info}", "$type": "color" } },
+					"muted": { "color": { "$value": "{text.muted}", "$type": "color" } }
+				}
+			}
+		}
+	}
+}

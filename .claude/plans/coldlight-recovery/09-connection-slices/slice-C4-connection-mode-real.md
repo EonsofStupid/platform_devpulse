@@ -1,5 +1,9 @@
 # C4 — ConnectionMode becomes REAL: local / network / gb10 filter the ladder
 
+> **SUPERSEDED — DO NOT EXECUTE (2026-10-12).** The owner ruled that a GB10 is
+> just an endpoint: there are no machine modes. Discovery and onboarding are
+> rebuilt in `.plan/0001-engine--rebuild-onboarding-workflow.md` (A4, A6, A7).
+
 ## GOAL
 
 Kill B3 (operator ruling 2026-07-14: modes are REAL). A typed

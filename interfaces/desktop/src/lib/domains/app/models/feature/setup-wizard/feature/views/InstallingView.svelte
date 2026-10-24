@@ -18,10 +18,10 @@
 	`$effect`).
 -->
 <script lang="ts">
-import { Card } from "$lib/design/components/card/index.js";
-import { Heading } from "$lib/design/components/heading/index.js";
-import { Spinner } from "$lib/design/components/spinner/index.js";
-import { Text } from "$lib/design/components/text/index.js";
+import { Card } from "@devpulse/coldlight/components/card";
+import { Heading } from "@devpulse/coldlight/components/heading";
+import { Spinner } from "@devpulse/coldlight/components/spinner";
+import { Text } from "@devpulse/coldlight/components/text";
 import { formatMb } from "../../../../util/format.js";
 import { getSlotLabel } from "../../../../util/slots.js";
 import type { InstallingViewProps } from "../../util/wizard.types.js";
@@ -65,7 +65,7 @@ let {
 				{@const label = getSlotLabel(rec.slot_id)}
 				{@const live = dispatchedInstalls.find((i) => i.slotId === rec.slot_id)}
 				{@const dispatchErr = dispatchErrors[rec.slot_id]}
-				<Card preset="matte" class="installing-view__row">
+				<Card surface="neuro" variant="solid" class="installing-view__row">
 					<div class="row-info">
 						<Text size="xs" weight="bold">
 							{label?.name ?? rec.slot_id}

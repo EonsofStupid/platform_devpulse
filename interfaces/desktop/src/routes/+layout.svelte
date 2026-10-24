@@ -1,18 +1,20 @@
 <script lang="ts">
 import "../app.css";
 // Style presets compiled via SD5 DTCG pipeline → components.generated.css
-// Loaded via app.css → design/index.css → styles/index.css import chain
+// Loaded via app.css → design/index.css → css/index.css import chain
+import { TokenDebugOverlay } from "@devpulse/coldlight/debug";
+import { SvgFilters } from "@devpulse/coldlight/svg/filters";
 import { invoke } from "@tauri-apps/api/core";
 import { onMount } from "svelte";
 import { Toaster } from "svelte-sonner";
-import TokenDebugOverlay from "$lib/design/debug/TokenDebugOverlay.svelte";
-import { ColdLightProvider } from "$lib/design/provider/index.js";
-import SvgFilters from "$lib/design/svg/filters/SvgFilters.svelte";
 import { bootstrapDownloadBridge, ModelDownloaderOverlay } from "$lib/domains/app/models/index.js";
+import { projectsState } from "$lib/domains/app/projects/index.js";
 import { updatesState } from "$lib/domains/app/updates/index.js";
 import { authState } from "$lib/domains/auth/index.js";
 import { clyffyStatus } from "$lib/domains/clyffy/index.js";
 import BootOverlay from "$lib/layouts/app/BootOverlay.svelte";
+import { copyState } from "$lib/sys/copy/index.js";
+import { HfTokenPanel } from "$lib/sys/debug/index.js";
 import ErrorOverlay from "$lib/sys/ErrorOverlay.svelte";
 import { fatalErrorState, setFatal } from "$lib/sys/fatal-error.svelte.js";
 import { installGlobalHandlers, logError, logInfo } from "$lib/sys/logger.js";
@@ -42,11 +44,10 @@ onMount(() => {
 	// biome-ignore lint/suspicious/noExplicitAny: Tauri injects __TAURI_INTERNALS__ on window
 	logInfo("layout", `__TAURI_INTERNALS__: ${typeof (window as any).__TAURI_INTERNALS__}`);
 
-	// Single subscription point for every model-loader event —
-	// downloads, loads, cancels. Routes through wizardState rune methods
-	// so the overlay reflects live state whether it is currently open or
-	// dismissed. Attached here (root layout) so downloads started before
-	// the overlay opens still populate when the overlay mounts.
+	// Single subscription point for every kernel model-loader event —
+	// downloads, loads, cancels — into the model runes. Attached here
+	// (root layout) so downloads started before the downloader overlay
+	// opens still populate when it mounts.
 	let detachDownloadBridge: (() => void) | null = null;
 	bootstrapDownloadBridge()
 		.then((detach) => {
@@ -71,9 +72,19 @@ onMount(() => {
 			logError("layout", `platformState.init() FAILED: ${e}`);
 		});
 
+	// UI copy catalog — every window's names and text (plan 0001 O1, 0008).
+	// Loaded once here so menus, dashboards and devtool headers in any
+	// window have their labels; `load()` shares the first load.
+	copyState.load().catch((e) => logError("layout", `copyState.load() FAILED: ${e}`));
+
 	// Clyffy presence — mood runes derived from platform + model events.
 	// Owns its own $effect.root internally; returns a teardown fn.
 	const stopClyffyStatus = clyffyStatus.start();
+
+	// Projects — the list and the active project, as Rust publishes them.
+	// Every window follows it, so chat and DevForge work in the same project
+	// as the hub.
+	const stopProjects = projectsState.start();
 
 	// Auth subsystem — probes the persisted Supabase session, subscribes
 	// to onAuthStateChange so subsequent sign-in/out events propagate.
@@ -90,7 +101,7 @@ onMount(() => {
 
 	// ── Idle auto-minimize ─────────────────────────────────
 	// Track last pointer/keyboard activity. When the window has been
-	// idle for N seconds (read from assistant.toml via the engine),
+	// idle for N seconds (read from assistant.toml via the kernel),
 	// minimize to the system tray. Default 300s = 5 min.
 	let lastActivity = Date.now();
 	let idleTimeoutSecs = 300;
@@ -101,12 +112,8 @@ onMount(() => {
 	document.addEventListener("pointermove", markActive, { passive: true });
 	document.addEventListener("keydown", markActive, { passive: true });
 
-	// Fetch the configured timeout from the engine (non-blocking).
-	// Gated on platform readiness — `get_assistant_config` routes through
-	// the engine loader and rejects with "Platform not ready" during boot.
-	platformState
-		.whenReady()
-		.then(() => invoke<{ window: { idle_timeout_secs: number } }>("get_assistant_config"))
+	// Fetch the configured timeout from the kernel (non-blocking).
+	invoke<{ window: { idle_timeout_secs: number } }>("get_assistant_config")
 		.then((cfg) => {
 			if (cfg?.window?.idle_timeout_secs > 0) {
 				idleTimeoutSecs = cfg.window.idle_timeout_secs;
@@ -132,6 +139,7 @@ onMount(() => {
 	return () => {
 		detachDownloadBridge?.();
 		stopClyffyStatus();
+		stopProjects();
 		authState.destroy();
 		updatesState.destroy();
 		document.removeEventListener("pointermove", markActive);
@@ -139,36 +147,6 @@ onMount(() => {
 		clearInterval(idleInterval);
 		platformState.destroy();
 	};
-});
-
-// ── Chat window auto-open ─────────────────────────────────
-// Five WindowRoles are authored engine-side (Main / Chat / ConnectomeViewer /
-// ModelLoader / DevTools) but `tauri.conf.json` declares only Main; the
-// rest spawn via `commands::window::open_window(role)`. Nothing fires the
-// Chat spawn after boot — the customer flow per spec is "chat window
-// opens behind Main, wizard overlays on first run." This $effect watches
-// `platformState.isReady` transitioning true (services confirmed
-// reachable) and fires the Chat window open exactly once per session.
-// Guarded by `chatOpenedOnce` so a transient re-ready (hot-reload,
-// degraded-mode recovery) doesn't reopen the window.
-let chatOpenedOnce = $state(false);
-$effect(() => {
-	if (platformState.isReady && !chatOpenedOnce) {
-		chatOpenedOnce = true;
-		void (async () => {
-			try {
-				const { commands } = await import("$lib/sys/generated/bindings.js");
-				const r = await commands.openWindow("Chat");
-				if (r.status === "error") {
-					logError("layout", `openWindow(Chat) failed: ${r.error}`);
-				} else {
-					logInfo("layout", "Chat window auto-opened post-boot");
-				}
-			} catch (e) {
-				logError("layout", `chat auto-open failed: ${e}`);
-			}
-		})();
-	}
 });
 </script>
 
@@ -186,36 +164,29 @@ $effect(() => {
 		});
 	}}
 >
+	<BootOverlay />
+	<TokenDebugOverlay>
+		<HfTokenPanel />
+	</TokenDebugOverlay>
 	<!--
-		ColdLightProvider: theme context (accent/scheme/neumorphism/
-		animations/scale) for every ColdLight surface. Mounted 2026-07-11
-		(a11y audit Gap 8 — it existed since the provider sprint but was
-		never wired). Renders display:contents; theme data-attrs become
-		the rebind seam for the Phase 2 accent work.
+		Singleton Model Downloader overlay mounted at the app root.
+		Any feature surface opens it via `modelDownloaderState.open(...)`;
+		closing returns focus to whichever element opened it (APG
+		dialog-modal focus contract — see ModelDownloaderOverlay.svelte).
 	-->
-	<ColdLightProvider>
-		<BootOverlay />
-		<TokenDebugOverlay />
-		<!--
-			Singleton Model Downloader overlay mounted at the app root.
-			Any feature surface opens it via `modelDownloaderState.open(...)`;
-			closing returns focus to whichever element opened it (APG
-			dialog-modal focus contract — see ModelDownloaderOverlay.svelte).
-		-->
-		<ModelDownloaderOverlay />
-		<!--
-			Local-first render contract. `pending` falls through to the
-			BootOverlay above (splash still covers the screen). Every other
-			phase renders the routed children — DevPulse is local-first, so
-			absence of Supabase cloud auth is the DEFAULT working state,
-			never a blocking screen. Users reach LoginShell from settings
-			if they explicitly want cloud sync; the app itself runs without
-			it.
-		-->
-		{#if authState.phase !== "pending"}
-			{@render children()}
-		{/if}
-	</ColdLightProvider>
+	<ModelDownloaderOverlay />
+	<!--
+		Local-first render contract. `pending` falls through to the
+		BootOverlay above (splash still covers the screen). Every other
+		phase renders the routed children — DevPulse is local-first, so
+		absence of Supabase cloud auth is the DEFAULT working state,
+		never a blocking screen. Users reach LoginShell from settings
+		if they explicitly want cloud sync; the app itself runs without
+		it.
+	-->
+	{#if authState.phase !== "pending"}
+		{@render children()}
+	{/if}
 
 	{#snippet failed(error, reset)}
 		<ErrorOverlay {error} {reset} />

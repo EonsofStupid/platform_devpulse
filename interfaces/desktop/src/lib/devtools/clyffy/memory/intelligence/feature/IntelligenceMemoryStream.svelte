@@ -3,8 +3,9 @@
 	@module @devpulse/devtools/clyffy/memory/intelligence/memory-stream
 
 	Live mirror of the cortex intelligence pipeline. Subscribes to the
-	`intel:*` event channel (bridged from
-	the engine's `LoaderEvent::Intelligence*` variants) and renders
+	`intel:*` event channel (emitted from
+	`systems/devpulse-engine/src/platform/integrations/events.rs` via
+	the kernel's `LoaderEvent::Intelligence*` variants) and renders
 	one card per chat-turn pipeline pass, with each hop lighting up
 	as the event arrives:
 
@@ -39,13 +40,13 @@
 	record.
 -->
 <script lang="ts">
-import { Activity, CheckCircle2, Cpu, Sparkles } from "@lucide/svelte";
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Heading } from "@devpulse/coldlight/components/heading";
+import { Text } from "@devpulse/coldlight/components/text";
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
+import { Activity, CheckCircle2, Cpu, Sparkles } from "lucide-svelte";
 import { onDestroy, onMount } from "svelte";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Button } from "$lib/design/components/button/index.js";
-import { Heading } from "$lib/design/components/heading/index.js";
-import { Text } from "$lib/design/components/text/index.js";
 
 /** Lifecycle position of a single chat-turn pipeline pass. */
 type CardState = "classify" | "embed" | "saved";
@@ -187,7 +188,7 @@ function formatAge(createdAt: number): string {
 			</Text>
 		</div>
 		{#if cards.length > 0}
-			<Button preset="ghost" size="sm" onclick={clearStream}>Clear</Button>
+			<Button variant="ghost" size="sm" onclick={clearStream}>Clear</Button>
 		{/if}
 	</header>
 

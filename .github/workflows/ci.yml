@@ -3,28 +3,8 @@ name: CI
 on:
   pull_request:
     branches: [main]
-    # Docs/agent-config changes do not affect the cargo or pnpm build
-    # output, so they must not trigger the full llama-cpp/DuckDB/Tauri/Candle
-    # workspace build. A PR is skipped only when EVERY changed file matches —
-    # mixed PRs (docs + code) still run. NOTE: if branch protection later marks
-    # "CI Pass" as a required check, switch to a dorny/paths-filter gate so the
-    # required check still reports on skipped runs.
-    # `scripts/docs/**` (not `scripts/**`) — `scripts/build/` contains
-    # styledictionary + build tools that DO affect output.
-    paths-ignore:
-      - "**/*.md"
-      - "docs/**"
-      - "scripts/docs/**"
-      - ".claude/**"
-      - "LICENSE"
   push:
     branches: [main]
-    paths-ignore:
-      - "**/*.md"
-      - "docs/**"
-      - "scripts/docs/**"
-      - ".claude/**"
-      - "LICENSE"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -41,8 +21,8 @@ env:
   # cargo step that links (Build + Test) ends in
   # `collect2: fatal error: ld terminated with signal 7 [Bus error]`
   # because ld mmaps every .rlib and runs out of address space against
-  # the gigabyte-scale debuginfo from tauri + libduckdb-sys + surrealdb.
-  # CI is verifying compile/link/test success; debug symbols
+  # the gigabyte-scale debuginfo from tauri + candle + the burn
+  # cascade. CI is verifying compile/link/test success; debug symbols
   # are irrelevant for the runner's ephemeral artifacts.
   CARGO_PROFILE_DEV_DEBUG: "0"
 
@@ -51,28 +31,25 @@ jobs:
     name: Rust Checks
     runs-on: ubuntu-latest
     steps:
-      # libduckdb-sys + surrealdb + Tauri's web stack together produce
-      # several GB of intermediate object files; combined with the cargo
-      # target dir + sccache cache + apt installs, the default Ubuntu
-      # runner's ~14 GB free disk is not enough and the final `ar`
-      # invocation that archives libduckdb fails with "No space left on
-      # device". Free up ~30 GB by removing the Android SDK / dotnet /
-      # GHC / CodeQL directories this workflow never uses.
-      #
-      # Do NOT `docker image prune` here: GitHub pre-builds container
-      # actions (cargo-deny-action) at job setup, BEFORE this step — the
-      # prune deleted that local image and the Security audit step died
-      # with "pull access denied for <local image id>".
+      # libduckdb-sys + candle + Tauri's web stack
+      # together produce ~5-7 GB of intermediate object files; combined
+      # with the cargo target dir + sccache cache + apt installs, the
+      # default Ubuntu runner's ~14 GB free disk is not enough and the
+      # final `ar` invocation that archives libduckdb fails with
+      # "No space left on device". Free up ~30 GB by removing the
+      # Android SDK / dotnet / GHC / CodeQL / pre-installed images that
+      # this workflow never uses.
       - name: Free disk space
         run: |
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf /usr/local/lib/android
           sudo rm -rf /opt/ghc
           sudo rm -rf /opt/hostedtoolcache/CodeQL
+          sudo docker image prune -a -f || true
           df -h
 
-      # No submodules — the vendored deps/ forks (moshi, llama-cpp-rs)
-      # left with the kernel cut; clyffyos vendors its own.
+      # No submodules: nothing in the build compiles deps/moshi (plan 0007,
+      # decision 5), so a plain checkout proves a clean clone builds.
       - uses: actions/checkout@v4
 
       # Tauri 2.0 needs these on Ubuntu for webkit2gtk.
@@ -100,6 +77,16 @@ jobs:
           toolchain: "1.89.0"
           components: rustfmt, clippy
 
+      # protoc is required by `tonic-build` pulled in by the rro v2
+      # alpha (crates/storage-api/build.rs runs tonic_build::configure
+      # against qdrant.proto). Without it the build script fails with
+      # "Could not find `protoc`". Matches the protoc-install step in
+      # rro's own build.yml.
+      - name: Install protoc
+        uses: arduino/setup-protoc@v2
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
       # `.cargo/config.toml` sets `rustc-wrapper = "sccache"` for the whole
       # workspace so every local + CI invocation goes through the same
       # caching path. Without the binary on the runner, every cargo step
@@ -108,51 +95,29 @@ jobs:
       - name: Install sccache
         uses: mozilla-actions/sccache-action@v0.0.6
 
-      # protoc + the RRO_DEPLOY_TOKEN insteadOf step were removed with the
-      # kernel cut — rro/wal (embedded qortex) are Clyffy-side deps now; no
-      # crate in this workspace fetches them.
-
-      # `devpulse-telemetry` was extracted to its own private repo 2026-06-28;
-      # workspace.dependencies declares it as `git = "..."`. The insteadOf
-      # rewrite + CARGO_NET_GIT_FETCH_WITH_CLI is the only path cargo honors
-      # for private git deps. Secret name `DEVPULSE_TELEMETRY_TOKEN` is set on
-      # this repo via Infisical (`infisical run --env=dev -- gh secret set ...`).
-      - name: Configure cargo for private devpulse-telemetry fetches
+      # `rro` is a private GitHub repo; cargo's anonymous git fetch
+      # cannot clone it. The `RRO_DEPLOY_TOKEN` secret (PAT with `repo`
+      # scope on EonsofStupid/rro) is rewritten into the clone URL via
+      # `git config --global url.<auth>.insteadOf`. Then we flip
+      # `CARGO_NET_GIT_FETCH_WITH_CLI=true` so cargo shells out to `git`
+      # (the only path that honors `insteadOf` rewrites — the libgit2
+      # path does not). When the secret is unset, the step prints a
+      # warning and the rust job will fail downstream with the existing
+      # "failed to authenticate" error from cargo, which is the desired
+      # signal — never silently skip private-dep auth.
+      - name: Configure cargo for private rro fetches
         env:
-          DEVPULSE_TELEMETRY_TOKEN: ${{ secrets.DEVPULSE_TELEMETRY_TOKEN }}
+          RRO_DEPLOY_TOKEN: ${{ secrets.RRO_DEPLOY_TOKEN }}
         run: |
-          if [ -z "$DEVPULSE_TELEMETRY_TOKEN" ]; then
-            echo "::warning::DEVPULSE_TELEMETRY_TOKEN secret not set on this repo — cargo will fail to fetch private devpulse-telemetry dep."
-            echo "Fix: pull PAT from Infisical and pipe to gh secret set."
+          if [ -z "$RRO_DEPLOY_TOKEN" ]; then
+            echo "::warning::RRO_DEPLOY_TOKEN secret not set on this repo — cargo will fail to fetch private rro dep."
+            echo "Fix: gh secret set RRO_DEPLOY_TOKEN --repo EonsofStupid/platform_devpulse"
             exit 0
           fi
-          git config --global url."https://x-access-token:${DEVPULSE_TELEMETRY_TOKEN}@github.com/EonsofStupid/devpulse-telemetry".insteadOf "https://github.com/EonsofStupid/devpulse-telemetry"
-          git config --global url."https://x-access-token:${DEVPULSE_TELEMETRY_TOKEN}@github.com/EonsofStupid/devpulse-telemetry.git".insteadOf "https://github.com/EonsofStupid/devpulse-telemetry.git"
+          git config --global url."https://x-access-token:${RRO_DEPLOY_TOKEN}@github.com/EonsofStupid/rro".insteadOf "https://github.com/EonsofStupid/rro"
+          git config --global url."https://x-access-token:${RRO_DEPLOY_TOKEN}@github.com/EonsofStupid/rro.git".insteadOf "https://github.com/EonsofStupid/rro.git"
           echo "CARGO_NET_GIT_FETCH_WITH_CLI=true" >> "$GITHUB_ENV"
-          echo "Configured cargo to use DEVPULSE_TELEMETRY_TOKEN for private devpulse-telemetry fetches"
-
-      # `clyffyos-wire` is the Tier-2 wire CONTRACT SSOT, owned by the private
-      # EonsofStupid/clyffyos repo; `devpulse-gb10-client` declares it as a pinned
-      # `git = "..."` dep so DevPulse builds standalone (no sibling checkout). Same
-      # `insteadOf` pattern as telemetry above. Auth: prefers a dedicated
-      # `CLYFFYOS_DEPLOY_TOKEN` secret when set; falls back to `RRO_DEPLOY_TOKEN`
-      # (the owner's full-access PAT, already on this repo — operator-confirmed
-      # 2026-07-09). Secrets are set via Infisical (`infisical run --env=dev --
-      # gh secret set ...`), never pasted by hand. Neither set ⇒ warn + fail
-      # downstream with cargo's auth error (never silently skip).
-      - name: Configure cargo for private clyffyos-wire fetches
-        env:
-          CLYFFYOS_DEPLOY_TOKEN: ${{ secrets.CLYFFYOS_DEPLOY_TOKEN || secrets.RRO_DEPLOY_TOKEN }}
-        run: |
-          if [ -z "$CLYFFYOS_DEPLOY_TOKEN" ]; then
-            echo "::warning::CLYFFYOS_DEPLOY_TOKEN secret not set on this repo — cargo will fail to fetch private clyffyos-wire dep."
-            echo "Fix: pull PAT from Infisical and pipe to gh secret set."
-            exit 0
-          fi
-          git config --global url."https://x-access-token:${CLYFFYOS_DEPLOY_TOKEN}@github.com/EonsofStupid/clyffyos".insteadOf "https://github.com/EonsofStupid/clyffyos"
-          git config --global url."https://x-access-token:${CLYFFYOS_DEPLOY_TOKEN}@github.com/EonsofStupid/clyffyos.git".insteadOf "https://github.com/EonsofStupid/clyffyos.git"
-          echo "CARGO_NET_GIT_FETCH_WITH_CLI=true" >> "$GITHUB_ENV"
-          echo "Configured cargo to use CLYFFYOS_DEPLOY_TOKEN for private clyffyos-wire fetches"
+          echo "Configured cargo to use RRO_DEPLOY_TOKEN for private rro fetches"
 
       - name: Cache Cargo
         uses: actions/cache@v4
@@ -184,22 +149,15 @@ jobs:
       - name: Test
         run: cargo test --workspace
 
-      # cargo-deny runs on the HOST, not the containerized action: the
-      # container inherits neither the job's git `insteadOf` auth (private
-      # devpulse-telemetry / clyffyos-wire fetches fail) nor the host's
-      # sccache that `.cargo/config.toml` demands as rustc-wrapper.
-      - name: Install cargo-deny
-        # Pinned to the full commit SHA (supply-chain integrity — a mutable
-        # tag can be repointed at malicious code).
-        uses: taiki-e/install-action@2ca9b94c269419b7b0c711c09d0b21c4e1d51145 # v2.83.1
-        with:
-          tool: cargo-deny
-
       - name: Security audit
-        run: cargo deny check advisories
+        uses: EmbarkStudios/cargo-deny-action@v2
+        with:
+          command: check advisories
 
       - name: Dependency bans (IP boundary)
-        run: cargo deny check bans
+        uses: EmbarkStudios/cargo-deny-action@v2
+        with:
+          command: check bans
 
   desktop:
     name: Desktop Checks
@@ -219,7 +177,7 @@ jobs:
         with:
           node-version-file: ".nvmrc"
           cache: "pnpm"
-          cache-dependency-path: "interfaces/desktop/pnpm-lock.yaml"
+          cache-dependency-path: "pnpm-lock.yaml"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -242,11 +200,17 @@ jobs:
       - name: Biome lint
         run: pnpm lint
 
+      - name: Biome lint (ColdLight)
+        run: pnpm --filter @devpulse/coldlight lint
+
       - name: Architecture tests (IP boundary)
         run: pnpm test:arch
 
       - name: Svelte check
         run: pnpm check
+
+      - name: Svelte check (ColdLight)
+        run: pnpm --filter @devpulse/coldlight check
 
       - name: Build
         run: pnpm build

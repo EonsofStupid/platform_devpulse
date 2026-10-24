@@ -1,0 +1,19 @@
+# Relational stores — DevPulse's Turso databases (one per scope).
+# `busy_timeout_ms`: how long an operation waits for a lock held by another
+# connection before reporting busy (default suggestion: 5000).
+
+[services.system.relational]
+enabled = true
+critical = true
+kind = "turso"
+path = "system/turso/platform.db"
+retry = { max_retries = 5, base_delay_ms = 500 }
+busy_timeout_ms = 5000
+
+[services.user.relational]
+enabled = true
+critical = true
+kind = "turso"
+path = "user/turso/user.db"
+retry = { max_retries = 5, base_delay_ms = 500 }
+busy_timeout_ms = 5000

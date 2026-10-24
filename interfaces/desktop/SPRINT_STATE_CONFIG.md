@@ -1,11 +1,6 @@
 # SPRINT: STATE & CONFIGURATION (The Nervous System)
 > **Goal**: Establish a strictly typed, hyper-modular Configuration and State architecture.
 > **Philosophy**: "Rust Logic, Svelte Glass." Strict types first.
->
-> **⚠ HISTORICAL — pre-severance.** Sprint-era doc. The kernel left this
-> repo 2026-07-08 (AI layer = `github.com/EonsofStupid/clyffyos`); the
-> `clyffy/ (The AI Kernel)` config framing below predates the cut. The
-> §0 SSOT split (flags.ts / kernel_terms.toml / facade) remains current.
 
 ## 0. Boundary Clarification (2026-04-13)
 

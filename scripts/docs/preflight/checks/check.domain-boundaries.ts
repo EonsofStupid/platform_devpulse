@@ -9,7 +9,7 @@
  *     - $lib/domains/{namespace}/{domain}/index.ts (public API)
  *     - $lib/domains/{namespace}/{domain}/features/** (feature components)
  *     - $lib/sys/* (system utilities)
- *     - $lib/design/* (design system)
+ *     - @devpulse/coldlight/* (design system)
  *     - $app/* (SvelteKit)
  *     - svelte/* (Svelte core)
  *     - Relative imports (co-located route files)
@@ -46,7 +46,7 @@ const ALLOWED_IMPORTS = [
   /^\.\//,
 
   // Design system (allowed everywhere)
-  /^\$lib\/design\//,
+  /^@devpulse\/coldlight(\/|$)/,
 ];
 
 /** Forbidden import patterns - things that should NOT exist or be imported */

@@ -6,7 +6,7 @@
 //!
 //! # Local-first contract
 //!
-//! - [`fetch_feed`] reads from the local libSQL cache only. Always
+//! - [`fetch_feed`] reads from the local Turso cache only. Always
 //!   responds in milliseconds regardless of network state.
 //! - [`sync_community_feed`] makes the remote call. Failures
 //!   (no Supabase creds, table missing, network down) report through
@@ -18,7 +18,7 @@
 //! No automatic schedule today — the UI fires `sync_community_feed`
 //! on tab-mount and lets the operator click "refresh." A server-side
 //! schedule can land later by spawning a tokio task that calls the
-//! same engine helpers; the shape of this module won't change.
+//! same kernel helpers; the shape of this module won't change.
 
 use anyhow::Context as _;
 use serde::{Deserialize, Serialize};
@@ -31,7 +31,8 @@ use devpulse_engine::platform::{
     FeedItem, FeedKind, SqlAdapter, DEFAULT_FEED_TTL_SECS,
 };
 
-use crate::commands::cloud::{get_supabase_credentials, SupabaseCredentials};
+use crate::commands::cloud::secrets::credentials_from;
+use crate::commands::cloud::SupabaseCredentials;
 use crate::state::PlatformState;
 
 // ── Types ───────────────────────────────────────────────────────────
@@ -167,7 +168,8 @@ pub async fn sync_community_feed(
         });
     }
 
-    let creds: SupabaseCredentials = match get_supabase_credentials().await {
+    let auth = &platform.boot_config().integrations.cloud.auth;
+    let creds: SupabaseCredentials = match credentials_from(auth) {
         Ok(c) => c,
         Err(e) => {
             return Ok(SyncResult::Skipped {

@@ -6,7 +6,7 @@ import type { Check, CheckContext, CheckResult } from '../types.js';
 const EXCLUDED_DIRS = ['_archive', 'tanstack', '.claude', 'sprints'];
 
 function getPrimitiveDirs(designRoot: string): string[] {
-  const primitivesDir = path.join(designRoot, 'lib/design/primitives');
+  const primitivesDir = path.join(designRoot, 'primitives');
   if (!fs.existsSync(primitivesDir)) return [];
 
   return fs.readdirSync(primitivesDir, { withFileTypes: true })
@@ -33,7 +33,7 @@ const taxonomyAlignmentCheck: Check = {
       return results;
     }
 
-    const taxonomyKindsDir = path.join(ctx.targetRoot, 'lib/design/taxonomy/kinds/primitives');
+    const taxonomyKindsDir = path.join(ctx.targetRoot, 'taxonomy/kinds/primitives');
     const taxonomyExists = fs.existsSync(taxonomyKindsDir);
 
     if (!taxonomyExists) {
@@ -58,13 +58,13 @@ const taxonomyAlignmentCheck: Check = {
           status: 'fail',
           severity: 'error',
           message: `primitives/${dir}/ has no taxonomy contract at taxonomy/kinds/primitives/${dir}/`,
-          file: `lib/design/primitives/${dir}/`,
+          file: `packages/coldlight/primitives/${dir}/`,
         });
         continue;
       }
 
       // Check that the primitive's .svelte files import from taxonomy
-      const primDir = path.join(ctx.targetRoot, 'lib/design/primitives', dir);
+      const primDir = path.join(ctx.targetRoot, 'primitives', dir);
       const svelteFiles = fs.readdirSync(primDir).filter(f => f.endsWith('.svelte') && !f.includes('.test.'));
 
       for (const svelteFile of svelteFiles) {
@@ -78,8 +78,8 @@ const taxonomyAlignmentCheck: Check = {
             status: 'fail',
             severity: 'error',
             message: `primitives/${dir}/${svelteFile} does not import from taxonomy contract`,
-            file: `lib/design/primitives/${dir}/${svelteFile}`,
-            suggestion: `Add: import { contract } from "$lib/design/taxonomy/kinds/primitives/${dir}/contract.js"`,
+            file: `packages/coldlight/primitives/${dir}/${svelteFile}`,
+            suggestion: `Add: import { contract } from "#coldlight/taxonomy/kinds/primitives/${dir}/contract.js"`,
           });
         }
       }

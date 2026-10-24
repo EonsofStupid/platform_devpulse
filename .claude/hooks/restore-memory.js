@@ -91,61 +91,62 @@ if (sessionRecordId && hookData.env_file) {
 	}
 }
 
-// ── Brief output (dynamic: lead with a one-line status banner; emit only
-// non-empty sections so a clean session wastes ~zero context) ────────────
-const sections = [];
+// ── Brief output ─────────────────────────────────────────────────
+console.log("## RESTORED CONTEXT FROM SURREALDB\n");
 
-function section(title, rows, fmt) {
-	const lines = [];
-	for (const row of rows) {
-		const l = fmt(row);
-		if (l) lines.push(l);
-	}
-	if (lines.length) sections.push({ title, lines });
-	return lines.length;
+if (sessionRecordId) {
+	console.log(`**Active Session**: \`${sessionId}\` (record: \`${sessionRecordId}\`)\n`);
 }
 
-// Critical learnings first — the anti-regression payload that matters most.
+console.log("### Current Context");
+for (const row of query("projects", "devpulse",
+	"SELECT key, value, priority FROM context ORDER BY priority DESC LIMIT 10;")) {
+	if (row.key && row.value) console.log(`- **${row.key}**: ${row.value}`);
+}
+console.log("");
+
+console.log("### Critical Learnings (DO NOT REPEAT THESE MISTAKES)");
 const seen = new Set();
-const nLearn = section("Critical Learnings (DO NOT REPEAT)",
-	query("global", "knowledge",
-		"SELECT trigger, wrong_action, correct_action FROM learnings WHERE severity = 'critical';"),
-	(row) => {
-		if (!row.trigger || seen.has(row.trigger)) return null;
-		seen.add(row.trigger);
-		return `- When ${row.trigger} → WRONG: ${row.wrong_action} → CORRECT: ${row.correct_action}`;
-	});
-
-const nBlock = section("Unresolved Blockers",
-	query("agents", "claude",
-		"SELECT category, description FROM blockers WHERE resolved = false;"),
-	(row) => (row.description ? `- [${row.category}] ${row.description}` : null));
-
-const nTask = section("Pending Tasks",
-	query("projects", "devpulse",
-		"SELECT content, priority, status FROM tasks WHERE status IN ['pending', 'in_progress'] ORDER BY priority DESC;"),
-	(row) => (row.content ? `- [${row.status}] ${row.content} (p${row.priority})` : null));
-
-section("Current Context",
-	query("projects", "devpulse",
-		"SELECT key, value, priority FROM context ORDER BY priority DESC LIMIT 10;"),
-	(row) => (row.key && row.value ? `- **${row.key}**: ${row.value}` : null));
-
-section("Preferences",
-	query("global", "knowledge",
-		"SELECT category, key, value FROM preferences ORDER BY category LIMIT 10;"),
-	(row) => (row.key && row.value ? `- [${row.category}] ${row.key}: ${row.value}` : null));
-
-// Status banner — always exactly one line, dynamic counts. When clean, this is
-// the ONLY output (zero context wasted on empty sections).
-const session = sessionId ? ` · session \`${sessionId}\`` : "";
-console.log((nLearn + nBlock + nTask) === 0
-	? `## MEMORY · clean (no critical learnings, blockers, or pending tasks)${session}`
-	: `## MEMORY · ${nLearn} learning(s) · ${nBlock} blocker(s) · ${nTask} task(s)${session}`);
-
-for (const s of sections) {
-	console.log(`\n### ${s.title}`);
-	for (const l of s.lines) console.log(l);
+for (const row of query("global", "knowledge",
+	"SELECT trigger, wrong_action, correct_action FROM learnings WHERE severity = 'critical';")) {
+	if (!row.trigger || seen.has(row.trigger)) continue;
+	seen.add(row.trigger);
+	console.log(`- When: ${row.trigger}`);
+	console.log(`  - WRONG: ${row.wrong_action}`);
+	console.log(`  - CORRECT: ${row.correct_action}`);
 }
+console.log("");
+
+console.log("### Pending Tasks");
+for (const row of query("projects", "devpulse",
+	"SELECT content, priority, status FROM tasks WHERE status IN ['pending', 'in_progress'] ORDER BY priority DESC;")) {
+	if (row.content) console.log(`- [${row.status}] ${row.content} (priority: ${row.priority})`);
+}
+console.log("");
+
+console.log("### Unresolved Blockers");
+for (const row of query("agents", "claude",
+	"SELECT category, description FROM blockers WHERE resolved = false;")) {
+	if (row.description) console.log(`- [${row.category}] ${row.description}`);
+}
+console.log("");
+
+console.log("### Recent Sessions");
+for (const row of query("agents", "claude",
+	"SELECT session_id, project, summary, started_at, ended_at, message_count FROM sessions ORDER BY started_at DESC LIMIT 5;")) {
+	if (row.session_id) {
+		const summary = row.summary || "(no summary)";
+		const status = row.ended_at ? "closed" : "ACTIVE";
+		console.log(`- [${status}] ${row.started_at || "?"} — ${summary} (${row.message_count || 0} messages)`);
+	}
+}
+console.log("");
+
+console.log("### Preferences");
+for (const row of query("global", "knowledge",
+	"SELECT category, key, value FROM preferences ORDER BY category LIMIT 10;")) {
+	if (row.key && row.value) console.log(`- [${row.category}] ${row.key}: ${row.value}`);
+}
+console.log("");
 
 process.exit(0);

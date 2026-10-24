@@ -2,15 +2,13 @@
  * @file Slot identity helpers — labels, readiness, role membership.
  * @module @devpulse/domains/app/models/util/slots
  *
- * Pure functions over the slot identifiers defined in the engine's
- * `config/presets.default.toml` + frontend-only
+ * Pure functions over the slot identifiers defined in
+ * `kernel/model-loader/config/presets.default.toml` + frontend-only
  * pseudo-slots (e.g. `system.pending` for downloads-without-assignment).
  *
  * Layman labels live here so every consumer that displays a slot in a
  * card / row / badge says the same thing.
  */
-
-import type { ModelLoadStatus } from "./types.js";
 
 /**
  * Layman-friendly display data for a slot. Used by the slot row in
@@ -88,15 +86,4 @@ const SLOT_LABELS: Record<string, SlotLabel> = {
  */
 export function getSlotLabel(slotId: string): SlotLabel | undefined {
 	return SLOT_LABELS[slotId];
-}
-
-/**
- * Whether a slot's current load status means it can serve inference.
- *
- * Maps the three-state frontend status onto a single boolean — used by
- * the slot-row "Ready" badge, the chat readiness check, and the voice
- * lab's gate before hitting `inferenceGenerate`.
- */
-export function isInferenceReady(status: ModelLoadStatus): boolean {
-	return status.type === "ready";
 }

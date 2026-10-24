@@ -1,0 +1,52 @@
+[
+  {
+    "id": "insight-001",
+    "type": "insight",
+    "tool": null,
+    "category": "architecture",
+    "tier": "advanced",
+    "payload": { "title": "Slots vs backends", "body": "A slot is WHAT (brain, voice, vision). A backend is HOW (Candle, llama.cpp, ORT). The same slot can run on different backends depending on the model format." },
+    "tags": ["architecture", "slots", "backends"],
+    "added": "2026-04-19"
+  },
+  {
+    "id": "insight-002",
+    "type": "insight",
+    "tool": null,
+    "category": "rag",
+    "tier": "advanced",
+    "payload": { "title": "Embedder vs reranker tradeoff", "body": "Embedders are fast but approximate (cosine similarity). Rerankers are slow but precise (cross-attention). Use both: embedder finds 50 candidates, reranker picks the best 10." },
+    "tags": ["rag", "embedder", "reranker", "tradeoff"],
+    "added": "2026-04-19"
+  },
+  {
+    "id": "insight-003",
+    "type": "insight",
+    "tool": "model-loader",
+    "category": "models",
+    "tier": "intermediate",
+    "payload": { "title": "Smaller models, faster answers", "body": "A 0.6B model answers in milliseconds. A 14B model takes seconds. For background tasks (summarizing, formatting), the small model wins on speed." },
+    "tags": ["models", "performance", "size"],
+    "added": "2026-04-19"
+  },
+  {
+    "id": "insight-004",
+    "type": "insight",
+    "tool": null,
+    "category": "platform",
+    "tier": "intermediate",
+    "payload": { "title": "Three databases, one purpose", "body": "Turso stores structured data (messages, settings). DuckDB stores analytics (how you use the app). The knowledge graph stores relationships (what connects to what). Each does one thing well." },
+    "tags": ["platform", "databases", "architecture"],
+    "added": "2026-04-19"
+  },
+  {
+    "id": "insight-005",
+    "type": "insight",
+    "tool": "chat",
+    "category": "chat",
+    "tier": "advanced",
+    "payload": { "title": "Streaming vs buffered", "body": "Responses stream token-by-token so you see them as they generate. This isn't faster — it just feels faster. The total time is the same either way." },
+    "tags": ["chat", "streaming", "ux"],
+    "added": "2026-04-19"
+  }
+]

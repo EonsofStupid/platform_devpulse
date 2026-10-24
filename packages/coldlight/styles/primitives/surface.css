@@ -1,0 +1,19 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+@layer tokens.primitives {
+  :root {
+  --glass-void: oklch(0.0612 0.0072 185.78 / 0.878); /** Darkest glass — near-opaque, deep space. */
+  --glass-deep: oklch(0.0906 0.0149 205.53 / 0.8); /** Heavy glass — overlays, inputs, chat panels. */
+  --glass-smoke: oklch(0.1407 0.0033 189.37 / 0.651); /** Smoky glass — raised cards, panels. */
+  --glass-standard: oklch(0.1206 0.0095 200.12 / 0.702); /** Default glass — most common container treatment. */
+  --glass-light: oklch(0.1809 0.0065 195.41 / 0.549); /** Light glass — secondary panels, toolbars. */
+  --glass-frost: oklch(0.9228 0.0189 30.62 / 0.4); /** Frosted glass — light mode, headers. */
+  --glass-teal: oklch(0.1149 0.0123 158.92 / 0.749); /** Teal-tinted glass — accent panels. */
+  --glass-purple: oklch(0.1001 0.0644 218.28 / 0.749); /** Purple-tinted glass — accent panels. */
+  --matte-dark: oklch(0.14 0.0014 314.64); /** Darkest matte — inset wells, input backgrounds. */
+  --matte-medium: oklch(0.2216 0.0023 9.36); /** Medium matte — sidebar, subtle raised surfaces. */
+  --matte-light: oklch(0.301 0.005 20.6); /** Lightest matte — UI chrome, toolbar backgrounds. */
+  }
+}

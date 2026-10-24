@@ -37,16 +37,17 @@ const REPO_ROOT = resolve(process.cwd());
 /** Paths that are allowed to contain raw values. Kept in sync with the
  *  legacy shell allow-list so behavior doesn't regress. */
 const ALLOW_LIST = [
-	"interfaces/desktop/src/lib/design/css/",
-	"interfaces/desktop/src/lib/design/theme/",
-	"interfaces/desktop/src/lib/design/style/",
-	"interfaces/desktop/src/lib/design/styles/",
-	"interfaces/desktop/src/lib/design/generated/",
-	"interfaces/desktop/src/lib/design/glue/",
-	"interfaces/desktop/src/lib/design/manifest/",
-	"interfaces/desktop/src/lib/design/svg/",
-	"interfaces/desktop/src/lib/design/plugins/",
-	"interfaces/desktop/src/lib/design/.cowlevel/",
+	"packages/coldlight/css/",
+	"packages/coldlight/theme/",
+	"packages/coldlight/style/",
+	"packages/coldlight/styles/",
+	"packages/coldlight/generated/",
+	"packages/coldlight/svg/",
+	"packages/coldlight/plugins/",
+	"packages/coldlight/.cowlevel/",
+	// ColdLight's token debugger diagnoses broken tokens, so it must not
+	// depend on them to render (plan 0006 C1d).
+	"packages/coldlight/debug/",
 	"interfaces/desktop/src/lib/sys/debug/vpb/",
 	"interfaces/desktop/scripts/build/styledictionary/",
 	"interfaces/desktop/src/lib/domains/app/models/",
@@ -103,13 +104,13 @@ const RULES = [
 const FENCE_RULES = [
 	{
 		id: "lucide-spinner",
-		label: "Banned lucide spinner icon (use Spinner from $lib/design/components/spinner)",
+		label: "Banned lucide spinner icon (use Spinner from @devpulse/coldlight/components/spinner)",
 		// Matches an import binding of `Loader2` or `LoaderCircle`
 		// anywhere in the file. The classifier runs after comment
 		// stripping so JSDoc / HTML comment mentions are ignored.
 		pattern: /\b(Loader2|LoaderCircle)\b/g,
 		allow: [
-			"interfaces/desktop/src/lib/design/components/spinner/",
+			"packages/coldlight/components/spinner/",
 		],
 	},
 	{
@@ -117,7 +118,7 @@ const FENCE_RULES = [
 		label: "Banned raw `animate-spin` class (compose <Spinner /> instead)",
 		pattern: /\banimate-spin\b/g,
 		allow: [
-			"interfaces/desktop/src/lib/design/",
+			"packages/coldlight/",
 		],
 	},
 ];
@@ -346,7 +347,7 @@ function main() {
 	const out = process.stderr;
 	out.write("\nERROR: Raw CSS values / banned imports detected.\n");
 	out.write("All visual values must use design tokens; all loading indicators\n");
-	out.write("must compose <Spinner /> from $lib/design/components/spinner.\n\n");
+	out.write("must compose <Spinner /> from @devpulse/coldlight/components/spinner.\n\n");
 	out.write("Violations:\n");
 	for (const { path, hits } of violations) {
 		out.write(`  ${relative(REPO_ROOT, path).split(sep).join("/")}\n`);
@@ -357,7 +358,7 @@ function main() {
 	}
 	out.write("Token source: scripts/build/styledictionary/tokens/src/*.json\n");
 	out.write("Build tokens: pnpm ds:tokens:build\n");
-	out.write("Spinner guide: src/lib/design/components/spinner/index.ts\n\n");
+	out.write("Spinner guide: packages/coldlight/components/spinner/index.ts\n\n");
 	process.exit(1);
 }
 

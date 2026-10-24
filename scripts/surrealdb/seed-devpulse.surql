@@ -34,8 +34,8 @@ INSERT INTO architecture { layer: 'clyffy', rule: 'clyffy_is_kernel', descriptio
 INSERT INTO architecture { layer: 'engine', rule: 'signal_1to1_mapping', description: 'Every Clyffy internal signal MUST have a 1:1 layman-friendly parallel in engine. Sensitive names replaced with useful logging-safe names.', enforced_by: 'TODO: enforcement tooling' };
 
 -- Databases
-INSERT INTO architecture { layer: 'platform', rule: 'embedded_databases', description: 'All platform DBs compile into binary: SurrealDB (kv-rocksdb), DuckDB, libSQL, Moka, Fjall. No Docker. No external servers.', enforced_by: 'Cargo.toml workspace deps' };
-INSERT INTO architecture { layer: 'platform', rule: 'surrealdb_dual_instance', description: 'TWO SurrealDB instances: embedded (Clyffy, sensitive IP) + standalone (dev machine, AI agent memory). Zero shared data.', enforced_by: 'architecture' };
+INSERT INTO architecture { layer: 'platform', rule: 'embedded_databases', description: 'Turso, DuckDB and Moka run in-process; SurrealDB runs as upstream''s built binary in a supervised subprocess inside the DevPulse folder (plan 0007 Part S; owner 2026-10-24). Docker / Podman is a guided product feature (owner).', enforced_by: 'plan 0007' };
+INSERT INTO architecture { layer: 'platform', rule: 'surrealdb_dual_instance', description: 'TWO SurrealDB instances: the app''s own (Clyffy; a supervised subprocess) + standalone (dev machine, AI agent memory). Zero shared data.', enforced_by: 'architecture' };
 
 -- =============================================================================
 -- CONTEXT (current state)

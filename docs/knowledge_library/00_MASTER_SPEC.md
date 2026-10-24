@@ -14,19 +14,6 @@
 
 The Knowledge Library is the **content corpus** that TEACHER, SENSEI, and Clyffy consume to surface educational, tactical, and warning content to the user. It is the **foundation** from which minions extend — not something that lives inside a minion.
 
-> ## ⚠ REFRAMED — 2026-06-28
->
-> This is the accurate-but-pre-pivot spec for the DevPulse Knowledge Library content corpus (407 entries, 5 types, JSON-authored + runtime-queried). The data model, selection logic, and minion-query contract still hold; the storage naming and the kernel/topology placement predate the 2026-06-27 DevPulse/ClyffyOS split.
->
-> - **Split / relocation** — The JSON portable artifact + the runtime query layer (content mirror, per-user seen-tracking, reactions, analytics, config) are **DevPulse-local** (the frontend, boots standalone). The minions that *consume* this corpus — TEACHER / SENSEI / Clyffy in the Minion Contract section — run on the **ClyffyOS / GB10** inference side. "Kernel owns this" was the single-binary framing; the boundary now runs DevPulse-corpus ↔ ClyffyOS-minions.
-> - **Renames land in Phase 2, with the code** — `libSQL` → `Turso` everywhere it appears (the `## libSQL Schema` heading, the `JSON + libSQL` directive, the `### libSQL (runtime)` subsection, the storage diagram, authoring-workflow step 4, and Open Decision #2). The `CREATE TABLE` / SQL comment text stays accurate as written until the code rename lands. No cortex/Qdrant or model-pick terms appear here, so those axes don't apply.
-> - **Deferred, not retired** — `CDN-deliverable for Clyffy webapp` (the cloud/Clyffy.ai delivery path for this corpus) is deferred to a later phase, not killed.
-> - **Still valid** — The 5 content types + payload shapes, the shared schema, the configurable selection logic + affinity SQL, the TEACHER/SENSEI/Clyffy query contract, the current inventory (407 entries / 4 tools audited), the authoring workflow, and the changelog all remain correct.
->
-> Current truth: `CLYFFY-COGNITIVE-FOUNDATION.md` (v2.0.0) + the 2026-06-27 architecture corrections. Records below preserved.
->
-> **⚠ CUT LANDED — 2026-07-08.** The split described above happened: the kernel left this repo. The corpus data lives at `systems/devpulse-engine/src/platform/knowledge/data/` (engine-owned SSOT; `scripts/knowledge_library/build.mjs` reads it); the consuming minions are ClyffyOS's, reached over the wire.
-
 ## Architecture Placement
 
 **Kernel owns this.** Generalized terminology at the boundary. UI/interactions library consumes.
@@ -59,7 +46,7 @@ Tool-specific content covers: Replit, Lovable, Bolt, Base44. Still to audit: v0,
 
 ## Storage Architecture
 
-**JSON + libSQL. Both. From day one.**
+**JSON + Turso. Both. From day one.**
 
 ```
 AUTHORING LAYER          BUILD            RUNTIME LAYER
@@ -72,7 +59,7 @@ library/                                        │
                                          Boot-time sync
                                                 │
                                                 ▼
-                                         libSQL tables
+                                         Turso tables
                                          (query layer)
 ```
 
@@ -82,7 +69,7 @@ library/                                        │
 - CDN-deliverable for Clyffy webapp
 - Source of truth for content
 
-### libSQL (runtime)
+### Turso (runtime)
 - Fast indexed queries for selection
 - Per-user seen-tracking (cooldowns)
 - Reactions (thumbs up/down)
@@ -90,7 +77,7 @@ library/                                        │
 - Source of truth for runtime state
 
 
-## libSQL Schema
+## Turso Schema
 
 ```sql
 -- Content mirror (refreshed on app update from JSON)
@@ -239,7 +226,7 @@ Built progressively as each tool audit lands. Currently covers 4 tools, 25 issue
 1. Edit MD files in `docs/knowledge_library/`
 2. Run `tools/knowledge-converter/` → produces JSON artifacts + manifest
 3. Rebuild DevPulse → new JSON embedded in binary
-4. On next app boot, kernel detects version change, upserts into libSQL
+4. On next app boot, kernel detects version change, upserts into Turso
 5. User's `knowledge_seen` history preserved across content updates
 
 ## Delegation Prompt (For Farming Tool Audits)
@@ -249,7 +236,7 @@ See `07_DELEGATION_PROMPT.md`. Swap `[TOOL_NAME]`, send to another AI, receive ~
 ## Open Decisions (Tracking for Lock)
 
 1. Exact kernel module path for the knowledge module
-2. libSQL database placement (global `.devpulse/data/devpulse.db` assumed)
+2. ~~Turso database placement~~ — settled: the user database, `.userdata/user/turso/user.db`
 3. Default selection weights (draft: 60/20/15/5 → finalize after user testing)
 4. Default cooldown days (draft: 30)
 5. Default tier cap for unknown user (draft: intermediate-and-below)

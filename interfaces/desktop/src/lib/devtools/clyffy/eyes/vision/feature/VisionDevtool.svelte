@@ -5,26 +5,26 @@
 
 	Golden-pattern devtool — composes shipped ColdLight primitives only
 	(Stat / EmptyState / Callout / Card preset="glass" / Tabs / Tooltip)
-	via the _shared/ adapters. Backdrop registered in
-	SERVICE_BACKDROPS["vision"] → neural-pulse @ strong intensity, the
+	via the _shared/ adapters. Backdrop declared by the route folder's
+	`_devtool.backdrop` → neural-pulse @ strong intensity, the
 	"thinking feeling" for AI capability surfaces.
 
-	Wraps the real SigLIP2 backend — Clyffy-side (clyffyos repo:
-	clyffyos-model-loader candle backend; load/unload +
+	Wraps the real SigLIP2 backend at
+	`kernel/model-loader/src/backends/candle/siglip.rs` (load/unload +
 	encode_image producing an L2-normalized 1152-dim embedding for the
 	SO400M default). Slot id is `vision.embedder`.
 -->
 <script lang="ts">
-import { Check, Clipboard, Eye, FileImage, ImageOff, Play, PowerOff } from "@lucide/svelte";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Button } from "$lib/design/components/button/index.js";
-import { Callout } from "$lib/design/components/callout/index.js";
-import { Card } from "$lib/design/components/card/index.js";
-import { EmptyState } from "$lib/design/components/empty-state/index.js";
-import { LoadingBlock, Spinner } from "$lib/design/components/spinner/index.js";
-import { Stat } from "$lib/design/components/stat/index.js";
-import { Text } from "$lib/design/components/text/index.js";
-import { Tooltip, TooltipContent, TooltipTrigger } from "$lib/design/components/tooltip/index.js";
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Callout } from "@devpulse/coldlight/components/callout";
+import { Card } from "@devpulse/coldlight/components/card";
+import { EmptyState } from "@devpulse/coldlight/components/empty-state";
+import { Spinner } from "@devpulse/coldlight/components/spinner";
+import { Stat } from "@devpulse/coldlight/components/stat";
+import { Text } from "@devpulse/coldlight/components/text";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@devpulse/coldlight/components/tooltip";
+import { Check, Clipboard, FileImage, ImageOff, Play, PowerOff } from "lucide-svelte";
 import {
 	CommandErrorAlert,
 	DevtoolBentoGrid,
@@ -34,6 +34,7 @@ import {
 	ServiceDevtoolShell,
 } from "$lib/devtools/index.js";
 import { modelsState } from "$lib/domains/app/models/index.js";
+import { ClyffyLoadingBlock } from "$lib/domains/clyffy/index.js";
 import { capabilityChannel } from "$lib/sys/events/index.js";
 import { commands } from "$lib/sys/generated/bindings.js";
 import { logInfo } from "$lib/sys/logger.js";
@@ -226,12 +227,6 @@ async function handleEncodeFile(event: Event): Promise<void> {
 </script>
 
 <ServiceDevtoolShell
-	title="Vision"
-	description="Auto-managed image encoder slot · diagnostics + manual probe"
-	icon={Eye}
-	axis="capabilities"
-	accent="salmon"
-	backdrop="vision"
 	health={badge}
 >
 	{#snippet status()}
@@ -304,7 +299,7 @@ async function handleEncodeFile(event: Event): Promise<void> {
 			</DevtoolBentoGrid>
 
 			{#if assignedModel}
-				<Card preset="glass">
+				<Card surface="glass" variant="deep">
 					<div
 						class="p-[var(--space-3)] flex flex-col gap-[var(--space-2)]"
 						style="border-left: var(--border-width-thin) solid var(--accent-electric-main);"
@@ -344,7 +339,7 @@ async function handleEncodeFile(event: Event): Promise<void> {
 			{/if}
 
 			{#if lastResult}
-				<Card preset="glass">
+				<Card surface="glass" variant="deep">
 					<div
 						class="p-[var(--space-3)] flex gap-[var(--space-3)]"
 						style="border-left: var(--border-width-thin) solid var(--accent-teal-main);"
@@ -419,7 +414,7 @@ async function handleEncodeFile(event: Event): Promise<void> {
 				</div>
 			</Callout>
 
-			<Card preset="glass">
+			<Card surface="glass" variant="deep">
 				<div class="p-[var(--space-3)] flex flex-col gap-[var(--space-2)]">
 					<Text size="xs" weight="bold">Slot reference (SigLIP2-SO400M-384)</Text>
 					<Text size="xs" color="muted">Slot id: <span class="font-mono">vision.embedder</span></Text>
@@ -438,15 +433,14 @@ async function handleEncodeFile(event: Event): Promise<void> {
 
 	{#snippet actions()}
 		{#if loadingSlot}
-			<LoadingBlock
+			<ClyffyLoadingBlock
 				title="Loading vision.embedder"
 				subtitle="Pulling weights into memory — usually a few seconds."
-				showContent
-				contentKind="dyk"
+				kind="dyk"
 			/>
 		{:else}
 			<div class="flex flex-col gap-[var(--space-4)]">
-				<Card preset="glass">
+				<Card surface="glass" variant="deep">
 					<div
 						class="p-[var(--space-3)] flex flex-col gap-[var(--space-2)]"
 						style="border-left: var(--border-width-thin) solid var(--accent-salmon-main);"
@@ -459,7 +453,7 @@ async function handleEncodeFile(event: Event): Promise<void> {
 						</Text>
 						<div class="flex flex-wrap items-center gap-[var(--space-2)]">
 							{#if !visionReady && visionSlot?.assigned_model_id}
-								<Button preset="primary" size="sm" onclick={loadVision}>
+								<Button variant="primary" size="sm" onclick={loadVision}>
 									<Play size={12} />
 									Load
 								</Button>
@@ -467,7 +461,7 @@ async function handleEncodeFile(event: Event): Promise<void> {
 							{#if visionReady}
 								<Tooltip>
 									<TooltipTrigger>
-										<Button preset="ghost" size="sm" onclick={requestUnload}>
+										<Button variant="ghost" size="sm" onclick={requestUnload}>
 											<PowerOff size={12} />
 											{unloadConfirm ? "Confirm — unload now" : "Unload"}
 										</Button>
@@ -493,7 +487,7 @@ async function handleEncodeFile(event: Event): Promise<void> {
 				</Card>
 
 				{#if visionReady}
-					<Card preset="glass">
+					<Card surface="glass" variant="deep">
 						<div
 							class="p-[var(--space-3)] flex flex-col gap-[var(--space-2)]"
 							style="border-left: var(--border-width-thin) solid var(--accent-teal-main);"

@@ -2,7 +2,7 @@
 	@file InstallPanel.svelte
 	Platform-level install tracker — distinct from DownloadPanel.
 
-	A "download" is bytes-to-disk; an "install" is the engine's atomic
+	A "download" is bytes-to-disk; an "install" is the kernel's atomic
 	chain (`install_to_slot`): download → scan → assign → load. This
 	panel tracks the chain identity so the user sees one row per
 	install, not three rows (one per stage). Each row collapses the
@@ -10,12 +10,12 @@
 	— and shows the slot the install is targeting.
 -->
 <script lang="ts">
-import { Boxes, X } from "@lucide/svelte";
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Heading } from "@devpulse/coldlight/components/heading";
+import { Text } from "@devpulse/coldlight/components/text";
+import { Boxes, X } from "lucide-svelte";
 import { onMount } from "svelte";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Button } from "$lib/design/components/button/index.js";
-import { Heading } from "$lib/design/components/heading/index.js";
-import Text from "$lib/design/components/text/Text.svelte";
 import { type ActiveInstall, installState } from "./install.state.svelte.js";
 
 // See DownloadPanel for the rationale — booting both states keeps any
@@ -71,7 +71,7 @@ function statusLabel(status: ActiveInstall["status"]): string {
 					{/if}
 					{#if ins.status !== "running"}
 						<Button
-							preset="ghost"
+							variant="ghost"
 							size="sm"
 							onclick={() => installState.dismiss(ins.installId)}
 							aria-label="Dismiss install"

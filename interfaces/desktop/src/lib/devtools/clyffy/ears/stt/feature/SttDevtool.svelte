@@ -3,7 +3,7 @@
 	@module @devpulse/devtools/clyffy/ears/stt
 
 	Wrapped in ServiceDevtoolShell (Status/Config/Logs/Actions). Every
-	VRAM-touching action (Load slot) presents the Clyffy LoadingBlock —
+	VRAM-touching action (Load slot) presents the ClyffyLoadingBlock —
 	rotating DYK/KDROPS/T&T card — while pending. Short-duration work
 	(mic test, 3-s record) uses inline spinner.
 
@@ -13,12 +13,12 @@
 	drag-drop file transcription, streaming-ASR future note.
 -->
 <script lang="ts">
-import { Check, Ear, FileAudio, Mic, Play, PowerOff } from "@lucide/svelte";
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Spinner } from "@devpulse/coldlight/components/spinner";
+import { Text } from "@devpulse/coldlight/components/text";
+import { Check, Ear, FileAudio, Mic, Play, PowerOff } from "lucide-svelte";
 import { onMount } from "svelte";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Button } from "$lib/design/components/button/index.js";
-import { LoadingBlock, Spinner } from "$lib/design/components/spinner/index.js";
-import { Text } from "$lib/design/components/text/index.js";
 import type { MicTestResult } from "$lib/devtools/_shared/voice-contracts.js";
 import {
 	DevtoolLogsTab,
@@ -27,6 +27,7 @@ import {
 	ServiceDevtoolShell,
 } from "$lib/devtools/index.js";
 import { modelsState } from "$lib/domains/app/models/index.js";
+import { ClyffyLoadingBlock } from "$lib/domains/clyffy/index.js";
 import { capabilityChannel } from "$lib/sys/events/index.js";
 import { logInfo } from "$lib/sys/logger.js";
 import { testMicrophone, transcribeAudio, transcribeAudioFile } from "../data-access/stt.svc.js";
@@ -183,11 +184,6 @@ function handleDragOver(e: DragEvent): void {
 </script>
 
 <ServiceDevtoolShell
-	title="Speech-to-Text"
-	description="Whisper — batch transcription"
-	icon={Ear}
-	axis="capabilities"
-	accent="blue"
 	health={badge}
 >
 	{#snippet status()}
@@ -353,7 +349,7 @@ function handleDragOver(e: DragEvent): void {
 
 					<div class="flex items-center gap-2 pt-2">
 						<Button
-							preset="primary"
+							variant="primary"
 							size="sm"
 							onclick={() => void sttConfigState.save()}
 							disabled={sttConfigState.saving || !sttConfigState.dirty}
@@ -366,7 +362,7 @@ function handleDragOver(e: DragEvent): void {
 							{/if}
 						</Button>
 						<Button
-							preset="ghost"
+							variant="ghost"
 							size="sm"
 							onclick={() => sttConfigState.reset()}
 							disabled={!sttConfigState.dirty || sttConfigState.saving}
@@ -394,24 +390,23 @@ function handleDragOver(e: DragEvent): void {
 
 	{#snippet actions()}
 		{#if loadingSlot}
-			<LoadingBlock
+			<ClyffyLoadingBlock
 				title="Loading Whisper into memory"
 				subtitle="Safely loading into RAM / VRAM — sit tight."
-				showContent
-				contentKind="dyk"
+				kind="dyk"
 			/>
 		{:else}
 			<div class="flex flex-col gap-4">
 				<!-- Slot load / unload -->
 				<div class="flex flex-wrap items-center gap-2">
 					{#if !sttReady && sttSlot?.assigned_model_id}
-						<Button preset="primary" size="sm" onclick={loadStt}>
+						<Button variant="primary" size="sm" onclick={loadStt}>
 							<Play size={12} />
 							Load Whisper
 						</Button>
 					{/if}
 					{#if sttReady}
-						<Button preset="ghost" size="sm" onclick={unloadStt}>
+						<Button variant="ghost" size="sm" onclick={unloadStt}>
 							<PowerOff size={12} />
 							Unload Whisper
 						</Button>
@@ -426,7 +421,7 @@ function handleDragOver(e: DragEvent): void {
 				<!-- Mic test -->
 				<div class="flex items-center gap-2">
 					<Button
-						preset="secondary"
+						variant="secondary"
 						size="sm"
 						onclick={handleMicTest}
 						disabled={micTesting}
@@ -450,7 +445,7 @@ function handleDragOver(e: DragEvent): void {
 						<Text size="sm" weight="bold">Record + transcribe (3 s)</Text>
 						<div class="flex items-center gap-2">
 							<Button
-								preset="primary"
+								variant="primary"
 								size="md"
 								onclick={handleRecord}
 								disabled={recording}

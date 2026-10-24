@@ -1,0 +1,68 @@
+<!--
+	@component RangeCalendarHeader
+	@kind range-calendar
+	@slot header
+	@layer components
+
+	Header with month/year heading and prev/next navigation buttons.
+	ColdLight-owned ARIA.
+-->
+<script lang="ts">
+import { ChevronLeft, ChevronRight } from "lucide-svelte";
+import { cn } from "#coldlight/utils/cn.js";
+import { getRangeCalendarContext } from "./context.js";
+import type { RangeCalendarHeaderProps } from "./types.js";
+
+let { children, class: className, ...rest }: RangeCalendarHeaderProps = $props();
+const ctx = getRangeCalendarContext();
+
+const headingText = $derived(
+	ctx.currentMonth.toLocaleDateString(ctx.locale, {
+		month: "long",
+		year: "numeric",
+	}),
+);
+</script>
+
+<div
+	class={cn(className)}
+	data-kind="range-calendar"
+	data-slot="header"
+	{...rest}
+>
+	{#if children}
+		{@render children()}
+	{:else}
+		<button
+			type="button"
+			class={className}
+			aria-label="Previous month"
+			data-kind="range-calendar"
+			data-slot="prev-button"
+			onclick={() => ctx.prevMonth()}
+			disabled={ctx.disabled}
+		>
+			<ChevronLeft class="size-icon-sm" aria-hidden="true" />
+		</button>
+		<div
+			id={ctx.headingId}
+			class={className}
+			aria-live="polite"
+			data-kind="range-calendar"
+			data-slot="heading"
+		>
+			{headingText}
+		</div>
+		<button
+			type="button"
+			class={className}
+			aria-label="Next month"
+			data-kind="range-calendar"
+			data-slot="next-button"
+			onclick={() => ctx.nextMonth()}
+			disabled={ctx.disabled}
+		>
+			<ChevronRight class="size-icon-sm" aria-hidden="true" />
+		</button>
+	{/if}
+</div>

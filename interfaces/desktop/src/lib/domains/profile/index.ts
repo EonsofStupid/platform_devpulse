@@ -2,9 +2,7 @@
  * @module @devpulse/domains/profile
  *
  * Post-login profile domain — Clyffy's encoder/embedder picker and
- * the minion auto-managed section. Distinct from the wizard's
- * "tell me about yourself" profile (which lives in
- * `domains/app/models/feature/setup-wizard`).
+ * the minion auto-managed section.
  */
 
 export {

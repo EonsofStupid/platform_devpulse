@@ -1,0 +1,9 @@
+# First run — the stages and their order (plan 0001).
+#
+# This is the bundled default. A copy at
+# `.userdata/config/onboarding/first-run.flow.toml` replaces the list.
+# Only stages DevPulse knows are accepted; an unknown one is refused with
+# its name, and the bundled list is used until it is fixed.
+#
+# A stage is listed only once it works end to end.
+stages = ["welcome", "you", "your_ai", "containers"]

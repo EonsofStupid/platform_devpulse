@@ -20,19 +20,12 @@
 //!      release exe shipped from one box and run on another, the
 //!      baked path is almost certainly invalid and `is_dir()` returns
 //!      false — we fall through.
-//!   3.5. **Smart-portable generate** (`resolve_data_dir` only): a
-//!      release exe outside any workspace CREATES `.userdata` beside
-//!      itself when the location proves writable (probe file), so
-//!      DevPulse generates its own AppData-equivalent wherever the
-//!      portable extract lives. Read-only locations (Program Files,
-//!      locked mounts) fail the probe and fall through.
 //!   4. `app_data_dir()` from the Tauri Manager — the canonical
 //!      installed-app location (`%APPDATA%/com.devpulse.desktop/` on
 //!      Windows, `~/Library/Application Support/com.devpulse.desktop/`
 //!      on macOS, `$XDG_DATA_HOME/com.devpulse.desktop/` on Linux).
-//!      Only reached when the binary is outside any `DevPulse`
-//!      workspace AND its own directory is not writable — the
-//!      installed-to-protected-location case. `resolve_data_dir`
+//!      Only reached when the binary is truly outside any `DevPulse`
+//!      workspace — the customer install case. `resolve_data_dir`
 //!      can hit this; the standalone variant returns an error
 //!      because the MCP subprocess must never invent a fresh dir.
 
@@ -63,26 +56,6 @@ fn find_userdata_upwards(start: &Path) -> Option<PathBuf> {
         current = dir.parent();
     }
     None
-}
-
-/// Smart-portable step — attempt to establish `<exe_dir>/.userdata`
-/// as the data dir by CREATING it and proving writability with a
-/// probe file (written, then removed). Any failure returns `None` so
-/// the caller falls through to the OS app-data dir.
-///
-/// This is what makes a shipped portable extract truly portable:
-/// DevPulse generates its own AppData-equivalent beside the exe when
-/// the location allows it (a tools drive, Downloads, a USB stick) and
-/// cleanly defers to the OS dir when it doesn't (Program Files,
-/// read-only mounts). Directory creation alone is not proof — ACLs
-/// can permit `mkdir` yet deny file writes — hence the probe file.
-fn try_create_portable_userdata(exe_dir: &Path) -> Option<PathBuf> {
-    let candidate = exe_dir.join(".userdata");
-    std::fs::create_dir_all(&candidate).ok()?;
-    let probe = candidate.join(".write-probe");
-    std::fs::write(&probe, b"devpulse portable write probe").ok()?;
-    let _ = std::fs::remove_file(&probe);
-    Some(candidate)
 }
 
 /// Probe the `CARGO_MANIFEST_DIR`-derived project root. Returns
@@ -191,57 +164,9 @@ pub fn resolve_data_dir<R: tauri::Runtime>(app: &impl Manager<R>) -> Result<Path
         }
     }
 
-    // Step 3.5 — smart-portable: a release exe outside any DevPulse
-    // workspace PREFERS its own directory when writable, generating
-    // `.userdata` beside itself so the app owns its data like its own
-    // AppData and the extract stays self-contained. Read-only
-    // locations fail the write probe and fall through to step 4.
-    if let Ok(exe) = std::env::current_exe() {
-        if let Some(exe_dir) = exe.parent() {
-            if let Some(portable) = try_create_portable_userdata(exe_dir) {
-                return Ok(portable);
-            }
-        }
-    }
-
-    // Step 4 — OS app-data dir. Installed customer build in a
-    // protected location (exe dir not writable), no DevPulse
+    // Step 4 — OS app-data dir. Installed customer build, no DevPulse
     // workspace in sight.
     let os_dir = app.path().app_data_dir().map_err(|e| e.to_string())?;
     std::fs::create_dir_all(&os_dir).map_err(|e| e.to_string())?;
     Ok(os_dir)
-}
-
-#[cfg(test)]
-#[allow(clippy::expect_used)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn portable_probe_creates_userdata_in_writable_dir() {
-        let base =
-            std::env::temp_dir().join(format!("devpulse-portable-probe-{}", std::process::id()));
-        std::fs::create_dir_all(&base).expect("temp base must create");
-        let resolved =
-            try_create_portable_userdata(&base).expect("writable dir must resolve to Some");
-        assert!(resolved.is_dir(), "resolved .userdata must exist");
-        assert!(resolved.ends_with(".userdata"));
-        assert!(
-            !resolved.join(".write-probe").exists(),
-            "probe file must be cleaned up"
-        );
-        std::fs::remove_dir_all(&base).ok();
-    }
-
-    #[test]
-    fn portable_probe_fails_cleanly_when_parent_is_a_file() {
-        let base = std::env::temp_dir().join(format!(
-            "devpulse-portable-probe-file-{}",
-            std::process::id()
-        ));
-        std::fs::write(&base, b"not a dir").expect("temp file must create");
-        // `<file>/.userdata` cannot be created — must be None, never a panic.
-        assert!(try_create_portable_userdata(&base).is_none());
-        std::fs::remove_file(&base).ok();
-    }
 }

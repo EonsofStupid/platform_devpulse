@@ -12,7 +12,7 @@
  * TS barrels.
  *
  * DTCG spec reference:
- *   interfaces/desktop/src/lib/design/docs/DTCG-REFERENCE.md
+ *   packages/coldlight/docs/DTCG-REFERENCE.md
  *
  * Golden pattern reference:
  *   interfaces/desktop/scripts/build/styledictionary/dtcg-emit.mjs
@@ -210,13 +210,10 @@ const MESH_GRADIENTS = [
  * `h-`/`w-`/`p-`/`m-`/`gap-` utility reads as `N × 0.25rem`. Components across
  * the app are authored against that convention (`h-6` = 24px, `p-4` = 16px,
  * `gap-2` = 8px), so the scale MUST match it. A prior pixel-indexed fluid scale
- * (`space-6` = 6–7px) starved every raw-Tailwind-spaced element to ~0.3× — the
- * orb collapsed to 7px, the chat composer to 11px.
+ * (`space-6` = 6–7px) starved every raw-Tailwind-spaced element to ~0.3×.
  *
- * Static (min == max, `|Δ| < 2` ⇒ the emitter drops the clamp): the base
- * spacing MULTIPLIER is predictable and viewport-independent. Container-fluid
- * (cqi) behaviour lives where it belongs — the padding + size scales below,
- * which carry `basis: 'container'`. min/max pairs in px.
+ * Static (min == max ⇒ the emitter drops the clamp): the base spacing
+ * MULTIPLIER is predictable and viewport-independent. min/max pairs in px.
  */
 const SPACE_ENTRIES = [
 	['0', 0, 0],
@@ -664,7 +661,7 @@ function buildMeshGradientFile(mesh) {
  * `$extensions.com.devpulse.coldlight.fluid`, and `$description`
  * stay on each leaf.
  */
-function buildFluidDimensionFile({ group, description, entries, basis }) {
+function buildFluidDimensionFile({ group, description, entries }) {
 	const children = {};
 	for (const [name, minPx, maxPx] of entries) {
 		const { $type: _stripped, ...leaf } = dtcgFluidDimensionToken(
@@ -674,7 +671,6 @@ function buildFluidDimensionFile({ group, description, entries, basis }) {
 			1440,
 			16,
 			`${group} ${name} — min ${minPx}px, max ${maxPx}px.`,
-			basis,
 		);
 		children[name] = leaf;
 	}
@@ -1031,10 +1027,8 @@ MANIFEST.push(
 		build: () =>
 			buildFluidDimensionFile({
 				group: 'padding',
-				description:
-					'Fluid padding y/x pairs per T-shirt size — container-basis (cqi): insets follow their surface, not the screen (S1.C).',
+				description: 'Fluid padding y/x pairs per T-shirt size.',
 				entries: PADDING_ENTRIES,
-				basis: 'container',
 			}),
 		key: 'padding',
 		category: 'primitives/dimension',
@@ -1044,10 +1038,8 @@ MANIFEST.push(
 		build: () =>
 			buildFluidDimensionFile({
 				group: 'size',
-				description:
-					'Fluid component + container sizes — container-basis (cqi): dimensions rescale to their shell zone / overlay, not the window (S1.C).',
+				description: 'Fluid component + container sizes.',
 				entries: SIZE_ENTRIES,
-				basis: 'container',
 			}),
 		key: 'size',
 		category: 'primitives/dimension',

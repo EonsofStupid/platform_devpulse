@@ -1,0 +1,40 @@
+# Antigravity CLI (`agy`) — Google's terminal coding agent on your Google
+# subscription (Google moved free and Google One users of Gemini CLI to it).
+# Facts checked 2026-10-21 against the official repository
+# github.com/google-antigravity/antigravity-cli: the program is `agy`,
+# installed by Google's own scripts
+#   Windows:       irm https://antigravity.google/cli/install.ps1 | iex
+#   macOS / Linux: curl -fsSL https://antigravity.google/cli/install.sh | bash
+# and it signs in with Google (browser; the login lives in the OS keyring,
+# so a file check cannot tell whether you are signed in).
+#
+# Not installed on the machine this was written on. Its install location,
+# version command and headless flags are not documented in that README:
+# `-p` (one prompt, printed answer) comes from third-party integrations and
+# is unconfirmed until `agy --help` is read on a real install.
+
+# What it is (name, docs, how DevPulse talks to it) is its registry row in
+# kernel/devpulse-clyffy/src/providers/registry.rs; this file is where this
+# machine keeps it.
+id = "antigravity-cli"
+
+[detect]
+executables = ["agy"]
+
+[version]
+# Unconfirmed against a real install.
+args = ["--version"]
+
+[sign_in]
+# Sign-in happens inside agy itself (Google Sign-In in the browser).
+args = []
+
+[connect]
+# Headless: one prompt, the answer printed. Unconfirmed (see above).
+args = ["-p", "{prompt}"]
+
+[connect.conversation]
+# Unconfirmed (see above): one prompt per turn as plain text. Its documented
+# conversation resumption replaces this once `agy --help` is read.
+args = ["-p", "{prompt}"]
+output = "text"

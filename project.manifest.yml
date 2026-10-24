@@ -43,6 +43,13 @@ organizations:
 # HUBS (Domain Modules)
 # ============================================
 hubs:
+  - id: clyffy-ai
+    name: "ClyffyAI"
+    slug: clyffy-ai
+    path: kernel/devpulse-clyffy
+    type: core
+    description: "AI orchestration kernel"
+    
   - id: wiredfront
     name: "WiredFront"
     slug: wiredfront
@@ -109,13 +116,20 @@ services:
       - rust
     description: "Public API facade"
     
+  - id: clyffy
+    name: "Clyffy Kernel"
+    path: kernel/devpulse-clyffy
+    tech:
+      - rust
+    description: "Proprietary AI orchestration"
+
 # ============================================
 # DESIGN SYSTEM
 # ============================================
 design_system:
   name: ColdLight
   package: "@devpulse/coldlight"
-  path: interfaces/desktop/src/lib/design
+  path: packages/coldlight
   status: internal
   version: "0.1.0"
   dependencies:
@@ -140,13 +154,13 @@ golden_paths:
 datastores:
   - id: global
     name: "Global DB"
-    type: libsql
+    type: turso
     path: vfs/global.db
     description: "Cross-project persistent data"
     
   - id: project
     name: "Project DB"
-    type: libsql
+    type: turso
     path: vfs/project.db
     description: "Per-project data"
     

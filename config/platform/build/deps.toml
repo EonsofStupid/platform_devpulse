@@ -1,7 +1,8 @@
 [build.deps.nasm]
 path = "deps/nasm/nasm.exe"
 version = "3.01"
-env = ["NASM", "AWS_LC_SYS_PREBUILT_NASM"]
+# AWS_LC_SYS_PREBUILT_NASM is a boolean switch, not an executable path.
+env = ["NASM"]
 
 [build.deps.python]
 path = "deps/python/python.exe"

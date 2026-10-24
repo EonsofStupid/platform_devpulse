@@ -1,4 +1,4 @@
-//! Session listing, deletion, history wipe, and export for chat (user `LibSQL` / `turns` SSOT).
+//! Session listing, deletion, history wipe, and export for chat (user Turso / `turns` SSOT).
 
 use crate::state::PlatformState;
 use devpulse_engine::platform::{SqlAdapter, SqlValue};
@@ -23,7 +23,7 @@ pub async fn list_sessions(state: State<'_, PlatformState>) -> Result<Vec<ChatSe
         .ok_or("Platform is still booting")?;
     let svc = platform
         .user_relational()
-        .ok_or("Relational service not available")?;
+        .ok_or("The user database is not open (see the boot log)")?;
     let adapter = svc.adapter();
 
     let rows = adapter
@@ -80,11 +80,14 @@ pub async fn delete_session(
         .ok_or("Platform is still booting")?;
     let svc = platform
         .user_relational()
-        .ok_or("Relational service not available")?;
+        .ok_or("The user database is not open (see the boot log)")?;
     let adapter = svc.adapter();
 
     adapter
-        .execute("DELETE FROM sessions WHERE id = ?", &[session_id.as_str()])
+        .execute(
+            "DELETE FROM sessions WHERE id = ?",
+            &[session_id.as_str().into()],
+        )
         .await
         .map_err(|e| format!("Failed to delete session: {e}"))?;
 
@@ -108,7 +111,7 @@ pub async fn clear_all_chat_history(state: State<'_, PlatformState>) -> Result<(
         .ok_or("Platform is still booting")?;
     let svc = platform
         .user_relational()
-        .ok_or("Relational service not available")?;
+        .ok_or("The user database is not open (see the boot log)")?;
     let adapter = svc.adapter();
 
     adapter
@@ -151,7 +154,7 @@ async fn load_session_turns<A: SqlAdapter>(
 		.query(
 			"SELECT id, session_id, role, content, created_at, token_count, model_used, latency_ms \
 			 FROM turns WHERE session_id = ? ORDER BY sequence_num ASC, created_at ASC",
-			&[session_id],
+			&[session_id.into()],
 		)
 		.await
 		.map_err(|e| format!("Failed to load turns: {e}"))?;
@@ -206,7 +209,7 @@ pub async fn export_session(
         .ok_or("Platform is still booting")?;
     let svc = platform
         .user_relational()
-        .ok_or("Relational service not available")?;
+        .ok_or("The user database is not open (see the boot log)")?;
     let adapter = svc.adapter();
 
     let sess_rows = adapter
@@ -214,7 +217,7 @@ pub async fn export_session(
             "SELECT id, title, is_active, created_at, updated_at, ended_at, project_id, \
 			 (SELECT COUNT(*) FROM turns t WHERE t.session_id = s.id) AS message_count \
 			 FROM sessions s WHERE s.id = ? LIMIT 1",
-            &[session_id.as_str()],
+            &[session_id.as_str().into()],
         )
         .await
         .map_err(|e| format!("Failed to load session: {e}"))?;
@@ -272,7 +275,7 @@ pub async fn export_all_sessions(
         .ok_or("Platform is still booting")?;
     let svc = platform
         .user_relational()
-        .ok_or("Relational service not available")?;
+        .ok_or("The user database is not open (see the boot log)")?;
     let adapter = svc.adapter();
 
     let id_rows = adapter
@@ -295,7 +298,7 @@ pub async fn export_all_sessions(
                 let sess_meta = adapter
                     .query(
                         "SELECT id, title, project_id FROM sessions WHERE id = ? LIMIT 1",
-                        &[sid.as_str()],
+                        &[sid.as_str().into()],
                     )
                     .await
                     .map_err(|e| format!("Failed to load session meta: {e}"))?;
@@ -331,7 +334,7 @@ pub async fn export_all_sessions(
 						"SELECT s.id, s.title, s.is_active, s.created_at, s.updated_at, s.ended_at, s.project_id, \
 						 (SELECT COUNT(*) FROM turns t WHERE t.session_id = s.id) AS message_count \
 						 FROM sessions s WHERE s.id = ? LIMIT 1",
-						&[sid.as_str()],
+						&[sid.as_str().into()],
 					)
 					.await
 					.map_err(|e| format!("Failed to load session: {e}"))?;

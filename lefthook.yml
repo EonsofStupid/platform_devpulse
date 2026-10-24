@@ -8,26 +8,28 @@ pre-commit:
   commands:
     # Rust formatting
     rust-fmt:
-      glob: "*.rs"
+      glob: ["*.rs", "**/*.rs"]
       run: cargo fmt --all -- --check
 
-    # NOTE: full-workspace compile verification (`cargo check --workspace`)
-    # was removed from pre-commit. On a workspace with llama-cpp-sys/DuckDB/
-    # Tauri/Candle it cost minutes on EVERY commit, stalling tight edit loops
-    # (human and agent) and duplicating the compile that pre-push `clippy
-    # --workspace -D warnings` already performs. Compile errors are still
-    # caught before they leave the machine (pre-push) and per-crate during a
-    # session (.claude/hooks/verify-on-stop.js). Keep pre-commit fast.
+    # Rust linting (quick check, not full clippy)
+    rust-check:
+      glob: ["*.rs", "**/*.rs"]
+      run: cargo check --workspace --quiet
 
     # Svelte check
     svelte-check:
-      glob: "*.svelte"
+      glob: ["*.svelte", "**/*.svelte"]
       root: "interfaces/desktop"
+      run: pnpm exec svelte-check --threshold error
+
+    svelte-check-coldlight:
+      glob: "packages/coldlight/**/*.{ts,svelte}"
+      root: "packages/coldlight"
       run: pnpm exec svelte-check --threshold error
 
     # IP boundary enforcement — blocks kernel terms in staged files
     ip-boundary-check:
-      glob: "*.{rs,ts,svelte,json}"
+      glob: ["*.{rs,ts,svelte,json}", "**/*.{rs,ts,svelte,json}"]
       run: bash scripts/hooks/ip-boundary-check.sh
 
     # Bindings drift guard — if Tauri command .rs files changed but
@@ -39,7 +41,7 @@ pre-commit:
 
     # Block legacy vendor prefixes (--dp-, --tw-, etc.) — --cl-* is ColdLight's own namespace
     no-legacy-prefixes:
-      glob: "interfaces/desktop/src/**/*.{ts,svelte,css}"
+      glob: ["interfaces/desktop/src/**/*.{ts,svelte,css}", "packages/coldlight/**/*.{ts,svelte,css}"]
       run: bash scripts/hooks/no-legacy-prefixes.sh
 
     # Biome lint + format check (TypeScript, Svelte, CSS)
@@ -48,35 +50,46 @@ pre-commit:
       root: "interfaces/desktop"
       run: pnpm exec biome check .
 
+    biome-lint-coldlight:
+      glob: "packages/coldlight/**/*.{ts,svelte,css,json}"
+      root: "packages/coldlight"
+      run: pnpm exec biome check .
+
     # Block raw hex colors and raw px values in Svelte <style> blocks
     # GritQL plugins handle .css files via biome check above
     no-raw-values:
-      glob: "interfaces/desktop/src/**/*.{svelte,css,ts}"
+      glob: ["interfaces/desktop/src/**/*.{svelte,css,ts}", "packages/coldlight/**/*.{svelte,css,ts}"]
       run: node scripts/hooks/no-raw-values.mjs
+
+    # Routes are the folders under src/routes (plan 0008): no route typed
+    # by hand outside resolve() / routeAt().
+    no-hand-typed-routes:
+      glob: "interfaces/desktop/src/**/*.{svelte,ts}"
+      run: node scripts/hooks/no-hand-typed-routes.mjs
 
     # Documentation preflight checks
     docs-preflight:
-      glob: "interfaces/desktop/src/**/*.{ts,svelte}"
+      glob: ["interfaces/desktop/src/**/*.{ts,svelte}", "packages/coldlight/**/*.{ts,svelte}"]
       run: cd scripts/docs && pnpm preflight:check
 
     # Token regeneration (SSOT → generated files)
     tokens-regen:
-      glob: "interfaces/desktop/src/lib/design/tokens/tokens.ts"
-      root: "interfaces/desktop"
-      run: pnpm ds:tokens:build
+      glob: "packages/coldlight/tokens/tokens.ts"
+      run: pnpm --dir interfaces/desktop ds:tokens:build
       stage_fixed: true
+
+    # ColdLight's build scripts still live in the app until plan 0006 C2c; these
+    # run from the repo root because lefthook drops staged files outside `root`.
 
     # ColdLight manifest verification
     coldlight-verify:
-      glob: "interfaces/desktop/src/lib/design/**/*.{ts,svelte}"
-      root: "interfaces/desktop"
-      run: pnpm coldlight:verify
+      glob: "packages/coldlight/**/*.{ts,svelte}"
+      run: pnpm --dir interfaces/desktop coldlight:verify
 
     # ColdLight auto-documentation generation (TypeDoc → .cowlevel/)
     coldlight-docs:
-      glob: "interfaces/desktop/src/lib/design/**/*.{ts,svelte}"
-      root: "interfaces/desktop"
-      run: pnpm coldlight:docs
+      glob: "packages/coldlight/**/*.{ts,svelte}"
+      run: pnpm --dir interfaces/desktop coldlight:docs
       stage_fixed: true
 
 commit-msg:
@@ -88,20 +101,11 @@ commit-msg:
 pre-push:
   parallel: true
   commands:
-    # Full Rust lint on push
+    # Full Rust lint on push, under run-dev's build env so it reuses the
+    # dev loop's artifacts instead of invalidating them.
     clippy:
-      glob: "*.rs"
-      run: cargo clippy --workspace -- -D warnings
-
-    # Format check on push — catches fmt drift that slipped through
-    # pre-commit's per-file glob (e.g. fmt issues introduced by a merge
-    # commit where incoming branch files weren't staged locally).
-    # 2026-06-22: persona MCP fmt drift slipped to GH CI via the Branch 1
-    # merge commit; pre-commit fmt only ran on locally-staged files, not
-    # merge-introduced ones. Pre-push fmt closes that gap.
-    cargo-fmt:
-      glob: "*.rs"
-      run: cargo fmt --all -- --check
+      glob: ["*.rs", "**/*.rs"]
+      run: cargo xtask clippy --workspace
 
     # Security audit
     cargo-deny:
@@ -110,4 +114,8 @@ pre-push:
     # Svelte type check
     svelte-typecheck:
       root: "interfaces/desktop"
+      run: pnpm exec svelte-check --threshold error
+
+    svelte-typecheck-coldlight:
+      root: "packages/coldlight"
       run: pnpm exec svelte-check --threshold error

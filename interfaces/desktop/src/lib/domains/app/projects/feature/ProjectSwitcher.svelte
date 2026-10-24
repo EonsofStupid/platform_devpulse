@@ -6,15 +6,15 @@
 	lets the user switch between existing projects, and exposes the
 	"Open in DevForge" action for the active project's root path.
 
-	Single source of truth is the `projectsState` rune module; this
-	component reads `activeProject`, `projects`, and emits command
-	calls on click. Every mutation triggers a refresh from libSQL so
-	the UI never drifts from the backend SSOT.
+	Single source of truth is the `projectsState` rune module, which
+	follows Rust's `projects` state signal; this component reads
+	`activeProject`, `projects`, and sends intents on click. Rust
+	publishes the new state after every change, so the UI never drifts
+	from Turso.
 -->
 <script lang="ts">
-import { Check, ChevronDown, FolderOpen, Plus } from "@lucide/svelte";
-import { invoke } from "@tauri-apps/api/core";
-import { onMount } from "svelte";
+import { Check, ChevronDown, FolderOpen, Plus } from "lucide-svelte";
+import { pickDirectory } from "$lib/sys/bindings/models/index.js";
 import { commands } from "$lib/sys/generated/bindings.js";
 import { logError, logInfo } from "$lib/sys/logger.js";
 import { projectsState } from "../data-access/projects.state.svelte.js";
@@ -22,15 +22,6 @@ import { projectsState } from "../data-access/projects.state.svelte.js";
 let open = $state(false);
 let opening = $state(false);
 let creating = $state(false);
-
-// One-shot load on mount. `onMount` runs exactly once after mount and
-// does NOT re-track reactive reads — `$effect` would: the synchronous
-// head of `refresh()` reads `this.loading` then writes it, which makes
-// `$effect` re-fire every time `loading` flips → runaway loop (saw 1000+
-// invocations per session in the 2026-04-28 console).
-onMount(() => {
-	void projectsState.refresh("switcher-mount");
-});
 
 async function handleSelect(id: string): Promise<void> {
 	open = false;
@@ -41,9 +32,9 @@ async function handleCreate(): Promise<void> {
 	if (creating) return;
 	creating = true;
 	try {
-		const path = await invoke<string>("pick_directory", {
-			title: "Pick project folder",
-		});
+		const picked = await pickDirectory("Pick project folder");
+		if (picked.status === "error") throw new Error(picked.error);
+		const path = picked.data;
 		if (!path) return;
 		const name = path.split(/[/\\]/).filter(Boolean).pop() ?? path;
 		const created = await projectsState.createProject({
@@ -69,8 +60,8 @@ async function handleOpenInDevForge(): Promise<void> {
 	if (opening || !projectsState.activeProject) return;
 	opening = true;
 	try {
-		await commands.openDevforgeWindow(projectsState.activeProject.rootPath);
-		logInfo("projects.switcher", `DevForge opened at ${projectsState.activeProject.rootPath}`);
+		await commands.openDevforgeWindow(projectsState.activeProject.root_path);
+		logInfo("projects.switcher", `DevForge opened at ${projectsState.activeProject.root_path}`);
 	} catch (e) {
 		const msg = e instanceof Error ? e.message : String(e);
 		logError("projects.switcher", `DevForge open failed — ${msg}`);
@@ -95,7 +86,7 @@ async function handleOpenInDevForge(): Promise<void> {
 				Loading…
 			{:else if projectsState.activeProject}
 				<span class="ps-name">{projectsState.activeProject.name}</span>
-				<span class="ps-path">{projectsState.activeProject.rootPath}</span>
+				<span class="ps-path">{projectsState.activeProject.root_path}</span>
 			{:else}
 				<span class="ps-empty">No active project</span>
 			{/if}
@@ -123,7 +114,7 @@ async function handleOpenInDevForge(): Promise<void> {
 							{/if}
 							<span class="ps-row-name">{project.name}</span>
 						</span>
-						<span class="ps-row-path">{project.rootPath}</span>
+						<span class="ps-row-path">{project.root_path}</span>
 					</button>
 				{/each}
 			{/if}

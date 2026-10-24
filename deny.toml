@@ -29,24 +29,53 @@ ignore = [
     "RUSTSEC-2025-0081", # unic-char-property
     "RUSTSEC-2025-0098", # unic-ucd-version
     "RUSTSEC-2025-0100", # unic-ucd-ident
-    # surrealdb + transitive deps — upstream must fix
-    "RUSTSEC-2025-0134", # rustls-pemfile (transitive via hyper-rustls)
+    # surrealdb deps
+    "RUSTSEC-2025-0141", # bincode (surrealdb)
+    # Transitive deps — upstream must fix
     "RUSTSEC-2021-0127", # serde_cbor (unmaintained, transitive)
     "RUSTSEC-2023-0071", # marvin attack (rsa, transitive via surrealdb)
     "RUSTSEC-2024-0436", # paste (unmaintained, transitive)
     "RUSTSEC-2024-0437", # number_prefix (unmaintained, transitive)
-    "RUSTSEC-2025-0119", # protobuf recursion (transitive via surrealdb)
+    "RUSTSEC-2025-0119", # protobuf recursion (transitive via ort/surrealdb)
+    "RUSTSEC-2026-0049", # aws-lc CRL matching (transitive via surrealdb)
     "RUSTSEC-2026-0104", # aws-lc CRL parse panic (transitive via surrealdb — supersedes 0044/0048)
-    "RUSTSEC-2026-0105", # core2 unmaintained + yanked (transitive via jieba-rs)
-    # (The kernel cut removed the libsql/rro/ort trees — their ignores
-    # left with them: bincode, aws-lc CRL matching, rustls-webpki ×2,
-    # proc-macro-error2.)
-    # quick-xml XML-parser DoS — 0.39.2 patched to 0.39.4; the remaining exposed
-    # version is the pinned transitive 0.30.0 (platform dep), no semver-compatible
-    # patch. Parsers see trusted internal data (surrealdb protocol), not
-    # adversarial XML. Remove when the upstream pin bumps.
-    "RUSTSEC-2026-0194", # quick-xml quadratic dup-attr scan (transitive 0.30.0)
-    "RUSTSEC-2026-0195", # quick-xml unbounded namespace-declaration alloc DoS (transitive 0.30.0)
+    "RUSTSEC-2026-0105", # core2 unmaintained + yanked (transitive via jieba-rs → rro)
+    # No compatible fixed release; none parses untrusted input here (2026-10-15)
+    "RUSTSEC-2026-0194", # quick-xml quadratic attr check: 0.30 (xcb build script, Linux),
+                         # 0.38 (plist via tauri), 0.39 (wayland-scanner proc-macro); fix is 0.41
+    "RUSTSEC-2026-0195", # quick-xml NsReader allocation: same three dependents as 0194
+    "RUSTSEC-2020-0163", # term_size unmaintained, via tokei 15 (latest release; repo scan)
+    "RUSTSEC-2026-0173", # proc-macro-error2 unmaintained, build-time proc-macro only
+    # zip < 9 extraction flaws (2026-10-17). Our own zip (xtask) and duckdb's are
+    # on 9; these two dependents have no release on zip >= 9:
+    # - candle-core 0.10 (zip 7; 0.11 is on zip 8): reads .npy/.npz entries in
+    #   memory, never calls `extract`;
+    # - tauri-plugin-updater 2.x (zip 4, up to 2.14): `extract` runs only on an
+    #   update bundle that passed minisign verification against our release key.
+    "RUSTSEC-2026-0367", # SUID/SGID bits preserved on extract
+    "RUSTSEC-2026-0368", # extract creates symlinks outside the destination
+    "RUSTSEC-2026-0369", # extract applies permissions through symlinks
+    # Distrusted emSign roots (2026-10-20). rustls-webpki, webpki-roots 1 and
+    # webpki-root-certs are updated to the fixed releases (0.103.16, 1.0.10,
+    # 1.0.10). webpki-roots 0.26.11 — via ureq 2 ← hf-hub 0.4 — is the
+    # compatibility shim whose only dependency is webpki-roots 1.0.10, which it
+    # re-exports: the fixed root list, flagged by version only. No 0.26 release
+    # follows; plan 0001 Part L (L2: hf-hub 1, ureq 3) removes it.
+    "RUSTSEC-2026-0381", # webpki-roots 0.26.11 shim over the fixed 1.0.10
+    # zbus's own crates marked unmaintained with no successor release
+    # (2026-10-17). Pulled in via zbus 5.14 by rfd (ashpd), tauri-plugin-
+    # single-instance and xcap — the Linux D-Bus backends of those crates.
+    "RUSTSEC-2026-0370", # zvariant unmaintained
+    "RUSTSEC-2026-0371", # zbus_names unmaintained
+    "RUSTSEC-2026-0372", # zvariant_derive unmaintained
+    # crypto-bigint 0.5 timing variability (2026-10-24). Its only path is the
+    # compiled-in Surreal crate: surrealdb 3.0.5 → surrealdb-core → jsonwebtoken
+    # 10 → p256/p384 0.13 → elliptic-curve 0.13 → crypto-bigint 0.5. No fixed
+    # release exists anywhere in that chain (surrealdb-core 3.3.4 still takes
+    # jsonwebtoken 10; jsonwebtoken 11.1.0 still takes p256 0.13). Plan 0007
+    # Part S removes the crate from the build (Surreal runs as its own
+    # binary); S6 deletes this entry.
+    "RUSTSEC-2026-0387", # crypto-bigint 0.5 via the embedded surrealdb crate
 ]
 
 [licenses]
@@ -68,20 +97,20 @@ allow = [
 [bans]
 multiple-versions = "warn"
 wildcards = "allow"
-# Deny known bad crates. The AI kernel is Clyffy's (clyffyos repo) —
-# no crate in this workspace may link it, so no wrapper allowance
-# exists; `cargo xtask verify-ip-boundary` enforces the inference-free
-# build alongside this.
-deny = []
+# Deny known bad crates
+deny = [
+    # Desktop must NEVER depend on clyffy directly.
+    # All kernel access goes through the engine facade.
+    { name = "devpulse-clyffy", wrappers = ["devpulse-engine"] },
+]
 
 [sources]
 unknown-registry = "warn"
 unknown-git = "warn"
 allow-registry = ["https://github.com/rust-lang/crates.io-index"]
-# The AI-layer forks (wal/rro/tar-rs/Kokoros) left with the kernel cut;
-# the two remaining private git deps are the telemetry primitives and
-# the Tier-2 wire contract.
 allow-git = [
-    "https://github.com/EonsofStupid/devpulse-telemetry",
-    "https://github.com/EonsofStupid/clyffyos",
+    "https://github.com/EonsofStupid/wal",
+    "https://github.com/EonsofStupid/rro",
+    "https://github.com/EonsofStupid/tar-rs",
+    "https://github.com/EonsofStupid/Kokoros",
 ]

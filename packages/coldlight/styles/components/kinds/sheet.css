@@ -1,0 +1,161 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+[data-kind="sheet"][data-slot="content"] {
+	--sheet-border-style: solid;
+	border-style: var(--sheet-border-style);
+	background-color: var(--sheet-background-color);
+	border-radius: var(--sheet-border-radius);
+	box-shadow: var(--sheet-box-shadow);
+	color: var(--sheet-color);
+	border-color: var(--sheet-border-color);
+	border-width: var(--sheet-border-width);
+	opacity: var(--sheet-opacity);
+	animation: var(--sheet-animation);
+	transition-duration: var(--sheet-transition-duration);
+	transition-timing-function: var(--sheet-transition-timing-function);
+	background-image: var(--sheet-gradient);
+	font-family: var(--sheet-font-family);
+	font-size: var(--sheet-font-size);
+	font-weight: var(--sheet-font-weight);
+	letter-spacing: var(--sheet-letter-spacing);
+	line-height: var(--sheet-line-height);
+}
+
+[data-kind="sheet"][data-slot="content"][data-variant="elevated"] {
+	--sheet-background-color: var(--surface-role-elevated-background-color);
+	--sheet-border-radius: var(--surface-role-elevated-border-radius);
+	--sheet-box-shadow: var(--surface-role-elevated-box-shadow);
+	--sheet-color: var(--surface-role-elevated-color);
+	--sheet-border-color: var(--surface-role-elevated-border-color);
+	--sheet-border-width: var(--surface-role-elevated-border-width);
+	--sheet-opacity: var(--surface-role-elevated-opacity);
+	--sheet-animation: var(--surface-role-elevated-animation);
+	--sheet-transition-duration: var(--surface-role-elevated-transition-duration);
+	--sheet-transition-timing-function: var(--surface-role-elevated-transition-timing-function);
+	--sheet-gradient: var(--surface-role-elevated-gradient);
+	--sheet-font-family: var(--surface-role-elevated-font-family);
+	--sheet-font-size: var(--surface-role-elevated-font-size);
+	--sheet-font-weight: var(--surface-role-elevated-font-weight);
+	--sheet-letter-spacing: var(--surface-role-elevated-letter-spacing);
+	--sheet-line-height: var(--surface-role-elevated-line-height);
+}
+
+[data-kind="sheet"][data-slot="content"][data-variant="deep"] {
+	--sheet-background-color: var(--surface-role-deep-background-color);
+	--sheet-border-radius: var(--surface-role-deep-border-radius);
+	--sheet-box-shadow: var(--surface-role-deep-box-shadow);
+	--sheet-color: var(--surface-role-deep-color);
+	--sheet-border-color: var(--surface-role-deep-border-color);
+	--sheet-border-width: var(--surface-role-deep-border-width);
+	--sheet-opacity: var(--surface-role-deep-opacity);
+	--sheet-animation: var(--surface-role-deep-animation);
+	--sheet-transition-duration: var(--surface-role-deep-transition-duration);
+	--sheet-transition-timing-function: var(--surface-role-deep-transition-timing-function);
+	--sheet-gradient: var(--surface-role-deep-gradient);
+	--sheet-font-family: var(--surface-role-deep-font-family);
+	--sheet-font-size: var(--surface-role-deep-font-size);
+	--sheet-font-weight: var(--surface-role-deep-font-weight);
+	--sheet-letter-spacing: var(--surface-role-deep-letter-spacing);
+	--sheet-line-height: var(--surface-role-deep-line-height);
+}
+
+[data-kind="sheet"][data-slot="content"][data-variant="minimal"] {
+	--sheet-background-color: var(--surface-role-minimal-background-color);
+	--sheet-border-radius: var(--surface-role-minimal-border-radius);
+	--sheet-box-shadow: var(--surface-role-minimal-box-shadow);
+	--sheet-color: var(--surface-role-minimal-color);
+	--sheet-border-color: var(--surface-role-minimal-border-color);
+	--sheet-border-width: var(--surface-role-minimal-border-width);
+	--sheet-opacity: var(--surface-role-minimal-opacity);
+	--sheet-animation: var(--surface-role-minimal-animation);
+	--sheet-transition-duration: var(--surface-role-minimal-transition-duration);
+	--sheet-transition-timing-function: var(--surface-role-minimal-transition-timing-function);
+	--sheet-gradient: var(--surface-role-minimal-gradient);
+	--sheet-font-family: var(--surface-role-minimal-font-family);
+	--sheet-font-size: var(--surface-role-minimal-font-size);
+	--sheet-font-weight: var(--surface-role-minimal-font-weight);
+	--sheet-letter-spacing: var(--surface-role-minimal-letter-spacing);
+	--sheet-line-height: var(--surface-role-minimal-line-height);
+}
+
+[data-kind="sheet"][data-slot="content"][data-variant="solid"] {
+	--sheet-background-color: var(--surface-role-solid-background-color);
+	--sheet-border-radius: var(--surface-role-solid-border-radius);
+	--sheet-box-shadow: var(--surface-role-solid-box-shadow);
+	--sheet-color: var(--surface-role-solid-color);
+	--sheet-border-color: var(--surface-role-solid-border-color);
+	--sheet-border-width: var(--surface-role-solid-border-width);
+	--sheet-opacity: var(--surface-role-solid-opacity);
+	--sheet-animation: var(--surface-role-solid-animation);
+	--sheet-transition-duration: var(--surface-role-solid-transition-duration);
+	--sheet-transition-timing-function: var(--surface-role-solid-transition-timing-function);
+	--sheet-gradient: var(--surface-role-solid-gradient);
+	--sheet-font-family: var(--surface-role-solid-font-family);
+	--sheet-font-size: var(--surface-role-solid-font-size);
+	--sheet-font-weight: var(--surface-role-solid-font-weight);
+	--sheet-letter-spacing: var(--surface-role-solid-letter-spacing);
+	--sheet-line-height: var(--surface-role-solid-line-height);
+}
+
+[data-kind="sheet"][data-slot="content"][data-variant="glow"] {
+	--sheet-background-color: var(--surface-role-glow-background-color);
+	--sheet-border-radius: var(--surface-role-glow-border-radius);
+	--sheet-box-shadow: var(--surface-role-glow-box-shadow);
+	--sheet-color: var(--surface-role-glow-color);
+	--sheet-border-color: var(--surface-role-glow-border-color);
+	--sheet-border-width: var(--surface-role-glow-border-width);
+	--sheet-opacity: var(--surface-role-glow-opacity);
+	--sheet-animation: var(--surface-role-glow-animation);
+	--sheet-transition-duration: var(--surface-role-glow-transition-duration);
+	--sheet-transition-timing-function: var(--surface-role-glow-transition-timing-function);
+	--sheet-gradient: var(--surface-role-glow-gradient);
+	--sheet-font-family: var(--surface-role-glow-font-family);
+	--sheet-font-size: var(--surface-role-glow-font-size);
+	--sheet-font-weight: var(--surface-role-glow-font-weight);
+	--sheet-letter-spacing: var(--surface-role-glow-letter-spacing);
+	--sheet-line-height: var(--surface-role-glow-line-height);
+}
+
+[data-kind="sheet"][data-slot="content"][data-variant="muted"] {
+	--sheet-background-color: var(--surface-role-muted-background-color);
+	--sheet-border-radius: var(--surface-role-muted-border-radius);
+	--sheet-box-shadow: var(--surface-role-muted-box-shadow);
+	--sheet-color: var(--surface-role-muted-color);
+	--sheet-border-color: var(--surface-role-muted-border-color);
+	--sheet-border-width: var(--surface-role-muted-border-width);
+	--sheet-opacity: var(--surface-role-muted-opacity);
+	--sheet-animation: var(--surface-role-muted-animation);
+	--sheet-transition-duration: var(--surface-role-muted-transition-duration);
+	--sheet-transition-timing-function: var(--surface-role-muted-transition-timing-function);
+	--sheet-gradient: var(--surface-role-muted-gradient);
+	--sheet-font-family: var(--surface-role-muted-font-family);
+	--sheet-font-size: var(--surface-role-muted-font-size);
+	--sheet-font-weight: var(--surface-role-muted-font-weight);
+	--sheet-letter-spacing: var(--surface-role-muted-letter-spacing);
+	--sheet-line-height: var(--surface-role-muted-line-height);
+}
+
+[data-kind="sheet"][data-slot="overlay"] {
+	--sheet-overlay-background-color: oklch(0.0000 0.0000 0.00 / 0);
+	background-color: var(--sheet-overlay-background-color);
+	color: inherit;
+}
+
+[data-kind="sheet"][data-slot="close"] {
+	--sheet-close-background-color: var(--sheet-background-color);
+	background-color: var(--sheet-close-background-color);
+	--sheet-close-border-color: var(--sheet-border-color);
+	border-color: var(--sheet-close-border-color);
+	--sheet-close-border-width: var(--sheet-border-width);
+	border-width: var(--sheet-close-border-width);
+	--sheet-close-border-style: solid;
+	border-style: var(--sheet-close-border-style);
+	--sheet-close-border-radius: var(--sheet-border-radius);
+	border-radius: var(--sheet-close-border-radius);
+	--sheet-close-box-shadow: var(--sheet-box-shadow);
+	box-shadow: var(--sheet-close-box-shadow);
+	--sheet-close-gradient: var(--sheet-gradient);
+	background-image: var(--sheet-close-gradient);
+}

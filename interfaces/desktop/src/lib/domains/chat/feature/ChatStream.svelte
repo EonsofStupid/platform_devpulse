@@ -1,10 +1,15 @@
 <!--
-  @feature ChatStream — scrollable messages
+  @feature ChatStream — scrollable messages; an agent thread's running turn
+  streams here under the agent's name.
 -->
 <script lang="ts">
-import { cn } from "$lib/design/utils/cn.js";
+import { cn } from "@devpulse/coldlight/utils";
+import { providersState } from "$lib/domains/app/providers/index.js";
+import { copyState } from "$lib/sys/copy/index.js";
+import { agentsState } from "../data-access/agents.state.svelte.js";
 import { chatState } from "../data-access/chat.state.svelte.js";
 import { EmptyChatState, MessageBubble, TypingIndicator } from "../ui/index.js";
+import ChatAgentTurn from "./ChatAgentTurn.svelte";
 
 interface Props {
 	class?: string;
@@ -14,24 +19,29 @@ let { class: className }: Props = $props();
 
 let root: HTMLDivElement | undefined = $state();
 
+const thread = $derived(agentsState.thread(chatState.activeSessionId));
+const agentTurn = $derived(
+	agentsState.turn?.sessionId === chatState.activeSessionId ? agentsState.turn : null,
+);
+const author = $derived(
+	(thread &&
+		providersState.current?.report?.providers.find((p) => p.id === thread.providerId)?.name) ||
+		(copyState.catalog?.chat.agents.local ?? ""),
+);
+const streaming = $derived(agentTurn ? agentTurn.text : chatState.streamingContent);
+
 // Scroll on new messages or streaming content
 $effect(() => {
 	if (!root) return;
 	// Track both message count and streaming content to trigger scroll
 	void chatState.messages.length;
-	void chatState.streamingContent;
+	void streaming;
 	root.scrollTo({ top: root.scrollHeight, behavior: "smooth" });
 });
 </script>
 
-<!-- role=log: additions (completed turns) are announced politely by screen
-     readers. The transient streaming bubble mutates every token, so it is
-     aria-hidden — the full assistant turn announces ONCE when stored; turn
-     start/completion cues come from announce() in chat.state. -->
 <div
 	bind:this={root}
-	role="log"
-	aria-label="Chat messages"
 	class={cn("flex flex-1 min-h-0 flex-col gap-3 overflow-y-auto px-3 py-2", className)}
 >
 	{#if chatState.loading}
@@ -45,19 +55,20 @@ $effect(() => {
 			<MessageBubble message={msg} mode={chatState.mode} />
 		{/each}
 	{/if}
-	{#if chatState.isGenerating && chatState.streamingContent}
-		<div aria-hidden="true" class="contents">
-			<MessageBubble
-				message={{
-					id: "streaming",
-					variant: "ai",
-					author: "Clyffy",
-					content: chatState.streamingContent,
-				}}
-				mode={chatState.mode}
-			/>
-		</div>
-	{:else if chatState.isGenerating || chatState.sending}
+	{#if chatState.isGenerating && streaming}
+		<MessageBubble
+			message={{
+				id: "streaming",
+				variant: "ai",
+				author,
+				content: streaming,
+			}}
+			mode={chatState.mode}
+		/>
+	{:else if (chatState.isGenerating || chatState.sending) && !agentTurn}
 		<TypingIndicator />
+	{/if}
+	{#if agentTurn}
+		<ChatAgentTurn turn={agentTurn} agent={author} />
 	{/if}
 </div>

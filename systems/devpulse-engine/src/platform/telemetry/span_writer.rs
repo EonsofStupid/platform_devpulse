@@ -13,7 +13,7 @@ use serde_json::json;
 use tokio::sync::mpsc;
 
 use crate::platform::services::analytics::AnalyticsService;
-use devpulse_store::AnalyticsAdapter;
+use devpulse_clyffy::cortex::persistence::AnalyticsAdapter;
 
 /// Channel buffer size for completed spans.
 /// Same as lane traces — backpressure drops silently.
@@ -24,11 +24,6 @@ const BATCH_SIZE: usize = 64;
 
 /// Maximum time to hold a batch before flushing (milliseconds).
 const BATCH_FLUSH_INTERVAL_MS: u64 = 500;
-
-/// Disable the writer after this many consecutive flush failures. A
-/// permanently-incompatible analytics table (schema drift) then yields a few
-/// loud logs and one final ERROR instead of one WARN per batch forever.
-const MAX_CONSECUTIVE_FAILURES: u32 = 3;
 
 /// A completed span record ready for `DuckDB` persistence.
 #[derive(Debug, Clone, Serialize)]
@@ -62,11 +57,6 @@ pub struct SpanTraceWriter {
     rx: mpsc::Receiver<SpanRecord>,
     analytics: Arc<AnalyticsService>,
     batch: Vec<SpanRecord>,
-    /// Consecutive flush failures. Reset to 0 on any success.
-    consecutive_failures: u32,
-    /// Set once `MAX_CONSECUTIVE_FAILURES` is hit — subsequent batches are
-    /// drained and dropped without touching the DB (no more log spam).
-    disabled: bool,
 }
 
 impl SpanTraceWriter {
@@ -76,8 +66,6 @@ impl SpanTraceWriter {
             rx,
             analytics,
             batch: Vec::with_capacity(BATCH_SIZE),
-            consecutive_failures: 0,
-            disabled: false,
         }
     }
 
@@ -116,21 +104,14 @@ impl SpanTraceWriter {
             return;
         }
 
-        // Writer disabled after repeated failures — drain and drop silently so
-        // the batch never grows unbounded and the channel keeps draining.
-        if self.disabled {
-            self.batch.clear();
-            return;
-        }
-
         let records: Vec<serde_json::Value> = self
             .batch
             .drain(..)
             .map(|s| {
                 json!({
                     "trace_id": s.trace_id,
-                    "span_id": s.span_id,
-                    "parent_span_id": s.parent_span_id,
+                    "span_id": stored_id(s.span_id),
+                    "parent_span_id": s.parent_span_id.map(stored_id),
                     "name": s.name,
                     "target": s.target,
                     "level": s.level,
@@ -149,24 +130,33 @@ impl SpanTraceWriter {
             .await
         {
             Ok(inserted) => {
-                self.consecutive_failures = 0;
                 tracing::debug!(count, inserted, "Flushed span traces to DuckDB");
             }
             Err(e) => {
-                self.consecutive_failures += 1;
-                if self.consecutive_failures >= MAX_CONSECUTIVE_FAILURES {
-                    self.disabled = true;
-                    tracing::error!(
-                        count,
-                        failures = self.consecutive_failures,
-                        error = %e,
-                        "Span trace persistence failed repeatedly — disabling span writer for \
-                         this session (likely analytics-schema drift; wipe .userdata to reset)",
-                    );
-                } else {
-                    tracing::warn!(count, error = %e, "Failed to flush span traces to DuckDB");
-                }
+                tracing::warn!(count, error = %format!("{e:#}"), "Failed to flush span traces to DuckDB");
             }
         }
+    }
+}
+
+/// A span id as `span_traces` stores it: the same 64 bits in its `BIGINT`
+/// columns. Tracing packs a generation into an id's high bits, so ids can
+/// exceed `i64::MAX`; kept bit for bit they still insert and still match
+/// their children's `parent_span_id`, and the telemetry devtool reads them
+/// back as the `i64` it already expects.
+fn stored_id(id: u64) -> i64 {
+    i64::from_ne_bytes(id.to_ne_bytes())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::stored_id;
+
+    #[test]
+    fn a_span_id_keeps_its_bits() {
+        assert_eq!(stored_id(42), 42);
+        let high = u64::MAX - 7;
+        assert_eq!(stored_id(high), -8);
+        assert_eq!(u64::from_ne_bytes(stored_id(high).to_ne_bytes()), high);
     }
 }

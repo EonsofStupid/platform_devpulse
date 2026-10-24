@@ -6,7 +6,7 @@
 //! # Type SSOT
 //!
 //! The `InferenceProvider` enum is owned by the engine
-//! (`devpulse_engine::platform::InferenceProvider`) — it mirrors the assistant
+//! (`devpulse_engine::platform::InferenceProvider`) — it mirrors the kernel
 //! routing mode value-for-value and is the same surface the engine
 //! `Platform::routing_config_*` accessors use for the `latency.response_source`
 //! field. The cloud command module re-uses that enum directly so the

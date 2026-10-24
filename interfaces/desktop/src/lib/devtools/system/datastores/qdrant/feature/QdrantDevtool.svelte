@@ -9,22 +9,23 @@
 
 	# Why this lives under system/datastores
 
-	Qdrant is a peer database to LibSQL / DuckDB / SurrealDB — it
+	Qdrant is a peer database to Turso / DuckDB / SurrealDB — it
 	stores its own files at `{data_dir}/system/rro/vectors`, has its
 	own health probe, and the user-experience parity ("each DB has a
-	devtool") demands a peer entry. The RRO devtool at
-	`/devtools/clyffy/reasoning/rro/` consumes this same store as
-	the vector half of the trifecta — its Collections panel
+	devtool") demands a peer entry. The reasoning bucket's trifecta
+	devtool consumes this same store as the vector half of the
+	trifecta — its Collections panel
 	cross-links here for deep dive.
 -->
 <script lang="ts">
-import { ArrowUpRight, Boxes, Database, RefreshCw } from "@lucide/svelte";
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Button } from "@devpulse/coldlight/components/button";
+import { InlineMessage } from "@devpulse/coldlight/components/inline-message";
+import { Spinner } from "@devpulse/coldlight/components/spinner";
+import { Text } from "@devpulse/coldlight/components/text";
+import { ArrowUpRight, Boxes, Database, RefreshCw } from "lucide-svelte";
 import { onMount } from "svelte";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Button } from "$lib/design/components/button/index.js";
-import { InlineMessage } from "$lib/design/components/inline-message/index.js";
-import { Spinner } from "$lib/design/components/spinner/index.js";
-import { Text } from "$lib/design/components/text/index.js";
+import { resolve } from "$app/paths";
 import {
 	type ExtraTab,
 	type HealthBadge,
@@ -32,6 +33,9 @@ import {
 	ServiceDevtoolShell,
 } from "$lib/devtools/index.js";
 import { rroState } from "$lib/sys/data-access/rro/rro.state.svelte.js";
+
+/** The devtool that uses this store as its vector half (checked against the route folders). */
+const consumerHref = resolve("/devtools/clyffy/reasoning/rro");
 
 onMount(() => {
 	if (!rroState.health && !rroState.healthLoading) {
@@ -57,12 +61,6 @@ const extraTabs: ExtraTab[] = [{ id: "collections", label: "Collections", Icon: 
 </script>
 
 <ServiceDevtoolShell
-	infoTerm="Qdrant"
-	title="Qdrant"
-	description="Embedded vector store · in-process · zero latency"
-	icon={Boxes}
-	axis="stores"
-	accent="cyber"
 	health={badge}
 	{extraTabs}
 >
@@ -84,7 +82,7 @@ const extraTabs: ExtraTab[] = [{ id: "collections", label: "Collections", Icon: 
 						This devtool is the raw Qdrant store view. Search-side tuning
 						(query encoder, rerank thresholds, RRO state) lives in the
 						<a
-							href="/devtools/clyffy/reasoning/rro"
+							href={consumerHref}
 							class="underline hover:text-[var(--accent-service-main)]"
 						>
 							RRO devtool
@@ -92,7 +90,7 @@ const extraTabs: ExtraTab[] = [{ id: "collections", label: "Collections", Icon: 
 					</Text>
 				</div>
 				<a
-					href="/devtools/clyffy/reasoning/rro"
+					href={consumerHref}
 					class="shrink-0 inline-flex items-center gap-1 text-xs hover:text-[var(--accent-service-main)]"
 					title="Open RRO devtool"
 				>
@@ -103,7 +101,7 @@ const extraTabs: ExtraTab[] = [{ id: "collections", label: "Collections", Icon: 
 			<div class="flex items-center justify-between">
 				<Text size="sm" weight="semibold">Vector store health</Text>
 				<Button
-					preset="ghost"
+					variant="ghost"
 					size="sm"
 					onclick={() => rroState.loadHealth()}
 					disabled={rroState.healthLoading}
@@ -202,7 +200,7 @@ const extraTabs: ExtraTab[] = [{ id: "collections", label: "Collections", Icon: 
 						Re-ping the vector store and reload the collections list.
 					</Text>
 					<Button
-						preset="primary"
+						variant="primary"
 						size="sm"
 						onclick={() => rroState.loadHealth()}
 						disabled={rroState.healthLoading}
@@ -225,7 +223,7 @@ const extraTabs: ExtraTab[] = [{ id: "collections", label: "Collections", Icon: 
 						Create or delete collections via the RRO Collections panel.
 					</Text>
 					<a
-						href="/devtools/clyffy/reasoning/rro"
+						href={consumerHref}
 						class="inline-flex items-center gap-1 text-xs px-2 py-1 rounded border border-[var(--border-subtle)] hover:border-[var(--accent-service-main)] hover:text-[var(--accent-service-main)]"
 					>
 						Open RRO Collections
@@ -285,7 +283,7 @@ const extraTabs: ExtraTab[] = [{ id: "collections", label: "Collections", Icon: 
 		<div class="flex items-center justify-between">
 			<Text size="sm" weight="semibold">All collections</Text>
 			<Button
-				preset="ghost"
+				variant="ghost"
 				size="sm"
 				onclick={() => rroState.loadHealth()}
 				disabled={rroState.healthLoading}
@@ -338,7 +336,7 @@ const extraTabs: ExtraTab[] = [{ id: "collections", label: "Collections", Icon: 
 					{totalPoints.toLocaleString()} total points
 				</Badge>
 				<a
-					href="/devtools/clyffy/reasoning/rro"
+					href={consumerHref}
 					class="inline-flex items-center gap-1 text-xs hover:text-[var(--accent-service-main)]"
 				>
 					Manage in RRO
@@ -351,7 +349,7 @@ const extraTabs: ExtraTab[] = [{ id: "collections", label: "Collections", Icon: 
 			<Text size="sm" color="muted">
 				No collections yet. Create one from the
 				<a
-					href="/devtools/clyffy/reasoning/rro"
+					href={consumerHref}
 					class="underline hover:text-[var(--accent-service-main)]"
 				>
 					RRO Collections panel

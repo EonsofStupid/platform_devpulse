@@ -1,14 +1,22 @@
 /**
  * @file DevPulse Domain Types
  * @module @devpulse/domains/app/devpulse/types
+ *
+ * Every field is a real value read from a store, labelled as what it is.
+ * Live system load (CPU, RAM, GPU) is not here — it is Rust-owned hardware
+ * state read from `hardwareState`. Git-derived stats (commits, branches)
+ * arrive with the developer profile (plan 0004 Part C).
  */
 
 export interface UserStats {
+	/** Projects registered in DevPulse. */
 	readonly totalProjects: number;
-	readonly totalCommits: number;
-	readonly activeBranches: number;
-	readonly streak: number;
-	readonly lastActivity: string;
+	/** Chat messages stored. */
+	readonly totalMessages: number;
+	/** Chat sessions stored. */
+	readonly totalSessions: number;
+	/** How long the platform has been running, formatted. */
+	readonly uptime: string;
 }
 
 export interface CommunityStats {
@@ -22,14 +30,6 @@ export interface RecentProject {
 	readonly name: string;
 	readonly language: string;
 	readonly lastModified: string;
-	readonly branch: string;
-}
-
-export interface GaugeData {
-	readonly label: string;
-	readonly value: number;
-	readonly max: number;
-	readonly unit: string;
 }
 
 export interface TimeSeriesData {
@@ -37,18 +37,19 @@ export interface TimeSeriesData {
 	readonly data: readonly number[];
 }
 
-export interface SystemStatus {
-	readonly clyffyLoad: GaugeData;
-	readonly contextLoad: GaugeData;
-	readonly memoryUsage: GaugeData;
+/** Per-day history from the analytics store (oldest first). */
+export interface ActivityHistory {
+	/** Signals + messages per day. */
 	readonly activityTimeline: TimeSeriesData;
-	readonly commitHistory: TimeSeriesData;
-	readonly buildHealth: TimeSeriesData;
+	/** Messages per day. */
+	readonly messageHistory: TimeSeriesData;
+	/** Average response latency per day, in milliseconds. */
+	readonly latencyHistory: TimeSeriesData;
 }
 
 export interface DashboardData {
 	readonly user: UserStats;
 	readonly community: CommunityStats;
 	readonly recentProjects: readonly RecentProject[];
-	readonly system: SystemStatus;
+	readonly history: ActivityHistory;
 }

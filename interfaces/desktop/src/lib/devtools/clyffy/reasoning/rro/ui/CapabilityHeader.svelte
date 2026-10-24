@@ -5,8 +5,8 @@
 	@description Panel header with icon, title, subtitle. Dumb.
 -->
 <script lang="ts">
+import { Text } from "@devpulse/coldlight/components/text";
 import type { Snippet } from "svelte";
-import { Text } from "$lib/design/components/text/index.js";
 
 interface Props {
 	title: string;

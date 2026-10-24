@@ -1026,12 +1026,23 @@ impl BuildConfig {
 
         for (name, dep_opt) in deps {
             if let Some(dep) = dep_opt {
-                let resolved = workspace_root.join(&dep.path);
-                let resolved_str = resolved.to_string_lossy();
-
-                for env_key in &dep.env {
-                    std::env::set_var(env_key, &*resolved_str);
-                    println!("  [env] {env_key} = {resolved_str} (from [build.deps.{name}])");
+                match Self::resolve_dep_path(workspace_root, &dep.path) {
+                    Some(resolved) => {
+                        let resolved_str = resolved.to_string_lossy();
+                        for env_key in &dep.env {
+                            std::env::set_var(env_key, &*resolved_str);
+                            println!(
+                                "  [env] {env_key} = {resolved_str} (from [build.deps.{name}])"
+                            );
+                        }
+                    }
+                    None => {
+                        println!(
+                            "  [warn] [build.deps.{name}].path = {} not on disk and not on PATH; \
+                             not exporting {:?}",
+                            dep.path, dep.env
+                        );
+                    }
                 }
 
                 for (key, value) in &dep.extras {
@@ -1048,13 +1059,11 @@ impl BuildConfig {
             }
         }
 
-        // ── Fast-build wiring resolved at runtime ──
-        // rust-lld + sccache live outside the repo (per-machine toolchain and
-        // per-machine cargo bin). Hardcoded paths in `.cargo/config.toml`
-        // would break for every other dev box. cargo respects
-        // `CARGO_TARGET_<TARGET>_LINKER` and `RUSTC_WRAPPER` env vars with
-        // higher precedence than config-file settings, so injecting them
-        // here keeps the repo config portable.
+        // ── Fast-build wiring ──
+        // The linker is declared in `.cargo/config.toml`, never injected
+        // here: cargo hashes the target linker into every unit's
+        // fingerprint, so a linker only xtask's cargo sees makes every
+        // other cargo invocation rebuild the shared units in place.
         self.apply_fast_build_env();
 
         // ── MSVC toolchain activation + cmake generator selection ──
@@ -1080,10 +1089,21 @@ impl BuildConfig {
         self.activate_msvc_env();
         self.select_generator(workspace_root);
         Self::purge_stale_cmake_dirs(workspace_root);
-        // The LLAMA_CPP_PREBUILT_LIB_DIR auto-export left with the kernel
-        // cut — nothing in this workspace links llama-cpp-sys-2. The fetch
-        // tooling + prebuilt pipeline live with Clyffy (clyffyos repo,
-        // tools/fetch-llama-cpp/).
+    }
+
+    /// Resolve a `[build.deps.*].path` to a real file.
+    ///
+    /// Order: the configured path (relative to the workspace root, or
+    /// absolute) if it exists, then the tool's binary name on `PATH`.
+    /// Returns `None` when neither resolves, so callers never export an
+    /// env var pointing at a file that is not there.
+    fn resolve_dep_path(workspace_root: &Path, configured: &str) -> Option<PathBuf> {
+        let candidate = workspace_root.join(configured);
+        if candidate.is_file() {
+            return Some(candidate);
+        }
+        let tool = Path::new(configured).file_stem()?;
+        which::which(tool).ok()
     }
 
     /// Detect installed acceleration SDKs and return the cargo `--features`
@@ -1093,20 +1113,17 @@ impl BuildConfig {
     ///
     /// Detection composes GPU + CPU features into one comma-joined list:
     ///   - CUDA Toolkit + NVIDIA GPU → `gpu-nvidia`
-    ///   - else Vulkan SDK installed → `gpu-vulkan`
     ///   - Intel MKL (MKLROOT or default install) → `cpu-mkl` (additive)
     ///
-    /// CUDA is preferred over Vulkan on NVIDIA (runs ~20-30% faster for
-    /// llama.cpp). MKL composes with either GPU pick — GPU handles the
-    /// heavy nets, MKL handles the remaining CPU BLAS/LAPACK.
+    /// No Vulkan or llama.cpp build: GGUF chat runs in llama-server, a
+    /// separate process (plan 0007). MKL composes with the GPU pick — GPU
+    /// handles the heavy nets, MKL the remaining CPU BLAS/LAPACK.
     pub fn detect_build_features() -> Option<String> {
         let mut features: Vec<&'static str> = Vec::new();
 
         let cuda_active = detect_and_export_cuda();
         if cuda_active {
             features.push("gpu-nvidia");
-        } else if detect_and_export_vulkan() {
-            features.push("gpu-vulkan");
         }
 
         if detect_and_export_mkl() {
@@ -1159,52 +1176,6 @@ fn detect_and_export_cuda() -> bool {
     cuda_active
 }
 
-/// Vulkan SDK auto-detection: prefer `VULKAN_SDK` if it points at a valid
-/// install; otherwise pick the highest versioned subdir of the default
-/// `C:/VulkanSDK/` root. Returns `true` and re-exports `VULKAN_SDK` when
-/// a usable install is found (llama-cpp-sys-2's build.rs reads it).
-fn detect_and_export_vulkan() -> bool {
-    let vulkan_sdk = std::env::var("VULKAN_SDK")
-        .ok()
-        .filter(|p| {
-            std::path::Path::new(p)
-                .join("Include")
-                .join("vulkan")
-                .join("vulkan.h")
-                .is_file()
-        })
-        .or_else(|| {
-            let candidates = ["C:/VulkanSDK", "C:/Program Files/VulkanSDK"];
-            for root in candidates {
-                let root_path = std::path::Path::new(root);
-                if !root_path.is_dir() {
-                    continue;
-                }
-                if let Ok(entries) = std::fs::read_dir(root_path) {
-                    if let Some(latest) = entries
-                        .filter_map(Result::ok)
-                        .map(|e| e.path())
-                        .filter(|p| {
-                            p.is_dir()
-                                && p.join("Include").join("vulkan").join("vulkan.h").is_file()
-                        })
-                        .max()
-                    {
-                        return Some(latest.to_string_lossy().to_string());
-                    }
-                }
-            }
-            None
-        });
-    if let Some(ref path) = vulkan_sdk {
-        std::env::set_var("VULKAN_SDK", path);
-        println!("  [env] VULKAN_SDK = {path} (auto-export for child build scripts)");
-        true
-    } else {
-        false
-    }
-}
-
 /// Intel MKL auto-detection: prefer `MKLROOT` if valid; otherwise pick the
 /// highest versioned subdir of the default `oneAPI/mkl` root. Returns
 /// `true` and re-exports `MKLROOT` on success.
@@ -1240,11 +1211,13 @@ fn detect_and_export_mkl() -> bool {
 }
 
 impl BuildConfig {
-    /// Resolve rust-lld and sccache from per-machine locations and export
-    /// them as cargo env vars. Idempotent; safe to call multiple times.
+    /// Confirm the rust-lld linker `.cargo/config.toml` names is installed,
+    /// and export sccache as `RUSTC_WRAPPER`. Idempotent; safe to call
+    /// multiple times.
     fn apply_fast_build_env(&self) {
         // rust-lld ships in the `llvm-tools-preview` rustup component at
-        // `{sysroot}/lib/rustlib/{target}/bin/rust-lld[.exe]`.
+        // `{sysroot}/lib/rustlib/{target}/bin/rust-lld[.exe]`; rustc finds
+        // it there by bare name, so the config needs no machine path.
         match Command::new("rustc").args(["--print", "sysroot"]).output() {
             Ok(out) if out.status.success() => {
                 let sysroot = String::from_utf8_lossy(&out.stdout).trim().to_string();
@@ -1260,14 +1233,8 @@ impl BuildConfig {
                     .join("bin")
                     .join(lld_name);
                 if rust_lld.is_file() {
-                    let env_key = format!(
-                        "CARGO_TARGET_{}_LINKER",
-                        self.toolchain.target.replace('-', "_").to_uppercase()
-                    );
-                    std::env::set_var(&env_key, &rust_lld);
                     println!(
-                        "  [env] {} = {} (rust-lld fast linker)",
-                        env_key,
+                        "  [linker] rust-lld at {} (declared in .cargo/config.toml)",
                         rust_lld.display()
                     );
                 } else {
@@ -1277,7 +1244,7 @@ impl BuildConfig {
                     );
                 }
             }
-            _ => println!("  [warn] `rustc --print sysroot` failed; rust-lld not wired"),
+            _ => println!("  [warn] `rustc --print sysroot` failed; rust-lld presence not checked"),
         }
 
         // sccache — compile cache that survives `cargo clean` and branch
@@ -1303,8 +1270,8 @@ impl BuildConfig {
             Some(feats) => println!("  [accel] auto-detected features = {feats}"),
             None => println!(
                 "  [accel] no SDK detected — bare CPU build. \
-                 Install Vulkan SDK (cross-vendor GPU), CUDA Toolkit 12.x \
-                 (NVIDIA peak), and/or Intel oneAPI MKL (CPU BLAS) to enable."
+                 Install CUDA Toolkit 12.x (NVIDIA) and/or Intel oneAPI MKL \
+                 (CPU BLAS) to enable."
             ),
         }
     }
@@ -2106,8 +2073,7 @@ fn build_toolchain_file_contents(cl_path: &str, ninja_path: &str) -> String {
         "# Auto-generated by xtask. Do not edit by hand.\n\
          # Pins the MSVC toolchain for every cmake invocation that\n\
          # inherits CMAKE_TOOLCHAIN_FILE — including ExternalProject_Add\n\
-         # sub-projects (ggml-vulkan's vulkan-shaders-gen, etc.) that\n\
-         # don't forward the outer cmake's `-D` args.\n\
+         # sub-projects that don't forward the outer cmake's `-D` args.\n\
          set(CMAKE_C_COMPILER \"{cl}\" CACHE FILEPATH \"\")\n\
          set(CMAKE_CXX_COMPILER \"{cl}\" CACHE FILEPATH \"\")\n\
          set(CMAKE_MAKE_PROGRAM \"{ninja}\" CACHE FILEPATH \"\")\n\
@@ -2117,22 +2083,7 @@ fn build_toolchain_file_contents(cl_path: &str, ninja_path: &str) -> String {
          # builds and cmake try_compile probes don't need a manifest.\n\
          set(CMAKE_EXE_LINKER_FLAGS_INIT \"/MANIFEST:NO\")\n\
          set(CMAKE_SHARED_LINKER_FLAGS_INIT \"/MANIFEST:NO\")\n\
-         set(CMAKE_MODULE_LINKER_FLAGS_INIT \"/MANIFEST:NO\")\n\
-         # Disable cpp-httplib's OpenSSL support. llama.cpp's vendored\n\
-         # cpp-httplib (httplib.cpp:12574) declares `X509_NAME *name =\n\
-         # X509_get_subject_name(cert)` which fails to compile against\n\
-         # modern Windows SDK / OpenSSL headers that return\n\
-         # `const X509_NAME *` (verified 2026-05-12 on Windows SDK\n\
-         # 10.0.26100.0 + VS 2022 BuildTools). The default `LLAMA_OPENSSL\n\
-         # = ON` is meant for the llama.cpp server binary, which we\n\
-         # disable via `LLAMA_BUILD_SERVER=OFF`. Without SSL, cpp-httplib\n\
-         # still compiles cleanly — just without the HTTPS code path —\n\
-         # and llama-cpp-sys-2's static-lib output doesn't reference any\n\
-         # SSL symbol. Setting FORCE because llama.cpp's CMakeLists\n\
-         # already declares this as `option(... ON)`.\n\
-         set(LLAMA_OPENSSL OFF CACHE BOOL \"Disabled by xtask — see workspace.rs\" FORCE)\n\
-         set(LLAMA_BUILD_BORINGSSL OFF CACHE BOOL \"\" FORCE)\n\
-         set(LLAMA_BUILD_LIBRESSL OFF CACHE BOOL \"\" FORCE)\n",
+         set(CMAKE_MODULE_LINKER_FLAGS_INIT \"/MANIFEST:NO\")\n",
     )
 }
 

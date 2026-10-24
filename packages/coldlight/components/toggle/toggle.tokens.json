@@ -1,0 +1,58 @@
+{
+	"$description": "Toggle's tokens (plan 0006 §0s). The build generates styles/components/kinds/toggle.css and toggle.generated.ts from the toggle group.",
+	"toggle": {
+		"$description": "Each variant is a surface role read from the family in scope; data-surface picks the family. The old presets map to: default → elevated; glass → glass + deep; stark → stark + glow; flat → flat + minimal; matte → neuro + solid. The kind owns its radius, label type, cursor and focus ring (the class map's rounded-md, font-medium, text-sm/text-base, cursor-pointer, focus-visible outline).",
+		"$extensions": {
+			"com.coldlight": {
+				"accepts": ["surface", "text", "frame"],
+				"defaults": { "variant": "elevated", "size": "md" }
+			}
+		},
+		"base": {
+			"border-style": { "$value": "solid", "$type": "strokeStyle" },
+			"border-radius": { "$value": "{radius.md}", "$type": "dimension" },
+			"font-weight": { "$value": 500, "$type": "fontWeight" },
+			"cursor": { "$value": "pointer" }
+		},
+		"variant": {
+			"elevated": { "$extensions": { "com.coldlight": { "role": "elevated" } } },
+			"deep": { "$extensions": { "com.coldlight": { "role": "deep" } } },
+			"minimal": { "$extensions": { "com.coldlight": { "role": "minimal" } } },
+			"solid": { "$extensions": { "com.coldlight": { "role": "solid" } } },
+			"glow": { "$extensions": { "com.coldlight": { "role": "glow" } } },
+			"muted": { "$extensions": { "com.coldlight": { "role": "muted" } } }
+		},
+		"size": {
+			"sm": {
+				"height": { "$value": "2rem", "$type": "dimension" },
+				"padding-inline": { "$value": "0.5rem", "$type": "dimension" },
+				"font-size": { "$value": "0.875rem", "$type": "dimension" },
+				"line-height": { "$value": "1.25rem", "$type": "dimension" }
+			},
+			"md": {
+				"height": { "$value": "2.5rem", "$type": "dimension" },
+				"padding-inline": { "$value": "0.75rem", "$type": "dimension" },
+				"font-size": { "$value": "0.875rem", "$type": "dimension" },
+				"line-height": { "$value": "1.25rem", "$type": "dimension" }
+			},
+			"lg": {
+				"height": { "$value": "3rem", "$type": "dimension" },
+				"padding-inline": { "$value": "1rem", "$type": "dimension" },
+				"font-size": { "$value": "1rem", "$type": "dimension" },
+				"line-height": { "$value": "1.5rem", "$type": "dimension" }
+			}
+		},
+		"state": {
+			"focus-visible": {
+				"outline-style": { "$value": "solid", "$type": "strokeStyle" },
+				"outline-width": { "$value": "2px", "$type": "dimension" },
+				"outline-offset": { "$value": "2px", "$type": "dimension" }
+			},
+			"disabled": {
+				"$description": "What the class map's disabled:opacity-50 and disabled:pointer-events-none meant; they never matched, since useToggle marks disabled with aria-disabled and data-disabled.",
+				"opacity": { "$value": 0.5, "$type": "number" },
+				"pointer-events": { "$value": "none" }
+			}
+		}
+	}
+}

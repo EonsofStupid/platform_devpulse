@@ -1,17 +1,11 @@
 /**
- * Shared devtool types — axis taxonomy, health states, tab metadata.
+ * Shared devtool types — health states, tab metadata.
  *
  * Kept in a plain `.ts` file (not inside `ServiceDevtoolShell.svelte`)
  * so every per-service domain can import them cleanly from the barrel
- * without fighting Svelte's `.svelte` type re-export rules.
+ * without fighting Svelte's `.svelte` type re-export rules. Where a page
+ * sits (its bucket chip) comes from its route folder (plan 0008).
  */
-
-/**
- * Axis placement — mirrors the `config/platform/{axis}/` folder and the
- * engine's `ModuleAxis` enum. Used to derive color accent + breadcrumb
- * label in the devtool shell.
- */
-export type ServiceAxis = "runtime" | "stores" | "runtimes" | "capabilities" | "integrations";
 
 /**
  * Layman-phrased health state shown as a colored dot + label in the
@@ -53,7 +47,7 @@ export interface CapturePayload {
 /**
  * A per-service domain-specific tab appended after the five standard
  * tabs. Use for tooling that only makes sense for one service
- * (e.g. LibSQL's SQL Console, SurrealDB's namespace selector).
+ * (e.g. Turso's SQL Console, SurrealDB's namespace selector).
  */
 export interface ExtraTab {
 	/** Unique tab id. Prefix with the module id if collisions are possible. */

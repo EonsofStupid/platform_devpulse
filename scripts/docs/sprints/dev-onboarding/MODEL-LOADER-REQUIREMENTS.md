@@ -15,7 +15,7 @@
 2. **REAUTHOR ONLY.** No new files that duplicate absorbed functionality. Extend existing files when they cover the concern.
 3. The 21 step files in `features/setup-wizard/steps/` and 8 overlay component files in `features/setup-wizard/components/` are the work surface — each reauthored in place.
 4. ColdLight is SOLE AUTHORITY for all UI. Every visual component uses `renderForge()` + `cssVarString()`. No raw inline styles for colors/spacing. No custom tooltip divs. No hardcoded oklch in templates.
-5. 2-layer enterprise pattern: Primitive hooks (behavior, WAI-ARIA APG) → Components (the product, hook + renderForge). No `ui/` folder. No middle layer.
+5. 2-layer enterprise pattern inside ColdLight: Primitive hooks (behavior, WAI-ARIA APG) → Components (the product, hook + renderForge). No `ui/` folder and no middle layer inside ColdLight; an app domain's `ui/<name>/` adapters are the owner's direction (2026-10-21).
 
 ### Data
 6. **Rust SSOT for every visible string.** New copy keys authored into `wizard_copy.default.toml` first, matching struct in `kernel/model-loader/src/wizard/copy.rs`. Frontend consumes via `get_wizard_copy`. No hardcoded UI strings.
@@ -27,7 +27,7 @@
 ### Rust
 11. No `unwrap()` in new Rust code. Use `?` or explicit handling.
 12. No backwards-compat shims, no deprecations. Pre-release mode. Aggressively reauthor.
-13. IP protection: kernel terms NEVER appear outside `kernel/`. Use public equivalents from `kernel_terms.toml`.
+13. Vocabulary is public (owner 2026-10-19: "everything is public"): `kernel_terms.toml` maps layman ↔ advanced labels, layman first in the UI. The prompt recipes stay the kernel's.
 14. Desktop Tauri code NEVER imports `devpulse-clyffy`. Use `devpulse-engine` only. All kernel access through Platform facade.
 
 ### Svelte 5
@@ -48,8 +48,8 @@
 27. Every interactive button: `aria-label` with descriptive text.
 
 ### CSS / Tokens
-28. TailwindCSS v4 utility classes. Minimum font size: `text-sm`. Zero `text-xs` anywhere.
-29. All colors oklch. All sizes rem. NO hex, NO px, NO rgb, NO hsl in authored code.
+28. Tailwind owns layout and structure only; every visual is ColdLight's (owner 2026-10-10). Minimum font size: `text-sm`. Zero `text-xs` anywhere.
+29. Generated CSS is oklch and rem. Token JSON may hold hex; the build's transformers turn it into oklch and rem (owner: "GET THE … HEX CSS IN THE JSON / GET THE BUILT IN TRANSFORMERS MADE / GET THEM CREATING OKLCH AND REM"). No hex, px, rgb or hsl in authored components.
 30. Generated files MUST have `.generated.` in filename.
 31. SD5 with `expand: true`, `outputReferences: false` — final resolved values.
 32. No inventing CSS variable names without checking SD5 output.
@@ -62,7 +62,7 @@
 37. FORBIDDEN from reporting "Done" until verification passes with zero errors.
 38. Re-read files before AND after every edit. Max 3 edits to same file without verification read.
 39. Max 5 files per phase. State plan upfront, wait for approval between phases.
-40. No dead code. Warnings are blockers. Unused imports = delete.
+40. Warnings are blockers. Unused code is included before it is deleted: wire it in or show it is covered; deletion per item with the owner's OK (2026-10-19). An unused import means unfinished work — find its source of truth and finish it (owner: "every line unused import needs to be confirmed that there is an existing source of truth if not we need to fix and get it imported").
 41. No empty catch blocks. Every catch: throw, log with structured context, or set error state.
 42. No `title=` attributes on interactive elements. Use ColdLight Tooltip component.
 
@@ -100,7 +100,7 @@ cargo xtask run-dev  # owner verifies visual + flow
 ### Core Philosophy
 43. **Zero Config Default.** App works out of the box with bundled models. No setup required for basic use.
 44. **Progressive Disclosure.** Power users can customize; beginners never need to. Technical details hidden behind "Advanced" or tooltip/disclosure.
-45. **Local First.** All processing on-device. No data leaves the machine.
+45. **Local First.** Processing is on-device by default. Data leaves the machine only through what the person turns on: their devpulse.app account, opt-in sync (shippin.cloud or a homelab), and their own AI subscriptions (owner, plan 0001).
 46. **Graceful Degradation.** Weaker hardware gets smaller models, still works. Never brick on low-end hardware.
 47. **Hot Swap.** Switch models without restarting the app. Unload → load → ready, no app restart.
 

@@ -21,7 +21,7 @@ A clean contract where the Rust side owns canonical state and the frontend reads
 - When a kernel type needs to cross IPC, derive `specta::Type` on the kernel type — do not create an engine DTO mirror.
 - Use the existing vocabulary registry (`ip_term!`, surface registry) for layman-facing labels.
 - Run `cargo xtask regen-bindings` whenever a Rust type changes shape.
-- Flag any duplicate storage of the same concept (preferences.json + libSQL + SurrealDB) as a STOP point.
+- Flag any duplicate storage of the same concept (preferences.json + Turso + SurrealDB) as a STOP point.
 - When asked to add a UI label, register it in the YAML/registry first, then consume the generated const.
 
 ## Anti-patterns

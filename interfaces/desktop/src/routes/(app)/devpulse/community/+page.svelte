@@ -11,20 +11,22 @@
 	  corresponding tables ship — kept so the surface area is visible)
 
 	The friends/groups counts come from `devpulseState.data.community`
-	(static zeros today). They WILL be wired to libSQL `friends` /
+	(static zeros today). They WILL be wired to Turso `friends` /
 	`groups` tables when those land alongside the auth/contribution flow.
 -->
 <script lang="ts">
-import { RefreshCcw } from "@lucide/svelte";
+import { Widget } from "@devpulse/coldlight/blocks/widgets";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Text } from "@devpulse/coldlight/components/text";
+import { gridLayout, stack } from "@devpulse/coldlight/utils";
+import { RefreshCcw } from "lucide-svelte";
 import { onMount } from "svelte";
-import { CommunityFeedList } from "$lib/design/blocks/community/index.js";
-import { Widget } from "$lib/design/blocks/widgets/index.js";
-import { Button } from "$lib/design/components/button/index.js";
-import { Text } from "$lib/design/components/text/index.js";
-import { gridLayout } from "$lib/design/utils/grid-layout/index.js";
-import { stack } from "$lib/design/utils/stack/index.js";
-import { communityState } from "$lib/domains/app/community/index.js";
+import { CommunityFeedList, communityState } from "$lib/domains/app/community/index.js";
 import { devpulseState } from "$lib/domains/app/devpulse/index.js";
+import { routeCopy, routeHere } from "$lib/sys/routing/index.js";
+
+const here = $derived(routeHere());
+const heading = $derived(here ? routeCopy(here) : undefined);
 
 onMount(() => {
 	void communityState.refresh();
@@ -48,7 +50,7 @@ async function onRefresh(): Promise<void> {
 <div class={stack({ gap: "4" })} data-page="devpulse-community">
 	<header class="flex flex-wrap items-end justify-between gap-3">
 		<div class={stack({ gap: "1" })}>
-			<h1 class="text-2xl font-bold">Community</h1>
+			<h1 class="text-2xl font-bold">{heading?.label}</h1>
 			<Text size="sm" color="muted">
 				{#if communityState.status.enabled}
 					Last synced {lastSyncLabel}
@@ -58,7 +60,7 @@ async function onRefresh(): Promise<void> {
 				{/if}
 			</Text>
 		</div>
-		<Button preset="ghost" size="sm" onclick={onRefresh}>
+		<Button variant="ghost" size="sm" onclick={onRefresh}>
 			<RefreshCcw size={14} class="mr-1" /> Refresh
 		</Button>
 	</header>

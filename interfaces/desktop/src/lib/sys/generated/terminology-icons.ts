@@ -24,7 +24,7 @@ import {
 	Settings,
 	Users,
 	Zap,
-} from "@lucide/svelte";
+} from "lucide-svelte";
 
 type LucideIcon = typeof Settings;
 

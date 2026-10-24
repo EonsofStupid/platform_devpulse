@@ -3,7 +3,7 @@
  * @module @devpulse/domains/chat/data-access/chat.service
  */
 
-import { devpulseState } from "$lib/domains/app/devpulse/index.js";
+import { projectsState } from "$lib/domains/app/projects/index.js";
 import { withAction } from "$lib/sys/action-bus.svelte.js";
 import {
 	type ChatMessage,
@@ -15,8 +15,7 @@ import {
 import { logError, logInfo } from "$lib/sys/logger.js";
 
 function activeProjectId(): string | null {
-	const id = devpulseState.data.recentProjects[0]?.id ?? null;
-	return id;
+	return projectsState.activeProjectId;
 }
 
 function ok<T>(r: { status: "ok"; data: T } | { status: "error"; error: unknown }): T {
@@ -46,19 +45,6 @@ export async function sendMessage(projectId: string, content: string): Promise<C
 		const pid = projectId || activeProjectId();
 		if (!pid) throw new Error("No active project — open a project in DevPulse first.");
 		const r = await commands.sendMessage(pid, content);
-		return ok(r);
-	});
-}
-
-/**
- * Ask the local Claude Code CLI one prompt and return its full answer.
- * Subscription-authed by Claude Code itself; no project/session/brain
- * required. The first working AI provider — backend spawns `claude -p`.
- */
-export async function claudeCodeChat(prompt: string): Promise<string> {
-	return withAction("chat.claudeCode", "Asking Claude Code…", async () => {
-		logInfo("chat", "claude_code_chat");
-		const r = await commands.claudeCodeChat(prompt);
 		return ok(r);
 	});
 }

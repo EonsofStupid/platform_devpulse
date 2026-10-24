@@ -22,8 +22,8 @@
  * # Where the underlying Rust lives
  *
  * - Tauri commands: `interfaces/desktop/src-tauri/src/commands/ollama/sidecar/`
- * - Engine service + adapter:
- *   `systems/devpulse-engine/src/platform/services/sidecars/ollama/`
+ * - Engine service: `systems/devpulse-engine/src/platform/services/ollama.rs`
+ * - Kernel adapter: `kernel/devpulse-clyffy/src/cortex/persistence/ollama.rs`
  */
 
 import { commands } from "$lib/sys/generated/bindings.js";

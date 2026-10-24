@@ -1,15 +1,15 @@
-//! User-directed frame sinks — disk, libSQL, `DuckDB`, discard, composite.
+//! User-directed frame sinks — disk, Turso, `DuckDB`, discard, composite.
 //!
 //! The pipeline holds an `Arc<dyn FrameSink>` and calls `write` once
 //! per captured frame. The operator picks which sinks compose into
-//! that single arc via the Config tab; the default ships disk + libSQL
+//! that single arc via the Config tab; the default ships disk + Turso
 //! + `DuckDB` as a `CompositeSink`.
 //!
 //! # Per-sink error isolation
 //!
 //! `CompositeSink` walks every member regardless of individual failures
 //! and reports them through `SinkHealth`. One bad sink (corrupt disk,
-//! libSQL lock contention, `DuckDB` write timeout) never kills the whole
+//! Turso lock contention, `DuckDB` write timeout) never kills the whole
 //! pipeline — the others keep writing while the failing one shows a
 //! degraded badge in the Status tab.
 
@@ -21,7 +21,9 @@ use async_trait::async_trait;
 // Concrete adapter types + their traits — the persistence traits use
 // native `async fn` so they aren't dyn-compatible, but bringing them
 // into scope lets us call `.execute` / `.append` via the trait method.
-use devpulse_store::{AnalyticsAdapter, DuckDbAdapter, SqlAdapter, TursoAdapter};
+use devpulse_clyffy::cortex::persistence::{
+    AnalyticsAdapter, DuckDbAdapter, SqlAdapter, TursoAdapter,
+};
 use serde::{Deserialize, Serialize};
 use specta::Type;
 
@@ -34,7 +36,7 @@ use specta::Type;
 /// Owned to keep `CompositeSink` fan-out cheap (each member borrows
 /// without coordinating lifetimes). `png_bytes` is `Vec<u8>` (not
 /// `Arc<[u8]>`) because the sinks each take a different action — disk
-/// writes the bytes verbatim, libSQL stores a path, `DuckDB` stores
+/// writes the bytes verbatim, Turso stores a path, `DuckDB` stores
 /// only the embedding. The clone cost is dominated by encode time
 /// upstream anyway.
 #[derive(Debug, Clone)]
@@ -150,7 +152,7 @@ impl DiskFrameSink {
     }
 
     /// Resolve the on-disk path for a given record without writing.
-    /// Exposed for tests and for the libSQL sink (it stores the path
+    /// Exposed for tests and for the Turso sink (it stores the path
     /// the disk sink would have used so the two sinks reference one
     /// canonical location).
     pub fn path_for(&self, session_id: &str, frame_id: u64) -> PathBuf {
@@ -215,16 +217,16 @@ impl FrameSink for DiskFrameSink {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// libSQL
+// Turso
 // ═══════════════════════════════════════════════════════════════════════
 
 /// Inserts one row per frame into `vision_frames` (USER scope).
 ///
 /// `sink_path` mirrors what `DiskFrameSink` would write so a composite
-/// `disk + libsql` configuration produces a queryable index pointing
+/// `disk + turso` configuration produces a queryable index pointing
 /// at on-disk PNGs. Set `sink_path` to an empty string when the disk
 /// sink isn't paired (the row still records dims + embedding).
-pub struct LibSqlFrameSink {
+pub struct TursoFrameSink {
     adapter: Arc<TursoAdapter>,
     /// Optional disk-sink path generator. When `None`, `sink_path`
     /// column is written empty.
@@ -232,8 +234,8 @@ pub struct LibSqlFrameSink {
     health: std::sync::RwLock<SinkHealth>,
 }
 
-impl LibSqlFrameSink {
-    /// Construct a libSQL sink. Pair with a `DiskFrameSink` to record
+impl TursoFrameSink {
+    /// Construct a Turso sink. Pair with a `DiskFrameSink` to record
     /// the on-disk PNG path alongside the row. Concrete adapter type
     /// (not `dyn SqlAdapter`) because the persistence trait is a
     /// native `async fn` trait — not yet dyn-compatible in stable Rust.
@@ -248,9 +250,9 @@ impl LibSqlFrameSink {
 }
 
 #[async_trait]
-impl FrameSink for LibSqlFrameSink {
+impl FrameSink for TursoFrameSink {
     fn name(&self) -> &'static str {
-        "libsql"
+        "turso"
     }
 
     async fn write(&self, record: &FrameSinkRecord) -> Result<()> {
@@ -262,10 +264,8 @@ impl FrameSink for LibSqlFrameSink {
             None => String::new(),
         };
 
-        // Embedding stored as a CSV string of f32s — libSQL has BLOB
-        // support but the SqlAdapter trait only takes `&[&str]` for
-        // params. CSV is portable and round-trips through serde when
-        // read back.
+        // The `embedding_csv` column holds the f32s as CSV text; empty
+        // when the frame was captured without an embedding.
         let embedding_csv = record
             .embedding
             .as_ref()
@@ -277,11 +277,8 @@ impl FrameSink for LibSqlFrameSink {
             })
             .unwrap_or_default();
 
-        let frame_id_str = record.frame_id.to_string();
-        let captured_at_str = record.captured_at_ms.to_string();
-        let source_id_str = record.source_id.to_string();
-        let width_str = record.width.to_string();
-        let height_str = record.height.to_string();
+        let frame_id = i64::try_from(record.frame_id)
+            .map_err(|_| anyhow::anyhow!("frame id {} exceeds SQLite INTEGER", record.frame_id))?;
 
         let result = self
             .adapter
@@ -291,15 +288,15 @@ impl FrameSink for LibSqlFrameSink {
                   width, height, sink_path, embedding_csv) \
                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 &[
-                    record.session_id.as_str(),
-                    frame_id_str.as_str(),
-                    captured_at_str.as_str(),
-                    record.source_kind.as_str(),
-                    source_id_str.as_str(),
-                    width_str.as_str(),
-                    height_str.as_str(),
-                    sink_path.as_str(),
-                    embedding_csv.as_str(),
+                    record.session_id.as_str().into(),
+                    frame_id.into(),
+                    record.captured_at_ms.into(),
+                    record.source_kind.as_str().into(),
+                    record.source_id.into(),
+                    record.width.into(),
+                    record.height.into(),
+                    sink_path.into(),
+                    embedding_csv.into(),
                 ],
             )
             .await;
@@ -337,7 +334,7 @@ impl FrameSink for LibSqlFrameSink {
 ///
 /// Designed for the Metrics tab — operators can run `SELECT
 /// session_id, COUNT(*) FROM vision_embeddings ...` for ad-hoc
-/// rollups without touching the libSQL row store.
+/// rollups without touching the Turso row store.
 ///
 /// Skips writes silently when `record.embedding` is `None` — pure
 /// capture-only sessions don't pollute the analytics table with empty

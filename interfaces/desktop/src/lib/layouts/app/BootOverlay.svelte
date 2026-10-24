@@ -3,9 +3,9 @@
   @module @devpulse/layouts/app/BootOverlay
 
   Full-viewport overlay during platform boot.
-  Phase 1: Subsystem progress (narrow centered column).
-  Phase 2: Model setup wizard (wider, scrollable).
-  Fades out and unmounts only when platform + models are fully ready.
+  Subsystem progress (narrow centered column).
+  Fades out and unmounts once the platform is ready and the first models
+  readiness snapshot has arrived.
   No timeout dismissal — core services must complete or fail visibly.
 
   All layout via utils (hstack, stack, box -> class strings).
@@ -21,17 +21,11 @@
 }
 -->
 <script lang="ts">
-import { listen } from "@tauri-apps/api/event";
-import { onMount } from "svelte";
-import { Badge, type BadgeVariant } from "$lib/design/components/badge/index.js";
-import { DynamicBackground } from "$lib/design/components/dynamic-background/index.js";
-import { Progress } from "$lib/design/components/progress/index.js";
-import { Text } from "$lib/design/components/text/index.js";
-import { box } from "$lib/design/utils/box/index.js";
-import { cn } from "$lib/design/utils/cn.js";
-import { hstack } from "$lib/design/utils/hstack/index.js";
-import { stack } from "$lib/design/utils/stack/index.js";
-import { wizardState } from "$lib/domains/app/models/feature/setup-wizard/index.js";
+import { Badge, type BadgeVariant } from "@devpulse/coldlight/components/badge";
+import { DynamicBackground } from "@devpulse/coldlight/components/dynamic-background";
+import { Progress } from "@devpulse/coldlight/components/progress";
+import { Text } from "@devpulse/coldlight/components/text";
+import { box, cn, hstack, stack } from "@devpulse/coldlight/utils";
 import { LoadingContentCard } from "$lib/domains/clyffy/index.js";
 import { DEV_MODE, devLabel, resolveLabel } from "$lib/sys/generated/terminology.js";
 import { getIcon } from "$lib/sys/generated/terminology-icons.js";
@@ -41,31 +35,10 @@ import { platformState } from "$lib/sys/runes/platformState.svelte.js";
 
 let visible = $state(true);
 let fading = $state(false);
-let bootFailureMessage = $state<string | null>(null);
 
-onMount(() => {
-	// Listen for platform:boot-failed emitted by the boot_task supervisor
-	// in src-tauri/src/lib.rs. A non-empty payload means the Rust
-	// boot_task panicked or failed in a way that the per-subsystem event
-	// stream cannot recover from; surface the message verbatim so the
-	// user sees a root cause instead of a frozen spinner.
-	const unlistenPromise = listen<string>("platform:boot-failed", (event) => {
-		const msg = typeof event.payload === "string" ? event.payload : String(event.payload);
-		bootFailureMessage = msg;
-		logError("layouts.app.BootOverlay", `platform:boot-failed → ${msg}`);
-	})
-		.then((fn) => {
-			logInfo("layouts.app.BootOverlay", "listening for platform:boot-failed");
-			return fn;
-		})
-		.catch((e) => {
-			logError("layouts.app.BootOverlay", `failed to attach platform:boot-failed listener: ${e}`);
-			return null;
-		});
-	return () => {
-		void unlistenPromise.then((unlisten) => unlisten?.());
-	};
-});
+// Rust's boot state carries the failure — a failed boot step or a panic in
+// the boot task — so the user sees the root cause instead of a frozen spinner.
+const bootFailureMessage = $derived(platformState.hasFailed ? platformState.error : null);
 
 async function openLogsFolder() {
 	try {
@@ -119,18 +92,10 @@ function stateToLabel(state: SubsystemState, latencyMs: number | null): string {
 // `Registry::scan`). The user opens the `ModelDownloaderOverlay`
 // explicitly — from the dashboard widget, the sidebar nav, or a
 // per-slot card in the slot orchestrator devtool — to add or assign
-// a model. There is no auto-install path. There never was a
-// product-supported one: the prior `baselineState.kick()` here
-// silently fired 13 concurrent installs against a tier-keyed preset
-// table whose entries had drifted (dead repos, wrong filename
-// casing), and lock-fought hf-hub's shared blob cache. The fix is
-// not to repair the preset table — the lock says cloud sync /
-// preset downloads stay opt-in and never gate the app. The fix is
-// to never fire on boot. User-initiated downloads remain wired
-// through the existing `installToSlot` / `downloadModel` IPC; this
-// surface just stops auto-triggering them.
+// a model. Nothing installs on boot; every download starts from the
+// user's click (`installToSlot` / `downloadModel`).
 //
-// Gate on `modelsStatusReceived` — the engine emits `platform:ready`
+// Gate on `modelsStatusReceived` — the kernel emits `platform:ready`
 // and `platform:models-status` as separate events. Without this gate
 // the overlay would fade before the first authoritative models
 // snapshot reaches the rune store, leaving the dashboard briefly
@@ -144,34 +109,6 @@ $effect(() => {
 			"layouts.app.BootOverlay",
 			`Boot complete — modelsReady=${platformState.modelsReady} firstRun=${platformState.modelsFirstRun} — dashboard takes over`,
 		);
-		// Wizard auto-open — TWO-STAGE (standalone-first). The app always
-		// loads Tier-1; the only question the wizard must force on the
-		// customer is the CONNECT-OR-SKIP decision, exactly once. The old
-		// gate keyed off `platformState.modelsReady` (local slot
-		// assignments) — permanently false under the connect-based model,
-		// which force-opened the wizard on every launch. The decision flag
-		// is persisted by connect_clyffy / skip_clyffy_setup; re-entry
-		// stays available from the status surfaces after Skip.
-		void import("$lib/sys/generated/bindings.js")
-			.then(({ commands }) => commands.isClyffySetupDecided())
-			.then((r) => {
-				if (r.status === "ok" && !r.data) {
-					wizardState.goTo("endpoint");
-					wizardState.open();
-					logInfo(
-						"layouts.app.BootOverlay",
-						"Connect-or-skip undecided — opened setup wizard on the endpoint step",
-					);
-				} else if (r.status === "error") {
-					logInfo(
-						"layouts.app.BootOverlay",
-						`Couldn't read setup decision (${String(r.error)}) — staying standalone, no forced wizard`,
-					);
-				}
-			})
-			.catch((e) => {
-				logError("layouts.app.BootOverlay", `setup-decision check failed: ${e}`);
-			});
 		fading = true;
 		setTimeout(() => {
 			visible = false;
@@ -196,11 +133,7 @@ $effect(() => {
 		animated
 	/>
 
-	<!--
-		Two-phase container:
-		Boot phase → narrow centered column (400px) for subsystem list.
-		Wizard phase → wider (768px) with scroll for model setup.
-	-->
+	<!-- Narrow centered column (400px) for the subsystem list. -->
 	<div class={cn(
 		stack({ gap: "6", align: "center" }),
 		"overflow-y-auto scrollbar-thin pointer-events-auto",
@@ -244,7 +177,6 @@ $effect(() => {
 			</div>
 		{/if}
 
-		<!-- Subsystem list — always visible during boot, collapses during wizard -->
 		<!-- Subsystem progress always visible during boot -->
 			<div class={cn(stack({ gap: "8" }), "w-full")}>
 				{#each subsystems as sub (sub.name)}
@@ -304,20 +236,6 @@ $effect(() => {
 			{#if platformState.isBooting}
 				<div class="w-full max-w-[24rem]">
 					<LoadingContentCard rotateEveryMs={9000} />
-				</div>
-			{/if}
-
-			<!-- Error state — boot phase failed or platform error string -->
-			{#if platformState.hasFailed && platformState.error}
-				<div
-					class={cn(
-						box({ paddingX: "12", paddingY: "8" }),
-						"w-full text-center rounded-md border border-[var(--signal-error)]/20 bg-[var(--signal-error)]/10",
-					)}
-					data-kind="box"
-					data-slot="root"
-				>
-					<Text size="xs" color="accent">{platformState.error}</Text>
 				</div>
 			{/if}
 

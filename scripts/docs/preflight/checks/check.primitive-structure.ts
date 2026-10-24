@@ -20,7 +20,7 @@ const LAYOUT_PRIMITIVES = [
 ];
 
 function getPrimitiveDirs(designRoot: string): string[] {
-	const primitivesDir = path.join(designRoot, "lib/design/primitives");
+	const primitivesDir = path.join(designRoot, "primitives");
 	if (!fs.existsSync(primitivesDir)) return [];
 
 	return fs
@@ -52,7 +52,7 @@ const primitiveStructureCheck: Check = {
 		for (const dir of dirs) {
 			const primDir = path.join(
 				ctx.targetRoot,
-				"lib/design/primitives",
+				"primitives",
 				dir,
 			);
 			const files = fs.readdirSync(primDir);
@@ -73,7 +73,7 @@ const primitiveStructureCheck: Check = {
 						status: "fail",
 						severity: "error",
 						message: `primitives/${dir}/ missing ${required}`,
-						file: `lib/design/primitives/${dir}/${required}`,
+						file: `packages/coldlight/primitives/${dir}/${required}`,
 						suggestion: hint,
 					});
 				}
@@ -88,7 +88,7 @@ const primitiveStructureCheck: Check = {
 						status: "fail",
 						severity: "error",
 						message: `primitives/${dir}/ is a layout primitive — must have a .svelte file`,
-						file: `lib/design/primitives/${dir}/`,
+						file: `packages/coldlight/primitives/${dir}/`,
 						suggestion: `Layout primitives (${LAYOUT_PRIMITIVES.join(", ")}) render directly. Add a .svelte component.`,
 					});
 				}

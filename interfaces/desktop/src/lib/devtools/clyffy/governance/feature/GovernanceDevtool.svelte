@@ -5,7 +5,7 @@
 	Agent-policy devtool — the unified surface for what the agent is
 	allowed to emit. Three layers visible in one shell:
 
-	  • llguidance — constrained-decoding enforcement (Clyffy-side module
+	  • llguidance — constrained-decoding enforcement (kernel module
 	    `cortex/llguidance/`, target `llguidance`).
 	  • AG-UI — bi-directional event wire between agent + user app.
 	  • A2UI — generative-UI payload schema the agent emits inside that
@@ -14,12 +14,11 @@
 	# Phase 1 (this commit)
 	Layout + real log feed only. Wire panel, Grammar Builder, and the
 	live grammar-state surface land in subsequent phases when their
-	Clyffy-side surfaces are wired (cortex `agui/` schema + Tauri commands
+	kernel surfaces are wired (cortex `agui/` schema + Tauri commands
 	for `GrammarHandle::status()` and the AG-UI event tap).
 -->
 <script lang="ts">
-import { Shield } from "@lucide/svelte";
-import { Text } from "$lib/design/components/text/index.js";
+import { Text } from "@devpulse/coldlight/components/text";
 import { type HealthBadge, ScopedLogPanel, ServiceDevtoolShell } from "$lib/devtools/index.js";
 
 const badge: HealthBadge = {
@@ -29,11 +28,6 @@ const badge: HealthBadge = {
 </script>
 
 <ServiceDevtoolShell
-	title="Agent Policy"
-	description="Constrained decoding · AG-UI wire · A2UI grammar"
-	icon={Shield}
-	axis="capabilities"
-	accent="electric"
 	health={badge}
 >
 	{#snippet status()}
@@ -92,7 +86,7 @@ const badge: HealthBadge = {
 					</div>
 					<div class="flex justify-between">
 						<span style="color: var(--text-secondary)">System table</span>
-						<span class="font-mono">grammar_service (libsql)</span>
+						<span class="font-mono">grammar_service (turso)</span>
 					</div>
 					<div class="flex justify-between">
 						<span style="color: var(--text-secondary)">Tracing target</span>

@@ -16,8 +16,8 @@ pub enum WindowRole {
     Main,
     /// Clyffy Chat — child window
     Chat,
-    /// Connectome viewer — telemetry / devtools
-    ConnectomeViewer,
+    /// Knowledge viewer — telemetry / devtools
+    KnowledgeViewer,
     /// Model loader — slot management
     ModelLoader,
     /// Unified dev toolbox panel (Ctrl+Shift+Z)
@@ -25,78 +25,58 @@ pub enum WindowRole {
 }
 
 impl WindowRole {
+    /// Every role.
+    pub const ALL: [Self; 5] = [
+        Self::Main,
+        Self::Chat,
+        Self::KnowledgeViewer,
+        Self::ModelLoader,
+        Self::DevTools,
+    ];
+
+    /// Whether this window is a detached surface the devtools dashboard
+    /// offers (it pops a page into its own window).
+    #[must_use]
+    pub fn detached(&self) -> bool {
+        matches!(self, Self::KnowledgeViewer | Self::ModelLoader)
+    }
+
     /// Tauri window label for this role.
     #[must_use]
     pub fn label(&self) -> &'static str {
         match self {
             Self::Main => "main",
             Self::Chat => "chat",
-            Self::ConnectomeViewer => "connectome-viewer",
+            Self::KnowledgeViewer => "knowledge-viewer",
             Self::ModelLoader => "model-loader",
             Self::DevTools => "devtools",
         }
     }
 
-    /// Window title.
-    #[must_use]
-    pub fn title(&self) -> &'static str {
-        match self {
-            Self::Main => "DevPulse",
-            Self::Chat => "Clyffy Chat",
-            Self::ConnectomeViewer => "Connectome Viewer",
-            Self::ModelLoader => "Model Control",
-            Self::DevTools => "DevPulse Tools",
-        }
-    }
-
-    /// Fallback inner size (width, height) — used only when the main
-    /// window's monitor can't be resolved (see `size_fraction`).
+    /// Default inner size (width, height).
     #[must_use]
     pub fn default_size(&self) -> (f64, f64) {
         match self {
             Self::Main => (1280.0, 800.0),
-            Self::Chat => (960.0, 720.0),
-            Self::ConnectomeViewer => (600.0, 450.0),
+            Self::Chat => (480.0, 700.0),
+            Self::KnowledgeViewer => (600.0, 450.0),
             Self::ModelLoader => (700.0, 500.0),
             Self::DevTools => (720.0, 560.0),
         }
     }
 
-    /// Proportional inner size as a fraction of the monitor's logical
-    /// size. `None` = the static `default_size` is authoritative. Chat is
-    /// proportional so it is never a fixed sliver on large displays — the
-    /// window scales with the screen and the min floor guards the bottom.
-    #[must_use]
-    pub fn size_fraction(&self) -> Option<(f64, f64)> {
-        match self {
-            Self::Chat => Some((0.45, 0.8)),
-            Self::Main | Self::ConnectomeViewer | Self::ModelLoader | Self::DevTools => None,
-        }
-    }
-
-    /// Minimum inner size (width, height). The OS resize floor — the
-    /// window-state plugin restores whatever was saved, so this is the
-    /// hard guard against bad persisted geometry.
-    #[must_use]
-    pub fn min_size(&self) -> (f64, f64) {
-        match self {
-            Self::Main => (900.0, 600.0),
-            Self::Chat => (640.0, 520.0),
-            Self::ConnectomeViewer => (480.0, 360.0),
-            Self::ModelLoader => (560.0, 420.0),
-            Self::DevTools => (600.0, 440.0),
-        }
-    }
-
-    /// `SvelteKit` route path for this window.
+    /// The page this window opens — a constant generated from the route
+    /// folders, so a missing page does not compile (plan 0008).
     #[must_use]
     pub fn route(&self) -> &'static str {
+        use crate::routes;
         match self {
-            Self::Main => "/devpulse",
-            Self::Chat => "/chat",
-            Self::ConnectomeViewer => "/connectome",
-            Self::ModelLoader => "/model-loader",
-            Self::DevTools => "/devtools",
+            Self::Main => routes::DEVPULSE,
+            Self::Chat => routes::CHAT,
+            // Its own description is "Telemetry graph".
+            Self::KnowledgeViewer => routes::DEVTOOLS_SYSTEM_OBSERVABILITY_TELEMETRY,
+            Self::ModelLoader => routes::DEVPULSE_MODELS,
+            Self::DevTools => routes::DEVTOOLS,
         }
     }
 
@@ -109,15 +89,6 @@ impl WindowRole {
         true
     }
 
-    /// Whether this window should be always on top.
-    #[must_use]
-    pub fn always_on_top(&self) -> bool {
-        match self {
-            Self::Chat | Self::ConnectomeViewer | Self::DevTools => true,
-            Self::Main | Self::ModelLoader => false,
-        }
-    }
-
     /// Whether this window should be transparent.
     ///
     /// Transparent windows on Windows require `decorations=false`. Since every
@@ -127,6 +98,17 @@ impl WindowRole {
     pub fn transparent(&self) -> bool {
         false
     }
+}
+
+/// A window role and the page it opens.
+#[derive(Serialize, Deserialize, Type, Clone, Debug)]
+pub struct WindowRoleInfo {
+    /// The role.
+    pub role: WindowRole,
+    /// The page it opens (a generated route constant).
+    pub route: String,
+    /// Whether the devtools dashboard offers it as a detached surface.
+    pub detached: bool,
 }
 
 /// Tracks an open window's state.

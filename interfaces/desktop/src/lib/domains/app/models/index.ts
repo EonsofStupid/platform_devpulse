@@ -1,19 +1,19 @@
 /**
  * @module @devpulse/domains/app/models
  *
- * Public API for the model loader domain. The backend is the engine's
- * `platform/model_loader` (management) with the Tauri
+ * Public API for the model loader domain. The kernel-side rebuild (post
+ * 2026-05-01 sweep) lives at `kernel/model-loader/` with the Tauri
  * command surface at `$lib/sys/bindings/models/`. This module is the
  * **state + UI bridge** between those bindings and consumer surfaces:
- * the dashboard, the slot orchestrator devtool, the chat strip, the
- * voice lab, and the onboarding wizard.
+ * the dashboard, the slot orchestrator devtool, the chat strip and the
+ * voice lab.
  *
  * Layer contract (Nx library-types per `project_nx_library_types`):
  *
  *   util/         — pure types + format/slot/role helpers
  *   data-access/  — singleton runes (modelsState, hardwareState, narrationState)
  *   ui/           — dumb presentational components (VramBar, ClyffyNarration, ModelEventCard)
- *   feature/      — orchestrating components (SetupWizardOverlay, SwapOverlay)
+ *   feature/      — orchestrating components (SwapOverlay, ModelDownloaderOverlay)
  *
  * Routes and other domains MUST import from THIS file. Don't reach
  * into sub-folders directly — that bypasses the contract and re-breaks
@@ -39,6 +39,7 @@ export { modelsState } from "./data-access/models.state.svelte.js";
 export { narrationState } from "./data-access/narration.state.svelte.js";
 
 // ── In-flight install/swap overlay ───────────────────────
+export { default as ModelLoaderPanel } from "./feature/components/ModelLoaderPanel.svelte";
 export { default as SwapOverlay } from "./feature/components/SwapOverlay.svelte";
 // ── Reusable Model Downloader overlay ────────────────────
 // One singleton; mount `ModelDownloaderOverlay` once at the app root
@@ -57,12 +58,8 @@ export {
 	type TagConfidence,
 	topSuggestion,
 } from "./feature/downloader/index.js";
-// ── Onboarding wizard ────────────────────────────────────
-// `bootstrapDownloadBridge` moved to `./data-access/download-bootstrap.js`
-// (re-exported above). The setup-wizard surface itself is being
-// absorbed into the SlotsDevtool — these exports remain only until
-// the next pass deletes the wizard files; consumers should migrate
-// to the slots devtool / data-access runes.
+// ── Setup wizard (restored from e0b576ff^) ───────────────
+// The single-screen cortex wizard; `/cortex` mounts it on its cortex view.
 export {
 	SetupWizardOverlay,
 	type WizardView,
@@ -77,6 +74,7 @@ export { default as VramBar } from "./ui/VramBar.svelte";
 export { default as VramGauge } from "./ui/VramGauge.svelte";
 // ── Helpers + role metadata ──────────────────────────────
 export { formatBytes, formatLoadError, formatMb } from "./util/format.js";
+export { isInferenceReady, type ModelStatus } from "./util/models.types.js";
 export {
 	ROLE_COLORS,
 	ROLE_FRAMES,
@@ -84,14 +82,13 @@ export {
 	type RoleId,
 	roleForSlot,
 } from "./util/roles.js";
-export { getSlotLabel, isInferenceReady, type SlotLabel } from "./util/slots.js";
+export { getSlotLabel, type SlotLabel } from "./util/slots.js";
 // ── Types ────────────────────────────────────────────────
 export type {
 	HardwareInfo,
 	LoadError,
 	ModelInfo,
-	ModelLoadStatus,
-	ModelsStatusSnapshot,
+	ModelsReadiness,
 	SlotInfo,
 	SlotNarration,
 	VramBudgetInfo,

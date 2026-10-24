@@ -11,14 +11,11 @@
 	persona, the one dashboard.
 -->
 <script lang="ts">
-import { BookOpenCheck, Brain, Database, Layers, Users } from "@lucide/svelte";
-import { Widget } from "$lib/design/blocks/widgets/index.js";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { DynamicBackground } from "$lib/design/components/dynamic-background/index.js";
-import { Text } from "$lib/design/components/text/index.js";
-import { cn } from "$lib/design/utils/cn.js";
-import { hstack } from "$lib/design/utils/hstack/index.js";
-import { stack } from "$lib/design/utils/stack/index.js";
+import { Widget } from "@devpulse/coldlight/blocks/widgets";
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Text } from "@devpulse/coldlight/components/text";
+import { cn, hstack, stack } from "@devpulse/coldlight/utils";
+import { BookOpenCheck, Brain, Database, Layers, Users } from "lucide-svelte";
 import { MinionGrid } from "$lib/domains/app/minions/index.js";
 import { ClyffyStatusOrb, clyffyStatus, ToolsBrowser } from "$lib/domains/clyffy/index.js";
 import { DEV_MODE } from "$lib/sys/generated/terminology.js";
@@ -26,16 +23,12 @@ import { DEV_MODE } from "$lib/sys/generated/terminology.js";
 const activity = $derived(clyffyStatus.activity);
 </script>
 
-<div class="relative" data-page="clyffy-dashboard">
-	<!-- Purple glow + purple grid — the Clyffy color identity
-	     (authored variant, mounted per the DevPulseDashboard pattern). -->
-	<DynamicBackground variant="clyffy" animated />
-	<div class="relative grid grid-cols-12 gap-4">
+<div class="grid grid-cols-12 gap-4" data-page="clyffy-dashboard">
 	<!-- ── Layman-safe: always visible ────────────────────────── -->
 	<div class="col-span-12 lg:col-span-5">
 		<Widget
 			title="Clyffy"
-			surface="glass-deep"
+			surface="glass" variant="deep"
 			depth="z2"
 			bevel="subtle"
 			glow="teal"
@@ -54,7 +47,7 @@ const activity = $derived(clyffyStatus.activity);
 	<div class="col-span-12 lg:col-span-7">
 		<Widget
 			title="What I can do"
-			surface="glass-deep"
+			surface="glass" variant="deep"
 			depth="z1"
 			bevel="subtle"
 			frame="soft"
@@ -70,7 +63,7 @@ const activity = $derived(clyffyStatus.activity);
 			<Widget
 				title="Orchestrator"
 				icon={Brain}
-				surface="glass-deep"
+				surface="glass" variant="deep"
 				depth="z2"
 				bevel="soft"
 				glow="purple"
@@ -102,7 +95,7 @@ const activity = $derived(clyffyStatus.activity);
 			<Widget
 				title="Minion Fleet"
 				icon={Users}
-				surface="glass-deep"
+				surface="glass" variant="deep"
 				depth="z2"
 				bevel="subtle"
 				glow="teal"
@@ -124,7 +117,7 @@ const activity = $derived(clyffyStatus.activity);
 			<Widget
 				title="Knowledge Base"
 				icon={BookOpenCheck}
-				surface="glass-deep"
+				surface="glass" variant="deep"
 				depth="z2"
 				bevel="soft"
 				glow="teal"
@@ -180,7 +173,7 @@ const activity = $derived(clyffyStatus.activity);
 			<Widget
 				title="Inference Cache"
 				icon={Database}
-				surface="glass-deep"
+				surface="glass" variant="deep"
 				depth="z1"
 				bevel="subtle"
 				frame="soft"
@@ -211,7 +204,7 @@ const activity = $derived(clyffyStatus.activity);
 			<Widget
 				title="Context Window"
 				icon={Layers}
-				surface="glass-deep"
+				surface="glass" variant="deep"
 				depth="z1"
 				bevel="subtle"
 				frame="soft"
@@ -234,5 +227,4 @@ const activity = $derived(clyffyStatus.activity);
 			</Widget>
 		</div>
 	{/if}
-	</div>
 </div>

@@ -5,13 +5,13 @@
 	@description Presets + per-field sliders driven by param meta from Rust.
 -->
 <script lang="ts">
-import { Settings2 } from "@lucide/svelte";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Button } from "$lib/design/components/button/index.js";
-import { Callout } from "$lib/design/components/callout/index.js";
-import { Card } from "$lib/design/components/card/index.js";
-import { Slider } from "$lib/design/components/slider/index.js";
-import { Text } from "$lib/design/components/text/index.js";
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Callout } from "@devpulse/coldlight/components/callout";
+import { Card } from "@devpulse/coldlight/components/card";
+import { Slider } from "@devpulse/coldlight/components/slider";
+import { Text } from "@devpulse/coldlight/components/text";
+import { Settings2 } from "lucide-svelte";
 import { rroState } from "$lib/sys/data-access/rro/rro.state.svelte.js";
 import { CapabilityHeader, ErrorCallout } from "../../ui/index.js";
 import { formatField } from "../../util/rro.format.js";
@@ -26,7 +26,7 @@ function fieldValue(field: string): number {
 
 <ErrorCallout prefix="Tuning error" message={rroState.configError} />
 
-<Card preset="glass">
+<Card surface="glass" variant="deep">
 	<div class="p-3 space-y-3">
 		{#snippet icon()}
 			<Settings2 size={14} class="text-[var(--accent-service-main)]" />
@@ -46,7 +46,7 @@ function fieldValue(field: string): number {
 		<div class="grid grid-cols-2 gap-2">
 			{#each RRO_PRESETS as p}
 				<Button
-					preset={rroState.config?.preset === p.name ? "primary" : "secondary"}
+					variant={rroState.config?.preset === p.name ? "primary" : "secondary"}
 					size="sm"
 					onclick={() => rroState.applyPreset(p.name)}
 				>
@@ -61,7 +61,7 @@ function fieldValue(field: string): number {
 </Card>
 
 {#if rroState.paramMeta.length > 0 && rroState.config}
-	<Card preset="glass">
+	<Card surface="glass" variant="deep">
 		<div class="p-3 space-y-4">
 			<Text size="sm" weight="semibold">Fine-tune</Text>
 			{#each rroState.paramMeta as param}
@@ -89,7 +89,7 @@ function fieldValue(field: string): number {
 {/if}
 
 <!-- Educational narration from signals catalog -->
-<Card preset="flat">
+<Card surface="flat" variant="minimal">
 	<div class="p-3 space-y-2">
 		<Text size="sm" weight="semibold">Why this matters</Text>
 		{#each RRO_STATE_NARRATIONS.ruminating.learning ?? [] as line}

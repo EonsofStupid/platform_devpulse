@@ -1,0 +1,38 @@
+[package]
+name = "rrd"
+version = "0.1.0"
+edition = "2021"
+description = "Reason Ready Daemon — in-process orchestrator for the RRO cluster's hot-update lifecycle"
+
+[lints]
+workspace = true
+
+[dependencies]
+# Core async runtime — sync primitives (watch, Mutex), time (timeout),
+# rt for spawn. `macros` lets test code use #[tokio::test].
+tokio = { workspace = true }
+
+# TaskTracker (in-flight drain) + CancellationToken (pause signal).
+# Per HOT_UPDATE_PATTERN.md §4.2 / H2.
+tokio-util = { workspace = true }
+
+# Atomic Arc swap — the encoder hot-swap primitive (HOT_UPDATE_PATTERN.md
+# §4.1 / H1). Daemon owns one ArcSwap<C> per managed component.
+arc-swap = { workspace = true }
+
+# Structured tracing — emits `rrd.lifecycle` taxonomy. The engine layer
+# subscribes via a tracing-Layer translator that mirrors each event
+# into `InternalEvent::RrdPhaseTransition` (preserves H12 dual emission
+# without forcing a kernel→engine dependency).
+tracing = { workspace = true }
+
+# Idiomatic error enums.
+thiserror = { workspace = true }
+
+[dev-dependencies]
+# rt-multi-thread for tests that need concurrent task scheduling
+# (drain test spawns 10 mock query tasks).
+tokio = { workspace = true, features = ["test-util", "rt-multi-thread"] }
+
+# Capture tracing events in tests (verifications 10, 11).
+tracing-subscriber = { workspace = true }

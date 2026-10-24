@@ -1,0 +1,48 @@
+# Claude Code — Anthropic's coding agent, used through your own subscription.
+# Facts checked 2026-10-20 against code.claude.com/docs (setup, cli-reference)
+# and the official install script.
+
+# What it is (name, docs, how DevPulse talks to it) is its registry row in
+# kernel/devpulse-clyffy/src/providers/registry.rs; this file is where this
+# machine keeps it.
+id = "claude-code"
+
+[detect]
+executables = ["claude"]
+# The native installer's launcher, when it is not on PATH.
+paths = { windows = ["~/.local/bin/claude.exe"], macos = ["~/.local/bin/claude"], linux = ["~/.local/bin/claude"] }
+
+[version]
+# Prints "2.1.211 (Claude Code)".
+args = ["--version"]
+
+[latest]
+# The plain-text version the official installer reads.
+text_url = "https://downloads.claude.ai/claude-code-releases/latest"
+
+[signed_in]
+# "Exits with code 0 if logged in, 1 if not."
+args = ["auth", "status"]
+
+[sign_in]
+args = ["auth", "login"]
+
+[update]
+args = ["update"]
+
+[connect]
+# Print mode: "query via SDK, then exit"; the answer as plain text on stdout.
+args = ["-p", "{prompt}", "--output-format", "text"]
+
+[connect.conversation]
+# A chat turn: print mode streaming its events as they happen; later turns
+# resume the session the first one reported. Checked 2026-10-21 against
+# `claude --help` and a real turn (system/init → stream_event deltas →
+# result) with Claude Code 2.1.296.
+args = ["-p", "{prompt}", "--output-format", "stream-json", "--verbose", "--include-partial-messages"]
+resume = ["--resume", "{session}"]
+# A room seat that only talks: `--tools ""` turns every built-in tool off,
+# and `--strict-mcp-config` with no `--mcp-config` loads no MCP servers.
+# Checked 2026-10-21 against `claude --help` (2.1.296).
+talk_only = ["--tools", "", "--strict-mcp-config"]
+output = "claude-stream-json"

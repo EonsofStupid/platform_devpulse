@@ -1,6 +1,6 @@
 //! # `EventFacade` — Dual-View Translation Layer
 //!
-//! The facade sits between the engine's internal event bus and all UI consumers.
+//! The facade sits between the kernel's internal event bus and all UI consumers.
 //! Every internal event flows through three stages:
 //!
 //! 1. **`TranslationRegistry`** — maps `InternalEvent` → `SurfaceEvent`
@@ -16,7 +16,7 @@
 //! The facade **observes** events via `devpulse_telemetry::BroadcastSender`
 //! (which wraps `tokio::sync::broadcast` with `OTel` context propagation —
 //! see ADR-002). It never owns model weights, GPU resources, or inference
-//! state. It is a read-only projection of the engine's internal state.
+//! state. It is a read-only projection of the kernel's internal state.
 
 mod bridge;
 pub mod config;
@@ -61,7 +61,7 @@ pub struct FacadeHandle {
 impl FacadeHandle {
     /// Create a new facade handle and spawn the bridge task.
     ///
-    /// `internal_tx` is the sender from the engine's main event bus.
+    /// `internal_tx` is the sender from the kernel's main event bus.
     /// The bridge task runs until the sender is dropped (app shutdown).
     pub fn spawn(
         internal_tx: &BroadcastSender<InternalEvent>,

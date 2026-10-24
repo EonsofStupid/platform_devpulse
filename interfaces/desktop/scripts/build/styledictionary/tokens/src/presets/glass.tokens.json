@@ -14,7 +14,7 @@
 	"preset": {
 		"glass-elevated": {
 			"background-color": {
-				"$value": "oklch(from {color.void.800} l c h / 0.4)",
+				"$value": "oklch(0.25 0.02 220 / 0.4)",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -22,15 +22,15 @@
 				"$type": "dimension"
 			},
 			"box-shadow": {
-				"$value": "0 0.5rem 2rem -0.25rem oklch(from {color.black} l c h / 0.4), 0 0.125rem 0.375rem 0 oklch(from {color.black} l c h / 0.2)",
+				"$value": "0 0.5rem 2rem -0.25rem oklch(0 0 0 / 0.4), 0 0.125rem 0.375rem 0 oklch(0 0 0 / 0.2)",
 				"$type": "shadow"
 			},
 			"color": {
-				"$value": "{accent.fg}",
+				"$value": "oklch(0.95 0.01 220)",
 				"$type": "color"
 			},
 			"border-color": {
-				"$value": "oklch(from {color.teal.200} l c h / 0.2)",
+				"$value": "oklch(0.8 0.08 180 / 0.2)",
 				"$type": "color"
 			},
 			"border-width": {
@@ -89,38 +89,45 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "glass-elevated: Raised frosted glass — bright blur, teal-tinted border, floating"
+			"$description": "glass-elevated: Raised frosted glass — bright blur, teal-tinted border, floating",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Glass Elevated",
+					"family": "glass",
+					"variant": "elevated"
+				}
+			}
 		},
 		"glass-elevated-hover": {
 			"$description": "glass-elevated hover overrides",
 			"background-color": {
-				"$value": "oklch(from {color.void.800} l c h / 0.45)",
+				"$value": "oklch(0.28 0.025 220 / 0.45)",
 				"$type": "color"
 			},
 			"box-shadow": {
-				"$value": "0 0.625rem 2.5rem -0.125rem oklch(from {color.black} l c h / 0.45), 0 0.125rem 0.5rem 0 oklch(from {color.black} l c h / 0.22)",
+				"$value": "0 0.625rem 2.5rem -0.125rem oklch(0 0 0 / 0.45), 0 0.125rem 0.5rem 0 oklch(0 0 0 / 0.22)",
 				"$type": "shadow"
 			},
 			"border-color": {
-				"$value": "oklch(from {color.teal.100} l c h / 0.3)",
+				"$value": "oklch(0.85 0.1 180 / 0.3)",
 				"$type": "color"
 			}
 		},
 		"glass-elevated-active": {
 			"$description": "glass-elevated active overrides",
 			"background-color": {
-				"$value": "oklch(from {color.void.900} l c h / 0.5)",
+				"$value": "oklch(0.22 0.018 220 / 0.5)",
 				"$type": "color"
 			},
 			"box-shadow": {
-				"$value": "0 0.25rem 1rem -0.25rem oklch(from {color.black} l c h / 0.35)",
+				"$value": "0 0.25rem 1rem -0.25rem oklch(0 0 0 / 0.35)",
 				"$type": "shadow"
 			}
 		},
 		"glass-elevated-disabled": {
 			"$description": "glass-elevated disabled overrides",
 			"background-color": {
-				"$value": "oklch(from {color.void.900} l c h / 0.2)",
+				"$value": "oklch(0.2 0.005 220 / 0.2)",
 				"$type": "color"
 			},
 			"opacity": {
@@ -128,7 +135,7 @@
 				"$type": "number"
 			},
 			"border-color": {
-				"$value": "oklch(from {muted.main} l c h / 0.1)",
+				"$value": "oklch(0.5 0.02 220 / 0.1)",
 				"$type": "color"
 			},
 			"animation": {
@@ -138,7 +145,7 @@
 		},
 		"glass-deep": {
 			"background-color": {
-				"$value": "oklch(from {color.void.950} l c h / 0.6)",
+				"$value": "oklch(0.12 0.025 220 / 0.6)",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -146,11 +153,11 @@
 				"$type": "dimension"
 			},
 			"box-shadow": {
-				"$value": "0 0.25rem 1rem 0 oklch(from {color.black} l c h / 0.5), inset 0 0.0625rem 0.125rem 0 oklch(from {color.white} l c h / 0.04)",
+				"$value": "0 0.25rem 1rem 0 oklch(0 0 0 / 0.5), inset 0 0.0625rem 0.125rem 0 oklch(1 0 0 / 0.04)",
 				"$type": "shadow"
 			},
 			"color": {
-				"$value": "{color.void.100}",
+				"$value": "oklch(0.88 0.015 220)",
 				"$type": "color"
 			},
 			"border-color": {
@@ -213,16 +220,23 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "glass-deep: Deep frosted glass — heavy blur, dark tint, submerged look"
+			"$description": "glass-deep: Deep frosted glass — heavy blur, dark tint, submerged look",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Glass Deep",
+					"family": "glass",
+					"variant": "deep"
+				}
+			}
 		},
 		"glass-deep-hover": {
 			"$description": "glass-deep hover overrides",
 			"background-color": {
-				"$value": "oklch(from {color.frost.950} l c h / 0.65)",
+				"$value": "oklch(0.15 0.03 220 / 0.65)",
 				"$type": "color"
 			},
 			"box-shadow": {
-				"$value": "0 0.375rem 1.25rem 0 oklch(from {color.black} l c h / 0.55), inset 0 0.0625rem 0.125rem 0 oklch(from {color.white} l c h / 0.06)",
+				"$value": "0 0.375rem 1.25rem 0 oklch(0 0 0 / 0.55), inset 0 0.0625rem 0.125rem 0 oklch(1 0 0 / 0.06)",
 				"$type": "shadow"
 			},
 			"border-color": {
@@ -233,18 +247,18 @@
 		"glass-deep-active": {
 			"$description": "glass-deep active overrides",
 			"background-color": {
-				"$value": "oklch(from {color.void.950} l c h / 0.7)",
+				"$value": "oklch(0.1 0.02 220 / 0.7)",
 				"$type": "color"
 			},
 			"box-shadow": {
-				"$value": "0 0.125rem 0.5rem 0 oklch(from {color.black} l c h / 0.45)",
+				"$value": "0 0.125rem 0.5rem 0 oklch(0 0 0 / 0.45)",
 				"$type": "shadow"
 			}
 		},
 		"glass-deep-disabled": {
 			"$description": "glass-deep disabled overrides",
 			"background-color": {
-				"$value": "oklch(from {warning.fg} l c h / 0.3)",
+				"$value": "oklch(0.12 0.005 220 / 0.3)",
 				"$type": "color"
 			},
 			"opacity": {
@@ -252,13 +266,13 @@
 				"$type": "number"
 			},
 			"border-color": {
-				"$value": "oklch(from {color.void.700} l c h / 0.08)",
+				"$value": "oklch(0.4 0.01 220 / 0.08)",
 				"$type": "color"
 			}
 		},
 		"glass-minimal": {
 			"background-color": {
-				"$value": "oklch(from {color.void.800} l c h / 0.15)",
+				"$value": "oklch(0.3 0.01 220 / 0.15)",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -270,11 +284,11 @@
 				"$type": "shadow"
 			},
 			"color": {
-				"$value": "{color.void.200}",
+				"$value": "oklch(0.82 0.01 220)",
 				"$type": "color"
 			},
 			"border-color": {
-				"$value": "oklch(from {color.white} l c h / 0.08)",
+				"$value": "oklch(1 0 0 / 0.08)",
 				"$type": "color"
 			},
 			"border-width": {
@@ -333,34 +347,41 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "glass-minimal: Whisper glass — barely visible surface, light blur, nearly transparent"
+			"$description": "glass-minimal: Whisper glass — barely visible surface, light blur, nearly transparent",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Glass Minimal",
+					"family": "glass",
+					"variant": "minimal"
+				}
+			}
 		},
 		"glass-minimal-hover": {
 			"$description": "glass-minimal hover overrides",
 			"background-color": {
-				"$value": "oklch(from {text.disabled} l c h / 0.2)",
+				"$value": "oklch(0.33 0.015 220 / 0.2)",
 				"$type": "color"
 			},
 			"border-color": {
-				"$value": "oklch(from {color.white} l c h / 0.14)",
+				"$value": "oklch(1 0 0 / 0.14)",
 				"$type": "color"
 			}
 		},
 		"glass-minimal-active": {
 			"$description": "glass-minimal active overrides",
 			"background-color": {
-				"$value": "oklch(from {color.void.800} l c h / 0.22)",
+				"$value": "oklch(0.27 0.008 220 / 0.22)",
 				"$type": "color"
 			}
 		},
 		"glass-minimal-disabled": {
 			"$description": "glass-minimal disabled overrides",
 			"background-color": {
-				"$value": "oklch(from {color.void.800} l c h / 0.08)",
+				"$value": "oklch(0.25 0.005 220 / 0.08)",
 				"$type": "color"
 			},
 			"color": {
-				"$value": "{color.neutral.400}",
+				"$value": "oklch(0.6 0.005 220)",
 				"$type": "color"
 			},
 			"opacity": {
@@ -370,7 +391,7 @@
 		},
 		"glass-solid": {
 			"background-color": {
-				"$value": "oklch(from {color.void.900} l c h / 0.85)",
+				"$value": "oklch(0.18 0.02 220 / 0.85)",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -378,11 +399,11 @@
 				"$type": "dimension"
 			},
 			"box-shadow": {
-				"$value": "0 0.25rem 0.75rem 0 oklch(from {color.black} l c h / 0.35)",
+				"$value": "0 0.25rem 0.75rem 0 oklch(0 0 0 / 0.35)",
 				"$type": "shadow"
 			},
 			"color": {
-				"$value": "{accent.fg}",
+				"$value": "oklch(0.92 0.012 220)",
 				"$type": "color"
 			},
 			"border-color": {
@@ -445,16 +466,23 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "glass-solid: Opaque glass — frosted texture but no see-through, dense blur"
+			"$description": "glass-solid: Opaque glass — frosted texture but no see-through, dense blur",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Glass Solid",
+					"family": "glass",
+					"variant": "solid"
+				}
+			}
 		},
 		"glass-solid-hover": {
 			"$description": "glass-solid hover overrides",
 			"background-color": {
-				"$value": "oklch(from {color.cyan.950} l c h / 0.88)",
+				"$value": "oklch(0.2 0.025 220 / 0.88)",
 				"$type": "color"
 			},
 			"box-shadow": {
-				"$value": "0 0.375rem 1rem 0 oklch(from {color.black} l c h / 0.4)",
+				"$value": "0 0.375rem 1rem 0 oklch(0 0 0 / 0.4)",
 				"$type": "shadow"
 			},
 			"border-color": {
@@ -465,18 +493,18 @@
 		"glass-solid-active": {
 			"$description": "glass-solid active overrides",
 			"background-color": {
-				"$value": "oklch(from {color.void.900} l c h / 0.9)",
+				"$value": "oklch(0.16 0.018 220 / 0.9)",
 				"$type": "color"
 			},
 			"box-shadow": {
-				"$value": "0 0.125rem 0.375rem 0 oklch(from {color.black} l c h / 0.3)",
+				"$value": "0 0.125rem 0.375rem 0 oklch(0 0 0 / 0.3)",
 				"$type": "shadow"
 			}
 		},
 		"glass-solid-disabled": {
 			"$description": "glass-solid disabled overrides",
 			"background-color": {
-				"$value": "oklch(from {color.void.950} l c h / 0.5)",
+				"$value": "oklch(0.15 0.005 220 / 0.5)",
 				"$type": "color"
 			},
 			"opacity": {
@@ -484,13 +512,13 @@
 				"$type": "number"
 			},
 			"border-color": {
-				"$value": "oklch(from {color.void.700} l c h / 0.1)",
+				"$value": "oklch(0.4 0.01 220 / 0.1)",
 				"$type": "color"
 			}
 		},
 		"glass-glow": {
 			"background-color": {
-				"$value": "oklch(from {color.teal.950} l c h / 0.35)",
+				"$value": "oklch(0.18 0.04 190 / 0.35)",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -498,15 +526,15 @@
 				"$type": "dimension"
 			},
 			"box-shadow": {
-				"$value": "0 0.25rem 1rem 0 oklch(from {color.black} l c h / 0.4), 0 0 1rem 0 oklch(from {text.accent} l c h / 0.15), 0 0 2.5rem 0 oklch(from {text.accent} l c h / 0.08)",
+				"$value": "0 0.25rem 1rem 0 oklch(0 0 0 / 0.4), 0 0 1rem 0 oklch(0.7 0.15 180 / 0.15), 0 0 2.5rem 0 oklch(0.7 0.15 180 / 0.08)",
 				"$type": "shadow"
 			},
 			"color": {
-				"$value": "{color.teal.100}",
+				"$value": "oklch(0.88 0.06 180)",
 				"$type": "color"
 			},
 			"border-color": {
-				"$value": "oklch(from {text.accent} l c h / 0.3)",
+				"$value": "oklch(0.7 0.15 180 / 0.3)",
 				"$type": "color"
 			},
 			"border-width": {
@@ -565,7 +593,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "glass-glow: Glowing glass — teal emission through frosted surface, ethereal"
+			"$description": "glass-glow: Glowing glass — teal emission through frosted surface, ethereal",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Glass Glow",
+					"family": "glass",
+					"variant": "glow"
+				}
+			}
 		},
 		"glass-glow-hover": {
 			"$description": "glass-glow hover overrides",
@@ -574,29 +609,29 @@
 				"$type": "color"
 			},
 			"box-shadow": {
-				"$value": "0 0.375rem 1.25rem 0 oklch(from {color.black} l c h / 0.45), 0 0 1.25rem 0 oklch(from {text.accent} l c h / 0.22), 0 0 3rem 0 oklch(from {text.accent} l c h / 0.12)",
+				"$value": "0 0.375rem 1.25rem 0 oklch(0 0 0 / 0.45), 0 0 1.25rem 0 oklch(0.7 0.15 180 / 0.22), 0 0 3rem 0 oklch(0.7 0.15 180 / 0.12)",
 				"$type": "shadow"
 			},
 			"border-color": {
-				"$value": "oklch(from {text.accent} l c h / 0.4)",
+				"$value": "oklch(0.75 0.18 180 / 0.4)",
 				"$type": "color"
 			}
 		},
 		"glass-glow-active": {
 			"$description": "glass-glow active overrides",
 			"background-color": {
-				"$value": "oklch(from {color.teal.950} l c h / 0.45)",
+				"$value": "oklch(0.15 0.035 190 / 0.45)",
 				"$type": "color"
 			},
 			"box-shadow": {
-				"$value": "0 0.125rem 0.5rem 0 oklch(from {color.black} l c h / 0.35), 0 0 0.75rem 0 oklch(from {text.accent} l c h / 0.1)",
+				"$value": "0 0.125rem 0.5rem 0 oklch(0 0 0 / 0.35), 0 0 0.75rem 0 oklch(0.7 0.15 180 / 0.1)",
 				"$type": "shadow"
 			}
 		},
 		"glass-glow-disabled": {
 			"$description": "glass-glow disabled overrides",
 			"background-color": {
-				"$value": "oklch(from {color.void.950} l c h / 0.2)",
+				"$value": "oklch(0.15 0.01 190 / 0.2)",
 				"$type": "color"
 			},
 			"opacity": {
@@ -614,7 +649,7 @@
 		},
 		"glass-muted": {
 			"background-color": {
-				"$value": "oklch(from {color.void.900} l c h / 0.2)",
+				"$value": "oklch(0.2 0.005 220 / 0.2)",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -626,11 +661,11 @@
 				"$type": "shadow"
 			},
 			"color": {
-				"$value": "{color.neutral.400}",
+				"$value": "oklch(0.6 0.005 220)",
 				"$type": "color"
 			},
 			"border-color": {
-				"$value": "oklch(from {color.void.600} l c h / 0.1)",
+				"$value": "oklch(0.5 0.005 220 / 0.1)",
 				"$type": "color"
 			},
 			"border-width": {
@@ -689,12 +724,19 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "glass-muted: Dimmed glass — faded frost for disabled/secondary states"
+			"$description": "glass-muted: Dimmed glass — faded frost for disabled/secondary states",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Glass Muted",
+					"family": "glass",
+					"variant": "muted"
+				}
+			}
 		},
 		"glass-muted-hover": {
 			"$description": "glass-muted hover overrides",
 			"background-color": {
-				"$value": "oklch(from {color.void.900} l c h / 0.25)",
+				"$value": "oklch(0.22 0.008 220 / 0.25)",
 				"$type": "color"
 			},
 			"opacity": {
@@ -702,14 +744,14 @@
 				"$type": "number"
 			},
 			"border-color": {
-				"$value": "oklch(from {color.void.500} l c h / 0.15)",
+				"$value": "oklch(0.55 0.008 220 / 0.15)",
 				"$type": "color"
 			}
 		},
 		"glass-muted-active": {
 			"$description": "glass-muted active overrides",
 			"background-color": {
-				"$value": "oklch(from {color.neutral.900} l c h / 0.25)",
+				"$value": "oklch(0.18 0.004 220 / 0.25)",
 				"$type": "color"
 			},
 			"opacity": {
@@ -720,11 +762,11 @@
 		"glass-muted-disabled": {
 			"$description": "glass-muted disabled overrides",
 			"background-color": {
-				"$value": "oklch(from {color.neutral.900} l c h / 0.1)",
+				"$value": "oklch(0.18 0.003 220 / 0.1)",
 				"$type": "color"
 			},
 			"color": {
-				"$value": "{color.neutral.600}",
+				"$value": "oklch(0.45 0.003 220)",
 				"$type": "color"
 			},
 			"opacity": {

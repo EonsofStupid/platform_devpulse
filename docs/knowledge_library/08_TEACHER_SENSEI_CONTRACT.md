@@ -206,10 +206,10 @@ VALUES (?, ?, ?, ?, ?, ?, ?, NOW());
 
 ## Minion API Surface
 
-ClyffyOS's AI layer exposes a generalized function to all minions:
+The kernel exposes a generalized function to all minions:
 
 ```rust
-// ClyffyOS-side (can reference Clyffy, Minion names, etc.)
+// Inside kernel (can reference Clyffy, Minion names, etc.)
 pub trait KnowledgeConsumer {
     fn query(&self, filter: KnowledgeFilter, context: UserContext) -> Vec<Entry>;
     fn surface(&self, entry: &Entry, placement: Placement) -> Result<(), SurfaceError>;

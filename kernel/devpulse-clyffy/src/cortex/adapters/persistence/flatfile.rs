@@ -1,0 +1,1 @@
+// FlatFile Adapter (Config/JSON)

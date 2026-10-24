@@ -34,7 +34,7 @@ use devpulse_telemetry::spawn;
 
 use crate::platform::config::{ExecutionLane, LaneTraceConfig};
 use crate::platform::services::analytics::AnalyticsService;
-use devpulse_store::AnalyticsAdapter;
+use devpulse_clyffy::cortex::persistence::AnalyticsAdapter;
 
 /// Channel buffer size for completed traces.
 /// Backpressure: if buffer is full, traces are silently dropped.
@@ -381,7 +381,7 @@ impl LaneTraceWriter {
             Err(e) => {
                 tracing::warn!(
                     count,
-                    error = %e,
+                    error = %format!("{e:#}"),
                     "Failed to flush lane traces to DuckDB"
                 );
             }
@@ -442,7 +442,7 @@ CREATE TABLE IF NOT EXISTS lane_baselines (
 // ═══════════════════════════════════════════════════════════════
 
 /// Per-lane latency percentiles.
-/// Execute via MCP `query_duckdb` tool or Connectome viewer.
+/// Execute via MCP `query_duckdb` tool or Cortex viewer.
 pub const BASELINE_PERCENTILES_SQL: &str = r"
 SELECT
     lane,

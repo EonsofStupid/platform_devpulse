@@ -4,7 +4,7 @@
  *
  * Svelte 5 rune state tracking ALL active model installs platform-wide.
  *
- * An "install" is the engine's atomic chain — download → scan → assign
+ * An "install" is the kernel's atomic chain — download → scan → assign
  * → load — composed by `install_to_slot`. Distinct from a raw download
  * (which is just bytes-to-disk). The install lifecycle starts when the
  * user clicks an "Install to {slot}" button and ends when the model is
@@ -13,7 +13,7 @@
  *
  * Subscribes to the three `model:install-*` Tauri events emitted by
  * `EventBridge` (engine → desktop bridge) which mirror
- * `LoaderEvent::Install{Started,Complete,Failed}` from the engine.
+ * `LoaderEvent::Install{Started,Complete,Failed}` from the kernel.
  */
 
 import { listen } from "@tauri-apps/api/event";

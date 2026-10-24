@@ -1,0 +1,113 @@
+# ═══════════════════════════════════════════════════════════════
+# SETUP WIZARD — Clyffy Interaction Template
+# ═══════════════════════════════════════════════════════════════
+#
+# The first-run / rare-reconfigure interaction. Described in the
+# sprint spec as the "Setup Wizard overlay" (D13). This file is the
+# DATA side of that wizard — the state machine, the phase pointers,
+# the triggers. The corresponding COPY lives in
+# `systems/devpulse-engine/config/wizard_copy.default.toml` and is
+# referenced via each phase's `copy_block` field.
+#
+# Runtime flow:
+#
+#   1. Kernel dispatcher evaluates `triggers` at boot (first_run)
+#      and on user action (manual). First match opens the overlay.
+#   2. Frontend SetupWizardOverlay reads the parsed template,
+#      enters `entry_phase`, renders its `copy_block`.
+#   3. User action advances through `next` pointers.
+#   4. Terminal phase (`complete`) fires close + persists the
+#      `Factory Default` SlotConfiguration to libSQL.
+#
+# ── Schema ─────────────────────────────────────────────────────
+#
+# See `kernel/devpulse-clyffy/src/interactions/mod.rs` for the full
+# `InteractionTemplate` type. Every phase below maps directly to a
+# Svelte sub-component the wizard renders:
+#
+#   welcome      → WelcomePhase.svelte (greeting + Let's Go)
+#   scanning     → ScanningPhase.svelte (hardware scan spinner)
+#   presets      → PresetsPhase.svelte (tier badge + preset picker)
+#   downloading  → DownloadingPhase.svelte (per-slot progress bars)
+#   activation   → ActivationPhase.svelte (first greeting + voice test)
+#   profile      → ProfilePhase.svelte (dev profile creation)
+#   complete     → CompletePhase.svelte (success + open chat)
+#
+# ═══════════════════════════════════════════════════════════════
+
+id = "setup"
+description = "First-run setup wizard — hardware scan, preset pick, model downloads, activation"
+entry_phase = "welcome"
+
+# ── Triggers ───────────────────────────────────────────────────
+
+[[triggers]]
+kind = "first_run"
+
+[[triggers]]
+kind = "manual"
+
+# ── Phase machine ──────────────────────────────────────────────
+
+# 1. Welcome — Clyffy mascot greeting + hardware preview + Let's Go
+
+[[phases]]
+id = "welcome"
+label = "Welcome"
+copy_block = "greeting"
+next = ["scanning"]
+terminal = false
+
+# 2. Scanning — hardware detection spinner
+
+[[phases]]
+id = "scanning"
+label = "Scanning Hardware"
+copy_block = "scanning"
+next = ["presets"]
+terminal = false
+
+# 3. Presets — detected tier badge + preset picker grid
+
+[[phases]]
+id = "presets"
+label = "Choose Preset"
+copy_block = "hardware"
+next = ["downloading"]
+terminal = false
+
+# 4. Downloading — per-slot download progress bars
+
+[[phases]]
+id = "downloading"
+label = "Downloading Models"
+copy_block = "models"
+next = ["activation"]
+terminal = false
+
+# 5. Activation — ClyfActivationStep content (first greeting + voice test)
+
+[[phases]]
+id = "activation"
+label = "Activation"
+copy_block = "activate"
+next = ["profile"]
+terminal = false
+
+# 6. Profile — dev profile creation (ProjectSetupStep content)
+
+[[phases]]
+id = "profile"
+label = "Dev Profile"
+copy_block = "profile"
+next = ["complete"]
+terminal = false
+
+# 7. Complete — success + open chat button (terminal)
+
+[[phases]]
+id = "complete"
+label = "Ready"
+copy_block = "completion"
+next = []
+terminal = true

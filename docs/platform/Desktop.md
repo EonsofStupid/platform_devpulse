@@ -31,7 +31,7 @@ the feature, and the route IS the page — properly structured, not lazily flat.
 |-------|----------|------|
 | Domains | `src/lib/domains/**` | Nx library-types (`feature`/`ui`/`data-access`/`util`) — the source |
 | Routes | `src/routes/**` | Pages that mirror domains — the surface |
-| Design | `src/lib/design/**` | ColdLight — visual system |
+| Design | `packages/coldlight/**` (`@devpulse/coldlight`) | ColdLight — visual system |
 | System | `src/lib/sys/**` | Platform backbone — generated types, registries |
 | Policy | `scripts/docs/policy/**` | Enforcement truth |
 

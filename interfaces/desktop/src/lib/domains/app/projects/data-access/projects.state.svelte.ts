@@ -1,54 +1,40 @@
 /**
- * @file Projects state — rune module backing the project switcher,
- * references panel, and any surface that needs to know "what am I
- * working on right now".
- * @module @devpulse/domains/app/projects/data-access
+ * @file projectsState — your projects and the active one, as Rust publishes them.
+ * @module @devpulse/domains/app/projects/data-access/projects.state
  *
- * There is exactly ONE active project at a time (enforced by the
- * backend — `active_project_id` is a singleton in `kv_store`). This
- * module mirrors that singleton as `$state`, plus a list of all
- * projects and the currently-active project's references.
- *
- * Commands are called via tauri-specta generated bindings under
- * `commands.*` — they write libSQL first (authoritative) and mirror
- * to SurrealDB. This state reloads from libSQL after every mutation
- * so the UI reflects the ground truth, not our in-memory guess.
+ * The list and the active project arrive as the `projects` state signal,
+ * replayed to late windows — so the hub, the chat window and DevForge all
+ * see the same active project. Intents go to Rust, which validates them,
+ * writes to Turso and publishes the new state; nothing here decides which
+ * project is active, and nothing re-reads by hand. A refusal keeps Rust's
+ * message in `error`. The active project's reference directories load
+ * whenever the active project changes.
  */
 
+import { signalFabric } from "$lib/sys/events/signal-fabric.js";
+import type { Project, ProjectReference, Result } from "$lib/sys/generated/bindings.js";
 import { commands } from "$lib/sys/generated/bindings.js";
 import { logError, logInfo } from "$lib/sys/logger.js";
 
-export interface Project {
-	id: string;
-	name: string;
-	rootPath: string;
-	projectType: string;
-	slug: string | null;
-	description: string | null;
-	tool: string | null;
-	techStack: string | null;
-	active: boolean;
-	createdAt: number;
-}
-
-export interface ProjectReference {
-	id: string;
-	projectId: string;
-	path: string;
-	label: string | null;
-	kind: string;
-	createdAt: number;
-}
+export type { Project, ProjectReference };
 
 export type ReferenceKind = "docs" | "source" | "examples" | "other";
 
 const LOG_TARGET = "domains.projects";
 
+function unwrap<T>(name: string, result: Result<T, string>): T {
+	if (result.status === "error") throw new Error(`${name}: ${result.error}`);
+	return result.data;
+}
+
+const message = (e: unknown): string => (e instanceof Error ? e.message : String(e));
+
 class ProjectsState {
 	projects = $state<Project[]>([]);
 	activeProjectId = $state<string | null>(null);
 	activeProjectReferences = $state<ProjectReference[]>([]);
-	loading = $state(false);
+	/** Until Rust's first `projects` state arrives. */
+	loading = $state(true);
 	error = $state<string | null>(null);
 
 	activeProject = $derived(
@@ -57,45 +43,86 @@ class ProjectsState {
 			: null,
 	);
 
-	/** Load all projects + the active-project singleton + its references. */
-	async refresh(reason = "manual"): Promise<void> {
-		if (this.loading) return;
-		this.loading = true;
-		this.error = null;
-		logInfo(LOG_TARGET, `refresh() — reason=${reason}`);
-		try {
-			const [list, active] = await Promise.all([
-				commands.listProjects(false),
-				commands.getActiveProject(),
-			]);
-			this.projects = (list as unknown as Project[]) ?? [];
-			this.activeProjectId = active ? (active as unknown as Project).id : null;
+	private offs: (() => void)[] = [];
+	private referencesOf: string | null = null;
+	/**
+	 * Rust publishes the projects state while the platform is still booting;
+	 * commands answer only once boot is ready, so references wait for it.
+	 */
+	private platformReady = $state(false);
 
-			if (this.activeProjectId) {
-				const refs = await commands.listProjectReferences(this.activeProjectId);
-				this.activeProjectReferences = (refs as unknown as ProjectReference[]) ?? [];
-			} else {
-				this.activeProjectReferences = [];
-			}
+	/** The projects state has arrived and the platform answers commands. */
+	get ready(): boolean {
+		return this.platformReady && !this.loading;
+	}
+
+	/** Follow the `projects` and `boot` signals. Returns the teardown. */
+	start(): () => void {
+		if (this.offs.length === 0) {
+			this.offs = [
+				signalFabric.on("boot", (status) => {
+					const ready = status.phase === "ready";
+					if (ready === this.platformReady) return;
+					this.platformReady = ready;
+					if (ready) void this.loadReferences();
+				}),
+				signalFabric.on("projects", (state) => {
+					this.projects = state.projects;
+					this.activeProjectId = state.activeId;
+					this.loading = false;
+					void this.loadReferences();
+				}),
+			];
+		}
+		return () => {
+			this.offs.forEach((off) => {
+				off();
+			});
+			this.offs = [];
+		};
+	}
+
+	/** The active project's references; re-read when it changes, or when asked after an edit. */
+	private async loadReferences(force = false): Promise<void> {
+		if (!this.platformReady) return;
+		const id = this.activeProjectId;
+		if (!force && id === this.referencesOf) return;
+		this.referencesOf = id;
+		if (!id) {
+			this.activeProjectReferences = [];
+			return;
+		}
+		try {
+			const references = unwrap("listProjectReferences", await commands.listProjectReferences(id));
+			if (this.activeProjectId === id) this.activeProjectReferences = references;
 		} catch (e) {
-			const msg = e instanceof Error ? e.message : String(e);
-			this.error = msg;
-			logError(LOG_TARGET, `refresh() failed — ${msg}`);
-		} finally {
-			this.loading = false;
+			this.error = message(e);
+			logError(LOG_TARGET, `references of ${id} failed — ${this.error}`);
 		}
 	}
 
-	/** Create a project and optionally set it active in one call. */
-	async createProject(input: {
+	/** Send one intent; the new state arrives on the signal. */
+	private async run<T>(name: string, intent: () => Promise<Result<T, string>>): Promise<T | null> {
+		this.error = null;
+		try {
+			return unwrap(name, await intent());
+		} catch (e) {
+			this.error = message(e);
+			logError(LOG_TARGET, `${name} failed — ${this.error}`);
+			return null;
+		}
+	}
+
+	/** Register a folder as a project; `setActive` makes it the one you work in. */
+	createProject = (input: {
 		name: string;
 		rootPath: string;
 		description?: string | null;
 		setActive?: boolean;
-	}): Promise<Project | null> {
+	}): Promise<Project | null> => {
 		logInfo(LOG_TARGET, `createProject(${input.name}, active=${input.setActive ?? false})`);
-		try {
-			const created = await commands.createProject({
+		return this.run("createProject", () =>
+			commands.createProject({
 				name: input.name,
 				root_path: input.rootPath,
 				project_type: "personal",
@@ -103,67 +130,41 @@ class ProjectsState {
 				tool: null,
 				tech_stack: null,
 				set_active: input.setActive ?? false,
-			});
-			await this.refresh("after-create");
-			return created as unknown as Project;
-		} catch (e) {
-			const msg = e instanceof Error ? e.message : String(e);
-			this.error = msg;
-			logError(LOG_TARGET, `createProject() failed — ${msg}`);
-			return null;
-		}
-	}
+			}),
+		);
+	};
 
-	async setActive(id: string): Promise<void> {
-		try {
-			await commands.setActiveProject(id);
-			await this.refresh("after-set-active");
-		} catch (e) {
-			const msg = e instanceof Error ? e.message : String(e);
-			this.error = msg;
-			logError(LOG_TARGET, `setActive(${id}) failed — ${msg}`);
-		}
-	}
+	setActive = async (id: string): Promise<void> => {
+		await this.run("setActiveProject", () => commands.setActiveProject(id));
+	};
 
-	async clearActive(): Promise<void> {
-		try {
-			await commands.clearActiveProject();
-			await this.refresh("after-clear-active");
-		} catch (e) {
-			const msg = e instanceof Error ? e.message : String(e);
-			logError(LOG_TARGET, `clearActive() failed — ${msg}`);
-		}
-	}
+	clearActive = async (): Promise<void> => {
+		await this.run("clearActiveProject", () => commands.clearActiveProject());
+	};
 
-	async addReference(path: string, label: string | null, kind: ReferenceKind): Promise<void> {
-		if (!this.activeProjectId) {
+	/** Remove a project; its folder can be added again later. */
+	remove = async (id: string): Promise<void> => {
+		await this.run("deleteProject", () => commands.deleteProject(id));
+	};
+
+	addReference = async (path: string, label: string | null, kind: ReferenceKind): Promise<void> => {
+		const projectId = this.activeProjectId;
+		if (!projectId) {
 			this.error = "no active project — set one before adding references";
 			return;
 		}
-		try {
-			await commands.addProjectReference({
-				project_id: this.activeProjectId,
-				path,
-				label,
-				kind,
-			});
-			await this.refresh("after-add-ref");
-		} catch (e) {
-			const msg = e instanceof Error ? e.message : String(e);
-			this.error = msg;
-			logError(LOG_TARGET, `addReference(${path}) failed — ${msg}`);
-		}
-	}
+		const added = await this.run("addProjectReference", () =>
+			commands.addProjectReference({ project_id: projectId, path, label, kind }),
+		);
+		if (added) await this.loadReferences(true);
+	};
 
-	async removeReference(id: string): Promise<void> {
-		try {
-			await commands.removeProjectReference(id);
-			await this.refresh("after-remove-ref");
-		} catch (e) {
-			const msg = e instanceof Error ? e.message : String(e);
-			logError(LOG_TARGET, `removeReference(${id}) failed — ${msg}`);
-		}
-	}
+	removeReference = async (id: string): Promise<void> => {
+		const removed = await this.run("removeProjectReference", () =>
+			commands.removeProjectReference(id),
+		);
+		if (removed !== null) await this.loadReferences(true);
+	};
 }
 
 export const projectsState = new ProjectsState();

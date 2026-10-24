@@ -73,7 +73,7 @@ impl McpStatus {
 /// the build *can* serve, and dev builds always include it.
 const TOOL_NAMES: &[&str] = &[
     "get_health",
-    "query_libsql",
+    "query_database",
     "repo_get_file",
     "repo_list_files",
     "shell_execute",

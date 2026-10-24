@@ -26,7 +26,8 @@
 		"primitive-structure": {
 			"description": "Every primitive: types.ts + index.ts + anatomy.ts. Layout primitives also need .svelte.",
 			"tier": 1,
-			"scope": ["lib/design/primitives/**/*"],
+			"targetPath": "packages/coldlight",
+			"scope": ["primitives/**/*"],
 			"enforcement": "error",
 			"autofix": false,
 			"layoutPrimitives": [
@@ -37,21 +38,24 @@
 		"no-style-primitives": {
 			"description": "Primitives are unstyled structural shells — no <style> tags",
 			"tier": 1,
-			"scope": ["lib/design/primitives/**/*.svelte"],
+			"targetPath": "packages/coldlight",
+			"scope": ["primitives/**/*.svelte"],
 			"enforcement": "error",
 			"autofix": false
 		},
 		"aria-primitives": {
 			"description": "Every primitive must use semantic HTML or ARIA attributes",
 			"tier": 1,
-			"scope": ["lib/design/primitives/**/*.svelte"],
+			"targetPath": "packages/coldlight",
+			"scope": ["primitives/**/*.svelte"],
 			"enforcement": "error",
 			"autofix": false
 		},
 		"component-structure": {
 			"description": "Macro Law: types.ts + index.ts + .svelte with resolveMacro + data-kind + preset (not intent)",
 			"tier": 1,
-			"scope": ["lib/design/components/**/*"],
+			"targetPath": "packages/coldlight",
+			"scope": ["components/**/*"],
 			"enforcement": "error",
 			"autofix": false
 		}

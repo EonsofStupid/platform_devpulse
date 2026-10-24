@@ -21,6 +21,12 @@
 	recommendations, the page just shows the existing slot table.
 -->
 <script lang="ts">
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Heading } from "@devpulse/coldlight/components/heading";
+import { InlineMessage } from "@devpulse/coldlight/components/inline-message";
+import { Spinner } from "@devpulse/coldlight/components/spinner";
+import { Text } from "@devpulse/coldlight/components/text";
 import {
 	Brain,
 	BrainCircuit,
@@ -38,15 +44,8 @@ import {
 	Square,
 	X,
 	Zap,
-} from "@lucide/svelte";
+} from "lucide-svelte";
 import { type Component, onMount } from "svelte";
-import { KnowledgeDeck } from "$lib/design/blocks/knowledge/index.js";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Button } from "$lib/design/components/button/index.js";
-import { Heading } from "$lib/design/components/heading/index.js";
-import { InlineMessage } from "$lib/design/components/inline-message/index.js";
-import { Spinner } from "$lib/design/components/spinner/index.js";
-import { Text } from "$lib/design/components/text/index.js";
 import {
 	type CapturePayload,
 	type ExtraTab,
@@ -54,6 +53,7 @@ import {
 	ScopedLogPanel,
 	ServiceDevtoolShell,
 } from "$lib/devtools/index.js";
+import { KnowledgeDeck } from "$lib/domains/app/knowledge/index.js";
 import {
 	formatMb,
 	getSlotLabel,
@@ -75,9 +75,9 @@ import type { SlotSaveEntry } from "../util/anatomy.types.js";
 
 const RAG_EMBEDDER_SLOT = "rag.embedder";
 
-/** Anatomy → engine slot binding for the cortex constellation. Lives
+/** Anatomy → kernel slot binding for the cortex constellation. Lives
  *  in the feature file because the binding is rendering-side glue
- *  (which named-area gets which engine slot); the table is one-shot
+ *  (which named-area gets which kernel slot); the table is one-shot
  *  and small enough that pulling it into a separate util module adds
  *  more friction than value. */
 const SLOT_BY_ANATOMY = {
@@ -164,7 +164,7 @@ const ROLE_ACCENT: Record<string, string> = {
 	helpers: "var(--text-muted)",
 };
 
-/** Mark-complete UX state — surfaces the engine error inline rather
+/** Mark-complete UX state — surfaces the kernel error inline rather
  *  than relying on a toast. Owner-locked: errors visible in the
  *  Actions tab next to the trigger. */
 let markCompleteBusy = $state(false);
@@ -263,7 +263,7 @@ function slotData(slotId: string) {
 // ── Encoder smoke test ─────────────────────────────────────────
 // Single-shot inference verification: type text → click Embed →
 // read back vector dim + first 5 floats. Gates on `encoderIsLoaded`
-// so the button is disabled until the backend adapter has weights.
+// so the button is disabled until the kernel adapter has weights.
 let encoderText = $state("hello world");
 let encoderResult = $state<{ dim: number; head: number[] } | null>(null);
 let encoderError = $state<string | null>(null);
@@ -298,7 +298,7 @@ async function runEncoderEmbed(): Promise<void> {
 	}
 }
 
-// The engine currently doesn't emit `model:slot-status` (statuses[]
+// The kernel currently doesn't emit `model:slot-status` (statuses[]
 // stays optimistic post-load), so we cheap-poll `encoderIsLoaded`
 // while the encoder is not yet ready. Polling halts the instant we
 // observe a loaded encoder, so the steady-state cost is one call
@@ -458,11 +458,6 @@ function captureFor(tabId: string): CapturePayload | undefined {
 </script>
 
 <ServiceDevtoolShell
-	title="Slot Orchestrator"
-	description="Slot ↔ model assignments · load / unload · VRAM headroom"
-	icon={Brain}
-	axis="capabilities"
-	accent="teal"
 	health={badge}
 	{extraTabs}
 	capture={captureFor}
@@ -685,7 +680,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 								<div class="slot-actions">
 									{#if !model}
 										<Button
-											preset="secondary"
+											variant="secondary"
 											size="sm"
 											onclick={() => openLocalPicker(slotId)}
 											disabled={modelsState.models.length === 0}
@@ -697,7 +692,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 											Pick local
 										</Button>
 										<Button
-											preset="primary"
+											variant="primary"
 											size="sm"
 											onclick={(e: MouseEvent) => openDownloader(slotId, e)}
 										>
@@ -706,21 +701,21 @@ function captureFor(tabId: string): CapturePayload | undefined {
 										</Button>
 									{/if}
 									{#if model && !ready}
-										<Button preset="ghost" size="sm" onclick={() => openLocalPicker(slotId)} disabled={isActing}>
+										<Button variant="ghost" size="sm" onclick={() => openLocalPicker(slotId)} disabled={isActing}>
 											<FolderOpen size={12} />
 											Swap
 										</Button>
-										<Button preset="ghost" size="sm" onclick={() => clearSlot(slotId)} disabled={isActing}>
+										<Button variant="ghost" size="sm" onclick={() => clearSlot(slotId)} disabled={isActing}>
 											<X size={12} />
 											Clear
 										</Button>
-										<Button preset="secondary" size="sm" onclick={() => loadSlot(slotId)} disabled={isActing}>
+										<Button variant="secondary" size="sm" onclick={() => loadSlot(slotId)} disabled={isActing}>
 											{#if isActing}<Spinner size="xs" />{:else}<Play size={12} />{/if}
 											Load
 										</Button>
 									{/if}
 									{#if ready}
-										<Button preset="ghost" size="sm" onclick={() => unloadSlot(slotId)} disabled={isActing}>
+										<Button variant="ghost" size="sm" onclick={() => unloadSlot(slotId)} disabled={isActing}>
 											<Square size={12} />
 											Unload
 										</Button>
@@ -752,9 +747,10 @@ function captureFor(tabId: string): CapturePayload | undefined {
 				</Text>
 			</div>
 			<Text size="sm" color="muted">
-				Slot definitions and per-tier presets live in the engine
-				(<code>platform/model_loader/slots/</code>,
-				<code>config/presets.default.toml</code>). The engine
+				Slot definitions and per-tier presets live in the kernel
+				<code>model-loader</code> crate
+				(<code>kernel/model-loader/src/slots/</code>,
+				<code>config/presets.default.toml</code>). The kernel
 				picks the right model variant per tier; this devtool just
 				surfaces what's currently bound.
 			</Text>
@@ -772,7 +768,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 					<div class="flex items-center justify-between mb-2">
 						<Text size="sm" weight="bold">Save every recommended slot</Text>
 						<Button
-							preset="primary"
+							variant="primary"
 							size="sm"
 							onclick={() => slotsBootstrapState.saveAllSlots()}
 							disabled={installsRunning > 0
@@ -793,7 +789,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 						<div class="flex items-center justify-between mb-2">
 							<Text size="sm" weight="bold">Mark setup complete</Text>
 							<Button
-								preset="secondary"
+								variant="secondary"
 								size="sm"
 								onclick={markBootstrapComplete}
 								disabled={markCompleteBusy}
@@ -816,7 +812,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 			<div class="rounded-lg p-3" style="background: var(--surface-raised); border: 1px solid var(--border-subtle);">
 				<div class="flex items-center justify-between mb-2">
 					<Text size="sm" weight="bold">Rescan models on disk</Text>
-					<Button preset="secondary" size="sm" onclick={rescan} disabled={loading}>
+					<Button variant="secondary" size="sm" onclick={rescan} disabled={loading}>
 						{#if loading}
 							<Spinner size="xs" />
 						{:else}
@@ -958,7 +954,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 						<span class="picker-slot-raw">({pickLocalSlot})</span>
 					</Text>
 				</div>
-				<Button preset="ghost" size="sm" onclick={closeLocalPicker}>
+				<Button variant="ghost" size="sm" onclick={closeLocalPicker}>
 					<X size={14} />
 				</Button>
 			</div>
@@ -1060,7 +1056,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 
 		<div class="encoder-actions">
 			<Button
-				preset="primary"
+				variant="primary"
 				size="sm"
 				onclick={runEncoderEmbed}
 				disabled={!encoderReady || encoderBusy || encoderText.length === 0}

@@ -118,7 +118,7 @@ Minions **never call each other directly.** Cortex is the only writer of minion-
 
 - **Not MCP servers.** MCPs serve external tool capabilities (§3); minions run AI inference.
 - **Not the engine.** The engine facade (`systems/devpulse-engine/`) hosts Cortex; it does not impersonate minions.
-- **Not user-visible by name.** UI surfaces the role label (e.g. "Thinking", "Vision", "Reranker") — never the word "minion."
+- **Visible by name.** "Minion" is public, layman vocabulary (owner 2026-10-19: "everything is public"); the UI may also surface the role label (e.g. "Thinking", "Vision", "Reranker").
 
 ---
 
@@ -356,11 +356,11 @@ RRO is **the substrate**. The following belong in Cortex, not RRO:
 
 ### 6.2 Backend matrix (RRO.md §3)
 
-| Category | Default (embedded) | Remote alternatives |
+| Category | Default (inside the DevPulse folder) | Remote alternatives |
 |----------|--------------------|--------------------|
 | Vectors | Qdrant fork | Pinecone, Milvus |
-| Relational | libsql (SSOT) | Postgres, Turso |
-| Graph | SurrealDB (kv-surrealkv) | Neo4j |
+| Relational | Turso (SSOT; owner 2026-07-01) | Postgres |
+| Graph | SurrealDB — upstream's built binary in a supervised subprocess (plan 0007 Part S; RRFlow replaces it) | Neo4j |
 | Analytics | DuckDB | ClickHouse |
 | Hot Cache | Moka (4 named instances) | Redis |
 
@@ -410,7 +410,7 @@ CORTEX.md (LOCKED v1.0.0) defines the **rumination pipeline + COSTAR+IC + govern
 **Outbound (Cortex → UI):**
 - Every transition emits to `InternalEvent` broadcast bus AND `tracing` (project memory: dual observability is required).
 - The Tauri bindings layer translates engine events into Svelte rune updates.
-- Customer-facing strings flow through `kernel_terms.toml` engine→prod translation; never raw kernel vocabulary.
+- Vocabulary is public (owner 2026-10-19: "everything is public"); `kernel_terms.toml` maps layman ↔ advanced labels and its enforcement is off. The prompt recipes stay the kernel's.
 
 ### 7.4 Governance — the permission gate around generation
 

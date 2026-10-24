@@ -6,11 +6,11 @@
 //! by rmcp.
 
 pub mod get_health;
-pub mod query_libsql;
+pub mod query_database;
 pub mod repo_get_file;
 pub mod repo_list_files;
 
-#[cfg(feature = "full")]
+#[cfg(feature = "kernel")]
 pub mod shell_execute;
 
 // ── Shared helpers used by tool implementations ──────────────

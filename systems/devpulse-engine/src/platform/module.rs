@@ -22,7 +22,7 @@
 //! | [`ModuleAxis`] | `config/platform/` folder | Purpose |
 //! |---|---|---|
 //! | [`ModuleAxis::Runtime`] | `runtime/` | Platform primitives (boot, portable, telemetry, network, windows) |
-//! | [`ModuleAxis::Store`] | `stores/` | Persistent state backends (libsql, duckdb, surrealdb, cache, `project_db`) |
+//! | [`ModuleAxis::Store`] | `stores/` | Persistent state backends (turso, duckdb, surrealdb, cache, `project_db`) |
 //! | [`ModuleAxis::Executor`] | `runtimes/` | Process / model execution backends (candle, ollama, devforge) |
 //! | [`ModuleAxis::Capability`] | `capabilities/` | Product-facing user verbs (chat, reasoning, voice) |
 //! | [`ModuleAxis::Integration`] | `integrations/` | External providers (claude) |
@@ -61,7 +61,7 @@ use thiserror::Error;
 ///
 /// # Example
 /// ```ignore
-/// const LIBSQL: ModuleId = ModuleId::new("libsql");
+/// const TURSO: ModuleId = ModuleId::new("turso");
 /// ```
 #[derive(
     Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize, Type,
@@ -108,7 +108,7 @@ pub enum ModuleAxis {
     /// Folder: `config/platform/runtime/`.
     Runtime,
 
-    /// Persistent state backends — libsql, duckdb, surrealdb, cache, `project_db`.
+    /// Persistent state backends — turso, duckdb, surrealdb, cache, `project_db`.
     ///
     /// Folder: `config/platform/stores/`.
     Store,
@@ -222,7 +222,7 @@ pub struct ModuleIdentity {
     /// Stable `snake_case` identifier.
     pub id: ModuleId,
 
-    /// Human-readable display name (e.g., `"LibSQL"`, `"Rosetta Stone"`).
+    /// Human-readable display name (e.g., `"Turso"`, `"Rosetta Stone"`).
     pub title: &'static str,
 
     /// One-line description, layman-phrased.
@@ -506,9 +506,9 @@ mod tests {
 
     #[test]
     fn module_id_round_trip() {
-        const LIBSQL: ModuleId = ModuleId::new("libsql");
-        assert_eq!(LIBSQL.as_str(), "libsql");
-        assert_eq!(format!("{LIBSQL}"), "libsql");
+        const TURSO: ModuleId = ModuleId::new("turso");
+        assert_eq!(TURSO.as_str(), "turso");
+        assert_eq!(format!("{TURSO}"), "turso");
     }
 
     #[test]

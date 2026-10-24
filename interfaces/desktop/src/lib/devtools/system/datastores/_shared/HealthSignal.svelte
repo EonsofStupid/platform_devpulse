@@ -4,7 +4,7 @@
 
 	Animated semantic health indicator for a datastore. Replaces the
 	static `style="background: var(--signal-success)"` dot pattern that
-	the existing DuckDB / libSQL / SurrealDB devtools render six different
+	the existing DuckDB / Turso / SurrealDB devtools render six different
 	ways. Single source for the up / starting / degraded / down / unknown
 	visual language.
 
@@ -21,7 +21,7 @@
 	probe time alongside the up/down at a glance.
 -->
 <script lang="ts">
-import { Text } from "$lib/design/components/text/index.js";
+import { Text } from "@devpulse/coldlight/components/text";
 
 type HealthState = "up" | "starting" | "degraded" | "down" | "unknown";
 
@@ -72,8 +72,8 @@ const dotClass = $derived(`dot dot-${state}`);
 		animation: breathing 2.4s ease-in-out infinite;
 	}
 	.dot-starting {
-		background: var(--accent-cyber-main, var(--accent-electric-main));
-		box-shadow: 0 0 0.5rem color-mix(in oklch, var(--accent-cyber-main, var(--accent-electric-main)) 60%, transparent);
+		background: var(--accent-cyber, var(--accent-electric));
+		box-shadow: 0 0 0.5rem color-mix(in oklch, var(--accent-cyber, var(--accent-electric)) 60%, transparent);
 		animation: pulse-fast 0.9s ease-in-out infinite;
 	}
 	.dot-degraded {

@@ -670,7 +670,9 @@ fn unzip(zip_path: &Path, dst: &Path) -> Result<(u64, u64)> {
         let mut entry = archive.by_index(i)?;
         let rel = entry
             .enclosed_name()
-            .ok_or_else(|| anyhow::anyhow!("unsafe zip entry: {}", entry.name()))?
+            .ok_or_else(|| {
+                anyhow::anyhow!("unsafe zip entry: {}", entry.name().unwrap_or_default())
+            })?
             .clone();
         let out_path = dst.join(&rel);
 
@@ -695,8 +697,10 @@ fn unzip(zip_path: &Path, dst: &Path) -> Result<(u64, u64)> {
         #[cfg(unix)]
         {
             use std::os::unix::fs::PermissionsExt;
+            // Permission bits only: setuid/setgid/sticky from an archive are
+            // never applied (RUSTSEC-2026-0367).
             if let Some(mode) = entry.unix_mode() {
-                let _ = fs::set_permissions(&out_path, fs::Permissions::from_mode(mode));
+                let _ = fs::set_permissions(&out_path, fs::Permissions::from_mode(mode & 0o777));
             }
         }
     }

@@ -1,7 +1,7 @@
 //! `DevPulse` Desktop — Tauri backend.
 //!
 //! The Tauri layer depends on `devpulse-engine` only — never on clyffy.
-//! All backend access goes through the Platform engine.
+//! All kernel access goes through the Platform engine.
 //!
 //! # Boot Architecture (P0: Boot Never Freezes)
 //!
@@ -20,13 +20,15 @@
 //! Terminal still shows real-time progress via boot.log sink (stderr)
 //! in both modes. Frontend `DevTools` (F12) show platform events live.
 
+pub mod bindings;
 pub mod commands;
-pub mod connection_store;
 pub mod crash_safety;
-pub mod endpoint_discovery;
 pub mod events;
+pub mod ipc_trace;
+pub mod log_runs;
 pub mod logging;
 pub mod paths;
+pub mod routes;
 pub mod state;
 
 pub use crash_safety::install_early_panic_hook;
@@ -34,12 +36,10 @@ pub use crash_safety::install_early_panic_hook;
 use devpulse_engine::platform::{InitStatus, Platform};
 use devpulse_telemetry::boot::TelemetryGuard;
 use devpulse_telemetry::spawn_blocking;
-use events::{BootPhaseChanged, BootPhaseValue, HardwareMetricsUpdated};
-use state::{BootStateTracker, ModelsStatusSnapshot, PlatformState};
+use state::{BootStateTracker, PlatformState};
 use std::path::PathBuf;
 use std::sync::Arc;
 use tauri::{Emitter, Manager};
-use tauri_specta::Event;
 use tauri_specta::{collect_commands, collect_events, Builder};
 
 /// Boot a Platform without Tauri and serve MCP over stdio.
@@ -85,13 +85,15 @@ pub fn run_mcp_stdio() {
         };
         tracing::info!(data_dir = %data_dir.display(), "MCP stdio: booting platform");
 
-        let platform = match Platform::boot(data_dir, |_| {}, None).await {
-            Ok(p) => Arc::new(p),
-            Err(e) => {
-                eprintln!("devpulse-mcp: platform boot failed: {e:#}");
-                return 1;
-            }
-        };
+        // Headless MCP mode has no windows; signals go to an engine no one reads.
+        let platform =
+            match Platform::boot(data_dir, |_| {}, None, devpulse_engine::Engine::boot()).await {
+                Ok(p) => Arc::new(p),
+                Err(e) => {
+                    eprintln!("devpulse-mcp: platform boot failed: {e:#}");
+                    return 1;
+                }
+            };
 
         if let Err(e) = devpulse_engine::claude::mcp::start_stdio(platform).await {
             eprintln!("devpulse-mcp: stdio session failed: {e:#}");
@@ -116,7 +118,6 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             commands::chat::pick_save_file,
             commands::chat::send_message,
             commands::chat::store_assistant_turn,
-            commands::chat::claude_code::claude_code_chat,
             commands::chat::history::load_recent,
             commands::chat::suggest::suggest_query,
             commands::chat::suggest::suggest_record,
@@ -135,7 +136,6 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             commands::sys::action_log::tail_action_log,
             commands::sys::action_log::open_action_logs_folder,
             commands::sys::scoped_log::query_scoped_log,
-            commands::sys::boot::get_boot_state,
             commands::sys::metrics::get_process_metrics,
             commands::sys::telemetry::get_lane_config,
             commands::sys::telemetry::set_lane_config,
@@ -145,10 +145,7 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             commands::sys::telemetry::list_telemetry_sessions,
             commands::sys::telemetry::open_telemetry_folder,
             commands::sys::telemetry::get_telemetry_row_counts,
-            // Vector store (RRO/qortex) devtools. In the standalone desktop
-            // (no `totalrecall`) these return a typed "Tier-2 unavailable"
-            // until Clyffy connects over the gb10-client wire; the real
-            // in-process impl is compiled only under `totalrecall`.
+            // Vector store (RRO) devtools
             commands::sys::vector::get_vector_config,
             commands::sys::vector::set_vector_config,
             commands::sys::vector::get_vector_health,
@@ -175,11 +172,16 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             commands::sys::graph::graph_stats,
             commands::sys::graph::graph_query,
             commands::sys::graph::graph_kv_list,
-            // Relational store (LibSQL) devtools
-            commands::sys::relational::libsql_health_all,
-            commands::sys::relational::libsql_list_tables,
-            commands::sys::relational::libsql_query,
-            // Project store (per-project LibSQL) devtools
+            // Relational store (Turso) devtools
+            commands::sys::relational::turso_health_all,
+            commands::sys::relational::turso_list_tables,
+            commands::sys::relational::turso_table_rows,
+            commands::sys::relational::turso_update_row,
+            commands::sys::relational::turso_insert_row,
+            commands::sys::relational::turso_delete_row,
+            commands::sys::relational::turso_migrations,
+            commands::sys::relational::turso_query,
+            // Project store (per-project Turso) devtools
             commands::sys::project_db::init_project_db,
             commands::sys::project_db::project_db_health,
             commands::sys::project_db::project_db_list_tables,
@@ -190,16 +192,6 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             commands::sys::analytics::duckdb_query,
             // Cache service (Moka) devtool
             commands::sys::cache::cache_health,
-            // Clyffy wire connection status (gb10-client) — Tier-2 availability.
-            commands::sys::clyffy::connection_status,
-            // Runtime connect/disconnect — re-points the probe loop without a restart.
-            commands::sys::clyffy::connect_clyffy,
-            commands::sys::clyffy::disconnect_clyffy,
-            // Persisted connect-or-skip decision — drives the boot gate.
-            commands::sys::clyffy::is_clyffy_setup_decided,
-            commands::sys::clyffy::skip_clyffy_setup,
-            // Turnkey discovery — candidate ladder + capability verification.
-            commands::sys::clyffy::discover_clyffy,
             commands::devclyffy::get_status,
             commands::devforge::devforge_start,
             commands::devforge::devforge_stop,
@@ -218,11 +210,21 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             commands::candle::candle_load_config,
             commands::candle::candle_save_config,
             commands::candle::candle_restart_pool,
-            commands::llama_cpp_embedded::llama_cpp_embedded_load_config,
-            commands::llama_cpp_embedded::llama_cpp_embedded_save_config,
-            commands::llama_cpp::llama_cpp_build_info,
-            commands::llama_cpp::llama_cpp_open_prebuilt_dir,
-            commands::llama_cpp::llama_cpp_bump_manifest,
+            commands::agents::agent_threads,
+            commands::agents::agent_thread_start,
+            commands::agents::agent_prompt,
+            commands::agents::agent_cancel,
+            commands::agents::agent_answer,
+            commands::agents::agent_close,
+            commands::rooms::room_library,
+            commands::rooms::room_threads,
+            commands::rooms::room_start,
+            commands::rooms::room_ask,
+            commands::rooms::room_cancel,
+            commands::rooms::room_answer,
+            commands::rooms::room_close,
+            commands::llama_server_config::llama_server_load_config,
+            commands::llama_server_config::llama_server_save_config,
             commands::ollama::sidecar::ollama_start,
             commands::ollama::sidecar::ollama_stop,
             commands::ollama::sidecar::ollama_restart,
@@ -236,15 +238,14 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             commands::surreal::sidecar::surreal_health,
             commands::surreal::sidecar::surreal_config_load,
             commands::surreal::sidecar::surreal_config_save,
-            // Connectome governance graph (CORTEX.md §4) — B-1 foundation slice.
-            commands::connectome::connectome_thought_create,
-            commands::connectome::connectome_thought_load_branch,
-            commands::connectome::connectome_swap_encoder,
+            // Cortex governance graph (CORTEX.md §4) — B-1 foundation slice.
+            commands::cortex::cortex_thought_create,
+            commands::cortex::cortex_thought_load_branch,
+            commands::cortex::cortex_swap_encoder,
             commands::intelligence::intel_status,
             commands::intelligence::intel_list_projects,
             commands::intelligence::intel_save_memory,
             commands::intelligence::infer_capability_bucket,
-            commands::interactions::get_interaction_template,
             commands::sherpa::sherpa_compile_info,
             commands::sherpa::sherpa_list_models,
             commands::sherpa::sherpa_delete_model,
@@ -286,6 +287,16 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             commands::devpulse::profile::update_user_profile,
             commands::devpulse::profile::fetch_user_preferences,
             commands::devpulse::profile::update_user_preferences,
+            commands::copy::get_copy,
+            commands::onboarding::onboarding_state,
+            commands::onboarding::onboarding_next,
+            commands::onboarding::onboarding_back,
+            commands::onboarding::onboarding_later,
+            commands::onboarding::onboarding_reopen,
+            commands::onboarding::onboarding_you_form,
+            commands::onboarding::onboarding_you_submit,
+            commands::onboarding::onboarding_scan_projects,
+            commands::onboarding::onboarding_register_projects,
             commands::projects::create_project,
             commands::projects::list_projects,
             commands::projects::get_project,
@@ -297,26 +308,33 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             commands::projects::add_project_reference,
             commands::projects::list_project_references,
             commands::projects::remove_project_reference,
+            commands::containers::containers_state,
+            commands::containers::containers_check,
+            commands::containers::containers_answer,
+            commands::containers::containers_run_step,
+            commands::providers_status::providers_state,
+            commands::providers_status::providers_check,
+            commands::providers_status::providers_run_action,
             commands::knowledge::get_knowledge_entry,
             commands::knowledge::record_knowledge_reaction,
             commands::knowledge::sync_knowledge_from_remote,
+            // Signal fabric: list-then-watch snapshot + per-window interest.
+            commands::signals::get_signal_state,
+            commands::signals::set_signal_interest,
             commands::thinkclyffy::create_canvas,
             commands::wiredfront::connect_peer,
             commands::window::open_window,
             commands::window::close_child_window,
             commands::window::list_windows,
-            commands::window::open_chat_window,
-            commands::window::close_window,
+            commands::window::window_roles,
             commands::window::focus_window,
             commands::window::toggle_devtools,
             // Model management
             commands::models::get_hardware_metrics,
             commands::models::scan_models,
             commands::models::get_slots,
+            commands::models::get_models_status,
             commands::models::get_model_catalog,
-            commands::models::is_first_run,
-            commands::models::mark_setup_complete,
-            commands::models::is_setup_complete,
             commands::models::assign_model_to_slot,
             commands::models::load_slot,
             commands::models::unload_slot,
@@ -355,16 +373,19 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             commands::models::import_local_model,
             commands::models::pick_directory,
             commands::models::pick_audio_file,
-            commands::models::create_dev_profile,
             commands::models::auto_configure,
             commands::models::list_presets,
             commands::models::config_for_tier,
             commands::models::get_wizard_copy,
             commands::models::get_tier_display,
-            commands::models::complete_model_setup,
             commands::models::inference_generate,
             commands::models::test_inference,
             commands::models::get_vram_budget,
+            commands::models::is_first_run,
+            commands::models::mark_setup_complete,
+            commands::models::is_setup_complete,
+            commands::models::complete_model_setup,
+            commands::interactions::get_interaction_template,
             // Capability backends — embedder, reranker, vision encoder
             commands::models::embed_text,
             commands::models::embed_batch,
@@ -437,10 +458,8 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             commands::community::set_community_enabled_cmd,
         ])
         .events(collect_events![
-            // Platform boot lifecycle — replaces `platform:boot-phase` string event.
-            events::BootPhaseChanged,
-            // Periodic hardware push (2 s tick) — replaces `model:hardware`.
-            events::HardwareMetricsUpdated,
+            // Signal fabric bridge — every Broadcast-routed engine signal.
+            events::SignalBroadcast,
             // llama-server sidecar — replaces `llama:server-ready` / `llama:token`.
             events::LlamaServerReady,
             events::LlamaTokenStreamed,
@@ -457,84 +476,11 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             events::UpdateAvailable,
             events::UpdateDownloadProgress,
             events::UpdateInstallFinished,
-            // Clyffy wire connection — probe task pushes state transitions.
-            events::ClyffyConnectionChanged,
-            // Turnkey discovery — per-rung progress + verified endpoints.
-            events::ClyffyDiscoveryProgress,
+            // Agent threads — one event of a running turn.
+            events::AgentStreamed,
+            // Rooms — one event of a room answering.
+            events::RoomStreamed,
         ])
-}
-
-/// Background Clyffy connection probe + seamless auto-reconnect.
-///
-/// Builds one standalone [`ClyffyClient`] and probes `{base_url}/v1/capability`
-/// every `interval`. Each **changed** state is written to the managed
-/// [`ClyffyConnectionState`] and pushed to the frontend as a
-/// [`ClyffyConnectionChanged`] event. An unreachable endpoint yields
-/// `Disconnected` (honest standalone) — never a fabricated capability — and the
-/// loop keeps retrying so the AI layer lights up seamlessly whenever Clyffy comes
-/// back. Detached via `devpulse_telemetry::spawn`; never awaited by boot.
-///
-/// [`ClyffyClient`]: devpulse_gb10_client::ClyffyClient
-/// [`ClyffyConnectionState`]: crate::state::ClyffyConnectionState
-/// [`ClyffyConnectionChanged`]: crate::events::ClyffyConnectionChanged
-async fn clyffy_probe_loop(
-    app: tauri::AppHandle,
-    interval: std::time::Duration,
-    timeout: std::time::Duration,
-) {
-    use crate::events::ClyffyConnectionChanged;
-    use crate::state::ClyffyConnectionState;
-    use devpulse_gb10_client::{ClyffyClient, ConnectionState};
-    use tauri::Manager;
-    use tauri_specta::Event;
-
-    let client = match ClyffyClient::new(timeout) {
-        Ok(c) => c,
-        Err(err) => {
-            tracing::warn!(%err, "clyffy probe: HTTP client build failed — AI layer stays offline");
-            return;
-        }
-    };
-
-    // Write managed state + emit the typed transition to the webview.
-    let publish = |next: &ConnectionState| {
-        app.state::<ClyffyConnectionState>().store(next.clone());
-        let _ = ClyffyConnectionChanged {
-            connection: next.clone(),
-        }
-        .emit(&app);
-    };
-
-    loop {
-        // Re-read the target endpoint every tick — it is re-pointable at runtime
-        // via `connect_clyffy` / `disconnect_clyffy` with no restart. `None` is
-        // the honest standalone (Tier-1) answer; a set endpoint that is
-        // unreachable stays `Disconnected` and the loop keeps retrying so the AI
-        // layer lights up seamlessly whenever Clyffy comes back.
-        let next = match app.state::<ClyffyConnectionState>().endpoint() {
-            None => ConnectionState::Disconnected,
-            Some(url) => match client.probe_capability(&url).await {
-                Ok(capability) => ConnectionState::Connected { url, capability },
-                Err(_) => ConnectionState::Disconnected,
-            },
-        };
-        // Dedupe against the SHARED state, never a loop-local cache: commands
-        // (`connect_clyffy` emits `Connecting`) also write this state, and a
-        // stale local baseline swallowed the settle transition — the operator
-        // stayed on "Connecting…" forever after confirming while a connection
-        // was already live (the B2 stale-Connecting defect).
-        let current = app.state::<ClyffyConnectionState>().current();
-        if next != current {
-            tracing::info!(
-                target: "clyffy.connection",
-                from = ?current,
-                to = ?next,
-                "probe settled — connection transition"
-            );
-            publish(&next);
-        }
-        tokio::time::sleep(interval).await;
-    }
 }
 
 /// Bootstrap and run the Tauri application.
@@ -651,16 +597,20 @@ pub fn run() {
     // Handler-side `#[tracing::instrument]` spans are unaffected — those
     // are the canonical per-command trace and they stay at their
     // declared level.
+    //
+    // **Arguments (plan 0001 A3).** Debug builds also write the call's
+    // arguments, through `ipc_trace::describe`, which replaces every
+    // secret-named value (an API key, a token) — never the raw payload.
     let specta_handler = builder.invoke_handler();
     let traced_invoke_handler = move |invoke: tauri::ipc::Invoke<tauri::Wry>| -> bool {
         let command = invoke.message.command().to_string();
         #[cfg(debug_assertions)]
         {
-            let payload = format!("{:?}", invoke.message.payload());
+            let args = ipc_trace::describe(invoke.message.payload());
             tracing::trace!(
                 target: "ipc",
                 command = %command,
-                args = %payload,
+                args = %args,
                 "invoke received"
             );
         }
@@ -684,7 +634,7 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
             tracing::info!("Second instance detected — focusing existing window");
-            if let Some(window) = app.get_webview_window("main") {
+            if let Some(window) = app.get_webview_window(commands::window::WindowRole::Main.label()) {
                 let _ = window.set_focus();
                 let _ = window.show();
             }
@@ -692,10 +642,16 @@ pub fn run() {
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .plugin(tauri_plugin_updater::Builder::new().build())
-        // Remembered window geometry (per label, incl. chat). Role
-        // min_inner_size stays the floor against bad restored state.
-        .plugin(tauri_plugin_window_state::Builder::default().build())
         .invoke_handler(traced_invoke_handler)
+        .on_window_event(|window, event| {
+            // A closed window stops watching every signal kind it watched,
+            // so demand-driven producers can stop.
+            if let tauri::WindowEvent::Destroyed = event {
+                if let Some(engine) = window.try_state::<devpulse_engine::Engine>() {
+                    engine.router().forget_subscriber(window.label());
+                }
+            }
+        })
         .setup(move |app| {
             builder.mount_events(app);
             // ── Telemetry: create OTel provider + layer (no subscriber yet) ──
@@ -739,6 +695,20 @@ pub fn run() {
                 data_dir.join("bootstrap.log"),
             ));
 
+            // ── This boot's run folder (master plan M8) ─────────
+            // Every log of this boot lives in logs/runs/<run id>/. Files
+            // from before runs existed are moved into run folders first
+            // (nothing deleted); the retention policy runs once logging is
+            // up, so its report lands in the session log.
+            let run = match log_runs::Run::start(&data_dir, chrono::Utc::now()) {
+                Ok(run) => Some(run),
+                Err(e) => {
+                    eprintln!("devpulse: the run's log folder could not be made: {e}");
+                    None
+                }
+            };
+            let adopted = log_runs::adopt_legacy(&data_dir);
+
             // ── Stderr → file (Windows release safety net) ───────
             // Production runs `windows_subsystem = "windows"` so the
             // OS detaches stderr at process start; any default-panic-
@@ -748,31 +718,47 @@ pub fn run() {
             // subsequent byte. Runs BEFORE the tracing subscriber so
             // the file also catches stderr lines emitted between here
             // and `logging::init` completing.
-            match crash_safety::redirect_stderr_to_file(&data_dir.join("logs")) {
-                Ok(Some(path)) => {
-                    eprintln!("devpulse: stderr captured to {}", path.display());
-                }
-                Ok(None) => {}
-                Err(e) => {
-                    eprintln!("devpulse: stderr redirect failed: {e}");
+            if let Some(run) = &run {
+                match crash_safety::redirect_stderr_to_file(&run.file(log_runs::LogFile::Stderr)) {
+                    Ok(Some(path)) => {
+                        eprintln!("devpulse: stderr captured to {}", path.display());
+                    }
+                    Ok(None) => {}
+                    Err(e) => {
+                        eprintln!("devpulse: stderr redirect failed: {e}");
+                    }
                 }
             }
 
             // ── Logging: stderr + file + DuckDB + OTel ────────────
             let _ = logging::rotate_logs(&data_dir);
-            let mut span_rx = match logging::init(&data_dir, otel_layer) {
-                Ok(handle) => {
+            let init = run
+                .as_ref()
+                .map(|run| logging::init(run, otel_layer));
+            let mut span_rx = match init {
+                Some(Ok(handle)) => {
                     // Leak the file guard so file logging lives for the entire process
                     std::mem::forget(handle.file_guard);
                     Some(handle.span_rx)
                 }
-                Err(e) => {
+                Some(Err(e)) => {
                     eprintln!("[FATAL] logging::init failed: {e:?}");
                     logging::init_stderr_only();
                     None
                 }
+                None => {
+                    logging::init_stderr_only();
+                    None
+                }
             };
-            tracing::info!(data_dir = %data_dir.display(), "DevPulse Desktop starting");
+            if let Some(run) = &run {
+                report_retention(&data_dir, run, adopted);
+            }
+            tracing::info!(data_dir = %data_dir.display(), run = run.as_ref().map_or("none", log_runs::Run::id), "DevPulse Desktop starting");
+
+            // ── Bindings: keep TypeScript in step with Rust in dev ──
+            #[cfg(debug_assertions)]
+            bindings::refresh_dev(&builder);
 
             // ── Telemetry: install OTLP JSONL file exporter ──────
             let telemetry_dir = data_dir.join("telemetry");
@@ -825,8 +811,22 @@ pub fn run() {
             app.manage(std::sync::Mutex::new(telemetry_guard));
             app.manage(commands::llama::LlamaServerState::new());
             app.manage(commands::voice::PlaybackState::new());
-            // Clyffy wire connection — managed state; probe task writes it.
-            app.manage(crate::state::ClyffyConnectionState::new());
+            // Engine signal router — the one typed signal path to the UI.
+            app.manage(devpulse_engine::Engine::boot());
+
+            // ── Signal fabric bridge ─────────────────────────────
+            // Engine `SignalRouter` → `SignalBroadcast` → frontend fabric.
+            // Started before boot so boot progress streams live. Delivery
+            // tuning comes from `[signals]` in the platform config.
+            let signals_config =
+                devpulse_engine::platform::config::PlatformBootConfig::load(&data_dir).map_or_else(
+                    |err| {
+                        tracing::warn!(%err, "platform config did not load — shipped signal tuning applies");
+                        devpulse_engine::platform::config::SignalsConfig::shipped()
+                    },
+                    |config| config.signals,
+                );
+            commands::signals::spawn_bridge(app.handle().clone(), signals_config);
 
             // DevForge REH now boots through the platform service pipeline
             // (boot/devforge.rs), NOT a parallel Tauri bootstrap. Removed
@@ -857,7 +857,7 @@ pub fn run() {
             // gives an always-visible console for those early crashes.
             //
             // Opt out with `DEVPULSE_NO_DEVTOOLS=1`.
-            if let Some(window) = app.get_webview_window("main") {
+            if let Some(window) = app.get_webview_window(commands::window::WindowRole::Main.label()) {
                 let _ = window.show();
                 let _ = window.set_focus();
                 tracing::info!("Main window shown immediately (pre-boot) — frontend renders skeleton while services initialize");
@@ -881,14 +881,14 @@ pub fn run() {
             // and accessible via `.is_panic()` + `.try_into_panic()`. Without
             // this supervisor task a panic inside boot_task is swallowed
             // silently and the splash hangs forever. Now: panic → tracing
-            // error + `platform:boot-failed` Tauri event → BootOverlay
-            // frontend listener renders a red failure panel with the
-            // message so the user sees the root cause instead of a frozen
-            // spinner.
+            // error + failed `Boot` state → BootOverlay renders a red
+            // failure panel with the message so the user sees the root
+            // cause instead of a frozen spinner.
             let boot_handle = tauri::async_runtime::spawn(
                 boot_task(handle, data_dir, tracker_clone, span_rx.take())
             );
             let emit_on_fail = app.handle().clone();
+            let tracker_on_fail = tracker.clone_tracker();
             tauri::async_runtime::spawn(async move {
                 match boot_handle.await {
                     Ok(()) => {
@@ -905,14 +905,16 @@ pub fn run() {
                         tracing::error!(
                             target: "boot",
                             panic = %msg,
-                            "boot_task did not complete normally — emitting platform:boot-failed"
+                            "boot_task did not complete normally — publishing failed boot state"
                         );
-                        let _ = emit_on_fail.emit("platform:boot-failed", &msg);
+                        tracker_on_fail.set_failed(msg);
+                        publish_boot_status(&emit_on_fail, &tracker_on_fail);
                     }
                     Err(other) => {
                         let msg = format!("boot_task tauri::Error: {other}");
                         tracing::error!(target: "boot", err = %msg, "boot_task wrapper error");
-                        let _ = emit_on_fail.emit("platform:boot-failed", &msg);
+                        tracker_on_fail.set_failed(msg);
+                        publish_boot_status(&emit_on_fail, &tracker_on_fail);
                     }
                 }
             });
@@ -947,7 +949,9 @@ pub fn run() {
                     if event.state == tauri_plugin_global_shortcut::ShortcutState::Pressed {
                         let h = app_handle.clone();
                         tauri::async_runtime::spawn(async move {
-                            if let Err(e) = commands::window::open_chat_window(h).await {
+                            if let Err(e) =
+                                commands::window::open_window(h, commands::window::WindowRole::Chat).await
+                            {
                                 tracing::warn!(error = %e, "Failed to open chat window");
                             }
                         });
@@ -976,7 +980,7 @@ pub fn run() {
                 let app_handle = app.handle().clone();
                 app.global_shortcut().on_shortcut(shortcut, move |_a, _s, event| {
                     if event.state == tauri_plugin_global_shortcut::ShortcutState::Pressed {
-                        if let Some(window) = app_handle.get_webview_window("main") {
+                        if let Some(window) = app_handle.get_webview_window(commands::window::WindowRole::Main.label()) {
                             if window.is_devtools_open() {
                                 window.close_devtools();
                                 tracing::info!("Chromium devtools closed on main window");
@@ -1048,29 +1052,39 @@ async fn boot_task(
 
     tracing::info!("Boot task started");
 
-    let _ = BootPhaseChanged {
-        phase: BootPhaseValue::Initializing,
-        error: None,
-    }
-    .emit(&app);
+    publish_boot_status(&app, &tracker);
 
     let boot_start = std::time::Instant::now();
     let app_for_callback = app.clone();
     let tracker_for_callback = tracker.clone_tracker();
 
-    // Model-loader inference events (load / download progress) are Clyffy's —
-    // they arrive over the gb10-client wire, not from a local EventBridge
-    // (the engine has no `integrations` bridge module). Boot
-    // with no sink; the engine's Tier-1 services emit no local inference events.
-    let model_event_sink: Option<std::sync::Arc<dyn std::any::Any + Send + Sync>> = None;
+    // Create model-loader event bridge — fabric families are published as
+    // typed signals; the rest still emit legacy Tauri string events.
+    let model_event_sink: Option<std::sync::Arc<dyn std::any::Any + Send + Sync>> = {
+        let app_for_events = app.clone();
+        let app_for_signals = app.clone();
+        Some(std::sync::Arc::new(
+            devpulse_engine::platform::integrations::EventBridge::new(
+                std::sync::Arc::new(move |event_name: &str, payload: serde_json::Value| {
+                    let _ = app_for_events.emit(event_name, payload);
+                }),
+                std::sync::Arc::new(move |signal: devpulse_engine::signals::Signal| {
+                    app_for_signals
+                        .state::<devpulse_engine::Engine>()
+                        .emit(signal);
+                }),
+            ),
+        ))
+    };
 
     // Platform::boot() now writes boot.log in real-time via BootLog.
     // The callback here is ONLY for Tauri event bridging + tracker.
     let result = Platform::boot(
         data_dir.clone(),
         move |event: InitEvent| {
-            // Record in tracker (so get_boot_state IPC works)
+            // Record in tracker and publish the new boot progress.
             tracker_for_callback.record_event(event.clone());
+            publish_boot_status(&app_for_callback, &tracker_for_callback);
 
             // Log completion events via tracing (for session log file)
             if event.status != InitStatus::Running {
@@ -1098,11 +1112,9 @@ async fn boot_task(
                     InitStatus::Running => {}
                 }
             }
-
-            // Bridge to frontend StatusBar
-            let _ = app_for_callback.emit("platform:subsystem-status", &event);
         },
         model_event_sink,
+        app.state::<devpulse_engine::Engine>().inner().clone(),
     )
     .await;
 
@@ -1118,16 +1130,8 @@ async fn boot_task(
             }
             tracing::info!(status = ?health.status, total_ms, "Platform ready");
 
-            // Dev mode: seed sample data if services are empty
-            #[cfg(debug_assertions)]
-            {
-                if let Err(e) = seed_dev_data(&platform).await {
-                    tracing::warn!("Dev seed failed (non-fatal): {e:#}");
-                }
-            }
-
             // Record in tracker before emitting
-            tracker.set_ready(health.clone());
+            tracker.set_ready();
 
             // Spawn span trace writer now that analytics is available
             if let Some(rx) = span_rx {
@@ -1150,11 +1154,7 @@ async fn boot_task(
             // P0: lock-free atomic store. Boot task writes exactly once.
             state.platform.store(Some(Arc::new(platform)));
 
-            let _ = BootPhaseChanged {
-                phase: BootPhaseValue::Ready,
-                error: None,
-            }
-            .emit(&app);
+            publish_boot_status(&app, &tracker);
 
             // ── Claude MCP autoregister (operator opt-in) ────────
             // Reads `claude.autoregister.code` / `claude.autoregister.desktop`
@@ -1168,15 +1168,44 @@ async fn boot_task(
                 });
             }
 
-            // ── RRO + Grammar state event bridges — none locally ──
-            // The reasoning (RRO) and grammar deliberation state machines are
-            // Clyffy's (headless, on the GB10), not local Platform services —
-            // there is no `Platform::reasoning()` / `::grammar()`.
-            // Their snapshots reach the frontend over the
-            // gb10-client wire once `clyffyd` advertises them (deferred, not
-            // retired). The `platform:rro-state-changed` /
-            // `platform:grammar-changed` event contracts are re-established from
-            // Clyffy's event stream at that point; nothing is emitted locally.
+            // ── RRO state event bridge ───────────────────────────
+            // Subscribe to the reasoning handle's broadcast channel and
+            // forward snapshots onto the Tauri event bus. Frontend listens
+            // on `platform:rro-state-changed` — no polling needed.
+            //
+            // `rx.recv()` yields a `LinkedTraced<RroStateSnapshot>` — the
+            // producer's OTel context rides as a link target, not a parent.
+            // We forward just the payload; causality is preserved in the
+            // trace tree via the link.
+            if let Some(platform_arc) = state.platform.load_full() {
+                let mut rx = platform_arc.reasoning().subscribe();
+                let app_handle = app.clone();
+                devpulse_telemetry::spawn(async move {
+                    while let Ok(envelope) = rx.recv().await {
+                        let (snapshot, _producer_cx) = envelope.into_parts();
+                        let _ = app_handle.emit("platform:rro-state-changed", &snapshot);
+                    }
+                    tracing::info!("rro state event bridge: broadcast channel closed");
+                });
+                tracing::info!("rro state event bridge: spawned");
+            }
+
+            // ── Grammar state event bridge ───────────────────────
+            // Same shape as the RRO bridge. Subscribes to the grammar
+            // handle's broadcast channel and forwards snapshots onto
+            // `platform:grammar-changed`. Frontend listens without polling.
+            if let Some(platform_arc) = state.platform.load_full() {
+                let mut rx = platform_arc.grammar().subscribe();
+                let app_handle = app.clone();
+                devpulse_telemetry::spawn(async move {
+                    while let Ok(envelope) = rx.recv().await {
+                        let (snapshot, _producer_cx) = envelope.into_parts();
+                        let _ = app_handle.emit("platform:grammar-changed", &snapshot);
+                    }
+                    tracing::info!("grammar event bridge: broadcast channel closed");
+                });
+                tracing::info!("grammar event bridge: spawned");
+            }
 
             // ── RRD lifecycle event bridge ───────────────────────
             // Two-step wiring per HOT_UPDATE_PATTERN.md §11:
@@ -1221,146 +1250,60 @@ async fn boot_task(
                 tracing::info!("rrd event bridge: spawned");
             }
 
-            // ── Clyffy wire connection probe (re-pointable, auto-reconnect) ──
-            // The loop dials whatever endpoint the managed
-            // ClyffyConnectionState currently holds, re-reading it EACH tick, so
-            // a runtime `connect_clyffy` / `disconnect_clyffy` re-points it with
-            // no restart. We seed it from persisted config (if any) and spawn the
-            // loop UNCONDITIONALLY — an empty/disabled endpoint stays standalone
-            // (Tier-1) until the operator connects. Never blocks or fails boot.
-            if let Some(platform_arc) = state.platform.load_full() {
-                let clyffy_cfg = &platform_arc.boot_config().services.system.clyffy;
-                let interval =
-                    std::time::Duration::from_secs(clyffy_cfg.probe_interval_secs.max(1));
-                let timeout = std::time::Duration::from_secs(clyffy_cfg.probe_timeout_secs.max(1));
-                // Seed priority: the operator's PERSISTED choice (survives
-                // restarts, written by connect/disconnect) wins over the
-                // static boot config's base_url. A persisted explicit
-                // disconnect (record present, endpoint None) stays
-                // standalone even when the boot config names an endpoint —
-                // the operator's last decision is the truth.
-                let persisted = crate::paths::resolve_data_dir(&app)
-                    .ok()
-                    .map(|dir| crate::connection_store::ConnectionStore::new(&dir).load());
-                let seed: Option<String> = match &persisted {
-                    Some(record) if record.setup_decided => record.endpoint.clone(),
-                    _ => {
-                        let configured = clyffy_cfg.base_url.trim();
-                        (clyffy_cfg.enabled && !configured.is_empty())
-                            .then(|| configured.to_string())
+            // ── Hardware sampler (kernel, on demand) ─────────────
+            // The kernel loader samples only while a window watches
+            // hardware (`set_signal_interest`), every
+            // `[signals.sample_interval_ms].hardware`.
+            #[cfg(feature = "inference")]
+            {
+                let platform = state.platform.load_full();
+                let hardware_period = platform
+                    .as_ref()
+                    .map_or_else(
+                        devpulse_engine::platform::config::SignalsConfig::shipped,
+                        |p| p.boot_config().signals.clone(),
+                    )
+                    .sample_interval(devpulse_engine::signals::SignalKind::Hardware);
+                let loader = platform.as_ref().and_then(|p| p.model_loader());
+                match (loader, hardware_period) {
+                    (Some(loader), Some(period)) => {
+                        let watching = app
+                            .state::<devpulse_engine::Engine>()
+                            .router()
+                            .interest(devpulse_engine::signals::SignalKind::Hardware);
+                        loader.spawn_hardware_sampler(period, watching);
                     }
-                };
-                match &seed {
-                    Some(endpoint) => {
-                        app.state::<crate::state::ClyffyConnectionState>()
-                            .set_endpoint(Some(endpoint.clone()));
-                        tracing::info!(
-                            target: "clyffy.connection",
-                            endpoint = %endpoint,
-                            source = if persisted.as_ref().is_some_and(|r| r.setup_decided) {
-                                "persisted"
-                            } else {
-                                "boot-config"
-                            },
-                            "clyffy probe: seeded endpoint"
-                        );
-                    }
-                    None => {
-                        tracing::info!(
-                            target: "clyffy.connection",
-                            "clyffy probe: no endpoint — standalone (Tier-1), awaiting runtime connect"
-                        );
-                    }
+                    (None, _) => tracing::warn!("hardware sampler: no model loader — hardware signals off"),
+                    (_, None) => tracing::warn!("hardware sampler: no [signals.sample_interval_ms].hardware — hardware signals off"),
                 }
-                devpulse_telemetry::spawn(clyffy_probe_loop(app.clone(), interval, timeout));
-                tracing::info!("clyffy connection probe: spawned (re-pointable)");
             }
 
-            // ── Hardware metrics push loop ───────────────────────
-            // Rust-driven: no frontend polling. Browser throttling can't
-            // affect this — Rust tokio runtime is never throttled.
-            spawn_hardware_push(app.clone());
-
-            // ── Model readiness check ────────────────────────────
-            // Query the model loader to determine if models are present
-            // and assigned. Frontend uses this to decide: show app or
-            // show the setup wizard.
+            // ── Models readiness ─────────────────────────────────
+            // Computed once, in the engine's model-loader service,
+            // and published as a `models` state signal. Every window —
+            // including ones opened later — renders it and opens the setup
+            // flow exactly when Rust says setup is incomplete.
             let models_ready = {
-                tracing::info!("boot: atomic-loading platform for model readiness check...");
-                // P0: lock-free atomic load.
                 let platform_opt = state.platform.load_full();
-                tracing::info!("boot: platform loaded (lock-free)");
-                if let Some(ref platform) = platform_opt {
-                    if let Some(loader) = platform.model_loader() {
-                        tracing::info!("boot: get_registry...");
-                        let registry = loader.get_registry().await;
-                        tracing::info!("boot: list_slots...");
-                        let slots = loader.list_slots().await;
-                        tracing::info!("boot: is_first_run...");
-                        let first_run = loader.is_first_run().await;
-                        let assigned = slots.iter().filter(|s| s.assigned_model.is_some()).count();
-                        tracing::info!("boot: is_setup_complete...");
-                        let setup_done = loader.is_setup_complete().await;
-                        tracing::info!("boot: all loader queries done — building snapshot");
-                        let ready = setup_done && !registry.is_empty() && assigned > 0;
-                        tracing::info!(
-                            models = registry.len(),
-                            slots = slots.len(),
-                            assigned,
-                            first_run,
-                            setup_done,
-                            ready,
-                            "Model readiness check"
-                        );
-                        let models_snapshot = ModelsStatusSnapshot {
-                            ready,
-                            first_run,
-                            model_count: registry.len(),
-                            slot_count: slots.len(),
-                            assigned_count: assigned,
-                            error: None,
-                        };
-                        // Push full model state — frontend sets $state directly
-                        let slot_infos: Vec<commands::models::SlotInfo> = slots
-                            .iter()
-                            .map(|s| commands::models::slot_to_slot_info(s, &registry))
-                            .collect();
-                        let model_infos: Vec<commands::models::ModelInfo> = registry
-                            .iter()
-                            .map(commands::models::entry_to_model_info)
-                            .collect();
-                        commands::emit_status(
-                            &app,
-                            "models",
-                            commands::StatusKind::Data,
-                            &commands::models::ModelsStatusData {
-                                slots: slot_infos,
-                                models: model_infos,
-                                first_run,
-                            },
-                        );
-                        // Store in tracker so get_boot_state catches up
-                        // late-mounting frontends that missed the live event.
-                        tracker.set_models_status(models_snapshot);
-                        tracing::info!(
-                            "boot: model readiness block done — dropping platform read lock"
-                        );
-                        ready
-                    } else {
-                        tracing::warn!("Model Loader not available — models not ready");
-                        commands::emit_status(
-                            &app,
-                            "models",
-                            commands::StatusKind::Data,
-                            &commands::models::ModelsStatusData {
-                                slots: vec![],
-                                models: vec![],
-                                first_run: true,
-                            },
-                        );
-                        false
-                    }
+                if let Some(loader) = platform_opt.as_ref().and_then(|p| p.model_loader()) {
+                    loader.publish_readiness().await.ready
                 } else {
+                    tracing::warn!("Model Loader not available — models not ready");
+                    app.state::<devpulse_engine::Engine>().emit(
+                        devpulse_engine::signals::Signal::new(
+                            devpulse_engine::signals::SignalSource::System,
+                            devpulse_engine::signals::SignalVariant::Models(
+                                devpulse_engine::signals::ModelsReadiness {
+                                    ready: false,
+                                    setup_complete: false,
+                                    first_run: true,
+                                    model_count: 0,
+                                    slot_count: 0,
+                                    assigned_count: 0,
+                                },
+                            ),
+                        ),
+                    );
                     false
                 }
             };
@@ -1383,177 +1326,19 @@ async fn boot_task(
         Err(e) => {
             tracing::error!(error = %e, total_ms, "Platform boot failed");
             tracker.set_failed(e.to_string());
-            let _ = BootPhaseChanged {
-                phase: BootPhaseValue::Failed,
-                error: Some(e.to_string()),
-            }
-            .emit(&app);
+            publish_boot_status(&app, &tracker);
         }
     }
 }
 
-/// Rust-driven hardware metrics push — replaces frontend setInterval polling.
-///
-/// Runs every 2s. Emits `"model:hardware"` Tauri events with fresh metrics.
-/// The frontend just listens — no timers, no browser throttling issues.
-fn spawn_hardware_push(app: tauri::AppHandle) {
-    tauri::async_runtime::spawn(async move {
-        let mut interval = tokio::time::interval(std::time::Duration::from_secs(2));
-        loop {
-            interval.tick().await;
-
-            // Access managed state each tick via AppHandle
-            let state = app.state::<PlatformState>();
-            // P0: lock-free atomic load.
-            let platform_arc = state.platform.load_full();
-
-            let Some(platform) = platform_arc else {
-                continue;
-            };
-
-            #[cfg(feature = "inference")]
-            {
-                let Some(loader) = platform.model_loader() else {
-                    continue;
-                };
-                let metrics = loader.hardware_metrics();
-                let _ = HardwareMetricsUpdated { metrics }.emit(&app);
-            }
-        }
-    });
-}
-
-/// Seed sample data for dev mode — only if tables are empty.
-#[cfg(debug_assertions)]
-#[allow(clippy::too_many_lines)]
-async fn seed_dev_data(platform: &Platform) -> anyhow::Result<()> {
-    use devpulse_engine::platform::{AnalyticsAdapter, SqlAdapter};
-
-    // Seed system relational: platform_config + boot_history
-    if let Some(svc) = platform.relational() {
-        let adapter = svc.adapter();
-
-        let rows = adapter
-            .query("SELECT COUNT(*) FROM platform_config", &[])
-            .await?;
-        let count = rows
-            .first()
-            .and_then(|r| r.first())
-            .and_then(devpulse_engine::platform::SqlValue::as_integer)
-            .unwrap_or(0);
-
-        if count == 0 {
-            tracing::info!("Seeding system config into LibSQL...");
-
-            adapter
-                .execute_batch(
-                    r"
-                    INSERT INTO platform_config (key, value, category) VALUES
-                        ('version', '0.1.0', 'system'),
-                        ('portable_mode', 'true', 'system'),
-                        ('log_level', 'info', 'system'),
-                        ('default_model', 'claude-sonnet-4-6', 'ai'),
-                        ('max_tokens_per_turn', '8192', 'ai'),
-                        ('default_temperature', '0.7', 'ai');
-                    ",
-                )
-                .await?;
-
-            tracing::info!("System LibSQL seeded: 6 config entries");
-        }
+/// Publish the current boot progress as the signal fabric's `Boot` state.
+fn publish_boot_status(app: &tauri::AppHandle, tracker: &BootStateTracker) {
+    if let Some(engine) = app.try_state::<devpulse_engine::Engine>() {
+        engine.emit(devpulse_engine::signals::Signal::new(
+            devpulse_engine::signals::SignalSource::System,
+            devpulse_engine::signals::SignalVariant::Boot(tracker.status()),
+        ));
     }
-
-    // Seed user relational: default profile + preferences ONLY.
-    //
-    // Owner directive 2026-04-22: fresh installs start with an EMPTY
-    // projects table. The user creates their first project through the
-    // wizard's "Let's Go" (which calls `commands::projects::create_project`)
-    // or the dashboard's "Add Project" flow. Sessions/turns depend on
-    // a real project id, so they're also user-created downstream.
-    //
-    // The legacy 4 hardcoded projects (`proj-1` … `proj-4`) with
-    // canned chat turns were developer convenience fixtures — they
-    // made the "4 projects" dashboard look populated on fresh installs
-    // but pointed at paths that only exist on one machine. Out.
-    if let Some(svc) = platform.user_relational() {
-        let adapter = svc.adapter();
-
-        let rows = adapter.query("SELECT COUNT(*) FROM profiles", &[]).await?;
-        let count = rows
-            .first()
-            .and_then(|r| r.first())
-            .and_then(devpulse_engine::platform::SqlValue::as_integer)
-            .unwrap_or(0);
-
-        if count == 0 {
-            tracing::info!("Seeding default user profile into LibSQL...");
-
-            adapter
-                .execute_batch(
-                    r"
-                    INSERT INTO profiles (id, display_name, hardware_profile, onboarding_complete, expertise_level) VALUES
-                        ('user-1', NULL, '32g_engineer', 0, 1);
-
-                    INSERT INTO preferences (id, user_id, theme, context_mode, verbosity) VALUES
-                        ('pref-1', 'user-1', 'dark', 'normal', 'balanced');
-                    ",
-                )
-                .await?;
-
-            tracing::info!(
-                "User LibSQL seeded: default profile + preferences (no projects — user-created)"
-            );
-        }
-    }
-
-    // Seed DuckDB daily_stats — MUST use user_analytics(): the `daily_stats`
-    // table exists only in USER_ANALYTICS_SCHEMA, and `fetch_dashboard` reads
-    // it from user_analytics() too. Seeding via analytics() (system) queried a
-    // table that doesn't exist there, silently failed, and left the dashboard
-    // permanently empty.
-    if let Some(svc) = platform.user_analytics() {
-        let adapter = svc.adapter();
-
-        let rows = adapter
-            .analytics_query("SELECT COUNT(*) FROM daily_stats")
-            .await?;
-        let count = rows
-            .first()
-            .and_then(|r| r.first())
-            .and_then(devpulse_engine::platform::SqlValue::as_integer)
-            .unwrap_or(0);
-
-        if count == 0 {
-            tracing::info!("Seeding dev data into DuckDB...");
-
-            let mut data = Vec::new();
-            for i in 0..20 {
-                data.push(serde_json::json!({
-                    // `date` is the PRIMARY KEY — every seeded row must be unique.
-                    // The old `16 + (i % 13)` wrapped at i=13 back to day 16, so the
-                    // 14th INSERT hit a duplicate-key violation ("Failed to append
-                    // data") and aborted the seed after 13 rows. Days 01..20 are unique.
-                    "date": format!("2026-02-{:02}", 1 + i),
-                    "total_model_calls": 20 + (i * 5) % 30,
-                    "total_sessions": 3 + (i * 2) % 8,
-                    "total_messages": 10 + (i * 3) % 25,
-                    "total_prompt_tokens": 500 + (i * 80) % 1200,
-                    "total_completion_tokens": 400 + (i * 60) % 900,
-                    "total_cost_usd": 0.05 + f64::from((i * 3) % 20) * 0.01,
-                    "avg_latency_ms": 15.0 + f64::from((i * 5) % 30),
-                    "avg_roti_ratio": 1.5 + f64::from((i * 2) % 10) * 0.1,
-                    "cache_hit_rate": 0.3 + f64::from((i * 4) % 30) * 0.01,
-                    "error_count": (i * 3) % 5,
-                    "governance_violations": (i * 2) % 3,
-                }));
-            }
-
-            let inserted = adapter.append("daily_stats", &data).await?;
-            tracing::info!(rows = inserted, "DuckDB seeded: daily_stats");
-        }
-    }
-
-    Ok(())
 }
 
 /// Extract a string message from a panic payload (the `Box<dyn Any>`
@@ -1583,8 +1368,8 @@ fn panic_message(payload: &Box<dyn std::any::Any + Send>) -> String {
 /// at all of "did Rust even start". `bootstrap.log` is the one place
 /// the user can look: "file exists with fresh timestamp → process
 /// started, at least through data-dir resolution". Failures AFTER this
-/// land in `boot.log` (authored at `platform/boot/log.rs:43`) or
-/// `crash-{ts}.json` (authored by the panic hook at `logging.rs:179`).
+/// land in `boot.log` (authored at `platform/boot/log.rs:43`) or the run's
+/// `crash.jsonl` (appended by the panic hook in `logging.rs`).
 ///
 /// All writes use synchronous `std::fs::write` — tracing-appender's
 /// background worker hasn't been spawned yet, and synchronous is what
@@ -1592,6 +1377,50 @@ fn panic_message(payload: &Box<dyn std::any::Any + Send>) -> String {
 ///
 /// Best-effort: errors are swallowed because this log is an aide, not
 /// a precondition. If we can't write it, boot still proceeds.
+/// Judge the earlier runs against the retention policy (`[logs]`) and log
+/// the decision; the full report is the run's `retention.json`.
+fn report_retention(data_dir: &std::path::Path, run: &log_runs::Run, adopted: Vec<String>) {
+    use devpulse_engine::platform::config::runtime::logs::LogsPolicy;
+
+    let loaded = match LogsPolicy::load(data_dir) {
+        Ok(loaded) => loaded,
+        Err(e) => {
+            tracing::error!(target: "logs", error = %format!("{e:#}"), "no retention policy; every run is kept");
+            return;
+        }
+    };
+    for problem in &loaded.refused {
+        tracing::warn!(target: "logs", %problem, "your [logs] was not used; the shipped policy applies");
+    }
+    let report = log_runs::retain(data_dir, run, loaded, adopted, chrono::Utc::now());
+    let gone = report
+        .gone
+        .iter()
+        .map(|v| format!("{} ({:?})", v.run, v.reason))
+        .collect::<Vec<_>>()
+        .join(", ");
+    let outcome = if report.policy.prune {
+        "removed"
+    } else {
+        "would go (prune is off, nothing removed)"
+    };
+    tracing::info!(
+        target: "logs",
+        run = %report.run,
+        kept = report.kept.len(),
+        gone = report.gone.len(),
+        adopted = report.adopted.len(),
+        prune = report.policy.prune,
+        runs_gone = %gone,
+        "log retention: {} runs kept; {} {outcome}",
+        report.kept.len(),
+        report.gone.len(),
+    );
+    for error in &report.errors {
+        tracing::warn!(target: "logs", %error, "a run could not be removed");
+    }
+}
+
 fn write_bootstrap_log(data_dir: &std::path::Path) {
     use std::fs;
 
@@ -1612,15 +1441,14 @@ fn write_bootstrap_log(data_dir: &std::path::Path) {
          data_dir:    {data_dir}\n\
          logs_dir:    {logs_dir}\n\
          boot_log:    {boot_log}\n\
-         session_log: {logs_dir}/session-<timestamp>.jsonl\n\
-         crash_dumps: {logs_dir}/crash-<timestamp>.json\n\
+         runs:        {logs_dir}/runs/<run id>/ (session.jsonl, stderr.log, crash.jsonl, retention.json)\n\
          ---\n\
          If you are reading this, Rust reached the data-dir resolution step.\n\
-         If session-*.jsonl or boot.log have fresher timestamps than this\n\
-         file, boot progressed further. If not, a panic or DLL load error\n\
+         If the newest run folder or boot.log is fresher than this file,\n\
+         boot progressed further. If not, a panic or DLL load error\n\
          happened between data-dir resolution and the logging subscriber\n\
          init — check Windows Event Viewer for the exe name or look for\n\
-         a crash-*.json in logs_dir.\n",
+         crash.jsonl and stderr.log in the newest run folder.\n",
         version = env!("CARGO_PKG_VERSION"),
         data_dir = data_dir.display(),
         logs_dir = logs_dir.display(),

@@ -66,7 +66,6 @@ async function runChecks(
   options: PreflightOptions
 ): Promise<CheckResult[]> {
   const allResults: CheckResult[] = [];
-  const targetRoot = path.join(platformRoot, policy.targetPath);
   const checksToRun = options.checks || registry.getCheckIds();
 
   for (const checkId of checksToRun) {
@@ -87,7 +86,9 @@ async function runChecks(
     }
 
     const config = policy.rules[ruleKey];
-    const files = await getFilesForScope(platformRoot, policy.targetPath, config.scope);
+    const ruleTarget = config.targetPath ?? policy.targetPath;
+    const targetRoot = path.join(platformRoot, ruleTarget);
+    const files = await getFilesForScope(platformRoot, ruleTarget, config.scope);
 
     if (files.length === 0) {
       allResults.push({

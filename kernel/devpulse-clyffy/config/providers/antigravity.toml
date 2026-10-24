@@ -1,0 +1,21 @@
+# Antigravity — Google's agent IDE (desktop app). It has no programmatic
+# chat; DevPulse can offer it your context over MCP (it keeps its MCP servers
+# in ~/.gemini/antigravity/mcp_config.json). Checked 2026-10-21 on the
+# machine this was written on: installed per user under
+# %LOCALAPPDATA%/Programs/Antigravity, its installer puts `bin/` on PATH,
+# `antigravity --version` prints "1.104.0", and it ships its own updater. The
+# macOS location is unconfirmed against a real install.
+
+# What it is (name, docs, how DevPulse talks to it) is its registry row in
+# kernel/devpulse-clyffy/src/providers/registry.rs; this file is where this
+# machine keeps it.
+id = "antigravity"
+
+[detect]
+# The launcher its installer puts on PATH (`antigravity.cmd` on Windows).
+executables = ["antigravity"]
+paths = { windows = ["%LOCALAPPDATA%/Programs/Antigravity/Antigravity.exe"], macos = ["/Applications/Antigravity.app"] }
+
+[version]
+# Prints "1.104.0", then the commit and the architecture.
+args = ["--version"]

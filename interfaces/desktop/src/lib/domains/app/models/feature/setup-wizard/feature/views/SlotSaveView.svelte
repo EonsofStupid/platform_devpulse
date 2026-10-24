@@ -18,9 +18,9 @@
 	| 2     | Quick thinking · Clyffy's minion   | Harrier 0.6B     | `--accent-hotpink` |
 	| 3     | Deep reasoning · the long-think    | Nemotron 7.6B    | `--accent-amber` |
 
-	The slot IDs themselves are engine-side
+	The slot IDs themselves are kernel-side
 	([SlotRecommendation`s][`SlotRecommendation`]). This view's
-	`slotSaves` prop maps each engine recommendation to a customer-
+	`slotSaves` prop maps each kernel recommendation to a customer-
 	friendly preset by `slot_id`.
 
 	## Polish discipline
@@ -32,11 +32,11 @@
 	    one slot only
 -->
 <script lang="ts">
-import { BrainCircuit, ChevronRight, Ear, Eye, Mic, Sparkles } from "@lucide/svelte";
-import { Button } from "$lib/design/components/button/index.js";
-import { Heading } from "$lib/design/components/heading/index.js";
-import { Spinner } from "$lib/design/components/spinner/index.js";
-import { Text } from "$lib/design/components/text/index.js";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Heading } from "@devpulse/coldlight/components/heading";
+import { Spinner } from "@devpulse/coldlight/components/spinner";
+import { Text } from "@devpulse/coldlight/components/text";
+import { BrainCircuit, ChevronRight, Ear, Eye, Mic, Sparkles } from "lucide-svelte";
 import SaveSlotCard, { type SaveState } from "../../ui/SaveSlotCard.svelte";
 import type { SlotSaveViewProps } from "../../util/wizard.types.js";
 import OverlayShell from "../OverlayShell.svelte";
@@ -53,7 +53,7 @@ let {
 }: SlotSaveViewProps = $props();
 
 /**
- * Resolve an engine-supplied icon name to a lucide component. Lives
+ * Resolve a kernel-supplied icon name to a lucide component. Lives
  * here so the typed prop struct stays JSON-serializable (callable
  * components can't cross the typed-state boundary cleanly).
  */
@@ -92,20 +92,20 @@ const anyUnsaved = $derived(slotSaves.some((s) => s.state !== "saved"));
 	</div>
 
 	{#snippet footer()}
-		<Button preset="ghost" size="sm" onclick={callbacks.onBack} disabled={busy}>
+		<Button variant="ghost" size="sm" onclick={callbacks.onBack} disabled={busy}>
 			Back
 		</Button>
-		<Button preset="ghost" size="sm" onclick={callbacks.onSkip} disabled={busy}>
+		<Button variant="ghost" size="sm" onclick={callbacks.onSkip} disabled={busy}>
 			Skip — assign manually later
 		</Button>
 		<div class="footer-spacer"></div>
 		{#if anyUnsaved}
-			<Button preset="ghost" size="sm" onclick={onSaveAll} disabled={busy}>
+			<Button variant="ghost" size="sm" onclick={onSaveAll} disabled={busy}>
 				{#if busy}<Spinner size="xs" tone="accent" />{/if}
 				Save all
 			</Button>
 		{/if}
-		<Button preset="primary" size="md" onclick={callbacks.onNext} disabled={busy || !allSaved}>
+		<Button variant="primary" size="md" onclick={callbacks.onNext} disabled={busy || !allSaved}>
 			{#if busy}<Spinner size="xs" tone="accent" />{/if}
 			Continue
 			<ChevronRight size={14} />

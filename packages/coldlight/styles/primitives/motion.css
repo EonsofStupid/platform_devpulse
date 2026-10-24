@@ -1,0 +1,42 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+@layer tokens.primitives {
+  :root {
+  --duration-snap: 50ms; /** Instant feedback — micro-interactions. */
+  --duration-fast: 150ms; /** Quick — most UI transitions. */
+  --duration-normal: 250ms; /** Default — standard transition speed. */
+  --duration-smooth: 400ms; /** Smooth — emphasised transitions, drawer open. */
+  --duration-glacial: 700ms; /** Slow — dramatic entrances. */
+  --duration-moderate: 3000ms; /** Ambient — looping background animations. */
+  --easing-linear: cubic-bezier(0, 0, 1, 1); /** Linear — no easing. */
+  --easing-ease-in: cubic-bezier(0.4, 0, 1, 1); /** Ease in — accelerate from rest. */
+  --easing-ease-out: cubic-bezier(0, 0, 0.2, 1); /** Ease out — decelerate to rest. */
+  --easing-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1); /** Ease in-out — smooth both ends. */
+  --easing-spring: cubic-bezier(0.34, 1.56, 0.64, 1); /** Spring — overshoot-then-settle. */
+  --easing-bounce: cubic-bezier(0.68, -0.55, 0.27, 1.55); /** Bounce — aggressive overshoot both ends. */
+  --animation-pulse-glow: 4s; /** Pulsing glow — infinite ambient highlight. */
+  --animation-breathe: 4s; /** Breathing scale — infinite ambient pulse. */
+  --animation-shimmer: 8s; /** Shimmer loading placeholder — linear infinite. */
+  --animation-drift: 8s; /** Drifting background parallax — infinite ambient. */
+  --animation-pulse: 3s; /** Pulse — infinite attention indicator. */
+  --animation-fade-in: 300ms; /** Fade in on mount — one-shot forwards. */
+  --animation-slide-up: 300ms; /** Slide up on mount — one-shot forwards. */
+  --animation-slide-down: 300ms; /** Slide down on mount — one-shot forwards. */
+  --animation-scale-in: 250ms; /** Scale in on mount — one-shot forwards. */
+  --animation-grow: 300ms; /** Grow transition — ColdLight variant of scale-in. */
+  --animation-shrink: 200ms; /** Shrink transition — ColdLight variant of scale-out. */
+  --animation-shake: 400ms; /** Shake — one-shot error feedback. */
+  --animation-spin: 1s; /** Spin — infinite rotation (loading spinners). */
+  --animation-float: 6s; /** Float — infinite subtle levitation. */
+  --animation-flip: 600ms; /** Flip — one-shot card flip. */
+  --animation-presence-breathe: 3200ms; /** Presence orb — gentle idle breathing, brightness+scale. */
+  --animation-presence-pulse: 1400ms; /** Presence orb — working pulse, strong scale. */
+  --animation-presence-think: 2400ms; /** Presence orb — thinking, rotate+hue-shift. */
+  --animation-presence-listen: 1600ms; /** Presence orb — listening, squash/stretch attentive. */
+  --animation-presence-rest: 6000ms; /** Presence orb — resting, slow desaturated breathing. */
+  --animation-presence-halo: 3200ms; /** Presence orb — outer halo breathing, pairs with any core. */
+  --animation-presence-alert: 900ms; /** Presence orb — alert, fast asymmetric pulse. */
+  }
+}

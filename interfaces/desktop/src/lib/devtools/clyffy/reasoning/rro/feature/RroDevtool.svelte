@@ -18,7 +18,7 @@
 	Routes import ONLY this (via the domain index barrel).
 -->
 <script lang="ts">
-import { Compass, Database } from "@lucide/svelte";
+import { Database } from "lucide-svelte";
 import {
 	type ExtraTab,
 	type HealthBadge,
@@ -88,11 +88,6 @@ function badgeFromSnapshotState(
 </script>
 
 <ServiceDevtoolShell
-	title="RRO Trifecta"
-	description="Embedder + encoder + vector store · retrieval-rumination orchestrator"
-	icon={Compass}
-	axis="capabilities"
-	accent="cyber"
 	health={badge}
 	{extraTabs}
 	capture={captureForTab}

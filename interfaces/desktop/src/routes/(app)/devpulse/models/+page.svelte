@@ -3,6 +3,11 @@
   Mirrors the devtools/models page inside the app frame so the sidebar stays visible.
 -->
 <script lang="ts">
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Button } from "@devpulse/coldlight/components/button";
+import { Heading } from "@devpulse/coldlight/components/heading";
+import { Spinner } from "@devpulse/coldlight/components/spinner";
+import { Text } from "@devpulse/coldlight/components/text";
 import {
 	Brain,
 	Check,
@@ -13,12 +18,7 @@ import {
 	Sparkles,
 	Square,
 	X,
-} from "@lucide/svelte";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Button } from "$lib/design/components/button/index.js";
-import { Heading } from "$lib/design/components/heading/index.js";
-import { Spinner } from "$lib/design/components/spinner/index.js";
-import Text from "$lib/design/components/text/Text.svelte";
+} from "lucide-svelte";
 import {
 	formatMb,
 	getSlotLabel,
@@ -99,7 +99,7 @@ function slotData(slotId: string) {
 <div class="models-page">
 	<div class="page-header">
 		<Heading level={2} size="xl">Model Control</Heading>
-		<Button preset="secondary" size="sm" onclick={rescan} disabled={loading}>
+		<Button variant="secondary" size="sm" onclick={rescan} disabled={loading}>
 			{#if loading}
 				<Spinner size="xs" />
 			{:else}
@@ -158,13 +158,13 @@ function slotData(slotId: string) {
 
 						<div class="slot-actions">
 							{#if model && !ready}
-								<Button preset="secondary" size="sm" onclick={() => loadSlot(slotId)} disabled={isActing}>
+								<Button variant="secondary" size="sm" onclick={() => loadSlot(slotId)} disabled={isActing}>
 									{#if isActing}<Spinner size="xs" />{:else}<Play size={12} />{/if}
 									Load
 								</Button>
 							{/if}
 							{#if ready}
-								<Button preset="ghost" size="sm" onclick={() => unloadSlot(slotId)} disabled={isActing}>
+								<Button variant="ghost" size="sm" onclick={() => unloadSlot(slotId)} disabled={isActing}>
 									<Square size={12} />
 									Unload
 								</Button>

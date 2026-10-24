@@ -4,7 +4,7 @@
 # Edit this file (or create an override at .userdata/config/wizard_copy.toml)
 # to change copy without recompiling.
 #
-# Schema: systems/devpulse-engine/src/platform/wizard/copy.rs
+# Schema: kernel/model-loader/src/wizard/copy.rs
 
 # ─────────────────────────────────────────────────────────────────────
 # Welcome screen — Clyffy greeting
@@ -382,55 +382,6 @@ error_back_label = "Back to search"
 project_scope_indicator_template = "Saving to project: {project_id}"
 
 # ─────────────────────────────────────────────────────────────────────
-# Auth shell — sign-in, sign-up, sign-out, error templates
-# Layman English only. No jargon like "credentials," "session," "JWT."
-# ─────────────────────────────────────────────────────────────────────
-[auth]
-
-# ── Sign-in route ───────────────────────────────────────────────────
-sign_in_heading = "Sign in"
-sign_in_subtitle = "Welcome back."
-sign_in_submit_label = "Sign in"
-sign_in_submit_aria = "Sign in to DevPulse"
-sign_in_submit_busy_label = "Signing in…"
-
-# ── Sign-up route ───────────────────────────────────────────────────
-sign_up_heading = "Create your account"
-sign_up_subtitle = "It takes a minute. Then we get to work."
-sign_up_submit_label = "Create account"
-sign_up_submit_aria = "Create your DevPulse account"
-sign_up_submit_busy_label = "Creating account…"
-sign_up_confirmation_heading = "Check your email"
-sign_up_confirmation_body_template = "We sent a confirmation link to {email}. Click it to finish."
-
-# ── Form fields ─────────────────────────────────────────────────────
-email_label = "Email"
-email_placeholder = "you@example.com"
-email_aria = "Email address"
-password_label = "Password"
-password_placeholder = "Your password"
-password_aria = "Password"
-confirm_password_label = "Confirm password"
-confirm_password_placeholder = "Type it again"
-confirm_password_aria = "Confirm your password"
-
-# ── Switch links ────────────────────────────────────────────────────
-to_sign_up_link_label = "Don't have an account? Create one."
-to_sign_in_link_label = "Already have an account? Sign in."
-
-# ── Sign-out affordance ─────────────────────────────────────────────
-sign_out_label = "Sign out"
-sign_out_aria = "Sign out of your account"
-
-# ── Errors ──────────────────────────────────────────────────────────
-error_credentials_required = "Email and password are required."
-error_passwords_dont_match = "The two passwords don't match."
-error_invalid_credentials = "That didn't work. Check your email and password and try again."
-error_network = "Can't reach the sign-in server. Check your internet connection."
-error_supabase_not_configured = "Sign-in isn't set up yet. Open Settings → Cloud to add your Supabase key."
-error_unknown_template = "Something went wrong — {error}"
-
-# ─────────────────────────────────────────────────────────────────────
 # Runtime picker — post-login embedder selector + minion read-only
 # Layman English only. Templates use {repo}, {size_mb}, {error}.
 # ─────────────────────────────────────────────────────────────────────
@@ -449,99 +400,3 @@ status_applied_template = "Loaded {repo} ({size_mb} MB)"
 status_failed_template = "Couldn't apply — {error}"
 minion_section_heading = "Helper processes (auto-managed)"
 minion_section_subtitle_template = "Always uses the small {repo} for speed. Clyffy manages this for you."
-
-# ─────────────────────────────────────────────────────────────────────
-# Connect step — link standalone DevPulse to a Clyffy endpoint.
-# Two modes: Local (this machine / home network) and GB10 (over the
-# operator's private mesh). The placeholder is an editable EXAMPLE —
-# the real address is always typed or discovered, never shipped here.
-# Layman English only: "AI brain", never "inference endpoint".
-# ─────────────────────────────────────────────────────────────────────
-[connect]
-title = "Link up your AI"
-subtitle = "DevPulse already works on its own. Connect it to Clyffy and the AI features light up — chat, helpers, and live model info."
-mascot_alt = "Clyffy mascot offering a connection"
-mode_local_label = "This machine or home network"
-mode_local_hint = "Clyffy runs on this computer or another box on your network."
-mode_gb10_label = "GB10 box"
-mode_gb10_hint = "Your GB10 over your private mesh — paste its address."
-url_label = "Clyffy address"
-url_placeholder = "http://clyffy.local:8080"
-url_aria = "Clyffy endpoint address"
-connect_cta = "Connect"
-connect_aria = "Connect to the Clyffy endpoint"
-back_label = "Back"
-continue_label = "Continue"
-skip_label = "Not now — keep it standalone"
-skip_aria = "Skip connecting and use DevPulse standalone"
-skip_hint = "You can connect anytime — the AI badge in the corner takes you back here."
-status_connecting = "Connecting…"
-status_connected = "Connected — your AI is live."
-status_failed = "Couldn't reach it. Check the address and that Clyffy is running — I'll keep trying in the background."
-error_empty = "Type an address first — your Local or GB10 Clyffy."
-discover_cta = "Find my Clyffy"
-discover_aria = "Search this machine, your network, and your mesh for a running Clyffy"
-discovering = "Looking for your Clyffy…"
-found_title = "Found on your network"
-confirm_cta = "Connect to this one"
-none_found = "Nothing answered yet — I checked this machine, your network, and your mesh. If Clyffy is running somewhere, type its address below."
-degraded_hint = "Part of the search was blocked (firewall or no mesh client) — the address field always works."
-manual_reveal = "Enter an address instead"
-
-# -- Third mode card (charter: local / network / gb10) ------------------
-mode_network_label = "Another machine on my network"
-mode_network_hint = "Clyffy runs on a different computer in your home or office."
-
-# -- Tooltips (mouseover, layman verbatim) ------------------------------
-mode_local_tooltip = "Pick this if Clyffy runs right here on this computer - the search checks this machine first."
-mode_network_tooltip = "Pick this if Clyffy runs on another machine in your home or office - the search asks your network (mDNS) and your mesh."
-mode_gb10_tooltip = "Pick this if you have a GB10 box on your private mesh (Tailscale or Headscale). The search checks your mesh and your config."
-discover_tooltip = "Searches five places in order: your saved endpoint, your config file, this machine, your home network, and your private mesh. Everything you see really happened."
-manual_tooltip = "Already know the address? Type it in yourself - like http://clyffy.local:8080."
-skip_tooltip = "DevPulse keeps working without AI. The badge in the corner brings you back here whenever you're ready."
-continue_tooltip = "Go to the next step - you can always connect later."
-back_tooltip = "Return to the previous step. Nothing you did here is lost."
-confirm_tooltip = "Connect to this Clyffy. You can switch to a different one anytime."
-url_tooltip = "The web address where your Clyffy answers. Ask whoever set it up, or check the machine it runs on."
-
-# -- Live scan surface (renders ONLY what the signals prove) ------------
-scan_title = "Searching for your Clyffy"
-scan_subtitle = "Watching every place it could be - live, as it happens."
-scan_rung_persisted = "Your saved endpoint"
-scan_rung_configured = "Your config file"
-scan_rung_localhost = "This machine"
-scan_rung_mdns = "Your home network"
-scan_rung_mesh = "Your private mesh"
-scan_rung_persisted_tip = "The last Clyffy you connected to - it gets checked first."
-scan_rung_configured_tip = "An address written in your DevPulse settings file, if you have one."
-scan_rung_localhost_tip = "Checks whether Clyffy is running right here on this computer."
-scan_rung_mdns_tip = "Asks the devices on your home or office network to answer (that's mDNS)."
-scan_rung_mesh_tip = "Checks the machines on your private mesh - Tailscale or Headscale."
-scan_rung_waiting = "Waiting..."
-scan_rung_done_none = "Nothing here"
-scan_rung_done_some = "{count} answered"
-scan_rung_not_run = "Skipped - nothing to check here yet"
-scan_rung_not_run_tip = "This spot only gets searched once there's something to search - for example, a saved endpoint from a previous connection."
-scan_probe_trying = "Trying {url}"
-scan_probe_answered = "answered"
-scan_probe_silent = "no answer"
-scan_finished_some = "Done - found {found} ({probed} addresses checked)."
-scan_finished_none = "Done - nothing answered ({probed} addresses checked)."
-scan_error = "The search hit a snag: {error}"
-
-[capability]
-title = "Here's what your Clyffy can do"
-subtitle = "These senses light up straight from the Clyffy you just connected - nothing on this screen is a guess."
-standalone_hint = "Not connected yet - these senses light up the moment you link a Clyffy."
-tile_brain_tip = "The deep reasoner - Clyffy's main thinking model."
-tile_sparkles_tip = "The indexing helper - reads your project so answers arrive with the right context."
-tile_eyes_tip = "Vision - lets Clyffy understand screenshots and images."
-tile_ears_tip = "Speech-to-text - Clyffy hears your microphone."
-tile_mouth_tip = "Text-to-speech - Clyffy answers out loud."
-terms_caption = "What these words mean:"
-back_label = "Back"
-back_tooltip = "Go back to the connect step - you can pick a different Clyffy anytime."
-skip_label = "Set up my AI later"
-skip_tooltip = "Finish without connecting - everything here fills in later, live."
-continue_label = "Continue"
-continue_tooltip = "Finish this step. Everything here updates live as your Clyffy changes."

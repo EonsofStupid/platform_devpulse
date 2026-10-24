@@ -1,0 +1,30 @@
+{
+	"$description": "Card's tokens (plan 0006 §0s). The build generates styles/components/kinds/card.css and card.generated.ts from the card group.",
+	"card": {
+		"$description": "Each variant is a surface role read from the family in scope; data-surface picks the family. Old presets map to family + role: default → elevated; glass → glass + deep; flat → flat + minimal; matte → neuro + solid; stark → stark + glow; a preset id <family>-<role> → that family + role.",
+		"$extensions": {
+			"com.coldlight": {
+				"accepts": ["surface", "text", "frame"],
+				"defaults": { "variant": "elevated" }
+			}
+		},
+		"base": {
+			"border-style": { "$value": "solid", "$type": "strokeStyle" }
+		},
+		"variant": {
+			"elevated": { "$extensions": { "com.coldlight": { "role": "elevated" } } },
+			"deep": { "$extensions": { "com.coldlight": { "role": "deep" } } },
+			"minimal": { "$extensions": { "com.coldlight": { "role": "minimal" } } },
+			"solid": { "$extensions": { "com.coldlight": { "role": "solid" } } },
+			"glow": { "$extensions": { "com.coldlight": { "role": "glow" } } },
+			"muted": { "$extensions": { "com.coldlight": { "role": "muted" } } }
+		},
+		"state": {
+			"disabled": {
+				"$description": "Card.svelte's disabled classes (pointer-events-none opacity-60), now from the disabled state.",
+				"opacity": { "$value": 0.6, "$type": "number" },
+				"pointer-events": { "$value": "none" }
+			}
+		}
+	}
+}

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # check-bindings-drift.sh
 # Pre-commit guard: if Tauri command files changed AND the regenerated
-# bindings would differ from the committed bindings.ts, block the commit.
+# bindings would differ from the staged bindings.ts, block the commit.
 #
 # Why: the specta-emitted bindings.ts at
 #   interfaces/desktop/src/lib/sys/generated/bindings.ts
@@ -13,25 +13,25 @@
 # mount throws). This hook makes that class of drift impossible to
 # sneak through pre-commit.
 #
-# Earlier revisions of this hook required bindings.ts to literally
-# appear in `git diff --cached` whenever a command file was staged.
-# That false-positives every internal-only command edit — a change
-# that touches the body of a #[tauri::command] without altering its
-# typed surface produces a byte-identical regen, so `git add
-# bindings.ts` is a no-op and the file never appears in `--cached`.
-# The hook then blocks valid commits. The semantic the hook actually
-# wants is "is the on-disk bindings.ts in sync with what the current
-# command surface would generate?" — which is a content comparison.
+# The semantic is a content comparison: "is the staged bindings.ts what
+# the current command surface generates?" An internal-only command edit
+# regenerates byte-identical bindings and passes without bindings.ts
+# being staged.
 #
-# This revision runs the dedicated `export-bindings` binary against
-# a temp output path and diffs the result. If the diff is empty,
-# there is no drift and the commit proceeds; if non-empty, the hook
-# fails with the same actionable fix message as before.
+# export-bindings writes to a fixed path derived from CARGO_MANIFEST_DIR
+# (src-tauri/src/bindings.rs::bindings_path), so it regenerates the real
+# bindings.ts in place. The hook then compares the regenerated file with
+# the staged one: any difference is drift. When there is none, the file
+# is left exactly as it was.
 #
 # Performance: export-bindings is a tooling binary that's already
-# built whenever the desktop crate is built. Running it adds ~200ms
-# on a warm `target/release` and ~2-4s if a recompile is needed —
-# acceptable overhead for the runtime-safety guarantee.
+# built whenever the desktop crate is built (cargo xtask regen-bindings
+# builds it). Running it takes well under a second.
+#
+# A binary older than the sources it reads is refused, never run: it
+# would "regenerate" an old command surface over the real bindings.ts
+# (2026-10-23: a debug build from the day before wrote two committed
+# changes out of the working tree and reported them as drift).
 
 set -euo pipefail
 
@@ -46,7 +46,7 @@ if [ -z "${COMMANDS_CHANGED}" ]; then
 fi
 
 REPO_ROOT="$(git rev-parse --show-toplevel)"
-BINDINGS_PATH="${REPO_ROOT}/interfaces/desktop/src/lib/sys/generated/bindings.ts"
+BINDINGS_REL="interfaces/desktop/src/lib/sys/generated/bindings.ts"
 
 # Locate a built export-bindings binary. Prefer release (smaller, faster
 # to invoke), fall back to debug, and if neither is built yet skip the
@@ -78,84 +78,61 @@ if [ -z "${EXPORT_BIN}" ]; then
     exit 0
 fi
 
-# Stage staged content into a temp tree so the regen reflects the
-# committed state, not the working tree (a staged command edit plus
-# an unstaged revert in the same file would otherwise mask drift).
-# Simpler approach used here: invoke export-bindings against a temp
-# output file using the LIVE crate surface. The crate is built from
-# the source tree, so any uncommitted changes that affect the typed
-# surface are picked up. The diff at the end still compares against
-# the committed bindings.ts on disk — which is what frontend code
-# will compile against if this commit lands.
-TEMP_DIR="$(mktemp -d)"
-trap 'rm -rf "${TEMP_DIR}"' EXIT
-TEMP_BINDINGS="${TEMP_DIR}/bindings.ts"
+# The binary must be newer than every Rust source whose types the specta
+# builder exports: the desktop backend, the engine and the kernel crates.
+STALE_SOURCE=$(
+    find "${REPO_ROOT}/interfaces/desktop/src-tauri/src" \
+         "${REPO_ROOT}/interfaces/desktop/src-tauri/bin" \
+         "${REPO_ROOT}/systems" \
+         "${REPO_ROOT}/kernel" \
+         -path '*/target' -prune -o \
+         -name '*.rs' -newer "${EXPORT_BIN}" -print -quit 2>/dev/null || true
+)
 
-# export-bindings writes to `../src/lib/sys/generated/bindings.ts`
-# relative to its cwd. To divert output to the temp file we set the
-# cwd to a temp directory and create the relative path scaffolding.
-mkdir -p "${TEMP_DIR}/cwd"
-mkdir -p "${TEMP_DIR}/src/lib/sys/generated"
-( cd "${TEMP_DIR}/cwd" && "${EXPORT_BIN}" >/dev/null 2>&1 ) || {
+if [ -n "${STALE_SOURCE}" ]; then
+    {
+        echo ""
+        echo "ERROR: export-bindings is older than the sources it reads"
+        echo "       (${STALE_SOURCE#"${REPO_ROOT}"/} is newer), so it cannot tell"
+        echo "       whether bindings.ts has drifted. Nothing was written."
+        echo "      Fix:"
+        echo "        cargo xtask regen-bindings"
+        echo "        git add ${BINDINGS_REL}"
+        echo ""
+    } >&2
+    exit 1
+fi
+
+"${EXPORT_BIN}" >/dev/null 2>&1 || {
     {
         echo ""
         echo "ERROR: export-bindings failed to run — cannot verify drift."
         echo "      Manual fix:"
         echo "        cargo xtask regen-bindings"
-        echo "        git add interfaces/desktop/src/lib/sys/generated/bindings.ts"
+        echo "        git add ${BINDINGS_REL}"
         echo ""
     } >&2
     exit 1
 }
 
-# Find the actual generated file relative to whatever cwd resolved.
-GENERATED="${TEMP_DIR}/src/lib/sys/generated/bindings.ts"
-if [ ! -f "${GENERATED}" ]; then
-    # export-bindings hard-codes the relative path; if it landed
-    # elsewhere the binary was rebuilt with a different output. Fall
-    # back to the old hook semantics (require staging) so we never
-    # silently allow drift.
-    BINDINGS_STAGED=$(
-        git diff --cached --name-only --diff-filter=ACMR \
-            -- 'interfaces/desktop/src/lib/sys/generated/bindings.ts' \
-            || true
-    )
-    if [ -n "${BINDINGS_STAGED}" ]; then
-        exit 0
-    fi
-    {
-        echo ""
-        echo "ERROR: export-bindings did not write to the expected temp path."
-        echo "      Falling back to strict staging check, which also failed."
-        echo ""
-        echo "      Manual fix:"
-        echo "        cargo xtask regen-bindings"
-        echo "        git add interfaces/desktop/src/lib/sys/generated/bindings.ts"
-        echo ""
-    } >&2
-    exit 1
-fi
-
-if diff -q "${BINDINGS_PATH}" "${GENERATED}" >/dev/null 2>&1; then
-    # No drift — internal-only command edit. Allow the commit.
+# Regenerated (working tree) vs staged (index).
+if git -C "${REPO_ROOT}" diff --quiet -- "${BINDINGS_REL}"; then
     exit 0
 fi
 
-# Real drift detected. Show a unified diff snippet so the operator
-# can see what surface changed, then fail with the regen instruction.
 {
     echo ""
     echo "ERROR: bindings.ts is out of date relative to the current command surface."
+    echo "       It has been regenerated in place; review it and stage it."
     echo ""
     echo "Changed command files:"
     echo "${COMMANDS_CHANGED}" | sed 's/^/  /'
     echo ""
-    echo "Drift (first 40 lines of unified diff):"
-    diff -u "${BINDINGS_PATH}" "${GENERATED}" | head -40 | sed 's/^/  /' || true
+    echo "Drift (first 40 lines):"
+    git -C "${REPO_ROOT}" diff -- "${BINDINGS_REL}" | head -40 | sed 's/^/  /' || true
     echo ""
     echo "Fix:"
-    echo "  cargo xtask regen-bindings"
-    echo "  git add interfaces/desktop/src/lib/sys/generated/bindings.ts"
+    echo "  git add ${BINDINGS_REL}"
     echo ""
 } >&2
 

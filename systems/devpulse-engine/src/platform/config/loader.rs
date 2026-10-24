@@ -10,13 +10,16 @@
 //! there is no hand-maintained `DatabaseConfig` mirror.
 //!
 //! Store layout uses four scopes:
-//! - **system**: Engine internals (FSM, telemetry, boot state)
+//! - **system**: Kernel/engine internals (FSM, telemetry, boot state)
 //! - **user**: User-owned data (sessions, messages, preferences, memory)
 //! - **global**: Cross-project shared knowledge
 //! - **project**: Per-project namespaced data (created on demand)
 
+use crate::signals::SignalKind;
+use devpulse_clyffy::cortex::llguidance::GrammarConfig;
 use serde::{Deserialize, Serialize};
 use specta::Type;
+use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
@@ -70,7 +73,7 @@ pub enum ExecutionLane {
     // ── Storage lanes ───────────────────────────────────────
     /// Vector search (RRO/Qdrant). Disk-backed.
     VectorRetrieval,
-    /// Relational query (libSQL). File-backed.
+    /// Relational query (Turso). File-backed.
     RelationalQuery,
     /// Analytical query (`DuckDB`). File-backed.
     AnalyticalQuery,
@@ -217,7 +220,8 @@ pub struct LaneTraceConfig {
 // ═══════════════════════════════════════════════════════════════
 
 /// Embedded default config generated from repo-root platform fragments.
-const DEFAULT_CONFIG: &str = include_str!(concat!(env!("OUT_DIR"), "/platform.default.toml"));
+pub(crate) const DEFAULT_CONFIG: &str =
+    include_str!(concat!(env!("OUT_DIR"), "/platform.default.toml"));
 
 /// Root boot configuration deserialized from TOML.
 #[derive(Debug, Clone, Deserialize, Default)]
@@ -236,6 +240,70 @@ pub struct PlatformBootConfig {
     /// Telemetry — lane tracing for inference pipeline instrumentation.
     #[serde(default)]
     pub telemetry: TelemetryBootConfig,
+    /// Signal delivery tuning (`[signals]`). An override file without a
+    /// `[signals]` section keeps the shipped default suggestions.
+    #[serde(default = "SignalsConfig::shipped")]
+    pub signals: SignalsConfig,
+    /// Log organization and retention (`[logs]`). Kept as written here and
+    /// checked against its schema by
+    /// [`super::runtime::logs::LogsPolicy`], so a policy below its floors is
+    /// refused by name instead of failing the whole config.
+    #[serde(default)]
+    pub logs: Option<toml::Value>,
+    /// External services (`[integrations]`, `config/platform/integrations/`).
+    #[serde(default)]
+    pub integrations: super::integrations::IntegrationsConfig,
+}
+
+/// Signal delivery tuning from `config/platform/signals.toml`.
+///
+/// The shipped values are default suggestions; `{data_dir}/platform.toml`
+/// overrides them. Keys are signal kinds, so an unknown kind fails parsing.
+/// What a kind *is* (event or state) and its wire version are code — see
+/// `SignalSpec` — because every consumer depends on them.
+#[derive(Debug, Clone, Default, PartialEq, Eq, Deserialize)]
+pub struct SignalsConfig {
+    /// Minimum milliseconds between two UI deliveries of a kind; a newer
+    /// value replaces one still waiting. Unlisted kinds are delivered every time.
+    #[serde(default)]
+    pub coalesce_ms: HashMap<SignalKind, u32>,
+    /// How often a sampled producer runs while a window watches its kind.
+    #[serde(default)]
+    pub sample_interval_ms: HashMap<SignalKind, u32>,
+}
+
+impl SignalsConfig {
+    /// The `[signals]` section of the shipped platform config — the single
+    /// source of the default suggestions.
+    #[must_use]
+    pub fn shipped() -> Self {
+        #[derive(Deserialize)]
+        struct Shipped {
+            #[serde(default)]
+            signals: SignalsConfig,
+        }
+        match toml::from_str::<Shipped>(DEFAULT_CONFIG) {
+            Ok(shipped) => shipped.signals,
+            Err(err) => {
+                tracing::error!(%err, "shipped [signals] config does not parse — no signal tuning applied");
+                Self::default()
+            }
+        }
+    }
+
+    /// Minimum time between two UI deliveries of `kind` (zero = every signal).
+    #[must_use]
+    pub fn coalesce_window(&self, kind: SignalKind) -> Duration {
+        Duration::from_millis(u64::from(self.coalesce_ms.get(&kind).copied().unwrap_or(0)))
+    }
+
+    /// Sampling period for a sampled producer of `kind`, if configured.
+    #[must_use]
+    pub fn sample_interval(&self, kind: SignalKind) -> Option<Duration> {
+        self.sample_interval_ms
+            .get(&kind)
+            .map(|ms| Duration::from_millis(u64::from(*ms)))
+    }
 }
 
 /// Portable mode configuration.
@@ -283,7 +351,7 @@ impl Default for WindowsConfig {
 /// All service configurations, organized by scope.
 #[derive(Debug, Clone, Deserialize, Default)]
 pub struct ScopedServicesConfig {
-    /// System-scope services (engine internals).
+    /// System-scope services (kernel internals).
     #[serde(default)]
     pub system: SystemServicesConfig,
     /// User-scope services (sessions, preferences, auto-managed).
@@ -303,13 +371,13 @@ pub struct ScopedServicesConfig {
 /// System-scope service configuration.
 #[derive(Debug, Clone, Deserialize)]
 pub struct SystemServicesConfig {
-    /// Relational store (`LibSQL`) — engine state, boot records.
+    /// Relational store (Turso) — kernel state, boot records.
     #[serde(default = "ServiceEntry::system_relational_default")]
     pub relational: ServiceEntry,
     /// Analytics store (`DuckDB`) — system telemetry.
     #[serde(default = "ServiceEntry::system_analytics_default")]
     pub analytics: ServiceEntry,
-    /// Graph store (`SurrealDB`) — Clyffy-side FSM, reasoning.
+    /// Graph store (`SurrealDB`) — kernel FSM, reasoning.
     #[serde(default = "GraphServiceEntry::system_default")]
     pub graph: GraphServiceEntry,
     /// In-memory cache (`Moka`).
@@ -318,8 +386,9 @@ pub struct SystemServicesConfig {
     /// Vector store (`RRO`) — embedded Qdrant for two-tier retrieval.
     #[serde(default)]
     pub vector: VectorServiceEntry,
-    // There is no grammar service config — grammar (constrained decoding)
-    // is Clyffy's on GB10; no local grammar service entry.
+    /// Grammar service — structured generation engine.
+    #[serde(default)]
+    pub grammar: GrammarConfig,
     /// Model Loader service (`AI` model management, inference).
     #[serde(default)]
     pub model_loader: ModelLoaderServiceEntry,
@@ -335,12 +404,6 @@ pub struct SystemServicesConfig {
     /// `SurrealDB` sidecar service (managed `surreal start` child process).
     #[serde(default)]
     pub surreal: SurrealServiceEntry,
-    /// `Clyffy` (headless AI layer on ClyffyOS/GB10) — wire-client endpoint.
-    /// A **client target**, not a managed sidecar: DevPulse probes
-    /// `{base_url}/v1/capability` to compute Tier-2 (AI) availability. Empty
-    /// `base_url` ⇒ DevPulse stays standalone (Tier-1, Turso only).
-    #[serde(default)]
-    pub clyffy: ClyffyServiceEntry,
 }
 
 impl Default for SystemServicesConfig {
@@ -351,97 +414,12 @@ impl Default for SystemServicesConfig {
             graph: GraphServiceEntry::system_default(),
             cache: CacheServiceEntry::default(),
             vector: VectorServiceEntry::default(),
+            grammar: GrammarConfig::default(),
             model_loader: ModelLoaderServiceEntry::default(),
             devforge: DevForgeServiceEntry::default(),
             claude: ClaudeServiceEntry::default(),
             ollama: OllamaServiceEntry::default(),
             surreal: SurrealServiceEntry::default(),
-            clyffy: ClyffyServiceEntry::default(),
-        }
-    }
-}
-
-/// Clyffy wire-client endpoint config — the headless AI layer on ClyffyOS/GB10.
-///
-/// Unlike the sidecar entries (Ollama/Surreal), this is a **remote client
-/// target**, not a managed child process. DevPulse probes
-/// `{base_url}/v1/capability` on a fixed cadence to compute Tier-2 (AI)
-/// availability; an unreachable or unconfigured endpoint leaves DevPulse running
-/// standalone (Tier-1, Turso only). No host is hardcoded — `base_url` is supplied
-/// by first-run connect / the devtool per connection mode (local / network /
-/// gb10 / mesh).
-#[derive(Debug, Clone, Deserialize)]
-pub struct ClyffyServiceEntry {
-    /// Whether DevPulse attempts to reach Clyffy at all. `true` = probe when a
-    /// `base_url` is set; `false` = never probe (forced offline).
-    #[serde(default = "default_true")]
-    pub enabled: bool,
-    /// Base URL of the Clyffy (`clyffyd`) endpoint for the active connection
-    /// mode, e.g. `http://127.0.0.1:8080` (local) or `https://<gb10-host>:8080`.
-    /// **Empty = no endpoint configured** ⇒ DevPulse stays standalone. Never a
-    /// hardcoded default host.
-    #[serde(default)]
-    pub base_url: String,
-    /// Seconds between capability probes — the seamless auto-reconnect cadence.
-    #[serde(default = "default_clyffy_probe_interval_secs")]
-    pub probe_interval_secs: u64,
-    /// Per-probe HTTP timeout in seconds.
-    #[serde(default = "default_clyffy_probe_timeout_secs")]
-    pub probe_timeout_secs: u64,
-    /// Whether the turnkey discovery ladder (persisted / configured /
-    /// localhost / mDNS / mesh peers) runs when the operator asks to find
-    /// their Clyffy. `false` = manual address entry only.
-    #[serde(default = "default_true")]
-    pub discovery_enabled: bool,
-    /// DNS-SD service type `clyffyd` advertises on the LAN. The canonical
-    /// constant belongs to `clyffyos-wire`; this default tracks the wire
-    /// contract (`_clyffy._tcp.local.`, kernel-extraction charter).
-    #[serde(default = "default_clyffy_discovery_service_type")]
-    pub discovery_service_type: String,
-    /// Candidate ports probed on localhost and enumerated mesh peers.
-    /// (mDNS answers carry their own port via SRV and ignore this list.)
-    #[serde(default = "default_clyffy_discovery_ports")]
-    pub discovery_ports: Vec<u16>,
-    /// How long the mDNS browse collects answers before the ladder moves on.
-    #[serde(default = "default_clyffy_discovery_mdns_wait_ms")]
-    pub discovery_mdns_wait_ms: u64,
-    /// Bounded fan-out for candidate capability probes — only enumerated
-    /// candidates are probed, never address sweeps.
-    #[serde(default = "default_clyffy_discovery_max_probes")]
-    pub discovery_max_probes: usize,
-}
-
-fn default_clyffy_probe_interval_secs() -> u64 {
-    15
-}
-fn default_clyffy_probe_timeout_secs() -> u64 {
-    5
-}
-fn default_clyffy_discovery_service_type() -> String {
-    "_clyffy._tcp.local.".to_string()
-}
-fn default_clyffy_discovery_ports() -> Vec<u16> {
-    vec![8080]
-}
-fn default_clyffy_discovery_mdns_wait_ms() -> u64 {
-    1500
-}
-fn default_clyffy_discovery_max_probes() -> usize {
-    8
-}
-
-impl Default for ClyffyServiceEntry {
-    fn default() -> Self {
-        Self {
-            enabled: true,
-            base_url: String::new(),
-            probe_interval_secs: default_clyffy_probe_interval_secs(),
-            probe_timeout_secs: default_clyffy_probe_timeout_secs(),
-            discovery_enabled: true,
-            discovery_service_type: default_clyffy_discovery_service_type(),
-            discovery_ports: default_clyffy_discovery_ports(),
-            discovery_mdns_wait_ms: default_clyffy_discovery_mdns_wait_ms(),
-            discovery_max_probes: default_clyffy_discovery_max_probes(),
         }
     }
 }
@@ -449,7 +427,7 @@ impl Default for ClyffyServiceEntry {
 /// User-scope service configuration.
 #[derive(Debug, Clone, Deserialize)]
 pub struct UserServicesConfig {
-    /// Relational store (`LibSQL`) — sessions, messages, user config.
+    /// Relational store (Turso) — sessions, messages, user config.
     #[serde(default = "ServiceEntry::user_relational_default")]
     pub relational: ServiceEntry,
     /// Analytics store (`DuckDB`) — user/project stats: ROTI,
@@ -540,7 +518,7 @@ pub struct ServiceEntry {
     /// Whether boot fails if this service fails (critical = true).
     #[serde(default)]
     pub critical: bool,
-    /// Service kind identifier (e.g., "libsql", "duckdb").
+    /// Service kind identifier (e.g., "turso", "duckdb").
     #[serde(default)]
     pub kind: String,
     /// Relative path from data directory.
@@ -549,17 +527,35 @@ pub struct ServiceEntry {
     /// Per-service retry config — overrides global defaults.
     #[serde(default)]
     pub retry: ServiceRetryConfig,
+    /// Relational stores: how long an operation waits for a lock held by
+    /// another connection before reporting busy.
+    #[serde(default = "default_busy_timeout_ms")]
+    pub busy_timeout_ms: u64,
+}
+
+/// Shipped suggestion for [`ServiceEntry::busy_timeout_ms`].
+const fn default_busy_timeout_ms() -> u64 {
+    5_000
 }
 
 impl ServiceEntry {
+    /// Connection options for a relational (Turso) store.
+    #[must_use]
+    pub const fn turso_options(&self) -> crate::platform::TursoOptions {
+        crate::platform::TursoOptions {
+            busy_timeout: std::time::Duration::from_millis(self.busy_timeout_ms),
+        }
+    }
+
     /// System relational service defaults.
     pub fn system_relational_default() -> Self {
         Self {
             enabled: true,
             critical: true,
-            kind: "libsql".to_string(),
-            path: "system/libsql/platform.db".to_string(),
+            kind: "turso".to_string(),
+            path: "system/turso/platform.db".to_string(),
             retry: ServiceRetryConfig::default(),
+            busy_timeout_ms: default_busy_timeout_ms(),
         }
     }
 
@@ -572,6 +568,7 @@ impl ServiceEntry {
             kind: "duckdb".to_string(),
             path: "system/duckdb/analytics.duckdb".to_string(),
             retry: ServiceRetryConfig::default(),
+            busy_timeout_ms: default_busy_timeout_ms(),
         }
     }
 
@@ -580,9 +577,10 @@ impl ServiceEntry {
         Self {
             enabled: true,
             critical: false,
-            kind: "libsql".to_string(),
-            path: "user/libsql/user.db".to_string(),
+            kind: "turso".to_string(),
+            path: "user/turso/user.db".to_string(),
             retry: ServiceRetryConfig::default(),
+            busy_timeout_ms: default_busy_timeout_ms(),
         }
     }
 
@@ -598,6 +596,7 @@ impl ServiceEntry {
             kind: "duckdb".to_string(),
             path: "user/duckdb/user-analytics.duckdb".to_string(),
             retry: ServiceRetryConfig::default(),
+            busy_timeout_ms: default_busy_timeout_ms(),
         }
     }
 
@@ -771,8 +770,8 @@ impl Default for CacheServiceEntry {
 
 impl CacheServiceEntry {
     /// Convert to a `MokaCacheConfig`.
-    pub fn to_moka_config(&self) -> devpulse_store::MokaCacheConfig {
-        devpulse_store::MokaCacheConfig {
+    pub fn to_moka_config(&self) -> devpulse_clyffy::cortex::persistence::MokaCacheConfig {
+        devpulse_clyffy::cortex::persistence::MokaCacheConfig {
             max_capacity: self.max_capacity,
             time_to_live: Duration::from_secs(self.time_to_live_secs),
             time_to_idle: Duration::from_secs(self.time_to_idle_secs),
@@ -784,12 +783,7 @@ impl CacheServiceEntry {
 #[derive(Debug, Clone, Deserialize)]
 pub struct VectorServiceEntry {
     /// Whether this store is enabled.
-    ///
-    /// Defaults to whether qortex (the `rro` feature) is compiled in. A
-    /// standalone Turso-only desktop build has NO in-process vector store, so
-    /// the `not(rro)` boot path must not bail — the default resolves to `false`
-    /// there and `true` when the vector store is linked (Clyffy-side/GB10).
-    #[serde(default = "default_vector_enabled")]
+    #[serde(default = "default_true")]
     pub enabled: bool,
     /// Whether boot fails if this service fails.
     #[serde(default = "default_true")]
@@ -808,7 +802,7 @@ pub struct VectorServiceEntry {
 impl Default for VectorServiceEntry {
     fn default() -> Self {
         Self {
-            enabled: default_vector_enabled(),
+            enabled: true,
             critical: true,
             kind: default_rro_kind(),
             path: default_rro_path(),
@@ -1061,10 +1055,10 @@ pub struct ModelLoaderServiceEntry {
     pub subdirs: ModelSubdirsConfig,
     /// Download catalog — HF repos and options per slot.
     ///
-    /// Slots themselves are NOT defined here — the engine owns the slot
-    /// registry via its `config/slots.default.toml`. The
+    /// Slots themselves are NOT defined here — the kernel owns the slot
+    /// registry via `kernel/model-loader/config/slots.default.toml`. The
     /// catalog is engine-level presentation data that the frontend model
-    /// browser renders against each slot id.
+    /// browser renders against each kernel slot id.
     #[serde(default)]
     pub catalog: Vec<CatalogEntry>,
 }
@@ -1082,38 +1076,14 @@ impl Default for ModelLoaderServiceEntry {
 }
 
 impl ModelLoaderServiceEntry {
-    /// Resolve the full models directory path via a first-hit-wins chain.
-    ///
-    /// Same chain in debug and release — no `cfg(debug_assertions)`
-    /// branches. The app finds models in whichever location actually
-    /// exists on the running machine:
-    ///
-    /// 1. **Sibling-of-exe** `<exe_dir>/models/` — the portable-zip
-    ///    case. The end user unzips the distribution; `models/` is a
-    ///    sibling of the exe they double-click. This is the primary
-    ///    path for shipped builds because it IS the portable promise:
-    ///    files next to the app.
-    /// 2. **Repo-root** `<repo>/models/` — the dev case. The exe runs
-    ///    from `target/debug/` or `target/release/`; we walk up looking
-    ///    for a `Cargo.toml` + `interfaces/` pair, which uniquely
-    ///    identifies this workspace. Lets dev machines share a single
-    ///    on-disk models folder with the rest of the team.
-    /// 3. **Configured path** (absolute or joined to `data_dir`) —
-    ///    typically resolves to `<data_dir>/models/`, which is where
-    ///    the model-loader feature downloads new models at user
-    ///    request. The LAST fallback so bundled + dev-checked-in
-    ///    models are always preferred over re-downloaded copies.
-    ///
-    /// The old code had a `#[cfg(debug_assertions)]` override in
-    /// `platform/boot/model_loader.rs` that rebound a `let mut`
-    /// locally. That release path silently skipped the dev models —
-    /// this chain replaces it so release builds scan real directories
-    /// instead of scanning an empty `.userdata/models/`.
+    /// The models folder: the configured `models_dir`
+    /// (`config/platform/services/system/model-loader.toml`). A relative
+    /// path is under the data dir — `.userdata/models/` with the shipped
+    /// `"models"`, in dev and in a portable build alike, since both resolve
+    /// the data dir to the `.userdata/` in the `DevPulse` folder. An absolute
+    /// path is used as given, for a user who keeps models elsewhere.
     pub fn resolve_models_dir(&self, data_dir: &Path) -> PathBuf {
-        let exe_dir = std::env::current_exe()
-            .ok()
-            .and_then(|p| p.parent().map(std::path::Path::to_path_buf));
-        resolve_models_dir_chain(&self.models_dir, data_dir, exe_dir.as_deref())
+        under_data_dir(data_dir, &self.models_dir)
     }
 
     /// Get the list of subdirectory names for model discovery.
@@ -1157,11 +1127,11 @@ impl Default for ModelSubdirsConfig {
 
 // ── Catalog entry (exposed to frontend via specta) ──
 //
-// There are no slot / capability / device / loading-strategy /
-// backend-type / source-tier shadow types here — the Slot vocabulary has
-// a single definition in `platform/model_loader/slots/`. Every
-// deserialization of a slot goes through `slots/defaults.rs` via
-// `load_default_slots()` at boot.
+// Slot / capability / device / loading-strategy / backend-type / source-tier
+// shadow types used to live here. They are deleted — the engine no longer
+// carries a parallel definition of the kernel's Slot vocabulary. Every
+// deserialization of a slot now goes through kernel/model-loader/src/slots/
+// defaults.rs via load_default_slots() at boot.
 
 /// A download catalog entry — one per slot. Each has one or more download options.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
@@ -1200,76 +1170,6 @@ fn default_models_dir() -> String {
     "models".to_string()
 }
 
-/// Pure first-hit-wins resolver for the models directory.
-///
-/// Extracted from [`ModelLoaderServiceEntry::resolve_models_dir`] so it
-/// is testable without touching `std::env::current_exe()` — the caller
-/// passes in whatever `exe_dir` they want the walker to anchor on.
-///
-/// Chain:
-/// 1. `<exe_dir>/models/` — portable zip case.
-/// 2. `<repo>/models/` — dev workspace case; repo root detected by the
-///    co-presence of `Cargo.toml` and `interfaces/` on the walk up.
-/// 3. `configured_models_dir`, absolute or joined to `data_dir`.
-///
-/// Rule 3 always returns a path even when that path doesn't exist on
-/// disk — it is the deterministic endpoint of the chain. Earlier rules
-/// only trigger when the candidate directory actually exists, so there
-/// is never an ambiguity about which one "wins".
-pub(crate) fn resolve_models_dir_chain(
-    configured_models_dir: &str,
-    data_dir: &Path,
-    exe_dir: Option<&Path>,
-) -> PathBuf {
-    // Rule 1: sibling-of-exe — the portable-zip case.
-    if let Some(exe) = exe_dir {
-        let sibling = exe.join("models");
-        if sibling.is_dir() {
-            return sibling;
-        }
-    }
-
-    // Rule 2: repo-root — only hit when the exe runs from inside a
-    // dev checkout (`target/debug/` or `target/release/`). On an
-    // end-user install this walk fails at the filesystem root and
-    // we fall through.
-    if let Some(exe) = exe_dir {
-        if let Some(repo_root) = find_repo_root(exe) {
-            let repo_models = repo_root.join("models");
-            if repo_models.is_dir() {
-                return repo_models;
-            }
-        }
-    }
-
-    // Rule 3: configured path. Absolute passes through; relative
-    // joins `data_dir` (typically `<LOCALAPPDATA>/DevPulse/models/`
-    // on Windows).
-    let configured = Path::new(configured_models_dir);
-    if configured.is_absolute() {
-        configured.to_path_buf()
-    } else {
-        data_dir.join(configured)
-    }
-}
-
-/// Walk up from `start` looking for the monorepo root, defined as any
-/// ancestor directory containing both `Cargo.toml` and `interfaces/`.
-///
-/// This is the same shape used by `xtask::workspace::find_root` — the
-/// repo has exactly one directory that matches, so the check is
-/// unambiguous. Returns `None` at filesystem root if no match.
-fn find_repo_root(start: &Path) -> Option<PathBuf> {
-    let mut dir = start.to_path_buf();
-    loop {
-        if dir.join("Cargo.toml").is_file() && dir.join("interfaces").is_dir() {
-            return Some(dir);
-        }
-        if !dir.pop() {
-            return None;
-        }
-    }
-}
 fn default_subdir_chat() -> String {
     "chat".to_string()
 }
@@ -1287,7 +1187,7 @@ fn default_subdir_vision() -> String {
 ///
 /// `DevForge` is a Layer 1 infrastructure service — a managed Node process
 /// running the VS Code REH (Remote Extension Host) server. It boots
-/// through the platform service pipeline like libSQL, `DuckDB`, etc.
+/// through the platform service pipeline like Turso, `DuckDB`, etc.
 ///
 /// The REH tree is fetched from `github.com/EonsofStupid/devforge`
 /// releases via `cargo xtask fetch-devforge` and lives under
@@ -1407,10 +1307,12 @@ impl DevForgeServiceEntry {
     }
 }
 
-/// `SurrealDB` embedded store entry — `DevPulse` opens the `SurrealKV`
-/// backend in-process at `{data_dir}/surreal/devpulse`. No child
-/// process, no port, no auth — the Platform holds the file lock
-/// directly via the `kv-surrealkv` storage backend.
+/// `SurrealDB` — upstream's server build, installed inside the `DevPulse`
+/// folder and run as a supervised subprocess (plan 0007 Part S, owner
+/// decision 6). Until the cutover (S5) the store is still opened
+/// in-process; `data_path` already locates it from configuration.
+///
+/// Paths are relative to the data dir unless absolute.
 #[derive(Debug, Clone, Deserialize)]
 pub struct SurrealServiceEntry {
     /// Whether this service is enabled.
@@ -1420,6 +1322,17 @@ pub struct SurrealServiceEntry {
     /// the graph store depends on it — defaults to `true`.
     #[serde(default = "default_true")]
     pub critical: bool,
+    /// The server build to run. A store migrates one way when a newer
+    /// server opens it, so changing this is an update step (export first).
+    #[serde(default = "default_surreal_version")]
+    pub version: String,
+    /// Where builds are installed: `{install_dir}/{version}/surreal(.exe)`,
+    /// with upstream's LICENSE beside it.
+    #[serde(default = "default_surreal_install_dir")]
+    pub install_dir: String,
+    /// The store.
+    #[serde(default = "default_surreal_data_path")]
+    pub data_path: String,
 }
 
 impl Default for SurrealServiceEntry {
@@ -1427,7 +1340,41 @@ impl Default for SurrealServiceEntry {
         Self {
             enabled: true,
             critical: true,
+            version: default_surreal_version(),
+            install_dir: default_surreal_install_dir(),
+            data_path: default_surreal_data_path(),
         }
+    }
+}
+
+impl SurrealServiceEntry {
+    /// The folder of the configured build.
+    #[must_use]
+    pub fn build_dir(&self, data_dir: &Path) -> PathBuf {
+        under_data_dir(data_dir, &self.install_dir).join(&self.version)
+    }
+
+    /// The server binary of the configured build.
+    #[must_use]
+    pub fn binary(&self, data_dir: &Path) -> PathBuf {
+        self.build_dir(data_dir)
+            .join(format!("surreal{}", std::env::consts::EXE_SUFFIX))
+    }
+
+    /// The store.
+    #[must_use]
+    pub fn store(&self, data_dir: &Path) -> PathBuf {
+        under_data_dir(data_dir, &self.data_path)
+    }
+}
+
+/// A configured path: absolute as given, otherwise under the data dir.
+fn under_data_dir(data_dir: &Path, configured: &str) -> PathBuf {
+    let path = Path::new(configured);
+    if path.is_absolute() {
+        path.to_path_buf()
+    } else {
+        data_dir.join(path)
     }
 }
 
@@ -1745,7 +1692,7 @@ impl Default for BootGateConfig {
 /// Identifies which scope a store belongs to.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, Type)]
 pub enum DataScope {
-    /// Engine internals — never user-facing.
+    /// Kernel/engine internals — never user-facing.
     System,
     /// User-owned data — sessions, preferences, memories.
     User,
@@ -1841,8 +1788,10 @@ impl PlatformBootConfig {
                 self.services.system.vector.enabled,
                 self.services.system.vector.critical,
             )),
-            // Grammar (constrained decoding) is Clyffy's on GB10
-            // — no local config; falls to `_ => None`.
+            (ServiceRole::Grammar, DataScope::System) => Some((
+                self.services.system.grammar.enabled,
+                self.services.system.grammar.critical,
+            )),
             (ServiceRole::ModelLoader, DataScope::System) => Some((
                 self.services.system.model_loader.enabled,
                 self.services.system.model_loader.critical,
@@ -2194,6 +2143,15 @@ impl LanePreset {
 fn default_true() -> bool {
     true
 }
+fn default_surreal_version() -> String {
+    "3.0.5".to_owned()
+}
+fn default_surreal_install_dir() -> String {
+    "global/runtimes/surreal".to_owned()
+}
+fn default_surreal_data_path() -> String {
+    "surreal/devpulse".to_owned()
+}
 fn default_surreal_kind() -> String {
     "surreal".to_string()
 }
@@ -2230,14 +2188,6 @@ fn default_rro_kind() -> String {
 fn default_rro_path() -> String {
     "system/rro/storage".to_string()
 }
-/// Vector store default-enabled = whether qortex (`rro`) is compiled in.
-/// Keeps a standalone Turso-only desktop (no `rro`) from bailing boot when the
-/// resolved config would otherwise request an uncompiled vector store.
-fn default_vector_enabled() -> bool {
-    // No local vector store (no `rro` feature in DevPulse) — Clyffy
-    // serves vectors from GB10. Vector config defaults to disabled locally.
-    false
-}
 fn default_retry_max() -> u32 {
     5
 }
@@ -2262,142 +2212,161 @@ fn default_lane_preset() -> String {
 
 #[cfg(test)]
 #[allow(clippy::unwrap_used, clippy::expect_used)]
+mod signals_config_tests {
+    use super::{PlatformBootConfig, SignalsConfig, DEFAULT_CONFIG};
+    use crate::signals::SignalKind;
+    use std::time::Duration;
+
+    #[test]
+    fn shipped_defaults_come_from_the_platform_config() {
+        let shipped = SignalsConfig::shipped();
+        assert_eq!(
+            shipped.coalesce_window(SignalKind::Hardware),
+            Duration::from_secs(1)
+        );
+        assert_eq!(
+            shipped.sample_interval(SignalKind::Hardware),
+            Some(Duration::from_secs(2))
+        );
+        assert_eq!(shipped.coalesce_window(SignalKind::Chat), Duration::ZERO);
+
+        let boot: PlatformBootConfig = toml::from_str(DEFAULT_CONFIG).unwrap();
+        assert_eq!(boot.signals, shipped);
+    }
+
+    #[test]
+    fn an_override_without_signals_keeps_the_shipped_defaults() {
+        let parsed: SignalsConfigHolder = toml::from_str("").unwrap();
+        assert_eq!(parsed.signals, SignalsConfig::shipped());
+    }
+
+    #[test]
+    fn an_override_can_retune_a_kind() {
+        let parsed: SignalsConfigHolder =
+            toml::from_str("[signals.coalesce_ms]\nhardware = 250\n").unwrap();
+        assert_eq!(
+            parsed.signals.coalesce_window(SignalKind::Hardware),
+            Duration::from_millis(250)
+        );
+    }
+
+    #[test]
+    fn an_unknown_kind_fails_parsing() {
+        let parsed =
+            toml::from_str::<SignalsConfigHolder>("[signals.coalesce_ms]\nhardwear = 250\n");
+        assert!(parsed.is_err());
+    }
+
+    /// Just the `signals` field, deserialized exactly as `PlatformBootConfig` does.
+    #[derive(serde::Deserialize)]
+    struct SignalsConfigHolder {
+        #[serde(default = "SignalsConfig::shipped")]
+        signals: SignalsConfig,
+    }
+}
+
+#[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod models_dir_resolver_tests {
-    use super::resolve_models_dir_chain;
+    use super::ModelLoaderServiceEntry;
     use std::fs;
     use std::path::PathBuf;
-    use std::sync::atomic::{AtomicU64, Ordering};
 
-    static SEQ: AtomicU64 = AtomicU64::new(0);
-
-    /// Allocate a unique scratch directory for a single test, returning
-    /// the absolute path. Caller deletes it explicitly — parallel tests
-    /// each get their own, never collide.
-    fn scratch(label: &str) -> PathBuf {
-        let seq = SEQ.fetch_add(1, Ordering::Relaxed);
-        let p = std::env::temp_dir().join(format!(
-            "dp-models-resolver-{}-{}-{seq}",
-            std::process::id(),
-            label
-        ));
-        fs::create_dir_all(&p).unwrap();
-        p
+    fn entry(models_dir: &str) -> ModelLoaderServiceEntry {
+        ModelLoaderServiceEntry {
+            models_dir: models_dir.to_string(),
+            ..ModelLoaderServiceEntry::default()
+        }
     }
 
     #[test]
-    fn rule_1_sibling_of_exe_wins_when_it_exists() {
-        let exe_dir = scratch("r1");
-        fs::create_dir(exe_dir.join("models")).unwrap();
-        let data_dir = scratch("r1-data");
+    fn relative_configured_path_is_under_the_data_dir() {
+        let data_dir = PathBuf::from("devpulse").join(".userdata");
 
-        let resolved = resolve_models_dir_chain("models", &data_dir, Some(&exe_dir));
-
-        assert_eq!(resolved, exe_dir.join("models"));
-        fs::remove_dir_all(&exe_dir).unwrap();
-        fs::remove_dir_all(&data_dir).unwrap();
+        assert_eq!(
+            entry("models").resolve_models_dir(&data_dir),
+            data_dir.join("models")
+        );
     }
 
     #[test]
-    fn rule_2_repo_root_models_hit_when_sibling_missing() {
-        // Construct a fake repo: <repo>/Cargo.toml + <repo>/interfaces/
-        // + <repo>/models/. Exe lives under <repo>/target/debug/exe_dir.
-        // No sibling-of-exe models → rule 2 must walk up and find the
-        // repo-root models.
-        let repo = scratch("r2");
+    fn absolute_configured_path_is_used_as_given() {
+        let elsewhere = std::env::temp_dir().join("dp-models-elsewhere");
+        let data_dir = PathBuf::from("devpulse").join(".userdata");
+
+        assert_eq!(
+            entry(elsewhere.to_str().unwrap()).resolve_models_dir(&data_dir),
+            elsewhere
+        );
+    }
+
+    #[test]
+    fn a_models_folder_in_the_checkout_does_not_win_over_the_config() {
+        // The dev layout that used to be probed: <repo>/models beside
+        // <repo>/.userdata. The configured folder under the data dir wins.
+        let repo = std::env::temp_dir().join(format!("dp-models-checkout-{}", std::process::id()));
+        fs::create_dir_all(repo.join("models")).unwrap();
+        fs::create_dir_all(repo.join("interfaces")).unwrap();
         fs::write(repo.join("Cargo.toml"), "[workspace]\n").unwrap();
-        fs::create_dir(repo.join("interfaces")).unwrap();
-        fs::create_dir(repo.join("models")).unwrap();
-        let exe_dir = repo.join("target").join("debug");
-        fs::create_dir_all(&exe_dir).unwrap();
-        let data_dir = scratch("r2-data");
+        let data_dir = repo.join(".userdata");
 
-        let resolved = resolve_models_dir_chain("models", &data_dir, Some(&exe_dir));
-
-        assert_eq!(resolved, repo.join("models"));
-        fs::remove_dir_all(&repo).unwrap();
-        fs::remove_dir_all(&data_dir).unwrap();
-    }
-
-    #[test]
-    fn rule_3_fallback_to_configured_when_neither_rule_1_nor_2_hit() {
-        // Exe in a directory that doesn't contain a repo root and has
-        // no sibling models/. Expect fallback to data_dir/models.
-        let exe_dir = scratch("r3");
-        let data_dir = scratch("r3-data");
-
-        let resolved = resolve_models_dir_chain("models", &data_dir, Some(&exe_dir));
+        let resolved = entry("models").resolve_models_dir(&data_dir);
 
         assert_eq!(resolved, data_dir.join("models"));
-        fs::remove_dir_all(&exe_dir).unwrap();
-        fs::remove_dir_all(&data_dir).unwrap();
-    }
-
-    #[test]
-    fn rule_3_absolute_configured_path_bypasses_data_dir_join() {
-        let exe_dir = scratch("r3abs");
-        let data_dir = scratch("r3abs-data");
-        let abs_models = scratch("r3abs-abs");
-
-        let resolved =
-            resolve_models_dir_chain(abs_models.to_str().unwrap(), &data_dir, Some(&exe_dir));
-
-        assert_eq!(resolved, abs_models);
-        fs::remove_dir_all(&exe_dir).unwrap();
-        fs::remove_dir_all(&data_dir).unwrap();
-        fs::remove_dir_all(&abs_models).unwrap();
-    }
-
-    #[test]
-    fn no_exe_dir_skips_rules_1_and_2_cleanly() {
-        // None for exe_dir means the app couldn't determine its own
-        // path. Rules 1 + 2 must skip silently and fall to rule 3.
-        let data_dir = scratch("noexe-data");
-
-        let resolved = resolve_models_dir_chain("models", &data_dir, None);
-
-        assert_eq!(resolved, data_dir.join("models"));
-        fs::remove_dir_all(&data_dir).unwrap();
-    }
-
-    #[test]
-    fn rule_1_dominates_rule_2_when_both_would_hit() {
-        // Simulate the case where the dev also has a sibling models/
-        // next to `target/debug/exe_dir`. Rule 1 (exe sibling) must
-        // win — portable semantics trump dev-workspace semantics when
-        // both are co-present.
-        let repo = scratch("dom");
-        fs::write(repo.join("Cargo.toml"), "[workspace]\n").unwrap();
-        fs::create_dir(repo.join("interfaces")).unwrap();
-        fs::create_dir(repo.join("models")).unwrap();
-        let exe_dir = repo.join("target").join("debug");
-        fs::create_dir_all(&exe_dir).unwrap();
-        fs::create_dir(exe_dir.join("models")).unwrap();
-        let data_dir = scratch("dom-data");
-
-        let resolved = resolve_models_dir_chain("models", &data_dir, Some(&exe_dir));
-
-        assert_eq!(resolved, exe_dir.join("models"));
         fs::remove_dir_all(&repo).unwrap();
-        fs::remove_dir_all(&data_dir).unwrap();
+    }
+}
+
+#[cfg(test)]
+#[allow(clippy::unwrap_used)]
+mod surreal_paths_tests {
+    use super::{PlatformBootConfig, SurrealServiceEntry, DEFAULT_CONFIG};
+    use std::path::PathBuf;
+
+    #[test]
+    fn the_shipped_config_names_the_build_and_keeps_the_store_where_it_was() {
+        let boot: PlatformBootConfig = toml::from_str(DEFAULT_CONFIG).unwrap();
+        let surreal = &boot.services.system.surreal;
+        let data_dir = PathBuf::from("devpulse").join(".userdata");
+
+        assert_eq!(surreal.version, "3.0.5");
+        assert_eq!(
+            surreal.binary(&data_dir),
+            data_dir
+                .join("global")
+                .join("runtimes")
+                .join("surreal")
+                .join("3.0.5")
+                .join(format!("surreal{}", std::env::consts::EXE_SUFFIX))
+        );
+        // The store the embedded crate has been writing to.
+        assert_eq!(
+            surreal.store(&data_dir),
+            data_dir.join("surreal").join("devpulse")
+        );
     }
 
     #[test]
-    fn empty_directory_at_rule_1_still_wins_over_rule_3() {
-        // Sibling-of-exe models/ exists but is empty. It still wins —
-        // the resolver picks by "does the directory exist", not "does
-        // it contain files". An empty dir is the user's choice; model
-        // discovery downstream handles empty dirs fine.
-        let exe_dir = scratch("empty-r1");
-        fs::create_dir(exe_dir.join("models")).unwrap();
-        let data_dir = scratch("empty-r1-data");
-        // Also populate rule-3 target to prove rule-1 still dominates.
-        fs::create_dir(data_dir.join("models")).unwrap();
-        fs::write(data_dir.join("models").join("placeholder.gguf"), b"x").unwrap();
+    fn absolute_paths_are_used_as_given() {
+        let elsewhere = std::env::temp_dir().join("dp-surreal-elsewhere");
+        let entry = SurrealServiceEntry {
+            install_dir: elsewhere.join("builds").to_str().unwrap().to_owned(),
+            data_path: elsewhere.join("store").to_str().unwrap().to_owned(),
+            ..SurrealServiceEntry::default()
+        };
+        let data_dir = PathBuf::from("devpulse").join(".userdata");
 
-        let resolved = resolve_models_dir_chain("models", &data_dir, Some(&exe_dir));
+        assert_eq!(
+            entry.build_dir(&data_dir),
+            elsewhere.join("builds").join("3.0.5")
+        );
+        assert_eq!(entry.store(&data_dir), elsewhere.join("store"));
+    }
 
-        assert_eq!(resolved, exe_dir.join("models"));
-        fs::remove_dir_all(&exe_dir).unwrap();
-        fs::remove_dir_all(&data_dir).unwrap();
+    #[test]
+    fn an_override_without_the_new_keys_keeps_the_defaults() {
+        let entry: SurrealServiceEntry = toml::from_str("enabled = true\n").unwrap();
+        assert_eq!(entry.version, SurrealServiceEntry::default().version);
+        assert_eq!(entry.data_path, "surreal/devpulse");
     }
 }

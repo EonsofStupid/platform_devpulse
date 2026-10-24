@@ -19,23 +19,6 @@ const IGNORABLE_PATTERNS = [
   'Blocking waiting for file lock on build directory',
 ];
 
-// Environmental/infra failures the agent CANNOT fix inside its own diff:
-// missing private-dep auth, missing prebuilt native libs, toolchain/linker/
-// disk/network problems. exit(2) on these would trap the session looping on
-// something no code change resolves — treat as warnings, never as blockers.
-const ENVIRONMENTAL_PATTERNS = [
-  'failed to authenticate',             // private rro/wal git fetch w/o RRO_DEPLOY_TOKEN
-  'RRO_DEPLOY_TOKEN',
-  'failed to get `',                    // cargo registry/network fetch failure
-  'failed to load source for dependency',
-  'spurious network error',
-  'could not execute process `sccache',  // sccache wrapper not installed
-  'error: linker',                      // linker/rust-lld not resolvable outside xtask
-  'libllama',                           // llama.cpp prebuilt fast-path lib missing
-  'LLAMA_CPP_PREBUILT',
-  'No space left on device',
-];
-
 function isOnlyIgnorableOutput(text) {
   const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
   return lines.every(line =>
@@ -48,22 +31,9 @@ function isOnlyIgnorableOutput(text) {
   );
 }
 
-// Per `.cargo/config.toml` (Branch 2 absorption 2026-06-23): the workspace
-// no longer exports `LLAMA_CPP_PREBUILT_LIB_DIR` because that lane is dead
-// in the new GB10-headless architecture. Standalone `cargo check` on
-// Windows still needs the env to find llama.cpp/include/llama.h until
-// the desktop_backend dep on llama-cpp-sys-2 is retired. Set it here so
-// the hook's check doesn't fail. On Linux/CI the env is intentionally
-// not set (no prebuilt tree fetched there); the hook only runs locally.
-const prebuiltDir = path.join(dir, 'deps', 'llama-cpp-prebuilt', 'win32-x64-vulkan');
-const hookEnv = {
-  ...process.env,
-  LLAMA_CPP_PREBUILT_LIB_DIR: prebuiltDir,
-};
-
 function run(cmd, label, timeoutMs) {
   try {
-    execSync(cmd, { cwd: dir, stdio: 'pipe', timeout: timeoutMs || 120000, env: hookEnv });
+    execSync(cmd, { cwd: dir, stdio: 'pipe', timeout: timeoutMs || 120000 });
     process.stderr.write('  ✅ ' + label + '\n');
   } catch (e) {
     if (e.killed) {
@@ -82,11 +52,6 @@ function run(cmd, label, timeoutMs) {
       process.stderr.write('  ⚠️ ' + label + ' (build lock contention — skipped)\n');
       return;
     }
-    // Environmental/infra failure the agent can't fix in its diff — warn, don't block.
-    if (ENVIRONMENTAL_PATTERNS.some(p => out.includes(p))) {
-      process.stderr.write('  ⚠️ ' + label + ' (environmental failure, not a code error — skipped)\n' + tail + '\n');
-      return;
-    }
     process.stderr.write('  ❌ ' + label + ' FAILED\n' + tail + '\n');
     errors++;
   }
@@ -102,7 +67,9 @@ if (fs.existsSync(path.join(dir, 'Cargo.toml'))) {
       // Detect which crates were changed and check only those
       const crates = new Set();
       for (const f of changed) {
-        if (f.startsWith('systems/devpulse-engine/')) crates.add('devpulse-engine');
+        if (f.startsWith('kernel/model-loader/')) crates.add('model-loader');
+        else if (f.startsWith('kernel/devpulse-clyffy/')) crates.add('devpulse-clyffy');
+        else if (f.startsWith('systems/devpulse-engine/')) crates.add('devpulse-engine');
         else if (f.startsWith('interfaces/desktop/src-tauri/')) crates.add('devpulse_desktop_backend');
         else if (f === 'Cargo.toml' || f === 'Cargo.lock') crates.add('devpulse_desktop_backend'); // workspace root change — check top-level
       }

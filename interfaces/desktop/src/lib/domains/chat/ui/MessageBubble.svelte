@@ -2,10 +2,10 @@
   @component MessageBubble — token-driven bubble (util + renderForge only)
 -->
 <script lang="ts">
-import Text from "$lib/design/components/text/Text.svelte";
-import { cssVarString, renderForge } from "$lib/design/renderforge/index.js";
-import { cn } from "$lib/design/utils/cn.js";
-import type { PresetId } from "$lib/design/visual/preset-id.js";
+import { Text } from "@devpulse/coldlight/components/text";
+import { cssVarString, renderForge } from "@devpulse/coldlight/renderforge";
+import { cn } from "@devpulse/coldlight/utils";
+import type { PresetId } from "@devpulse/coldlight/visual";
 import type { BlockChatMessage, ChatMode } from "../util/chat.types.js";
 
 interface Props {

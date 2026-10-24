@@ -23,6 +23,12 @@
 #   5. CI scanner auto-catches raw string usage
 #   NO other code changes needed.
 
+# Enforcement switch (owner 2026-10-19: "keep the configuration so it can be
+# used but for now I want everything public"). "off": every term below stays
+# configured with its severity and labels, and the pre-commit hook
+# (scripts/hooks/ip-boundary-check.sh) blocks none of them. "on" restores it.
+enforcement = "off"
+
 # ─────────────────────────────────────────────────────────────
 # CATEGORY: Sub-Agents
 # ─────────────────────────────────────────────────────────────
@@ -445,10 +451,10 @@ context = ["logs", "traces"]
 severity = "hard"
 
 [[terms]]
-kernel = "Reason Ready Object"
+kernel = "Reasoning Ready Object"
 engine = "pre-processed context"
 prod = "pre-processed context"
-dev = "Reason Ready Object"
+dev = "Reasoning Ready Object"
 category = "algorithms"
 context = ["logs", "traces"]
 severity = "hard"
@@ -461,10 +467,10 @@ severity = "hard"
 # OverMind — PUBLIC route name, not protected.
 
 [[terms]]
-kernel = "Connectome"
+kernel = "Cortex"
 engine = "knowledge engine"
 prod = "knowledge engine"
-dev = "Connectome"
+dev = "Cortex"
 category = "architecture"
 context = ["logs", "traces", "ui-text"]
 severity = "hard"
@@ -491,7 +497,7 @@ severity = "hard"
 # keys a HashMap on it) — splits reuse distinct adapter-role names.
 
 [[terms]]
-kernel = "LibSqlSystemAdapter"
+kernel = "TursoSystemAdapter"
 engine = "System relational"
 prod = "System Data Store"
 dev = "Turso (system)"
@@ -500,7 +506,7 @@ context = ["logs", "traces", "ui-text"]
 severity = "hard"
 
 [[terms]]
-kernel = "LibSqlUserAdapter"
+kernel = "TursoUserAdapter"
 engine = "User relational"
 prod = "User Data Store"
 dev = "Turso (user)"
@@ -520,7 +526,7 @@ severity = "hard"
 [[terms]]
 kernel = "SurrealAdapter"
 engine = "Graph store"
-prod = "Connectome"
+prod = "Cortex"
 dev = "SurrealDB"
 category = "stores"
 context = ["logs", "traces", "ui-text"]

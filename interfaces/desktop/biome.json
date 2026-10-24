@@ -1,103 +1,7 @@
 {
-	"$schema": "https://biomejs.dev/schemas/2.5.5/schema.json",
-	"plugins": [
-		"./gritql/no-raw-colors.grit",
-		"./gritql/no-raw-colors-bg.grit",
-		"./gritql/no-named-colors.grit",
-		"./gritql/no-raw-px-padding.grit",
-		"./gritql/no-raw-px-margin.grit",
-		"./gritql/no-raw-px-gap.grit",
-		"./gritql/no-raw-px-width.grit",
-		"./gritql/no-raw-px-height.grit",
-		"./gritql/no-raw-px-font-size.grit",
-		"./gritql/no-raw-px-border-radius.grit"
-	],
-	"assist": { "actions": { "source": { "organizeImports": "on" } } },
-	"linter": {
-		"enabled": true,
-		"rules": {
-			"recommended": true,
-			"correctness": {
-				"noUnusedVariables": "error",
-				"noUnusedImports": "error"
-			},
-			"suspicious": {
-				"noExplicitAny": "error",
-				"noConsole": {
-					"level": "warn",
-					"options": {
-						"allow": ["info", "warn", "error"]
-					}
-				}
-			},
-			"style": {
-				"noHexColors": "error",
-				"useImportType": "error",
-				"useConst": "error",
-				"useFilenamingConvention": {
-					"level": "warn",
-					"options": {
-						"filenameCases": ["camelCase", "PascalCase", "kebab-case"]
-					}
-				},
-				"noRestrictedImports": {
-					"level": "error",
-					"options": {
-						"paths": {},
-						"patterns": [
-							{
-								"group": ["**/_archive/*", "**/_archive/**"],
-								"message": "Archive imports are banned. Build from taxonomy contracts."
-							}
-						]
-					}
-				}
-			}
-		}
-	},
-	"formatter": {
-		"enabled": true,
-		"indentStyle": "tab",
-		"indentWidth": 2,
-		"lineWidth": 100,
-		"lineEnding": "lf"
-	},
-	"javascript": {
-		"formatter": {
-			"quoteStyle": "double",
-			"semicolons": "always"
-		}
-	},
-	"css": {
-		"parser": {
-			"tailwindDirectives": true
-		}
-	},
+	"$schema": "https://biomejs.dev/schemas/2.4.0/schema.json",
+	"extends": "//",
 	"overrides": [
-		{
-			"includes": ["**/*.svelte"],
-			"linter": {
-				"rules": {
-					"correctness": {
-						"noUnusedImports": "off",
-						"noUnusedVariables": "off"
-					},
-					"style": {
-						"useConst": "off"
-					}
-				}
-			}
-		},
-		{
-			"includes": ["scripts/*.ts", "scripts/**/*.ts"],
-			"linter": {
-				"rules": {
-					"suspicious": {
-						"noConsole": "off"
-					}
-				}
-			}
-		},
 		{
 			"includes": [
 				"src/routes/**/+page.svelte",
@@ -119,32 +23,13 @@
 										"message": "Archive imports are banned. Build from taxonomy contracts."
 									},
 									{
-										"group": ["$lib/design/recipes/*", "$lib/design/recipes/**"],
+										"group": [
+											"$lib/design/recipes/*",
+											"$lib/design/recipes/**",
+											"@devpulse/coldlight/recipes/*",
+											"@devpulse/coldlight/recipes/**"
+										],
 										"message": "Routes must not import recipes directly. Use components or renderers."
-									}
-								]
-							}
-						}
-					}
-				}
-			}
-		},
-		{
-			"includes": ["src/lib/design/builders/**/*.ts", "src/lib/design/builders/**/*.svelte.ts"],
-			"linter": {
-				"rules": {
-					"style": {
-						"noRestrictedImports": {
-							"level": "error",
-							"options": {
-								"paths": {
-									"@melt-ui/svelte": "builders/ must not import third-party headless libraries. ColdLight-owned only.",
-									"@melt-ui/svelte/internal/helpers": "builders/ must not import third-party headless internals."
-								},
-								"patterns": [
-									{
-										"group": ["**/_archive/*", "**/_archive/**"],
-										"message": "Archive imports are banned. Build from taxonomy contracts."
 									}
 								]
 							}
@@ -174,18 +59,10 @@
 			}
 		},
 		{
-			"includes": [
-				"src/lib/design/styles/**",
-				"src/lib/design/css/**",
-				"src/lib/design/theme/**",
-				"src/lib/design/generated/**",
-				"src/lib/design/svg/**",
-				"src/lib/design/plugins/**",
-				"src/lib/sys/debug/vpb/**"
-			],
+			"includes": ["src/lib/sys/debug/vpb/**"],
 			"linter": {
 				"rules": {
-					"style": {
+					"nursery": {
 						"noHexColors": "off"
 					}
 				}
@@ -194,26 +71,7 @@
 	],
 	"files": {
 		"includes": [
-			"**",
-			"!**/node_modules",
-			"!**/.svelte-kit",
-			"!**/dist",
-			"!**/build",
-			"!**/src/stories",
-			"!**/*.generated.*",
 			"!**/src/lib/sys/generated",
-			"!**/src/lib/design/.cowlevel",
-			"!**/src/lib/design/style",
-			"!**/src/lib/design/styles",
-			"!**/src/lib/design/css",
-			"!**/src/lib/design/theme",
-			"!**/src/lib/design/generated",
-			"!**/src/lib/design/glue",
-			"!**/src/lib/design/manifest",
-			"!**/src/lib/design/svg",
-			"!**/src/lib/design/plugins",
-			"!**/src/lib/design/primitives/_archive",
-			"!**/src/lib/design/primitives/tanstack/flex-render.svelte",
 			"!**/src-tauri/resources/devforge",
 			"!**/src-tauri/gen"
 		]

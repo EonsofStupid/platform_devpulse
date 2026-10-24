@@ -11,7 +11,7 @@
 //!    Consumed by main UI, Clyffy chat.
 //!    This is the safe wrapped contract the product can rely on.
 //!
-//! If normal devtools need engine management in shipped builds, that must be
+//! If normal devtools need kernel management in shipped builds, that must be
 //! provided via a filtered operator-safe contract, not by wiring raw dev events
 //! into the renderer.
 //!

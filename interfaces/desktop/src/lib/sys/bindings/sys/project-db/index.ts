@@ -1,6 +1,6 @@
 /**
  * @file sys/bindings/sys/project-db/index.ts
- * @description Per-project LibSQL devtool surface.
+ * @description Per-project Turso devtool surface.
  */
 
 import { commands } from "$lib/sys/generated/bindings.js";

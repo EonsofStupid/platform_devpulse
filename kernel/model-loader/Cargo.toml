@@ -1,0 +1,130 @@
+[package]
+name = "model-loader"
+version = "0.1.0"
+edition = "2021"
+description = "Self-enclosed model management crate — zero DevPulse dependencies"
+
+[features]
+default = ["candle-backend", "mode-dev"]
+candle-backend = [
+    "dep:candle-core",
+    "dep:candle-nn",
+    "dep:candle-transformers",
+    "dep:tokenizers",
+    "dep:hf-hub",
+    "dep:image",
+]
+ort-backend = ["dep:ort", "dep:ndarray", "dep:rustfft", "dep:image"]
+# Embedder + reranker — TBD, will use direct ort crate (avoids fastembed version conflict)
+# Kokoro phonemization via espeak-ng C library — PRIMARY TTS path
+espeak-phonemizer = ["dep:espeakng-sys"]
+# Piper TTS — alternate TTS backend for A/B testing
+piper-backend = ["dep:piper-rs"]
+# Sherpa-onnx runtime backends — registry surfaced now, implementation later.
+sherpa-backend = []
+# GGUF models are served by llama.cpp's own `llama-server`, a supervised
+# subprocess; moshi runs as its own server too (plan 0007, decision 5). No
+# llama.cpp or moshi is compiled into DevPulse.
+# mistral.rs runtime — native Rust multimodal inference engine (Candle-based).
+# The only Rust path for Phi-4-multimodal-instruct as of 2026-04 — onnxruntime-genai
+# has no Rust bindings yet. Pulls mistralrs-core + mistralrs-vision + mistralrs-audio
+# transitively via the umbrella `mistralrs` crate. Wired in Phase 6 of slice 1.
+mistralrs-backend = ["dep:mistralrs", "dep:image"]
+# Qwen3-TTS backend — pure-Rust voice synthesis with zero-shot cloning,
+# Candle-based via the qwen3-tts crate. Single engine for default Clyffy
+# voice + 9 preset speakers + clone-from-reference (3-10 sec mp3/wav).
+# Loaded by the voice_pool when a slot's `backend_variant = "qwen3-tts-candle"`.
+qwen3-tts-backend = ["dep:qwen3-tts", "candle-backend"]
+nvml = ["dep:nvml-wrapper"]
+# Candle MKL backend — Intel Math Kernel Library. CPU acceleration via
+# optimised BLAS/LAPACK kernels. Builds need Intel oneAPI Base Toolkit (or
+# standalone MKL); runtime needs the MKL DLLs bundled with the release
+# (~150 MB). Pairs with `cuda` or stands alone for pure-CPU
+# builds.
+mkl = ["candle-core/mkl"]
+# Candle CUDA backend — NVIDIA only, requires CUDA Toolkit 12.x at build time.
+cuda = ["candle-core/cuda"]
+specta = ["dep:specta"]
+
+# ── Build-mode selection (exactly one of the three must be active) ──
+# `mode-dev` is the default so local cargo workflows behave as today.
+# Release/customer builds swap it out via `--no-default-features`
+# plus the chosen mode feature. See `src/build_mode.rs` for behaviour.
+mode-dev = []
+mode-production = []
+mode-customer = []
+
+[dependencies]
+# Core (always)
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+toml = "0.9"
+uuid = { version = "1.10", features = ["v5", "v7", "serde"] }
+anyhow = "1.0"
+thiserror = "2.0"
+tracing = "0.1"
+flume = "0.11"
+devpulse-telemetry = { workspace = true }
+tokio = { version = "1", features = ["time", "sync"] }
+parking_lot = "0.12"
+sysinfo = "0.33"
+
+# Specta (optional — Tauri TypeScript bindings)
+specta = { version = "=2.0.0-rc.22", optional = true, features = ["derive"] }
+
+# Candle inference (optional)
+candle-core = { workspace = true, optional = true }
+candle-nn = { workspace = true, optional = true }
+candle-transformers = { workspace = true, optional = true }
+tokenizers = { version = "0.21", optional = true, default-features = false, features = ["onig"] }
+hf-hub = { version = "0.4", optional = true }
+
+# Image preprocessing for vision encoders (SigLIP2)
+image = { version = "0.25", optional = true, default-features = false, features = ["jpeg", "png", "webp"] }
+
+# Embedder + reranker — TBD: fastembed conflicts with workspace ort fork,
+# will implement directly against the existing ort crate (whisper.rs pattern)
+
+# Kokoro phonemizer — eSpeak NG FFI bindings (requires espeak-ng C library installed on system)
+# Windows: vcpkg install espeak-ng  OR  prebuilt espeak-ng.dll on PATH
+espeakng-sys = { version = "0.3", optional = true }
+
+# Piper TTS — pure Rust alternate TTS backend (brings its own espeak-rs for phonemization)
+piper-rs = { version = "0.1.9", optional = true }
+
+# HTTP client for HuggingFace API search + tree-listing for LFS oid fetch.
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "blocking"] }
+
+# SHA-256 for HuggingFace LFS oid integrity verification on downloads.
+# `lfs.oid` from the `/api/models/{repo}/tree/main` endpoint is the SHA-256
+# of the file contents — we recompute it locally after each download and
+# compare. Mismatch deletes + retries once before failing hard.
+sha2 = "0.10"
+
+# ONNX Runtime (optional — SNAC, Whisper, Kokoro)
+ort = { workspace = true, optional = true }
+ndarray = { version = "0.17", optional = true }
+
+# FFT for Whisper mel spectrogram computation
+rustfft = { version = "6.2", optional = true }
+
+# mistral.rs — native Rust multimodal inference engine (Candle-based).
+# Version pin set in Phase 6 when the backend module lands; declaring as
+# `optional = true` here gates the dep behind the `mistralrs-backend` feature
+# so default builds stay lean. April 2026 latest: 0.8.x.
+mistralrs = { version = "0.8.1", optional = true }
+
+# Qwen3-TTS — pure-Rust TTS with zero-shot voice cloning. Workspace pin
+# in /Cargo.toml. Gated behind the `qwen3-tts-backend` feature so default
+# builds don't pull Candle-rs transitives unless the voice slot needs them.
+qwen3-tts = { workspace = true, optional = true }
+
+# GPU metrics (optional)
+nvml-wrapper = { version = "0.10", optional = true }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["time", "macros", "rt", "rt-multi-thread"] }
+tempfile = "3"
+
+[lints]
+workspace = true

@@ -3,18 +3,22 @@
  * @module @devpulse/domains/app/devpulse/services
  *
  * Data fetching for the DevPulse hub.
- * Calls Tauri IPC commands to query real services (LibSQL, DuckDB, Moka).
+ * Calls Tauri IPC commands to query real services (Turso, DuckDB, Moka).
  * ALL calls are logged through the platform logger.
+ *
+ * Mapping rule: every dashboard value is a real store value, labelled as
+ * what it is — no proxies (messages are not "commits", uptime is not a
+ * "streak"). Live CPU / RAM / GPU come from the hardware state signal.
  */
 
 import { invoke } from "@tauri-apps/api/core";
-import type { DashboardPayload, ProcessMetrics } from "$lib/sys/generated/dashboard.types.js";
+import type { DashboardPayload } from "$lib/sys/generated/dashboard.types.js";
 import { logError, logInfo } from "$lib/sys/logger.js";
 import type { DashboardData, RecentProject } from "../util/devpulse.types.js";
 
 /**
  * Fetch dashboard data from the Rust backend via Tauri IPC.
- * Queries LibSQL (projects, messages), DuckDB (daily_stats), Moka (cache stats).
+ * Queries Turso (projects, messages), DuckDB (daily_stats), Moka (cache stats).
  */
 export async function fetchDashboardData(): Promise<DashboardPayload> {
 	logInfo("devpulse", "Fetching dashboard data via IPC...");
@@ -32,44 +36,16 @@ export async function fetchDashboardData(): Promise<DashboardPayload> {
 	}
 }
 
-/**
- * Fetch real process metrics from the OS via Tauri IPC.
- * Returns actual RSS memory, CPU usage, PID — no proxies.
- */
-export async function fetchProcessMetrics(): Promise<ProcessMetrics> {
-	try {
-		const metrics = await invoke<ProcessMetrics>("get_process_metrics");
-		return metrics;
-	} catch (e) {
-		const msg = e instanceof Error ? e.message : String(e);
-		logError("devpulse", `Process metrics fetch FAILED: ${msg}`);
-		return {
-			memory_rss_bytes: 0,
-			memory_virtual_bytes: 0,
-			cpu_usage_percent: 0,
-			uptime_secs: 0,
-			pid: 0,
-		};
-	}
-}
-
-/**
- * Map a DashboardPayload from the backend into the existing DashboardData shape
- * consumed by the dashboard page components.
- */
-export function mapPayloadToDashboard(
-	payload: DashboardPayload,
-	metrics?: ProcessMetrics,
-): DashboardData {
+/** Map a DashboardPayload from the backend into the dashboard's view shape. */
+export function mapPayloadToDashboard(payload: DashboardPayload): DashboardData {
 	const recentProjects: RecentProject[] = payload.projects.map((p) => ({
 		id: p.id,
 		name: p.name,
 		language: p.project_type,
 		lastModified: formatTimestamp(p.last_accessed),
-		branch: "main",
 	}));
 
-	// Build sparkline data from daily_stats (reversed so oldest first)
+	// Per-day series, oldest first.
 	const dailyReversed = [...payload.daily_stats].reverse();
 	const activityData = dailyReversed.map((d) => d.total_signals + d.total_messages);
 	const messageData = dailyReversed.map((d) => d.total_messages);
@@ -78,10 +54,9 @@ export function mapPayloadToDashboard(
 	return {
 		user: {
 			totalProjects: payload.project_count,
-			totalCommits: payload.message_stats.total_messages,
-			activeBranches: payload.message_stats.total_sessions,
-			streak: Math.floor(payload.uptime_secs / 86400) || 1,
-			lastActivity: formatUptime(payload.uptime_secs),
+			totalMessages: payload.message_stats.total_messages,
+			totalSessions: payload.message_stats.total_sessions,
+			uptime: formatUptime(payload.uptime_secs),
 		},
 		community: {
 			friends: 0,
@@ -89,57 +64,24 @@ export function mapPayloadToDashboard(
 			contributions: payload.message_stats.total_messages,
 		},
 		recentProjects,
-		system: {
-			clyffyLoad: {
-				label: "CPU",
-				value: metrics ? Math.round(metrics.cpu_usage_percent) : 0,
-				max: 100,
-				unit: "%",
-			},
-			contextLoad: {
-				label: "Context",
-				value:
-					payload.daily_stats.length > 0
-						? Math.round(payload.daily_stats[0].avg_latency_ms / 10)
-						: 0,
-				max: 100,
-				unit: "%",
-			},
-			memoryUsage: {
-				label: "Memory",
-				value: metrics ? Number((metrics.memory_rss_bytes / (1024 * 1024 * 1024)).toFixed(2)) : 0,
-				max: metrics ? Number((metrics.memory_virtual_bytes / (1024 * 1024 * 1024)).toFixed(1)) : 8,
-				unit: "GB",
-			},
-			activityTimeline: {
-				label: "Activity",
-				data: activityData.length > 0 ? activityData : [0],
-			},
-			commitHistory: {
-				label: "Messages",
-				data: messageData.length > 0 ? messageData : [0],
-			},
-			buildHealth: {
-				label: "Latency",
-				data: latencyData.length > 0 ? latencyData : [0],
-			},
+		history: {
+			activityTimeline: { label: "Activity", data: activityData },
+			messageHistory: { label: "Messages per day", data: messageData },
+			latencyHistory: { label: "Average latency (ms)", data: latencyData },
 		},
 	};
 }
 
-/** Fallback dashboard data when backend is unavailable. */
+/** Dashboard before the first fetch completes: nothing known yet. */
 export function getEmptyDashboard(): DashboardData {
 	return {
-		user: { totalProjects: 0, totalCommits: 0, activeBranches: 0, streak: 0, lastActivity: "--" },
+		user: { totalProjects: 0, totalMessages: 0, totalSessions: 0, uptime: "--" },
 		community: { friends: 0, groups: 0, contributions: 0 },
 		recentProjects: [],
-		system: {
-			clyffyLoad: { label: "Clyffy Control", value: 0, max: 100, unit: "%" },
-			contextLoad: { label: "Context Load", value: 0, max: 100, unit: "%" },
-			memoryUsage: { label: "Memory", value: 0, max: 8, unit: "GB" },
-			activityTimeline: { label: "Activity", data: [0] },
-			commitHistory: { label: "Commits", data: [0] },
-			buildHealth: { label: "Build Health", data: [0] },
+		history: {
+			activityTimeline: { label: "Activity", data: [] },
+			messageHistory: { label: "Messages per day", data: [] },
+			latencyHistory: { label: "Average latency (ms)", data: [] },
 		},
 	};
 }

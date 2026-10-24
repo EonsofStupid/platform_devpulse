@@ -35,6 +35,10 @@ pub struct SignalHeader {
     pub timestamp: u64,
     /// Who created this signal
     pub source: SignalSource,
+    /// Position in the state store's history. Set only on state signals
+    /// (stamped by `StateStore::record`); `None` on events. Consumers apply
+    /// a state signal only when its revision is newer than the one they hold.
+    pub revision: Option<u64>,
 }
 
 impl SignalHeader {
@@ -45,6 +49,7 @@ impl SignalHeader {
             correlation_id: None,
             timestamp: epoch_millis(),
             source,
+            revision: None,
         }
     }
 
@@ -55,6 +60,7 @@ impl SignalHeader {
             correlation_id: Some(parent_id),
             timestamp: epoch_millis(),
             source,
+            revision: None,
         }
     }
 }

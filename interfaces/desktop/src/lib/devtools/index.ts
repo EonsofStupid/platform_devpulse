@@ -1,6 +1,7 @@
 /**
- * Devtools public barrel — registry + meta + the uniform shell chrome
- * every per-service devtool wraps around.
+ * Devtools public barrel — the devtools tree read from the route folders
+ * (plan 0008), the facts a devtools folder declares (`_devtool`), and the
+ * uniform shell chrome every per-service devtool wraps around.
  *
  * Convention: tab bodies compose **shipped ColdLight primitives**
  * directly (`Stat`, `EmptyState`, `Callout`, `Alert`, `Tabs`,
@@ -19,6 +20,7 @@ export { default as DevtoolBentoTile } from "./_shared/DevtoolBentoTile.svelte";
 export type { LogTargetPreset } from "./_shared/DevtoolLogsTab.svelte";
 export { default as DevtoolLogsTab } from "./_shared/DevtoolLogsTab.svelte";
 export { default as DevtoolRefreshButton } from "./_shared/DevtoolRefreshButton.svelte";
+export { default as PlannedDevtool } from "./_shared/PlannedDevtool.svelte";
 export { default as RepoDownloadButton } from "./_shared/RepoDownloadButton.svelte";
 export {
 	formatBytes,
@@ -34,35 +36,23 @@ export {
 	accentToBackdropPalette,
 	type BrandAccent,
 	DEFAULT_SERVICE_ACCENT,
-	DEFAULT_SERVICE_BACKDROP,
-	SERVICE_ACCENTS,
-	SERVICE_BACKDROPS,
 	type ServiceBackdrop,
-	serviceAccent,
 	serviceAccentStyle,
-	serviceBackdrop,
 } from "./_shared/serviceAccents.js";
 export type {
 	CapturePayload,
 	ExtraTab,
 	HealthBadge,
 	HealthState,
-	ServiceAxis,
 } from "./_shared/types.js";
 export {
-	type AnyBucket,
-	type BucketGroup,
-	type BucketIcons,
-	bucketLabel,
-	type ClyffyBucket,
-	type DevtoolMeta,
-	type DevtoolStatus,
+	type DevtoolBucket,
+	type DevtoolPlace,
 	type DevtoolTier,
-	findDevtoolMeta,
-	groupByTier,
-	type LucideIcon,
-	type RuntimesBucket,
-	type SystemBucket,
-	type TierGroup,
-} from "./meta.js";
-export { DEVTOOL_BUCKET_ICONS, DEVTOOL_REGISTRY } from "./registry.js";
+	devtoolForRuntime,
+	devtoolNav,
+	devtoolPages,
+	devtoolPlace,
+	devtoolTiers,
+} from "./devtool-manifest.js";
+export type { DevtoolNav, DevtoolStatus, DevtoolTone } from "./devtool-nav.js";

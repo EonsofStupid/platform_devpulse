@@ -5,7 +5,9 @@
 //! requests from the frontend through the Rust backend.
 //!
 //! Lifecycle:
-//!   1. `start_llama_server(model_path, port, gpu_layers, ctx_size)`
+//!   1. `start_llama_server(model_path, port, gpu_layers, ctx_size)`, or a
+//!      slot load, which starts it with your saved llama-server settings
+//!      ([`start_server`])
 //!   2. Health poll until `GET /health` returns `{"status":"ok"}`
 //!   3. Inference via `POST /v1/chat/completions` (streaming SSE)
 //!   4. `stop_llama_server()` on app exit or model unload
@@ -60,15 +62,31 @@ pub async fn start_llama_server(
     gpu_layers: Option<i32>,
     ctx_size: Option<u32>,
 ) -> Result<LlamaServerInfo, String> {
-    let port = port.unwrap_or(8899);
     let gpu_layers = gpu_layers.unwrap_or(999); // default: all layers on GPU
     let ctx_size = ctx_size.unwrap_or(8192);
+    let flags = vec![
+        "-ngl".to_owned(),
+        gpu_layers.to_string(),
+        "-c".to_owned(),
+        ctx_size.to_string(),
+    ];
+    start_server(app, state, model_path, port.unwrap_or(8899), flags).await
+}
 
+/// Start the sidecar for `model_path` on `port` with llama-server `flags`
+/// (context, GPU layers, KV cache, batch …). If a server is already running,
+/// it is stopped first; returns once `/health` answers.
+pub async fn start_server(
+    app: tauri::AppHandle,
+    state: tauri::State<'_, LlamaServerState>,
+    model_path: String,
+    port: u16,
+    flags: Vec<String>,
+) -> Result<LlamaServerInfo, String> {
     tracing::info!(
         model = %model_path,
         port,
-        gpu_layers,
-        ctx_size,
+        flags = %flags.join(" "),
         "Starting llama-server sidecar"
     );
 
@@ -82,24 +100,19 @@ pub async fn start_llama_server(
     }
 
     // Spawn the sidecar
+    let mut args = vec![
+        "-m".to_owned(),
+        model_path.clone(),
+        "--port".to_owned(),
+        port.to_string(),
+    ];
+    args.extend(flags);
+    args.extend(["--host", "127.0.0.1", "-fa", "on"].map(str::to_owned));
     let shell = app.shell();
     let (mut rx, child) = shell
         .sidecar("binaries/llama-server")
         .map_err(|e| format!("Failed to create sidecar command: {e}"))?
-        .args([
-            "-m",
-            &model_path,
-            "--port",
-            &port.to_string(),
-            "-ngl",
-            &gpu_layers.to_string(),
-            "-c",
-            &ctx_size.to_string(),
-            "--host",
-            "127.0.0.1",
-            "-fa",
-            "on",
-        ])
+        .args(args)
         .spawn()
         .map_err(|e| format!("Failed to spawn llama-server: {e}"))?;
 

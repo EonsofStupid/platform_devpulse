@@ -78,9 +78,7 @@ let { brain, eyes, sparkles, ears, mouth }: Props = $props();
 			". brain ."
 			"eyes sparkles ears"
 			". mouth .";
-		/* Container-fluid (S1.C): the constellation sizes to its zone's
-		   seam (setup-overlay / devtools), not the OS viewport. */
-		gap: clamp(0.875rem, 1.6cqi, 1.5rem);
+		gap: clamp(0.875rem, 1.6vw, 1.5rem);
 		width: 100%;
 		max-width: 64rem;
 		margin-inline: auto;
@@ -102,11 +100,10 @@ let { brain, eyes, sparkles, ears, mouth }: Props = $props();
 		min-width: 0;
 	}
 
-	/* Narrow CONTAINER — collapse to single column (queries the nearest
-	   seam, not the viewport). DOM order already top-to-bottom matches
-	   the constellation's logical reading order, so AT users hear the
-	   same sequence. */
-	@container (max-width: 56rem) {
+	/* Narrow viewports — collapse to single column. DOM order
+	   already top-to-bottom matches the constellation's logical
+	   reading order, so AT users hear the same sequence. */
+	@media (max-width: 56rem) {
 		.constellation {
 			grid-template-columns: 1fr;
 			grid-template-rows: repeat(5, auto);

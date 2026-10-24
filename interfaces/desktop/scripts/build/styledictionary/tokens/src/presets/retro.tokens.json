@@ -22,7 +22,7 @@
 				"$type": "dimension"
 			},
 			"box-shadow": {
-				"$value": "0.25rem 0.25rem 0 0 oklch(from {color.black} l c h / 0.8), 0 0 1rem 0 oklch(from {color.violet.400} l c h / 0.15)",
+				"$value": "0.25rem 0.25rem 0 0 oklch(0 0 0 / 0.8), 0 0 1rem 0 oklch(0.65 0.2 300 / 0.15)",
 				"$type": "shadow"
 			},
 			"color": {
@@ -30,7 +30,7 @@
 				"$type": "color"
 			},
 			"border-color": {
-				"$value": "{color.violet.300}",
+				"$value": "oklch(0.75 0.18 300)",
 				"$type": "color"
 			},
 			"border-width": {
@@ -89,20 +89,27 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "retro-elevated: Raised retro widget — thick double border, CRT glow, bold color"
+			"$description": "retro-elevated: Raised retro widget — thick double border, CRT glow, bold color",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Retro Elevated",
+					"family": "retro",
+					"variant": "elevated"
+				}
+			}
 		},
 		"retro-elevated-hover": {
 			"$description": "retro-elevated hover overrides",
 			"background-color": {
-				"$value": "{color.purple.800}",
+				"$value": "oklch(0.3 0.1 280)",
 				"$type": "color"
 			},
 			"box-shadow": {
-				"$value": "0.1875rem 0.1875rem 0 0 oklch(from {color.black} l c h / 0.9), 0 0 1.25rem 0 oklch(from {color.violet.400} l c h / 0.25)",
+				"$value": "0.1875rem 0.1875rem 0 0 oklch(0 0 0 / 0.9), 0 0 1.25rem 0 oklch(0.65 0.2 300 / 0.25)",
 				"$type": "shadow"
 			},
 			"border-color": {
-				"$value": "{color.violet.200}",
+				"$value": "oklch(0.85 0.2 300)",
 				"$type": "color"
 			}
 		},
@@ -113,7 +120,7 @@
 				"$type": "color"
 			},
 			"box-shadow": {
-				"$value": "0.0625rem 0.0625rem 0 0 oklch(from {color.black} l c h / 0.9)",
+				"$value": "0.0625rem 0.0625rem 0 0 oklch(0 0 0 / 0.9)",
 				"$type": "shadow"
 			}
 		},
@@ -134,7 +141,7 @@
 		},
 		"retro-deep": {
 			"background-color": {
-				"$value": "{color.void.base}",
+				"$value": "oklch(0.08 0.02 150)",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -142,15 +149,15 @@
 				"$type": "dimension"
 			},
 			"box-shadow": {
-				"$value": "inset 0.125rem 0.125rem 0 0 oklch(from {color.black} l c h / 0.9), inset -0.0625rem -0.0625rem 0 0 oklch(0.3 0.05 150 / 0.3)",
+				"$value": "inset 0.125rem 0.125rem 0 0 oklch(0 0 0 / 0.9), inset -0.0625rem -0.0625rem 0 0 oklch(0.3 0.05 150 / 0.3)",
 				"$type": "shadow"
 			},
 			"color": {
-				"$value": "{color.green-cyan.200}",
+				"$value": "oklch(0.8 0.2 150)",
 				"$type": "color"
 			},
 			"border-color": {
-				"$value": "{accent.success.main}",
+				"$value": "oklch(0.6 0.2 150)",
 				"$type": "color"
 			},
 			"border-width": {
@@ -209,7 +216,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "retro-deep: Inset retro — sunken pixel well, terminal green on black"
+			"$description": "retro-deep: Inset retro — sunken pixel well, terminal green on black",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Retro Deep",
+					"family": "retro",
+					"variant": "deep"
+				}
+			}
 		},
 		"retro-deep-hover": {
 			"$description": "retro-deep hover overrides",
@@ -225,14 +239,14 @@
 		"retro-deep-active": {
 			"$description": "retro-deep active overrides",
 			"background-color": {
-				"$value": "{color.void.base}",
+				"$value": "oklch(0.06 0.025 150)",
 				"$type": "color"
 			}
 		},
 		"retro-deep-disabled": {
 			"$description": "retro-deep disabled overrides",
 			"color": {
-				"$value": "{color.cyber.700}",
+				"$value": "oklch(0.4 0.08 150)",
 				"$type": "color"
 			},
 			"opacity": {
@@ -246,7 +260,7 @@
 		},
 		"retro-minimal": {
 			"background-color": {
-				"$value": "{color.frost.950}",
+				"$value": "oklch(0.2 0.03 260)",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -321,7 +335,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "retro-minimal: Clean pixel — single solid border, flat color, no shadows"
+			"$description": "retro-minimal: Clean pixel — single solid border, flat color, no shadows",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Retro Minimal",
+					"family": "retro",
+					"variant": "minimal"
+				}
+			}
 		},
 		"retro-minimal-hover": {
 			"$description": "retro-minimal hover overrides",
@@ -330,21 +351,21 @@
 				"$type": "color"
 			},
 			"border-color": {
-				"$value": "{color.royal.300}",
+				"$value": "oklch(0.7 0.12 260)",
 				"$type": "color"
 			}
 		},
 		"retro-minimal-active": {
 			"$description": "retro-minimal active overrides",
 			"background-color": {
-				"$value": "{color.void.950}",
+				"$value": "oklch(0.15 0.02 260)",
 				"$type": "color"
 			}
 		},
 		"retro-minimal-disabled": {
 			"$description": "retro-minimal disabled overrides",
 			"color": {
-				"$value": "{muted.main}",
+				"$value": "oklch(0.5 0.02 260)",
 				"$type": "color"
 			},
 			"opacity": {
@@ -354,7 +375,7 @@
 		},
 		"retro-solid": {
 			"background-color": {
-				"$value": "{color.brand-green.500}",
+				"$value": "oklch(0.55 0.2 160)",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -362,15 +383,15 @@
 				"$type": "dimension"
 			},
 			"box-shadow": {
-				"$value": "0.25rem 0.25rem 0 0 {color.chartreuse.950}",
+				"$value": "0.25rem 0.25rem 0 0 oklch(0.1 0.05 160)",
 				"$type": "shadow"
 			},
 			"color": {
-				"$value": "{color.neutral.50}",
+				"$value": "oklch(0.98 0.01 90)",
 				"$type": "color"
 			},
 			"border-color": {
-				"$value": "{color.spring.700}",
+				"$value": "oklch(0.35 0.15 160)",
 				"$type": "color"
 			},
 			"border-width": {
@@ -429,7 +450,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "retro-solid: Heavy retro block — saturated fill, thick border, hard pixel shadow"
+			"$description": "retro-solid: Heavy retro block — saturated fill, thick border, hard pixel shadow",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Retro Solid",
+					"family": "retro",
+					"variant": "solid"
+				}
+			}
 		},
 		"retro-solid-hover": {
 			"$description": "retro-solid hover overrides",
@@ -438,18 +466,18 @@
 				"$type": "color"
 			},
 			"box-shadow": {
-				"$value": "0.1875rem 0.1875rem 0 0 {color.chartreuse.950}",
+				"$value": "0.1875rem 0.1875rem 0 0 oklch(0.1 0.05 160)",
 				"$type": "shadow"
 			}
 		},
 		"retro-solid-active": {
 			"$description": "retro-solid active overrides",
 			"background-color": {
-				"$value": "{color.brand-green.600}",
+				"$value": "oklch(0.45 0.18 160)",
 				"$type": "color"
 			},
 			"box-shadow": {
-				"$value": "0.0625rem 0.0625rem 0 0 {color.chartreuse.950}",
+				"$value": "0.0625rem 0.0625rem 0 0 oklch(0.1 0.05 160)",
 				"$type": "shadow"
 			}
 		},
@@ -466,7 +494,7 @@
 		},
 		"retro-glow": {
 			"background-color": {
-				"$value": "{color.black}",
+				"$value": "oklch(0.06 0.01 280)",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -474,11 +502,11 @@
 				"$type": "dimension"
 			},
 			"box-shadow": {
-				"$value": "0.1875rem 0.1875rem 0 0 oklch(from {color.black} l c h / 0.9), 0 0 0.5rem 0 oklch(0.75 0.25 330 / 0.4), 0 0 1.5rem 0 oklch(0.75 0.25 330 / 0.15)",
+				"$value": "0.1875rem 0.1875rem 0 0 oklch(0 0 0 / 0.9), 0 0 0.5rem 0 oklch(0.75 0.25 330 / 0.4), 0 0 1.5rem 0 oklch(0.75 0.25 330 / 0.15)",
 				"$type": "shadow"
 			},
 			"color": {
-				"$value": "{color.magenta.100}",
+				"$value": "oklch(0.9 0.2 330)",
 				"$type": "color"
 			},
 			"border-color": {
@@ -541,7 +569,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "retro-glow: Neon CRT — glowing text, buzzing border, scanline energy"
+			"$description": "retro-glow: Neon CRT — glowing text, buzzing border, scanline energy",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Retro Glow",
+					"family": "retro",
+					"variant": "glow"
+				}
+			}
 		},
 		"retro-glow-hover": {
 			"$description": "retro-glow hover overrides",
@@ -550,7 +585,7 @@
 				"$type": "color"
 			},
 			"box-shadow": {
-				"$value": "0.1875rem 0.1875rem 0 0 oklch(from {color.black} l c h / 0.9), 0 0 0.75rem 0.0625rem oklch(0.8 0.28 330 / 0.5), 0 0 2rem 0 oklch(0.8 0.28 330 / 0.2)",
+				"$value": "0.1875rem 0.1875rem 0 0 oklch(0 0 0 / 0.9), 0 0 0.75rem 0.0625rem oklch(0.8 0.28 330 / 0.5), 0 0 2rem 0 oklch(0.8 0.28 330 / 0.2)",
 				"$type": "shadow"
 			},
 			"border-color": {
@@ -561,7 +596,7 @@
 		"retro-glow-active": {
 			"$description": "retro-glow active overrides",
 			"background-color": {
-				"$value": "{color.neutral.950}",
+				"$value": "oklch(0.1 0.03 330)",
 				"$type": "color"
 			}
 		},
@@ -582,7 +617,7 @@
 		},
 		"retro-muted": {
 			"background-color": {
-				"$value": "{color.void.950}",
+				"$value": "oklch(0.15 0.01 200)",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -590,15 +625,15 @@
 				"$type": "dimension"
 			},
 			"box-shadow": {
-				"$value": "0.125rem 0.125rem 0 0 oklch(from {color.black} l c h / 0.5)",
+				"$value": "0.125rem 0.125rem 0 0 oklch(0 0 0 / 0.5)",
 				"$type": "shadow"
 			},
 			"color": {
-				"$value": "{color.void.500}",
+				"$value": "oklch(0.55 0.02 200)",
 				"$type": "color"
 			},
 			"border-color": {
-				"$value": "oklch(from {color.void.700} l c h / 0.5)",
+				"$value": "oklch(0.4 0.02 200 / 0.5)",
 				"$type": "color"
 			},
 			"border-width": {
@@ -657,7 +692,14 @@
 				"$value": "1",
 				"$type": "number"
 			},
-			"$description": "retro-muted: Faded retro — desaturated CRT, ghosted pixels, worn terminal"
+			"$description": "retro-muted: Faded retro — desaturated CRT, ghosted pixels, worn terminal",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Retro Muted",
+					"family": "retro",
+					"variant": "muted"
+				}
+			}
 		},
 		"retro-muted-hover": {
 			"$description": "retro-muted hover overrides",
@@ -673,7 +715,7 @@
 		"retro-muted-disabled": {
 			"$description": "retro-muted disabled overrides",
 			"color": {
-				"$value": "{text.disabled}",
+				"$value": "oklch(0.35 0.01 200)",
 				"$type": "color"
 			},
 			"opacity": {

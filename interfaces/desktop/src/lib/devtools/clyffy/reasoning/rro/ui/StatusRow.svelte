@@ -5,9 +5,9 @@
 	@description A label + status badge with an optional detail. Dumb; props in, events out.
 -->
 <script lang="ts">
-import { Badge } from "$lib/design/components/badge/index.js";
-import { StatusDot, type StatusDotStatus } from "$lib/design/components/status-dot/index.js";
-import { Text } from "$lib/design/components/text/index.js";
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { StatusDot, type StatusDotStatus } from "@devpulse/coldlight/components/status-dot";
+import { Text } from "@devpulse/coldlight/components/text";
 
 type Tone = "success" | "warning" | "error" | "accent" | "neutral";
 

@@ -17,7 +17,7 @@ use std::path::{Path, PathBuf};
 /// Trait for a buildable external dependency.
 ///
 /// Implement this for each dep that needs compilation outside of Cargo.
-/// Cargo-native deps (libsql, surrealdb, duckdb, moka) don't need this —
+/// Cargo-native deps (turso, surrealdb, duckdb, moka) don't need this —
 /// they rebuild via Cargo's incremental compilation automatically.
 pub trait DepBuild {
     /// Human-readable name for this dependency.

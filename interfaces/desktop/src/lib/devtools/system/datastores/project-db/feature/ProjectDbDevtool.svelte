@@ -2,7 +2,7 @@
 	@file ProjectDbDevtool.svelte
 	@module @devpulse/devtools/system/datastores/project-db
 
-	Per-project LibSQL database manager. Wired against the real
+	Per-project Turso database manager. Wired against the real
 	`project_db_*` Tauri commands:
 	- init_project_db
 	- project_db_health
@@ -20,13 +20,13 @@
 	"Console" — so it doesn't pretend to be either Logs or Config.
 -->
 <script lang="ts">
-import { Database, FolderTree, Play, Plug, RefreshCw, Terminal } from "@lucide/svelte";
-import { Badge } from "$lib/design/components/badge/index.js";
-import { Button } from "$lib/design/components/button/index.js";
-import { InlineMessage } from "$lib/design/components/inline-message/index.js";
-import { Text } from "$lib/design/components/text/index.js";
-import { TextField } from "$lib/design/components/text-field/index.js";
-import { Textarea } from "$lib/design/components/textarea/index.js";
+import { Badge } from "@devpulse/coldlight/components/badge";
+import { Button } from "@devpulse/coldlight/components/button";
+import { InlineMessage } from "@devpulse/coldlight/components/inline-message";
+import { Text } from "@devpulse/coldlight/components/text";
+import { TextField } from "@devpulse/coldlight/components/text-field";
+import { Textarea } from "@devpulse/coldlight/components/textarea";
+import { Database, Play, Plug, RefreshCw, Terminal } from "lucide-svelte";
 import {
 	type CapturePayload,
 	type ExtraTab,
@@ -192,11 +192,6 @@ function captureFor(tabId: string): CapturePayload | undefined {
 </script>
 
 <ServiceDevtoolShell
-	title="Project DB"
-	description="Per-project LibSQL instances · lazy-loaded"
-	icon={FolderTree}
-	axis="stores"
-	accent="cyan"
 	health={badge}
 	{extraTabs}
 	capture={captureFor}
@@ -211,7 +206,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 						bind:value={projectId}
 					/>
 				</div>
-				<Button preset="ghost" size="sm" onclick={refreshHealth} disabled={busy}>
+				<Button variant="ghost" size="sm" onclick={refreshHealth} disabled={busy}>
 					<RefreshCw size={12} aria-hidden="true" />
 					Refresh
 				</Button>
@@ -288,7 +283,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 				/>
 				<TextField label="Display name" bind:value={projectName} placeholder="My Project" />
 				<Button
-					preset="primary"
+					variant="primary"
 					size="sm"
 					onclick={handleInit}
 					disabled={busy || !projectId || !projectRoot}
@@ -299,11 +294,11 @@ function captureFor(tabId: string): CapturePayload | undefined {
 			</div>
 
 			<div class="project-db__button-row">
-				<Button preset="ghost" size="sm" onclick={refreshHealth} disabled={busy || !projectId}>
+				<Button variant="ghost" size="sm" onclick={refreshHealth} disabled={busy || !projectId}>
 					<Database size={12} aria-hidden="true" />
 					Check health
 				</Button>
-				<Button preset="ghost" size="sm" onclick={refreshTables} disabled={busy || !projectId}>
+				<Button variant="ghost" size="sm" onclick={refreshTables} disabled={busy || !projectId}>
 					<RefreshCw size={12} aria-hidden="true" />
 					List tables
 				</Button>
@@ -323,7 +318,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 				<div class="project-db__panel-header">
 					<Text size="sm" weight="bold" as="p">Sanity probe</Text>
 					<Button
-						preset="primary"
+						variant="primary"
 						size="sm"
 						onclick={async () => {
 							querySql = "SELECT 1 AS probe;";
@@ -369,7 +364,7 @@ function captureFor(tabId: string): CapturePayload | undefined {
 					aria-label="SQL to run against the per-project database"
 				/>
 				<Button
-					preset="primary"
+					variant="primary"
 					size="sm"
 					onclick={runQuery}
 					disabled={busy || !projectId}
