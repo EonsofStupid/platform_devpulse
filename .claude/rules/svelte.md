@@ -10,7 +10,7 @@ paths:
 - Use `{#snippet}` blocks — NEVER legacy slots
 - Imports MUST use `.js` extension for TypeScript files
 - Use `forEach` for Set iteration — NEVER `for...of` on Sets
-- TailwindCSS 4 for styling — utility-first, no inline style objects
+- Tailwind owns layout and structure only; every visual is ColdLight's (tokens, `data-kind` / `data-slot` / `data-state`) — owner 2026-10-10: "Tailwind is responsible for layout and structure only, the rest is managed by coldlight and data attributes"
 - ColdLight is SOLE AUTHORITY for all UI components and tokens
 - Validation: ArkType everywhere (Zod is DROPPED across entire platform)
 - Type-safe IPC: Specta + tauri-specta for TS bindings from Rust types
