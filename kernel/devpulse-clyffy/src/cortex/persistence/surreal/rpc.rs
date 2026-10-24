@@ -199,6 +199,29 @@ impl SurrealRpc {
         self.send(Some((namespace, database)), query).await
     }
 
+    /// The server's own version string (`GET /version`, e.g.
+    /// `surrealdb-3.0.5`).
+    ///
+    /// # Errors
+    /// Returns an error if the server is not running or does not answer.
+    pub async fn version(&self) -> Result<String> {
+        let base = (self.endpoint)().context("the Surreal server is not running")?;
+        let answer = self
+            .http
+            .get(format!("{base}/version"))
+            .send()
+            .await
+            .with_context(|| format!("reach the Surreal server at {base}"))?
+            .error_for_status()
+            .context("the Surreal server refused the version request")?;
+        Ok(answer
+            .text()
+            .await
+            .context("read the Surreal version")?
+            .trim()
+            .to_owned())
+    }
+
     /// Run `query` at the root, with no namespace selected.
     ///
     /// # Errors
@@ -535,6 +558,8 @@ mod tests {
         .expect("the server starts");
         let at = Arc::clone(&runtime);
         let rpc = SurrealRpc::new(Arc::new(move || at.endpoint()), "root", "root-test").unwrap();
+        let version = rpc.version().await.expect("GET /version");
+        assert!(version.contains("3.0.5"), "{version}");
 
         let before = rpc.query("t", "t", Query::new("DEFINE TABLE probe")).await;
         assert!(

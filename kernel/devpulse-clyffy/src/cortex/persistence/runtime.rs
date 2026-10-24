@@ -22,7 +22,7 @@
 use std::collections::VecDeque;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex, PoisonError};
-use std::time::{Duration, Instant};
+use std::time::{Duration, Instant, SystemTime};
 
 use anyhow::{anyhow, bail, Context, Result};
 use devpulse_process::{ChildSpec, LineSink, StopPolicy, Stopped, Stream, SupervisedChild};
@@ -144,6 +144,10 @@ struct Inner {
     allocation: Option<PortAllocation>,
     state: Option<RuntimeState>,
     stopping: bool,
+    /// Restarts after a crash, over its whole life.
+    restarts: u32,
+    /// When it last started answering.
+    ready_at: Option<SystemTime>,
 }
 
 impl std::fmt::Debug for Runtime {
@@ -201,6 +205,22 @@ impl Runtime {
     #[must_use]
     pub fn pid(&self) -> Option<u32> {
         self.lock().child.as_ref().map(SupervisedChild::pid)
+    }
+
+    /// How many times it was restarted after a crash, over its whole life.
+    #[must_use]
+    pub fn restarts(&self) -> u32 {
+        self.lock().restarts
+    }
+
+    /// When it last started answering; `None` while it is not answering.
+    #[must_use]
+    pub fn ready_since(&self) -> Option<SystemTime> {
+        let inner = self.lock();
+        match inner.state {
+            Some(RuntimeState::Ready) => inner.ready_at,
+            _ => None,
+        }
     }
 
     /// The spec it runs.
@@ -308,6 +328,7 @@ impl Runtime {
             });
             bail!("{reason}");
         }
+        self.lock().ready_at = Some(SystemTime::now());
         self.set_state(RuntimeState::Ready);
         Ok(())
     }
@@ -323,10 +344,15 @@ impl Runtime {
                     self.last_lines()
                 );
             }
-            if let Ok(answer) = self.http.get(&url).send().await {
-                if answer.status().is_success() {
-                    return Ok(());
-                }
+            let answered = matches!(
+                self.http.get(&url).send().await,
+                Ok(answer) if answer.status().is_success()
+            );
+            // Only its own answer counts: one that comes after it exited is
+            // from something else on the port, and the next pass reports the
+            // exit.
+            if answered && self.exited()?.is_none() {
+                return Ok(());
             }
             if Instant::now() >= deadline {
                 bail!(
@@ -380,6 +406,7 @@ impl Runtime {
                 self.set_state(RuntimeState::Failed { reason });
                 return;
             }
+            self.lock().restarts += 1;
             self.set_state(RuntimeState::Restarting { attempt });
             tokio::time::sleep(backoff).await;
             backoff = (backoff * 2).min(self.spec.restart.max_backoff);
@@ -455,6 +482,11 @@ mod tests {
         }
     }
 
+    /// The tests pick ports from the OS and start servers on them; run in
+    /// parallel, one test's server lands on the port another just picked.
+    /// Each test holds this while it uses ports.
+    static PORTS: tokio::sync::Mutex<()> = tokio::sync::Mutex::const_new(());
+
     fn free_port() -> u16 {
         std::net::TcpListener::bind(("127.0.0.1", 0))
             .expect("bind")
@@ -501,11 +533,14 @@ mod tests {
 
     #[tokio::test]
     async fn it_answers_on_its_port_and_stops() {
+        let _ports = PORTS.lock().await;
         let port = free_port();
         let runtime = Runtime::start(helper(port, None), quiet())
             .await
             .expect("starts");
         assert_eq!(runtime.state(), RuntimeState::Ready);
+        assert!(runtime.ready_since().is_some());
+        assert_eq!(runtime.restarts(), 0);
         assert_eq!(
             runtime.endpoint().as_deref(),
             Some(format!("http://127.0.0.1:{port}").as_str())
@@ -517,10 +552,12 @@ mod tests {
             "{stopped:?}"
         );
         assert_eq!(runtime.state(), RuntimeState::Stopped);
+        assert!(runtime.ready_since().is_none());
     }
 
     #[tokio::test]
     async fn an_occupied_port_is_someone_elses_so_it_bumps() {
+        let _ports = PORTS.lock().await;
         let held = std::net::TcpListener::bind(("127.0.0.1", 0)).expect("bind");
         let port = held.local_addr().expect("addr").port();
         let runtime = Runtime::start(helper(port, None), quiet())
@@ -536,6 +573,7 @@ mod tests {
 
     #[tokio::test]
     async fn exiting_while_starting_fails_at_once_with_its_lines() {
+        let _ports = PORTS.lock().await;
         let mut spec = helper(free_port(), None);
         #[cfg(windows)]
         {
@@ -564,6 +602,7 @@ mod tests {
 
     #[tokio::test]
     async fn a_child_that_never_answers_is_stopped_after_the_timeout() {
+        let _ports = PORTS.lock().await;
         let mut spec = helper(free_port(), None);
         #[cfg(windows)]
         {
@@ -582,6 +621,7 @@ mod tests {
 
     #[tokio::test]
     async fn a_crash_restarts_it_and_a_crash_loop_keeps_it_down() {
+        let _ports = PORTS.lock().await;
         let mut spec = helper(free_port(), Some(1_500));
         spec.restart = RestartPolicy {
             max_restarts: 2,
@@ -610,6 +650,8 @@ mod tests {
             .filter(|s| matches!(s, RuntimeState::Restarting { .. }))
             .count();
         assert_eq!(restarts, 2, "{states:?}");
+        assert_eq!(runtime.restarts(), 2);
+        assert!(runtime.ready_since().is_none(), "down, so not ready");
         assert!(
             matches!(runtime.state(), RuntimeState::Failed { ref reason } if reason.contains("crashed 3 times")),
             "{:?}",

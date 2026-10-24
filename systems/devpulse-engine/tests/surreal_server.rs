@@ -77,6 +77,13 @@ async fn every_schema_and_query_path_works_on_the_server() {
     .await
     .expect("the server starts");
     server.ping().await.expect("INFO FOR ROOT");
+    assert!(
+        server.version().is_some_and(|v| v.contains("3.0.5")),
+        "{:?}",
+        server.version()
+    );
+    assert_eq!(server.restarts(), 0);
+    assert!(server.ready_since().is_some());
 
     // The three boot scopes, exactly as boot applies them.
     let adapter = Arc::new(

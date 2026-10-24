@@ -64,9 +64,10 @@ pub use services::sherpa_streaming::{
     SherpaCompileInfo, SherpaInstalledModel, SherpaSessionInfo, SherpaStreamingService,
 };
 pub use services::sidecars::ollama::OllamaModel;
+pub use services::sidecars::surreal::{
+    SurrealConfigView, SurrealHealth, SurrealService, SurrealStatus, SurrealUserConfig,
+};
 pub use services::status::{ServiceRuntimeState, ServiceStatusSnapshot};
-pub use services::surreal::{SurrealConfigView, SurrealHealth, SurrealService, SurrealStatus};
-pub use services::surreal_config::SurrealUserConfig;
 pub use services::voice_stt_config::VoiceSttConfig;
 pub use services::voice_tts_config::VoiceTtsConfig;
 pub use services::{Service, ServiceRole, ServiceState};
@@ -1205,7 +1206,7 @@ impl Platform {
     /// its Config tab draft.
     #[must_use]
     pub fn surreal_user_config_load(&self) -> SurrealUserConfig {
-        services::surreal_config::load(&self.data_dir)
+        services::sidecars::surreal::config::load(&self.data_dir)
     }
 
     /// Persist a user-scope overlay atomically.
@@ -1216,7 +1217,7 @@ impl Platform {
     /// # Errors
     /// Returns an error if the file could not be written.
     pub fn surreal_user_config_save(&self, cfg: &SurrealUserConfig) -> Result<SurrealUserConfig> {
-        services::surreal_config::save(&self.data_dir, cfg)
+        services::sidecars::surreal::config::save(&self.data_dir, cfg)
     }
 
     /// Read-only view into the Ollama sidecar boot config entry.

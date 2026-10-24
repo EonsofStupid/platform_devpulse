@@ -1400,13 +1400,18 @@ impl SurrealServiceEntry {
     }
 }
 
-/// A configured path: absolute as given, otherwise under the data dir.
+/// A configured path: absolute as given, otherwise under the data dir. The
+/// configuration writes `/` on every platform; a relative path is joined
+/// part by part, so it reads with the platform's own separator.
 fn under_data_dir(data_dir: &Path, configured: &str) -> PathBuf {
     let path = Path::new(configured);
     if path.is_absolute() {
         path.to_path_buf()
     } else {
-        data_dir.join(path)
+        configured
+            .split(['/', '\\'])
+            .filter(|part| !part.is_empty())
+            .fold(data_dir.to_path_buf(), |dir, part| dir.join(part))
     }
 }
 
@@ -2387,6 +2392,15 @@ mod surreal_paths_tests {
         assert_eq!(
             surreal.store(&data_dir),
             data_dir.join("surreal").join("devpulse")
+        );
+        // As shown in the window: one separator, the platform's own.
+        assert_eq!(
+            surreal.store(&data_dir).display().to_string(),
+            data_dir
+                .join("surreal")
+                .join("devpulse")
+                .display()
+                .to_string()
         );
     }
 

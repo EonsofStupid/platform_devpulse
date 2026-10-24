@@ -13326,29 +13326,69 @@ state: string;
  */
 label: string }
 /**
- * Runtime status of the Surreal service — what the devtool renders.
- * 
- * The devtool surfaces `data_path` so a layman can see exactly where the
- * bytes live (the process and port fields arrive with plan 0007 S7).
+ * Runtime status of the Surreal server — what the devtool renders (plan
+ * 0007 S7): the live process, the port it got, the build it runs, its
+ * restarts, and where the bytes live.
  */
 export type SurrealStatus = { 
 /**
- * True iff the service is present in the platform slot.
+ * The server process is alive.
  */
 running: boolean; 
 /**
- * True iff `DevPulse` started and owns the server (always, today:
- * it never attaches to one it did not start).
+ * `DevPulse` started and owns the server (always: it never attaches to
+ * one it did not start).
  */
 managed: boolean; 
 /**
- * Storage backend identifier (`"surrealkv (server)"`).
+ * Storage engine, e.g. `"surrealkv (server)"`.
  */
 backend: string; 
 /**
- * Absolute path to the `SurrealKV` data directory.
+ * The store folder.
  */
-dataPath: string }
+dataPath: string; 
+/**
+ * `starting` / `ready` / `restarting` / `stopped` / `failed`;
+ * `not started` when boot skipped or failed it.
+ */
+state: string; 
+/**
+ * Why it failed, or which restart this is.
+ */
+stateDetail: string | null; 
+/**
+ * The server's process id, while it runs.
+ */
+pid: number | null; 
+/**
+ * The server build it runs.
+ */
+binary: string; 
+/**
+ * The version the server reported (`surrealdb-3.0.5`).
+ */
+version: string | null; 
+/**
+ * Its address, e.g. `http://127.0.0.1:8822`.
+ */
+endpoint: string | null; 
+/**
+ * The port configuration asked for.
+ */
+configuredPort: number | null; 
+/**
+ * The port it got (higher when the configured one was taken).
+ */
+actualPort: number | null; 
+/**
+ * Restarts after a crash since `DevPulse` started it.
+ */
+restarts: number; 
+/**
+ * When it last started answering (RFC 3339).
+ */
+readySince: string | null }
 /**
  * Persisted user overrides for the Surreal embedded store.
  * 

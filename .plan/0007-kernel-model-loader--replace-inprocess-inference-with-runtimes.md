@@ -99,9 +99,9 @@ can still be too small in VRAM for a given model — preflight says so.
 
 | Slots | Runtime | Status |
 | --- | --- | --- |
-| chat.brain, chat.fast, chat.suggest, minion.shared, minion.escalation | llama-server (chat) | ready to map |
+| chat.brain, chat.fast, minion.shared, minion.escalation | llama-server (chat) | ready to map |
 | chat.vision | llama-server + `--mmproj`, or any vision-capable endpoint | needs preset `mmproj_filename` (dropped today, [presets.default.toml:119-120](../kernel/model-loader/config/presets.default.toml#L119-L120)) |
-| rag.embedder, minion.embedder | llama-server `--embedding` (GGUF embedding model) | ready to map |
+| rag.embedder, minion.embedder, chat.suggest | llama-server `--embedding` (GGUF embedding model) | ready to map (`chat.suggest` is an embedding slot, `slots.default.toml:388-418`; corrected 2026-10-24) |
 | rag.reranker | llama-server `--rerank` | ready to map |
 | voice.stt | whisper-server | preset already expects whisper.cpp `ggml-small.bin` ([presets.default.toml:632-634](../kernel/model-loader/config/presets.default.toml#L632-L634)) |
 | voice.brain | moshi-backend | our sub repo |
@@ -657,3 +657,20 @@ Owner, 2026-10-24:
     project records were never stored. Killing the app ends `surreal.exe` within 3 s (its job).
   - Not exercised live: suggestions in the app (no embedder is loaded in the `chat.suggest` slot on this
     machine — it fails before the store); the graceful stop on a normal app close (covered by the tests).
+- 2026-10-24 — **S7 done: the window shows Surreal's live process.**
+  - Kernel: the runtime counts restarts after a crash and keeps when it last became ready; a ready check counts
+    only while its own child is alive (an answer after the child exited is from something else on the port —
+    the parallel runtime tests hit exactly that, and now share one port lock); `SurrealRpc::version`
+    (`GET /version`), asked once at start; the lifecycle names its storage engine.
+  - Engine: `services/{surreal,surreal_config}.rs` → `services/sidecars/surreal/{service,config}.rs` (the
+    folder `sidecars/mod.rs` named); `SurrealStatus` gains state (+ detail), pid, build, version, address,
+    configured / actual port, restarts, ready since; `Service::state` follows the process; configured relative
+    paths are joined part by part, so they read with one separator.
+  - Desktop: the devtool's Runtime card, Process and Config tabs on ColdLight (`Card`, `KeyValue`,
+    `StatusDot`, `Badge`, `InlineMessage`); the embedded-era text is gone; the domain's port summary and bump
+    flag read the real ports.
+  - Live (CDP, running app): `surreal_status` = ready, pid 78896 (the same pid as `tasklist`), 127.0.0.1:8822
+    configured and actual, `surrealdb-3.0.5`, 0 restarts; screenshots of the Status and Process tabs. **A
+    normal close** (the main window's close message): `Tauri exit event` → `Surreal server stopped … kind:
+    Graceful, status 0, elapsed 441ms` → `Platform shutdown complete`. The last S5 gap is closed.
+  - The boot manifest step already showed it (`SurrealDB sidecar: ready at … (2595ms)`).

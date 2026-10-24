@@ -8,13 +8,14 @@
 	"surrealdb is surrealdb, no `_sidecar` decorator at any layer."
 	The two devtools are folded into one tabbed shell here:
 
-	  Status   — sidecar runtime + namespace health (the headline
-	             "is my graph store working" view)
-	  Config   — sidecar overrides (port, binary, creds, log level);
-	             persists to `user/surreal.toml`
+	  Status   — the server process (state, pid, address, port, version,
+	             restarts) + namespace health (the headline "is my graph
+	             store working" view)
+	  Config   — where the server's settings come from; the user overlay
+	             `user/surreal.toml` (no fields yet)
 	  Logs     — `devtools.surreal` scoped log tail
-	  Process  — port-bump diagnostics + binary path (deeper sidecar
-	             inspection that doesn't belong on the headline tab)
+	  Process  — the build it runs, the store folder, the port detail
+	             (deeper inspection that doesn't belong on the headline tab)
 	  Browser  — tables in the active namespace
 	  Console  — ad-hoc SurrealQL execution
 
@@ -24,9 +25,13 @@
 	makes that constraint visible.
 -->
 <script lang="ts">
-import { Badge } from "@devpulse/coldlight/components/badge";
+import { Badge, type BadgeVariant } from "@devpulse/coldlight/components/badge";
 import { Button } from "@devpulse/coldlight/components/button";
+import { Card } from "@devpulse/coldlight/components/card";
+import { InlineMessage } from "@devpulse/coldlight/components/inline-message";
+import { KeyValue } from "@devpulse/coldlight/components/key-value";
 import { Spinner } from "@devpulse/coldlight/components/spinner";
+import { StatusDot, type StatusDotStatus } from "@devpulse/coldlight/components/status-dot";
 import { Text } from "@devpulse/coldlight/components/text";
 import { Database, Globe, Network, RefreshCw, ServerCog, Terminal } from "lucide-svelte";
 import { onMount } from "svelte";
@@ -140,10 +145,32 @@ const badge = $derived<HealthBadge>(
 						: { state: "unknown", label: "Not checked yet" },
 );
 
-// SurrealDB is now embedded (kv-surrealkv) — no port / binary /
-// credentials to override. `SurrealUserConfig` is reserved as
-// `Record<string, never>` for future tuning knobs; until they
-// land the Config tab renders a flat "no overrides" panel.
+// ── Server process (plan 0007 S7) ─────────────────────────
+// The server's own state, as the engine reports it.
+const dotStatus = $derived<StatusDotStatus>(
+	surrealdbSidecar.status?.state === "ready"
+		? "ready"
+		: surrealdbSidecar.status?.state === "starting" ||
+				surrealdbSidecar.status?.state === "restarting"
+			? "loading"
+			: surrealdbSidecar.status?.state === "failed"
+				? "failed"
+				: "offline",
+);
+const stateVariant = $derived<BadgeVariant>(
+	surrealdbSidecar.status?.state === "ready"
+		? "positive"
+		: surrealdbSidecar.status?.state === "failed"
+			? "negative"
+			: surrealdbSidecar.status?.state === "restarting"
+				? "notice"
+				: "neutral",
+);
+const upSince = $derived(
+	surrealdbSidecar.status?.readySince
+		? new Date(surrealdbSidecar.status.readySince).toLocaleString()
+		: "—",
+);
 
 // ── Console handlers ──────────────────────────────────────
 function handleQuerySubmit(): void {
@@ -187,53 +214,45 @@ function handleKeydown(e: KeyboardEvent): void {
 				</div>
 
 				{#if surrealdbSidecar.statusError}
-					<div class="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-xs text-red-400">
-						{surrealdbSidecar.statusError}
-					</div>
+					<InlineMessage tone="error">{surrealdbSidecar.statusError}</InlineMessage>
 				{/if}
 
 				{#if surrealdbSidecar.status}
-					<div class="p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)]">
-						<div class="flex items-center justify-between mb-2">
-							<div class="flex items-center gap-2">
-								<Database size={14} class="text-[var(--color-teal-400)]" />
+					{@const st = surrealdbSidecar.status}
+					<Card variant="elevated" label="Surreal server">
+						<div class="p-[var(--space-3)] flex flex-col gap-[var(--space-2)]">
+							<div class="flex items-center gap-[var(--space-2)]">
+								<StatusDot
+									status={dotStatus}
+									animate={st.state === "starting" || st.state === "restarting"}
+								/>
 								<Text size="sm" weight="semibold">surreal</Text>
-								{#if surrealdbSidecar.status.running}
-									{#if surrealdbSidecar.status.managed}
-										<Badge variant="positive" size="sm">Embedded</Badge>
-									{:else}
-										<Badge variant="neutral" size="sm">Attached</Badge>
-									{/if}
-								{:else}
-									<Badge variant="neutral" size="sm">Stopped</Badge>
+								<Badge variant={stateVariant} size="sm">{st.state}</Badge>
+								{#if st.managed}
+									<Badge variant="neutral" size="sm">Started by DevPulse</Badge>
 								{/if}
 							</div>
-							<span
-								class="inline-block w-2 h-2 rounded-full"
-								style="background: {surrealdbSidecar.running
-									? 'var(--signal-success)'
-									: 'var(--signal-error)'}"
-							></span>
-						</div>
-
-						<div class="space-y-1 text-xs">
-							{#if surrealdbSidecar.status.running}
-								<div class="flex justify-between">
-									<span class="text-[var(--text-secondary)]">Backend</span>
-									<span class="font-mono">{surrealdbSidecar.status.backend}</span>
-								</div>
-								<div class="flex justify-between">
-									<span class="text-[var(--text-secondary)]">Data path</span>
-									<span class="font-mono break-all">{surrealdbSidecar.status.dataPath}</span>
-								</div>
+							{#if st.stateDetail}
+								<InlineMessage tone={st.state === "failed" ? "error" : "warning"}>
+									{st.stateDetail}
+								</InlineMessage>
+							{/if}
+							{#if st.running}
+								<KeyValue label="Process" value={st.pid != null ? `pid ${st.pid}` : "—"} />
+								<KeyValue label="Address" value={st.endpoint ?? "—"} />
+								<KeyValue label="Port" value={surrealdbSidecar.portSummary} />
+								<KeyValue label="Version" value={st.version ?? "not reported"} />
+								<KeyValue label="Restarts" value={`${st.restarts}`} />
+								<KeyValue label="Up since" value={upSince} />
+								<KeyValue label="Engine" value={st.backend} />
 							{:else}
-								<Text size="xs" color="muted">
-									Embedded store not initialized — check boot log at
-									<code>.userdata/logs/boot.log</code>.
+								<Text size="sm" color="muted">
+									The server is not running. The boot log at
+									<code>.userdata/logs/boot.log</code> says why.
 								</Text>
 							{/if}
 						</div>
-					</div>
+					</Card>
 				{/if}
 			</div>
 
@@ -335,30 +354,22 @@ function handleKeydown(e: KeyboardEvent): void {
 	{/snippet}
 
 	<!-- ── CONFIG ────────────────────────────────────────── -->
-	<!-- Embedded SurrealKV has no runtime knobs to override; the
-	     Config tab surfaces the data path the kernel boots against. -->
+	<!-- The server's settings come from configuration; changes apply on
+	     the next launch. -->
 	{#snippet config()}
 		<div class="space-y-3">
 			{#if surrealdbSidecar.configError}
-				<div class="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-xs text-red-400">
-					{surrealdbSidecar.configError}
-				</div>
+				<InlineMessage tone="error">{surrealdbSidecar.configError}</InlineMessage>
 			{/if}
 
-			<Text size="xs" color="muted">
-				SurrealDB now runs embedded (<code>kv-surrealkv</code>). There are
-				no port, binary, or credential overrides — the kernel holds the
-				file lock directly. Future tuning knobs (cache size, compaction
-				policy) land here.
+			<Text size="sm" color="muted">
+				The server's settings (its version, port, log level and store) come
+				from <code>config/platform/services/system/surreal.toml</code>.
+				Changes take effect the next time DevPulse starts.
 			</Text>
 
 			{#if surrealdbSidecar.status?.dataPath}
-				<div class="p-3 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-subtle)] space-y-1">
-					<Text size="xs" weight="semibold">Data path</Text>
-					<code class="text-xs font-mono text-[var(--text-secondary)] break-all">
-						{surrealdbSidecar.status.dataPath}
-					</code>
-				</div>
+				<KeyValue label="Store" value={surrealdbSidecar.status.dataPath} />
 			{/if}
 		</div>
 	{/snippet}
@@ -504,34 +515,29 @@ function handleKeydown(e: KeyboardEvent): void {
 	{/snippet}
 </ServiceDevtoolShell>
 
-<!-- ── PROCESS — embedded backend + data-path detail ───── -->
+<!-- ── PROCESS — the build, the store, the port ─────────── -->
 {#snippet processBody()}
-	<div class="space-y-4">
+	<div class="space-y-2">
 		{#if surrealdbSidecar.status?.running}
-			<div class="space-y-2">
-				<Text size="xs" weight="bold" color="muted">Embedded backend</Text>
-				<div
-					class="rounded p-2 font-mono text-xs"
-					style="background: var(--surface-base); border: 1px solid var(--border-subtle);"
-				>
-					{surrealdbSidecar.status.backend}
-				</div>
-			</div>
-
-			<div class="space-y-2">
-				<Text size="xs" weight="bold" color="muted">Data path</Text>
-				<div
-					class="rounded p-2 font-mono text-xs break-all"
-					style="background: var(--surface-base); border: 1px solid var(--border-subtle);"
-				>
-					{surrealdbSidecar.status.dataPath}
-				</div>
-			</div>
+			{@const st = surrealdbSidecar.status}
+			<KeyValue label="Build" value={st.binary} />
+			<KeyValue label="Store" value={st.dataPath} />
+			<KeyValue label="Engine" value={st.backend} />
+			<KeyValue
+				label="Configured port"
+				value={st.configuredPort != null ? `${st.configuredPort}` : "—"}
+			/>
+			<KeyValue label="Actual port" value={st.actualPort != null ? `${st.actualPort}` : "—"} />
+			{#if surrealdbSidecar.bumped}
+				<InlineMessage tone="info">
+					Port {st.configuredPort} was taken by another program, so the server took
+					the next free one.
+				</InlineMessage>
+			{/if}
 		{:else}
 			<Text size="sm" color="muted">
-				Sidecar is not running. Boot the app to spawn it; this devtool
-				cannot start it manually because Surreal is boot-time critical
-				for the graph stage.
+				The server is not running. DevPulse starts it at launch, and this devtool
+				cannot start it by hand because the graph stores depend on it.
 			</Text>
 		{/if}
 	</div>

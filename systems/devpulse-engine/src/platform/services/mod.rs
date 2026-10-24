@@ -32,8 +32,6 @@ pub mod model_loader_log;
 pub mod routing_config;
 pub mod sherpa_streaming;
 pub mod sidecars;
-pub mod surreal;
-pub mod surreal_config;
 pub mod voice_stt_config;
 pub mod voice_tts_config;
 

@@ -9,7 +9,7 @@ use crate::platform::init::InitEvent;
 use crate::platform::services::graph::{
     GraphService, GLOBAL_GRAPH_SCHEMA, SYSTEM_GRAPH_SCHEMA, USER_GRAPH_SCHEMA,
 };
-use crate::platform::services::surreal::{root_password, SurrealService};
+use crate::platform::services::sidecars::surreal::{root_password, SurrealService};
 use devpulse_clyffy::cortex::persistence::SurrealAdapter;
 use devpulse_clyffy::cortex::persistence::SurrealConfig;
 use std::path::Path;
@@ -19,7 +19,7 @@ use std::time::Instant;
 /// The boot step for the Surreal server, as the boot manifest names it.
 const SURREAL_STEP: &str = "SurrealDB sidecar";
 
-/// Boot the embedded `SurrealKV` store and build three scoped graph services.
+/// Start the Surreal server and build three scoped graph services.
 ///
 /// Returns `(store, system, user, global)`. Any element may be `None`:
 /// - `store = None` → graph disabled in config OR store open failed.

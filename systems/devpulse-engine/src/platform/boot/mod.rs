@@ -69,7 +69,7 @@ use crate::platform::services::graph::GraphService;
 #[cfg(feature = "inference")]
 use crate::platform::services::model_loader::ModelLoaderService;
 use crate::platform::services::relational::{RelationalService, SYSTEM_STORE, USER_STORE};
-use crate::platform::services::surreal::SurrealService;
+use crate::platform::services::sidecars::surreal::SurrealService;
 #[cfg(feature = "rro")]
 use crate::platform::services::vector::VectorService;
 use devpulse_clyffy::cortex::llguidance::sync_grammar_service_from_config;

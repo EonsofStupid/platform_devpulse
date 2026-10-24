@@ -21,6 +21,7 @@
 
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
+use std::time::SystemTime;
 
 use anyhow::{Context, Result};
 
@@ -29,6 +30,9 @@ use crate::cortex::persistence::port_alloc::PortAllocation;
 use crate::cortex::persistence::runtime::{
     RestartPolicy, Runtime, RuntimeEvent, RuntimeEvents, RuntimeSpec, RuntimeState, PORT,
 };
+
+/// The storage engine the store is opened with.
+const ENGINE: &str = "surrealkv";
 
 /// How to start the server.
 #[derive(Debug, Clone)]
@@ -57,6 +61,7 @@ pub struct SurrealLifecycle {
     rpc: SurrealRpc,
     data_path: PathBuf,
     binary: PathBuf,
+    version: Option<String>,
 }
 
 impl std::fmt::Debug for SurrealLifecycle {
@@ -117,7 +122,7 @@ impl SurrealLifecycle {
                     "--no-banner".into(),
                     "--log".into(),
                     cfg.log_level.clone(),
-                    format!("surrealkv:{name}"),
+                    format!("{ENGINE}:{name}"),
                 ],
                 env: vec![
                     ("SURREAL_USER".into(), cfg.user.clone()),
@@ -141,11 +146,20 @@ impl SurrealLifecycle {
 
         let at = Arc::clone(&runtime);
         let rpc = SurrealRpc::new(Arc::new(move || at.endpoint()), cfg.user, cfg.password)?;
+        // Asked once: a restart runs the same build.
+        let version = match rpc.version().await {
+            Ok(v) => Some(v),
+            Err(e) => {
+                tracing::warn!(target: "surreal", error = %format!("{e:#}"), "the server did not say its version");
+                None
+            }
+        };
         tracing::info!(
             target: "surreal",
             binary = %cfg.binary.display(),
             store = %cfg.data_path.display(),
             endpoint = ?runtime.endpoint(),
+            version = ?version,
             "Surreal server ready"
         );
         Ok(Self {
@@ -153,6 +167,7 @@ impl SurrealLifecycle {
             rpc,
             data_path: cfg.data_path,
             binary: cfg.binary,
+            version,
         })
     }
 
@@ -172,6 +187,18 @@ impl SurrealLifecycle {
     #[must_use]
     pub fn binary(&self) -> &Path {
         &self.binary
+    }
+
+    /// The version the server reported when it started (`surrealdb-3.0.5`).
+    #[must_use]
+    pub fn version(&self) -> Option<&str> {
+        self.version.as_deref()
+    }
+
+    /// The storage engine it opens the store with.
+    #[must_use]
+    pub fn engine(&self) -> &'static str {
+        ENGINE
     }
 
     /// Its address, while it has one.
@@ -196,6 +223,18 @@ impl SurrealLifecycle {
     #[must_use]
     pub fn state(&self) -> RuntimeState {
         self.runtime.state()
+    }
+
+    /// Restarts after a crash, since `DevPulse` started it.
+    #[must_use]
+    pub fn restarts(&self) -> u32 {
+        self.runtime.restarts()
+    }
+
+    /// When it last started answering; `None` while it is not answering.
+    #[must_use]
+    pub fn ready_since(&self) -> Option<SystemTime> {
+        self.runtime.ready_since()
     }
 
     /// `DevPulse` started this server and owns it (it never attaches).

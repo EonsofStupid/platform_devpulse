@@ -10,7 +10,9 @@
 //! - **Model loaders** — `ollama`, `mistralrs`, `candle_vllm`. All
 //!   speak HTTP, all serve inference. Devtool registry tier =
 //!   `model_loader`.
-//! - Other sidecars (surreal, devforge, sherpa) currently live flat
-//!   in [`super`]; they migrate into this folder as their phases run.
+//! - **Stores** — `surreal`, the graph store's server (plan 0007 Part S).
+//! - Other sidecars (devforge, sherpa) currently live flat in [`super`];
+//!   they migrate into this folder as their phases run.
 
 pub mod ollama;
+pub mod surreal;

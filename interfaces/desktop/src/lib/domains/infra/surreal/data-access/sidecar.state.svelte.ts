@@ -2,9 +2,11 @@
  * @file SurrealDB sidecar state rune — managed-process devtool state.
  * @module @devpulse/domains/infra/surreal/data-access/sidecar.state
  *
- * Singleton rune state shared by the SurrealDB sidecar devtool tab.
+ * Singleton rune state shared by the SurrealDB devtool. Surreal is
+ * upstream's server build in a supervised subprocess (plan 0007 Part S).
  * Mirrors the engine surface:
- *   - `status` — runtime snapshot (configured/actual port, bumps, URL)
+ *   - `status` — the live process: state, pid, build, version, address,
+ *     configured vs actual port, restarts
  *   - `health` — live probe tri-state (`up` / `down` / `stopped`)
  *   - `config` — user-editable overlay at `{data_dir}/user/surreal.toml`
  *
@@ -26,9 +28,9 @@ import {
 } from "./sidecar.svc.js";
 
 function emptyDraft(): SurrealUserConfig {
-	// SurrealDB is now embedded (kv-surrealkv) — no port/binary/auth
-	// fields to override. `SurrealUserConfig` is `Record<string, never>`
-	// today; the cast keeps the runtime shape valid for the form bind.
+	// The overlay has no fields yet (the server's settings come from
+	// `config/platform/services/system/surreal.toml`); the cast keeps the
+	// runtime shape valid for the form bind.
 	return {} as SurrealUserConfig;
 }
 
@@ -58,21 +60,17 @@ class SurrealSidecarState {
 		return this.status?.running ?? false;
 	}
 
-	/**
-	 * Embedded SurrealDB never bumps ports — the field is retained
-	 * for API compat with the old sidecar shape and always returns
-	 * `false`.
-	 */
+	/** The configured port was taken, so the server got a higher one. */
 	get bumped(): boolean {
-		return false;
+		const s = this.status;
+		return s?.actualPort != null && s.configuredPort != null && s.actualPort !== s.configuredPort;
 	}
 
+	/** `8822`, or `8823 (8822 was taken)` after a bump. */
 	get portSummary(): string {
 		const s = this.status;
-		if (!s || !s.running) return "—";
-		// Embedded mode has no port — surface the data path instead so
-		// the devtool keeps a single "where is it live" line.
-		return s.dataPath;
+		if (s?.actualPort == null) return "—";
+		return this.bumped ? `${s.actualPort} (${s.configuredPort} was taken)` : `${s.actualPort}`;
 	}
 
 	get dirty(): boolean {

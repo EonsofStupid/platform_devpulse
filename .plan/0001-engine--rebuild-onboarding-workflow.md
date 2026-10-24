@@ -948,6 +948,79 @@ even loading … you keep just making new shit". And: local AI must be
 | Chat: roles, personas, mixed subscriptions in shared-state rooms | Threads with one agent each work (B3) | Rooms with seats (role + persona + agent), shared state between them (B4) |
 | Learn terminology; A2UI experiences | Layman/advanced term list (owner 2026-10-19); `a2ui` signal family | Not yet in chat or project flows |
 
+### Owner direction 2026-10-24 — the main goal
+
+> "we are suppose to have it intelligently scan and be aware of the
+> subscriptions the user has activated, and to abide to anthropic we ahve
+> clear UI that they need to press copy here and paste here to have
+> anthropic subscription active and then expand claude code to work like
+> claude desktop inside devpulse, that is the main goal, anthropic codex,
+> grok and others can also easily work off the built in agenthub/software
+> factory and have tables and rows for the ticketing system clear prefix,
+> overmind is for experiments, research, its like our notion locally that
+> can synchronize with affinity or notion, and have clear AI workflows to
+> fill the gaps you cannot simply export and improt their subscriptiosn
+> will see these insuctrions and execute effortlessly for the user"
+
+Said when I reported that chat suggestions had no local model: DevPulse's AI
+comes from the subscriptions you already have, and a local model is one
+endpoint among them, never a prerequisite.
+
+**What exists** (three read-only surveys and Anthropic's current docs,
+2026-10-24):
+
+| Part | Today | Gap | Phase |
+| --- | --- | --- | --- |
+| Know which subscriptions you activated | 8 definitions are checked for installed, version, latest and signed in (`kernel/devpulse-clyffy/src/providers/discovery/`), at boot and on click. The cards (`domains/app/providers/feature/YourProviders.svelte`) are mounted only in first run (`YourAiView.svelte:23`). | the cards outside first run; the chat picker ignores `signedIn` (`ChatAgentPicker.svelte:28-35`); `start_thread` starts a signed-out agent (`agents.rs:134-139`); no recheck without a click | B3.6 |
+| Anthropic: "copy here, paste here" | **Sign in** opens a terminal running Claude Code's own `claude auth login` (`providers/actions.rs:245-311`) | the guided steps, and DevPulse seeing the sign-in finish | B3.7 |
+| Claude Code like Claude Desktop | B3.4 threads: one `claude -p … --output-format stream-json --verbose --include-partial-messages` per turn, `--resume` after the first (`providers/session/headless.rs`); errors reach the window | permission prompts (headless answers are always refused, `session/mod.rs:194-195`), your context (`--mcp-config`, B6), model choice, attachments, usage | B3.8 |
+| Suggestions without a local model | Type-ahead recalls your own past prompts by meaning, which needs an embedding model (`chat.suggest`: `capability = "Embedding"`, none loaded). No subscription offers embeddings. | recall by text when no embedder is assigned | B3.9 |
+| AgentHub as the software factory: tickets in tables and rows, a clear prefix | Nothing: no tables, no module, no UI (B5 not started; checked on every branch) | B5.4 | B5.4 |
+| Overmind: experiments, research, a local Notion, synced with Notion or "affinity" | A sidebar page with hard-coded badges (`OvermindDashboard.svelte:46-58`); seven competing definitions in old docs; no Notion or AFFiNE code anywhere | its own plan (master plan H6 is rewritten into it) | Q52 |
+
+**What Anthropic allows** (code.claude.com legal-and-compliance,
+authentication, cli-reference, headless; read 2026-10-24):
+
+- Allowed: a person "signing in to the unmodified Claude Code binary with
+  their own Claude subscription". DevPulse runs your own Claude Code,
+  unmodified, and it signs in through its own flow.
+- Not allowed: a Claude.ai login inside DevPulse, or DevPulse collecting or
+  storing credentials or session tokens. So **the paste goes into Claude
+  Code's own prompt, never into DevPulse**. `claude setup-token` is for CI
+  and is not used. `--bare` is never used (it ignores the subscription
+  login).
+- Branding: "Claude Code" as plain text; no Anthropic logos; no DevPulse
+  product named after Claude.
+- Open: "running Claude Code in your products" requires Anthropic's
+  Commercial Terms; the docs don't say whether a desktop app starting your
+  own Claude Code counts (Q50).
+
+**Phases.** B3.5 (your checkpoint) moves after B3.9.
+
+| # | Outcome | Live check |
+| --- | --- | --- |
+| B3.6 | **Your AI, outside first run.** The provider cards on their own settings page (a route folder under `devpulse/settings/`, its nav from the folder per plan 0008). The chat picker shows a signed-out agent with "Sign in first" and its sign-in, and `start_thread` refuses it in the engine's words. Providers are rechecked when the window regains focus (debounced) and while a sign-in is open. | the page shows this machine's truth; a signed-out agent cannot start a thread |
+| B3.7 | **Copy here, paste here.** A sign-in card with three steps from the copy catalog: 1. copy the command (`claude auth login`) with a Copy button; 2. **Open a terminal** (the existing action) or paste it into your own; 3. Claude Code opens your browser, and if it shows a code you paste it into Claude Code's `Paste code here if prompted`. DevPulse watches `claude auth status` (exit 0, `authMethod`) and shows Claude as active. The steps come from each definition's `sign_in`, so Codex, Gemini and Grok get the same card. | the steps render; `claude auth status` turning signed-in flips the card without a restart. The sign-in itself is yours, on your account. |
+| B3.8 | **Claude Code like Claude Desktop**, cut into phases when B3.6–B3.7 land: a) one process per thread over `--input-format stream-json`; b) permission prompts through `--permission-prompt-tool` on DevPulse's MCP server, shown with the existing permission UI; c) your context (`--mcp-config`, B6); d) model and effort per thread, usage and the cost estimate from `result`; e) attachments, once the stream-json image format is verified; f) projects (the thread's folder is the project, as today). | each sub-phase live in the chat window |
+| B3.9 | **Suggestions with no model.** With no embedder in `chat.suggest`, recall uses Surreal's full-text index over `chat_prompt`, with the same ranking (recency, accepted boost); an assigned embedder still recalls by meaning. | typing shows your past prompts with no model loaded |
+
+**B5.4 — tickets, the software factory.** Turso `ticket_boards` (per
+project, its prefix, the next number) and `tickets` (`PREFIX-n`, title, body,
+status, assignee: an agent or a person), with a history table. Any agent picks
+a ticket up as a prompt in a thread or room, and its answer is recorded on the
+ticket. The prefix scheme is Q51. Built after B5.1–B5.3 inside
+`domains/agenthub`.
+
+**Questions for you:**
+
+- **Q50 Commercial Terms.** Before release, ask Anthropic (the legal page's
+  contact) whether DevPulse starting your own installed Claude Code is
+  "running Claude Code in your products". Nothing is blocked until release.
+- **Q51 Ticket prefix.** One prefix per project (suggested from its name,
+  editable, like `DP-42`), or one for the whole devspace?
+- **Q52 "affinity".** AFFiNE, the open-source local-first Notion alternative?
+  Overmind's plan waits for this answer.
+
 ### B3 — each subscription in chat (first; phases)
 
 Facts it rests on (2026-10-21):
@@ -2360,3 +2433,15 @@ queries proving what was written.
       complete is refused as `{"kind":"internal","message":"first run is not
       open"}`; the You form returns its three fields; scanning a missing
       folder answers `null`.
+  - 2026-10-24 — **Your direction recorded: the main goal** (section "Owner
+    direction 2026-10-24").
+    - Three read-only surveys (subscriptions and Claude Code; AgentHub,
+      tickets, Overmind and sync; Anthropic's current terms) found: detection,
+      sign-in, update, connectors and Try it work for 8 definitions but the
+      cards live only in first run; threads with Claude Code and Codex work;
+      no AgentHub, ticket or Notion/AFFiNE code exists on any branch;
+      Overmind is a static page.
+    - Added B3.6–B3.9 (B3.5 moves after them), B5.4 (tickets) and Q50–Q52.
+    - `main`'s `0c758a7f` (a one-shot `claude -p` chat command) is superseded
+      by B3.4's threads and is not ported as written; `c3c0e048` and
+      `f3748059` are already in this branch's code.

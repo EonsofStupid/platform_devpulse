@@ -27,7 +27,7 @@
  *
  * - Sidecar lifecycle (Tauri): `interfaces/desktop/src-tauri/src/commands/surreal/sidecar/`
  * - Graph data plane: `interfaces/desktop/src-tauri/src/commands/sys/graph.rs`
- * - Engine service: `systems/devpulse-engine/src/platform/services/surreal.rs`
+ * - Engine service: `systems/devpulse-engine/src/platform/services/sidecars/surreal/service.rs`
  * - Kernel consumer: `kernel/devpulse-clyffy/src/cortex/persistence/surreal/`
  */
 

@@ -1,7 +1,7 @@
 //! Graph service wrapper (`SurrealDB`).
 //!
 //! The graph layer is a pure WS client to the managed Surreal child
-//! — see [`crate::platform::services::surreal`] for the process
+//! — see [`crate::platform::services::sidecars::surreal`] for the process
 //! lifecycle. Each `GraphService` holds a `ScopedGraphHandle` that
 //! prefixes every query with `USE NS {ns} DB {db};`, so namespace
 //! isolation is enforced at the query level.
