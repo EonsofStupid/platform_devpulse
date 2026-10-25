@@ -385,7 +385,7 @@ mod tests {
     /// Serves `latest`, the manifest and the file on 127.0.0.1, then stops.
     fn release_server(
         body: &'static [u8],
-        checksum: String,
+        checksum: &str,
     ) -> (String, std::thread::JoinHandle<()>) {
         let listener = std::net::TcpListener::bind(("127.0.0.1", 0)).unwrap();
         let base = format!("http://{}", listener.local_addr().unwrap());
@@ -436,7 +436,7 @@ mod tests {
         let file = format!("claude{}", std::env::consts::EXE_SUFFIX);
 
         let good = format!("{:x}", Sha256::digest(BODY));
-        let (base, server) = release_server(BODY, good);
+        let (base, server) = release_server(BODY, &good);
         let data = temp("release-ok");
         let fetched = fetch_release(&dir(&data, "claude-code"), &spec(&base), &file)
             .await
@@ -450,7 +450,7 @@ mod tests {
         assert_eq!(std::fs::read(&fetched.path).unwrap(), BODY);
         let _ = std::fs::remove_dir_all(&data);
 
-        let (base, server) = release_server(BODY, "0".repeat(64));
+        let (base, server) = release_server(BODY, &"0".repeat(64));
         let data = temp("release-bad");
         let err = fetch_release(&dir(&data, "claude-code"), &spec(&base), &file)
             .await
