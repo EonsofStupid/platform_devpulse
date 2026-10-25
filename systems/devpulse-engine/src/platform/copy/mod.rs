@@ -314,6 +314,13 @@ pub struct YourAiCopy {
     pub waiting_stopped: String,
     /// "{agent} is active." — signed in.
     pub now_active: String,
+    /// Button: install the vendor's own build (plan 0001 B3.10).
+    pub install: String,
+    /// Under Install, before the click: what is installed from where
+    /// (`{name}`, `{source}`), and that installing accepts its terms.
+    pub install_consent: String,
+    /// On a card whose program `DevPulse` installed in its own folder.
+    pub in_devpulse_folder: String,
     /// Button: close the steps.
     pub close: String,
 }

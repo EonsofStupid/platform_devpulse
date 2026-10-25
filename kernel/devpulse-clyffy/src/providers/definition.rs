@@ -146,6 +146,42 @@ pub struct ConnectorSpec {
     pub bin: String,
 }
 
+/// How `DevPulse` installs it when you click **Install** (plan 0001 B3.10;
+/// owner 2026-10-24: "the user just actually click the actions to do the
+/// install keeping it their decision"): the vendor's own, unmodified build
+/// by its official method, into the `DevPulse` folder
+/// (`{data_dir}/tools/agents/{id}`). Exactly one method.
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct InstallSpec {
+    /// The vendor's npm package (needs Node.js; its `bin` is the program).
+    #[serde(default)]
+    pub npm: Option<String>,
+    /// The program the npm package installs.
+    #[serde(default)]
+    pub bin: Option<String>,
+    /// The vendor's release files, checked against its manifest.
+    #[serde(default)]
+    pub release: Option<ReleaseSpec>,
+}
+
+/// A vendor's published release: the latest version, a manifest naming
+/// each platform's file with its SHA-256, and the file itself. In the
+/// addresses, `{version}` is the version, `{platform}` the vendor's name
+/// for this machine (`win32-x64`, `darwin-arm64`, `linux-x64`, …) and
+/// `{binary}` the file the manifest names. The manifest's shape:
+/// `platforms.{platform}.{binary, checksum, size}`.
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct ReleaseSpec {
+    /// Plain text: the latest version.
+    pub latest: String,
+    /// The release manifest.
+    pub manifest: String,
+    /// The release file.
+    pub binary: String,
+}
+
 /// How `DevPulse` talks to it (the registry row's agent protocol says
 /// which). In `args` and `env` values, `{program}` is the provider's own
 /// program and `{prompt}` the question.
@@ -228,6 +264,9 @@ pub struct ProviderDefinition {
     /// The vendor's own update command.
     #[serde(default)]
     pub update: Option<CommandSpec>,
+    /// How `DevPulse` installs it when you click Install.
+    #[serde(default)]
+    pub install: Option<InstallSpec>,
     /// How to talk to it; without it, it can be found but not asked.
     #[serde(default)]
     pub connect: Option<ConnectSpec>,
@@ -361,7 +400,42 @@ impl ProviderDefinition {
         if let Some(connect) = &self.connect {
             self.check_connect(connect)?;
         }
+        if let Some(install) = &self.install {
+            self.check_install(install)?;
+        }
         Ok(())
+    }
+
+    fn check_install(&self, install: &InstallSpec) -> Result<()> {
+        let id = self.id.key();
+        match (&install.npm, &install.bin, &install.release) {
+            (Some(npm), Some(bin), None) => check_package(&format!("{id}: install"), npm, bin),
+            (None, None, Some(release)) => {
+                for (field, url) in [
+                    ("latest", &release.latest),
+                    ("manifest", &release.manifest),
+                    ("binary", &release.binary),
+                ] {
+                    if !url.starts_with("https://") {
+                        bail!("{id}: install.release.{field} must be an https:// address");
+                    }
+                }
+                for (field, url, needs) in [
+                    ("manifest", &release.manifest, ["{version}"].as_slice()),
+                    (
+                        "binary",
+                        &release.binary,
+                        ["{version}", "{platform}", "{binary}"].as_slice(),
+                    ),
+                ] {
+                    if let Some(missing) = needs.iter().find(|n| !url.contains(*n)) {
+                        bail!("{id}: install.release.{field} must carry {missing}");
+                    }
+                }
+                Ok(())
+            }
+            _ => bail!("{id}: install names npm with bin, or release — exactly one"),
+        }
     }
 
     fn check_connect(&self, connect: &ConnectSpec) -> Result<()> {
@@ -401,22 +475,29 @@ impl ProviderDefinition {
             }
         }
         if let Some(connector) = &connect.connector {
-            if connector.npm.trim().is_empty() || connector.bin.trim().is_empty() {
-                bail!("{id}: connect.connector needs npm and bin");
-            }
-            let bin_ok = connector
-                .bin
-                .chars()
-                .all(|c| c.is_ascii_alphanumeric() || matches!(c, '-' | '_' | '.'));
-            if !bin_ok {
-                bail!(
-                    "{id}: connect.connector.bin {:?} is a program name, not a path",
-                    connector.bin
-                );
-            }
+            check_package(
+                &format!("{id}: connect.connector"),
+                &connector.npm,
+                &connector.bin,
+            )?;
         }
         Ok(())
     }
+}
+
+/// An npm package and the program it installs: both named, the program a
+/// bare name (it is looked up in the package's own `.bin`).
+fn check_package(field: &str, npm: &str, bin: &str) -> Result<()> {
+    if npm.trim().is_empty() || bin.trim().is_empty() {
+        bail!("{field} needs npm and bin");
+    }
+    let bin_ok = bin
+        .chars()
+        .all(|c| c.is_ascii_alphanumeric() || matches!(c, '-' | '_' | '.'));
+    if !bin_ok {
+        bail!("{field}.bin {bin:?} is a program name, not a path");
+    }
+    Ok(())
 }
 
 /// `~`, `%VAR%` and `$VAR` expanded; `None` when a variable is not set.

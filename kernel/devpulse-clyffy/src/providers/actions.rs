@@ -1,6 +1,9 @@
 //! What you can do from a provider's card — only when you click.
 //!
-//! **Update** runs the vendor's own updater and keeps its real output.
+//! **Install** puts the vendor's own build into the `DevPulse` folder
+//! (plan 0001 B3.10). **Update** runs the vendor's own updater and keeps its
+//! real output — or, for the copy `DevPulse` installed, installs the latest
+//! there again.
 //! **Sign in** opens the vendor's own login in a terminal window: logins are
 //! interactive (a browser, a code to type), and `DevPulse` never sees a token.
 //! **Try it** asks the provider one question the way `DevPulse` will talk to
@@ -16,6 +19,7 @@ use serde::{Deserialize, Serialize};
 use super::connect::{self, connector};
 use super::definition::{CommandSpec, ProviderDefinition};
 use super::discovery::installed;
+use super::install;
 use super::types::ProviderId;
 
 const UPDATE_TIMEOUT: Duration = Duration::from_secs(15 * 60);
@@ -27,6 +31,8 @@ const OUTPUT_CAP: usize = 8 * 1024;
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 #[serde(rename_all = "camelCase")]
 pub enum ProviderAction {
+    /// Install the vendor's own build into the `DevPulse` folder.
+    Install,
     /// Run the vendor's updater.
     Update,
     /// Open the vendor's login in a terminal window.
@@ -160,6 +166,12 @@ pub async fn run(
         finished_at: 0,
     };
     match action {
+        ProviderAction::Install => {
+            installed_into_folder(definition, context, &mut result).await;
+        }
+        ProviderAction::Update if install::is_ours(context.data_dir, definition, location) => {
+            installed_into_folder(definition, context, &mut result).await;
+        }
         ProviderAction::Update | ProviderAction::SignIn => {
             let spec = match action {
                 ProviderAction::Update => definition.update.as_ref(),
@@ -217,6 +229,20 @@ async fn test(
         }
         Err(e) => result.output = tail(&format!("{e:#}")),
     }
+}
+
+/// Install the vendor's own build into the `DevPulse` folder (Install, and
+/// Update of that copy).
+async fn installed_into_folder(
+    definition: &ProviderDefinition,
+    context: ActionContext<'_>,
+    result: &mut ProviderActionRun,
+) {
+    let installed = install::install(context.data_dir, definition).await;
+    result.ok = installed.ok;
+    result.guided = installed.guided;
+    result.command = installed.command;
+    result.output = tail(&installed.output);
 }
 
 async fn install_connector(

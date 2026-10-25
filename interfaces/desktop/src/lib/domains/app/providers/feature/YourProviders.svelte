@@ -9,6 +9,10 @@
 	when you click it. Everything shown is Rust's `providers` state; text
 	comes from the copy catalog.
 
+	Install, on a tool that is not on this machine (plan 0001 B3.10), puts
+	the vendor's own build into the DevPulse folder — only when you click
+	it, with what it installs from where said first.
+
 	Sign in opens the provider's sign-in steps (plan 0001 B3.7): copy its own
 	command, paste it into a terminal or open one here, finish in its own
 	prompt; the card turns signed in by itself.
@@ -119,10 +123,16 @@ function signIn(p: ProviderReport): void {
 							: copy.connector_needed}
 					</Text>
 				{/if}
+				{#if p.installedByDevpulse}
+					<Text size="xs" color="muted">{copy.in_devpulse_folder}</Text>
+				{/if}
 			{:else}
 				<Text size="sm" color="muted">{copy.not_installed}</Text>
 				{#if p.latest}
 					<Text size="xs" color="muted">{fill(copy.latest, { version: p.latest })}</Text>
+				{/if}
+				{#if p.actions.includes("install") && p.installSource}
+					<Text size="xs" color="muted">{fill(copy.install_consent, { name: p.name, source: p.installSource })}</Text>
 				{/if}
 			{/if}
 
@@ -131,6 +141,11 @@ function signIn(p: ProviderReport): void {
 			{/if}
 
 			<div class="flex flex-wrap items-center gap-2">
+				{#if !p.installed && p.actions.includes("install") && p.installSource}
+					<Button variant="primary" size="sm" onclick={() => providersState.act(p.id, "install")} disabled={!idle}>
+						{#if running(p, "install")}<Spinner size="xs" />{copy.installing}{:else}{copy.install}{/if}
+					</Button>
+				{/if}
 				{#if p.installed && p.actions.includes("signIn") && p.signedIn !== "yes" && providersState.signingIn !== p.id}
 					<Button variant="primary" size="sm" onclick={() => signIn(p)} disabled={!idle}>
 						{#if running(p, "signIn")}<Spinner size="xs" />{copy.opening}{:else}{copy.sign_in}{/if}

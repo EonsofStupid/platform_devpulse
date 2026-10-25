@@ -19,6 +19,8 @@ pub mod catalog;
 pub mod connect;
 pub mod definition;
 pub mod discovery;
+pub mod install;
+pub mod npm;
 pub mod registry;
 pub mod session;
 pub mod types;

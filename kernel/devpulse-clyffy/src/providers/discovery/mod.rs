@@ -17,6 +17,7 @@ use super::actions::{self, ProviderAction};
 use super::catalog::Catalog;
 use super::connect::connector::{self, ConnectorReport};
 use super::definition::{AdapterKind, ProviderDefinition, ProviderKind};
+use super::install;
 use super::types::ProviderId;
 pub use signed_in::SignedIn;
 
@@ -52,6 +53,11 @@ pub struct ProviderReport {
     /// The vendor's own sign-in command as you would type it in a terminal
     /// (`claude auth login`); `None` when it has none or is not installed.
     pub sign_in_command: Option<String>,
+    /// Where **Install** gets it (`npm @openai/codex`,
+    /// `downloads.claude.ai`); `None` when `DevPulse` cannot install it.
+    pub install_source: Option<String>,
+    /// The copy `DevPulse` installed in its own folder is the one in use.
+    pub installed_by_devpulse: bool,
     /// The actions its definition offers (the vendor's own commands, and
     /// Try it when it says how to talk to it).
     pub actions: Vec<ProviderAction>,
@@ -80,7 +86,7 @@ async fn report_one(
     home: Option<&Path>,
     client: Option<&reqwest::Client>,
 ) -> ProviderReport {
-    let location = installed::locate(definition, home);
+    let location = installed::locate(definition, home, data_dir);
     let mut problems = Vec::new();
 
     let version_lookup = async {
@@ -121,6 +127,9 @@ async fn report_one(
     let sign_in_command = location
         .as_deref()
         .and_then(|program| actions::sign_in_typed(definition, program));
+    let installed_by_devpulse = location
+        .as_deref()
+        .is_some_and(|program| install::is_ours(data_dir, definition, program));
     let connector_spec = definition
         .connect
         .as_ref()
@@ -140,7 +149,10 @@ async fn report_one(
         update_available,
         signed_in,
         sign_in_command,
+        install_source: install::source(definition),
+        installed_by_devpulse,
         actions: [
+            (definition.install.is_some(), ProviderAction::Install),
             (definition.sign_in.is_some(), ProviderAction::SignIn),
             (definition.update.is_some(), ProviderAction::Update),
             (definition.connect.is_some(), ProviderAction::Test),

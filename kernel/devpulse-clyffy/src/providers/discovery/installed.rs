@@ -12,7 +12,11 @@ const VERSION_TIMEOUT: Duration = Duration::from_secs(20);
 
 /// Where the program is, or `None` when it is not on this machine.
 #[must_use]
-pub fn locate(definition: &ProviderDefinition, home: Option<&Path>) -> Option<PathBuf> {
+pub fn locate(
+    definition: &ProviderDefinition,
+    home: Option<&Path>,
+    data_dir: &Path,
+) -> Option<PathBuf> {
     definition
         .detect
         .executables
@@ -27,6 +31,9 @@ pub fn locate(definition: &ProviderDefinition, home: Option<&Path>) -> Option<Pa
                 .filter_map(|p| expand(p, home))
                 .find(|p| p.exists())
         })
+        // Last, the copy `DevPulse` installed in its own folder (plan 0001
+        // B3.10): one you installed yourself is used first.
+        .or_else(|| crate::providers::install::program(data_dir, definition))
 }
 
 /// The program on `PATH` (with `PATHEXT` on Windows: `.exe`, `.cmd`, …).
@@ -168,6 +175,7 @@ paths = { windows = ["~/devpulse-no-such-7c3a.exe"], macos = ["~/devpulse-no-suc
 "#,
         )
         .expect("definition");
-        assert!(locate(&definition, std::env::home_dir().as_deref()).is_none());
+        let data_dir = std::env::temp_dir().join("devpulse-no-such-data-7c3a");
+        assert!(locate(&definition, std::env::home_dir().as_deref(), &data_dir).is_none());
     }
 }

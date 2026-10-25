@@ -10950,6 +10950,10 @@ note?: string | null }
  */
 export type ProviderAction = 
 /**
+ * Install the vendor's own build into the `DevPulse` folder.
+ */
+"install" | 
+/**
  * Run the vendor's updater.
  */
 "update" | 
@@ -11212,6 +11216,15 @@ signedIn: SignedIn;
  * (`claude auth login`); `None` when it has none or is not installed.
  */
 signInCommand: string | null; 
+/**
+ * Where **Install** gets it (`npm @openai/codex`,
+ * `downloads.claude.ai`); `None` when `DevPulse` cannot install it.
+ */
+installSource: string | null; 
+/**
+ * The copy `DevPulse` installed in its own folder is the one in use.
+ */
+installedByDevpulse: boolean; 
 /**
  * The actions its definition offers (the vendor's own commands, and
  * Try it when it says how to talk to it).
@@ -15031,6 +15044,19 @@ waiting_stopped: string;
  * "{agent} is active." — signed in.
  */
 now_active: string; 
+/**
+ * Button: install the vendor's own build (plan 0001 B3.10).
+ */
+install: string; 
+/**
+ * Under Install, before the click: what is installed from where
+ * (`{name}`, `{source}`), and that installing accepts its terms.
+ */
+install_consent: string; 
+/**
+ * On a card whose program `DevPulse` installed in its own folder.
+ */
+in_devpulse_folder: string; 
 /**
  * Button: close the steps.
  */

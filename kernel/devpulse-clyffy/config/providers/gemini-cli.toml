@@ -31,6 +31,13 @@ args = []
 program = "npm"
 args = ["install", "-g", "@google/gemini-cli@latest"]
 
+[install]
+# Install on click (plan 0001 B3.10): Google's own npm package, into the
+# DevPulse folder (it needs Node.js). A copy installed there is updated
+# there, not with the global command above. Checked 2026-10-24.
+npm = "@google/gemini-cli"
+bin = "gemini"
+
 [connect]
 # "Starts the agent in ACP mode" (Gemini CLI 0.65.0's own option;
 # --experimental-acp is the deprecated name).

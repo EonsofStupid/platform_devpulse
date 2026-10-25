@@ -30,6 +30,13 @@ args = ["login"]
 [update]
 args = ["update"]
 
+[install]
+# Install on click (plan 0001 B3.10): OpenAI's own npm package, into the
+# DevPulse folder (npm install --prefix; it needs Node.js). Checked
+# 2026-10-24 against the npm registry and the Codex README.
+npm = "@openai/codex"
+bin = "codex"
+
 [connect]
 # Codex has no ACP mode of its own. The protocol maintainers' connector
 # (github.com/agentclientprotocol/codex-acp) speaks ACP for it; CODEX_PATH

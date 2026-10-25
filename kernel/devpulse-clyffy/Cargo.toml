@@ -86,6 +86,8 @@ llguidance = { workspace = true, optional = true }
 # HTTP client for managed sidecars (Ollama, SurrealDB) —
 # rustls-tls avoids a system OpenSSL dep on Windows/Linux release builds.
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+# Install on click checks a vendor's release file against its manifest's SHA-256 (plan 0001 B3.10).
+sha2 = "0.10"
 # The Surreal server speaks CBOR over HTTP /rpc (plan 0007 Part S, S4).
 ciborium = "0.2"
 serde_bytes = "0.11"

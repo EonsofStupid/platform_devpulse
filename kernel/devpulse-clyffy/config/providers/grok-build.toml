@@ -30,6 +30,14 @@ args = ["login"]
 [update]
 args = ["update"]
 
+[install]
+# Install on click (plan 0001 B3.10): xAI's npm package, into the DevPulse
+# folder (it needs Node.js). It is published by xAI (maintainer
+# xai-security) and listed in the ACP registry; xAI's own docs name only
+# their install script so far. Checked 2026-10-24.
+npm = "@xai-official/grok"
+bin = "grok"
+
 [connect]
 # xAI's docs: `grok agent stdio` serves ACP on stdio. Unconfirmed against a
 # real install.

@@ -203,12 +203,14 @@ impl Providers {
         outcome.map(|_| state)
     }
 
-    /// Run one action on an installed provider. After an update or a
-    /// connector install the providers are checked again; after opening a
-    /// sign-in, you check again once you have finished signing in.
+    /// Run one action on a provider: Install on one that is not on this
+    /// machine, every other action on an installed one. After an install,
+    /// an update or a connector install the providers are checked again;
+    /// after opening a sign-in, the sign-in steps watch for it.
     ///
     /// # Errors
-    /// Returns an error if the provider is unknown or not installed.
+    /// Returns an error if the provider is unknown, not installed (or, for
+    /// Install, already installed).
     pub async fn run(
         &self,
         provider_id: ProviderId,
@@ -232,8 +234,15 @@ impl Providers {
                 .and_then(|r| r.providers.iter().find(|p| p.id == provider_id))
                 .and_then(|p| p.location.clone())
         };
-        let Some(location) = location else {
-            bail!("{} is not installed", definition.name());
+        // Install needs nothing installed (and refuses a second copy);
+        // every other action needs the program.
+        let location = match (action, location) {
+            (ProviderAction::Install, None) => String::new(),
+            (ProviderAction::Install, Some(at)) => {
+                bail!("{} is already installed at {at}", definition.name());
+            }
+            (_, Some(at)) => at,
+            (_, None) => bail!("{} is not installed", definition.name()),
         };
 
         self.state.lock().await.running = Some(ProviderActionRef {
@@ -264,7 +273,7 @@ impl Providers {
         }
         if matches!(
             action,
-            ProviderAction::Update | ProviderAction::InstallConnector
+            ProviderAction::Install | ProviderAction::Update | ProviderAction::InstallConnector
         ) {
             self.check_locked().await
         } else {

@@ -147,6 +147,8 @@ fn sample(kind: SignalKind) -> SignalVariant {
                     update_available: false,
                     signed_in: SignedIn::Yes,
                     sign_in_command: Some("codex login".into()),
+                    install_source: Some("npm @openai/codex".into()),
+                    installed_by_devpulse: false,
                     actions: vec![
                         ProviderAction::SignIn,
                         ProviderAction::Update,

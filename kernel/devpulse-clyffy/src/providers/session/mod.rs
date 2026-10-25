@@ -255,7 +255,8 @@ mod tests {
                 .into_iter()
                 .find(|d| d.id == id)
                 .unwrap();
-            let program = installed::locate(&definition, home.as_deref()).expect("installed");
+            let program =
+                installed::locate(&definition, home.as_deref(), &data_dir).expect("installed");
             let session = AgentSession::start(&definition, &program, &data_dir, &cwd, None, false)
                 .await
                 .unwrap_or_else(|e| panic!("{}: {e:#}", id.key()));

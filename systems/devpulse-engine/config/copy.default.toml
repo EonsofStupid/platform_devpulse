@@ -109,6 +109,9 @@ step_finish = "{agent} opens your browser to sign in with your own account. If i
 waiting = "Waiting for you to finish signing in…"
 waiting_stopped = "Still not signed in. When you're done, press Check again."
 now_active = "{agent} is active."
+install = "Install"
+install_consent = "Installs {name}'s own build from {source} into the DevPulse folder — nothing else on this computer changes. Installing accepts {name}'s terms."
+in_devpulse_folder = "In the DevPulse folder"
 close = "Close"
 
 [onboarding.containers]

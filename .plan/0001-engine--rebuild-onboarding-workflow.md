@@ -2570,4 +2570,32 @@ queries proving what was written.
       migrated schema; `depl` → "deploy the docs site to staging", `unit te`
       → "write a unit test for the parser", `zzzz` → none; the log says once
       that no embedder is loaded.
+  - 2026-10-24 — **B3.10a done: Install on click (npm and release).**
+    - Kernel: a definition's `[install]` names exactly one method — `npm` +
+      `bin`, or `release` (latest, manifest, binary addresses). Installs land
+      in `{data_dir}/tools/agents/{id}`: npm through the installer connectors
+      use (moved to `providers/npm.rs`); a release file is streamed, its
+      SHA-256 and size checked against the vendor's manifest, kept per
+      version (a mismatch is removed and nothing is installed).
+      Detection looks in the folder last, after `PATH` and the vendor's own
+      places. Install refuses a second copy; Update of a copy DevPulse
+      installed installs the latest there again.
+    - Definitions: Claude Code by its release (`downloads.claude.ai`, no
+      Node; the `.cmd` launcher npm makes on Windows would carry the prompt
+      as a batch argument); Codex, Gemini CLI and Grok Build by npm. Claude
+      Code's runs from DevPulse set `DISABLE_AUTOUPDATER=1`, so its updates
+      are your click.
+    - Card: a missing tool shows **Install** with "Installs {name}'s own
+      build from {source} into the DevPulse folder — nothing else on this
+      computer changes. Installing accepts {name}'s terms."; a copy DevPulse
+      installed says "In the DevPulse folder".
+    - Verified: 41 provider tests, among them a release served on 127.0.0.1
+      (the right sum installs; a wrong one leaves nothing behind) and folder
+      detection for both methods; the signal contract (+ `installSource`,
+      `installedByDevpulse`); clippy, rustfmt, svelte-check, Biome.
+    - Live: Grok Build and Gemini CLI show Install with their npm source;
+      Antigravity and Cursor have none yet (B3.10b); `.userdata/tools/` holds
+      only `ask` and `connectors` — nothing installed without a click.
+      Install itself was not pressed: a download needs your OK, and it is
+      your click by design.
 

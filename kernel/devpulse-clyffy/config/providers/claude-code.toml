@@ -30,9 +30,23 @@ args = ["auth", "login"]
 [update]
 args = ["update"]
 
+[install.release]
+# Install on click (plan 0001 B3.10): Anthropic's own native build, the
+# file its installer downloads, checked against the SHA-256 in the
+# release manifest (code.claude.com/docs "Binary integrity"; checked
+# 2026-10-24). No Node.js needed. It lands in the DevPulse folder, one
+# folder per version.
+latest = "https://downloads.claude.ai/claude-code-releases/latest"
+manifest = "https://downloads.claude.ai/claude-code-releases/{version}/manifest.json"
+binary = "https://downloads.claude.ai/claude-code-releases/{version}/{platform}/{binary}"
+
 [connect]
 # Print mode: "query via SDK, then exit"; the answer as plain text on stdout.
 args = ["-p", "{prompt}", "--output-format", "text"]
+# Updates are yours to click (owner 2026-10-24): Claude Code's background
+# updater is off in the runs DevPulse starts (DISABLE_AUTOUPDATER,
+# code.claude.com/docs/en/env-vars).
+env = { DISABLE_AUTOUPDATER = "1" }
 
 [connect.conversation]
 # A chat turn: print mode streaming its events as they happen; later turns
