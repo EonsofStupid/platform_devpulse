@@ -1057,12 +1057,18 @@ ticket. The prefix scheme is Q51. Built after B5.1–B5.3 inside
   editable, like `DP-42`), or one for the whole devspace?
 - **Q52 "affinity".** AFFiNE, the open-source local-first Notion alternative?
   Overmind's plan waits for this answer.
-- **Q53 Where sign-ins live.** Each vendor keeps your sign-in in your user
-  profile (`~/.claude`, `~/.codex`, …). They can be moved into the DevPulse
-  folder (`CLAUDE_CONFIG_DIR`, `CODEX_HOME`, `GEMINI_CLI_HOME`), so the
-  folder carries them. But Claude's and Codex's are plain JSON files there,
-  without the profile's protection, which matters on a USB stick or a synced
-  folder. Default until you answer: they stay where each vendor puts them.
+- **Q53 — answered (owner 2026-10-24):** "we want the user to decide if
+  they want to have a portable version where all of there chats get saved
+  inside devpulse userdata and for windows linux arm we provide ui to make
+  the changes properly for them and have it verified". **B3.11 Portable
+  mode, your choice:** a setting with two clear options — keep sign-ins and
+  chats where each tool keeps them (default), or keep them in DevPulse's
+  userdata (`CLAUDE_CONFIG_DIR`, `CODEX_HOME`, `GEMINI_CLI_HOME` for the runs
+  DevPulse starts). DevPulse applies the choice on Windows, Linux and ARM
+  through the UI, says plainly that the sign-in files are then unprotected
+  files in the folder, and verifies it (each tool's status command answers
+  from the new place). Q51 is read the same way — you choose a prefix per
+  project or one for the devspace; confirmed when tickets are built.
 
 ### B3 — each subscription in chat (first; phases)
 
