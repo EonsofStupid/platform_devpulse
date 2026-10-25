@@ -2604,4 +2604,8 @@ queries proving what was written.
       only `ask` and `connectors` — nothing installed without a click.
       Install itself was not pressed: a download needs your OK, and it is
       your click by design.
+  - 2026-10-25 — **B5.1 done (plan 0009 R3a): your Claude Code and Codex
+    sessions found on this machine** from your recovered `dpl-chat-store`
+    and its readers — 173 sessions live, each named by your first request
+    (a sub-agent by its task); details in plan 0009's log.
 

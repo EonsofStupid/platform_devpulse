@@ -40,6 +40,15 @@ latest = "https://downloads.claude.ai/claude-code-releases/latest"
 manifest = "https://downloads.claude.ai/claude-code-releases/{version}/manifest.json"
 binary = "https://downloads.claude.ai/claude-code-releases/{version}/{platform}/{binary}"
 
+[history]
+# Your sessions, read only, for AgentHub (plan 0009 R3a): one JSON-lines
+# file per session under projects/<folder>/ in Claude Code's config folder,
+# which CLAUDE_CONFIG_DIR moves (code.claude.com/docs/en/env-vars).
+format = "claude-code"
+root = "~/.claude/projects"
+home_env = "CLAUDE_CONFIG_DIR"
+subdir = "projects"
+
 [connect]
 # Print mode: "query via SDK, then exit"; the answer as plain text on stdout.
 args = ["-p", "{prompt}", "--output-format", "text"]

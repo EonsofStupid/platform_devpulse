@@ -312,6 +312,8 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             commands::containers::containers_check,
             commands::containers::containers_answer,
             commands::containers::containers_run_step,
+            commands::agenthub::agenthub_sessions,
+            commands::agenthub::agenthub_session_page,
             commands::providers_status::providers_state,
             commands::providers_status::providers_check,
             commands::providers_status::providers_check_signed_in,

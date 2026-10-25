@@ -44,3 +44,15 @@ bin = "codex"
 # bundles. Checked 2026-10-20 against codex-acp 2.2.2.
 env = { CODEX_PATH = "{program}" }
 connector = { npm = "@agentclientprotocol/codex-acp", bin = "codex-acp" }
+
+[history]
+# Your sessions, read only, for AgentHub (plan 0009 R3a): one "rollout"
+# JSON-lines file per session under sessions/YYYY/MM/DD/ in Codex's home,
+# which CODEX_HOME moves.
+format = "codex"
+root = "~/.codex/sessions"
+home_env = "CODEX_HOME"
+subdir = "sessions"
+# Codex writes its instructions, tools and environment before your first
+# request: up to 201 KB of them in the files surveyed 2026-10-25.
+prefix_bytes = 524288

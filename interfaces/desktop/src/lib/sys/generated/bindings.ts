@@ -2424,6 +2424,30 @@ async containersRunStep(step: Step) : Promise<Result<ContainersState, string>> {
 }
 },
 /**
+ * Every session found on this machine, newest first, and where each
+ * agent's history was looked for.
+ */
+async agenthubSessions() : Promise<Result<FoundSessions, CommandError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("agenthub_sessions") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * One page of a found session, oldest event first; `cursor` (from the
+ * previous page) asks for the next older one.
+ */
+async agenthubSessionPage(providerId: ProviderId, locator: string, cursor: string | null) : Promise<Result<FoundPage, CommandError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("agenthub_session_page", { providerId, locator, cursor }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * The current providers state (the same value the `providers` signal carries).
  */
 async providersState() : Promise<Result<ProvidersState, string>> {
@@ -8009,6 +8033,51 @@ export type FormsCopy = {
  */
 errors: FormErrorsCopy }
 /**
+ * One event of a found session.
+ */
+export type FoundEvent = { 
+/**
+ * Its id.
+ */
+id: string; 
+/**
+ * What it is (`user_message`, `assistant_message`, `tool_started`, …).
+ */
+kind: string; 
+/**
+ * Where it belongs: `conversation`, `activity` or `diagnostics`.
+ */
+presentation: string; 
+/**
+ * Its text: the message, the tool, the status line; empty when the
+ * kind says it all.
+ */
+text: string }
+/**
+ * One page of a found session, oldest event first.
+ */
+export type FoundPage = { 
+/**
+ * Whose.
+ */
+providerId: ProviderId; 
+/**
+ * The session.
+ */
+locator: string; 
+/**
+ * The events.
+ */
+events: FoundEvent[]; 
+/**
+ * Hand it back for the next older page.
+ */
+nextCursor: string | null; 
+/**
+ * Older events exist.
+ */
+truncatedBefore: boolean }
+/**
  * A repository found in the folder.
  */
 export type FoundRepo = { 
@@ -8032,6 +8101,54 @@ isDevpulse: boolean;
  * Already registered as a project.
  */
 registered: boolean }
+/**
+ * One session found on this machine.
+ */
+export type FoundSession = { 
+/**
+ * Whose.
+ */
+providerId: ProviderId; 
+/**
+ * Opaque; hand it back to page the session.
+ */
+locator: string; 
+/**
+ * The provider's own id for it.
+ */
+nativeId: string | null; 
+/**
+ * Its first real request, or "Claude · folder · date".
+ */
+title: string; 
+/**
+ * The folder it ran in.
+ */
+workspace: string; 
+/**
+ * When it started, as the provider wrote it.
+ */
+startedAt: string; 
+/**
+ * When its file last changed (Unix milliseconds).
+ */
+modifiedAt: number; 
+/**
+ * Its file's size in bytes.
+ */
+bytes: number }
+/**
+ * Every session found, newest first across providers.
+ */
+export type FoundSessions = { 
+/**
+ * The sessions.
+ */
+sessions: FoundSession[]; 
+/**
+ * What was looked for, per provider.
+ */
+sources: HistorySourceReport[] }
 /**
  * Governance event classification.
  */
@@ -8684,6 +8801,34 @@ save_error_template: string;
  * `aria-label` for the lock-icon indicator pill.
  */
 lock_icon_aria: string }
+/**
+ * One provider's history, as looked for.
+ */
+export type HistorySourceReport = { 
+/**
+ * Whose.
+ */
+providerId: ProviderId; 
+/**
+ * The folder looked in.
+ */
+root: string | null; 
+/**
+ * It exists: the provider has been used on this machine.
+ */
+present: boolean; 
+/**
+ * Sessions found.
+ */
+sessions: number; 
+/**
+ * A ceiling was reached; there are more.
+ */
+truncated: boolean; 
+/**
+ * Why it could not be read, when it could not.
+ */
+problem: string | null }
 /**
  * The facts about this machine that decide what can run.
  */

@@ -100,4 +100,57 @@ output, vendored `deps/` and generated files:
   files from `c78ec8b` (all committed there): `crates/chat/` (16 crates), its
   workspace `Cargo.toml`/`Cargo.lock`, chat design/plans/research and the
   native-chat screenshots; each compared byte for byte with its source.
-
+- 2026-10-25 — **R3a done: your sessions, found wherever DevPulse runs.**
+  - Kernel `providers/history/`, authored from `recovered/devpulselabs`:
+    `store` (the bounded, read-only, jailed history reader with cursor paging
+    and usage recovery) → `history/mod.rs`; the part of `core` it uses →
+    `history/events.rs`; the Claude and Codex readers and usage dialects →
+    `history/claude.rs`, `history/codex.rs`, their shared helpers (each crate
+    had a copy) → `history/record.rs`. On DevPulse's `ProviderId`; readers
+    and sources are `Send + Sync` so the engine can share the catalog.
+  - Taught the formats written today (surveyed on this machine, key names
+    only): Claude Code 2.1.310's tool results inside `user` records,
+    thinking-only records, its own session title (`ai-title`), PR links and
+    bookkeeping records; Codex's `event_msg.item_completed` (PascalCase item
+    types), `token_usage_record`, `thread_settings_applied`, agent-to-agent
+    messages and developer instructions. Titles skip context a tool put in
+    front of your first request.
+  - Found in the live check and fixed (surveyed 2026-10-25, key names and
+    offsets only):
+    - Codex writes up to 201 KB of instructions, tools and environment
+      before your first request, past the 64 KiB a reader looks at to name a
+      session; every Codex session fell back to "Codex · folder · date". A
+      definition now says how far to look (`[history] prefix_bytes`, Codex
+      512 KiB, validated against the 1 KiB–1 MiB the store allows), and the
+      reader stops at the title.
+    - A session Codex forks for a sub-agent carries its parent's
+      `session_meta` second; it overwrote the session's id, folder and
+      start (5 of 42). The first one is the session's own.
+    - Codex sub-agents (`source.subagent`) are named by the task their
+      parent sent (`agent_message`, when not encrypted), else
+      "Codex sub-agent {nickname}"; a fork's copy of its parent's history
+      does not name it. Codex Desktop's "## My request for Codex:" heading
+      after attached context (in-app browser, files) is honoured.
+    - Claude Code's `queue-operation` (what you type while it works:
+      enqueue, dequeue, remove) is bookkeeping; a delivered one is in the
+      history again as your message.
+    - Not yet: a sub-agent session's link to its parent
+      (`parent_thread_id`) — the board groups sub-agents under their
+      parent in R3b.
+  - Each definition says where its history is (`[history]`: format, root,
+    and the variable that moves the vendor's home — `CLAUDE_CONFIG_DIR`,
+    `CODEX_HOME`); a reader may only read its own provider's files.
+  - Engine `platform/agenthub.rs` (no database needed) and Tauri
+    `agenthub_sessions`, `agenthub_session_page` (`CommandError`).
+  - Verified: 28 history tests (your store's 6, the readers' 13 plus the
+    current-format, titling, fork, sub-agent, prefix and catalog tests);
+    clippy (all targets), rustfmt clean.
+  - Live, through the app's IPC: 173 sessions (Claude Code 131 from
+    `~/.claude/projects`, Codex 42 from `~/.codex/sessions`), newest first;
+    40 of 42 Codex sessions named by your request or a sub-agent's task (the
+    other two are empty sessions, rightly "Codex · folder · date"); pages in
+    both directions in under 50 ms; no unknown record on the newest pages.
+  - Measured, for R3b: each listing re-reads every file's start (about
+    29 MB here) — about 200 ms warm, 3.8–4.8 s for the first call while the
+    app boots. The board keeps the index between calls and re-reads only
+    files whose size or time changed.

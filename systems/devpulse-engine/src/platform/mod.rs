@@ -24,6 +24,7 @@
 //! └── logs/       Rotated log files
 //! ```
 
+pub mod agenthub;
 pub mod agents;
 mod boot;
 pub mod config;
@@ -352,6 +353,8 @@ pub struct Platform {
     containers: Option<Arc<containers::Containers>>,
     /// Your AI providers (subscriptions, desktop apps), checked from boot.
     providers: Arc<providers::Providers>,
+    /// `AgentHub`: your sessions with every agent, found on this machine.
+    agenthub: Arc<agenthub::AgentHub>,
     /// Your threads with your agents (needs the user database).
     agents: Option<Arc<agents::Agents>>,
     /// Your rooms: agents seated in roles (needs the user database).
@@ -554,6 +557,8 @@ impl Platform {
         let user_signals = signals.clone();
         // Your AI providers need no database: they are checked from boot.
         let providers = providers::Providers::start(data_dir.clone(), signals.clone());
+        // AgentHub reads each agent's own history; it needs no database either.
+        let agenthub = Arc::new(agenthub::AgentHub::new(data_dir.clone()));
         let booted = boot::execute(
             &data_dir,
             &boot_config,
@@ -619,6 +624,7 @@ impl Platform {
             agents: user_workflows.agents,
             rooms: user_workflows.rooms,
             providers,
+            agenthub,
             user_analytics: booted.user_analytics,
             user_graph: booted.user_graph,
             global_graph: booted.global_graph,
@@ -861,6 +867,11 @@ impl Platform {
     /// Your AI providers.
     pub fn providers(&self) -> &Arc<providers::Providers> {
         &self.providers
+    }
+
+    /// `AgentHub`: your sessions with every agent, found on this machine.
+    pub fn agenthub(&self) -> &Arc<agenthub::AgentHub> {
+        &self.agenthub
     }
 
     /// Your threads with your agents (when the user database is open).

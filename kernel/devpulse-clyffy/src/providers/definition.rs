@@ -182,6 +182,50 @@ pub struct ReleaseSpec {
     pub binary: String,
 }
 
+/// Where it keeps its own session history — read only, so `AgentHub` lists
+/// your sessions wherever `DevPulse` runs (plan 0009 R3a).
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct HistorySpec {
+    /// Which reader understands its files.
+    pub format: HistoryFormat,
+    /// The history folder (`~` expanded).
+    pub root: String,
+    /// An environment variable that moves the vendor's home folder; the
+    /// history is then `{that folder}/{subdir}`.
+    #[serde(default)]
+    pub home_env: Option<String>,
+    /// The history's folder inside a moved home.
+    #[serde(default)]
+    pub subdir: Option<String>,
+    /// How far into a file your first request can sit, in bytes — a session
+    /// is named by it, and some tools write long instructions first. The
+    /// reader's default when absent.
+    #[serde(default)]
+    pub prefix_bytes: Option<usize>,
+}
+
+/// A history format `DevPulse` reads.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum HistoryFormat {
+    /// Claude Code's per-session JSON lines.
+    ClaudeCode,
+    /// Codex's rollout JSON lines.
+    Codex,
+}
+
+impl HistoryFormat {
+    /// The provider whose files this reader understands.
+    #[must_use]
+    pub const fn provider(self) -> ProviderId {
+        match self {
+            Self::ClaudeCode => ProviderId::ClaudeCode,
+            Self::Codex => ProviderId::Codex,
+        }
+    }
+}
+
 /// How `DevPulse` talks to it (the registry row's agent protocol says
 /// which). In `args` and `env` values, `{program}` is the provider's own
 /// program and `{prompt}` the question.
@@ -267,6 +311,9 @@ pub struct ProviderDefinition {
     /// How `DevPulse` installs it when you click Install.
     #[serde(default)]
     pub install: Option<InstallSpec>,
+    /// Where it keeps its own session history.
+    #[serde(default)]
+    pub history: Option<HistorySpec>,
     /// How to talk to it; without it, it can be found but not asked.
     #[serde(default)]
     pub connect: Option<ConnectSpec>,
@@ -402,6 +449,30 @@ impl ProviderDefinition {
         }
         if let Some(install) = &self.install {
             self.check_install(install)?;
+        }
+        if let Some(history) = &self.history {
+            if history.format.provider() != self.id {
+                bail!(
+                    "{id}: history.format reads {}'s files, not {id}'s",
+                    history.format.provider().key()
+                );
+            }
+            if history.root.trim().is_empty() {
+                bail!("{id}: history.root is empty");
+            }
+            if history.home_env.is_some() != history.subdir.is_some() {
+                bail!("{id}: history.home_env and history.subdir go together");
+            }
+            if let Some(bytes) = history.prefix_bytes {
+                let range = crate::providers::history::PREFIX_BYTES;
+                if !range.contains(&bytes) {
+                    bail!(
+                        "{id}: history.prefix_bytes is {bytes}; it must be {} to {}",
+                        range.start(),
+                        range.end()
+                    );
+                }
+            }
         }
         Ok(())
     }
