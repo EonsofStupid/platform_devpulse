@@ -1,0 +1,37 @@
+/**
+ * @file Prose Structural Shortcode Classes
+ * @kind prose
+ * @layer shortcodes/components
+ * @package @devpulse/coldlight
+ *
+ * Structural base class for the prose rich text container.
+ * Typography scales and nested element styling.
+ *
+ * Slot mapping:
+ *   prose-root → root content container
+ */
+
+@utility prose-root {
+	max-width: none;
+	color: var(--text-primary);
+	font-size: var(--recipe-font-size, var(--text-size-base));
+
+	& a {
+		color: var(--text-link);
+		text-decoration: underline;
+	}
+
+	& h1 {
+		font-size: var(--text-size-xl);
+		font-weight: 700;
+	}
+
+	& h2 {
+		font-size: var(--text-size-lg);
+		font-weight: 700;
+	}
+
+	& p {
+		line-height: 1.625;
+	}
+}

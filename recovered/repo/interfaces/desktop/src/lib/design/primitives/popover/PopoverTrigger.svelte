@@ -1,0 +1,25 @@
+<!--
+	@component PopoverTrigger
+	@description Structural trigger button for popover.
+	Contract: kind="popover", slot="trigger"
+-->
+<script lang="ts">
+import { cn, stripStyleProp } from "../types.js";
+import { getPopoverContext } from "./context.js";
+import type { PopoverTriggerProps } from "./types.js";
+
+let { children, class: className, ...rest }: PopoverTriggerProps = $props();
+const ctx = getPopoverContext();
+
+if (import.meta.env?.DEV) stripStyleProp(rest as Record<string, unknown>, "PopoverTrigger");
+</script>
+
+<button
+	{...rest}
+	data-kind="popover"
+	data-slot="trigger"
+	data-state={ctx.open ? "open" : "closed"}
+	class={cn(className)}
+>
+	{@render children?.()}
+</button>

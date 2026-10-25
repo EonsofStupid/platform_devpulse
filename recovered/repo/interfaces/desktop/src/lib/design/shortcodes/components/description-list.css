@@ -1,0 +1,15 @@
+/**
+ * @file DescriptionList Structural Shortcode Classes
+ * @kind description-list
+ * @layer shortcodes/components
+ * @package @devpulse/coldlight
+ *
+ * Structural base class for the description-list component.
+ * Gap and font size are controlled by sz-* shortcode classes.
+ */
+
+@utility description-list-root {
+	display: grid;
+	gap: var(--recipe-gap, var(--space-4));
+	font-size: var(--recipe-font-size, var(--text-size-sm));
+}

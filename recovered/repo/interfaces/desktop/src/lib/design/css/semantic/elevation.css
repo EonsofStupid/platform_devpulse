@@ -1,0 +1,13 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+@layer tokens.semantic {
+	:root {
+		--elevation-flat: var(--shadow-z0); /** No elevation — inline content */
+		--elevation-card: var(--shadow-z1); /** Card, tile, badge */
+		--elevation-panel: var(--shadow-z2); /** Side panel, drawer */
+		--elevation-dropdown: var(--shadow-z3); /** Menu, dropdown, popover */
+		--elevation-modal: var(--shadow-z4); /** Dialog, modal, toast */
+	}
+}

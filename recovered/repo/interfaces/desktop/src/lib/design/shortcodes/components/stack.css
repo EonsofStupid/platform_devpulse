@@ -1,0 +1,55 @@
+/**
+ * @file Stack Structural Shortcode Classes
+ * @kind stack
+ * @layer shortcodes/components
+ * @package @devpulse/coldlight
+ *
+ * Structural base class for the vertical stack layout component.
+ * Gap and alignment are controlled by stack-gap-* and stack-align-* utility classes.
+ */
+
+@utility stack-root {
+	display: flex;
+	flex-direction: column;
+	align-items: var(--recipe-align, stretch);
+	gap: var(--recipe-gap, var(--space-4));
+}
+
+/* -- Gap utilities -- */
+
+@utility stack-gap-0 {
+	--recipe-gap: 0px;
+}
+@utility stack-gap-1 {
+	--recipe-gap: var(--space-1);
+}
+@utility stack-gap-2 {
+	--recipe-gap: var(--space-2);
+}
+@utility stack-gap-3 {
+	--recipe-gap: var(--space-3);
+}
+@utility stack-gap-4 {
+	--recipe-gap: var(--space-4);
+}
+@utility stack-gap-6 {
+	--recipe-gap: var(--space-6);
+}
+@utility stack-gap-8 {
+	--recipe-gap: var(--space-8);
+}
+
+/* -- Alignment utilities -- */
+
+@utility stack-align-start {
+	--recipe-align: flex-start;
+}
+@utility stack-align-center {
+	--recipe-align: center;
+}
+@utility stack-align-end {
+	--recipe-align: flex-end;
+}
+@utility stack-align-stretch {
+	--recipe-align: stretch;
+}

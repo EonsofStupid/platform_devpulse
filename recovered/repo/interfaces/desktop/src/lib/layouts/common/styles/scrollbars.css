@@ -1,0 +1,124 @@
+/**
+ * @file layouts/common/styles/scrollbars.css
+ * @layer layouts
+ *
+ * Custom Scrollbar Styles
+ * Consistent scrollbar appearance across layouts.
+ *
+ * @since 0.1.0
+ */
+
+/* ============================================
+   BASE SCROLLBAR
+   ============================================ */
+
+/* Thin scrollbar */
+[data-scrollbar="thin"]::-webkit-scrollbar {
+	width: 4px;
+	height: 4px;
+}
+
+/* Default scrollbar */
+[data-scrollbar="default"]::-webkit-scrollbar,
+::-webkit-scrollbar {
+	width: 6px;
+	height: 6px;
+}
+
+/* Wide scrollbar */
+[data-scrollbar="wide"]::-webkit-scrollbar {
+	width: 10px;
+	height: 10px;
+}
+
+/* ============================================
+   SCROLLBAR TRACK
+   ============================================ */
+
+::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+[data-scrollbar-track="visible"]::-webkit-scrollbar-track {
+	background: var(--dp-void-900, oklch(2% 0.01 280));
+	border-radius: 3px;
+}
+
+[data-scrollbar-track="gutter"]::-webkit-scrollbar-track {
+	background: var(--dp-glass-void, oklch(6% 0.02 195 / 0.92));
+	box-shadow: inset 1px 1px 2px oklch(1% 0.01 280 / 0.4);
+}
+
+/* ============================================
+   SCROLLBAR THUMB
+   ============================================ */
+
+::-webkit-scrollbar-thumb {
+	background: var(--dp-teal-700, oklch(35% 0.12 195));
+	border-radius: 3px;
+	transition: background 150ms ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background: var(--dp-teal-600, oklch(45% 0.16 195));
+}
+
+::-webkit-scrollbar-thumb:active {
+	background: var(--dp-teal-500, oklch(55% 0.18 195));
+}
+
+/* Accent variants */
+[data-scrollbar-accent="purple"]::-webkit-scrollbar-thumb {
+	background: var(--dp-purple-700, oklch(35% 0.15 280));
+}
+
+[data-scrollbar-accent="purple"]::-webkit-scrollbar-thumb:hover {
+	background: var(--dp-purple-600, oklch(45% 0.2 280));
+}
+
+[data-scrollbar-accent="ember"]::-webkit-scrollbar-thumb {
+	background: var(--dp-ember-700, oklch(40% 0.16 35));
+}
+
+[data-scrollbar-accent="ember"]::-webkit-scrollbar-thumb:hover {
+	background: var(--dp-ember-600, oklch(50% 0.2 35));
+}
+
+/* ============================================
+   SCROLLBAR CORNER
+   ============================================ */
+
+::-webkit-scrollbar-corner {
+	background: transparent;
+}
+
+/* ============================================
+   OVERLAY SCROLLBAR (auto-hide)
+   ============================================ */
+
+[data-scrollbar="overlay"] {
+	overflow: overlay;
+}
+
+[data-scrollbar="overlay"]::-webkit-scrollbar {
+	width: 8px;
+	background: transparent;
+}
+
+[data-scrollbar="overlay"]::-webkit-scrollbar-thumb {
+	background: oklch(50% 0.1 195 / 0);
+	border-radius: 4px;
+	border: 2px solid transparent;
+	background-clip: content-box;
+	transition: background 200ms ease;
+}
+
+[data-scrollbar="overlay"]:hover::-webkit-scrollbar-thumb {
+	background: oklch(50% 0.1 195 / 0.6);
+	background-clip: content-box;
+}
+
+[data-scrollbar="overlay"]::-webkit-scrollbar-thumb:hover {
+	background: var(--dp-teal-500, oklch(55% 0.18 195));
+	background-clip: content-box;
+}

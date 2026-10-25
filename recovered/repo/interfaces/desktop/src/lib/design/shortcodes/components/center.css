@@ -1,0 +1,21 @@
+/**
+ * @file Center Structural Shortcode Classes
+ * @kind center
+ * @layer shortcodes/components
+ * @package @devpulse/coldlight
+ *
+ * Structural base classes for the center layout component.
+ * Two variants: block (flex) and inline (inline-flex).
+ */
+
+@utility center-block {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+@utility center-inline {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}

@@ -1,0 +1,50 @@
+/**
+ * @file RadioGroup Structural Shortcode Classes
+ * @kind radio-group
+ * @layer shortcodes/components
+ * @package @devpulse/coldlight
+ *
+ * Structural base classes for the radio-group compound component.
+ * Each class handles layout/positioning ONLY — visual appearance
+ * comes from shortcode composition.
+ *
+ * Slot mapping:
+ *   radio-group-root  → root container (grid layout)
+ *   radio-group-item  → individual radio button
+ *   radio-group-label → text label
+ *
+ * Orientation is handled by the Svelte component via conditional class.
+ */
+
+@utility radio-group-root {
+	display: grid;
+	gap: var(--recipe-gap, var(--space-2));
+}
+
+@utility radio-group-item {
+	aspect-ratio: 1;
+	height: 1rem;
+	width: 1rem;
+	border-radius: var(--radius-full);
+	border: 1px solid var(--interaction-selected);
+	transition: color var(--duration-fast) var(--ease-out),
+		background-color var(--duration-fast) var(--ease-out),
+		border-color var(--duration-fast) var(--ease-out);
+
+	&:focus-visible {
+		outline: none;
+		box-shadow: 0 0 0 2px var(--recipe-accent, var(--color-teal-500));
+	}
+
+	&[data-state="checked"] {
+		border-color: var(--recipe-accent, var(--color-teal-500));
+		background: var(--recipe-accent, var(--color-teal-500));
+	}
+}
+
+@utility radio-group-label {
+	font-size: var(--text-size-sm);
+	font-weight: 500;
+	line-height: 1;
+	color: var(--text-primary);
+}

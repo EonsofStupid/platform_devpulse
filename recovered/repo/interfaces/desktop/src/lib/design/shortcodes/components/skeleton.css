@@ -1,0 +1,18 @@
+/**
+ * @file Skeleton Structural Shortcode Classes
+ * @kind skeleton
+ * @layer shortcodes/components
+ * @package @devpulse/coldlight
+ *
+ * Structural base class for the skeleton loading placeholder.
+ * Handles animation and background — minimal shortcode composition.
+ *
+ * Slot mapping:
+ *   skeleton-root → root placeholder element
+ */
+
+@utility skeleton-root {
+	animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+	border-radius: var(--radius-md);
+	background: var(--interaction-hover);
+}

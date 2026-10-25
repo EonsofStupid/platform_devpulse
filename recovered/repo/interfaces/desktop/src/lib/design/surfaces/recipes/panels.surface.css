@@ -1,0 +1,139 @@
+/**
+ * @file src/lib/design/panels.css
+ * @name panels.css
+ * @layer recipes
+ *
+ * @description
+ * [TODO: Describe what this stylesheet defines]
+ *
+ * @contents
+ * - [TODO: List major sections/categories]
+ *
+ * @vpb-editable [TODO: List token names VPB can modify, or 'all']
+ * @since 1.0.0
+ */
+
+/* ============================================
+   PANELS.CSS - Layered Panel Recipes
+   Recipe 1: Glass Panel (flush, dual-tint gradient)
+   Recipe 2: Matte Inset (sunken content well)
+   
+   Structure: Outer Frame → Tinted Gap → Inner Surface
+   ============================================ */
+
+/* =============================================
+   BASE PANEL STRUCTURE
+   The "glass on glass" layered frame
+   ============================================= */
+
+.dp-panel {
+    /* Grid container for precise control */
+    display: grid;
+    grid-template: 1fr / 1fr;
+    position: relative;
+
+    /* Outer frame sizing */
+    padding: var(--dp-panel-gap);
+    border-radius: var(--dp-radius-lg);
+
+    /* The GAP layer - glass tinted */
+    background:
+        /* Teal tint at top-left corner */
+        radial-gradient(ellipse at 0% 0%,
+            var(--dp-glass-tint-teal) 0%,
+            transparent 60%),
+        /* Purple tint at bottom-right corner */
+        radial-gradient(ellipse at 100% 100%,
+            var(--dp-glass-tint-purple) 0%,
+            transparent 60%),
+        /* Base glass layer */
+        var(--dp-glass-base);
+
+    /* Glass effect on the frame */
+    backdrop-filter: blur(var(--dp-blur-md)) saturate(180%);
+    -webkit-backdrop-filter: blur(var(--dp-blur-md)) saturate(180%);
+
+    /* Outer border with glow */
+    border: var(--dp-border-thin) solid oklch(50% 0.10 var(--dp-hue-teal) / 0.4);
+
+    /* Outer glow */
+    box-shadow:
+        var(--dp-glow-md) oklch(60% 0.15 var(--dp-hue-teal) / 0.2),
+        var(--dp-shadow-lg);
+}
+
+/* =============================================
+   RECIPE 1: GLASS PANEL
+   Flush inner surface with dual-tint gradient
+   The inner stays at same level as outer
+   ============================================= */
+
+.dp-panel--glass .dp-panel__content {
+    /* Inner container */
+    border-radius: calc(var(--dp-radius-lg) - var(--dp-panel-gap));
+    padding: var(--dp-space-4);
+
+    /* Dual-tint gradient surface */
+    background:
+        /* Teal flowing from top-left */
+        radial-gradient(ellipse at 0% 0%,
+            oklch(65% 0.15 var(--dp-hue-teal) / 0.25) 0%,
+            oklch(55% 0.12 var(--dp-hue-teal) / 0.12) 30%,
+            transparent 55%),
+        /* Purple flowing from bottom-right */
+        radial-gradient(ellipse at 100% 100%,
+            oklch(55% 0.18 var(--dp-hue-purple) / 0.25) 0%,
+            oklch(45% 0.15 var(--dp-hue-purple) / 0.12) 30%,
+            transparent 55%),
+        /* Base glass */
+        oklch(12% 0.04 var(--dp-hue-teal) / 0.9);
+
+    /* Glass blur on inner */
+    backdrop-filter: blur(var(--dp-blur-lg)) saturate(200%);
+    -webkit-backdrop-filter: blur(var(--dp-blur-lg)) saturate(200%);
+
+    /* Subtle inner border */
+    border: var(--dp-border-thin) solid oklch(60% 0.08 var(--dp-hue-teal) / 0.2);
+
+    /* Bevels - light top-left, purple-tinted bottom-right */
+    box-shadow:
+        inset 1px 1px 0 var(--dp-bevel-light),
+        inset -1px -1px 0 var(--dp-bevel-dark);
+}
+
+/* =============================================
+   INNER CONTENT CONTAINER
+   ============================================= */
+
+.dp-panel__content {
+    position: relative;
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* =============================================
+   SIZE VARIANTS
+   ============================================= */
+
+.dp-panel--sm {
+    --dp-panel-gap: clamp(2px, 0.3vw, 4px);
+}
+
+.dp-panel--lg {
+    --dp-panel-gap: clamp(4px, 0.5vw, 8px);
+}
+
+/* =============================================
+   INTERACTIVE STATES
+   ============================================= */
+
+.dp-panel:hover {
+    border-color: oklch(60% 0.14 var(--dp-hue-teal) / 0.5);
+}
+
+.dp-panel:focus-within {
+    box-shadow:
+        0 0 0 2px oklch(65% 0.18 var(--dp-hue-teal) / 0.5),
+        var(--dp-glow-md) oklch(60% 0.15 var(--dp-hue-teal) / 0.3),
+        var(--dp-shadow-lg);
+}

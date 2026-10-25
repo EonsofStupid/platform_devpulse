@@ -1,0 +1,31 @@
+/**
+ * @file NavItem Structural Shortcode Classes
+ * @kind nav-item
+ * @layer shortcodes/components
+ * @package @devpulse/coldlight
+ *
+ * Structural base class for the nav item component.
+ * Size is controlled by sz-* shortcode classes.
+ */
+
+@utility nav-item-root {
+	display: inline-flex;
+	align-items: center;
+	font-weight: 500;
+	font-size: var(--recipe-font-size, var(--text-size-sm));
+	padding-inline: var(--recipe-padding-x, var(--space-3));
+	padding-block: var(--recipe-padding-y, var(--space-1-5));
+	color: var(--text-secondary);
+	border-radius: var(--radius-md);
+	transition: color var(--duration-fast) var(--ease-out),
+		background-color var(--duration-fast) var(--ease-out);
+
+	&:hover {
+		color: var(--text-primary);
+		background: var(--interaction-hover);
+	}
+	&[data-active="true"],
+	&[data-state="active"] {
+		color: var(--text-primary);
+	}
+}

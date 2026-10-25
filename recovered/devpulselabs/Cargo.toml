@@ -1,0 +1,239 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/egui-pilot-ai-protocol",
+    "crates/egui-pilot-ai-transport",
+    "crates/egui-pilot-ai",
+    "crates/egui-pilot-ai-runtime",
+    "crates/egui-pilot-ai-runner",
+    "crates/egui-pilot-ai-cli",
+    "crates/egui-pilot-ai-lab",
+    "crates/chat/core",
+    "crates/chat/accounts",
+    "crates/chat/browser-auth",
+    "crates/chat/context",
+    "crates/chat/extensions",
+    "crates/chat/imagine",
+    "crates/chat/interactions",
+    "crates/chat/profiles",
+    "crates/chat/renderers",
+    "crates/chat/runtime",
+    "crates/chat/social",
+    "crates/chat/store",
+    "crates/chat/testkit",
+    "crates/chat/window",
+    "crates/chat/windows",
+    "crates/chat/providers/codex",
+    "crates/chat/providers/claude",
+    "crates/chat/providers/cursor",
+  "crates/chat/providers/gemini",
+    "crates/chat/providers/grok",
+    "crates/tools-deps",
+    "crates/hub",
+    "crates/coldlight",
+    "crates/vector",
+    "crates/video",
+    "crates/backdrop",
+    "crates/engine-capture",
+    "crates/engine-media",
+    "crates/engine-steps",
+    "crates/engine-ae",
+    "crates/engine-browser",
+    "crates/svg",
+    "crates/lottie",
+    "crates/lottie-render",
+    "crates/slides",
+    "crates/doc",
+    "crates/proc",
+    "crates/comp",
+    "crates/workflows",
+    "crates/guide",
+    "crates/composer",
+    "crates/editor",
+    "crates/deck",
+    "crates/index",
+    "crates/intent",
+    "crates/ledger",
+    "crates/estate",
+    "crates/viziwiz",
+    "crates/fabric",
+    "crates/landing",
+    "crates/seam",
+    "crates/shell",
+    "crates/hubs/home",
+    "crates/hubs/shows",
+    "crates/hubs/present",
+    "crates/hubs/workbench",
+    "crates/hubs/wiredfront",
+    "crates/hubs/coach",
+    "crates/app",
+    "crates/desktop-spike",
+    "crates/coach-overlay",
+    "crates/coach-inventory",
+    "crates/coach-fabric",
+    "crates/coach-runtime",
+    "crates/coach-pack",
+    "crates/coach-daemon",
+    "crates/xtask",
+]
+
+[workspace.lints.rust]
+unsafe_code = "deny"
+unused_must_use = "deny"
+
+[workspace.lints.clippy]
+# The whole default clippy set rides the gate (-D warnings turns these hard).
+all = { level = "warn", priority = -1 }
+dbg_macro = "deny"
+todo = "deny"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[workspace.dependencies]
+egui = "0.36"
+eframe = { version = "0.36", features = ["wgpu"] }
+egui-wgpu = "0.36"
+# "file" installs the file:// loader (without it every Media::Image errors);
+# "webp" adds animated-webp support on top of the image crate's static decode.
+egui_extras = { version = "0.36", features = ["image", "file", "webp"] }
+# Headless UI test harness (dev-only) Ã¢â‚¬â€ MUST track the egui minor version.
+egui_kittest = { version = "0.36", default-features = false }
+# The document layer (dpl-doc): slide.json is serde data, end to end.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# Schema-pin tests ONLY (dev-dep in dpl-workflows): validates the serde
+# shapes against schemas/*.schema.json so Rust and wire never drift.
+# default-features off: no reqwest — our $refs are all local.
+jsonschema = { version = "0.49", default-features = false }
+# ADR-011: the ONE outbound HTTPS client, used only by dpl-chat-imagine's
+# bounded worker against the compiled-in xAI Imagine endpoint.
+ureq = "3"
+data-encoding = "2"
+# The per-project estate: Fjall = embedded LSM KV (persistence), Moka =
+# concurrent in-process cache (the hot-read layer). Pure Rust, no server.
+fjall = "3.1.8"
+moka = { version = "0.12", features = ["sync"] }
+sha2 = "0.11"
+agent-client-protocol = "=2.0.0"
+async-channel = "2"
+async-io = "2"
+async-process = "2"
+futures-lite = "2"
+# The mogrt reader (R2a.2, operator-ratified): .mogrt is a plain zip.
+zip = { version = "8", default-features = false, features = ["deflate"] }
+# The AEP orchestrator's capability probe (operator-ratified): read total
+# RAM cross-platform so the aerender tuning scales 16GB→128GB. "system"
+# feature only — no disk/network/component probing.
+sysinfo = { version = "0.39", default-features = false, features = ["system"] }
+# ThorVG (C++, vendored) — the native Lottie engine, linked ONLY by the
+# dpl-lottie-render subprocess helper (ADR-009 FFI leaf), never by the app.
+thorvg-sys = "0.3"
+# The browser driver's CDP socket (ADR-013): pure-Rust WebSocket framing
+# over OUR TcpStream, localhost only — no TLS features, ever.
+tungstenite = { version = "0.30", default-features = false, features = ["handshake"] }
+# C2s/C2b desktop overlay (desktop-spike + coach-overlay): locked transitive
+# versions promoted to direct deps — no new third-party tree.
+atspi = { version = "0.30", default-features = false, features = ["proxies", "zbus"] }
+zbus = { version = "5", default-features = false, features = ["async-io"] }
+x11rb = { version = "0.14", default-features = false, features = ["allow-unsafe-code", "xtest"] }
+toml = "1.1"
+tokio = { version = "1", default-features = false, features = ["sync"] }
+turso = "0.7"
+# The agent seam (R1v): localhost HTTP over the fabric — axum is the
+# operator-ratified server; tokio-stream folds broadcast → SSE; tower is
+# dev-only endpoint testing (oneshot, no sockets).
+axum = "0.8"
+tokio-stream = { version = "0.1", default-features = false, features = ["sync"] }
+tower = "0.5"
+# png for the harness; jpeg for the backdrop posters (B1); webp so the app
+# DISPLAYS what the media pipeline emits (B3). AVIF decode is deliberately
+# absent Ã¢â‚¬â€ the pipeline always writes a webp sibling for display.
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "webp"] }
+# Human provider authentication opens only through the OS default-browser
+# service. `hardened` rejects every non-HTTP(S) target before platform launch.
+webbrowser = { version = "1.2", default-features = false, features = ["hardened"] }
+
+egui-pilot-ai-protocol = { path = "crates/egui-pilot-ai-protocol" }
+egui-pilot-ai-transport = { path = "crates/egui-pilot-ai-transport" }
+egui-pilot-ai = { path = "crates/egui-pilot-ai" }
+egui-pilot-ai-runtime = { path = "crates/egui-pilot-ai-runtime" }
+egui-pilot-ai-runner = { path = "crates/egui-pilot-ai-runner" }
+egui-pilot-ai-lab = { path = "crates/egui-pilot-ai-lab" }
+
+dpl-chat-core = { path = "crates/chat/core" }
+dpl-chat-accounts = { path = "crates/chat/accounts" }
+dpl-chat-browser-auth = { path = "crates/chat/browser-auth" }
+dpl-chat-context = { path = "crates/chat/context" }
+dpl-chat-extensions = { path = "crates/chat/extensions" }
+dpl-chat-imagine = { path = "crates/chat/imagine" }
+dpl-chat-interactions = { path = "crates/chat/interactions" }
+dpl-chat-profiles = { path = "crates/chat/profiles" }
+dpl-chat-renderers = { path = "crates/chat/renderers" }
+dpl-chat-runtime = { path = "crates/chat/runtime" }
+dpl-chat-social = { path = "crates/chat/social" }
+dpl-chat-store = { path = "crates/chat/store" }
+dpl-chat-testkit = { path = "crates/chat/testkit" }
+dpl-chat-window = { path = "crates/chat/window" }
+dpl-chat-windows = { path = "crates/chat/windows" }
+dpl-chat-codex = { path = "crates/chat/providers/codex" }
+dpl-chat-claude = { path = "crates/chat/providers/claude" }
+dpl-chat-cursor = { path = "crates/chat/providers/cursor" }
+dpl-chat-gemini = { path = "crates/chat/providers/gemini" }
+dpl-chat-grok = { path = "crates/chat/providers/grok" }
+dpl-tools-deps = { path = "crates/tools-deps" }
+
+dpl-hub = { path = "crates/hub" }
+dpl-coldlight = { path = "crates/coldlight" }
+dpl-vector = { path = "crates/vector" }
+dpl-video = { path = "crates/video" }
+dpl-backdrop = { path = "crates/backdrop" }
+dpl-svg = { path = "crates/svg" }
+dpl-engine-capture = { path = "crates/engine-capture" }
+dpl-engine-media = { path = "crates/engine-media" }
+dpl-engine-steps = { path = "crates/engine-steps" }
+dpl-engine-ae = { path = "crates/engine-ae" }
+dpl-engine-browser = { path = "crates/engine-browser" }
+dpl-lottie = { path = "crates/lottie" }
+dpl-lottie-render = { path = "crates/lottie-render" }
+dpl-slides = { path = "crates/slides" }
+dpl-doc = { path = "crates/doc" }
+dpl-proc = { path = "crates/proc" }
+dpl-comp = { path = "crates/comp" }
+dpl-workflows = { path = "crates/workflows" }
+dpl-guide = { path = "crates/guide" }
+dpl-composer = { path = "crates/composer" }
+dpl-editor = { path = "crates/editor" }
+dpl-deck = { path = "crates/deck" }
+dpl-index = { path = "crates/index" }
+dpl-intent = { path = "crates/intent" }
+dpl-ledger = { path = "crates/ledger" }
+dpl-estate = { path = "crates/estate" }
+dpl-viziwiz = { path = "crates/viziwiz" }
+dpl-fabric = { path = "crates/fabric" }
+dpl-landing = { path = "crates/landing" }
+dpl-seam = { path = "crates/seam" }
+dpl-shell = { path = "crates/shell" }
+dpl-hub-home = { path = "crates/hubs/home" }
+dpl-hub-shows = { path = "crates/hubs/shows" }
+dpl-hub-present = { path = "crates/hubs/present" }
+dpl-hub-workbench = { path = "crates/hubs/workbench" }
+dpl-hub-wiredfront = { path = "crates/hubs/wiredfront" }
+dpl-hub-coach = { path = "crates/hubs/coach" }
+
+# The Windows MSVC linker otherwise exhausts its PDB record limit while
+# linking the workspace test graph (notably the ACP-backed provider tests).
+# Tests still compile and run in full; only their debug-symbol payload is
+# omitted so `cargo green` remains a reliable local gate.
+[profile.test]
+debug = 0
+
+[profile.release]
+lto = "thin"
+
+# Dev runs must be USABLE: dependencies (rav1e, image, wgpu, egui) compile
+# once at O2 while our own crates stay fast-iterating at O0.
+[profile.dev.package."*"]
+opt-level = 2

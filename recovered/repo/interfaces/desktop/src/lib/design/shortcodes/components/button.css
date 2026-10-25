@@ -1,0 +1,50 @@
+/**
+ * @file Button Structural Shortcode Classes
+ * @kind button
+ * @layer shortcodes/components
+ * @package @devpulse/coldlight
+ *
+ * Structural base class for the button component.
+ * Handles layout/positioning ONLY — visual appearance
+ * comes from shortcode composition (v-* + s-* + e-* + sz-*).
+ *
+ * Intent classes set --recipe-accent for accent coloring.
+ */
+
+@utility btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--recipe-gap, var(--space-2));
+	font-weight: 500;
+	font-size: var(--recipe-font-size, var(--text-size-sm));
+	min-height: var(--recipe-min-h, 2.5rem);
+	padding: var(--recipe-padding-y, var(--space-2)) var(--recipe-padding-x, var(--space-4));
+	transition: all var(--duration-fast) var(--ease-out);
+
+	&:focus-visible {
+		outline: none;
+		box-shadow: 0 0 0 2px var(--recipe-accent, var(--color-teal-500));
+	}
+
+	&:disabled {
+		pointer-events: none;
+		opacity: 0.5;
+	}
+}
+
+@utility btn-primary {
+	--recipe-accent: var(--color-teal-500);
+}
+
+@utility btn-secondary {
+	--recipe-accent: var(--color-neutral-500);
+}
+
+@utility btn-ghost {
+	--recipe-accent: var(--color-neutral-500);
+}
+
+@utility btn-danger {
+	--recipe-accent: var(--color-ember-500);
+}

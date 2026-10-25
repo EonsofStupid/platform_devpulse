@@ -1,0 +1,58 @@
+/* ============================================
+   GLOW - Glow Animation Keyframes
+   ============================================ */
+
+/* Pulsing glow effect */
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Box shadow pulse */
+@keyframes box-pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 10px oklch(65% 0.25 var(--dp-hue) / 0.3);
+  }
+  50% {
+    box-shadow: 0 0 25px oklch(65% 0.25 var(--dp-hue) / 0.5);
+  }
+}
+
+/* Glass glow border animation */
+@keyframes glass-glow-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Breathing glow */
+@keyframes breathe {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.02);
+    opacity: 1;
+  }
+}
+
+/* Utility classes */
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-box-pulse {
+  animation: box-pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-breathe {
+  animation: breathe 3s ease-in-out infinite;
+}

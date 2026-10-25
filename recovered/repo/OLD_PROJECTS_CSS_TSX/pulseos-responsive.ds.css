@@ -1,0 +1,109 @@
+/* =================================================================
+   RESPONSIVE UTILITIES - Mobile & Desktop Button Styles
+   =================================================================
+   
+   PURPOSE: Responsive button utilities for mobile and desktop.
+   This is reusable across all zones.
+   
+   TOKENS: Uses --pulseos-color-accent-*, --pulseos-motion-*
+   FORMAT: All values must use HSL-standardized PulseOS tokens
+   
+   CLASS NAMING: .pulseos-mobile-btn-*, .pulseos-desktop-btn-* prefix
+   
+   NOTE: Short aliases (mobile-btn-primary, desktop-btn-secondary, etc.) 
+   exist in metadata only, not as CSS classes.
+   
+   ================================================================= */
+
+/* Mobile Button Base */
+.pulseos-mobile-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--pulseos-space-2);
+  padding: var(--pulseos-space-3) var(--pulseos-space-4);
+  border-radius: var(--pulseos-space-2);
+  font-weight: 600;
+  transition: all var(--pulseos-motion-transition-base);
+  cursor: pointer;
+  min-height: 3rem;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* Mobile Button Primary */
+.pulseos-mobile-btn-primary {
+  background: hsl(var(--pulseos-color-accent-cyan) / 0.15);
+  border: 1px solid hsl(var(--pulseos-color-accent-cyan) / 0.4);
+  color: hsl(var(--pulseos-color-accent-cyan));
+}
+
+.pulseos-mobile-btn-primary:hover {
+  background: hsl(var(--pulseos-color-accent-cyan) / 0.25);
+  border-color: hsl(var(--pulseos-color-accent-cyan) / 0.6);
+  transform: scale(1.02);
+}
+
+/* Mobile Button Secondary */
+.pulseos-mobile-btn-secondary {
+  background: hsl(var(--pulseos-color-accent-purple) / 0.15);
+  border: 1px solid hsl(var(--pulseos-color-accent-purple) / 0.4);
+  color: hsl(var(--pulseos-color-accent-purple));
+}
+
+.pulseos-mobile-btn-secondary:hover {
+  background: hsl(var(--pulseos-color-accent-purple) / 0.25);
+  border-color: hsl(var(--pulseos-color-accent-purple) / 0.6);
+  transform: scale(1.02);
+}
+
+/* Mobile Touchable */
+.pulseos-mobile-touchable {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* Desktop Button Primary */
+.pulseos-desktop-btn-primary {
+  display: flex;
+  align-items: center;
+  gap: var(--pulseos-space-2);
+  padding: var(--pulseos-space-3) var(--pulseos-space-6);
+  background: hsl(var(--pulseos-color-accent-cyan) / 0.1);
+  border: 1px solid hsl(var(--pulseos-color-accent-cyan) / 0.3);
+  border-radius: var(--pulseos-space-2);
+  color: hsl(var(--pulseos-color-accent-cyan));
+  font-weight: 600;
+  transition: all var(--pulseos-motion-transition-base);
+  cursor: pointer;
+}
+
+.pulseos-desktop-btn-primary:hover {
+  background: hsl(var(--pulseos-color-accent-cyan) / 0.2);
+  border-color: hsl(var(--pulseos-color-accent-cyan) / 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 var(--pulseos-space-1) var(--pulseos-space-3) hsl(var(--pulseos-color-accent-cyan) / 0.3);
+}
+
+/* Desktop Button Secondary */
+.pulseos-desktop-btn-secondary {
+  display: flex;
+  align-items: center;
+  gap: var(--pulseos-space-2);
+  padding: var(--pulseos-space-3) var(--pulseos-space-6);
+  background: hsl(var(--pulseos-color-accent-purple) / 0.1);
+  border: 1px solid hsl(var(--pulseos-color-accent-purple) / 0.3);
+  border-radius: var(--pulseos-space-2);
+  color: hsl(var(--pulseos-color-accent-purple));
+  font-weight: 600;
+  transition: all var(--pulseos-motion-transition-base);
+  cursor: pointer;
+}
+
+.pulseos-desktop-btn-secondary:hover {
+  background: hsl(var(--pulseos-color-accent-purple) / 0.2);
+  border-color: hsl(var(--pulseos-color-accent-purple) / 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 var(--pulseos-space-1) var(--pulseos-space-3) hsl(var(--pulseos-color-accent-purple) / 0.3);
+}
+

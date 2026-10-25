@@ -1,0 +1,57 @@
+/**
+ * @file Slider Structural Shortcode Classes
+ * @kind slider
+ * @layer shortcodes/components
+ * @package @devpulse/coldlight
+ *
+ * Structural base classes for the slider compound component.
+ * Each class handles layout/positioning ONLY.
+ *
+ * Slot mapping:
+ *   slider-root  → root container
+ *   slider-track → background track
+ *   slider-range → filled portion of the track
+ *   slider-thumb → draggable handle
+ */
+
+@utility slider-root {
+	position: relative;
+	display: flex;
+	width: 100%;
+	touch-action: none;
+	user-select: none;
+	align-items: center;
+}
+
+@utility slider-track {
+	position: relative;
+	height: 0.5rem;
+	width: 100%;
+	flex-grow: 1;
+	overflow: hidden;
+	border-radius: var(--radius-full);
+	background: var(--interaction-hover);
+}
+
+@utility slider-range {
+	position: absolute;
+	height: 100%;
+	border-radius: var(--radius-full);
+	background: var(--recipe-accent, var(--color-teal-500));
+}
+
+@utility slider-thumb {
+	display: block;
+	height: 1.25rem;
+	width: 1.25rem;
+	border-radius: var(--radius-full);
+	background: var(--text-primary);
+	border: 2px solid var(--recipe-accent, var(--color-teal-500));
+	transition: color var(--duration-fast) var(--ease-out),
+		border-color var(--duration-fast) var(--ease-out);
+
+	&:focus-visible {
+		outline: none;
+		box-shadow: 0 0 0 2px var(--recipe-accent, var(--color-teal-500));
+	}
+}

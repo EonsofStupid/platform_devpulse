@@ -1,0 +1,46 @@
+/**
+ * @file Checkbox Structural Shortcode Classes
+ * @kind checkbox
+ * @layer shortcodes/components
+ * @package @devpulse/coldlight
+ *
+ * Structural base class for the checkbox component.
+ * Handles layout/positioning ONLY — visual appearance
+ * comes from the accent set by the variant.
+ *
+ * Size classes set explicit dimensions for the checkbox indicator.
+ */
+
+@utility checkbox {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: var(--radius-sm);
+	border: 1px solid var(--interaction-selected);
+	transition: all var(--duration-fast) var(--ease-out);
+
+	&:focus-visible {
+		outline: none;
+		box-shadow: 0 0 0 2px var(--recipe-accent, var(--color-teal-500));
+	}
+
+	&[data-state="checked"] {
+		background: var(--recipe-accent, var(--color-teal-500));
+		border-color: var(--recipe-accent, var(--color-teal-500));
+	}
+}
+
+@utility checkbox-sm {
+	width: 1rem;
+	height: 1rem;
+}
+
+@utility checkbox-md {
+	width: 1.25rem;
+	height: 1.25rem;
+}
+
+@utility checkbox-lg {
+	width: 1.5rem;
+	height: 1.5rem;
+}

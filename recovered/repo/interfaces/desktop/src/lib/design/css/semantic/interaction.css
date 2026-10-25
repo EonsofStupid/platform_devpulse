@@ -1,0 +1,12 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+@layer tokens.semantic {
+	:root {
+		--interaction-hover: oklch(1 0 0 / 0.058823529411764705); /** Hover overlay — subtle lighten */
+		--interaction-active: oklch(1 0 0 / 0.10196078431372549); /** Active/pressed overlay */
+		--interaction-selected: oklch(1 0 0 / 0.14901960784313725); /** Selected/checked overlay */
+		--interaction-disabled: oklch(1 0 0 / 0.03137254901960784); /** Disabled state overlay */
+	}
+}

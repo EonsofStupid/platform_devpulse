@@ -1,0 +1,66 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+@theme {
+  --glass-void: oklch(0.0612 0.0072 185.78 / 0.878);
+  --glass-deep: oklch(0.0906 0.0149 205.53 / 0.8);
+  --glass-smoke: oklch(0.1407 0.0033 189.37 / 0.651);
+  --glass-standard: oklch(0.1206 0.0095 200.12 / 0.702);
+  --glass-light: oklch(0.1809 0.0065 195.41 / 0.549);
+  --glass-frost: oklch(0.9228 0.0189 30.62 / 0.4);
+  --glass-teal: oklch(0.1149 0.0123 158.92 / 0.749);
+  --glass-purple: oklch(0.1001 0.0644 218.28 / 0.749);
+  --glass-blue: oklch(0.11 0.05 240 / 0.749);
+  --glass-ember: oklch(0.115 0.045 25 / 0.749);
+  --glass-coral: oklch(0.11 0.045 10 / 0.749);
+  --matte-dark: oklch(0.14 0.0014 314.64);
+  --matte-medium: oklch(0.2216 0.0023 9.36);
+  --matte-light: oklch(0.301 0.005 20.6);
+  --surface-neuro-elevated-bg: oklch(0.18 0.015 240);
+  --surface-neuro-elevated-bg-active: oklch(0.16 0.015 240);
+  --surface-neuro-elevated-text: oklch(0.93 0.015 224);
+  --surface-neuro-elevated-text-disabled: oklch(0.6 0.005 224);
+  --surface-neuro-elevated-border: oklch(0.55 0.1 180 / 0.2);
+  --surface-neuro-elevated-border-hover: oklch(0.6 0.12 180 / 0.3);
+  --surface-neuro-deep-bg: oklch(0.12 0.012 240);
+  --surface-neuro-deep-bg-hover: oklch(0.14 0.014 240);
+  --surface-neuro-deep-bg-active: oklch(0.1 0.01 240);
+  --surface-neuro-deep-text: oklch(0.85 0.01 224);
+  --surface-neuro-deep-text-disabled: oklch(0.55 0.005 224);
+  --surface-neuro-deep-border: oklch(0.3 0.02 240 / 0.3);
+  --surface-neuro-minimal-bg: oklch(0.16 0.01 240);
+  --surface-neuro-minimal-bg-hover: oklch(0.18 0.012 240);
+  --surface-neuro-minimal-bg-active: oklch(0.14 0.008 240);
+  --surface-neuro-minimal-text: oklch(0.8 0.008 224);
+  --surface-neuro-minimal-text-disabled: oklch(0.55 0.005 224);
+  --surface-neuro-minimal-border: oklch(0.4 0.01 240 / 0.15);
+  --surface-neuro-solid-bg: oklch(0.2 0.018 240);
+  --surface-neuro-solid-bg-active: oklch(0.18 0.016 240);
+  --surface-neuro-solid-text: oklch(0.95 0.015 224);
+  --surface-neuro-solid-text-disabled: oklch(0.6 0.005 224);
+  --surface-neuro-solid-border: oklch(0.5 0.06 180 / 0.25);
+  --surface-neuro-glow-bg: oklch(0.16 0.02 220);
+  --surface-neuro-glow-bg-active: oklch(0.14 0.025 220);
+  --surface-neuro-glow-text: oklch(0.9 0.06 180);
+  --surface-neuro-glow-text-disabled: oklch(0.5 0.02 180);
+  --surface-neuro-glow-border: oklch(0.7 0.15 180 / 0.35);
+  --surface-neuro-glow-border-hover: oklch(0.75 0.18 180 / 0.5);
+  --surface-neuro-glow-border-active: oklch(0.8 0.2 180 / 0.6);
+  --surface-neuro-muted-bg: oklch(0.14 0.005 240);
+  --surface-neuro-muted-bg-hover: oklch(0.16 0.008 240);
+  --surface-neuro-muted-text: oklch(0.65 0.005 224);
+  --surface-neuro-muted-text-disabled: oklch(0.45 0.003 224);
+  --surface-neuro-muted-border: oklch(0.35 0.005 240 / 0.2);
+}
+
+@theme inline {
+  --surface-base: var(--glass-void);
+  --surface-raised: var(--glass-smoke);
+  --surface-overlay: var(--glass-deep);
+  --surface-frosted: var(--glass-frost);
+  --surface-inset: var(--matte-dark);
+  --surface-subtle: var(--matte-medium);
+  --surface-chrome: var(--matte-light);
+  --surface-primary: var(--glass-void);
+}

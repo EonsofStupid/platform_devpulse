@@ -1,0 +1,32 @@
+/**
+ * @file List Structural Shortcode Classes
+ * @kind list
+ * @layer shortcodes/components
+ * @package @devpulse/coldlight
+ *
+ * Structural base class for the list component.
+ * Size and spacing are controlled by sz-* and list-spacing-* classes.
+ */
+
+@utility list-root {
+	color: var(--text-primary);
+	font-size: var(--recipe-font-size, var(--text-size-sm));
+}
+
+/* ── Spacing utilities ── */
+
+@utility list-spacing-compact {
+	& > * + * {
+		margin-block-start: var(--space-1);
+	}
+}
+@utility list-spacing-default {
+	& > * + * {
+		margin-block-start: var(--space-2);
+	}
+}
+@utility list-spacing-relaxed {
+	& > * + * {
+		margin-block-start: var(--space-3);
+	}
+}

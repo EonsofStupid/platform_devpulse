@@ -1,0 +1,10 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+:root {
+  --bevel-off: inset 0px 0px 0px 0px oklch(0 0 0 / 0);
+  --bevel-subtle: inset 0px 1px 0px 0px oklch(1 1 1 / 0.04), inset 0px -1px 0px 0px oklch(0 0 0 / 0.08);
+  --bevel-soft: inset 0px 1px 2px 0px oklch(1 1 1 / 0.06), inset 0px -1px 2px 0px oklch(0 0 0 / 0.12);
+  --bevel-medium: inset 0px 2px 4px 0px oklch(1 1 1 / 0.08), inset 0px -2px 4px 0px oklch(0 0 0 / 0.16);
+}

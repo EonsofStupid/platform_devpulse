@@ -1,0 +1,156 @@
+/**
+ * @file src/lib/design/glass.css
+ * @name glass.css
+ * @layer recipes
+ *
+ * @description
+ * [TODO: Describe what this stylesheet defines]
+ *
+ * @contents
+ * - [TODO: List major sections/categories]
+ *
+ * @vpb-editable [TODO: List token names VPB can modify, or 'all']
+ * @since 1.0.0
+ */
+
+/* ============================================
+   GLASS.CSS - Glass Utility Classes
+   Button, Input, and legacy glass utilities
+   ============================================ */
+
+/* =============================================
+   GLASS BUTTON
+   ============================================= */
+
+.glass-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--dp-space-2);
+
+    padding: var(--dp-space-2) var(--dp-space-4);
+    border-radius: var(--dp-radius-md);
+
+    font-family: var(--dp-font-sans);
+    font-size: var(--dp-text-sm);
+    font-weight: 500;
+    color: var(--dp-text-primary);
+
+    background: oklch(15% 0.03 var(--dp-hue-teal) / 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    border: 1px solid oklch(50% 0.10 var(--dp-hue-teal) / 0.3);
+
+    box-shadow:
+        inset 1px 1px 0 var(--dp-bevel-light),
+        inset -1px -1px 0 var(--dp-bevel-dark),
+        0 2px 8px oklch(5% 0.02 var(--dp-hue-purple) / 0.3);
+
+    cursor: pointer;
+    transition: all var(--dp-duration-fast) var(--dp-ease-out);
+}
+
+.glass-button:hover {
+    background: oklch(20% 0.05 var(--dp-hue-teal) / 0.7);
+    border-color: oklch(60% 0.15 var(--dp-hue-teal) / 0.5);
+    box-shadow:
+        0 0 12px oklch(60% 0.15 var(--dp-hue-teal) / 0.3),
+        inset 1px 1px 0 var(--dp-bevel-light);
+}
+
+.glass-button:active {
+    transform: translateY(1px);
+    box-shadow: inset 0 2px 4px var(--dp-bevel-dark);
+}
+
+.glass-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.glass-button-primary {
+    background: oklch(45% 0.15 var(--dp-hue-teal) / 0.8);
+    border-color: oklch(60% 0.18 var(--dp-hue-teal) / 0.6);
+}
+
+.glass-button-primary:hover {
+    background: oklch(50% 0.18 var(--dp-hue-teal) / 0.9);
+}
+
+/* =============================================
+   GLASS INPUT
+   ============================================= */
+
+.glass-input {
+    display: block;
+    width: 100%;
+
+    padding: var(--dp-space-2) var(--dp-space-3);
+    border-radius: var(--dp-radius-md);
+
+    font-family: var(--dp-font-sans);
+    font-size: var(--dp-text-sm);
+    color: var(--dp-text-primary);
+
+    background: oklch(8% 0.02 var(--dp-hue-matte) / 0.8);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+
+    border: 1px solid oklch(40% 0.08 var(--dp-hue-teal) / 0.3);
+
+    box-shadow: inset 0 2px 4px var(--dp-inset-dark);
+
+    transition: all var(--dp-duration-fast) var(--dp-ease-out);
+}
+
+.glass-input::placeholder {
+    color: var(--dp-text-muted);
+}
+
+.glass-input:focus {
+    outline: none;
+    border-color: oklch(60% 0.15 var(--dp-hue-teal) / 0.6);
+    box-shadow:
+        0 0 12px oklch(60% 0.15 var(--dp-hue-teal) / 0.3),
+        inset 0 2px 4px var(--dp-inset-dark);
+}
+
+/* =============================================
+   TINT VARIANTS (for buttons)
+   ============================================= */
+
+.glass-tint-teal {
+    --_tint-hue: var(--dp-hue-teal);
+    border-color: oklch(55% 0.15 var(--_tint-hue) / 0.4);
+}
+
+.glass-tint-purple {
+    --_tint-hue: var(--dp-hue-purple);
+    border-color: oklch(50% 0.18 var(--_tint-hue) / 0.4);
+    background: oklch(15% 0.04 var(--_tint-hue) / 0.6);
+}
+
+.glass-tint-gold {
+    --_tint-hue: 50;
+    border-color: oklch(60% 0.15 var(--_tint-hue) / 0.4);
+    background: oklch(18% 0.05 var(--_tint-hue) / 0.6);
+}
+
+.glass-tint-coral {
+    --_tint-hue: 25;
+    border-color: oklch(55% 0.18 var(--_tint-hue) / 0.4);
+    background: oklch(15% 0.05 var(--_tint-hue) / 0.6);
+}
+
+/* =============================================
+   GLASS SCRIM (backdrop overlay)
+   ============================================= */
+
+.glass-scrim {
+    position: fixed;
+    inset: 0;
+    background: oklch(5% 0.02 var(--dp-hue-teal) / 0.7);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}

@@ -49,6 +49,7 @@ Planned (these IDs are reserved for them):
 | Contextual guidance + signal fabric + developer profile | `0004-engine--wire-contextual-guidance.md` |
 | Prebuilt AI runtimes instead of compiled-in engines | `0007-kernel-model-loader--replace-inprocess-inference-with-runtimes.md` |
 | Codebase indexing for Clyffy | `0005-kernel-clyffy--index-project-codebase.md` |
+| Your lost code back in the repo, then wired back working | `0009-repo--wire-recovered-code.md` |
 
 ---
 

@@ -1,0 +1,100 @@
+/* ============================================
+   BACKGROUNDS - Animated Branded Backgrounds
+   ============================================ */
+
+/* DevPulse branded gradient */
+.bg-branded {
+  background:
+    radial-gradient(
+      ellipse 80% 50% at 20% 40%,
+      oklch(from var(--dp-accent-primary) l c h / 0.1) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse 60% 40% at 80% 60%,
+      oklch(from var(--dp-accent-teal) l c h / 0.08) 0%,
+      transparent 50%
+    ),
+    var(--dp-obsidian-950);
+  background-attachment: fixed;
+}
+
+/* Logo watermark */
+.bg-devpulse {
+  position: relative;
+}
+
+.bg-devpulse::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='40' fill='none' stroke='%23ffffff08' stroke-width='2'/%3E%3Ccircle cx='50' cy='50' r='20' fill='none' stroke='%23ffffff06' stroke-width='1'/%3E%3C/svg%3E");
+  background-size: 200px;
+  background-repeat: repeat;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Circuit glow pattern */
+.bg-circuit-glow {
+  position: relative;
+}
+
+.bg-circuit-glow::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, transparent 49%, oklch(from var(--dp-accent-primary) l c h / 0.03) 50%, transparent 51%),
+    linear-gradient(0deg, transparent 49%, oklch(from var(--dp-accent-primary) l c h / 0.03) 50%, transparent 51%);
+  background-size: 40px 40px;
+  pointer-events: none;
+  animation: circuit-pulse 4s ease-in-out infinite;
+}
+
+@keyframes circuit-pulse {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* Horizontal pulse line */
+.bg-pulse-line {
+  position: relative;
+  overflow: hidden;
+}
+
+.bg-pulse-line::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--dp-accent-primary) 50%,
+    transparent 100%
+  );
+  animation: pulse-line-move 3s ease-in-out infinite;
+}
+
+@keyframes pulse-line-move {
+  0% {
+    top: 0;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
+}

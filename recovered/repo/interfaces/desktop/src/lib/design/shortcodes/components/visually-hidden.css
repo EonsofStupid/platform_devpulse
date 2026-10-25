@@ -1,0 +1,21 @@
+/**
+ * @file VisuallyHidden Structural Shortcode Classes
+ * @kind visually-hidden
+ * @layer shortcodes/components
+ * @package @devpulse/coldlight
+ *
+ * Structural base class for the visually-hidden component.
+ * Purely structural — screen-reader-only pattern.
+ */
+
+@utility visually-hidden-root {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border-width: 0;
+}

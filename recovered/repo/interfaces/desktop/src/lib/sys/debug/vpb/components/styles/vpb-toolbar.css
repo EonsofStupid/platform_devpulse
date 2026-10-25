@@ -1,0 +1,113 @@
+/**
+ * @file vpb-toolbar.css
+ * @layer vpb
+ * @description VPB Toolbar - Play/Pause/Stop with proper action colors
+ * @since 1.0.0
+ */
+
+/* =================================================================
+   Toolbar Container
+   ================================================================= */
+
+.vpb-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* =================================================================
+   Base Button
+   ================================================================= */
+
+.vpb-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 32px;
+    height: 32px;
+    padding: 0;
+
+    border: 1px solid var(--dp-vpb-btn-border);
+    border-radius: 4px;
+    background: var(--dp-vpb-btn-bg);
+
+    color: var(--dp-vpb-text-secondary);
+    cursor: pointer;
+
+    transition: all var(--dp-vpb-transition-fast);
+}
+
+.vpb-btn:hover:not(:disabled) {
+    background: var(--dp-vpb-btn-hover);
+    border-color: var(--dp-vpb-panel-border);
+    color: var(--dp-vpb-text-primary);
+}
+
+.vpb-btn:active:not(:disabled) {
+    transform: scale(0.95);
+}
+
+.vpb-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* =================================================================
+   Action Variants - Play/Pause/Stop
+   ================================================================= */
+
+.vpb-btn--play:hover:not(:disabled) {
+    color: var(--dp-vpb-action-play);
+    border-color: var(--dp-vpb-action-play);
+}
+
+.vpb-btn--pause:hover:not(:disabled) {
+    color: var(--dp-vpb-action-pause);
+    border-color: var(--dp-vpb-action-pause);
+}
+
+.vpb-btn--stop:hover:not(:disabled),
+.vpb-btn--close:hover:not(:disabled) {
+    color: var(--dp-vpb-action-stop);
+    border-color: var(--dp-vpb-action-stop);
+}
+
+/* ACTIVE state - when scan is running */
+.vpb-btn--play[data-active="true"] {
+    background: oklch(0.75 0.18 145 / 0.2);
+    color: var(--dp-vpb-action-play);
+    border-color: var(--dp-vpb-action-play);
+}
+
+/* =================================================================
+   Separator
+   ================================================================= */
+
+.vpb-toolbar__separator {
+    width: 1px;
+    height: 24px;
+    background: var(--dp-vpb-btn-border);
+    margin: 0 4px;
+}
+
+/* =================================================================
+   Button Group
+   ================================================================= */
+
+.vpb-btn-group {
+    display: flex;
+    gap: 2px;
+}
+
+.vpb-btn-group .vpb-btn {
+    border-radius: 0;
+}
+
+.vpb-btn-group .vpb-btn:first-child {
+    border-radius: 4px 0 0 4px;
+}
+
+.vpb-btn-group .vpb-btn:last-child {
+    border-radius: 0 4px 4px 0;
+}

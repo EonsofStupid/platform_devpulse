@@ -1,0 +1,161 @@
+/**
+ * @file vpb-inspector.css
+ * @layer vpb
+ * @description VPB Inspector Window - Floating Cyber Glass
+ */
+
+.vpb-inspector {
+    /* Dimensions */
+    width: 300px;
+    max-height: 500px;
+    overflow-y: auto;
+
+    /* Layout Context */
+    position: fixed;
+    top: 100px;
+    left: 50%;
+    /* Default center-ish, but overridden by drag */
+    transform: translateX(-50%);
+    z-index: 10001;
+    /* Must be > vpb-panel (9999) */
+
+    /* Appearance - Cyber Glass */
+    background: var(--dp-vpb-panel-bg);
+    border: 1px solid var(--dp-vpb-panel-border);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    /* Stronger shadow */
+    backdrop-filter: var(--dp-vpb-blur);
+    -webkit-backdrop-filter: var(--dp-vpb-blur);
+
+    /* Content Layout */
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    /* Header separates content */
+
+    /* Fade In */
+    animation: vpb-fade-in 0.2s ease-out;
+}
+
+@keyframes vpb-fade-in {
+    from {
+        opacity: 0;
+        transform: translate(-50%, 10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
+
+/* Header (Draggable) */
+.vpb-inspector__header {
+    padding: 12px;
+    background: var(--dp-vpb-surface-raised);
+    border-bottom: 1px solid var(--dp-vpb-panel-border);
+    border-radius: 12px 12px 0 0;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    cursor: grab;
+    user-select: none;
+}
+
+.vpb-inspector__header:active {
+    cursor: grabbing;
+}
+
+.vpb-inspector__title {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--dp-vpb-text-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Rows */
+.vpb-inspector__row {
+    padding: 8px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--dp-vpb-surface-sunken);
+    font-size: 12px;
+}
+
+.vpb-inspector__label {
+    color: var(--dp-vpb-text-muted);
+}
+
+.vpb-inspector__value {
+    color: var(--dp-vpb-text-secondary);
+    font-family: monospace;
+    max-width: 180px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.vpb-inspector__value--file {
+    color: var(--dp-vpb-cyber-gradient);
+    cursor: pointer;
+}
+
+.vpb-inspector__value--file:hover {
+    text-decoration: underline;
+}
+
+/* Actions */
+.vpb-copy-btn {
+    background: transparent;
+    border: none;
+    color: var(--dp-vpb-text-muted);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.vpb-copy-btn:hover {
+    background: var(--dp-vpb-surface-hover);
+    color: var(--dp-vpb-text-primary);
+}
+
+.vpb-copy-btn--copied {
+    color: var(--dp-vpb-action-play);
+    /* Green */
+}
+
+/* Footer Action */
+.vpb-copy-all {
+    margin: 12px;
+    padding: 8px;
+    background: rgba(var(--dp-vpb-cyber-rgb), 0.1);
+    border: 1px solid var(--dp-vpb-cyber-gradient);
+    border-radius: 6px;
+    color: var(--dp-vpb-text-primary);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
+.vpb-copy-all:hover {
+    background: rgba(var(--dp-vpb-cyber-rgb), 0.2);
+    box-shadow: 0 0 12px rgba(var(--dp-vpb-cyber-rgb), 0.3);
+}
+
+.vpb-copy-all--copied {
+    border-color: var(--dp-vpb-action-play);
+    color: var(--dp-vpb-action-play);
+}

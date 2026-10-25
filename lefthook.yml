@@ -9,16 +9,22 @@ pre-commit:
     # Rust formatting
     rust-fmt:
       glob: ["*.rs", "**/*.rs"]
+      # Your recovered code is kept as it was, never built or linted (plan 0009).
+      exclude: ["recovered/**"]
       run: cargo fmt --all -- --check
 
     # Rust linting (quick check, not full clippy)
     rust-check:
       glob: ["*.rs", "**/*.rs"]
+      # Your recovered code is kept as it was, never built or linted (plan 0009).
+      exclude: ["recovered/**"]
       run: cargo check --workspace --quiet
 
     # Svelte check
     svelte-check:
       glob: ["*.svelte", "**/*.svelte"]
+      # Your recovered code is kept as it was, never built or linted (plan 0009).
+      exclude: ["recovered/**"]
       root: "interfaces/desktop"
       run: pnpm exec svelte-check --threshold error
 
@@ -30,6 +36,8 @@ pre-commit:
     # IP boundary enforcement — blocks kernel terms in staged files
     ip-boundary-check:
       glob: ["*.{rs,ts,svelte,json}", "**/*.{rs,ts,svelte,json}"]
+      # Your recovered code is kept as it was, never built or linted (plan 0009).
+      exclude: ["recovered/**"]
       run: bash scripts/hooks/ip-boundary-check.sh
 
     # Bindings drift guard — if Tauri command .rs files changed but
@@ -105,6 +113,8 @@ pre-push:
     # dev loop's artifacts instead of invalidating them.
     clippy:
       glob: ["*.rs", "**/*.rs"]
+      # Your recovered code is kept as it was, never built or linted (plan 0009).
+      exclude: ["recovered/**"]
       run: cargo xtask clippy --workspace
 
     # Security audit

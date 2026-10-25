@@ -1,0 +1,401 @@
+/* PULSEOS CANONICAL TOKENS - Single Source of Truth
+ * All design tokens use --pulseos-{category}-{variant}-{property} format
+ * Tailwind v4 CSS-first approach - tokens exposed via @theme directive
+ * 
+ * Format: --pulseos-{category}-{variant}-{property}
+ * Categories: color, space, radius, glass, motion, typography, layout
+ */
+
+:root {
+  /* ============================================
+     COLOR TOKENS (HSL triples for alpha-aware use)
+     ============================================ */
+  
+  /* Core colors */
+  --pulseos-color-bg-base: 222 84% 5%;
+  --pulseos-color-fg-base: 210 40% 98%;
+  --pulseos-color-border-base: 217 33% 17%;
+  --pulseos-color-ring-base: 179 100% 60%;
+
+  /* Accent colors (HSL triples) */
+  --pulseos-color-accent-cyan: 191 100% 56%;
+  --pulseos-color-accent-pink: 320 100% 67%;
+  --pulseos-color-accent-purple: 267 100% 70%;
+  --pulseos-color-accent-lime: 93 90% 60%;
+  --pulseos-color-accent-orange: 25 100% 55%;
+  --pulseos-color-accent-amber: 43 100% 50%;
+  --pulseos-color-accent-green: 134 100% 50%;
+  --pulseos-color-accent-blue: 220 100% 60%;
+  --pulseos-color-accent-yellow: 60 100% 55%;
+  --pulseos-color-accent-red: 0 100% 55%;
+
+  /* Brand color (defaults to cyan, VPB can switch) */
+  --pulseos-color-brand-base: var(--pulseos-color-accent-cyan);
+
+  /* Tech background colors (HSL triples for gradients) */
+  --pulseos-color-tech-dark: 222 84% 4%;
+  --pulseos-color-tech-darker: 222 84% 2%;
+  --pulseos-color-tech-medium: 222 84% 8%;
+
+  /* Text colors (HSL triples) */
+  --pulseos-color-text-primary: 0 0% 95%;
+  --pulseos-color-text-secondary: 0 0% 80%;
+  --pulseos-color-text-muted: 0 0% 60%;
+
+  /* Background ramp (for gradients) */
+  --pulseos-color-bg-start: 226 24% 8%;
+  --pulseos-color-bg-mid: 226 20% 12%;
+  --pulseos-color-bg-end: 226 24% 16%;
+
+  /* Surface colors (HSL triples) */
+  --pulseos-color-surface-0: 222 84% 5%;
+  --pulseos-color-surface-1: 222 84% 8%;
+  --pulseos-color-surface-2: 222 84% 12%;
+
+  /* Semantic colors */
+  --pulseos-color-success-base: 134 100% 50%;
+  --pulseos-color-warning-base: 43 100% 50%;
+  --pulseos-color-error-base: 0 100% 55%;
+
+  /* Sidebar colors (HSL triples) - Dark theme matching surface tokens */
+  --pulseos-color-sidebar-bg: 222 84% 8%;
+  --pulseos-color-sidebar-fg: 210 40% 98%;
+  --pulseos-color-sidebar-primary: 191 100% 56%;
+  --pulseos-color-sidebar-primary-fg: 222 84% 5%;
+  --pulseos-color-sidebar-accent: 222 84% 12%;
+  --pulseos-color-sidebar-accent-fg: 210 40% 98%;
+  --pulseos-color-sidebar-border: 217 33% 17%;
+  --pulseos-color-sidebar-ring: 179 100% 60%;
+
+  /* ============================================
+     SPACING TOKENS
+     ============================================ */
+  --pulseos-space-1: 0.25rem;  /* 4px */
+  --pulseos-space-2: 0.5rem;    /* 8px */
+  --pulseos-space-3: 0.75rem;   /* 12px */
+  --pulseos-space-4: 1rem;      /* 16px */
+  --pulseos-space-5: 1.25rem;  /* 20px */
+  --pulseos-space-6: 1.5rem;    /* 24px */
+  --pulseos-space-8: 2rem;      /* 32px */
+  --pulseos-space-10: 2.5rem;   /* 40px */
+  --pulseos-space-12: 3rem;     /* 48px */
+  --pulseos-space-16: 4rem;     /* 64px */
+
+  /* ============================================
+     RADIUS TOKENS
+     ============================================ */
+  --pulseos-radius-xs: 4px;
+  --pulseos-radius-sm: 6px;
+  --pulseos-radius-md: 8px;
+  --pulseos-radius-lg: 12px;
+  --pulseos-radius-xl: 16px;
+  --pulseos-radius-2xl: 20px;
+  --pulseos-radius-full: 9999px;
+
+  /* ============================================
+     GLASS EFFECT TOKENS
+     ============================================ */
+  /* Glass panel HSL + alpha (for hsl(var(--hsl) / var(--a)) pattern) */
+  /* HSL: 222 48% 11% */
+  --pulseos-glass-panel-bg-hsl: 222 48% 11%;
+  --pulseos-glass-panel-bg-alpha: 0.7;
+  --pulseos-glass-panel-border-hsl: 0 0% 100%;
+  --pulseos-glass-panel-border-alpha: 0.1;
+  --pulseos-glass-panel-highlight-hsl: 0 0% 100%;
+  --pulseos-glass-panel-highlight-alpha: 0.2;
+  --pulseos-glass-panel-shadow-hsl: 0 0% 0%;
+  --pulseos-glass-panel-shadow-alpha: 0.6;
+
+  /* Glass HSL + alpha (for hsl(var(--hsl) / var(--a)) pattern) */
+  --pulseos-glass-bg-hsl: 0 0% 0%;
+  --pulseos-glass-bg-alpha: 0.4;
+  --pulseos-glass-border-hsl: 0 0% 100%;
+  --pulseos-glass-border-alpha: 0.1;
+  --pulseos-glass-highlight-hsl: 210 15% 60%;
+  --pulseos-glass-highlight-alpha: 0.1;
+  --pulseos-glass-shadow-hsl: 0 0% 0%;
+  --pulseos-glass-shadow-alpha: 0.3;
+
+  /* Cyber glass tiers */
+  --pulseos-glass-cyber-deep-hsl: 220 64% 12%;
+  --pulseos-glass-cyber-deep-alpha: 0.9;
+  --pulseos-glass-cyber-surface-hsl: 220 36% 17%;
+  --pulseos-glass-cyber-surface-alpha: 0.8;
+  --pulseos-glass-cyber-panel-hsl: 220 22% 23%;
+  --pulseos-glass-cyber-panel-alpha: 0.7;
+  --pulseos-glass-cyber-overlay-hsl: 220 18% 28%;
+  --pulseos-glass-cyber-overlay-alpha: 0.6;
+
+  /* Glass blur values */
+  --pulseos-glass-blur-weak: 6px;
+  --pulseos-glass-blur-md: 12px;
+  --pulseos-glass-blur-strong: 24px;
+
+  /* ============================================
+     TYPOGRAPHY TOKENS
+     ============================================ */
+  --pulseos-typography-font-display: 'Orbitron', 'Rajdhani', system-ui, sans-serif;
+  --pulseos-typography-font-body: 'Rajdhani', system-ui, sans-serif;
+  --pulseos-typography-font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* ============================================
+     LAYOUT TOKENS
+     ============================================ */
+  /* Zone dimensions (VPB editable) */
+  --pulseos-layout-topbar-height: 64px;
+  --pulseos-layout-sidebar-left-width: 280px;
+  --pulseos-layout-sidebar-left-collapsed-width: 80px;
+  --pulseos-layout-footer-height: 48px;
+  --pulseos-layout-sidebar-right-width: 320px;
+
+  /* Content padding */
+  --pulseos-layout-content-padding-x: var(--pulseos-space-4);
+  --pulseos-layout-content-padding-y: var(--pulseos-space-4);
+
+  /* Z-index scale */
+  --pulseos-layout-z-footer: 10;
+  --pulseos-layout-z-sidebar-overlay: 100;
+  --pulseos-layout-z-dropdown: 1000;
+  --pulseos-layout-z-sticky: 1020;
+  --pulseos-layout-z-fixed: 1030;
+  --pulseos-layout-z-modal-backdrop: 1040;
+  --pulseos-layout-z-modal: 1050;
+  --pulseos-layout-z-popover: 1060;
+  --pulseos-layout-z-tooltip: 1070;
+  --pulseos-layout-z-notification: 1080;
+
+  /* ============================================
+     MOTION/SHADOW TOKENS
+     ============================================ */
+  /* Elevation shadows */
+  --pulseos-motion-shadow-elev-0: 0 0 0 hsl(var(--pulseos-glass-panel-shadow-hsl) / 0);
+  --pulseos-motion-shadow-elev-1: 0 2px 8px hsl(var(--pulseos-glass-panel-shadow-hsl) / 0.12);
+  --pulseos-motion-shadow-elev-2: 0 6px 18px hsl(var(--pulseos-glass-panel-shadow-hsl) / 0.16);
+  --pulseos-motion-shadow-elev-3: 0 12px 28px hsl(var(--pulseos-glass-panel-shadow-hsl) / 0.22);
+
+  /* Neon glow shadows (using HSL with alpha) */
+  --pulseos-motion-glow-cyan: 0 0 20px hsl(var(--pulseos-color-accent-cyan) / 0.5);
+  --pulseos-motion-glow-pink: 0 0 20px hsl(var(--pulseos-color-accent-pink) / 0.5);
+  --pulseos-motion-glow-green: 0 0 20px hsl(var(--pulseos-color-accent-lime) / 0.5);
+
+  /* Transition durations */
+  --pulseos-motion-transition-base: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --pulseos-motion-transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --pulseos-motion-transition-slow: 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Animation durations */
+  --pulseos-motion-duration-fast: 0.3s;
+  --pulseos-motion-duration-base: 0.5s;
+  --pulseos-motion-duration-slow: 0.8s;
+  --pulseos-motion-duration-slower: 1s;
+  --pulseos-motion-duration-slowest: 2s;
+
+  /* Animation duration size variants (for --mi-dur-* migration) */
+  --pulseos-motion-duration-sm: 0.2s;  /* 200ms */
+  --pulseos-motion-duration-md: 0.32s;  /* 320ms */
+  --pulseos-motion-duration-lg: 0.45s;  /* 450ms */
+  --pulseos-motion-duration-xl: 4s;
+
+  /* Animation duration enter variants */
+  --pulseos-motion-duration-enter: 0.6s;  /* 600ms */
+  --pulseos-motion-duration-enter-fast: 0.4s;  /* 400ms */
+
+  /* Animation duration loop variants */
+  --pulseos-motion-duration-loop-quick: 3s;
+  --pulseos-motion-duration-loop-slow: 6s;
+  --pulseos-motion-duration-loop-long: 20s;
+  --pulseos-motion-duration-loop-xlong: 30s;
+
+  /* Easing functions */
+  --pulseos-motion-ease-base: cubic-bezier(0.4, 0, 0.2, 1);
+  --pulseos-motion-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --pulseos-motion-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --pulseos-motion-ease-in: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Interaction tokens (for mouse tracking effects) */
+  --pulseos-interaction-mouse-x: 50%;
+  --pulseos-interaction-mouse-y: 50%;
+
+  /* Animation parameter tokens */
+  --pulseos-motion-animation-particles-float-y: 30px;
+  --pulseos-motion-animation-scale-in-from: 0.95;
+
+  /* Semantic color tokens (for tooltip pattern and similar) */
+  --pulseos-color-surface-base: var(--pulseos-color-surface-1);
+  --pulseos-color-foreground-base: var(--pulseos-color-fg-base);
+  --pulseos-color-primary-base: var(--pulseos-color-brand-base);
+
+  /* Pattern: Data Explorer tokens */
+  --pulseos-pattern-data-mincol: 400px;
+  --pulseos-pattern-data-gap: var(--pulseos-space-8);
+  --pulseos-pattern-data-pad: var(--pulseos-space-8);
+  --pulseos-pattern-data-radius: var(--pulseos-radius-lg);
+  --pulseos-pattern-data-border: hsl(var(--pulseos-glass-panel-border-hsl) / 0.14);
+  --pulseos-pattern-data-bg-card: hsl(var(--pulseos-glass-panel-bg-hsl) / 0.6);
+  --pulseos-pattern-data-bg-header: hsl(var(--pulseos-color-bg-base) / 0.4);
+  --pulseos-pattern-data-bg-panel: hsl(var(--pulseos-color-bg-base) / 0.6);
+  --pulseos-pattern-data-focus: hsl(var(--pulseos-color-brand-base));
+  --pulseos-pattern-data-shadow-hover: 0 20px 40px hsl(var(--pulseos-glass-panel-shadow-hsl) / 0.4);
+  --pulseos-pattern-data-glow-hover: hsl(var(--pulseos-color-brand-base) / 0.3);
+  --pulseos-pattern-data-trans: var(--pulseos-motion-transition-fast);
+  --pulseos-pattern-data-space-card: var(--pulseos-space-8);
+  --pulseos-pattern-data-space-header-y: var(--pulseos-space-6);
+  --pulseos-pattern-data-space-header-x: var(--pulseos-space-8);
+  --pulseos-pattern-data-space-stat: var(--pulseos-space-6);
+  --pulseos-pattern-data-space-filter: var(--pulseos-space-4);
+  --pulseos-pattern-data-space-search-y: 0.75rem;
+  --pulseos-pattern-data-space-search-x: 1rem;
+  --pulseos-pattern-data-space-pager-y: 0.5rem;
+  --pulseos-pattern-data-space-pager-x: 1rem;
+
+  /* Pattern: Headline accent tokens */
+  --pulseos-pattern-headline-accent-1: hsl(var(--pulseos-color-accent-cyan));
+  --pulseos-pattern-headline-accent-2: hsl(var(--pulseos-color-accent-purple));
+}
+
+/* ============================================
+   THEME SCOPES (VPB can toggle brand sets)
+   ============================================ */
+.theme-cyan {
+  --pulseos-color-brand-base: var(--pulseos-color-accent-cyan);
+}
+.theme-pink {
+  --pulseos-color-brand-base: var(--pulseos-color-accent-pink);
+}
+.theme-purple {
+  --pulseos-color-brand-base: var(--pulseos-color-accent-purple);
+}
+.theme-green {
+  --pulseos-color-brand-base: var(--pulseos-color-accent-green);
+}
+.theme-slime {
+  --pulseos-color-brand-base: var(--pulseos-color-accent-lime);
+}
+
+[data-theme='pulseos'] {
+  --pulseos-color-brand-base: var(--pulseos-color-accent-cyan);
+}
+
+/* ============================================
+   ACCESSIBILITY ADJUSTMENTS
+   ============================================ */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --pulseos-color-bg-start: 226 24% 6%;
+    --pulseos-color-bg-mid: 226 20% 10%;
+    --pulseos-color-bg-end: 226 24% 14%;
+    --pulseos-color-text-primary: 0 0% 98%;
+    --pulseos-color-text-secondary: 0 0% 85%;
+    --pulseos-color-text-muted: 0 0% 65%;
+    /* Sidebar colors (dark theme) */
+    --pulseos-color-sidebar-bg: 240 5.9% 10%;
+    --pulseos-color-sidebar-fg: 240 4.8% 95.9%;
+    --pulseos-color-sidebar-primary: 224.3 76.3% 48%;
+    --pulseos-color-sidebar-primary-fg: 0 0% 100%;
+    --pulseos-color-sidebar-accent: 240 3.7% 15.9%;
+    --pulseos-color-sidebar-accent-fg: 240 4.8% 95.9%;
+    --pulseos-color-sidebar-border: 240 3.7% 15.9%;
+    --pulseos-color-sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@media (prefers-contrast: high) {
+  :root {
+    --pulseos-color-text-primary: 0 0% 100%;
+    --pulseos-color-text-secondary: 0 0% 90%;
+    --pulseos-color-text-muted: 0 0% 70%;
+  }
+}
+
+/* ============================================
+   TAILWIND V4 @THEME DIRECTIVE
+   Single canonical @theme block mapping all tokens
+   ============================================ */
+@theme inline {
+  /* Core colors */
+  --color-background: var(--pulseos-color-bg-base);
+  --color-foreground: var(--pulseos-color-fg-base);
+  --color-border: var(--pulseos-color-border-base);
+  --color-ring: var(--pulseos-color-ring-base);
+
+  /* Brand & accent colors */
+  --color-brand: var(--pulseos-color-brand-base);
+  --color-accent: var(--pulseos-color-brand-base);
+
+  /* Text colors */
+  --color-text-primary: var(--pulseos-color-text-primary);
+  --color-text-secondary: var(--pulseos-color-text-secondary);
+  --color-text-muted: var(--pulseos-color-text-muted);
+
+  /* Background ramp */
+  --color-bg-start: var(--pulseos-color-bg-start);
+  --color-bg-mid: var(--pulseos-color-bg-mid);
+  --color-bg-end: var(--pulseos-color-bg-end);
+
+  /* Surface colors */
+  --color-surface-0: var(--pulseos-color-surface-0);
+  --color-surface-1: var(--pulseos-color-surface-1);
+  --color-surface-2: var(--pulseos-color-surface-2);
+
+  /* Semantic colors */
+  --color-success: var(--pulseos-color-success-base);
+  --color-warning: var(--pulseos-color-warning-base);
+  --color-error: var(--pulseos-color-error-base);
+
+  /* Sidebar colors */
+  --color-sidebar: var(--pulseos-color-sidebar-bg);
+  --color-sidebar-foreground: var(--pulseos-color-sidebar-fg);
+  --color-sidebar-primary: var(--pulseos-color-sidebar-primary);
+  --color-sidebar-primary-foreground: var(--pulseos-color-sidebar-primary-fg);
+  --color-sidebar-accent: var(--pulseos-color-sidebar-accent);
+  --color-sidebar-accent-foreground: var(--pulseos-color-sidebar-accent-fg);
+  --color-sidebar-border: var(--pulseos-color-sidebar-border);
+  --color-sidebar-ring: var(--pulseos-color-sidebar-ring);
+
+  /* Spacing scale */
+  --spacing-pulseos-1: var(--pulseos-space-1);
+  --spacing-pulseos-2: var(--pulseos-space-2);
+  --spacing-pulseos-3: var(--pulseos-space-3);
+  --spacing-pulseos-4: var(--pulseos-space-4);
+  --spacing-pulseos-5: var(--pulseos-space-5);
+  --spacing-pulseos-6: var(--pulseos-space-6);
+  --spacing-pulseos-8: var(--pulseos-space-8);
+  --spacing-pulseos-10: var(--pulseos-space-10);
+  --spacing-pulseos-12: var(--pulseos-space-12);
+  --spacing-pulseos-16: var(--pulseos-space-16);
+
+  /* Border radius */
+  --radius-pulseos-xs: var(--pulseos-radius-xs);
+  --radius-pulseos-sm: var(--pulseos-radius-sm);
+  --radius-pulseos-md: var(--pulseos-radius-md);
+  --radius-pulseos-lg: var(--pulseos-radius-lg);
+  --radius-pulseos-xl: var(--pulseos-radius-xl);
+  --radius-pulseos-2xl: var(--pulseos-radius-2xl);
+  --radius-pulseos-full: var(--pulseos-radius-full);
+
+  /* Typography */
+  --font-display: var(--pulseos-typography-font-display);
+  --font-body: var(--pulseos-typography-font-body);
+  --font-mono: var(--pulseos-typography-font-mono);
+
+  /* Backdrop blur */
+  --blur-pulseos-weak: var(--pulseos-glass-blur-weak);
+  --blur-pulseos-md: var(--pulseos-glass-blur-md);
+  --blur-pulseos-strong: var(--pulseos-glass-blur-strong);
+
+  /* Shadows */
+  --shadow-pulseos-elev-0: var(--pulseos-motion-shadow-elev-0);
+  --shadow-pulseos-elev-1: var(--pulseos-motion-shadow-elev-1);
+  --shadow-pulseos-elev-2: var(--pulseos-motion-shadow-elev-2);
+  --shadow-pulseos-elev-3: var(--pulseos-motion-shadow-elev-3);
+
+  /* Transitions */
+  --transition-pulseos-base: var(--pulseos-motion-transition-base);
+  --transition-pulseos-fast: var(--pulseos-motion-transition-fast);
+  --transition-pulseos-slow: var(--pulseos-motion-transition-slow);
+
+  /* Animation variables - keyframes are defined in 15-motion/pulseos-keyframes.ds.css */
+  --animate-accordion-down: accordion-down var(--pulseos-motion-transition-fast) ease-out;
+  --animate-accordion-up: accordion-up var(--pulseos-motion-transition-fast) ease-out;
+}
+

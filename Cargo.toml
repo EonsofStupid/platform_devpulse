@@ -1,5 +1,7 @@
 [workspace]
 resolver = "2"
+# Your recovered code is kept as it was, never built (plan 0009).
+exclude = ["recovered"]
 members = [
     "kernel/devpulse-clyffy",
     "kernel/model-loader",

@@ -1,0 +1,120 @@
+/* PulseOS DS — Toast Component Preset
+   Purpose: Toast notification component preset with glass effects and variants
+   Tier: 30-presets
+   Dependencies: Keyframes in 15-motion/df-keyframes.ds.css, tokens from 00-config/pulseos-tokens.ds.css
+   All values use --pulseos-* tokens in HSL format
+*/
+
+/* ================================================================
+   Toast Container
+   ================================================================ */
+.pulseos-toast-container {
+  position: fixed;
+  top: var(--pulseos-space-4);
+  right: var(--pulseos-space-4);
+  z-index: var(--pulseos-layout-z-notification);
+  display: flex;
+  flex-direction: column;
+  gap: var(--pulseos-space-2);
+  max-width: 420px;
+  width: 100%;
+}
+
+/* ================================================================
+   Toast Base
+   ================================================================ */
+.pulseos-toast {
+  background:
+    linear-gradient(
+      135deg,
+      hsl(var(--pulseos-color-accent-cyan) / 0.15) 0%,
+      hsl(var(--pulseos-color-accent-pink) / 0.1) 30%,
+      hsl(var(--pulseos-color-accent-purple) / 0.15) 60%,
+      hsl(var(--pulseos-color-accent-lime) / 0.12) 100%
+    ),
+    hsl(var(--pulseos-color-bg-start) / 0.85);
+  backdrop-filter: blur(32px) saturate(200%) brightness(1.15);
+  border: var(--pulseos-space-2) solid hsl(var(--pulseos-glass-panel-border-hsl) / var(--pulseos-glass-panel-border-alpha));
+  border-radius: var(--pulseos-radius-xl);
+  padding: var(--pulseos-space-4);
+  color: hsl(var(--pulseos-color-fg-base));
+  box-shadow:
+    inset 0 var(--pulseos-space-2) 0 hsl(var(--pulseos-glass-panel-highlight-hsl) / var(--pulseos-glass-panel-highlight-alpha)),
+    inset 0 calc(-1 * var(--pulseos-space-2)) 0 hsl(var(--pulseos-color-bg-start) / 0.8),
+    0 var(--pulseos-space-4) var(--pulseos-space-16) hsl(var(--pulseos-color-bg-start) / 0.7),
+    0 0 60px hsl(var(--pulseos-color-accent-cyan) / 0.2);
+  animation: toast-enter var(--pulseos-motion-duration-fast) ease-out;
+}
+
+/* ================================================================
+   Toast Animation Classes
+   ================================================================ */
+.pulseos-animate-slime-drip {
+  animation: slime-drip var(--pulseos-motion-duration-slow) ease-in forwards;
+}
+
+.pulseos-animate-drip-fall {
+  animation: drip-fall var(--pulseos-motion-duration-slower) ease-out 0.5s forwards;
+}
+
+.pulseos-animate-shake {
+  animation: shake var(--pulseos-motion-duration-base) ease-in-out;
+}
+
+.pulseos-animate-bounce-gentle {
+  animation: bounce-gentle var(--pulseos-motion-duration-slower) ease-in-out infinite;
+}
+
+.pulseos-animate-fade-slide {
+  animation: fade-slide var(--pulseos-motion-duration-fast) ease-out;
+}
+
+.pulseos-animate-slide-in-right {
+  animation: slide-in-right var(--pulseos-motion-duration-fast) ease-out;
+}
+
+/* ================================================================
+   Toast Variants
+   ================================================================ */
+
+/* Success variant - green accent */
+.pulseos-toast-success {
+  border-color: hsl(var(--pulseos-color-success-base) / 0.5);
+}
+
+/* Error variant - red accent */
+.pulseos-toast-error {
+  border-color: hsl(var(--pulseos-color-error-base) / 0.5);
+}
+
+/* Warning variant - amber accent */
+.pulseos-toast-warning {
+  border-color: hsl(var(--pulseos-color-warning-base) / 0.5);
+}
+
+/* Info variant - blue accent */
+.pulseos-toast-info {
+  border-color: hsl(var(--pulseos-color-accent-blue) / 0.5);
+}
+
+/* ================================================================
+   Accessibility Support
+   ================================================================ */
+@media (prefers-contrast: high) {
+  .pulseos-toast {
+    border-width: var(--pulseos-space-2);
+    box-shadow: 0 var(--pulseos-space-1) var(--pulseos-space-3) hsl(var(--pulseos-color-bg-base) / 0.5);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulseos-animate-slime-drip,
+  .pulseos-animate-drip-fall,
+  .pulseos-animate-shake,
+  .pulseos-animate-bounce-gentle,
+  .pulseos-animate-fade-slide,
+  .pulseos-animate-slide-in-right {
+    animation: none;
+  }
+}
+

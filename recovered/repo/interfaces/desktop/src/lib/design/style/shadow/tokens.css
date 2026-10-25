@@ -1,0 +1,16 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+:root {
+  --shadow-z0: 0px 0px 0px 0px oklch(0 0 0 / 0);
+  --shadow-z1: 0px 1px 3px 0px oklch(0 0 0 / 0.12), 0px 1px 2px 0px oklch(0 0 0 / 0.24);
+  --shadow-z2: 0px 3px 6px 0px oklch(0 0 0 / 0.15), 0px 2px 4px 0px oklch(0 0 0 / 0.12);
+  --shadow-z3: 0px 10px 20px 0px oklch(0 0 0 / 0.15), 0px 3px 6px 0px oklch(0 0 0 / 0.1);
+  --shadow-z4: 0px 15px 25px 0px oklch(0 0 0 / 0.15), 0px 5px 10px 0px oklch(0 0 0 / 0.05);
+  --depth-flat: var(--shadow-z0);
+  --depth-raised: var(--shadow-z1);
+  --depth-panel: var(--shadow-z2);
+  --depth-overlay: var(--shadow-z3);
+  --depth-modal: var(--shadow-z4);
+}

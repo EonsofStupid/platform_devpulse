@@ -111,7 +111,8 @@
 			"!**/.svelte-kit",
 			"!**/dist",
 			"!**/build",
-			"!**/*.generated.*"
+			"!**/*.generated.*",
+			"!recovered"
 		]
 	}
 }

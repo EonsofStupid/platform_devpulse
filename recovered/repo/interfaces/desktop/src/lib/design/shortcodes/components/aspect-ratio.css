@@ -1,0 +1,15 @@
+/**
+ * @file AspectRatio Structural Shortcode Classes
+ * @kind aspect-ratio
+ * @layer shortcodes/components
+ * @package @devpulse/coldlight
+ *
+ * Structural base class for the aspect-ratio component.
+ * Handles layout/positioning ONLY.
+ */
+
+@utility aspect-ratio {
+	position: relative;
+	width: 100%;
+	overflow: hidden;
+}

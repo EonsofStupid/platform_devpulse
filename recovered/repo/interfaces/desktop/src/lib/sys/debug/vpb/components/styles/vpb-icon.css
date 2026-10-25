@@ -1,0 +1,123 @@
+/**
+ * @file vpb-icon.css
+ * @layer vpb
+ * @description VPB FAB - 3D V icon for minimized state
+ * @since 1.0.0
+ */
+
+/* =================================================================
+   Icon Container - Center bottom
+   ================================================================= */
+
+.vpb-icon-container {
+    position: fixed;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: var(--dp-vpb-z-fab);
+}
+
+/* =================================================================
+   V Icon Button
+   ================================================================= */
+
+.vpb-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 48px;
+    height: 48px;
+    padding: 0;
+
+    border: 2px solid var(--dp-vpb-panel-border);
+    border-radius: 50%;
+    background: var(--dp-vpb-panel-bg);
+
+    backdrop-filter: var(--dp-vpb-blur);
+    -webkit-backdrop-filter: var(--dp-vpb-blur);
+
+    cursor: pointer;
+    transition: all var(--dp-vpb-transition-normal);
+
+    box-shadow:
+        0 4px 16px oklch(5% 0.02 280 / 0.5),
+        0 0 12px var(--dp-vpb-panel-glow);
+}
+
+.vpb-icon:hover {
+    border-color: var(--dp-vpb-cyber-gradient);
+    transform: translateX(-50%) scale(1.1);
+
+    box-shadow:
+        0 6px 20px oklch(5% 0.02 280 / 0.6),
+        0 0 20px oklch(0.9106 0.1598 126.64 / 0.4);
+}
+
+.vpb-icon:active {
+    transform: translateX(-50%) scale(0.95);
+}
+
+.vpb-icon__svg {
+    filter: drop-shadow(0 2px 4px oklch(0% 0 0 / 0.3));
+}
+
+/* =================================================================
+   Quick Menu
+   ================================================================= */
+
+.vpb-menu {
+    position: absolute;
+    bottom: 56px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    min-width: 160px;
+    padding: 6px;
+
+    background: var(--dp-vpb-panel-bg);
+    backdrop-filter: var(--dp-vpb-blur);
+    -webkit-backdrop-filter: var(--dp-vpb-blur);
+
+    border: 1px solid var(--dp-vpb-panel-border);
+    border-radius: 8px;
+
+    box-shadow:
+        0 8px 32px oklch(5% 0.02 280 / 0.6),
+        0 0 16px var(--dp-vpb-panel-glow);
+}
+
+.vpb-menu__item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    width: 100%;
+    padding: 10px 12px;
+
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+
+    color: var(--dp-vpb-text-primary);
+    font-size: 13px;
+    text-align: left;
+
+    cursor: pointer;
+    transition: all var(--dp-vpb-transition-fast);
+}
+
+.vpb-menu__item:hover:not(:disabled) {
+    background: var(--dp-vpb-surface-raised);
+}
+
+.vpb-menu__item:disabled {
+    color: var(--dp-vpb-text-muted);
+    cursor: not-allowed;
+}
+
+.vpb-menu__separator {
+    height: 1px;
+    margin: 4px 8px;
+    background: var(--dp-vpb-btn-border);
+}

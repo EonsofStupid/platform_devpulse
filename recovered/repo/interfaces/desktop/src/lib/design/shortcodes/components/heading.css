@@ -1,0 +1,44 @@
+/**
+ * @file Heading Structural Shortcode Classes
+ * @kind heading
+ * @layer shortcodes/components
+ * @package @devpulse/coldlight
+ *
+ * Structural base class for the heading component.
+ * Font size and weight are controlled by heading-{size} intent classes.
+ */
+
+@utility heading-root {
+	color: var(--text-primary);
+	font-size: var(--recipe-font-size, var(--text-size-base));
+	font-weight: var(--recipe-font-weight, 600);
+	letter-spacing: var(--recipe-tracking, 0);
+}
+
+/* ── Size intent classes ── */
+
+@utility heading-xs {
+	--recipe-font-size: var(--text-size-xs);
+	--recipe-font-weight: 600;
+}
+@utility heading-sm {
+	--recipe-font-size: var(--text-size-sm);
+	--recipe-font-weight: 600;
+}
+@utility heading-md {
+	--recipe-font-size: var(--text-size-base);
+	--recipe-font-weight: 600;
+}
+@utility heading-lg {
+	--recipe-font-size: var(--text-size-lg);
+	--recipe-font-weight: 600;
+}
+@utility heading-xl {
+	--recipe-font-size: var(--text-size-xl);
+	--recipe-font-weight: 700;
+}
+@utility heading-2xl {
+	--recipe-font-size: var(--text-size-2xl);
+	--recipe-font-weight: 700;
+	--recipe-tracking: -0.01em;
+}

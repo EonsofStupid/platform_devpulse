@@ -1,0 +1,139 @@
+/**
+ * @file layouts/app/styles/depth.css
+ * @layer layouts
+ *
+ * Multi-layer Depth System for App Shell
+ * Neumorphism + bevel + rim lights using ColdLight tokens.
+ *
+ * @since 0.1.0
+ */
+
+[data-layout="app"] {
+	--depth-ambient: 0 0 80px -20px oklch(3% 0.02 280 / 0.25);
+	--depth-key: -4px 8px 24px -4px oklch(2% 0.015 280 / 0.45);
+	--depth-fill: 2px 4px 16px -2px oklch(5% 0.02 195 / 0.2);
+	--depth-contact: 0 2px 4px -1px oklch(1% 0.01 200 / 0.6);
+	--depth-rim: 0 -1px 12px 2px oklch(15% 0.08 195 / 0.15);
+
+	--depth-float: var(--depth-ambient), var(--depth-contact);
+	--depth-raised-multi: var(--depth-ambient), var(--depth-key), var(--depth-contact);
+	--depth-elevated-multi:
+		var(--depth-ambient), var(--depth-key), var(--depth-fill), var(--depth-contact);
+	--depth-lifted:
+		var(--depth-ambient), var(--depth-key), var(--depth-fill), var(--depth-contact),
+		var(--depth-rim);
+
+	--neu-light: -6px -6px 16px oklch(25% 0.04 195 / 0.35);
+	--neu-shadow: 6px 6px 16px oklch(2% 0.02 280 / 0.5);
+	--neu-inner-light: inset -3px -3px 8px oklch(18% 0.03 195 / 0.25);
+	--neu-inner-shadow: inset 3px 3px 8px oklch(1% 0.015 280 / 0.4);
+	--neu-thick-light: -8px -8px 24px oklch(22% 0.04 195 / 0.4);
+	--neu-thick-shadow: 8px 8px 24px oklch(1% 0.02 280 / 0.55);
+
+	--neu-outset: var(--neu-light), var(--neu-shadow);
+	--neu-inset: var(--neu-inner-light), var(--neu-inner-shadow);
+	--neu-thick: var(--neu-thick-light), var(--neu-thick-shadow);
+
+	--rim-subtle: 0 0 8px 1px oklch(65% 0.12 195 / 0.3);
+	--rim-medium: 0 0 12px 2px oklch(70% 0.15 195 / 0.45);
+	--rim-strong: 0 0 16px 2px oklch(75% 0.18 195 / 0.6);
+
+	--text-emboss: 0 1px 0 oklch(40% 0.04 195 / 0.5), 0 -1px 1px oklch(2% 0.02 280 / 0.7);
+	--text-deboss: 0 -1px 0 oklch(30% 0.03 195 / 0.4), 0 1px 1px oklch(1% 0.015 280 / 0.6);
+	--text-glow:
+		0 0 4px oklch(70% 0.18 195 / 0.8), 0 0 12px oklch(60% 0.15 195 / 0.5),
+		0 0 24px oklch(50% 0.12 195 / 0.3);
+}
+
+[data-layout="app"] [data-depth="float"] {
+	box-shadow: var(--depth-float);
+}
+[data-layout="app"] [data-depth="raised"] {
+	box-shadow: var(--depth-raised-multi);
+}
+[data-layout="app"] [data-depth="elevated"] {
+	box-shadow: var(--depth-elevated-multi);
+}
+[data-layout="app"] [data-depth="lifted"] {
+	box-shadow: var(--depth-lifted);
+}
+
+[data-layout="app"] [data-neu="outset"] {
+	box-shadow: var(--neu-outset);
+}
+[data-layout="app"] [data-neu="inset"] {
+	box-shadow: var(--neu-inset);
+}
+[data-layout="app"] [data-neu="thick"] {
+	box-shadow: var(--neu-thick);
+}
+
+[data-layout="app"] [data-rim="subtle"] {
+	box-shadow: var(--rim-subtle);
+}
+[data-layout="app"] [data-rim="medium"] {
+	box-shadow: var(--rim-medium);
+}
+[data-layout="app"] [data-rim="strong"] {
+	box-shadow: var(--rim-strong);
+}
+
+[data-layout="app"] [data-text-bevel="emboss"] {
+	text-shadow: var(--text-emboss);
+}
+[data-layout="app"] [data-text-bevel="deboss"] {
+	text-shadow: var(--text-deboss);
+}
+[data-layout="app"] [data-text-bevel="glow"] {
+	text-shadow: var(--text-glow);
+}
+
+[data-layout="app"] .panel-float {
+	background: var(--glass-deep);
+	backdrop-filter: blur(var(--blur-md));
+	border: 1px solid var(--border-subtle);
+	border-radius: var(--radius-md);
+	box-shadow: var(--depth-float);
+}
+
+[data-layout="app"] .panel-raised {
+	background: var(--glass-smoke);
+	backdrop-filter: blur(var(--blur-lg));
+	border: 1px solid var(--border-subtle);
+	border-radius: var(--radius-md);
+	box-shadow:
+		var(--depth-raised-multi),
+		inset 0 1px 0 oklch(80% 0.06 195 / 0.3);
+}
+
+[data-layout="app"] .panel-elevated {
+	background: var(--glass-frost);
+	backdrop-filter: blur(var(--blur-lg));
+	border: 1px solid var(--border-emphasis);
+	border-radius: var(--radius-lg);
+	box-shadow:
+		var(--depth-elevated-multi),
+		inset 0 1px 0 oklch(90% 0.08 195 / 0.5),
+		inset 0 -1px 0 oklch(15% 0.04 280 / 0.5);
+}
+
+[data-layout="app"] .panel-hero {
+	background: var(--glass-frost);
+	backdrop-filter: blur(var(--blur-xl));
+	border: 2px solid var(--color-teal-500);
+	border-radius: var(--radius-lg);
+	box-shadow:
+		var(--depth-lifted),
+		var(--rim-strong),
+		inset 0 1px 0 oklch(90% 0.08 195 / 0.5);
+}
+
+[data-layout="app"] .panel-hero:hover {
+	box-shadow:
+		var(--depth-lifted),
+		0 0 24px oklch(60% 0.18 195 / 0.5),
+		0 0 48px oklch(55% 0.15 195 / 0.25),
+		inset 0 1px 0 oklch(90% 0.08 195 / 0.5);
+	transform: translateY(-2px);
+	transition: all var(--duration-normal) var(--ease-spring);
+}

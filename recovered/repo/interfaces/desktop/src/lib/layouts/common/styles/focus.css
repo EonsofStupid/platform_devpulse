@@ -1,0 +1,121 @@
+/**
+ * @file layouts/common/styles/focus.css
+ * @layer layouts
+ *
+ * Focus States & Accessibility
+ * Consistent focus indicators across layouts.
+ *
+ * @since 0.1.0
+ */
+
+/* ============================================
+   FOCUS RING (visible on keyboard focus)
+   ============================================ */
+
+/* Default focus ring */
+:focus-visible {
+	outline: 2px solid var(--dp-teal-400, oklch(65% 0.16 195));
+	outline-offset: 2px;
+}
+
+/* Subtle focus (for dark backgrounds) */
+[data-focus="subtle"]:focus-visible {
+	outline: 1px solid var(--dp-teal-500, oklch(55% 0.18 195));
+	outline-offset: 1px;
+}
+
+/* Glow focus */
+[data-focus="glow"]:focus-visible {
+	outline: none;
+	box-shadow:
+		0 0 0 2px var(--dp-teal-500, oklch(55% 0.18 195)),
+		0 0 12px var(--dp-teal-500, oklch(55% 0.18 195 / 0.5)),
+		0 0 24px var(--dp-teal-400, oklch(65% 0.16 195 / 0.25));
+}
+
+/* Inset focus (for inputs) */
+[data-focus="inset"]:focus-visible {
+	outline: none;
+	border-color: var(--dp-glass-input-border-focus, oklch(60% 0.15 195 / 0.6));
+	box-shadow:
+		0 0 0 1px var(--dp-teal-500, oklch(55% 0.18 195)),
+		inset 0 0 8px var(--dp-teal-500, oklch(55% 0.18 195 / 0.2));
+}
+
+/* No visible focus (use sparingly) */
+[data-focus="none"]:focus-visible {
+	outline: none;
+}
+
+/* ============================================
+   FOCUS-WITHIN CONTAINERS
+   ============================================ */
+
+[data-focus-container]:focus-within {
+	border-color: var(--dp-glass-btn-border-hover, oklch(60% 0.15 195 / 0.5));
+	box-shadow: 0 0 16px var(--dp-teal-500, oklch(55% 0.18 195 / 0.3));
+}
+
+/* ============================================
+   ACCENT FOCUS VARIANTS
+   ============================================ */
+
+[data-focus-accent="purple"]:focus-visible {
+	outline-color: var(--dp-purple-400, oklch(65% 0.2 280));
+}
+
+[data-focus-accent="purple"][data-focus="glow"]:focus-visible {
+	box-shadow:
+		0 0 0 2px var(--dp-purple-500, oklch(55% 0.22 280)),
+		0 0 12px var(--dp-purple-500, oklch(55% 0.22 280 / 0.5)),
+		0 0 24px var(--dp-purple-400, oklch(65% 0.2 280 / 0.25));
+}
+
+[data-focus-accent="ember"]:focus-visible {
+	outline-color: var(--dp-ember-400, oklch(68% 0.2 35));
+}
+
+[data-focus-accent="ember"][data-focus="glow"]:focus-visible {
+	box-shadow:
+		0 0 0 2px var(--dp-ember-500, oklch(60% 0.22 35)),
+		0 0 12px var(--dp-ember-500, oklch(60% 0.22 35 / 0.5)),
+		0 0 24px var(--dp-ember-400, oklch(68% 0.2 35 / 0.25));
+}
+
+[data-focus-accent="cyber"]:focus-visible {
+	outline-color: oklch(91% 0.16 127);
+}
+
+[data-focus-accent="cyber"][data-focus="glow"]:focus-visible {
+	box-shadow:
+		0 0 0 2px oklch(91% 0.16 127),
+		0 0 12px oklch(91% 0.16 127 / 0.5),
+		0 0 24px oklch(85% 0.14 127 / 0.25);
+}
+
+/* ============================================
+   SKIP LINK (accessibility)
+   ============================================ */
+
+.skip-link {
+	position: absolute;
+	top: -100px;
+	left: 50%;
+	transform: translateX(-50%);
+	padding: var(--dp-space-2, 4px) var(--dp-space-4, 12px);
+	background: var(--dp-glass-smoke, oklch(15% 0.03 200 / 0.82));
+	border: 1px solid var(--dp-teal-500, oklch(55% 0.18 195));
+	border-radius: var(--dp-radius-md, 6px);
+	color: var(--dp-text-primary, oklch(95% 0.01 195));
+	font-size: var(--dp-text-sm, 0.875rem);
+	text-decoration: none;
+	z-index: 9999;
+	transition: top 200ms ease;
+}
+
+.skip-link:focus {
+	top: var(--dp-space-3, 8px);
+	box-shadow:
+		0 0 0 2px var(--dp-teal-500, oklch(55% 0.18 195)),
+		0 0 16px var(--dp-teal-500, oklch(55% 0.18 195 / 0.5));
+}

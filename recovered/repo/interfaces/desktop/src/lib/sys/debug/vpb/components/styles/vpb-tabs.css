@@ -1,0 +1,143 @@
+/**
+ * @file vpb-tabs.css
+ * @layer vpb
+ * @description VPB Tabs - Styled for seamless protrusion using Bits UI
+ */
+
+/* The List Container */
+.vpb-tabs {
+    display: flex;
+    align-items: flex-end;
+    /* Align tabs to bottom to merge with panel */
+    gap: 4px;
+
+    height: 100%;
+    padding: 0 12px;
+
+    /* Enable dragging */
+    pointer-events: auto;
+    cursor: grab;
+}
+
+.vpb-tabs:active {
+    cursor: grabbing;
+}
+
+/* Individual Tab Trigger */
+.vpb-tab {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    height: 28px;
+    /* Slightly shorter than full height to stick up */
+    padding: 0 16px;
+    margin-bottom: -1px;
+    /* Overlap border */
+
+    background: var(--dp-vpb-surface-base);
+    border: 1px solid var(--dp-vpb-panel-border);
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+
+    color: var(--dp-vpb-text-secondary);
+    font-size: 13px;
+    font-weight: 500;
+
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    /* Z-index below active */
+    z-index: 1;
+}
+
+.vpb-tab:hover {
+    background: var(--dp-vpb-surface-raised);
+    color: var(--dp-vpb-text-primary);
+    transform: translateY(-2px);
+    /* Lift effect */
+}
+
+/* Active State (handled by data-state="active" from Bits UI) */
+.vpb-tab[data-state="active"] {
+    height: 34px;
+    /* Taller to stick up more */
+    background: var(--dp-vpb-panel-bg);
+    color: var(--dp-vpb-text-primary);
+
+    border-color: var(--dp-vpb-cyber-gradient);
+    border-bottom: 2px solid var(--dp-vpb-panel-bg);
+    /* Mask panel border */
+
+    z-index: 100;
+    /* Highest */
+    box-shadow: 0 -4px 12px oklch(0.9106 0.1598 126.64 / 0.15);
+    /* Crown glow */
+
+    transform: translateY(0);
+}
+
+/* Spacer & Grip */
+.vpb-tabs__spacer {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+}
+
+.vpb-tabs__spacer:hover {
+    opacity: 1;
+}
+
+.vpb-grip-icon {
+    color: var(--dp-vpb-text-muted);
+}
+
+/* Window Controls Container */
+.vpb-tabs__controls {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin-bottom: -1px;
+    /* Align with bottom border/tabs */
+    height: 28px;
+    /* Match tab height */
+    padding: 2px;
+    background: var(--dp-vpb-surface-sunken);
+    /* Background for the control group */
+    border: 1px solid var(--dp-vpb-panel-border);
+    border-bottom: none;
+    border-radius: 6px 6px 0 0;
+    /* Tab-like shape */
+}
+
+/* Window Control Buttons */
+.vpb-tabs__control {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    color: var(--dp-vpb-text-muted);
+    background: transparent;
+    /* Transparent inside the group */
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.vpb-tabs__control:hover {
+    background: var(--dp-vpb-surface-raised);
+    color: var(--dp-vpb-text-primary);
+}
+
+.vpb-tabs__control--close:hover {
+    background: var(--dp-vpb-danger-bg, oklch(0.7 0.2 25 / 0.2));
+    color: var(--dp-vpb-danger-text, oklch(0.65 0.22 28));
+}

@@ -1,0 +1,362 @@
+/* PulseOS DS — Alerts Component Preset
+   Purpose: Alert page component styles (promoted from 98-inbox)
+   Tier: 30-presets (component presets)
+   Dependencies: Tokens from 00-config/pulseos-tokens.ds.css
+   Note: All tokens converted to --pulseos-* format
+*/
+
+/* ================================================================
+   Alerts Container
+   ================================================================ */
+.alerts-container {
+  background-color: hsl(var(--pulseos-color-surface-0) / 1.05);
+  min-height: 100vh;
+}
+
+/* ================================================================
+   Alerts Header
+   ================================================================ */
+.alerts-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--pulseos-space-4);
+}
+
+.alerts-title {
+  font-size: 1.875rem; /* 30px - text-3xl */
+  font-weight: 700;
+  color: hsl(var(--pulseos-color-fg-base));
+}
+
+.alerts-subtitle {
+  color: hsl(var(--pulseos-color-text-muted));
+}
+
+.alerts-badge {
+  display: flex;
+  align-items: center;
+  gap: var(--pulseos-space-2);
+  padding: 0.375rem 0.75rem; /* px-3 py-1.5 */
+  font-size: 1.125rem; /* text-lg */
+  font-weight: 600;
+  border-radius: var(--pulseos-radius-full);
+}
+
+/* ================================================================
+   Alerts Summary Grid
+   ================================================================ */
+.alerts-summary-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--pulseos-space-6);
+}
+
+@media (min-width: 640px) {
+  .alerts-summary-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .alerts-summary-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.alert-summary-card {
+  box-shadow: var(--pulseos-motion-shadow-elev-1);
+  transition: box-shadow var(--pulseos-motion-transition-base);
+}
+
+.alert-summary-card:hover {
+  box-shadow: var(--pulseos-motion-shadow-elev-2);
+}
+
+.alert-summary-title {
+  display: flex;
+  align-items: center;
+  gap: var(--pulseos-space-2);
+  font-size: 1.125rem; /* text-lg */
+  font-weight: 500;
+}
+
+.alert-summary-count {
+  font-size: 1.875rem; /* text-3xl */
+  font-weight: 700;
+  color: hsl(var(--pulseos-color-fg-base));
+}
+
+.alert-summary-description {
+  font-size: 0.875rem; /* text-sm */
+  color: hsl(var(--pulseos-color-text-muted));
+}
+
+/* ================================================================
+   Alert List Items
+   ================================================================ */
+.alert-list-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: var(--pulseos-space-4);
+  border-radius: var(--pulseos-radius-md);
+  border-left-width: 4px;
+}
+
+@media (min-width: 640px) {
+  .alert-list-item {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+.alert-list-content {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--pulseos-space-3);
+  flex-grow: 1;
+  margin-bottom: var(--pulseos-space-3);
+}
+
+@media (min-width: 640px) {
+  .alert-list-content {
+    margin-bottom: 0;
+  }
+}
+
+.alert-list-details {
+  flex: 1;
+}
+
+.alert-list-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--pulseos-space-2);
+  margin-bottom: 0.25rem;
+}
+
+.alert-list-title {
+  font-weight: 500;
+  color: hsl(var(--pulseos-color-fg-base));
+}
+
+.alert-list-message {
+  font-size: 0.875rem; /* text-sm */
+  color: hsl(var(--pulseos-color-text-muted));
+  margin-bottom: var(--pulseos-space-2);
+}
+
+.alert-list-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--pulseos-space-2);
+}
+
+.alert-list-timestamp {
+  font-size: 0.75rem; /* text-xs */
+  color: hsl(var(--pulseos-color-text-muted));
+}
+
+.alert-list-actions {
+  display: flex;
+  gap: var(--pulseos-space-2);
+  width: 100%;
+  justify-content: flex-end;
+}
+
+@media (min-width: 640px) {
+  .alert-list-actions {
+    width: auto;
+  }
+}
+
+/* ================================================================
+   Alert Config Grid
+   ================================================================ */
+.alert-config-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--pulseos-space-6);
+}
+
+@media (min-width: 768px) {
+  .alert-config-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.alert-config-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pulseos-space-4);
+}
+
+.alert-config-title {
+  font-weight: 500;
+  color: hsl(var(--pulseos-color-fg-base));
+}
+
+.alert-config-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--pulseos-space-3);
+  background-color: hsl(var(--pulseos-color-surface-1) / 1.05);
+  border-radius: var(--pulseos-radius-sm);
+  border: 1px solid hsl(var(--pulseos-color-border-base));
+}
+
+.alert-config-label {
+  color: hsl(var(--pulseos-color-text-muted));
+}
+
+.alert-config-value {
+  font-family: var(--pulseos-typography-font-mono);
+  color: hsl(var(--pulseos-color-fg-base));
+}
+
+/* ================================================================
+   Alert Actions Container
+   ================================================================ */
+.alert-actions-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pulseos-space-3);
+}
+
+/* ================================================================
+   Alert Type Variants
+   ================================================================ */
+.alert-error {
+  border-left-color: hsl(var(--pulseos-color-error-base));
+  background-color: hsl(var(--pulseos-color-error-base) / 0.1);
+}
+
+.alert-warning {
+  border-left-color: hsl(var(--pulseos-color-warning-base));
+  background-color: hsl(var(--pulseos-color-warning-base) / 0.1);
+}
+
+.alert-info {
+  border-left-color: hsl(var(--pulseos-color-accent-blue));
+  background-color: hsl(var(--pulseos-color-accent-blue) / 0.1);
+}
+
+.alert-success {
+  border-left-color: hsl(var(--pulseos-color-success-base));
+  background-color: hsl(var(--pulseos-color-success-base) / 0.1);
+}
+
+/* Alert Type Title Colors */
+.alert-title-error {
+  color: hsl(var(--pulseos-color-error-base) / 0.9);
+}
+
+.alert-title-warning {
+  color: hsl(var(--pulseos-color-warning-base) / 0.9);
+}
+
+.alert-title-info {
+  color: hsl(var(--pulseos-color-accent-blue));
+}
+
+.alert-title-success {
+  color: hsl(var(--pulseos-color-success-base) / 0.9);
+}
+
+/* ================================================================
+   Loading States
+   ================================================================ */
+.alerts-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+.alerts-loading-spinner {
+  animation: pulseos-spin var(--pulseos-motion-duration-base) linear infinite;
+  border-radius: var(--pulseos-radius-full);
+  height: 8rem;
+  width: 8rem;
+  border-bottom-width: 2px;
+  border-color: hsl(var(--pulseos-color-accent-blue));
+}
+
+.alerts-loading-text {
+  margin-left: var(--pulseos-space-4);
+  color: hsl(var(--pulseos-color-text-muted));
+}
+
+/* ================================================================
+   Error States
+   ================================================================ */
+.alerts-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: var(--pulseos-space-4);
+  color: hsl(var(--pulseos-color-error-base));
+}
+
+.alerts-error-title {
+  font-size: 1.5rem; /* text-2xl */
+  font-weight: 700;
+  margin-bottom: var(--pulseos-space-2);
+}
+
+.alerts-error-message {
+  color: hsl(var(--pulseos-color-text-muted));
+  text-align: center;
+}
+
+.alerts-error-retry {
+  margin-top: var(--pulseos-space-4);
+  padding: var(--pulseos-space-2) var(--pulseos-space-4);
+  background-color: hsl(var(--pulseos-color-accent-blue));
+  color: white;
+  border-radius: var(--pulseos-radius-sm);
+  transition: background-color var(--pulseos-motion-transition-base);
+}
+
+.alerts-error-retry:hover {
+  background-color: hsl(var(--pulseos-color-accent-blue) / 0.9);
+}
+
+/* ================================================================
+   Empty States
+   ================================================================ */
+.alerts-empty {
+  text-align: center;
+  color: hsl(var(--pulseos-color-text-muted));
+  padding: 2rem 0;
+}
+
+/* ================================================================
+   Responsive Breakpoints
+   ================================================================ */
+@media (max-width: 640px) {
+  .alerts-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--pulseos-space-2);
+  }
+
+  .alerts-badge {
+    font-size: 1rem; /* text-base */
+    padding: 0.25rem 0.5rem; /* px-2 py-1 */
+  }
+
+  .alert-list-actions {
+    flex-direction: column;
+    gap: var(--pulseos-space-2);
+  }
+}
+

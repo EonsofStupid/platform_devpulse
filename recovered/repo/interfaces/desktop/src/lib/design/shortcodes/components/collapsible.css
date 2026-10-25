@@ -1,0 +1,30 @@
+/**
+ * @file Collapsible Structural Shortcode Classes
+ * @kind collapsible
+ * @layer shortcodes/components
+ * @package @devpulse/coldlight
+ *
+ * Structural base classes for the collapsible compound component.
+ * Each class handles layout/positioning ONLY — visual appearance
+ * comes from shortcode composition (v-* + s-* + e-* + sz-*).
+ *
+ * Slot mapping:
+ *   collapsible-trigger  → trigger slot
+ *   collapsible-content  → content slot
+ *
+ * Root has no structural class — it is a plain container.
+ */
+
+@utility collapsible-trigger {
+	display: flex;
+	width: 100%;
+	align-items: center;
+	justify-content: space-between;
+	font-weight: 500;
+	font-size: var(--recipe-font-size, var(--text-size-sm));
+	transition: color var(--duration-fast) var(--ease-out);
+}
+
+@utility collapsible-content {
+	overflow: hidden;
+}

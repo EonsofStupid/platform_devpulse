@@ -1,0 +1,17 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+:root {
+  --backdrop-glow-teal: oklch(0.1500 0.0600 180.00 / 0.3);
+  --backdrop-glow-purple: oklch(0.1500 0.0800 280.00 / 0.25);
+  --backdrop-glow-purple-fade: oklch(0.1000 0.0400 180.00 / 0.1);
+  --backdrop-glow-ember: oklch(0.1500 0.0700 25.00 / 0.25);
+  --backdrop-glow-cyber: oklch(0.1500 0.0600 160.00 / 0.25);
+  --backdrop-glow-magenta: oklch(0.1500 0.0700 330.00 / 0.25);
+  --backdrop-grid-teal: oklch(0.2000 0.0400 180.00 / 0.08);
+  --backdrop-grid-purple: oklch(0.2200 0.0500 280.00 / 0.06);
+  --backdrop-grid-ember: oklch(0.2000 0.0400 25.00 / 0.06);
+  --backdrop-grid-cyber: oklch(0.2000 0.0400 160.00 / 0.06);
+  --backdrop-grid-magenta: oklch(0.2000 0.0400 330.00 / 0.06);
+}

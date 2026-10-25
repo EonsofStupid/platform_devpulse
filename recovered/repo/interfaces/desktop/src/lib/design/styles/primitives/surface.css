@@ -1,0 +1,17 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+@layer tokens.primitives {
+  :root {
+  --glass-void: oklch(0.0608 0.0104 194.77 / 0.8784313725490196);
+  --glass-deep: oklch(0.0901 0.0170 224.61 / 0.8);
+  --glass-smoke: oklch(0.1402 0.0079 212.35 / 0.6509803921568628);
+  --glass-frost: oklch(0.9197 0.0095 222.06 / 0.4);
+  --glass-teal: oklch(0.1143 0.0228 169.40 / 0.7490196078431373);
+  --glass-purple: oklch(0.1012 0.0603 282.04 / 0.7490196078431373);
+  --matte-dark: oklch(0.1395 0.0048 262.80);
+  --matte-medium: oklch(0.2208 0.0050 248.05);
+  --matte-light: oklch(0.2999 0.0046 247.98);
+  }
+}
