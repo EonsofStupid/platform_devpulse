@@ -8,7 +8,7 @@ touches: [kernel-clyffy, engine, desktop, desktop-coldlight]
 status: in-progress
 owner: Jesse Hades Hall
 created: 2026-10-24
-updated: 2026-10-24
+updated: 2026-10-25
 supersedes: []
 specs:
   - CLAUDE.md
@@ -85,6 +85,50 @@ output, vendored `deps/` and generated files:
 | R3 | **AgentHub, wired (plan 0001 B5).** **R3a** your sessions found on this machine: `recovered/devpulselabs/crates/chat/store` (bounded, jailed, paged history reading, 1,111 lines) with its Claude Code and Codex readers (`providers/claude`, `providers/codex` — `impl HistoryDecoder`) authored into the kernel's `providers/history/` on DevPulse's `ProviderId`, their tests with them; an engine `agenthub` facade; Tauri intents. **R3b** the board in Turso and the `domains/agenthub` module: every live thread, room and found session a card, by state. **R3c** hand-offs between cards. | your real Claude Code and Codex sessions listed in the running app |
 | R4 | **Then by capability, in the order you set** — from the list R1 makes visible (persona memory MCP, Cortex/Knowledge page, Visual Page Builder, voice lab, Maestro, the hub pages, …), each under its owning plan. | per capability, live |
 
+### R3b — the board, in detail (written 2026-10-25)
+
+What R3a's live check showed, which R3b builds on:
+
+- The 173 transcripts on this machine are **60 sessions you started**
+  (Claude Code 26, Codex 34) and **113 sub-agents** those sessions spawned
+  (Claude Code 105, under `<session>/subagents/agent-*.jsonl`, each marked
+  `isSidechain` with its parent's `sessionId`; Codex 8, marked
+  `source.subagent`). R3a lists them flat.
+- Each listing re-reads every file's start, about 29 MB here: about 200 ms
+  warm, 3.8–4.8 s for the first call while the app boots.
+- Your design material: `recovered/devpulselabs/docs/proof/` is chat — a
+  provider sidebar with each provider's found-session count, pinned rooms,
+  a read-only "Past transcript" reader. Nothing in your material designs a
+  board. ColdLight's `useDragAndDrop` is kept for "kanban future work"
+  (`packages/coldlight/docs/BEHAVIORS-ORPHAN-HOOKS.md:23`).
+
+The library inventory for the board (plan 0001 B4.3b's first step):
+
+- **A card is covered:** `card` (`as="button"`, header/body/footer slots,
+  `variant`, `disabled`) with `status-dot` for its state, `badge` for its
+  agent, `avatar`. The board's card is a domain adapter,
+  `domains/agenthub/ui/board-card/`, with its preset beside it. No
+  `seat-card` kind for the board; the rooms' seat is decided with the rooms
+  in B4.3b.
+- **A column is not:** nothing is a labelled, ordered list that takes a
+  dropped card and has a keyboard way to move one. New kind `board-column`
+  (anatomy, component, types, tokens, schema, index) on `useDragAndDrop`,
+  with list semantics and its count in its heading.
+
+| # | Outcome | Check |
+| --- | --- | --- |
+| R3b.1 | **Sub-agents under their parent; the index kept.** The kernel's index says each sub-agent's parent (Claude Code: `isSidechain` and `sessionId`; Codex: its `source.subagent` and the parent field a key survey confirms first). The catalog keeps each source's index between calls and re-reads only files whose size or time changed; the engine holds one catalog. `FoundSession` gains the parent. | 60 sessions listed with their sub-agents under them; a second listing re-reads no file; the first call's time measured |
+| R3b.2 | **Live state.** `Agents` and `Rooms` keep each live conversation's state — working (a prompt in flight), waiting for you (a permission or a pick unanswered), idle — and the engine publishes `agenthubChanged` when one changes. | a Codex thread shows working, then idle; a permission request shows waiting for you |
+| R3b.3 | **The board in Turso.** Columns: Working, Waiting for you, Done. A live card's column is its state; a found session written in the last two minutes is Working (in the vendor's own app), else Done. A found session belongs to the project whose folder holds its folder; the rest are "Elsewhere on this machine". What you change is kept in `board_cards` (user database): a card's column, its place, pinned, hidden. Engine `board(project)`, `move_card`; Tauri `agenthub_board`, `agenthub_move_card`. | a moved card is where you put it after a restart |
+| R3b.4 | **`board-column` in ColdLight**, as above, with its Storybook-style fixture. | the fixture renders; the curator audit has no finding |
+| R3b.5 | **The module and its page.** `domains/agenthub/`: `data-access/agenthub.service.ts` (every command and event), `agenthub.state.svelte.ts`, `ui/board-card/`, `feature/AgentHubBoard.svelte`, `index.ts` (chat integrates through it alone). The page comes from its folder (plan 0008: `_nav`, its copy). A found session opens read only, newest page first, "Show older"; sub-agents fold under their parent's card. | your real sessions on the board; screenshots at 1440 and 1024 wide |
+| R3b.6 | **Continue here.** On a session you started (not a sub-agent), "Continue in DevPulse" — your click — starts an agent thread in its project with the session's own id as the resume token, so the vendor continues it in its folder. | a Codex session from the terminal continued in DevPulse |
+
+**Question for you:**
+
+- **Q54 Where the board lives.** Its own page in the navigation
+  (DevPulse › AgentHub), with chat linking to it — or a tab inside chat?
+
 ## Log
 
 - 2026-10-24 — Plan written after the measurement above and your two answers.
@@ -145,8 +189,10 @@ output, vendored `deps/` and generated files:
   - Verified: 28 history tests (your store's 6, the readers' 13 plus the
     current-format, titling, fork, sub-agent, prefix and catalog tests);
     clippy (all targets), rustfmt clean.
-  - Live, through the app's IPC: 173 sessions (Claude Code 131 from
-    `~/.claude/projects`, Codex 42 from `~/.codex/sessions`), newest first;
+  - Live, through the app's IPC: 173 transcripts (Claude Code 131 from
+    `~/.claude/projects`, Codex 42 from `~/.codex/sessions`), newest first —
+    *corrected the same day:* 60 sessions you started and 113 of their
+    sub-agents, listed flat until R3b.1;
     40 of 42 Codex sessions named by your request or a sub-agent's task (the
     other two are empty sessions, rightly "Codex · folder · date"); pages in
     both directions in under 50 ms; no unknown record on the newest pages.

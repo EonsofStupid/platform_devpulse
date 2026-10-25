@@ -2606,6 +2606,7 @@ queries proving what was written.
       your click by design.
   - 2026-10-25 — **B5.1 done (plan 0009 R3a): your Claude Code and Codex
     sessions found on this machine** from your recovered `dpl-chat-store`
-    and its readers — 173 sessions live, each named by your first request
-    (a sub-agent by its task); details in plan 0009's log.
+    and its readers — 173 transcripts live (60 sessions you started, 113
+    of their sub-agents), each named by your first request (a sub-agent by
+    its task); details in plan 0009's log, B5.2 detailed there as R3b.
 
