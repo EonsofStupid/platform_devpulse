@@ -15,12 +15,13 @@ pub mod codex;
 pub mod events;
 mod record;
 
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::fs::File;
 use std::io::{Read, Seek, SeekFrom};
 use std::ops::RangeInclusive;
 use std::path::{Path, PathBuf};
-use std::time::UNIX_EPOCH;
+use std::sync::{Arc, Mutex, MutexGuard};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use self::events::{
     BoundedNativePayload, ChatEvent, ChatEventContent, ChatEventId, ChatSessionId,
@@ -57,14 +58,15 @@ pub struct FoundSource {
 }
 
 /// Every provider whose definition says where its history is, read from
-/// this machine: the catalog of those present, and what was found for each.
+/// this machine: refresh source configuration while retaining unchanged
+/// sources and their indexes. Absent or changed sources are invalidated.
 #[must_use]
 pub fn catalog(
+    catalog: &mut HistoryCatalog,
     definitions: &[ProviderDefinition],
     home: Option<&Path>,
     limits: HistoryLimits,
-) -> (HistoryCatalog, Vec<FoundSource>) {
-    let mut catalog = HistoryCatalog::default();
+) -> Vec<FoundSource> {
     let mut found = Vec::new();
     for definition in definitions {
         let Some(spec) = &definition.history else {
@@ -78,14 +80,7 @@ pub fn catalog(
                 prefix_bytes: spec.prefix_bytes.unwrap_or(limits.prefix_bytes),
                 ..limits
             };
-            let opened = match spec.format {
-                HistoryFormat::ClaudeCode => {
-                    catalog.register_open(root, claude::ClaudeHistoryDecoder, limits)
-                }
-                HistoryFormat::Codex => {
-                    catalog.register_open(root, codex::CodexHistoryDecoder, limits)
-                }
-            };
+            let opened = catalog.configure(definition.id, root, spec, limits);
             problem = opened.err().map(|e| e.to_string());
         } else if root.is_none() {
             problem = Some("the home folder is unknown".to_owned());
@@ -97,7 +92,18 @@ pub fn catalog(
             problem,
         });
     }
-    (catalog, found)
+    catalog.sources.retain(|source| {
+        found.iter().any(|report| {
+            report.provider_id == source.provider_id() && report.present && report.problem.is_none()
+        })
+    });
+    catalog.configurations.retain(|provider, _| {
+        catalog
+            .sources
+            .iter()
+            .any(|source| source.provider_id() == *provider)
+    });
+    found
 }
 
 /// The bytes a source may read from a file's start to name it.
@@ -377,6 +383,10 @@ pub struct HistoryIndex {
     pub sessions: Vec<IndexedSession>,
     /// History files looked at.
     pub scanned_files: usize,
+    /// Transcript prefixes actually read during this listing (cache misses).
+    pub prefix_reads: usize,
+    /// Transcript bytes actually read to index this listing.
+    pub prefix_bytes: usize,
     /// A ceiling was reached; there are more.
     pub truncated: bool,
 }
@@ -640,6 +650,46 @@ pub struct JsonlHistorySource {
     jail: ReadJail,
     decoder: Box<dyn HistoryDecoder>,
     limits: HistoryLimits,
+    index: Mutex<HashMap<PathBuf, CachedMetadata>>,
+}
+
+/// Full filesystem timestamps, not the rounded timestamp displayed by the UI.
+/// A rewrite preserving size and all timestamps cannot be detected without
+/// reading content; this index does not claim content-hash freshness.
+#[derive(Clone, PartialEq, Eq)]
+struct FileFingerprint {
+    bytes: u64,
+    modified: SystemTime,
+    created: Option<SystemTime>,
+}
+
+impl FileFingerprint {
+    fn read(path: &Path) -> Result<Self, StoreError> {
+        let metadata = std::fs::metadata(path).map_err(|error| StoreError::Io {
+            operation: "inspect history file",
+            message: error.to_string(),
+        })?;
+        Ok(Self {
+            bytes: metadata.len(),
+            modified: metadata.modified().map_err(|error| StoreError::Io {
+                operation: "read history modification time",
+                message: error.to_string(),
+            })?,
+            created: metadata.created().ok(),
+        })
+    }
+}
+
+#[derive(Clone)]
+struct CachedMetadata {
+    fingerprint: FileFingerprint,
+    metadata: Option<HistoryIndexMetadata>,
+}
+
+#[derive(Default)]
+struct PrefixReads {
+    files: usize,
+    bytes: usize,
 }
 
 impl JsonlHistorySource {
@@ -656,18 +706,70 @@ impl JsonlHistorySource {
             jail: ReadJail::open(root)?,
             decoder: Box::new(decoder),
             limits: limits.normalized(),
+            index: Mutex::default(),
         })
     }
 
-    fn files(&self) -> Result<(Vec<PathBuf>, bool), StoreError> {
-        self.jail.jsonl_files(self.limits)
+    fn index(&self) -> Result<MutexGuard<'_, HashMap<PathBuf, CachedMetadata>>, StoreError> {
+        self.index
+            .lock()
+            .map_err(|error| StoreError::SourceUnavailable {
+                provider: self.provider_id(),
+                reason: format!("history index lock poisoned: {error}"),
+            })
     }
 
-    fn metadata_for(&self, path: &Path) -> Result<Option<HistoryIndexMetadata>, StoreError> {
-        let prefix = read_prefix(path, self.limits.prefix_bytes)?;
-        Ok(self
-            .decoder
-            .index_metadata(path, &String::from_utf8_lossy(&prefix)))
+    fn files(
+        &self,
+        index: &mut HashMap<PathBuf, CachedMetadata>,
+    ) -> Result<(Vec<PathBuf>, bool), StoreError> {
+        let inventory = self.jail.jsonl_files(self.limits);
+        match &inventory {
+            Ok((files, _)) => {
+                let present: HashSet<_> = files.iter().collect();
+                index.retain(|path, _| present.contains(path));
+            }
+            Err(_) => index.clear(),
+        }
+        inventory
+    }
+
+    fn metadata_for(
+        &self,
+        path: &Path,
+        index: &mut HashMap<PathBuf, CachedMetadata>,
+        reads: &mut PrefixReads,
+    ) -> Result<CachedMetadata, StoreError> {
+        for _ in 0..2 {
+            // A cached path is never permission to bypass the read jail.
+            self.jail.checked_file(path)?;
+            let fingerprint = FileFingerprint::read(path)?;
+            if let Some(cached) = index.get(path).filter(|c| c.fingerprint == fingerprint) {
+                return Ok(cached.clone());
+            }
+            index.remove(path);
+            let prefix = read_prefix(path, self.limits.prefix_bytes)?;
+            reads.files += 1;
+            reads.bytes += prefix.len();
+            let metadata = self
+                .decoder
+                .index_metadata(path, &String::from_utf8_lossy(&prefix));
+            self.jail.checked_file(path)?;
+            if FileFingerprint::read(path)? != fingerprint {
+                continue;
+            }
+            let cached = CachedMetadata {
+                fingerprint,
+                metadata,
+            };
+            index.insert(path.to_path_buf(), cached.clone());
+            return Ok(cached);
+        }
+        Err(StoreError::SourceUnavailable {
+            provider: self.provider_id(),
+            reason: "a history file kept changing while its prefix was read; retry the listing"
+                .into(),
+        })
     }
 
     /// Recover one stored session's accounting.
@@ -744,12 +846,14 @@ impl JsonlHistorySource {
         &self,
         locator: HistoryLocator,
     ) -> Result<(PathBuf, HistoryIndexMetadata), StoreError> {
-        let (files, _) = self.files()?;
+        let mut index = self.index()?;
+        let (files, _) = self.files(&mut index)?;
+        let mut reads = PrefixReads::default();
         for path in files {
             if self.locator_for(&path)? != locator {
                 continue;
             }
-            if let Some(metadata) = self.metadata_for(&path)? {
+            if let Some(metadata) = self.metadata_for(&path, &mut index, &mut reads)?.metadata {
                 return Ok((path, metadata));
             }
         }
@@ -830,14 +934,19 @@ impl HistorySource for JsonlHistorySource {
     }
 
     fn list(&self, workspace_filter: Option<&str>) -> Result<HistoryIndex, StoreError> {
-        let (files, mut truncated) = self.files()?;
+        // One source refresh at a time: callers share parsed prefixes, even
+        // when several windows request their initial listing concurrently.
+        let mut index = self.index()?;
+        let (files, truncated) = self.files(&mut index)?;
+        let mut reads = PrefixReads::default();
         let scanned_files = files.len();
         let normalized_filter = workspace_filter.map(str::to_lowercase);
         let mut sessions = Vec::new();
         let mut ids = HashSet::new();
 
         for path in files {
-            let Some(metadata) = self.metadata_for(&path)? else {
+            let cached = self.metadata_for(&path, &mut index, &mut reads)?;
+            let Some(metadata) = cached.metadata else {
                 continue;
             };
             if normalized_filter
@@ -854,14 +963,11 @@ impl HistorySource for JsonlHistorySource {
                     session_id,
                 });
             }
-            let file_metadata = std::fs::metadata(&path).map_err(|error| StoreError::Io {
-                operation: "inspect history file",
-                message: error.to_string(),
-            })?;
-            let modified_millis = file_metadata
-                .modified()
+            let modified_millis = cached
+                .fingerprint
+                .modified
+                .duration_since(UNIX_EPOCH)
                 .ok()
-                .and_then(|time| time.duration_since(UNIX_EPOCH).ok())
                 .map_or(0, |duration| duration.as_millis() as u64);
             sessions.push(IndexedSession {
                 locator,
@@ -876,12 +982,8 @@ impl HistorySource for JsonlHistorySource {
                 },
                 started_at: metadata.started_at,
                 modified_millis,
-                source_bytes: file_metadata.len(),
+                source_bytes: cached.fingerprint.bytes,
             });
-            if sessions.len() == self.limits.max_files {
-                truncated = true;
-                break;
-            }
         }
         // Newest first — `Reverse` says descending in the signature rather
         // than by which side of `cmp` the arguments landed on.
@@ -890,6 +992,8 @@ impl HistorySource for JsonlHistorySource {
             provider_id: self.provider_id(),
             sessions,
             scanned_files,
+            prefix_reads: reads.files,
+            prefix_bytes: reads.bytes,
             truncated,
         })
     }
@@ -982,9 +1086,20 @@ impl HistorySource for JsonlHistorySource {
 }
 
 /// Every provider's history, one source each.
-#[derive(Default)]
+/// Clones share sources and their caches; configuration refresh changes only
+/// the catalog being refreshed, so in-flight readers retain their snapshot.
+#[derive(Clone, Default)]
 pub struct HistoryCatalog {
-    sources: Vec<Box<dyn HistorySource>>,
+    sources: Vec<Arc<dyn HistorySource>>,
+    configurations: HashMap<ProviderId, SourceConfiguration>,
+}
+
+#[derive(Clone, PartialEq, Eq)]
+struct SourceConfiguration {
+    canonical_root: PathBuf,
+    created: Option<SystemTime>,
+    spec: HistorySpec,
+    limits: HistoryLimits,
 }
 
 impl HistoryCatalog {
@@ -1001,17 +1116,46 @@ impl HistoryCatalog {
         {
             return Err(StoreError::DuplicateSource(provider));
         }
-        self.sources.push(Box::new(source));
+        self.sources.push(Arc::new(source));
         Ok(())
     }
 
-    fn register_open(
+    fn configure(
         &mut self,
+        provider: ProviderId,
         root: &Path,
-        decoder: impl HistoryDecoder + 'static,
+        spec: &HistorySpec,
         limits: HistoryLimits,
     ) -> Result<(), StoreError> {
-        self.register(JsonlHistorySource::open(root, decoder, limits)?)
+        let jail = ReadJail::open(root)?;
+        let configuration = SourceConfiguration {
+            created: std::fs::metadata(&jail.canonical_root)
+                .ok()
+                .and_then(|m| m.created().ok()),
+            canonical_root: jail.canonical_root,
+            spec: spec.clone(),
+            limits: limits.normalized(),
+        };
+        if self.configurations.get(&provider) == Some(&configuration) {
+            return Ok(());
+        }
+        self.sources
+            .retain(|source| source.provider_id() != provider);
+        self.configurations.remove(&provider);
+        match spec.format {
+            HistoryFormat::ClaudeCode => self.register(JsonlHistorySource::open(
+                root,
+                claude::ClaudeHistoryDecoder,
+                limits,
+            )?)?,
+            HistoryFormat::Codex => self.register(JsonlHistorySource::open(
+                root,
+                codex::CodexHistoryDecoder,
+                limits,
+            )?)?,
+        }
+        self.configurations.insert(provider, configuration);
+        Ok(())
     }
 
     /// The provider has a source.
@@ -1257,7 +1401,9 @@ mod tests {
                 tree.root.display().to_string()
             ))
             .unwrap();
-            let (catalog, _) = catalog(&[definition], None, HistoryLimits::default());
+            let mut catalog = HistoryCatalog::default();
+            let found = super::catalog(&mut catalog, &[definition], None, HistoryLimits::default());
+            assert!(found.iter().all(|source| source.problem.is_none()));
             let index = catalog.list(ProviderId::Codex, None).unwrap();
             index.sessions[0].summary.title.clone()
         };
@@ -1283,7 +1429,8 @@ mod tests {
             definition("claude-code", "claude-code", &claude_root),
             definition("codex", "codex", &tree.root.join("never-used")),
         ];
-        let (catalog, found) = catalog(&definitions, None, HistoryLimits::default());
+        let mut catalog = HistoryCatalog::default();
+        let found = super::catalog(&mut catalog, &definitions, None, HistoryLimits::default());
         assert!(catalog.has_source(ProviderId::ClaudeCode));
         assert!(
             !catalog.has_source(ProviderId::Codex),
@@ -1375,6 +1522,328 @@ mod tests {
         let index = source.list(None).expect("index");
         assert_eq!(index.scanned_files, 1);
         assert!(index.truncated);
+    }
+
+    #[test]
+    fn listings_read_only_added_or_changed_prefixes_and_evict_removed_paths() {
+        let tree = TestTree::new();
+        fs::write(tree.root.join("a.jsonl"), "one\n").unwrap();
+        fs::write(tree.root.join("b.jsonl"), "two\n").unwrap();
+        let source = source(&tree, 2);
+        let first = source.list(None).unwrap();
+        assert_eq!((first.prefix_reads, first.prefix_bytes), (2, 8));
+        let unchanged = source.list(None).unwrap();
+        assert_eq!(unchanged.sessions, first.sessions);
+        assert_eq!((unchanged.prefix_reads, unchanged.prefix_bytes), (0, 0));
+        let filtered = source.list(Some("different-folder")).unwrap();
+        assert!(filtered.sessions.is_empty());
+        assert_eq!(filtered.prefix_reads, 0);
+        assert_eq!(source.list(Some("FIXTURE")).unwrap().sessions.len(), 2);
+
+        fs::write(tree.root.join("a.jsonl"), "one\nmore\n").unwrap();
+        let changed = source.list(None).unwrap();
+        assert_eq!((changed.prefix_reads, changed.prefix_bytes), (1, 9));
+        fs::write(tree.root.join("c.jsonl"), "new\n").unwrap();
+        assert_eq!(source.list(None).unwrap().prefix_reads, 1);
+        fs::rename(tree.root.join("b.jsonl"), tree.root.join("renamed.jsonl")).unwrap();
+        assert_eq!(source.list(None).unwrap().prefix_reads, 1);
+
+        let removed = first
+            .sessions
+            .iter()
+            .find(|s| s.summary.title == "a")
+            .unwrap()
+            .locator;
+        fs::remove_file(tree.root.join("a.jsonl")).unwrap();
+        let remaining = source.list(None).unwrap();
+        assert_eq!((remaining.sessions.len(), remaining.prefix_reads), (2, 0));
+        assert!(matches!(
+            source.page(removed, None),
+            Err(StoreError::SessionMissing { .. })
+        ));
+    }
+
+    #[test]
+    fn same_size_rewrites_use_full_timestamps_instead_of_display_milliseconds() {
+        let tree = TestTree::new();
+        let path = tree.root.join("s.jsonl");
+        let message =
+            |text| format!("{{\"type\":\"user\",\"message\":{{\"content\":\"{text}\"}}}}\n");
+        let timestamp = UNIX_EPOCH + std::time::Duration::from_secs(1_700_000_000);
+        fs::write(&path, message("first")).unwrap();
+        File::options()
+            .write(true)
+            .open(&path)
+            .unwrap()
+            .set_modified(timestamp)
+            .unwrap();
+        let source = JsonlHistorySource::open(
+            &tree.root,
+            claude::ClaudeHistoryDecoder,
+            HistoryLimits::default(),
+        )
+        .unwrap();
+        let first = source.list(None).unwrap();
+        fs::write(&path, message("other")).unwrap();
+        File::options()
+            .write(true)
+            .open(&path)
+            .unwrap()
+            .set_modified(timestamp + std::time::Duration::from_micros(100))
+            .unwrap();
+        let changed = source.list(None).unwrap();
+        assert_eq!(
+            first.sessions[0].source_bytes,
+            changed.sessions[0].source_bytes
+        );
+        assert_eq!(
+            first.sessions[0].modified_millis,
+            changed.sessions[0].modified_millis
+        );
+        assert_eq!(changed.sessions[0].summary.title, "other");
+        assert_eq!(changed.prefix_reads, 1);
+    }
+
+    #[test]
+    fn concurrent_listings_share_prefix_reads() {
+        let tree = TestTree::new();
+        for name in ["a", "b", "c"] {
+            fs::write(tree.root.join(format!("{name}.jsonl")), "one\n").unwrap();
+        }
+        let source = source(&tree, 2);
+        let barrier = std::sync::Barrier::new(8);
+        let indexes = std::thread::scope(|scope| {
+            let threads: Vec<_> = (0..8)
+                .map(|_| {
+                    scope.spawn(|| {
+                        barrier.wait();
+                        source.list(None).unwrap()
+                    })
+                })
+                .collect();
+            threads
+                .into_iter()
+                .map(|thread| thread.join().unwrap())
+                .collect::<Vec<_>>()
+        });
+        assert_eq!(
+            indexes
+                .iter()
+                .map(|index| index.prefix_reads)
+                .sum::<usize>(),
+            3
+        );
+        assert_eq!(
+            indexes
+                .iter()
+                .map(|index| index.prefix_bytes)
+                .sum::<usize>(),
+            12
+        );
+        assert!(indexes
+            .iter()
+            .all(|index| index.sessions == indexes[0].sessions));
+    }
+
+    #[test]
+    fn paging_reuses_the_index_and_refreshes_after_truncation() {
+        struct CountingDecoder(Arc<AtomicU64>);
+        impl HistoryDecoder for CountingDecoder {
+            fn provider_id(&self) -> ProviderId {
+                TEST_PROVIDER
+            }
+            fn index_metadata(&self, path: &Path, prefix: &str) -> Option<HistoryIndexMetadata> {
+                self.0.fetch_add(1, Ordering::SeqCst);
+                FixtureDecoder.index_metadata(path, prefix)
+            }
+            fn decode_line(&self, line: &str) -> DecodeOutcome {
+                FixtureDecoder.decode_line(line)
+            }
+        }
+        let tree = TestTree::new();
+        let path = tree.root.join("s.jsonl");
+        fs::write(&path, "one\ntwo\nthree\n").unwrap();
+        let decoded = Arc::new(AtomicU64::new(0));
+        let source = JsonlHistorySource::open(
+            &tree.root,
+            CountingDecoder(Arc::clone(&decoded)),
+            HistoryLimits {
+                page_events: 1,
+                ..HistoryLimits::default()
+            },
+        )
+        .unwrap();
+        let locator = source.list(None).unwrap().sessions[0].locator;
+        let newest = source.page(locator, None).unwrap();
+        source.page(locator, newest.next_cursor).unwrap();
+        assert_eq!(decoded.load(Ordering::SeqCst), 1);
+        fs::write(&path, "one\n").unwrap();
+        assert!(matches!(
+            source.page(locator, newest.next_cursor),
+            Err(StoreError::SessionChanged { .. })
+        ));
+        assert_eq!(decoded.load(Ordering::SeqCst), 2);
+        assert_eq!(source.list(None).unwrap().prefix_reads, 0);
+    }
+
+    #[test]
+    fn changing_files_are_retried_boundedly_and_failures_are_not_cached() {
+        struct ChangingDecoder(Arc<AtomicU64>);
+        impl HistoryDecoder for ChangingDecoder {
+            fn provider_id(&self) -> ProviderId {
+                TEST_PROVIDER
+            }
+            fn index_metadata(&self, path: &Path, prefix: &str) -> Option<HistoryIndexMetadata> {
+                let remaining = self.0.load(Ordering::SeqCst);
+                if remaining > 0 {
+                    self.0.fetch_sub(1, Ordering::SeqCst);
+                    fs::write(path, format!("{prefix}changed\n")).unwrap();
+                }
+                FixtureDecoder.index_metadata(path, prefix)
+            }
+            fn decode_line(&self, line: &str) -> DecodeOutcome {
+                FixtureDecoder.decode_line(line)
+            }
+        }
+        let tree = TestTree::new();
+        let path = tree.root.join("s.jsonl");
+        fs::write(&path, "one\n").unwrap();
+        let changes = Arc::new(AtomicU64::new(1));
+        let source = JsonlHistorySource::open(
+            &tree.root,
+            ChangingDecoder(Arc::clone(&changes)),
+            HistoryLimits::default(),
+        )
+        .unwrap();
+        let stable = source.list(None).unwrap();
+        assert_eq!(stable.prefix_reads, 2);
+        assert_eq!(
+            stable.sessions[0].source_bytes,
+            fs::metadata(&path).unwrap().len()
+        );
+        assert_eq!(source.list(None).unwrap().prefix_reads, 0);
+
+        fs::write(&path, "new\ncontent\n").unwrap();
+        changes.store(2, Ordering::SeqCst);
+        assert!(matches!(
+            source.list(None),
+            Err(StoreError::SourceUnavailable { .. })
+        ));
+        assert_eq!(
+            changes.load(Ordering::SeqCst),
+            0,
+            "both bounded attempts used"
+        );
+        assert_eq!(
+            source.list(None).unwrap().prefix_reads,
+            1,
+            "retry after a failed refresh"
+        );
+        assert_eq!(source.list(None).unwrap().prefix_reads, 0);
+    }
+
+    #[test]
+    fn a_partial_record_is_refreshed_when_the_writer_finishes_it() {
+        let tree = TestTree::new();
+        let path = tree.root.join("s.jsonl");
+        fs::write(&path, "{\"type\":\"user\",\"message\":{").unwrap();
+        let source = JsonlHistorySource::open(
+            &tree.root,
+            claude::ClaudeHistoryDecoder,
+            HistoryLimits::default(),
+        )
+        .unwrap();
+        source.list(None).unwrap();
+        assert_eq!(source.list(None).unwrap().prefix_reads, 0);
+        fs::write(
+            &path,
+            "{\"type\":\"user\",\"message\":{\"content\":\"Finished\"}}\n",
+        )
+        .unwrap();
+        let complete = source.list(None).unwrap();
+        assert_eq!(complete.prefix_reads, 1);
+        assert_eq!(complete.sessions[0].summary.title, "Finished");
+    }
+
+    #[test]
+    fn catalog_refresh_retains_sources_but_invalidates_changed_configuration() {
+        let left = TestTree::new();
+        let right = TestTree::new();
+        fs::write(left.root.join("s.jsonl"), "{}\n").unwrap();
+        fs::write(right.root.join("other.jsonl"), "{}\n").unwrap();
+        let mut definitions = [definition("claude-code", "claude-code", &left.root)];
+        let mut catalog = HistoryCatalog::default();
+        let refresh = |catalog: &mut HistoryCatalog, definitions: &[ProviderDefinition], limits| {
+            let found = super::catalog(catalog, definitions, None, limits);
+            assert!(found.iter().all(|source| source.problem.is_none()));
+        };
+        refresh(&mut catalog, &definitions, HistoryLimits::default());
+        assert_eq!(catalog.list(TEST_PROVIDER, None).unwrap().prefix_reads, 1);
+        refresh(&mut catalog, &definitions, HistoryLimits::default());
+        assert_eq!(
+            catalog
+                .clone()
+                .list(TEST_PROVIDER, None)
+                .unwrap()
+                .prefix_reads,
+            0
+        );
+        definitions[0].history.as_mut().unwrap().prefix_bytes = Some(1024);
+        refresh(&mut catalog, &definitions, HistoryLimits::default());
+        assert_eq!(catalog.list(TEST_PROVIDER, None).unwrap().prefix_reads, 1);
+        refresh(
+            &mut catalog,
+            &definitions,
+            HistoryLimits {
+                max_files: 1,
+                ..HistoryLimits::default()
+            },
+        );
+        let exact_limit = catalog.list(TEST_PROVIDER, None).unwrap();
+        assert_eq!(exact_limit.prefix_reads, 1);
+        assert!(
+            !exact_limit.truncated,
+            "exactly the limit is not evidence of more files"
+        );
+        definitions[0] = definition("claude-code", "claude-code", &right.root);
+        refresh(&mut catalog, &definitions, HistoryLimits::default());
+        let moved = catalog.list(TEST_PROVIDER, None).unwrap();
+        assert_eq!(moved.prefix_reads, 1);
+        assert_eq!(
+            moved.sessions[0]
+                .summary
+                .provider_session_id
+                .as_ref()
+                .unwrap()
+                .0,
+            "other"
+        );
+        refresh(&mut catalog, &[], HistoryLimits::default());
+        assert!(!catalog.has_source(TEST_PROVIDER));
+    }
+
+    #[test]
+    fn missing_roots_can_appear_disappear_and_return() {
+        let tree = TestTree::new();
+        let root = tree.root.join("history");
+        let moved = tree.root.join("moved");
+        let definitions = [definition("claude-code", "claude-code", &root)];
+        let mut catalog = HistoryCatalog::default();
+        let refresh = |catalog: &mut HistoryCatalog| {
+            super::catalog(catalog, &definitions, None, HistoryLimits::default())
+        };
+        assert!(!refresh(&mut catalog)[0].present);
+        assert!(!catalog.has_source(TEST_PROVIDER));
+        fs::create_dir(&root).unwrap();
+        fs::write(root.join("s.jsonl"), "{}\n").unwrap();
+        assert!(refresh(&mut catalog)[0].present);
+        assert_eq!(catalog.list(TEST_PROVIDER, None).unwrap().prefix_reads, 1);
+        fs::rename(&root, &moved).unwrap();
+        assert!(!refresh(&mut catalog)[0].present);
+        assert!(!catalog.has_source(TEST_PROVIDER));
+        fs::rename(&moved, &root).unwrap();
+        assert!(refresh(&mut catalog)[0].present);
+        assert_eq!(catalog.list(TEST_PROVIDER, None).unwrap().prefix_reads, 1);
     }
 
     #[test]

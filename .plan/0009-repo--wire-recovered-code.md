@@ -117,20 +117,123 @@ The library inventory for the board (plan 0001 B4.3b's first step):
 
 | # | Outcome | Check |
 | --- | --- | --- |
-| R3b.1 | **Sub-agents under their parent; the index kept.** The kernel's index says each sub-agent's parent (Claude Code: `isSidechain` and `sessionId`; Codex: its `source.subagent` and the parent field a key survey confirms first). The catalog keeps each source's index between calls and re-reads only files whose size or time changed; the engine holds one catalog. `FoundSession` gains the parent. | 60 sessions listed with their sub-agents under them; a second listing re-reads no file; the first call's time measured |
+| R3b.1 | **Sub-agents under their parent; the index kept.** The kernel's index says each sub-agent's parent (Claude Code: `isSidechain` and `sessionId`; Codex: its `source.subagent` and the parent field a key survey confirms first). The catalog keeps each source's index between calls and re-reads only files whose size or time changed; the engine holds one catalog. `FoundSession` gains the parent. | the current user-started sessions listed with their sub-agents under them; an unchanged second listing reads zero transcript prefixes; the first call's time measured |
 | R3b.2 | **Live state.** `Agents` and `Rooms` keep each live conversation's state — working (a prompt in flight), waiting for you (a permission or a pick unanswered), idle — and the engine publishes `agenthubChanged` when one changes. | a Codex thread shows working, then idle; a permission request shows waiting for you |
-| R3b.3 | **The board in Turso.** Columns: Working, Waiting for you, Done. A live card's column is its state; a found session written in the last two minutes is Working (in the vendor's own app), else Done. A found session belongs to the project whose folder holds its folder; the rest are "Elsewhere on this machine". What you change is kept in `board_cards` (user database): a card's column, its place, pinned, hidden. Engine `board(project)`, `move_card`; Tauri `agenthub_board`, `agenthub_move_card`. | a moved card is where you put it after a restart |
+| R3b.3 | **The board in Turso.** Columns: Working, Waiting for you, Done. Keep observed runtime state separate from persisted board placement; an explicit move wins until the user returns the card to automatic placement. Automatic placement maps working to Working, waiting to Waiting for you, and idle to Done; Done is board placement, not a claim that a task succeeded. File modification time reports recent activity only, never proves working, waiting, or completion. Found sessions without live evidence default to Done with their live state shown as unknown. A found session belongs to the most specific project folder containing its folder, using path components; the rest are "Elsewhere on this machine". What you change is kept in `board_cards` (user database): a card's column, its place, pinned, hidden. Engine `board(project)`, `move_card`; Tauri `agenthub_board`, `agenthub_move_card`. | a moved card survives state changes and restart; a recent file write does not invent a live state |
 | R3b.4 | **`board-column` in ColdLight**, as above, with its Storybook-style fixture. | the fixture renders; the curator audit has no finding |
 | R3b.5 | **The module and its page.** `domains/agenthub/`: `data-access/agenthub.service.ts` (every command and event), `agenthub.state.svelte.ts`, `ui/board-card/`, `feature/AgentHubBoard.svelte`, `index.ts` (chat integrates through it alone). The page comes from its folder (plan 0008: `_nav`, its copy). A found session opens read only, newest page first, "Show older"; sub-agents fold under their parent's card. | your real sessions on the board; screenshots at 1440 and 1024 wide |
 | R3b.6 | **Continue here.** On a session you started (not a sub-agent), "Continue in DevPulse" — your click — starts an agent thread in its project with the session's own id as the resume token, so the vendor continues it in its folder. | a Codex session from the terminal continued in DevPulse |
 
-**Question for you:**
+**Q54 implementation recommendation (Codex review, 2026-10-25):** its own
+page in the navigation, **DevPulse › AgentHub**, with chat linking to it.
+The board spans sessions, agents and rooms and needs its own stable route.
+Use this as the implementation default; it is not a recorded owner answer
+to Q54.
 
-- **Q54 Where the board lives.** Its own page in the navigation
-  (DevPulse › AgentHub), with chat linking to it — or a tab inside chat?
+#### R3b implementation contract (Codex review, 2026-10-25)
+
+Owner direction for this review:
+
+> "help claude please and ensure this pre-release code is getting fixed
+> directly not deprecated no compatibility we do it right and thorough"
+
+- **Reauthor the owning implementation in place.** Change the existing
+  history sources, `AgentHub`, commands and their callers together. No
+  deprecated entry points, compatibility wrappers, parallel V2 paths or
+  fallback to the old implementation. Preserve recovered originals and
+  capabilities under the include-before-delete rule; this is not blanket
+  permission to delete unrelated code or user data.
+- **One catalog for listing and paging.** Today `platform/agenthub.rs`
+  reconstructs `history::catalog` in both `list` and `page`, and
+  `JsonlHistorySource::list` reads every prefix. The engine must own the
+  shared catalog; each source owns its bounded metadata cache. Keep
+  filesystem work on the existing blocking executor. Concurrent requests
+  must share a refresh instead of starting duplicate scans; do not hold
+  an unrelated platform lock during disk reads.
+- **Refresh correctness belongs in R3b.1.** Inspect the bounded directory
+  inventory for additions, removals and renames. Reuse unchanged metadata;
+  invalidate on size or full available modification-time changes, source
+  root, definition or limits changes. Do not use the rounded display
+  timestamp as the cache fingerprint. Handle missing roots appearing,
+  roots disappearing, unreadable files and partial writes without
+  permanently caching failure. If a file changes during a read, retry
+  within a bound or mark it for refresh; do not label mixed data fresh.
+  Document filesystem timestamp limitations. Keep source errors and
+  truncation visible, deterministic ordering, and the existing read jail
+  and paging limits. Cached paths must still be checked before opening.
+- **Parentage and identity are different.** Carry an explicit sub-agent
+  classification as well as an optional parent reference. Missing parents
+  must not turn sub-agents into user-started sessions or hide them. Confirm
+  provider parent fields from a redacted key survey and add fixtures;
+  preserve Codex's first-own-metadata rule. Resolve parents within the
+  provider, handle ambiguous ids, missing parents and cycles, and retain
+  artifact identity when native ids repeat. Do not infer parentage from
+  titles or assume every fork is a sub-agent.
+- **Prove the I/O improvement.** Instrument prefix reads and bytes. An
+  unchanged second listing must read zero transcript prefixes; one changed
+  file must refresh only that file. Test additions, deletion, truncation,
+  same-size edits with changed timestamps, partial writes, root changes,
+  filtering and simultaneous listings. These are behavioral tests, not
+  assertions that a cache field exists. Re-run the existing history tests.
+  Measure cold startup, warm listing and paging through real IPC with
+  counts and timings; 60 parents / 113 children are a dated observation,
+  not a hardcoded acceptance count. An in-memory cache alone does not fix
+  the first call. Profile that call and address the measured bottleneck;
+  do not claim startup is fixed from a warm-cache benchmark.
+- **State, persistence and continuation need end-to-end checks.** Test
+  permission resolution, cancellation, failure and disconnect so cards
+  cannot remain working forever. Persist moves and ordering atomically;
+  runtime events must not overwrite explicit placement. Test nested and
+  similarly named project folders. Continue only on an explicit click for
+  a positively identified user-started session, using its own provider,
+  native id and workspace; reject duplicate in-flight clicks and surface
+  provider resume failures. Unknown parentage does not grant eligibility.
+- **Finish each slice with evidence.** Update Rust and generated frontend
+  contracts together, run affected compile/type checks, tests, clippy and
+  rustfmt, then the required hooks when committing. Verify the running app
+  via `cargo xtask run-dev`, including keyboard card movement, reload and
+  restart persistence, newest-first page loading and screenshots for the
+  UI slices. Keep unrelated generated timestamp churn out of the change.
+  Report what was actually verified and any remaining failure; a plan
+  update or passing unit tests alone does not complete R3b.
+
+R3b.1 cache implementation slice (Codex, 2026-10-25): authored directly in
+the existing kernel history module and engine facade, with I/O counters and
+regression tests (verification below). Parent grouping and live IPC startup
+measurements remain separate, unfinished R3b.1 work. No IPC payload changes
+were needed for this cache slice.
 
 ## Log
 
+- 2026-10-25 — **R3b.1 cache slice implemented; R3b.1 remains open.**
+  - `JsonlHistorySource` keeps bounded per-file metadata using size and full
+    modification/creation timestamps. Each listing checks the directory
+    inventory, evicts departed files and re-reads only changed prefixes.
+    Concurrent listings share the source cache. A file changing during
+    indexing gets at most two attempts; an unstable result is not cached.
+  - `AgentHub` owns one catalog shared by listing and paging. Configuration
+    refresh retains unchanged sources and invalidates moved, missing or
+    reconfigured roots. Source snapshots let transcript reads run outside
+    the catalog configuration lock. No deprecated API or compatibility path.
+  - Logs expose actual prefix reads/bytes and separate total latency,
+    blocking-executor queue wait, configuration refresh and listing time.
+    Fixed the existing false truncation flag at exactly the file ceiling.
+  - Verified: `cargo check -p devpulse-engine`; 36 history tests via
+    `cargo xtask test -p devpulse-clyffy -- --lib providers::history`;
+    one engine integration test via `cargo xtask test -p devpulse-engine
+    -- --lib platform::agenthub::tests`; production-library clippy via
+    `cargo xtask clippy -p devpulse-clyffy -p devpulse-engine -- --lib
+    -- -D warnings`; rustfmt and scoped `git diff --check`.
+  - Tests prove zero transcript prefix reads on an unchanged listing,
+    one changed file read once, shared reads across concurrent callers,
+    full timestamp invalidation for same-size edits, partial-write recovery,
+    bounded retries, paging reuse, removal/rename and source reconfiguration.
+  - The broader `--all-targets` clippy check fails in existing tests outside
+    this change (kernel cortex and engine service/vision tests). It is not
+    a clean all-targets result. Those files were not changed in this slice.
+  - Not verified: real app IPC latency or cold startup improvement. The app
+    was not launched, and no commit/push hooks were run for this uncommitted
+    slice. The unrelated `terminology.ts` timestamp edit was left alone.
 - 2026-10-24 — Plan written after the measurement above and your two answers.
 - 2026-10-24 — **R1 done: the repo's history is back.** 4,923 files in
   `recovered/repo/` (2,205 whose names exist nowhere at HEAD, 2,718 moved or
