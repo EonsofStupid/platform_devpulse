@@ -8,7 +8,7 @@ touches: [kernel-clyffy, engine, desktop, desktop-coldlight]
 status: in-progress
 owner: Jesse Hades Hall
 created: 2026-10-24
-updated: 2026-10-25
+updated: 2026-10-26
 supersedes: []
 specs:
   - CLAUDE.md
@@ -203,7 +203,49 @@ regression tests (verification below). Parent grouping and live IPC startup
 measurements remain separate, unfinished R3b.1 work. No IPC payload changes
 were needed for this cache slice.
 
+#### Existing-code readiness review (2026-10-26)
+
+Scope: the active history readers, engine agent/room execution and
+persistence, Tauri intents, chat state and route/component inventory.
+These are code-path findings, not claims from a new live-app run. The
+recovered originals remain references; the fixes belong in their active
+owners. Do not build another execution stack inside the board.
+
+| Priority | Finding and concrete trigger | Direct fix and acceptance evidence |
+| --- | --- | --- |
+| P1 fixed | **A stale card could open another source's transcript.** `history/mod.rs::locator_for` hashed provider plus relative filename only. Changing a history root to another directory containing the same filename reused the locator. The strengthened engine regression reproduced the collision before the fix. | The existing locator now includes canonical source identity. Regression coverage checks identical filenames in two roots, rejection of the old locator after switching roots, distinct session/event ids, and stable identity when reopening the same source. A future persisted board needs an explicit durable card identity; do not treat a path locator as a portable logical-session id. No legacy locator fallback. |
+| P1 | **ACP continuation silently starts fresh.** `providers/session/mod.rs::AgentSession::start` ignores `resume` on the ACP branch; `session/acp.rs::run` always calls `build_session`. Already acknowledged in plan 0001 B3.3's log, but it blocks R3b.6 and loses agent context after restart today. | Pass the saved id through the active ACP path, use the installed SDK's capability-checked `session/load` or `session/resume`, and return a clear error when restoration is unsupported or fails. Never silently fall back to `session/new`. Test restart continuity, unsupported capability, failed load, and replay not being appended as a new answer. |
+| P1 | **Successful completion does not mean saved completion.** `platform/agents.rs::prompt` logs answer/token write failures and still sends the original terminal event; `platform/rooms.rs::Host::finish` sends `Finished` after a failed save, and `RoomHost::record` cannot return an error. An agent prompt also starts before saving the user turn. | Make persistence failure observable through the existing execution contracts, preserve the answer for recovery, and prevent untracked execution if the initiating turn cannot be stored. Inject failures before dispatch, while saving an answer/token, and while saving a room outcome; no successful persisted-state claim may escape. |
+| P1 | **Turn order and thread creation are not atomic.** `platform/agents.rs::save_turn` reads `MAX(sequence_num) + 1`, inserts the turn and updates the session through separate operations/connections. `Agents::start_thread` and `Rooms::start` insert the session and subtype separately. Concurrent writes can share a sequence; partial writes can leave incomplete records. | Use one connection and transaction per logical write in the existing Turso owner, with atomic order allocation. Test simultaneous writes and rollback after each failing statement. Do not issue transaction boundaries through separate `SqlAdapter` calls, and do not delete user databases as a repair. |
+| P1 | **Live truth belongs to the engine, but currently exists only as transient events and one window's turn.** `agents.state.svelte.ts` has a single `turn`, subscribes when prompting, and ignores other session ids. Neither `Agents` nor `Rooms` exposes the required working/waiting/idle snapshot. Permission timeout/removal has no resolution event. A newly opened window cannot reconstruct an ongoing turn or waiting permission. | R3b.2 must add authoritative per-conversation state and pending requests in the existing engine owners, plus a snapshot and revisioned changes. Test two active threads, room seats, opening/reloading a second window, permission answer/timeout, cancellation and disconnect. Derive badges from this state, independently of saved card placement. |
+| P1 | **An unavailable project silently changes where tools run.** `Agents::folder` substitutes `data_dir/tools/ask` for a missing project or project-state read error; `conversation` creates its working directory. This is also used by tool-enabled room seats. | Resolve and validate the intended workspace explicitly. A missing project/folder or database error must produce a recoverable refusal; an empty workspace must be an explicit choice. Test missing/deleted projects and restored sessions whose folder is unavailable. |
+| P2 | **Late loads can replace the selected conversation.** `chat.state.svelte.ts::loadActive` and `agents.state.svelte.ts::refresh` assign their response without checking whether the selected session/project changed while awaiting it. | Guard responses by request generation and selection identity in the existing stores. Test A-to-B switching with A's slower response arriving last, including errors/loading flags. |
+| Required delivery | **The board is not yet an available product surface.** Only generated bindings reference `agenthubSessions`/`agenthubSessionPage` in the frontend. There is no `domains/agenthub`, route, `board_cards` schema or ColdLight `board-column`; room commands likewise have no frontend consumers. Parent metadata is absent from the index/DTO, despite Codex recognizing sub-agents for titles. | Finish parent identity and R3b.2 first, then the Turso board and its own page using ColdLight card/status/badge plus the new column. Connect read-only paging, keyboard moves, manual placement persistence and chat links. Only enable Continue after the continuity and workspace checks above pass. Verify the real user journey, not just generated commands. |
+
+Implementation order after the cache and source identity fixes:
+parent/classification metadata; execution-state and persistence correctness;
+persisted board and its UI; explicit continuation with restored provider
+context; then R3c hand-offs. Continuation correctness can be fixed in its
+provider owner earlier, but the button must not precede it. Keep cold-start
+profiling separate from warm-cache evidence. The existing plan 0001 B4.3
+ColdLight composition requirements still apply; plan 0009's card inventory
+is the specific board decision (no extra library card kind).
+
 ## Log
+
+- 2026-10-26 — **Cache pushed; existing-code review and source identity fix.**
+  - Cache commit `6a111b20` pushed to `restore/pre-gb10`; normal commit
+    and push hooks passed, including workspace check/clippy and cargo-deny.
+  - Reviewed active history, agent/room execution, persistence and frontend
+    consumers. The readiness table above records remaining direct fixes and
+    concrete acceptance checks; R3b is not complete.
+  - Reproduced the cross-root locator collision in the engine integration
+    test using the same filename in both roots. Added canonical source
+    identity to the existing locator, with no compatibility lookup path.
+  - Verified after the fix: 37 history tests and the engine AgentHub
+    integration test pass; rustfmt and scoped diff checks pass.
+  - The dev app remains stopped; cold-start latency and the full AgentHub
+    user journey still require live verification.
 
 - 2026-10-25 — **R3b.1 cache slice implemented; R3b.1 remains open.**
   - `JsonlHistorySource` keeps bounded per-file metadata using size and full

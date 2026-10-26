@@ -380,7 +380,7 @@ mod tests {
         let other_root = tree.path().join("other-history");
         fs::create_dir(&other_root).unwrap();
         fs::write(
-            other_root.join("other.jsonl"),
+            other_root.join("s.jsonl"),
             transcript.replace("First", "Other"),
         )
         .unwrap();
@@ -388,6 +388,7 @@ mod tests {
         let moved = hub.sessions().await.unwrap();
         assert_eq!(moved.sessions.len(), 1);
         assert_eq!(moved.sessions[0].title, "Other request");
+        assert_ne!(moved.sessions[0].locator, first.sessions[0].locator);
         assert!(hub
             .page(
                 ProviderId::ClaudeCode,
@@ -396,5 +397,14 @@ mod tests {
             )
             .await
             .is_err());
+        let other_page = hub
+            .page(
+                ProviderId::ClaudeCode,
+                moved.sessions[0].locator.clone(),
+                None,
+            )
+            .await
+            .unwrap();
+        assert_eq!(other_page.events[0].text, "Other request");
     }
 }

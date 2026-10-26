@@ -920,9 +920,19 @@ impl JsonlHistorySource {
         // Windows paths are case-insensitive; lowercase only there.
         #[cfg(windows)]
         let normalized = normalized.to_ascii_lowercase();
+        // A locator is scoped to its source: changing the configured root
+        // must never make an old card resolve to an unrelated transcript.
+        // Keep native path bytes so non-Unicode roots remain distinct.
+        let root = self.jail.canonical_root.as_os_str().as_encoded_bytes();
+        #[cfg(windows)]
+        let root = root.to_ascii_lowercase();
+        #[cfg(windows)]
+        let root = root.as_slice();
         Ok(HistoryLocator(stable_hash(&[
             self.provider_id().key().as_bytes(),
             b"\0history\0",
+            root,
+            b"\0",
             normalized.as_bytes(),
         ])))
     }
@@ -1860,6 +1870,38 @@ mod tests {
         assert_eq!(page.events.len(), 200);
         assert!(page.truncated_before);
         assert!(page.next_cursor.is_some());
+    }
+
+    #[test]
+    fn identical_filenames_in_different_roots_have_distinct_artifact_identity() {
+        let left_tree = TestTree::new();
+        let right_tree = TestTree::new();
+        fs::write(left_tree.root.join("same.jsonl"), "left\n").unwrap();
+        fs::write(right_tree.root.join("same.jsonl"), "right\n").unwrap();
+        let left = source(&left_tree, 200);
+        let right = source(&right_tree, 200);
+        let left_entry = left.list(None).unwrap().sessions.remove(0);
+        let right_entry = right.list(None).unwrap().sessions.remove(0);
+
+        assert_ne!(left_entry.locator, right_entry.locator);
+        assert_ne!(left_entry.summary.id, right_entry.summary.id);
+        assert!(matches!(
+            right.page(left_entry.locator, None),
+            Err(StoreError::SessionMissing { .. })
+        ));
+        let left_page = left.page(left_entry.locator, None).unwrap();
+        let right_page = right.page(right_entry.locator, None).unwrap();
+        assert_ne!(left_page.events[0].id, right_page.events[0].id);
+
+        let reopened = JsonlHistorySource::open(
+            left_tree.root.join("."),
+            FixtureDecoder,
+            HistoryLimits::default(),
+        )
+        .unwrap();
+        let reopened_entry = reopened.list(None).unwrap().sessions.remove(0);
+        assert_eq!(reopened_entry.locator, left_entry.locator);
+        assert_eq!(reopened_entry.summary.id, left_entry.summary.id);
     }
 
     #[test]
