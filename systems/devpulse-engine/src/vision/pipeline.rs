@@ -206,10 +206,10 @@ mod tests {
         }
     }
 
-    fn frame(id: u64, embedding: Option<Vec<f32>>) -> CapturedTickFrame {
+    fn frame(id: u32, embedding: Option<Vec<f32>>) -> CapturedTickFrame {
         CapturedTickFrame {
-            frame_id: id,
-            captured_at_ms: id as i64 * 1000,
+            frame_id: u64::from(id),
+            captured_at_ms: i64::from(id) * 1000,
             width: 100,
             height: 100,
             png_bytes: vec![0u8; 64],
@@ -223,70 +223,70 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn process_frame_returns_metric_with_summed_total_ms() {
+    async fn process_frame_returns_metric_with_summed_total_ms() -> anyhow::Result<()> {
         let cfg = config();
         let metrics = MetricsBuffer::new();
         let sink: Arc<dyn FrameSink> = Arc::new(DiscardSink);
-        let m = process_frame(&cfg, sink, &metrics, frame(0, None))
-            .await
-            .unwrap();
+        let m = process_frame(&cfg, sink, &metrics, frame(0, None)).await?;
         assert_eq!(m.frame_id, 0);
         // total_ms = capture (5) + encode (3) + sink (~0)
         assert!(m.total_ms >= 8.0 && m.total_ms < 50.0);
+        Ok(())
     }
 
     #[tokio::test]
-    async fn process_frame_records_into_metrics_buffer() {
+    async fn process_frame_records_into_metrics_buffer() -> anyhow::Result<()> {
         let cfg = config();
         let metrics = MetricsBuffer::new();
         let sink: Arc<dyn FrameSink> = Arc::new(DiscardSink);
-        let _ = process_frame(&cfg, sink.clone(), &metrics, frame(0, None)).await;
-        let _ = process_frame(&cfg, sink, &metrics, frame(1, None)).await;
+        let _ = process_frame(&cfg, sink.clone(), &metrics, frame(0, None)).await?;
+        let _ = process_frame(&cfg, sink, &metrics, frame(1, None)).await?;
         assert_eq!(metrics.len().await, 2);
+        Ok(())
     }
 
     #[tokio::test]
-    async fn process_frame_with_embedding_computes_similarity_to_prev() {
+    async fn process_frame_with_embedding_computes_similarity_to_prev() -> anyhow::Result<()> {
         let cfg = config();
         let metrics = MetricsBuffer::new();
         let sink: Arc<dyn FrameSink> = Arc::new(DiscardSink);
 
         // First frame — no prev → similarity = None.
-        let m0 = process_frame(&cfg, sink.clone(), &metrics, frame(0, Some(vec![1.0, 0.0])))
-            .await
-            .unwrap();
+        let m0 =
+            process_frame(&cfg, sink.clone(), &metrics, frame(0, Some(vec![1.0, 0.0]))).await?;
         assert!(m0.similarity_to_prev.is_none());
 
         // Identical embedding → similarity ≈ 1.0.
-        let m1 = process_frame(&cfg, sink, &metrics, frame(1, Some(vec![1.0, 0.0])))
-            .await
-            .unwrap();
-        let sim = m1.similarity_to_prev.unwrap();
-        assert!((sim - 1.0).abs() < 1e-6, "expected 1.0 got {sim}");
+        let m1 = process_frame(&cfg, sink, &metrics, frame(1, Some(vec![1.0, 0.0]))).await?;
+        assert!(
+            m1.similarity_to_prev
+                .is_some_and(|sim| (sim - 1.0).abs() < 1e-6),
+            "expected similarity 1.0, got {:?}",
+            m1.similarity_to_prev
+        );
+        Ok(())
     }
 
     #[tokio::test]
-    async fn process_frame_capture_only_records_zero_embedding_dim() {
+    async fn process_frame_capture_only_records_zero_embedding_dim() -> anyhow::Result<()> {
         let cfg = config();
         let metrics = MetricsBuffer::new();
         let sink: Arc<dyn FrameSink> = Arc::new(DiscardSink);
-        let m = process_frame(&cfg, sink, &metrics, frame(0, None))
-            .await
-            .unwrap();
+        let m = process_frame(&cfg, sink, &metrics, frame(0, None)).await?;
         assert_eq!(m.embedding_dim, 0);
-        assert_eq!(m.embedding_norm, 0.0);
+        assert_eq!(m.embedding_norm.to_bits(), 0.0_f32.to_bits());
         assert!(m.similarity_to_prev.is_none());
+        Ok(())
     }
 
     #[tokio::test]
-    async fn process_frame_carries_hd_path_label() {
+    async fn process_frame_carries_hd_path_label() -> anyhow::Result<()> {
         let mut cfg = config();
         cfg.hd_path = "siglip2-ort".into();
         let metrics = MetricsBuffer::new();
         let sink: Arc<dyn FrameSink> = Arc::new(DiscardSink);
-        let m = process_frame(&cfg, sink, &metrics, frame(0, None))
-            .await
-            .unwrap();
+        let m = process_frame(&cfg, sink, &metrics, frame(0, None)).await?;
         assert_eq!(m.hd_path, "siglip2-ort");
+        Ok(())
     }
 }

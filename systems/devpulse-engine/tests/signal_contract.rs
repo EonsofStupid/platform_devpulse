@@ -101,22 +101,7 @@ fn sample(kind: SignalKind) -> SignalVariant {
                 }],
             },
         }),
-        SignalKind::Projects => SignalVariant::Projects(ProjectsState {
-            projects: vec![Project {
-                id: "6f1c2a4e-0b7d-4c1e-9a3f-2d5e8b7c1a90".into(),
-                name: "analytical-engine".into(),
-                root_path: "/home/ada/code/analytical-engine".into(),
-                project_type: "personal".into(),
-                slug: None,
-                description: None,
-                tool: None,
-                tech_stack: None,
-                active: true,
-                created_at: 1_760_000_000,
-                last_active_at: Some(1_760_000_100),
-            }],
-            active_id: Some("6f1c2a4e-0b7d-4c1e-9a3f-2d5e8b7c1a90".into()),
-        }),
+        SignalKind::Projects => SignalVariant::Projects(sample_projects()),
         SignalKind::Containers => SignalVariant::Containers(Box::new(ContainersState {
             checking: false,
             report: None,
@@ -130,56 +115,79 @@ fn sample(kind: SignalKind) -> SignalVariant {
             last_run: None,
             problem: None,
         })),
-        SignalKind::Providers => SignalVariant::Providers(Box::new(ProvidersState {
-            checking: false,
-            report: Some(ProvidersReport {
-                providers: vec![ProviderReport {
-                    id: ProviderId::Codex,
-                    name: "Codex".into(),
-                    kind: ProviderKind::SubscriptionAgent,
-                    adapter: AdapterKind::AcpAgent,
-                    docs: "https://github.com/openai/codex".into(),
-                    note: None,
-                    installed: true,
-                    location: Some("/home/ada/.local/bin/codex".into()),
-                    version: Some("0.163.0".into()),
-                    latest: Some("0.163.0".into()),
-                    update_available: false,
-                    signed_in: SignedIn::Yes,
-                    sign_in_command: Some("codex login".into()),
-                    install_source: Some("npm @openai/codex".into()),
-                    installed_by_devpulse: false,
-                    actions: vec![
-                        ProviderAction::SignIn,
-                        ProviderAction::Update,
-                        ProviderAction::Test,
-                        ProviderAction::InstallConnector,
-                    ],
-                    connector: Some(ConnectorReport {
-                        package: "@agentclientprotocol/codex-acp".into(),
-                        installed: true,
-                        version: Some("2.2.2".into()),
-                    }),
-                    problems: Vec::new(),
-                }],
-                catalog_problems: Vec::new(),
-                checked_at: 1_760_000_000,
-            }),
-            running: None,
-            last_action: Some(ProviderActionRun {
-                provider_id: ProviderId::Codex,
-                action: ProviderAction::Test,
-                ok: true,
-                guided: false,
-                command: "codex-acp".into(),
-                output: "Hello!".into(),
-                agent: Some("Codex 2.2.2".into()),
-                elapsed_ms: 3_200,
-                finished_at: 1_760_000_100,
-            }),
-            problem: None,
-        })),
+        SignalKind::Providers => SignalVariant::Providers(Box::new(sample_providers())),
         SignalKind::Resync => SignalVariant::Resync,
+    }
+}
+
+fn sample_projects() -> ProjectsState {
+    ProjectsState {
+        projects: vec![Project {
+            id: "6f1c2a4e-0b7d-4c1e-9a3f-2d5e8b7c1a90".into(),
+            name: "analytical-engine".into(),
+            root_path: "/home/ada/code/analytical-engine".into(),
+            project_type: "personal".into(),
+            slug: None,
+            description: None,
+            tool: None,
+            tech_stack: None,
+            active: true,
+            created_at: 1_760_000_000,
+            last_active_at: Some(1_760_000_100),
+        }],
+        active_id: Some("6f1c2a4e-0b7d-4c1e-9a3f-2d5e8b7c1a90".into()),
+    }
+}
+
+fn sample_providers() -> ProvidersState {
+    ProvidersState {
+        checking: false,
+        report: Some(ProvidersReport {
+            providers: vec![ProviderReport {
+                id: ProviderId::Codex,
+                name: "Codex".into(),
+                kind: ProviderKind::SubscriptionAgent,
+                adapter: AdapterKind::AcpAgent,
+                docs: "https://github.com/openai/codex".into(),
+                note: None,
+                installed: true,
+                location: Some("/home/ada/.local/bin/codex".into()),
+                version: Some("0.163.0".into()),
+                latest: Some("0.163.0".into()),
+                update_available: false,
+                signed_in: SignedIn::Yes,
+                sign_in_command: Some("codex login".into()),
+                install_source: Some("npm @openai/codex".into()),
+                installed_by_devpulse: false,
+                actions: vec![
+                    ProviderAction::SignIn,
+                    ProviderAction::Update,
+                    ProviderAction::Test,
+                    ProviderAction::InstallConnector,
+                ],
+                connector: Some(ConnectorReport {
+                    package: "@agentclientprotocol/codex-acp".into(),
+                    installed: true,
+                    version: Some("2.2.2".into()),
+                }),
+                problems: Vec::new(),
+            }],
+            catalog_problems: Vec::new(),
+            checked_at: 1_760_000_000,
+        }),
+        running: None,
+        last_action: Some(ProviderActionRun {
+            provider_id: ProviderId::Codex,
+            action: ProviderAction::Test,
+            ok: true,
+            guided: false,
+            command: "codex-acp".into(),
+            output: "Hello!".into(),
+            agent: Some("Codex 2.2.2".into()),
+            elapsed_ms: 3_200,
+            finished_at: 1_760_000_100,
+        }),
+        problem: None,
     }
 }
 

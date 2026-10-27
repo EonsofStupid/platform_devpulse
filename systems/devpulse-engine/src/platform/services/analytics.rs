@@ -537,7 +537,7 @@ mod schema_baseline_tests {
     // log even if a later test crashes the process), idempotency second.
 
     /// Baseline #1: every statement of `SYSTEM_ANALYTICS_SCHEMA` loads
-    /// cleanly against a fresh DuckDB. Visual chunk-by-chunk report
+    /// cleanly against a fresh `DuckDB`. Visual chunk-by-chunk report
     /// streamed to stdout — observe with `cargo test ... -- --nocapture`.
     #[test]
     fn a01_system_schema_loads_chunk_by_chunk() {
@@ -558,20 +558,18 @@ mod schema_baseline_tests {
     /// against an existing data dir. Phase markers narrate `open` →
     /// `first load` → `second load` so a crash leaves a precise trail.
     #[test]
-    fn b01_system_schema_is_idempotent() {
+    fn b01_system_schema_is_idempotent() -> anyhow::Result<()> {
         assert_schema_idempotent("SYSTEM_ANALYTICS_SCHEMA", SYSTEM_ANALYTICS_SCHEMA)
-            .expect("system schema must be idempotent");
     }
 
     /// Idempotency guarantee for the user-scope schema.
     #[test]
-    fn b02_user_schema_is_idempotent() {
+    fn b02_user_schema_is_idempotent() -> anyhow::Result<()> {
         assert_schema_idempotent("USER_ANALYTICS_SCHEMA", USER_ANALYTICS_SCHEMA)
-            .expect("user schema must be idempotent");
     }
 
     /// Column-level baseline for `model_calls` (post-JSON-fix shape). All
-    /// columns must accept individually against a fresh DuckDB under any
+    /// columns must accept individually against a fresh `DuckDB` under any
     /// feature loadout. Diagnostic baseline: if a future column is added
     /// to `model_calls` and starts crashing this test, the streaming
     /// report names exactly which column.
@@ -617,12 +615,12 @@ mod schema_baseline_tests {
         report.assert_clean();
     }
 
-    /// Regression detector for the **DuckDB JSON-extension heap-corruption
+    /// Regression detector for the **`DuckDB` JSON-extension heap-corruption
     /// quirk**.
     ///
     /// Discovery (2026-05-07): when `devpulse-engine` is compiled with the
     /// `rro,candle,inference` feature set (pulling candle BLAS, llama-cpp,
-    /// mistralrs, ort), opening a DuckDB connection and creating a column
+    /// mistralrs, ort), opening a `DuckDB` connection and creating a column
     /// of native type `JSON` aborts the process with
     /// `STATUS_HEAP_CORRUPTION (0xc0000374)` on Windows. The harness above
     /// pinpointed the offending construct at column granularity. The fix

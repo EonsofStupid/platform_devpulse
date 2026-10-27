@@ -215,7 +215,7 @@ mod tests {
     use tracing_subscriber::registry::Registry;
 
     #[tokio::test]
-    async fn translator_mirrors_rrd_lifecycle_event_to_internal_event() {
+    async fn translator_mirrors_rrd_lifecycle_event_to_internal_event() -> anyhow::Result<()> {
         // Set up the broadcast channel and translator.
         let (tx, mut rx) = broadcast_channel::<InternalEvent>(64);
         let translator = RrdLifecycleTranslator::new(Arc::new(tx));
@@ -232,9 +232,7 @@ mod tests {
         );
 
         // Translator should have produced exactly one InternalEvent.
-        let envelope = rx
-            .try_recv()
-            .expect("translator must emit an InternalEvent for every rrd.lifecycle tracing event");
+        let envelope = rx.try_recv()?;
         match envelope.value {
             InternalEvent::RrdPhaseTransition { phase, detail } => {
                 assert_eq!(phase, "swap_commit");
@@ -248,6 +246,7 @@ mod tests {
             rx.try_recv().is_err(),
             "translator emitted more than one InternalEvent for one tracing event"
         );
+        Ok(())
     }
 
     #[tokio::test]

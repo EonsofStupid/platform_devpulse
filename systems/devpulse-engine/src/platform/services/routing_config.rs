@@ -382,44 +382,47 @@ mod tests {
     use super::*;
 
     #[test]
-    fn defaults_when_missing() {
-        let tmp = tempfile::tempdir().unwrap();
+    fn defaults_when_missing() -> anyhow::Result<()> {
+        let tmp = tempfile::tempdir()?;
         let cfg = load(tmp.path());
         assert_eq!(cfg.escalation.tiers.len(), 3);
         assert_eq!(cfg.escalation.tiers[0].id, EscalationTierId::VoiceBrain);
         assert!(cfg.escalation.tiers[0].enabled);
         assert_eq!(cfg.latency.response_source, InferenceProvider::LocalFirst);
         assert_eq!(cfg.latency.audio_buffer_ms, DEFAULT_AUDIO_BUFFER_MS);
+        Ok(())
     }
 
     #[test]
-    fn clamps_timeouts_and_buffers() {
-        let tmp = tempfile::tempdir().unwrap();
+    fn clamps_timeouts_and_buffers() -> anyhow::Result<()> {
+        let tmp = tempfile::tempdir()?;
         let mut cfg = RoutingConfig::default();
         cfg.escalation.tiers[0].timeout_ms = 999_999;
         cfg.latency.audio_buffer_ms = 9_999;
         cfg.latency.vad_silence_ms = 50;
         cfg.latency.stream_chunk_size = 4_000;
-        let saved = save(tmp.path(), &cfg).unwrap();
+        let saved = save(tmp.path(), &cfg)?;
         assert_eq!(saved.escalation.tiers[0].timeout_ms, TIER_TIMEOUT_MAX_MS);
         assert_eq!(saved.latency.audio_buffer_ms, AUDIO_BUFFER_MAX_MS);
         assert_eq!(saved.latency.vad_silence_ms, VAD_SILENCE_MIN_MS);
         assert_eq!(saved.latency.stream_chunk_size, STREAM_CHUNK_MAX);
+        Ok(())
     }
 
     #[test]
-    fn round_trip_preserves_response_source() {
-        let tmp = tempfile::tempdir().unwrap();
+    fn round_trip_preserves_response_source() -> anyhow::Result<()> {
+        let tmp = tempfile::tempdir()?;
         let mut cfg = RoutingConfig::default();
         cfg.latency.response_source = InferenceProvider::LocalClaudeApiCouncil;
         cfg.escalation.tiers[2].enabled = true;
-        save(tmp.path(), &cfg).unwrap();
+        save(tmp.path(), &cfg)?;
         let reloaded = load(tmp.path());
         assert_eq!(
             reloaded.latency.response_source,
             InferenceProvider::LocalClaudeApiCouncil
         );
         assert!(reloaded.escalation.tiers[2].enabled);
+        Ok(())
     }
 
     #[test]

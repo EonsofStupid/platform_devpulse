@@ -206,7 +206,7 @@ mod tests {
 
     #[test]
     fn l2_norm_of_empty_is_zero() {
-        assert_eq!(l2_norm(&[]), 0.0);
+        assert_eq!(l2_norm(&[]).to_bits(), 0.0_f32.to_bits());
     }
 
     #[test]
@@ -227,14 +227,14 @@ mod tests {
     fn cosine_similarity_length_mismatch_returns_zero() {
         let a = vec![1.0, 2.0];
         let b = vec![1.0, 2.0, 3.0];
-        assert_eq!(cosine_similarity(&a, &b), 0.0);
+        assert_eq!(cosine_similarity(&a, &b).to_bits(), 0.0_f32.to_bits());
     }
 
     #[test]
     fn cosine_similarity_zero_vector_returns_zero() {
         let a = vec![0.0, 0.0];
         let b = vec![1.0, 1.0];
-        assert_eq!(cosine_similarity(&a, &b), 0.0);
+        assert_eq!(cosine_similarity(&a, &b).to_bits(), 0.0_f32.to_bits());
     }
 
     #[tokio::test]
@@ -271,11 +271,13 @@ mod tests {
         assert!(s1.is_none(), "first frame has no prev");
 
         let s2 = b.record_with_embedding(metric(2), e2.clone()).await;
-        assert!(s2.is_some());
-        assert!(s2.unwrap().abs() < 1e-6, "orthogonal → 0");
+        assert!(s2.is_some_and(|value| value.abs() < 1e-6), "orthogonal → 0");
 
         let s3 = b.record_with_embedding(metric(3), e2).await;
-        assert!((s3.unwrap() - 1.0).abs() < 1e-6, "identical → 1");
+        assert!(
+            s3.is_some_and(|value| (value - 1.0).abs() < 1e-6),
+            "identical → 1"
+        );
     }
 
     #[tokio::test]
@@ -290,7 +292,7 @@ mod tests {
         // Post-drain frame should still see the previous embedding
         let s = b.record_with_embedding(metric(2), e2).await;
         assert!(
-            (s.unwrap() - 1.0).abs() < 1e-6,
+            s.is_some_and(|value| (value - 1.0).abs() < 1e-6),
             "identical embeddings across a drain should still compute similarity"
         );
     }

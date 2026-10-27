@@ -402,7 +402,7 @@ impl Host {
                 .join(&self.session_id)
                 .join(&key)
         } else {
-            self.agents.folder(&self.room.project_id).await
+            self.agents.folder(&self.room.project_id).await?
         };
         let resume = self.room.tokens.lock().await.get(&key).cloned();
         let session = Arc::new(

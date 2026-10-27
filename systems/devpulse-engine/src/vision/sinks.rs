@@ -543,16 +543,17 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn discard_writes_succeed_silently() {
+    async fn discard_writes_succeed_silently() -> anyhow::Result<()> {
         let sink = DiscardSink;
         for i in 0..5 {
-            sink.write(&record(i)).await.unwrap();
+            sink.write(&record(i)).await?;
         }
         assert_eq!(sink.health(), SinkHealth::Healthy);
+        Ok(())
     }
 
     #[tokio::test]
-    async fn composite_fan_out_succeeds_when_all_succeed() {
+    async fn composite_fan_out_succeeds_when_all_succeed() -> anyhow::Result<()> {
         let c1 = Arc::new(AtomicUsize::new(0));
         let c2 = Arc::new(AtomicUsize::new(0));
         let composite = CompositeSink::new(vec![
@@ -567,14 +568,15 @@ mod tests {
                 name_str: "b",
             }),
         ]);
-        composite.write(&record(0)).await.unwrap();
+        composite.write(&record(0)).await?;
         assert_eq!(c1.load(Ordering::SeqCst), 1);
         assert_eq!(c2.load(Ordering::SeqCst), 1);
         assert_eq!(composite.health(), SinkHealth::Healthy);
+        Ok(())
     }
 
     #[tokio::test]
-    async fn composite_isolates_per_member_failure() {
+    async fn composite_isolates_per_member_failure() -> anyhow::Result<()> {
         let c1 = Arc::new(AtomicUsize::new(0));
         let c2 = Arc::new(AtomicUsize::new(0));
         let composite = CompositeSink::new(vec![
@@ -590,7 +592,7 @@ mod tests {
             }),
         ]);
         // Composite returns Ok because at least one member succeeded.
-        composite.write(&record(0)).await.unwrap();
+        composite.write(&record(0)).await?;
         assert_eq!(
             c1.load(Ordering::SeqCst),
             1,
@@ -599,6 +601,7 @@ mod tests {
         assert_eq!(c2.load(Ordering::SeqCst), 1, "healthy member still wrote");
         // Health is degraded because one member is unhealthy.
         assert!(matches!(composite.health(), SinkHealth::Degraded(_)));
+        Ok(())
     }
 
     #[tokio::test]
@@ -622,17 +625,17 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn composite_empty_is_silent_discard() {
+    async fn composite_empty_is_silent_discard() -> anyhow::Result<()> {
         let composite = CompositeSink::new(vec![]);
-        composite.write(&record(0)).await.unwrap();
+        composite.write(&record(0)).await?;
         assert!(matches!(composite.health(), SinkHealth::Down(_)));
+        Ok(())
     }
 
     #[tokio::test]
-    async fn disk_sink_writes_then_reads_back() {
-        let tmp = std::env::temp_dir().join(format!("devpulse-vision-test-{}", std::process::id()));
-        let _ = std::fs::remove_dir_all(&tmp);
-        let sink = DiskFrameSink::new(tmp.clone());
+    async fn disk_sink_writes_then_reads_back() -> anyhow::Result<()> {
+        let tmp = tempfile::tempdir()?;
+        let sink = DiskFrameSink::new(tmp.path().to_path_buf());
         let r = FrameSinkRecord {
             session_id: "sess".into(),
             frame_id: 7,
@@ -644,11 +647,11 @@ mod tests {
             png_bytes: b"PNG-FAKE-BYTES".to_vec(),
             embedding: None,
         };
-        sink.write(&r).await.unwrap();
-        let read = std::fs::read(sink.path_for("sess", 7)).unwrap();
+        sink.write(&r).await?;
+        let read = std::fs::read(sink.path_for("sess", 7))?;
         assert_eq!(read, b"PNG-FAKE-BYTES");
         assert_eq!(sink.health(), SinkHealth::Healthy);
-        let _ = std::fs::remove_dir_all(&tmp);
+        Ok(())
     }
 
     #[tokio::test]

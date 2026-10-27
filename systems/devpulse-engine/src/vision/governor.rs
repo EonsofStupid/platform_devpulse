@@ -202,22 +202,22 @@ mod tests {
     fn decide_hits_cpu_first() {
         let p = GovernorPolicy::default();
         // All three at once — CPU should win the race
-        let r = decide(&p, &sample(90.0, 99999, 999.0)).unwrap();
-        assert_eq!(r, GovernorThrottleReason::Cpu);
+        let r = decide(&p, &sample(90.0, 99999, 999.0));
+        assert_eq!(r, Some(GovernorThrottleReason::Cpu));
     }
 
     #[test]
     fn decide_returns_ram_when_cpu_fine() {
         let p = GovernorPolicy::default();
-        let r = decide(&p, &sample(10.0, 99999, 5.0)).unwrap();
-        assert_eq!(r, GovernorThrottleReason::Ram);
+        let r = decide(&p, &sample(10.0, 99999, 5.0));
+        assert_eq!(r, Some(GovernorThrottleReason::Ram));
     }
 
     #[test]
     fn decide_returns_qps_when_cpu_and_ram_fine() {
         let p = GovernorPolicy::default();
-        let r = decide(&p, &sample(10.0, 100, 999.0)).unwrap();
-        assert_eq!(r, GovernorThrottleReason::EventBridgeQps);
+        let r = decide(&p, &sample(10.0, 100, 999.0));
+        assert_eq!(r, Some(GovernorThrottleReason::EventBridgeQps));
     }
 
     #[test]
@@ -229,20 +229,20 @@ mod tests {
         };
         // 50% CPU fine under default 75, but breaches our custom 20.
         assert_eq!(
-            decide(&p, &sample(50.0, 10, 1.0)).unwrap(),
-            GovernorThrottleReason::Cpu
+            decide(&p, &sample(50.0, 10, 1.0)),
+            Some(GovernorThrottleReason::Cpu)
         );
     }
 
     #[tokio::test]
-    async fn tick_updates_state_and_transitions_broadcast() {
+    async fn tick_updates_state_and_transitions_broadcast() -> anyhow::Result<()> {
         let h = GovernorHandle::new(GovernorPolicy::default());
         let mut rx = h.subscribe();
 
         // First throttled tick should fire a broadcast.
         let s1 = h.tick(sample(90.0, 100, 1.0)).await;
         assert!(s1.throttled);
-        let received = rx.recv().await.expect("broadcast should fire");
+        let received = rx.try_recv()?;
         assert!(received.value.throttled);
 
         // Same throttled state → no new broadcast (channel empty).
@@ -255,8 +255,9 @@ mod tests {
         // Recovery → fires again.
         let s3 = h.tick(sample(10.0, 100, 1.0)).await;
         assert!(!s3.throttled);
-        let recovered = rx.recv().await.expect("recovery should broadcast");
+        let recovered = rx.try_recv()?;
         assert!(!recovered.value.throttled);
+        Ok(())
     }
 
     #[tokio::test]

@@ -476,10 +476,14 @@ mod tests {
     }
 
     /// Cross-file SSOT enforcement — the TypeScript mirror of
-    /// `BOOT_STEP_MANIFEST` must contain exactly the same (step_id, group)
+    /// `BOOT_STEP_MANIFEST` must contain exactly the same (`step_id`, group)
     /// pairs. If a Rust entry is added without mirroring to TS (or vice
     /// versa), this test fails at `cargo test` time.
     #[test]
+    #[expect(
+        clippy::expect_used,
+        reason = "missing manifest markers must fail the test"
+    )]
     fn ts_manifest_matches_rust_manifest() {
         let ts_path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
             .join("../../interfaces/desktop/src/lib/sys/generated/service-manifest.ts");

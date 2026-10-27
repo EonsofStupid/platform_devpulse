@@ -364,14 +364,15 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn gather_transitions_state_and_emits() {
+    async fn gather_transitions_state_and_emits() -> anyhow::Result<()> {
         let h = RroStateHandle::new();
         let mut rx = h.subscribe();
         let s = h.gather("test_source".to_string()).await;
         assert_eq!(s.state, RroState::Gathering);
         assert_eq!(s.source, "test_source");
-        let emitted = rx.recv().await.expect("should emit");
+        let emitted = rx.recv().await?;
         assert_eq!(emitted.value.state, RroState::Gathering);
+        Ok(())
     }
 
     #[tokio::test]

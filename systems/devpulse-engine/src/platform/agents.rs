@@ -214,7 +214,7 @@ impl Agents {
         if let Some(session) = live.get(session_id) {
             return Ok(Arc::clone(session));
         }
-        let cwd = self.folder(&record.project_id).await;
+        let cwd = self.folder(&record.project_id).await?;
         let session = Arc::new(
             self.conversation(record.provider_id, &cwd, record.resume_token.clone(), false)
                 .await?,
@@ -236,12 +236,12 @@ impl Agents {
         self.providers.signed_in(provider_id).await == SignedIn::No
     }
 
-    /// Start a conversation with an installed agent working in `cwd` (made
-    /// if missing). `resume` continues one it reported earlier; `talk_only`
-    /// turns its tools off where it has a switch for that.
+    /// Start a conversation in its existing workspace. Only `talk_only`
+    /// places may create an isolated folder. `resume` continues a previous
+    /// conversation; `talk_only` turns tools off where the agent supports it.
     ///
     /// # Errors
-    /// When the agent is unknown, not installed, or does not start.
+    /// When the workspace is unavailable or the agent cannot start.
     pub(super) async fn conversation(
         &self,
         provider_id: ProviderId,
@@ -249,6 +249,7 @@ impl Agents {
         resume: Option<String>,
         talk_only: bool,
     ) -> Result<AgentSession> {
+        prepare_workspace(cwd, talk_only)?;
         let catalog = catalog::load(&self.data_dir)?;
         let definition = catalog
             .definitions
@@ -260,7 +261,6 @@ impl Agents {
             .location(provider_id)
             .await
             .ok_or_else(|| anyhow!("{} is not installed", definition.name()))?;
-        std::fs::create_dir_all(cwd).with_context(|| format!("make {}", cwd.display()))?;
         AgentSession::start(
             definition,
             Path::new(&location),
@@ -272,16 +272,13 @@ impl Agents {
         .await
     }
 
-    /// Where an agent works in a project: its folder, or an empty one.
-    pub(super) async fn folder(&self, project_id: &str) -> PathBuf {
-        if let Some(projects) = &self.projects {
-            if let Ok(state) = projects.state().await {
-                if let Some(project) = state.projects.into_iter().find(|p| p.id == project_id) {
-                    return PathBuf::from(project.root_path);
-                }
-            }
-        }
-        self.data_dir.join("tools").join("ask")
+    /// Resolve the intended project workspace without substituting one.
+    pub(super) async fn folder(&self, project_id: &str) -> Result<PathBuf> {
+        self.projects
+            .as_ref()
+            .context("projects are unavailable; cannot choose the agent's workspace")?
+            .workspace(project_id)
+            .await
     }
 
     /// Send a prompt on a thread. Both sides of the turn are saved; the
@@ -412,6 +409,25 @@ impl Agents {
     }
 }
 
+fn prepare_workspace(cwd: &Path, talk_only: bool) -> Result<()> {
+    if !cwd.is_absolute() {
+        bail!(
+            "the agent needs an absolute workspace folder: {}",
+            cwd.display()
+        );
+    }
+    if talk_only {
+        std::fs::create_dir_all(cwd)
+            .with_context(|| format!("make the talk-only folder {}", cwd.display()))?;
+    }
+    let metadata = std::fs::metadata(cwd)
+        .with_context(|| format!("agent workspace {} is unavailable", cwd.display()))?;
+    if !metadata.is_dir() {
+        bail!("agent workspace {} is not a directory", cwd.display());
+    }
+    Ok(())
+}
+
 pub(super) fn parse_provider(key: &str) -> Option<ProviderId> {
     serde_json::from_value(serde_json::Value::String(key.to_owned())).ok()
 }
@@ -479,6 +495,27 @@ mod tests {
     #![allow(clippy::expect_used, clippy::unwrap_used, reason = "test assertions")]
 
     use super::*;
+
+    #[test]
+    fn tool_enabled_startup_never_creates_or_substitutes_a_workspace() {
+        let tree = tempfile::tempdir().unwrap();
+        let missing = tree.path().join("missing-project");
+        assert!(prepare_workspace(&missing, false).is_err());
+        assert!(!missing.exists());
+        assert!(prepare_workspace(Path::new("relative-project"), false).is_err());
+        let file = tree.path().join("file");
+        std::fs::write(&file, "not a directory").unwrap();
+        assert!(prepare_workspace(&file, false).is_err());
+        assert!(prepare_workspace(tree.path(), false).is_ok());
+    }
+
+    #[test]
+    fn talk_only_places_can_create_their_explicit_isolated_folder() {
+        let tree = tempfile::tempdir().unwrap();
+        let isolated = tree.path().join("room").join("place");
+        prepare_workspace(&isolated, true).unwrap();
+        assert!(isolated.is_dir());
+    }
 
     #[test]
     fn stored_agent_ids_read_back() {

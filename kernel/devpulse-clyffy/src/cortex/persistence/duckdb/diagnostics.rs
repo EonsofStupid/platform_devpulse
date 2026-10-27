@@ -820,6 +820,12 @@ pub fn assert_schema_idempotent(name: &str, schema: &str) -> Result<()> {
 
 #[cfg(test)]
 mod tests {
+    #![expect(
+        clippy::expect_used,
+        clippy::unwrap_used,
+        reason = "assert the expected success or failure of database fixtures"
+    )]
+
     use super::*;
 
     #[test]

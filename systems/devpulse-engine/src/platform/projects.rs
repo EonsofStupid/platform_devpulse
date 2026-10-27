@@ -291,6 +291,33 @@ impl Projects {
             .next())
     }
 
+    /// The existing folder of a live project, suitable for running tools.
+    ///
+    /// # Errors
+    /// Refuses missing/removed projects, relative or unavailable folders,
+    /// and database failures. Never substitutes or creates a workspace.
+    pub(super) async fn workspace(&self, id: &str) -> Result<std::path::PathBuf> {
+        let project = self
+            .get(id)
+            .await
+            .context("read the agent's project")?
+            .filter(|project| project.active)
+            .with_context(|| format!("project {id} is unavailable; restore or select a project"))?;
+        let path = std::path::PathBuf::from(&project.root_path);
+        if !path.is_absolute() {
+            bail!(
+                "project {} needs an absolute workspace folder",
+                project.name
+            );
+        }
+        let metadata = std::fs::metadata(&path)
+            .with_context(|| format!("project folder {} is unavailable", path.display()))?;
+        if !metadata.is_dir() {
+            bail!("project folder {} is not a directory", path.display());
+        }
+        Ok(path)
+    }
+
     /// The active project, if any.
     ///
     /// # Errors
@@ -922,6 +949,52 @@ mod tests {
             record("active_project", "singleton"),
             "active_project:`singleton`"
         );
+    }
+
+    #[tokio::test]
+    async fn workspace_requires_a_live_project_and_preserves_its_folder() {
+        let (p, _, dir) = service("workspace-live").await;
+        let folder = tempfile::tempdir().unwrap();
+        let results = p.register(vec![folder.path().display().to_string()]).await;
+        let id = ok_id(&results[0]);
+        assert_eq!(p.workspace(&id).await.unwrap(), folder.path());
+        assert!(p.workspace("missing-project").await.is_err());
+        p.remove(&id).await.unwrap();
+        assert!(p.workspace(&id).await.is_err());
+        assert!(folder.path().is_dir(), "removal must not affect the folder");
+        p.restore(&id).await.unwrap();
+        assert_eq!(p.workspace(&id).await.unwrap(), folder.path());
+        done(p, dir).await;
+    }
+
+    #[tokio::test]
+    async fn workspace_refuses_unavailable_and_relative_paths() {
+        let (p, _, dir) = service("workspace-paths").await;
+        let tree = tempfile::tempdir().unwrap();
+        let missing = tree.path().join("deleted-workspace");
+        let file = tree.path().join("file");
+        std::fs::write(&file, "not a directory").unwrap();
+        let results = p
+            .register(vec![
+                missing.display().to_string(),
+                file.display().to_string(),
+                "relative-workspace".into(),
+            ])
+            .await;
+        for result in &results {
+            assert!(p.workspace(&ok_id(result)).await.is_err());
+        }
+        assert!(!missing.exists(), "resolving must not recreate a folder");
+        done(p, dir).await;
+    }
+
+    #[tokio::test]
+    async fn workspace_propagates_database_failure() {
+        let (p, _, dir) = service("workspace-db-error").await;
+        p.db.execute("DROP TABLE projects", &[]).await.unwrap();
+        let error = p.workspace("any-project").await.unwrap_err();
+        assert!(format!("{error:#}").contains("read the agent's project"));
+        done(p, dir).await;
     }
 
     #[tokio::test]

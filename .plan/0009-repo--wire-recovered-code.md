@@ -218,7 +218,7 @@ owners. Do not build another execution stack inside the board.
 | P1 | **Successful completion does not mean saved completion.** `platform/agents.rs::prompt` logs answer/token write failures and still sends the original terminal event; `platform/rooms.rs::Host::finish` sends `Finished` after a failed save, and `RoomHost::record` cannot return an error. An agent prompt also starts before saving the user turn. | Make persistence failure observable through the existing execution contracts, preserve the answer for recovery, and prevent untracked execution if the initiating turn cannot be stored. Inject failures before dispatch, while saving an answer/token, and while saving a room outcome; no successful persisted-state claim may escape. |
 | P1 | **Turn order and thread creation are not atomic.** `platform/agents.rs::save_turn` reads `MAX(sequence_num) + 1`, inserts the turn and updates the session through separate operations/connections. `Agents::start_thread` and `Rooms::start` insert the session and subtype separately. Concurrent writes can share a sequence; partial writes can leave incomplete records. | Use one connection and transaction per logical write in the existing Turso owner, with atomic order allocation. Test simultaneous writes and rollback after each failing statement. Do not issue transaction boundaries through separate `SqlAdapter` calls, and do not delete user databases as a repair. |
 | P1 | **Live truth belongs to the engine, but currently exists only as transient events and one window's turn.** `agents.state.svelte.ts` has a single `turn`, subscribes when prompting, and ignores other session ids. Neither `Agents` nor `Rooms` exposes the required working/waiting/idle snapshot. Permission timeout/removal has no resolution event. A newly opened window cannot reconstruct an ongoing turn or waiting permission. | R3b.2 must add authoritative per-conversation state and pending requests in the existing engine owners, plus a snapshot and revisioned changes. Test two active threads, room seats, opening/reloading a second window, permission answer/timeout, cancellation and disconnect. Derive badges from this state, independently of saved card placement. |
-| P1 | **An unavailable project silently changes where tools run.** `Agents::folder` substitutes `data_dir/tools/ask` for a missing project or project-state read error; `conversation` creates its working directory. This is also used by tool-enabled room seats. | Resolve and validate the intended workspace explicitly. A missing project/folder or database error must produce a recoverable refusal; an empty workspace must be an explicit choice. Test missing/deleted projects and restored sessions whose folder is unavailable. |
+| P1 fixed | **An unavailable project silently changed where tools ran.** `Agents::folder` substituted `data_dir/tools/ask` for a missing project or project-state read error; `conversation` created its working directory. Tool-enabled room seats used the same path. | `Projects::workspace` now requires a live project and an existing absolute directory, propagating database errors. Agent and room startup propagate that refusal; only an explicitly talk-only place may create its isolated folder. Five regressions cover missing/removed/restored projects, missing/non-directory/relative paths, database failure, and startup that never recreates a missing tool workspace. |
 | P2 | **Late loads can replace the selected conversation.** `chat.state.svelte.ts::loadActive` and `agents.state.svelte.ts::refresh` assign their response without checking whether the selected session/project changed while awaiting it. | Guard responses by request generation and selection identity in the existing stores. Test A-to-B switching with A's slower response arriving last, including errors/loading flags. |
 | Required delivery | **The board is not yet an available product surface.** Only generated bindings reference `agenthubSessions`/`agenthubSessionPage` in the frontend. There is no `domains/agenthub`, route, `board_cards` schema or ColdLight `board-column`; room commands likewise have no frontend consumers. Parent metadata is absent from the index/DTO, despite Codex recognizing sub-agents for titles. | Finish parent identity and R3b.2 first, then the Turso board and its own page using ColdLight card/status/badge plus the new column. Connect read-only paging, keyboard moves, manual placement persistence and chat links. Only enable Continue after the continuity and workspace checks above pass. Verify the real user journey, not just generated commands. |
 
@@ -232,6 +232,36 @@ ColdLight composition requirements still apply; plan 0009's card inventory
 is the specific board decision (no extra library card kind).
 
 ## Log
+
+- 2026-10-26 — **Resume: repair the existing verification failures.**
+  Reproduce the recorded kernel/engine all-targets clippy failures, repair
+  the existing tests in small groups without weakening production lint
+  policy, and run the affected tests plus the full kernel/engine library
+  suites. Fix any actual failing behavior those suites expose in its owner.
+  Then revisit the readiness findings above; record separately what has
+  been fixed and what remains unfinished. No compatibility implementations.
+  The next behavior fix is workspace resolution: use the project owner to
+  require a live project and an existing absolute folder; propagate that
+  refusal through agent and room startup. Only an explicitly talk-only room
+  place may create its isolated folder. Test missing/removed projects,
+  unreadable project data, missing/non-directory/relative paths, and that
+  tool-enabled startup never recreates a deleted workspace.
+  - Completed the recorded test/lint repairs in their existing owners.
+    Tests propagate setup failures, assert optional values directly, retain
+    exact-zero sentinel assertions, and use checked-width fixture values.
+    Named helpers shorten the Surreal and signal fixtures without changing
+    their coverage. Intentional assertion panics have narrowly scoped test
+    lint expectations; production lint policy is unchanged.
+  - Workspace resolution is fixed as described in the readiness table.
+    No substitute folder, deprecated API, or compatibility path was added.
+  - Verified: full library suites (189 kernel and 159 engine passed, with
+    six existing ignored tests); after the workspace fix, all 131 platform
+    tests passed, including five new regressions; all four signal contract
+    tests passed with unchanged JSON/TypeScript snapshots. Final kernel and
+    engine all-targets clippy with `-D warnings`, rustfmt and diff checks pass.
+  - ACP continuity, durable completion/atomic writes, authoritative live
+    status, stale frontend responses and the remaining R3b UI are still open.
+    No live startup measurement or completed-board claim is made.
 
 - 2026-10-26 — **Cache pushed; existing-code review and source identity fix.**
   - Cache commit `6a111b20` pushed to `restore/pre-gb10`; normal commit

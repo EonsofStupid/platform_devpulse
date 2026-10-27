@@ -122,16 +122,17 @@ mod tests {
     use super::*;
 
     #[test]
-    fn defaults_when_missing() {
-        let tmp = tempfile::tempdir().unwrap();
+    fn defaults_when_missing() -> anyhow::Result<()> {
+        let tmp = tempfile::tempdir()?;
         let cfg = load(tmp.path());
         assert_eq!(cfg.beam_size, DEFAULT_BEAM_SIZE);
         assert!((cfg.vad_threshold - DEFAULT_VAD_THRESHOLD).abs() < f32::EPSILON);
+        Ok(())
     }
 
     #[test]
-    fn clamps_beam_and_threshold() {
-        let tmp = tempfile::tempdir().unwrap();
+    fn clamps_beam_and_threshold() -> anyhow::Result<()> {
+        let tmp = tempfile::tempdir()?;
         let saved = save(
             tmp.path(),
             &VoiceSttConfig {
@@ -139,10 +140,10 @@ mod tests {
                 beam_size: 999,
                 vad_threshold: 2.0,
             },
-        )
-        .unwrap();
+        )?;
         assert_eq!(saved.beam_size, 10);
         assert!((saved.vad_threshold - 1.0).abs() < f32::EPSILON);
         assert_eq!(saved.language, "en");
+        Ok(())
     }
 }

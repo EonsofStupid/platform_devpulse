@@ -117,17 +117,19 @@ mod tests {
     use super::*;
 
     #[test]
-    fn defaults_when_file_missing() {
-        let tmp = tempfile::tempdir().unwrap();
+    fn defaults_when_file_missing() -> anyhow::Result<()> {
+        let tmp = tempfile::tempdir()?;
         let _cfg = load(tmp.path());
         // No fields to assert today — coverage is just "doesn't panic".
+        Ok(())
     }
 
     #[test]
-    fn save_creates_user_dir_and_file() {
-        let tmp = tempfile::tempdir().unwrap();
-        save(tmp.path(), &SurrealUserConfig::default()).unwrap();
+    fn save_creates_user_dir_and_file() -> anyhow::Result<()> {
+        let tmp = tempfile::tempdir()?;
+        save(tmp.path(), &SurrealUserConfig::default())?;
         let path = resolve_path(tmp.path());
         assert!(path.exists());
+        Ok(())
     }
 }

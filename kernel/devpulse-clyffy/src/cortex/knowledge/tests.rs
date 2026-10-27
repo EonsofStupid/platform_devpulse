@@ -135,8 +135,7 @@ mod knowledge_smoke {
                 .files
                 .iter()
                 .find(|f| f.name == name)
-                .map(|f| f.count)
-                .unwrap_or(0)
+                .map_or(0, |f| f.count)
         };
         let count_of =
             |t: EntryType| -> usize { entries.iter().filter(|e| e.entry_type == t).count() };

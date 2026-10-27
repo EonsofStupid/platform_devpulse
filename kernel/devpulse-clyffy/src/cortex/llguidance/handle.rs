@@ -347,7 +347,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn set_kind_emits_and_updates_status() {
+    async fn set_kind_emits_and_updates_status() -> anyhow::Result<()> {
         let h = GrammarHandle::new();
         let mut rx = h.subscribe();
         let s = h.set_kind(GrammarKind::JsonSchema).await;
@@ -357,8 +357,9 @@ mod tests {
             s.status,
             GrammarStatus::Disabled | GrammarStatus::Idle
         ));
-        let emitted = rx.recv().await.unwrap();
+        let emitted = rx.recv().await?;
         assert_eq!(emitted.value.kind, GrammarKind::JsonSchema);
+        Ok(())
     }
 
     #[tokio::test]

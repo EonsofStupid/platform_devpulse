@@ -504,27 +504,30 @@ mod tests {
     }
 
     #[test]
-    fn scan_skips_incomplete_dir() {
-        let tmp = tempfile::tempdir().unwrap();
+    fn scan_skips_incomplete_dir() -> anyhow::Result<()> {
+        let tmp = tempfile::tempdir()?;
         let dir = tmp.path().join("model");
-        std::fs::create_dir_all(&dir).unwrap();
-        std::fs::write(dir.join("encoder.onnx"), b"x").unwrap();
+        std::fs::create_dir_all(&dir)?;
+        std::fs::write(dir.join("encoder.onnx"), b"x")?;
         // missing decoder/joiner/tokens
         assert!(scan_model_dir(&dir).is_none());
+        Ok(())
     }
 
     #[test]
-    fn scan_accepts_complete_dir() {
-        let tmp = tempfile::tempdir().unwrap();
+    fn scan_accepts_complete_dir() -> anyhow::Result<()> {
+        let tmp = tempfile::tempdir()?;
         let dir = tmp.path().join("zipformer-en");
-        std::fs::create_dir_all(&dir).unwrap();
-        std::fs::write(dir.join("encoder-99.int8.onnx"), b"x").unwrap();
-        std::fs::write(dir.join("decoder-99.onnx"), b"x").unwrap();
-        std::fs::write(dir.join("joiner-99.int8.onnx"), b"x").unwrap();
-        std::fs::write(dir.join("tokens.txt"), b"x").unwrap();
-        let model = scan_model_dir(&dir).unwrap();
+        std::fs::create_dir_all(&dir)?;
+        std::fs::write(dir.join("encoder-99.int8.onnx"), b"x")?;
+        std::fs::write(dir.join("decoder-99.onnx"), b"x")?;
+        std::fs::write(dir.join("joiner-99.int8.onnx"), b"x")?;
+        std::fs::write(dir.join("tokens.txt"), b"x")?;
+        let model = scan_model_dir(&dir)
+            .ok_or_else(|| anyhow::anyhow!("complete model fixture was not discovered"))?;
         assert_eq!(model.id, "zipformer-en");
         assert!(model.encoder.ends_with("encoder-99.int8.onnx"));
         assert_eq!(model.size_bytes, 4);
+        Ok(())
     }
 }

@@ -124,41 +124,42 @@ mod tests {
     use super::*;
 
     #[test]
-    fn defaults_applied_when_file_missing() {
-        let tmp = tempfile::tempdir().unwrap();
+    fn defaults_applied_when_file_missing() -> anyhow::Result<()> {
+        let tmp = tempfile::tempdir()?;
         let cfg = load(tmp.path());
         assert_eq!(cfg.default_voice, DEFAULT_VOICE_ID);
         assert!((cfg.default_speed - DEFAULT_SPEED).abs() < f32::EPSILON);
+        Ok(())
     }
 
     #[test]
-    fn roundtrip_clamps_speed() {
-        let tmp = tempfile::tempdir().unwrap();
+    fn roundtrip_clamps_speed() -> anyhow::Result<()> {
+        let tmp = tempfile::tempdir()?;
         let saved = save(
             tmp.path(),
             &VoiceTtsConfig {
                 default_voice: "af_bella".into(),
                 default_speed: 5.0,
             },
-        )
-        .unwrap();
+        )?;
         assert!((saved.default_speed - 2.0).abs() < f32::EPSILON);
         let loaded = load(tmp.path());
         assert_eq!(loaded.default_voice, "af_bella");
         assert!((loaded.default_speed - 2.0).abs() < f32::EPSILON);
+        Ok(())
     }
 
     #[test]
-    fn empty_voice_falls_back_to_default() {
-        let tmp = tempfile::tempdir().unwrap();
+    fn empty_voice_falls_back_to_default() -> anyhow::Result<()> {
+        let tmp = tempfile::tempdir()?;
         let saved = save(
             tmp.path(),
             &VoiceTtsConfig {
                 default_voice: "   ".into(),
                 default_speed: 1.2,
             },
-        )
-        .unwrap();
+        )?;
         assert_eq!(saved.default_voice, DEFAULT_VOICE_ID);
+        Ok(())
     }
 }

@@ -505,14 +505,7 @@ mod tests {
         assert!(matches!(&q.vars[2].1, Cbor::Array(v) if v.len() == 2));
     }
 
-    /// Against upstream's server build, installed by `cargo xtask
-    /// fetch-surreal`: a schemafull table holding bytes, floats and a string
-    /// that looks like a record id; and `type::thing`, which 3.x removed.
-    /// `cargo test -p devpulse-clyffy --lib -- --ignored
-    /// cortex::persistence::surreal::rpc::tests::against_the_real_server`
-    #[tokio::test]
-    #[ignore = "needs the installed Surreal server build"]
-    async fn against_the_real_server() {
+    async fn start_real_server() -> Arc<crate::cortex::persistence::runtime::Runtime> {
         use crate::cortex::persistence::runtime::{
             RestartPolicy, Runtime, RuntimeEvents, RuntimeSpec, PORT,
         };
@@ -526,7 +519,7 @@ mod tests {
             .unwrap()
             .port();
         let quiet: RuntimeEvents = Arc::new(|_| {});
-        let runtime = Runtime::start(
+        Runtime::start(
             RuntimeSpec {
                 name: "surreal-test".into(),
                 program: exe,
@@ -555,7 +548,18 @@ mod tests {
             quiet,
         )
         .await
-        .expect("the server starts");
+        .expect("the server starts")
+    }
+
+    /// Against upstream's server build, installed by `cargo xtask
+    /// fetch-surreal`: a schemafull table holding bytes, floats and a string
+    /// that looks like a record id; and `type::thing`, which 3.x removed.
+    /// `cargo test -p devpulse-clyffy --lib -- --ignored
+    /// cortex::persistence::surreal::rpc::tests::against_the_real_server`
+    #[tokio::test]
+    #[ignore = "needs the installed Surreal server build"]
+    async fn against_the_real_server() {
+        let runtime = start_real_server().await;
         let at = Arc::clone(&runtime);
         let rpc = SurrealRpc::new(Arc::new(move || at.endpoint()), "root", "root-test").unwrap();
         let version = rpc.version().await.expect("GET /version");

@@ -200,6 +200,8 @@ pub async fn process_chat_message(
 
 #[cfg(test)]
 mod tests {
+    #![expect(clippy::unwrap_used, reason = "fixture failures must fail the test")]
+
     use super::*;
     use crate::cortex::intelligence::RecallHit;
     use std::sync::Mutex;
