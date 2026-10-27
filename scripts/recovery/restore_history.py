@@ -6,8 +6,9 @@ the commit just before its latest deletion; `recovered/repo/SOURCES.tsv`
 records where each came from. Files whose exact content still exists at HEAD
 under another active path are not copied (they survive). The recovery archive
 never counts as active code. Existing provenance is retained on every rerun,
-and changed archived files are never overwritten. Build output, vendored
-`deps/` and generated files are not code to recover.
+and changed archived files are never overwritten. The explicit extension
+list defines coverage; known build, vendor and generated directories are
+excluded by SKIP. Archived documentation can itself include generated HTML.
 
 Read-only on history: `git log`, `git ls-files`, `git ls-tree`, `git
 cat-file`. Writes only under `recovered/repo/`. Run from the repository root:
@@ -30,7 +31,9 @@ CODE = (
     ".sh", ".bat", ".cmd", ".ps1", ".c", ".h", ".cpp", ".hpp",
     ".svg", ".png", ".ico", ".icns", ".gif", ".webp", ".jpg", ".jpeg",
     ".ttf", ".otf", ".woff", ".woff2",
+    ".gbnf", ".manifest", ".code-workspace", ".code-snippets", ".backup", ".zip",
 )
+SOURCE_NAMES = {".gitignore", ".gitkeep", ".keep", ".nojekyll", "phase1,md"}
 SKIP = ("node_modules/", "target/", "/generated/", ".svelte-kit/", "dist/", "build/", "deps/", "recovered/")
 OUT = os.path.join("recovered", "repo")
 FIELDS = ["path", "recovered_as", "copied_from", "deleted_by", "deleted_on",
@@ -118,7 +121,9 @@ def restore(check=False):
         path = line
         if not path or path in head or path in deleted:
             continue
-        if not path.endswith(CODE) or any(s in path for s in SKIP):
+        if not (path.endswith(CODE) or path.rsplit("/", 1)[-1] in SOURCE_NAMES):
+            continue
+        if any(s in path for s in SKIP):
             continue
         deleted[path] = commit
 

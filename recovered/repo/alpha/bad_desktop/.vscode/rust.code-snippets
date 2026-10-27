@@ -1,0 +1,12 @@
+{
+  "Rust File Header": {
+    "scope": "rust",
+    "prefix": ["header", "//"],
+    "body": [
+      "// ${TM_FILEPATH/.*src-tauri\\\\//}",
+      "",
+      "$0"
+    ],
+    "description": "Insert file path header (relative to src-tauri)"
+  }
+}

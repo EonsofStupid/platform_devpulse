@@ -12,9 +12,13 @@ workspace build and do not by themselves restore a working product feature.
   337 Markdown files, 148 JSON files, 20 image/icon files, 13 other supporting
   text/script/configuration files and one Rust file. HTML includes
   archived generated documentation; these counts are not feature counts.
-- `repo/SOURCES.tsv` now records 6,033 source files (48,960,488 bytes), each
-  with its original path and source/deletion commit. All 6,033 match Git.
-- Another 394 deleted source paths have their exact content elsewhere in
+- The remaining-format audit restored 13 more files: two grammars, the
+  adapter manifest, editor configuration, ignore files, a CSS backup, a
+  documentation marker, and the original design/font ZIP archives. The
+  archives are preserved intact; they have not been unpacked or executed.
+- `repo/SOURCES.tsv` now records 6,046 source files (119,284,910 bytes), each
+  with its original path and source/deletion commit. All 6,046 match Git.
+- Another 404 deleted source paths have their exact content elsewhere in
   active HEAD. This proves content presence, not that a feature is wired in.
 
 Run from the repository root:
@@ -46,8 +50,9 @@ locally available Git refs, using its explicit source/supporting-file
 extensions and exclusions. It preserves all already-recorded revisions.
 It does not prove that an existing file still implements every historical
 capability, recover never-committed files, inspect unavailable Git refs, or
-restore all historical versions of every file. Compressed archives and
-extensionless files are not included in that count. The imported
+restore all historical versions of every file. Only explicitly named
+extensionless files are covered; build output, debug logs and submodule or
+worktree targets are not copied into the archive. The imported
 `devpulselabs` tree is separate from this repository-history manifest; this
 audit did not revisit its original external checkout.
 

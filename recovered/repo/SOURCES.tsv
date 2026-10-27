@@ -90,6 +90,7 @@ PARKING_LOT.md	PARKING_LOT.md	006c4f1b^	006c4f1b	2026-04-04	yes	chore: archive d
 SPRINT_2_GLASS_SHELL.md	SPRINT_2_GLASS_SHELL.md	006c4f1b^	006c4f1b	2026-04-04	yes	chore: archive drift docs, fix warnings, remove surrealkv patch, commit build artifacts
 alpha/.cargo/config.toml	alpha/.cargo/config.toml	519da880^	519da880	2026-02-16	yes	feat(coldlight): clean slate — delete non-structureless primitives, add SD5 pipeline
 alpha/.claude/settings.local.json	alpha/.claude/settings.local.json	519da880^	519da880	2026-02-16	yes	feat(coldlight): clean slate — delete non-structureless primitives, add SD5 pipeline
+alpha/alpha_devpulse.code-workspace	alpha/alpha_devpulse.code-workspace	519da880^	519da880	2026-02-16	no	feat(coldlight): clean slate — delete non-structureless primitives, add SD5 pipeline
 alpha/archive/desktop_old/package-lock.json	alpha/archive/desktop_old/package-lock.json	db047d5a^	db047d5a	2026-02-04	yes	feat(coldlight): adding primitives removing bad documentation
 alpha/archive/desktop_old/package.json	alpha/archive/desktop_old/package.json	db047d5a^	db047d5a	2026-02-04	yes	feat(coldlight): adding primitives removing bad documentation
 alpha/archive/desktop_old/src-tauri/Cargo.toml	alpha/archive/desktop_old/src-tauri/Cargo.toml	db047d5a^	db047d5a	2026-02-04	yes	feat(coldlight): adding primitives removing bad documentation
@@ -232,6 +233,7 @@ alpha/archive/desktop_old/static/favicon.ico	alpha/archive/desktop_old/static/fa
 alpha/archive/desktop_old/svelte.config.js	alpha/archive/desktop_old/svelte.config.js	db047d5a^	db047d5a	2026-02-04	yes	feat(coldlight): adding primitives removing bad documentation
 alpha/archive/desktop_old/tsconfig.json	alpha/archive/desktop_old/tsconfig.json	db047d5a^	db047d5a	2026-02-04	yes	feat(coldlight): adding primitives removing bad documentation
 alpha/archive/desktop_old/vite.config.ts	alpha/archive/desktop_old/vite.config.ts	db047d5a^	db047d5a	2026-02-04	yes	feat(coldlight): adding primitives removing bad documentation
+alpha/bad_desktop/.vscode/rust.code-snippets	alpha/bad_desktop/.vscode/rust.code-snippets	519da880^	519da880	2026-02-16	no	feat(coldlight): clean slate — delete non-structureless primitives, add SD5 pipeline
 alpha/bad_desktop/package-lock.json	alpha/bad_desktop/package-lock.json	519da880^	519da880	2026-02-16	yes	feat(coldlight): clean slate — delete non-structureless primitives, add SD5 pipeline
 alpha/bad_desktop/package.json	alpha/bad_desktop/package.json	519da880^	519da880	2026-02-16	yes	feat(coldlight): clean slate — delete non-structureless primitives, add SD5 pipeline
 alpha/bad_desktop/src-tauri/Cargo.toml	alpha/bad_desktop/src-tauri/Cargo.toml	519da880^	519da880	2026-02-16	yes	feat(coldlight): clean slate — delete non-structureless primitives, add SD5 pipeline
@@ -432,6 +434,7 @@ alpha/bad_desktop/static/imgs/backgrounds/maincontentbackground.png	alpha/bad_de
 alpha/bad_desktop/svelte.config.js	alpha/bad_desktop/svelte.config.js	519da880^	519da880	2026-02-16	yes	feat(coldlight): clean slate — delete non-structureless primitives, add SD5 pipeline
 alpha/bad_desktop/tsconfig.json	alpha/bad_desktop/tsconfig.json	519da880^	519da880	2026-02-16	yes	feat(coldlight): clean slate — delete non-structureless primitives, add SD5 pipeline
 alpha/bad_desktop/vite.config.ts	alpha/bad_desktop/vite.config.ts	519da880^	519da880	2026-02-16	yes	feat(coldlight): clean slate — delete non-structureless primitives, add SD5 pipeline
+alpha/desktop/.gitignore	alpha/desktop/.gitignore	519da880^	519da880	2026-02-16	yes	feat(coldlight): clean slate — delete non-structureless primitives, add SD5 pipeline
 alpha/desktop/ARCHITECTURE.md	alpha/desktop/ARCHITECTURE.md	519da880^	519da880	2026-02-16	yes	feat(coldlight): clean slate — delete non-structureless primitives, add SD5 pipeline
 alpha/desktop/package.json	alpha/desktop/package.json	519da880^	519da880	2026-02-16	yes	feat(coldlight): clean slate — delete non-structureless primitives, add SD5 pipeline
 alpha/desktop/pnpm-lock.yaml	alpha/desktop/pnpm-lock.yaml	519da880^	519da880	2026-02-16	yes	feat(coldlight): clean slate — delete non-structureless primitives, add SD5 pipeline
@@ -558,6 +561,7 @@ alpha/lab/src/storage/database.rs	alpha/lab/src/storage/database.rs	519da880^	51
 alpha/lab/src/storage/mod.rs	alpha/lab/src/storage/mod.rs	519da880^	519da880	2026-02-16	yes	feat(coldlight): clean slate — delete non-structureless primitives, add SD5 pipeline
 alpha/lab/src/types/mod.rs	alpha/lab/src/types/mod.rs	519da880^	519da880	2026-02-16	yes	feat(coldlight): clean slate — delete non-structureless primitives, add SD5 pipeline
 alpha/lab/src/web/mod.rs	alpha/lab/src/web/mod.rs	519da880^	519da880	2026-02-16	yes	feat(coldlight): clean slate — delete non-structureless primitives, add SD5 pipeline
+alpha/lab/ui/.gitignore	alpha/lab/ui/.gitignore	519da880^	519da880	2026-02-16	yes	feat(coldlight): clean slate — delete non-structureless primitives, add SD5 pipeline
 alpha/lab/ui/package-lock.json	alpha/lab/ui/package-lock.json	519da880^	519da880	2026-02-16	yes	feat(coldlight): clean slate — delete non-structureless primitives, add SD5 pipeline
 alpha/lab/ui/package.json	alpha/lab/ui/package.json	519da880^	519da880	2026-02-16	yes	feat(coldlight): clean slate — delete non-structureless primitives, add SD5 pipeline
 alpha/lab/ui/src/app.css	alpha/lab/ui/src/app.css	519da880^	519da880	2026-02-16	yes	feat(coldlight): clean slate — delete non-structureless primitives, add SD5 pipeline
@@ -673,6 +677,8 @@ alpha/orchestrator/src/infra/download.rs	alpha/orchestrator/src/infra/download.r
 alpha/orchestrator/src/infra/embedding/embedder.rs	alpha/orchestrator/src/infra/embedding/embedder.rs	519da880^	519da880	2026-02-16	yes	feat(coldlight): clean slate — delete non-structureless primitives, add SD5 pipeline
 alpha/orchestrator/src/infra/embedding/mod.rs	alpha/orchestrator/src/infra/embedding/mod.rs	519da880^	519da880	2026-02-16	yes	feat(coldlight): clean slate — delete non-structureless primitives, add SD5 pipeline
 alpha/orchestrator/src/infra/embedding/reranker.rs	alpha/orchestrator/src/infra/embedding/reranker.rs	519da880^	519da880	2026-02-16	yes	feat(coldlight): clean slate — delete non-structureless primitives, add SD5 pipeline
+alpha/orchestrator/src/infra/llm/grammars/json_object.gbnf	alpha/orchestrator/src/infra/llm/grammars/json_object.gbnf	519da880^	519da880	2026-02-16	no	feat(coldlight): clean slate — delete non-structureless primitives, add SD5 pipeline
+alpha/orchestrator/src/infra/llm/grammars/mission_plan.gbnf	alpha/orchestrator/src/infra/llm/grammars/mission_plan.gbnf	519da880^	519da880	2026-02-16	no	feat(coldlight): clean slate — delete non-structureless primitives, add SD5 pipeline
 alpha/orchestrator/src/infra/llm/grammars/mod.rs	alpha/orchestrator/src/infra/llm/grammars/mod.rs	519da880^	519da880	2026-02-16	yes	feat(coldlight): clean slate — delete non-structureless primitives, add SD5 pipeline
 alpha/orchestrator/src/infra/llm/llmestimator.rs	alpha/orchestrator/src/infra/llm/llmestimator.rs	519da880^	519da880	2026-02-16	no	feat(coldlight): clean slate — delete non-structureless primitives, add SD5 pipeline
 alpha/orchestrator/src/infra/llm/mod.rs	alpha/orchestrator/src/infra/llm/mod.rs	519da880^	519da880	2026-02-16	yes	feat(coldlight): clean slate — delete non-structureless primitives, add SD5 pipeline
@@ -1313,11 +1319,13 @@ interfaces/desktop/src-tauri/src/commands/sys/boot.rs	interfaces/desktop/src-tau
 interfaces/desktop/src-tauri/tauri.windows.conf.json	interfaces/desktop/src-tauri/tauri.windows.conf.json	38309aaa^	38309aaa	2026-10-09	no	fix(restore): kernel restored at pre-GB10 baseline (da9ff1a2) — builds and boots
 interfaces/desktop/src/App.svelte	interfaces/desktop/src/App.svelte	07fcc8cf^	07fcc8cf	2026-01-26	no	chore: reset to clean state for atomic commits
 interfaces/desktop/src/ChatApp.svelte	interfaces/desktop/src/ChatApp.svelte	07fcc8cf^	07fcc8cf	2026-01-26	no	chore: reset to clean state for atomic commits
+interfaces/desktop/src/app.css.backup	interfaces/desktop/src/app.css.backup	07fcc8cf^	07fcc8cf	2026-01-26	no	chore: reset to clean state for atomic commits
 interfaces/desktop/src/badcss.mjs	interfaces/desktop/src/badcss.mjs	07fcc8cf^	07fcc8cf	2026-01-26	no	chore: reset to clean state for atomic commits
 interfaces/desktop/src/chat.html	interfaces/desktop/src/chat.html	07fcc8cf^	07fcc8cf	2026-01-26	no	chore: reset to clean state for atomic commits
 interfaces/desktop/src/chat.ts	interfaces/desktop/src/chat.ts	07fcc8cf^	07fcc8cf	2026-01-26	yes	chore: reset to clean state for atomic commits
 interfaces/desktop/src/find-bad-escape.mjs	interfaces/desktop/src/find-bad-escape.mjs	07fcc8cf^	07fcc8cf	2026-01-26	no	chore: reset to clean state for atomic commits
 interfaces/desktop/src/index.html	interfaces/desktop/src/index.html	07fcc8cf^	07fcc8cf	2026-01-26	yes	chore: reset to clean state for atomic commits
+interfaces/desktop/src/lib/design.zip	interfaces/desktop/src/lib/design.zip	8a377353^	8a377353	2026-03-31	no	refactor(coldlight): rename to canonical css property names, add axis registry
 interfaces/desktop/src/lib/design/.agent/INSTRUCTIONS.md	interfaces/desktop/src/lib/design/.agent/INSTRUCTIONS.md	581ac988^	581ac988	2026-04-24	yes	chore(docs): purge stale docs / skills / archives — 568 files
 interfaces/desktop/src/lib/design/.claude/CLAUDE.md	interfaces/desktop/src/lib/design/.claude/CLAUDE.md	581ac988^	581ac988	2026-04-24	yes	chore(docs): purge stale docs / skills / archives — 568 files
 interfaces/desktop/src/lib/design/.claude/PROVIDER_ADAPTER_PLAN.md	interfaces/desktop/src/lib/design/.claude/PROVIDER_ADAPTER_PLAN.md	3e49b021^	3e49b021	2026-03-20	yes	wtf
@@ -1334,6 +1342,7 @@ interfaces/desktop/src/lib/design/.cowlevel/manifest.json	interfaces/desktop/src
 interfaces/desktop/src/lib/design/.cowlevel/typedoc.config.json	interfaces/desktop/src/lib/design/.cowlevel/typedoc.config.json	504012cf^	504012cf	2026-02-07	no	feat(coldlight): fix svelte-check errors by rewiring transport imports
 interfaces/desktop/src/lib/design/.cowlevel/typedoc.generated.json	interfaces/desktop/src/lib/design/.cowlevel/typedoc.generated.json	8c1b3816^	8c1b3816	2026-01-31	no	feat(coldlight): adding primitives removing bad documentation
 interfaces/desktop/src/lib/design/.cowlevel/typedoc.json	interfaces/desktop/src/lib/design/.cowlevel/typedoc.json	504012cf^	504012cf	2026-02-07	yes	feat(coldlight): fix svelte-check errors by rewiring transport imports
+interfaces/desktop/src/lib/design/.cowlevel/typedoc/.nojekyll	interfaces/desktop/src/lib/design/.cowlevel/typedoc/.nojekyll	504012cf^	504012cf	2026-02-07	no	feat(coldlight): fix svelte-check errors by rewiring transport imports
 interfaces/desktop/src/lib/design/.cowlevel/typedoc/assets/hierarchy.js	interfaces/desktop/src/lib/design/.cowlevel/typedoc/assets/hierarchy.js	504012cf^	504012cf	2026-02-07	no	feat(coldlight): fix svelte-check errors by rewiring transport imports
 interfaces/desktop/src/lib/design/.cowlevel/typedoc/assets/highlight.css	interfaces/desktop/src/lib/design/.cowlevel/typedoc/assets/highlight.css	504012cf^	504012cf	2026-02-07	no	feat(coldlight): fix svelte-check errors by rewiring transport imports
 interfaces/desktop/src/lib/design/.cowlevel/typedoc/assets/icons.js	interfaces/desktop/src/lib/design/.cowlevel/typedoc/assets/icons.js	504012cf^	504012cf	2026-02-07	no	feat(coldlight): fix svelte-check errors by rewiring transport imports
@@ -3000,6 +3009,7 @@ interfaces/desktop/src/lib/design/api/dsadapters/meltui/_internal/tree/adapter.t
 interfaces/desktop/src/lib/design/api/dsadapters/meltui/_internal/tree/factory.ts	interfaces/desktop/src/lib/design/api/dsadapters/meltui/_internal/tree/factory.ts	c172b6b4^	c172b6b4	2026-03-17	yes	fix(desktop): resolve all 62 biome lint errors
 interfaces/desktop/src/lib/design/api/dsadapters/meltui/_internal/tree/index.ts	interfaces/desktop/src/lib/design/api/dsadapters/meltui/_internal/tree/index.ts	c172b6b4^	c172b6b4	2026-03-17	yes	fix(desktop): resolve all 62 biome lint errors
 interfaces/desktop/src/lib/design/api/dsadapters/meltui/_internal/tree/schema.ts	interfaces/desktop/src/lib/design/api/dsadapters/meltui/_internal/tree/schema.ts	c172b6b4^	c172b6b4	2026-03-17	yes	fix(desktop): resolve all 62 biome lint errors
+interfaces/desktop/src/lib/design/api/dsadapters/meltui/meltui.manifest	interfaces/desktop/src/lib/design/api/dsadapters/meltui/meltui.manifest	c172b6b4^	c172b6b4	2026-03-17	no	fix(desktop): resolve all 62 biome lint errors
 interfaces/desktop/src/lib/design/api/dsadapters/resolve.ts	interfaces/desktop/src/lib/design/api/dsadapters/resolve.ts	c172b6b4^	c172b6b4	2026-03-17	no	fix(desktop): resolve all 62 biome lint errors
 interfaces/desktop/src/lib/design/behaviors/_shared/cn.ts	interfaces/desktop/src/lib/design/behaviors/_shared/cn.ts	46f81207^	46f81207	2026-03-26	yes	feat(a11y): add scroll lock behavior for modals and overlays
 interfaces/desktop/src/lib/design/behaviors/_shared/index.ts	interfaces/desktop/src/lib/design/behaviors/_shared/index.ts	46f81207^	46f81207	2026-03-26	yes	feat(a11y): add scroll lock behavior for modals and overlays
@@ -5834,6 +5844,8 @@ interfaces/desktop/src/stories/button.css	interfaces/desktop/src/stories/button.
 interfaces/desktop/src/stories/header.css	interfaces/desktop/src/stories/header.css	f475e086^	f475e086	2026-03-19	no	fixing drift
 interfaces/desktop/src/stories/page.css	interfaces/desktop/src/stories/page.css	f475e086^	f475e086	2026-03-19	no	fixing drift
 interfaces/desktop/src/tsconfig.json	interfaces/desktop/src/tsconfig.json	07fcc8cf^	07fcc8cf	2026-01-26	yes	chore: reset to clean state for atomic commits
+interfaces/desktop/static/fonts/inter.zip	interfaces/desktop/static/fonts/inter.zip	26b7c142^	26b7c142	2026-03-15	no	fonts
+interfaces/desktop/static/fonts/jetbrains-mono.zip	interfaces/desktop/static/fonts/jetbrains-mono.zip	26b7c142^	26b7c142	2026-03-15	no	fonts
 interfaces/desktop/tailwind.config.ts	interfaces/desktop/tailwind.config.ts	db047d5a^	db047d5a	2026-02-04	no	feat(coldlight): adding primitives removing bad documentation
 interfaces/desktop/test-results/wizard-completion-Setup-Wi-72e58-color-dots-not-transparent--chromium/error-context.md	interfaces/desktop/test-results/wizard-completion-Setup-Wi-72e58-color-dots-not-transparent--chromium/error-context.md	581ac988^	581ac988	2026-04-24	no	chore(docs): purge stale docs / skills / archives — 568 files
 interfaces/desktop/test-results/wizard-completion-Setup-Wi-89e96-w-reaches-completion-screen-chromium/error-context.md	interfaces/desktop/test-results/wizard-completion-Setup-Wi-89e96-w-reaches-completion-screen-chromium/error-context.md	581ac988^	581ac988	2026-04-24	no	chore(docs): purge stale docs / skills / archives — 568 files
@@ -5990,6 +6002,7 @@ systems/maestro/src/brain.rs	systems/maestro/src/brain.rs	e412ded0^	e412ded0	202
 systems/maestro/src/governance.rs	systems/maestro/src/governance.rs	e412ded0^	e412ded0	2026-01-14	no	FUCKING WASTE OF MY FUICKING TIME
 systems/maestro/src/lanes.rs	systems/maestro/src/lanes.rs	e412ded0^	e412ded0	2026-01-14	yes	FUCKING WASTE OF MY FUICKING TIME
 systems/maestro/src/lib.rs	systems/maestro/src/lib.rs	e412ded0^	e412ded0	2026-01-14	yes	FUCKING WASTE OF MY FUICKING TIME
+temp_docs/.gitignore	temp_docs/.gitignore	ddcf84fc^	ddcf84fc	2026-01-22	yes	chore(coldlight): wip infrastructure and domain restructuring
 temp_docs/README.md	temp_docs/README.md	ddcf84fc^	ddcf84fc	2026-01-22	yes	chore(coldlight): wip infrastructure and domain restructuring
 temp_docs/blog/2019-05-28-first-blog-post.md	temp_docs/blog/2019-05-28-first-blog-post.md	ddcf84fc^	ddcf84fc	2026-01-22	no	chore(coldlight): wip infrastructure and domain restructuring
 temp_docs/blog/2019-05-29-long-blog-post.md	temp_docs/blog/2019-05-29-long-blog-post.md	ddcf84fc^	ddcf84fc	2026-01-22	no	chore(coldlight): wip infrastructure and domain restructuring

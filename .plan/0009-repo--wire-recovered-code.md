@@ -340,6 +340,11 @@ is the specific board decision (no extra library card kind).
     now match their recorded blobs, with zero uncovered deletions in scope.
     Six real-Git recovery regressions pass. `recovered/STATUS.md` records
     counts, active integration gaps and the explicit limits of this audit.
+  - Follow-up of every remaining file format recovered 13 more supporting
+    sources, including GBNF grammars, the adapter manifest, editor files,
+    CSS backup and intact design/font archives. Final inventory: 6,046
+    verified files, 1,123 added this turn, zero uncovered deletions in the
+    declared scope; 404 deleted paths survive verbatim in active HEAD.
 
 - 2026-10-27 — **Verification checkpoint.** Full kernel/engine library suites
   pass: 199 kernel and 169 engine tests, with six existing ignored tests.

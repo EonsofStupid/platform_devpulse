@@ -92,7 +92,9 @@ class RecoveryTests(unittest.TestCase):
     def test_supporting_sources_are_recovered_byte_for_byte(self):
         sources = {"config.json": b'{"keep":true}\n', "design.md": b"# Original design\n",
                    "page.html": b"<h1>Original</h1>\n", "launch.ps1": b"Write-Output ready\n",
-                   "icon.png": bytes(range(256))}
+                   "icon.png": bytes(range(256)), "schema.gbnf": b'root ::= "yes"\n',
+                   "design.zip": b"PK\x03\x04preserve archive bytes", ".gitignore": b"output/\n",
+                   "project.code-workspace": b'{"folders":[]}', "adapter.manifest": b"adapter"}
         for name, body in sources.items():
             (self.root / name).write_bytes(body)
         self.commit()
