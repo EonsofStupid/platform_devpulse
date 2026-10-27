@@ -1,8 +1,7 @@
 import type { Preview } from "@storybook/sveltekit";
 
-// Import ColdLight token CSS — provides all CSS custom properties
-import "@devpulse/coldlight/index.css";
-// Import Tailwind for utility classes used by recipes
+// Use the product entry once: Tailwind establishes the layer order before
+// ColdLight. Importing ColdLight separately first lets base resets win.
 import "../src/app.css";
 
 const preview: Preview = {

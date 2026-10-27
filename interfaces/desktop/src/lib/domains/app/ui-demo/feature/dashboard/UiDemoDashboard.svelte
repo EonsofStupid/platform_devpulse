@@ -5,21 +5,39 @@
 -->
 <script lang="ts">
 import { BUTTON_SIZES, BUTTON_VARIANTS, Button } from "@devpulse/coldlight/components/button";
+import { Heading } from "@devpulse/coldlight/components/heading";
+import { Text } from "@devpulse/coldlight/components/text";
+import { SURFACE_FAMILIES } from "@devpulse/coldlight/renderforge";
+import { ComponentPreview } from "../../ui/component-preview/index.js";
+
+let selections = $state<Record<string, boolean>>({});
+let feedback = $state(
+	"Select a session or action to test its interaction. Preview actions do not run agents.",
+);
 </script>
 
-<div class="min-h-screen bg-surface-base p-8 text-text-primary">
+<div class="min-h-screen p-4 lg:p-8">
 	<header class="mb-12">
-		<h1 class="text-3xl font-bold text-teal-200 mb-2">ColdLight Design System</h1>
-		<p class="text-text-muted">Structureless primitives. SD5 token-driven recipes. Zero runtime contract overhead.</p>
+		<Heading level={1} size="2xl">ColdLight Design System</Heading>
+		<Text>Generated surfaces and typed components. Compare the same live compositions across every surface family.</Text>
 	</header>
 
+	<div role="status" aria-live="polite" class="mb-6"><Text>{feedback}</Text></div>
+	<div class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6 mb-12">
+		{#each SURFACE_FAMILIES as family}
+			<ComponentPreview {family} selected={selections[family] ?? false}
+				onSelect={() => { selections[family] = !selections[family]; feedback = `${family}: session ${selections[family] ? "selected" : "unselected"}`; }}
+				onAction={(message) => { feedback = message; }} />
+		{/each}
+	</div>
+	<!-- Existing Button matrix remains available below the composition review. -->
 	<!-- Button Component -->
 	<section class="mb-12">
-		<h2 class="text-xl font-semibold text-teal-300 mb-6">Button</h2>
+		<Heading level={2} size="lg">Button</Heading>
 
-		<!-- Intents -->
+		<!-- Variants -->
 		<div class="mb-8">
-			<h3 class="text-sm font-medium text-text-muted mb-4 uppercase tracking-wider">Intents</h3>
+			<Heading level={3} size="sm">Variants</Heading>
 			<div class="flex flex-wrap gap-4">
 				<Button variant="primary" size="md">Primary</Button>
 				<Button variant="secondary" size="md">Secondary</Button>
@@ -30,7 +48,7 @@ import { BUTTON_SIZES, BUTTON_VARIANTS, Button } from "@devpulse/coldlight/compo
 
 		<!-- Sizes -->
 		<div class="mb-8">
-			<h3 class="text-sm font-medium text-text-muted mb-4 uppercase tracking-wider">Sizes</h3>
+			<Heading level={3} size="sm">Sizes</Heading>
 			<div class="flex flex-wrap items-center gap-4">
 				<Button variant="primary" size="sm">Small</Button>
 				<Button variant="primary" size="md">Medium</Button>
@@ -40,7 +58,7 @@ import { BUTTON_SIZES, BUTTON_VARIANTS, Button } from "@devpulse/coldlight/compo
 
 		<!-- States -->
 		<div class="mb-8">
-			<h3 class="text-sm font-medium text-text-muted mb-4 uppercase tracking-wider">States</h3>
+			<Heading level={3} size="sm">States</Heading>
 			<div class="flex flex-wrap items-center gap-4">
 				<Button variant="primary" size="md" disabled>Disabled</Button>
 				<Button variant="primary" size="md" loading>Loading</Button>
@@ -49,10 +67,10 @@ import { BUTTON_SIZES, BUTTON_VARIANTS, Button } from "@devpulse/coldlight/compo
 			</div>
 		</div>
 
-		<!-- All Intents x Sizes Matrix -->
+		<!-- All Variants x Sizes Matrix -->
 		<div class="mb-8">
-			<h3 class="text-sm font-medium text-text-muted mb-4 uppercase tracking-wider">Intent x Size Matrix</h3>
-			<div class="grid grid-cols-4 gap-4">
+			<Heading level={3} size="sm">Variant x Size Matrix</Heading>
+			<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
 				{#each BUTTON_VARIANTS as variant}
 					{#each BUTTON_SIZES as size}
 						<Button {variant} {size}>{variant} {size}</Button>
@@ -63,14 +81,14 @@ import { BUTTON_SIZES, BUTTON_VARIANTS, Button } from "@devpulse/coldlight/compo
 
 		<!-- Data Attributes (for dev inspection) -->
 		<div class="mb-8">
-			<h3 class="text-sm font-medium text-text-muted mb-4 uppercase tracking-wider">Data Attributes (inspect in DevTools)</h3>
+			<Heading level={3} size="sm">Data Attributes (inspect in DevTools)</Heading>
 			<div class="flex flex-wrap gap-4">
 				<Button variant="primary" size="md" data-id="test-button">data-id="test-button"</Button>
 				<Button variant="secondary" size="md" defaultPressed={true} data-id="toggle-btn">Toggle (pressed)</Button>
 			</div>
-			<p class="text-xs text-text-muted mt-2">
+			<Text size="xs" class="mt-2">
 				Inspect elements: data-kind="button", data-slot="root", data-state, data-id
-			</p>
+			</Text>
 		</div>
 	</section>
 </div>

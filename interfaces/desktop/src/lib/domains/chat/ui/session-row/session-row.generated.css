@@ -1,0 +1,49 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+[data-ui="chat-session-row"][data-slot="root"] {
+	--chat-session-row-border-left-width: 0.25rem;
+	--chat-session-row-border-left-color: oklch(0.0000 0.0000 0.00 / 0);
+	--chat-session-row-border-radius: 0.5rem;
+	border-left-width: var(--chat-session-row-border-left-width);
+	border-left-color: var(--chat-session-row-border-left-color);
+	border-radius: var(--chat-session-row-border-radius);
+}
+
+[data-ui="chat-session-row"][data-slot="root"] {
+	cursor: pointer;
+	outline-offset: var(--focus-offset, 2px);
+	-webkit-tap-highlight-color: transparent;
+}
+
+[data-ui="chat-session-row"][data-slot="root"]:focus-visible {
+	outline: 2px solid var(--focus-ring, currentColor);
+	outline-offset: var(--focus-offset, 2px);
+}
+
+[data-ui="chat-session-row"][data-slot="root"]:is(:disabled, [data-disabled], [aria-disabled="true"]) {
+	cursor: not-allowed;
+	pointer-events: none;
+}
+
+[data-ui="chat-session-row"][data-slot="root"]:hover {
+	filter: var(--hover-filter, brightness(1.1));
+}
+
+[data-ui="chat-session-row"][data-slot="root"]:active {
+	filter: var(--active-filter, brightness(0.9));
+}
+
+[data-ui="chat-session-row"][data-slot="root"][data-selected] {
+	--chat-session-row-background-color: var(--accent-teal-fill);
+	--chat-session-row-border-left-color: var(--accent-teal-main);
+	--chat-session-row-box-shadow: none;
+	background-color: var(--chat-session-row-background-color);
+	box-shadow: var(--chat-session-row-box-shadow);
+}
+
+[data-ui="chat-session-row"][data-slot="timestamp"] {
+	--chat-session-row-timestamp-color: var(--text-muted);
+	color: var(--chat-session-row-timestamp-color);
+}

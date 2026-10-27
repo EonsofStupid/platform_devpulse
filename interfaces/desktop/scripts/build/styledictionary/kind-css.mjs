@@ -118,10 +118,10 @@ function cssValue(token, nameByPath) {
 }
 
 /** The selector a section's token is set under. */
-function selectorOf(sel, kind, token) {
+function selectorOf(sel, kind, token, attribute = 'data-kind') {
 	const [, section, name] = token.path;
 	if (section === 'part') {
-		const part = `[data-kind="${kind}"][data-slot="${name}"]`;
+		const part = `[${attribute}="${kind}"][data-slot="${name}"]`;
 		if (token.path.length === 4) return part;
 		if (token.path.length === 6 && token.path[3] === 'tone') return `${part}[data-tone="${token.path[4]}"]`;
 		throw new Error(
@@ -173,7 +173,9 @@ export function kindCss(dictionary, kind, meta, group, scope) {
 	const nameByPath = new Map(everything.map((t) => [t.path.join('.'), t.name]));
 	const accepted = acceptedAxes(kind, meta);
 	// A multi-part kind styles the part its file names (anatomy's data-slot); the others are untouched.
-	const sel = `[data-kind="${kind}"]${meta?.slot ? `[data-slot="${meta.slot}"]` : ''}`;
+	const attribute = meta?.attribute ?? 'data-kind';
+	if (!['data-kind', 'data-ui'].includes(attribute)) throw new Error(`${kind}: invalid selector attribute`);
+	const sel = `[${attribute}="${kind}"]${meta?.slot ? `[data-slot="${meta.slot}"]` : ''}`;
 	/** selector → [custom property, value][] in source order */
 	const blocks = new Map([[sel, []]]);
 	/** properties the kind sets anywhere, in first-seen order */
@@ -189,7 +191,7 @@ export function kindCss(dictionary, kind, meta, group, scope) {
 		const property = token.path.at(-1);
 		// Inherited from a family role and outside the kind's concerns.
 		if (!accepted.has(property) && !declares(group, token.path.slice(1))) return;
-		set(selectorOf(sel, kind, token), property, cssValue(token, nameByPath));
+		set(selectorOf(sel, kind, token, attribute), property, cssValue(token, nameByPath));
 	};
 	const variants = keys(group?.variant);
 	for (const token of tokens.filter((t) => t.path[1] === 'variant' && !variants.includes(t.path[2]))) {
@@ -203,7 +205,7 @@ export function kindCss(dictionary, kind, meta, group, scope) {
 			const parts = tokens.filter((t) => t.path[1] === 'part');
 			const ordered = [...parts.filter((t) => t.path[3] !== 'tone'), ...parts.filter((t) => t.path[3] === 'tone')];
 			for (const token of ordered) {
-				const selector = selectorOf(sel, kind, token);
+				const selector = selectorOf(sel, kind, token, attribute);
 				const slot = token.path[2];
 				const property = token.path.at(-1);
 				const custom = `--${kind}-${slot}-${property}`;

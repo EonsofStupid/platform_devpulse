@@ -25,6 +25,8 @@ import {
 	logBrokenReferenceLevels,
 } from 'style-dictionary/enums';
 import { readdirSync, existsSync } from 'node:fs';
+import { dirname, basename } from 'node:path';
+import { discoverFeatureTokens } from './feature-tokens.mjs';
 import { kindCss, kindTokenFilter, readKindFile } from './kind-css.mjs';
 import { resolveExtends } from './preprocess-extends.mjs';
 import { readFamilies, scopeOf, surfaceScopesCss } from './surface-scopes.mjs';
@@ -161,6 +163,7 @@ const paths = {
 /** Every component folder with a `<kind>.tokens.json` whose top group is the kind (plan 0006 §0s). */
 export const KIND_FILES = readdirSync(`${paths.design}/components`, { withFileTypes: true })
 	.filter((d) => d.isDirectory() && existsSync(`${paths.design}/components/${d.name}/${d.name}.tokens.json`))
+	.sort((a, b) => a.name.localeCompare(b.name, 'en'))
 	.flatMap((d) => {
 		const path = `${paths.design}/components/${d.name}/${d.name}.tokens.json`;
 		const read = readKindFile(path, d.name);
@@ -168,7 +171,10 @@ export const KIND_FILES = readdirSync(`${paths.design}/components`, { withFileTy
 	});
 
 /** A token of a kind file's own group; path-based, since inherited tokens keep their family file's path. */
-const isKindToken = kindTokenFilter(new Set(KIND_FILES.map(({ kind }) => kind)));
+export const FEATURE_FILES = discoverFeatureTokens('src/lib/domains');
+const allKinds = [...KIND_FILES, ...FEATURE_FILES].map(({ kind }) => kind);
+if (new Set(allKinds).size !== allKinds.length) throw new Error('Duplicate component/feature token namespace');
+const isKindToken = kindTokenFilter(new Set(allKinds));
 
 /** The families (plan 0006 §0s, D1), from the preset files. */
 export const SURFACE_FAMILIES = readFamilies();
@@ -754,16 +760,18 @@ StyleDictionary.registerFormat({
 				...new Set(tokens.map((t) => t.path.slice(1).join('-'))),
 			];
 			const tokenItems = leafNames.map((v) => `\t"${v}"`).join(',\n');
+			const inlineTokens = `export const ${pascal}Tokens = [${leafNames.map((v) => `"${v}"`).join(', ')}] as const;`;
 			out.push(
-				`export const ${pascal}Tokens = [\n${tokenItems},\n] as const;`,
+				inlineTokens.length <= 100 ? inlineTokens : `export const ${pascal}Tokens = [\n${tokenItems},\n] as const;`,
 				`export type ${pascal}Token = (typeof ${pascal}Tokens)[number];`,
 				'',
 			);
 
 			const vars = tokens.map((t) => `"--${t.name}"`);
 			const varLines = vars.map((v) => `\t| ${v}`).join('\n');
+			const inlineVars = `export type ${pascal}CSSVar = ${vars.join(' | ')};`;
 			out.push(
-				`export type ${pascal}CSSVar =\n${varLines};`,
+				inlineVars.length <= 100 ? inlineVars : `export type ${pascal}CSSVar =\n${varLines};`,
 				'',
 			);
 
@@ -940,6 +948,7 @@ const config = {
 		// Colocated: each component's and SVG kind's own tokens file (plan 0006 0s).
 		`${paths.design}/components/*/*.tokens.json`,
 		`${paths.design}/svg/*/*.tokens.json`,
+		...FEATURE_FILES.map(({ path }) => path.replaceAll('\\', '/')),
 	],
 	usesDtcg: true,
 	expand: (token) => {
@@ -967,6 +976,16 @@ const config = {
 	},
 
 	platforms: {
+		...Object.fromEntries(FEATURE_FILES.map(({ kind, path, meta, group }) => [`feature-${kind}`, {
+			transforms: CSS_TRANSFORMS,
+			buildPath: `${dirname(path).replaceAll('\\', '/')}/`,
+			files: [{
+				destination: `${basename(path, '.tokens.json')}.generated.css`,
+				format: clFormats.kindCss,
+				filter: (token) => token.path[0] === kind && isKindToken(token),
+				options: { kind, meta, group, scope: SURFACE_SCOPE },
+			}],
+		}])),
 		// ── CSS: Primitives ───────────────────────────────────────
 		'css-primitives': {
 			transforms: CSS_TRANSFORMS,

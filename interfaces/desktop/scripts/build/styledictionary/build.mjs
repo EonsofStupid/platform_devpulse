@@ -7,24 +7,28 @@
  * Usage: node scripts/build/styledictionary/build.mjs
  *
  * Pipeline:
- *   1. Collect colocated component tokens.ts → DTCG JSON
- *   2. SD5 buildAllPlatforms() → CSS, @theme, types, manifest
- *   3. Write barrel index files (CSS, theme, types)
+ *   1. Discover colocated component and feature DTCG JSON
+ *   2. SD5 formatAllPlatforms() → in-memory CSS, @theme, types, manifest
+ *   3. Validate output inventory, then check or write only changed artifacts
  *
  * Output boundary (no second token pipeline):
  * - packages/coldlight/styles/  — token custom properties (@layer tokens.*)
  * - packages/coldlight/theme/   — Tailwind @theme blocks
  * - packages/coldlight/types/   — generated .d.ts unions
  * - packages/coldlight/generated/token-manifest.json — VPB manifest
+ * - domains/<domain>/ui/<name>/<name>.generated.{css,ts} — feature-local looks
+ * - src/lib/sys/generated/feature-styles.css — app feature import barrel
  * Non-token CSS (generated/*.css outside SD5, svg glue) is authored separately
  * and imported from packages/coldlight/index.css — not emitted here.
  */
 
-import { execSync } from 'node:child_process';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { basename, dirname, relative, resolve } from 'node:path';
+import { publishArtifacts } from './artifacts.mjs';
+import { kindFamiliesArtifact } from './derive-kind-families.mjs';
+import { presetCatalogArtifact } from './generate-preset-catalog.mjs';
 import StyleDictionary from 'style-dictionary';
 import { kindTypes } from './kind-css.mjs';
-import config, { KIND_FILES, SURFACE_DEFAULT, SURFACE_FAMILIES } from './sd.config.mjs';
+import config, { FEATURE_FILES, KIND_FILES, SURFACE_DEFAULT, SURFACE_FAMILIES } from './sd.config.mjs';
 import { surfaceTypes } from './surface-scopes.mjs';
 
 const OUT = '../../packages/coldlight';
@@ -94,102 +98,75 @@ const INDEX_THEME = `/* AUTO-GENERATED — DO NOT EDIT */
 
 const INDEX_DTS = `/* AUTO-GENERATED — DO NOT EDIT */
 
-export * from './color.js';
-export * from './shadow.js';
-export * from './blur.js';
-export * from './surface.js';
-export * from './spacing.js';
-export * from './typography.js';
-export * from './motion.js';
-export * from './elevation.js';
-export * from './border.js';
-export * from './interaction.js';
-export * from './backdrop.js';
-export * from './component.js';
-export * from './gradient.js';
-export * from './text.js';
-export * from './signal.js';
-export * from './accent.js';
-export * from './role.js';
-export * from './icon.js';
+export * from "./color.js";
+export * from "./shadow.js";
+export * from "./blur.js";
+export * from "./surface.js";
+export * from "./spacing.js";
+export * from "./typography.js";
+export * from "./motion.js";
+export * from "./elevation.js";
+export * from "./border.js";
+export * from "./interaction.js";
+export * from "./backdrop.js";
+export * from "./component.js";
+export * from "./gradient.js";
+export * from "./text.js";
+export * from "./signal.js";
+export * from "./accent.js";
+export * from "./role.js";
+export * from "./icon.js";
 `;
 
 // ─── Build ───────────────────────────────────────────────────────────
 
 async function build() {
-	// Step 0: Scan element annotations → ui-catalog.json
-	console.log('[SD5] Scanning element seed definitions...');
-	execSync('node scripts/build/styledictionary/collect-element-seed-defs.mjs', {
-		cwd: process.cwd(),
-		stdio: 'inherit',
-	});
-
-	// Step 1: Collect colocated component tokens.ts → JSON for SD5
-	console.log('[SD5] Collecting colocated component tokens...');
-	execSync('npx tsx scripts/build/styledictionary/collect-component-tokens.ts', {
-		cwd: process.cwd(),
-		stdio: 'inherit',
-	});
-
-	// Step 2: Expand preset shorthand → 11-axis DTCG in component.json
-	console.log('[SD5] Expanding preset styles...');
-	execSync('node scripts/build/styledictionary/collect-preset-styles.mjs', {
-		cwd: process.cwd(),
-		stdio: 'inherit',
-	});
-
-	// Step 3: Derive kind → family mapping from enriched presets
-	console.log('[SD5] Deriving kind families...');
-	execSync('node scripts/build/styledictionary/derive-kind-families.mjs', {
-		cwd: process.cwd(),
-		stdio: 'inherit',
-	});
-
-	console.log('[SD5] Starting token build...');
-	console.log('[SD5] Source: tokens/src/*.json (flat domain files + collected component tokens)');
-	console.log('[SD5] Output: styles/ (tier-aware), theme/ (per-domain), types/ (per-domain)');
-
+	const artifacts = [kindFamiliesArtifact(), presetCatalogArtifact()];
+	const emit = (destination, output) => artifacts.push({ destination, output });
 	const sd = new StyleDictionary(config);
-	await sd.buildAllPlatforms();
-
-	// The preset catalog, from the one preset source (plan 0006 0s.2)
-	execSync('node scripts/build/styledictionary/generate-preset-catalog.mjs', {
-		cwd: process.cwd(),
-		stdio: 'inherit',
+	const platforms = await sd.formatAllPlatforms();
+	for (const files of Object.values(platforms)) {
+		for (const file of files) {
+			if (file.destination && file.output !== undefined) artifacts.push(file);
+		}
+	}
+	const featureBarrel = 'src/lib/sys/generated/feature-styles.css';
+	const featureImports = FEATURE_FILES.map(({ kind, path, group, meta }) => {
+		const name = basename(path, '.tokens.json');
+		emit(`${dirname(path)}/${name}.generated.ts`, kindTypes(kind, group, meta));
+		const css = `${dirname(path)}/${name}.generated.css`;
+		return `@import "${relative(dirname(featureBarrel), css).replaceAll('\\', '/')}" layer(components);`;
 	});
+	emit(featureBarrel, ['/* AUTO-GENERATED — DO NOT EDIT. Feature-local UI styles. */', ...featureImports, ''].join('\n'));
 
 	// Kinds (plan 0006 §0s): each kind file's typed unions beside it, and the
 	// barrel importing every kind's generated CSS.
 	for (const { kind, group, meta } of KIND_FILES) {
-		writeFileSync(`${OUT}/components/${kind}/${kind}.generated.ts`, kindTypes(kind, group, meta));
+		emit(`${OUT}/components/${kind}/${kind}.generated.ts`, kindTypes(kind, group, meta));
 	}
-	mkdirSync(`${OUT}/styles/components/kinds`, { recursive: true });
 	const kindImports = KIND_FILES.map(({ kind }) => `@import "./${kind}.css";`);
-	writeFileSync(
+	emit(
 		`${OUT}/styles/components/kinds/index.css`,
 		['/* AUTO-GENERATED — DO NOT EDIT. One file per colocated kind tokens file. */', ...kindImports, ''].join('\n'),
 	);
 	console.log(`[SD5] Kinds: ${KIND_FILES.map(({ kind }) => kind).join(', ') || '(none yet)'}`);
 
 	// The family scope's typed families and roles, beside styleAttrs (plan 0006 0s.5).
-	writeFileSync(`${OUT}/renderforge/generated/surfaces.ts`, surfaceTypes(SURFACE_FAMILIES, SURFACE_DEFAULT));
+	emit(`${OUT}/renderforge/generated/surfaces.ts`, surfaceTypes(SURFACE_FAMILIES, SURFACE_DEFAULT));
 	console.log(`[SD5] Surface families: ${SURFACE_FAMILIES.map(({ family }) => family).join(', ')} (root: ${SURFACE_DEFAULT})`);
 
-	writeFileSync(`${OUT}/styles/index.css`, INDEX_CSS);
-	writeFileSync(`${OUT}/theme/index.css`, INDEX_THEME);
-	writeFileSync(`${OUT}/types/index.d.ts`, INDEX_DTS);
+	emit(`${OUT}/styles/index.css`, INDEX_CSS);
+	emit(`${OUT}/theme/index.css`, INDEX_THEME);
+	emit(`${OUT}/types/index.d.ts`, INDEX_DTS);
 
-	// Format generated .d.ts files to pass biome checks
-	try {
-		execSync(`npx biome format --write ${OUT}/types/`, { stdio: 'pipe' });
-	} catch {
-		// Non-fatal — formatting is a convenience, not a build requirement
+	for (const artifact of artifacts) {
+		if (artifact.destination.endsWith('.d.ts')) artifact.output = artifact.output.trimEnd() + '\n';
 	}
+	const result = publishArtifacts(resolve('../..'), `${OUT}/generated/token-build-outputs.json`, artifacts, {
+		check: process.argv.includes('--check'),
+	});
+	console.log(`[SD5] ${result.total} outputs verified; ${result.changed} changed.`);
 
-	console.log('[SD5] Build complete.');
-	console.log(`  Styles: ${OUT}/styles/index.css`);
-	console.log(`  Theme:  ${OUT}/theme/index.css`);
-	console.log(`  Types:  ${OUT}/types/index.d.ts`);
 }
 
 build().catch((err) => {

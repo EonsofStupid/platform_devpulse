@@ -23,6 +23,7 @@ import path, { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { storybookTest } from "@storybook/addon-vitest/vitest-plugin";
 import { sveltekit } from "@sveltejs/kit/vite";
+import tailwindcss from "@tailwindcss/vite";
 import { playwright } from "@vitest/browser-playwright";
 import { defineConfig } from "vitest/config";
 
@@ -30,7 +31,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const isCI = !!process.env.CI;
 export default defineConfig({
 	// App imports use SvelteKit's $app/* modules as well as Svelte runes.
-	plugins: [sveltekit()],
+	plugins: [tailwindcss(), sveltekit()],
 	// Pre-bundled so Vite does not re-optimize and reload a test mid-run when a test first imports it.
 	optimizeDeps: {
 		include: ["@tauri-apps/api/webviewWindow"],

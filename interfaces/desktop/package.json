@@ -6,11 +6,12 @@
 	"scripts": {
 		"generate:terminology": "tsx scripts/build/terminology/generate.ts",
 		"bindings:regen": "cd ../.. && cargo xtask regen-bindings",
-		"dev": "pnpm generate:terminology && vite dev",
-		"build": "pnpm generate:terminology && vite build",
-		"build:full": "pnpm bindings:regen && pnpm generate:terminology && vite build",
+		"dev": "pnpm ds:tokens:build && pnpm generate:terminology && vite dev",
+		"build": "pnpm ds:tokens:build && pnpm generate:terminology && vite build",
+		"build:full": "pnpm bindings:regen && pnpm build",
 		"preview": "vite preview",
 		"check": "svelte-check --tsconfig ./tsconfig.json",
+		"check:stories": "svelte-check --tsconfig ./tsconfig.stories.json",
 		"check:ipc": "node scripts/dev/check-no-raw-invoke.mjs",
 		"lint": "biome check src/",
 		"lint:fix": "biome check --write src/",
@@ -26,6 +27,8 @@
 		"headers:fix": "tsx scripts/dev/inject-headers.ts fix",
 		"headers:validate": "tsx scripts/dev/inject-headers.ts validate",
 		"ds:tokens:build": "node scripts/build/styledictionary/build.mjs",
+		"ds:tokens:check": "node scripts/build/styledictionary/build.mjs --check",
+		"ds:tokens:test": "node --test scripts/build/styledictionary/*.test.mjs",
 		"ds:generate": "tsx scripts/dev/design/coldlight-generate.ts",
 		"ds:validate": "tsx scripts/dev/design/coldlight-validate.ts",
 		"ds:build": "pnpm ds:tokens:build && pnpm ds:generate",
@@ -47,8 +50,8 @@
 		"test:browser": "vitest --browser",
 		"test:ci": "CI=true vitest run",
 		"test:arch": "vitest run --config vitest.config.arch.ts",
-		"storybook": "storybook dev -p 6006",
-		"build-storybook": "storybook build"
+		"storybook": "pnpm ds:tokens:build && storybook dev -p 6006",
+		"build-storybook": "pnpm ds:tokens:build && pnpm check:stories && storybook build"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.3.13",

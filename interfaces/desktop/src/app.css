@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "@devpulse/coldlight/index.css";
+@import "./lib/sys/generated/feature-styles.css";
 /* ColdLight is a workspace package outside this folder, so Tailwind's automatic
    detection does not reach it: register its components as a source. */
 @source "../node_modules/@devpulse/coldlight";

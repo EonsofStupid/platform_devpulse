@@ -17,6 +17,7 @@
 export { type StyleAttrs, type StyleSelection, styleAttrs } from "./attrs.js";
 // The format helper — the ONLY bridge to DOM
 export { cssVarString } from "./css-var-string.js";
+export { SURFACE_DEFAULT, SURFACE_FAMILIES, type SurfaceFamily } from "./generated/surfaces.js";
 // Shared intent resolution — Law 6
 export { INTENT_MAP, resolveIntent } from "./intent.js";
 // The resolver — Law 1

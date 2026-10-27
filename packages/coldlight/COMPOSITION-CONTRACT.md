@@ -1,277 +1,132 @@
-# Composition Contract — authoritative spec
+# Composition contract
 
-> **Sprint 00 deliverable.** Locks the **compose-don't-author** rule
-> for every `feature/` orchestrator in the desktop app. States the
-> 94 ColdLight primitives that already exist; states what an
-> orchestrator may NOT hand-roll; cites the specific anti-pattern
-> in the RRO devtool that this spec refuses; documents the
-> `feature/` + `ui/` + `util/` colocation pattern with RRO as the
-> reference.
->
-> **Status:** Locked.
-> **Owner:** Jesse.
-> **Authored:** 2026-05-09.
-> **Cross-references:**
-> [`TRUTH.md`](./TRUTH.md) (5-stage pipeline, 5-tier taxonomy),
-> [`RENDERFORGE.md`](./RENDERFORGE.md) (P1–P5 properties),
-> [`MACRO-LAW.md`](./MACRO-LAW.md) (5 family-CSS laws),
-> [`ONBOARDING-CASCADE.md`](./ONBOARDING-CASCADE.md),
-> [`CONNECTOR-DEFERRAL.md`](../../../../kernel/model-loader/src/CONNECTOR-DEFERRAL.md),
-> locked memory `project_central_ui_library.md`,
-> `project_nx_library_types.md`.
+Owner: Jesse. Updated 2026-10-27 against plan 0001 B4.3 and plan 0006 §0s.
+This is the authoring contract; it does not claim that every existing component
+has completed the migration. Preserve existing capabilities while converting
+their owning implementation and callers together.
 
-## The rule (one line)
+## Two stages
 
-A `feature/` orchestrator MAY NOT author markup or CSS that an
-existing ColdLight primitive covers. If the primitive doesn't
-cover the case, the orchestrator authors a `ui/` adapter colocated
-with the feature; the adapter composes the primitives. The
-orchestrator never reaches past `ui/` to raw HTML for visual
-purposes.
+ColdLight owns reusable behavior, accessibility, typed components and generated
+visuals. Feature UI adapters compose those components. Feature orchestrators
+connect application state and callbacks and own the page layout.
 
-This applies to every feature in
-`interfaces/desktop/src/lib/domains/**/feature/` and every devtool
-in `interfaces/desktop/src/lib/devtools/**/feature/`.
-
-## Why
-
-The desktop UI deleted 73 components in commit `2035d613` because
-they had drifted: hand-rolled markup, inline `oklch()`, hardcoded
-strings, custom CSS classes that duplicated primitives. Restoring
-them only works if the new authoring discipline prevents the same
-drift. This contract is that discipline.
-
-The 5-stage pipeline ([`TRUTH.md`](./TRUTH.md)) routes every visual
-through `renderForge` → primitives → glue CSS → presets → tokens.
-A feature that bypasses the primitive layer breaks that pipeline at
-its top stage; nothing downstream can fix it.
-
-## The 94 primitives (current inventory)
-
-`packages/coldlight/components/`:
-
-```
-_base, accordion, alert, alert-dialog, avatar, avatar-group,
-background-scene, badge, banner, button, calendar, callout, card,
-chat-bubble, chat-context-panel, chat-dashboard, chat-footer,
-chat-frame, chat-sidebar, chat-topbar, checkbox, code, collapsible,
-color-area, color-field, color-slider, color-swatch,
-color-swatch-picker, color-wheel, combobox, contextual-help,
-data-table, date-field, date-picker, date-range-field,
-date-range-picker, description-list, dialog, dynamic-background,
-empty-state, field, file-upload, form, form-field, heading,
-inline-message, input-group, kbd, key-value, label, link-preview,
-list, loading-overlay, menubar, meter, nav, navigation-menu,
-notification-center, number-field, pagination, pin-input, popover,
-progress, prose, radial-gauge, radio-group, range-calendar,
-scroll-area, search-field, select, separator, sheet, sidebar,
-skeleton, skip-link, slider, spark-line, spinner, stat, status-dot,
-steps, switch, table, table-of-contents, tabs, text, text-field,
-textarea, toaster, toggle, toggle-group, toolbar, tooltip, tree
+```text
+packages/coldlight/
+  behaviors/<kind>/                 # owned interaction and accessibility
+  components/<kind>/
+    Kind.svelte                    # markup + behavior + selectors
+    kind.types.ts                  # authored public props
+    kind.tokens.json               # authored visual variants/parts/states
+    kind.generated.ts              # generated vocabulary/defaults
+    index.ts                       # public API
+interfaces/desktop/src/lib/domains/<domain>/
+  data-access/                     # domain state, commands and events
+  feature/                         # orchestration and page layout
+  ui/<name>/
+    Name.svelte                    # presentational composition
+    name.types.ts                  # local props/callback contract
+    name.tokens.json               # when a feature-specific look is needed
+    name.generated.css             # generated, never edited
+    name.generated.ts              # generated, never edited
+    index.ts
+  util/                            # pure helpers
+  index.ts                         # cross-domain public API
 ```
 
-(`_base` is the shared types/schema. The others are 93 user-facing
-primitives. Plus `factory.ts`, `kinds.ts`, `schema.ts` shared infra.)
+Import ColdLight through `@devpulse/coldlight` package exports in the app;
+`#coldlight` is internal to the package. ColdLight never imports the app.
+Shared application infrastructure belongs in `sys`; domain state belongs in
+its domain's `data-access`, not in a new global state registry.
 
-Blocks layer (compositions of primitives that ship as-is):
-`blocks/chat/`, `blocks/dialogs/`, `blocks/governance/`,
-`blocks/widgets/`. Use these BEFORE composing primitives directly
-when the block matches.
+The component inventory is the existing `components/` tree and generated
+manifest. Inspect that inventory, and `blocks/`, before inventing a new kind.
+Use a matching block before recreating its composition. The historical inventory
+and restoration rationale are recorded in plan 0006 and `recovered/STATUS.md`;
+missing styling is a reason to repair an implementation, never to delete it.
 
-## The colocation pattern (RRO reference)
+## Visual ownership
 
-[`interfaces/desktop/src/lib/devtools/clyffy/reasoning/rro/`](../devtools/clyffy/reasoning/rro/)
-is the reference layout every feature/devtool follows:
+Style Dictionary generates CSS and TypeScript from DTCG inputs. Base components
+select generated rules with `data-kind`, variant, size, tone and state attributes.
+Surface roles inherit a generated family through `data-surface`; a nested family
+overrides that scope. Do not invent parallel runtime preset registries.
 
-```
-rro/
-├── feature/
-│   ├── RroDevtool.svelte                  ← orchestrator
-│   └── panels/                             ← view-level snippets
-│       ├── DenseVectorsPanel.svelte
-│       ├── SparseVectorsPanel.svelte
-│       └── …
-├── ui/                                     ← dumb adapters
-│   ├── CapabilityCard.svelte
-│   ├── VectorCountBadge.svelte
-│   └── …
-├── util/                                    ← pure functions + types
-│   ├── rro.types.ts
-│   ├── rro.format.ts
-│   └── rro.wire.ts                         ← specta re-exports only
-└── index.ts
-```
+A feature's optional token file lives at `ui/<name>/<name>.tokens.json`.
+Its sole token group is its domain path plus adapter name, joined with hyphens
+(for example `chat-session-row`). The generator validates this namespace and
+emits `data-ui` selectors, so it cannot replace the base component's `data-kind`.
+Its CSS is imported by the generated app feature-style barrel. Feature tokens
+must not contribute or override a shared top-level token group.
 
-Rules:
-- `feature/` ORCHESTRATES — composes `ui/` and primitives, owns the
-  state hookup (via `$lib/sys/data-access/<feature>/`), owns the
-  layout grid.
-- `ui/` ADAPTS — small components that take primitive props and emit
-  primitives. Never holds state. Never imports state runes. Pure
-  prop-in / markup-out. Re-usable inside the feature only.
-- `util/` THINKS — pure functions, types, formatters. No DOM, no
-  IO. `wire.ts` re-exports specta bindings so `feature/` and `ui/`
-  consume the same types.
+Layout utilities are allowed for grid, flex, spacing, sizing, alignment and
+positioning. Visual values (fill, shadow, border treatment, typography and
+state appearance) belong in the owning component or feature tokens. Reuse
+Text/Heading and existing visual components. Avoid authored visual utilities,
+inline visual declaration strings and a second CSS system in the feature.
+Existing inline RenderForge consumers still need direct migration; they are
+not the pattern for new work. Data-dependent geometry is a separate concern
+and must not be confused with a theme or preset override.
 
-State runes live OUTSIDE the feature tree at
-`$lib/sys/data-access/<feature>/<feature>.state.svelte.ts`. RRO's
-state lives at `$lib/sys/data-access/rro/`. This separation lets a
-state rune be reused across multiple features without circular
-dependencies.
+Use shared SVG definitions for reusable geometry where appropriate. Mount
+filters at the documented root, avoid duplicate IDs, and verify clipping,
+contrast and reduced motion. SVG filters and blur still require paint-cost
+measurement; they are not automatically free or GPU-only.
 
-## What an orchestrator MAY do
+## Adapter discipline
+
+UI adapters accept typed presentation data and callbacks. Local derived values
+and interaction state are allowed; importing domain stores, subscribing to
+services or issuing IPC is not. Orchestrators supply these dependencies.
+Keep types beside their adapter. Use existing generated wire types when they
+are the actual contract; do not copy DTO shapes into another registry.
 
 ```svelte
-<!-- feature/RroDevtool.svelte (orchestrator) -->
-<script lang="ts">
-import { Card, Tabs, TabsContent, TabsList, TabsTrigger } from "#coldlight/components/...";
-import CapabilityCard from "../ui/CapabilityCard.svelte";
-import { rroState } from "$lib/sys/data-access/rro/rro.state.svelte.js";
-
-$effect(() => rroState.subscribe("rro-devtool"));
-</script>
-
-<Card preset="glass-deep">
-  <Heading>RRO</Heading>
-  <Tabs value={activeTab}>
-    {#each capabilities as cap}
-      <TabsTrigger value={cap.id}>
-        <CapabilityCard {...cap} />
-      </TabsTrigger>
-    {/each}
-  </Tabs>
+<!-- ui/session-row/SessionRow.svelte uses Card as a semantic button. -->
+<Card as="button" variant="minimal" data-ui="chat-session-row"
+  data-selected={active || undefined} aria-current={active ? "true" : undefined}
+  {disabled} onclick={onClick} class="w-full px-2 py-2">
+  <Text size="sm">{session.title}</Text>
 </Card>
 ```
 
-Compose. Pass typed props. Hook state via `$effect`. Done.
+The real session-row and agent-turn adapters in the chat domain are working
+examples. Preserve native semantics, focus, disabled behavior and provider
+choice IDs when moving presentation. Expose reusable adapters through the
+domain public API when another domain needs them.
 
-## What an orchestrator MAY NOT do
+## Refuse duplication; extend the owner
 
-```svelte
-<!-- ❌ NEVER -->
-<button class="rro-cap-btn">{cap.label}</button>
+- Use Button/Card/Tooltip/Dialog rather than hand-rolled styled replacements.
+- Use RadialGauge, Progress or Meter before drawing a duplicate visualization.
+- Add the needed typed variant/part/state to its owner when composition cannot
+  express it; do not create a V2, compatibility alias or fallback implementation.
+- Keep accessible names and application copy supplied by the owning domain.
+- A shared gap belongs in ColdLight; a feature-specific composition belongs in
+  that feature's UI directory. File length alone does not prove either case.
+- Devtools follow the same contract as product pages.
 
-<style>
-  .rro-cap-btn {
-    display: inline-flex;
-    padding: 0.1875rem 0.5rem;
-    font-size: var(--font-size-xs);   /* rule 28 violation */
-    border: 1px solid var(--border-subtle);
-    /* …another 12 lines hand-rolling Button */
-  }
-</style>
-```
+## Generation and verification
 
-This is the actual anti-pattern in
-[`RroDevtool.svelte:198`](../devtools/clyffy/reasoning/rro/feature/RroDevtool.svelte#L198)
-that this spec refuses going forward and that Sprint 02 fixes
-during the restoration sweep.
+From `interfaces/desktop`, `pnpm ds:tokens:build` generates changed outputs;
+`pnpm ds:tokens:check` verifies freshness without writing. The output inventory
+rejects duplicate/empty outputs and reports orphaned files for consumer review.
+It never deletes them automatically. Token generation precedes normal builds.
 
-The right move is:
+Use `src/app.css` as the single desktop/Storybook CSS entry. It establishes
+Tailwind's layer order before ColdLight. Importing ColdLight separately first
+can make base resets override generated component styles.
 
-```svelte
-<!-- ✅ Compose Button + Badge inside ui/CapabilityCard.svelte -->
-<Button preset="ghost" size="sm" onclick={() => onSelect(cap.id)}>
-  <span class="inline-flex items-center gap-1">
-    <StatusDot status={cap.status} />
-    {cap.label}
-  </span>
-</Button>
-```
+Verify app and package types, generated-output tests and relevant browser
+behavior with actual CSS loaded. `pnpm check:stories` covers the examples that
+app typechecking excludes. `pnpm build-storybook` generates and typechecks the
+review fixture before building it. The composition review renders the real
+adapters across the generated family inventory; `/ui-demo` uses that same view.
+The full native app is launched only with `cargo xtask run-dev`.
 
-Hand-rolled CSS dies; the ColdLight `<Button>` carries every
-preset/intent/state the feature needs.
-
-## Specific refusals
-
-| Authored in `feature/` | Refuse with |
-|---|---|
-| `<button>` with custom styling | `<Button preset="…">` exists. |
-| `<div class="card">` with custom CSS | `<Card preset="…">` exists. |
-| Inline `style="color: oklch(...)"` | `renderForge({kind, preset})` + token vars. |
-| Custom tooltip via `title=` | `<Tooltip>` primitive. Rule 67. |
-| Hand-rolled gauge SVG | `<RadialGauge>` exists; if not enough, author `ui/<Specific>Gauge.svelte` that wraps it. |
-| Hand-rolled gradient text effect | `<Text preset="…">` covers gradient presets; add a preset, don't inline. |
-| Hand-rolled progress bar | `<Progress>` or `<Meter>` primitives. |
-| `<dialog>` element directly | `<Dialog>` primitive (Melt UI exception per ARIA ownership rule). |
-| Hardcoded English strings | Cascade Layer 3 — see [`ONBOARDING-CASCADE.md`](./ONBOARDING-CASCADE.md). |
-| `text-xs` anywhere | Rule 28. Minimum `text-sm`. |
-| Per-component recipe in `recipe.ts` files | Recipes were deleted in Sprint 02 plan; tokens drive every visual now. |
-
-## Adding a new primitive
-
-If `coldlight-curator` audits a feature and finds a real gap — a
-visual the existing primitives can't compose — the missing piece
-goes in `design/components/<new-primitive>/`, not in
-`feature/<some-feature>/ui/`. `ui/` is for FEATURE-SPECIFIC
-adapters; reusable primitives belong to ColdLight.
-
-The threshold: if more than ONE feature would benefit, it's a
-primitive. If only this feature has the visual, it's a `ui/`
-adapter that wraps existing primitives.
-
-## Adapter discipline (`ui/` files)
-
-```svelte
-<!-- ui/ModelInstallRow.svelte -->
-<script lang="ts">
-import Card from "#coldlight/components/card/Card.svelte";
-import { Progress } from "#coldlight/components/progress/index.js";
-import { StatusDot } from "#coldlight/components/status-dot/index.js";
-import { Text } from "#coldlight/components/text/index.js";
-import type { ModelInstall } from "../util/wizard.types.js";
-
-interface Props {
-  install: ModelInstall;
-}
-
-let { install }: Props = $props();
-</script>
-
-<Card preset="cortex-node" class="px-3 py-2">
-  <div class="flex items-center gap-2">
-    <StatusDot status={install.status} />
-    <Text size="sm" weight="semibold">{install.label}</Text>
-    <Progress value={install.progress} max={100} class="ml-auto w-32" />
-  </div>
-</Card>
-```
-
-Notice:
-- No `<style>` block.
-- No `oklch(...)`.
-- No hand-rolled grid; uses `flex items-center gap-2` (utility classes, not custom CSS).
-- One typed prop. Pure markup. Predictable.
-
-Adapters compile to nothing more than a primitive composition tree.
-If an adapter accumulates more than ~50 lines of markup, suspect a
-missing primitive and check with `coldlight-curator`.
-
-## Storybook / verification
-
-Every restored or new component (Sprint 02 onwards) ships with a
-verification entry. The current verification harness is
-`pnpm check` plus manual visual smoke; a Storybook-style harness is
-a parking-lot item (PL-008 in [`PARKING-LOT.md`](./PARKING-LOT.md)).
-For now:
-
-- Every `ui/` adapter renders without crashing on default props.
-- Every `feature/` orchestrator passes `coldlight-curator` audit.
-- Every commit that touches `feature/` includes the curator's
-  sign-off in the body.
-
-## Anti-patterns this spec refuses
-
-- "We'll inline CSS just for this one case." Every "one case" became
-  the deleted-73 list. Compose or extend; never inline.
-- "The primitive doesn't have a `secondary-glass` preset, so I'll
-  hand-roll." Add the preset. The token system is centrally edited;
-  features don't fork it.
-- "I'll author a sub-orchestrator inside `feature/` that has its own
-  `ui/`." Three-deep nesting under `feature/` is a sign the feature
-  is too large; split it into two feature trees instead.
-- "It's a devtool, the discipline is looser." Devtools follow the
-  contract identically. RRO's `.rro-cap-btn` is the proof of what
-  loose discipline produces.
-- "It's a temporary." There are no temporaries in pre-release. Drift
-  in pre-release becomes the deletion sweep that follows.
+Inspect keyboard interaction, state transitions, long content, nested scopes
+and responsive widths. A passing build does not prove visual fidelity,
+accessibility, performance, or AgentHub runtime correctness. Record failures
+and remaining coverage in the owning plan; never increase a baseline or hide
+an error to report success. Curator review remains part of the intended audit;
+report actual available evidence rather than inventing a curator sign-off.

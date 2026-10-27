@@ -81,8 +81,8 @@ const { Story } = defineMeta({
 </script>
 
 <!-- Default — interactive glass panel with buttons -->
-<!-- @ts-ignore Storybook CSF args -->
-<Story name="Default" let:args>
+<Story name="Default">
+	{#snippet template(args)}
 	<div class="p-16 bg-[var(--color-void-base)] min-h-[25rem] flex items-center justify-center">
 		<div
 			class={cn(
@@ -121,11 +121,12 @@ const { Story } = defineMeta({
 
 			<!-- Footer slot -->
 			<div data-kind="panel" data-slot="footer" class="flex gap-3 justify-end">
-				<Button intent="secondary">Cancel</Button>
-				<Button intent="primary">Confirm</Button>
+				<Button variant="secondary">Cancel</Button>
+				<Button variant="primary">Confirm</Button>
 			</div>
 		</div>
 	</div>
+	{/snippet}
 </Story>
 
 <!-- Glow Variants — same panel, different glow colors -->

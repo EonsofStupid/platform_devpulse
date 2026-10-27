@@ -12,8 +12,8 @@
  * Output: packages/coldlight/renderforge/generated/kind-families.ts
  */
 
-import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, join, relative, resolve } from "node:path";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -73,91 +73,92 @@ const INTERACTIVE_KINDS = new Set([
 	"toggle", "toggle-group", "toolbar", "tooltip",
 ]);
 
-const raw = readFileSync(PRESETS_PATH, "utf-8");
-const data = JSON.parse(raw);
-// style-presets.json uses "preset" as the top-level key (was "style" in earlier format)
-const style = data.style ?? data.preset;
+export function kindFamiliesArtifact() {
+	const raw = readFileSync(PRESETS_PATH, "utf-8");
+	const data = JSON.parse(raw);
+	// style-presets.json uses "preset" as the top-level key (was "style" in earlier format)
+	const style = data.style ?? data.preset;
 
-if (!style) {
-	console.error("[derive-kind-families] FATAL: style-presets.json has no 'style' or 'preset' key");
-	console.error("  Keys found:", Object.keys(data).join(", "));
-	process.exit(1);
-}
-
-/** Map of kind → Set<family> */
-const kindFamilies = new Map();
-
-for (const [presetName, preset] of Object.entries(style)) {
-	if (presetName.startsWith("$")) continue;
-	if (typeof preset !== "object" || preset === null) continue;
-
-	// Extract kind: "button-glass" → "button", "chat-sidebar-default" → "chat-sidebar"
-	const parts = presetName.split("-");
-	parts.pop(); // remove variant
-	const kind = parts.join("-");
-
-	if (!kindFamilies.has(kind)) {
-		kindFamilies.set(kind, new Set());
+	if (!style) {
+		console.error("[derive-kind-families] FATAL: style-presets.json has no 'style' or 'preset' key");
+		console.error("  Keys found:", Object.keys(data).join(", "));
+		throw new Error("Missing preset group");
 	}
 
-	const families = kindFamilies.get(kind);
+	/** Map of kind → Set<family> */
+	const kindFamilies = new Map();
 
-	// Walk preset axes, map to families
-	for (const axis of Object.keys(preset)) {
-		if (axis.startsWith("$")) continue;
-		const family = VAR_TO_FAMILY[axis];
-		if (family) {
-			// Only add if the value is not "inherit" / "none" / "0" (i.e., it's active)
-			const val = preset[axis]?.$value;
-			if (val && val !== "inherit" && val !== "none" && val !== "0" && val !== "transparent") {
-				families.add(family);
+	for (const [presetName, preset] of Object.entries(style)) {
+		if (presetName.startsWith("$")) continue;
+		if (typeof preset !== "object" || preset === null) continue;
+
+		// Extract kind: "button-glass" → "button", "chat-sidebar-default" → "chat-sidebar"
+		const parts = presetName.split("-");
+		parts.pop(); // remove variant
+		const kind = parts.join("-");
+
+		if (!kindFamilies.has(kind)) {
+			kindFamilies.set(kind, new Set());
+		}
+
+		const families = kindFamilies.get(kind);
+
+		// Walk preset axes, map to families
+		for (const axis of Object.keys(preset)) {
+			if (axis.startsWith("$")) continue;
+			const family = VAR_TO_FAMILY[axis];
+			if (family) {
+				// Only add if the value is not "inherit" / "none" / "0" (i.e., it's active)
+				const val = preset[axis]?.$value;
+				if (val && val !== "inherit" && val !== "none" && val !== "0" && val !== "transparent") {
+					families.add(family);
+				}
 			}
 		}
 	}
-}
 
-// Declared categories override preset inference.
-for (const entry of readdirSync(COMPONENTS_DIR, { withFileTypes: true })) {
-	if (!entry.isDirectory() || entry.name.startsWith("_")) continue;
-	const schemaPath = join(COMPONENTS_DIR, entry.name, "schema.ts");
-	if (!existsSync(schemaPath)) continue;
-	const match = readFileSync(schemaPath, "utf-8").match(/export const CATEGORY\s*=\s*"([^"]+)"/);
-	const declared = match && CATEGORY_FAMILIES[match[1]];
-	if (declared) kindFamilies.set(entry.name, new Set(declared));
-}
-
-// Add interactive family to known interactive kinds
-for (const kind of INTERACTIVE_KINDS) {
-	if (kindFamilies.has(kind)) {
-		kindFamilies.get(kind).add("interactive");
+	// Declared categories override preset inference.
+	for (const entry of readdirSync(COMPONENTS_DIR, { withFileTypes: true })) {
+		if (!entry.isDirectory() || entry.name.startsWith("_")) continue;
+		const schemaPath = join(COMPONENTS_DIR, entry.name, "schema.ts");
+		if (!existsSync(schemaPath)) continue;
+		const match = readFileSync(schemaPath, "utf-8").match(/export const CATEGORY\s*=\s*"([^"]+)"/);
+		const declared = match && CATEGORY_FAMILIES[match[1]];
+		if (declared) kindFamilies.set(entry.name, new Set(declared));
 	}
+
+	// Add interactive family to known interactive kinds
+	for (const kind of INTERACTIVE_KINDS) {
+		if (kindFamilies.has(kind)) {
+			kindFamilies.get(kind).add("interactive");
+		}
+	}
+
+	// Sort families for consistent output
+	const sorted = {};
+	const allKinds = [...kindFamilies.keys()].sort();
+	for (const kind of allKinds) {
+		sorted[kind] = [...kindFamilies.get(kind)].sort();
+	}
+
+	// Generate TypeScript output
+	const lines = [
+		"/* AUTO-GENERATED by derive-kind-families.mjs — DO NOT EDIT */",
+		"",
+		`import type { CssFamily } from "../types.js";`,
+		"",
+		"export const KIND_FAMILIES: Record<string, CssFamily[]> = {",
+	];
+
+	for (const [kind, families] of Object.entries(sorted)) {
+		const fams = families.map((f) => `"${f}"`).join(", ");
+		// Biome: unquoted keys for valid JS identifiers (no hyphens)
+		const key = kind.includes("-") ? `"${kind}"` : kind;
+		lines.push(`\t${key}: [${fams}],`);
+	}
+
+	lines.push("};");
+	lines.push("");
+
+	return { destination: OUTPUT_PATH, output: lines.join("\n") };
 }
-
-// Sort families for consistent output
-const sorted = {};
-const allKinds = [...kindFamilies.keys()].sort();
-for (const kind of allKinds) {
-	sorted[kind] = [...kindFamilies.get(kind)].sort();
-}
-
-// Generate TypeScript output
-const lines = [
-	"/* AUTO-GENERATED by derive-kind-families.mjs — DO NOT EDIT */",
-	"",
-	`import type { CssFamily } from "../types.js";`,
-	"",
-	"export const KIND_FAMILIES: Record<string, CssFamily[]> = {",
-];
-
-for (const [kind, families] of Object.entries(sorted)) {
-	const fams = families.map((f) => `"${f}"`).join(", ");
-	// Biome: unquoted keys for valid JS identifiers (no hyphens)
-	const key = kind.includes("-") ? `"${kind}"` : kind;
-	lines.push(`\t${key}: [${fams}],`);
-}
-
-lines.push("};");
-lines.push("");
-
-writeFileSync(OUTPUT_PATH, lines.join("\n"));
-console.log(`[derive-kind-families] ${allKinds.length} kinds → ${relative(process.cwd(), OUTPUT_PATH)}`);

@@ -1,0 +1,11 @@
+{
+	"extends": "./tsconfig.json",
+	"include": [
+		"src/stories/**/*.svelte",
+		".storybook/**/*.ts",
+		"src/**/*.d.ts",
+		".svelte-kit/ambient.d.ts",
+		".svelte-kit/non-ambient.d.ts"
+	],
+	"exclude": ["node_modules", "**/node_modules", "dist"]
+}

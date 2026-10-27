@@ -1,0 +1,33 @@
+import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import test from 'node:test';
+
+test('only exact generated feature outputs bypass authored raw-value checks', (t) => {
+	const root = mkdtempSync(join(tmpdir(), 'coldlight-hook-'));
+	t.after(() => rmSync(root, { recursive: true, force: true }));
+	const command = (bin, args) => spawnSync(bin, args, { cwd: root, encoding: 'utf8' });
+	assert.equal(command('git', ['init', '--quiet']).status, 0);
+	const css = 'interfaces/desktop/src/lib/domains/chat/ui/session-row/session-row.generated.css';
+	const inventory = 'packages/coldlight/generated/token-build-outputs.json';
+	for (const file of [css, inventory]) mkdirSync(dirname(join(root, file)), { recursive: true });
+	writeFileSync(join(root, css), '/* AUTO-GENERATED */\n[data-ui="chat-session-row"] { outline: 2px solid #fff; }\n');
+	writeFileSync(join(root, inventory), JSON.stringify([css]));
+	assert.equal(command('git', ['add', '.']).status, 0);
+	const hook = fileURLToPath(new URL('./no-raw-values.mjs', import.meta.url));
+	assert.equal(command(process.execPath, [hook]).status, 0);
+	writeFileSync(join(root, inventory), '[]');
+	const unlisted = command(process.execPath, [hook]);
+	assert.equal(unlisted.status, 1);
+	assert.match(unlisted.stderr, /Raw pixel value/);
+	const authored = css.replace('.generated.css', '.css');
+	writeFileSync(join(root, authored), '[data-ui="chat-session-row"] { outline: 2px solid #fff; }\n');
+	writeFileSync(join(root, inventory), JSON.stringify([css, authored]));
+	assert.equal(command('git', ['add', '.']).status, 0);
+	const authoredResult = command(process.execPath, [hook]);
+	assert.equal(authoredResult.status, 1);
+	assert.match(authoredResult.stderr, /session-row\.css/);
+});

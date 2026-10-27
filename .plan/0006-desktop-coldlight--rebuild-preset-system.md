@@ -8,7 +8,7 @@ touches: [desktop-models, desktop-chat, desktop-devtools]
 status: draft
 owner: Jesse Hades Hall
 created: 2026-10-10
-updated: 2026-10-22
+updated: 2026-10-27
 supersedes: []
 specs:
   - interfaces/desktop/src/lib/design/MASTER-PLAN.md
@@ -16,6 +16,290 @@ specs:
 ---
 
 # Rebuild the ColdLight preset system
+
+## Research checkpoint — 2026-10-27, before further UI implementation
+
+Owner requested research of the code, established practice and actual app
+before resuming changes. This checkpoint records findings, not completion
+of the styling migration or AgentHub. No application implementation changed
+for this audit. Base revision: `6c3facad`.
+
+### The intended product and authoring contract
+
+Rich, distinctive surfaces must remain coordinated, generated, reusable and
+fast. The two stages are (1) ColdLight behavior plus typed, styled base
+components and (2) feature-local renderers composed from those components.
+Feature orchestration supplies data and callbacks; it does not invent a
+second visual system. Runtime state changes choose generated CSS through
+typed attributes. They do not rebuild visual declaration strings per row.
+
+Use the existing package as the working interpretation of the owner's
+`built/component/componentname/compname.svelte` description. Whether that is
+a literal requested directory name remains an explicit clarification; no
+directory renames have been made. The proposed concrete arrangement is:
+
+```text
+packages/coldlight/components/<kind>/
+  Kind.svelte             # base markup, behavior hookup, attributes
+  kind.types.ts           # authored public props
+  kind.tokens.json        # authored variants, parts and states
+  kind.generated.ts       # generated unions/defaults, never hand edited
+  index.ts                # public API
+interfaces/desktop/src/lib/domains/<domain>/
+  ui/<name>/
+    Name.svelte           # presentational composition
+    name.types.ts         # local props/callback contract
+    name.tokens.json      # feature visual differences; discovery still needed
+    index.ts
+  feature/                # orchestration and layout
+  data-access/            # service + state; sole IPC ownership
+```
+
+This follows plan 0001 B4.3's newer local-type contract. Older
+`COMPOSITION-CONTRACT.md` examples use flat UI files and global state paths;
+ColdLight's `CLAUDE.md` still describes inline RenderForge and old primitive
+paths. Reconcile these documents with this plan's approved 0s model before
+another agent follows contradictory instructions. Props/derived presentation
+are permitted in UI; the restriction is on importing feature state or doing IO.
+
+### Verified source-to-screen path
+
+All paths below are repository-relative; SD means
+`interfaces/desktop/scripts/build/styledictionary/`.
+
+| Stage | Existing owner and evidence | Remaining gap |
+| --- | --- | --- |
+| Authored tokens | `SD/tokens/src/{primitives,semantic,presets}/`; colocated `packages/coldlight/components/*/*.tokens.json`; SVG token inputs | `SD/sd.config.mjs:933` does not discover `domains/**/ui/**/*.tokens.json`. Feature colocation is not wired. |
+| Transform | Real Style Dictionary 5.3.1; `SD/build.mjs`, `sd.config.mjs`, `preprocess-extends.mjs`, `kind-css.mjs`, `surface-scopes.mjs` | Collection stubs still execute and describe an obsolete source. Deterministic full-build/stale-output checks remain to prove. |
+| Generated output | `packages/coldlight/styles/`, `theme/`, `types/`, component `*.generated.ts`, generated surface vocabulary/catalog | Multiple old and new consumers remain. Generation must be a normal build prerequisite; checked-in output alone can drift. |
+| Runtime CSS | desktop `src/app.css` imports `@devpulse/coldlight/index.css`, which imports token layers, scope CSS, kind CSS, SVG glue and old RenderForge glue | All visual Tailwind registrations are still imported; layout-only boundary is not achieved. Measure production assets before choosing any splitting strategy. |
+| Base component | `components/card/Card.svelte` uses `styleAttrs`, local props and generated defaults | 95 component folders excluding `_base`; only 10 contain their named kind-token file. This measures coverage, not full correctness: Select's trigger still uses the old path. |
+| Scope provider | `provider/ColdLightProvider.svelte` emits accent, scheme, neumorphism, animations and scale | It does not expose the generated `surface` family axis. Complete the provider/scope contract and test nested overrides instead of assuming all scope axes already work. |
+| Feature composition | `domains/chat/ui/SessionRow.svelte` and `feature/ChatAgentTurn.svelte` | SessionRow builds inline visual variables, uses visual utilities and inline props; ChatAgentTurn directly couples presentation to agent state. Complete the planned local UI adapters. |
+| SVG | root `src/routes/+layout.svelte` mounts `SvgFilters` once; shared filter registry/definitions and surface components exist | Prove ID uniqueness, clipping, contrast, reduced motion and actual paint cost. The comment promising GPU-only filter cost is not performance evidence. |
+
+The 10 kind-token folders are button, card, dialog, log, popover, select,
+sheet, toggle, toggle-group and tooltip. Existing generated surface families
+are chrome, flat, glass, neuro, retro and stark. Use the generated inventory
+for a review matrix; do not create a second hardcoded family registry.
+
+Build wiring was checked in desktop `package.json`, `vite.config.ts`, Tauri
+`tauri.conf.json` and `lefthook.yml`. Dev/build scripts do not invoke token
+generation; Vite only installs Tailwind and SvelteKit. The token hook watches
+`packages/coldlight/tokens/tokens.ts`, not the actual JSON inputs. Repair the
+existing build path and hook coverage, including a read-only freshness check.
+
+### Reproduced checks and review-surface gaps
+
+Installed versions: Svelte 5.51.2, SvelteKit 2.52.0, Vite 7.3.2,
+Style Dictionary 5.3.1. No dependency upgrades were made.
+
+| Check | Observed result |
+| --- | --- |
+| `node --test` on `SD/{preprocess-extends,kind-css,surface-scopes}.test.mjs` | 26 passed. Covers references, inheritance, invalid inputs, kind selectors/types and complete family role/axis coverage. Does not prove live visual fidelity. |
+| desktop `pnpm exec vitest run --config vitest.config.arch.ts tests/architecture/coldlight-boundary.test.ts` | 2 passed. Package import direction is intact. |
+| desktop `pnpm check` | 0 errors, 0 warnings. `tsconfig.json` excludes `src/stories/**`, so this does not validate the Storybook examples. Log: `.userdata/logs/coldlight-research-svelte-check.log`. |
+| root `node scripts/hooks/coldlight-boundary.mjs` | Fails: undefined-var 218 / baseline 176; tailwind-visual 2497 / 2298; visual-theme-token 732 / 732; raw-value 1089 / 574. Regex matches require triage; they are not counts of proven rendering bugs. Do not raise the baseline to make it green. |
+| Existing `/ui-demo` source | Only Button variants/sizes/states. The page itself contains visual Tailwind utilities. It does not demonstrate the requested composition system. |
+| Existing Storybook configuration | Only scans desktop `src`; preview a11y mode is `todo`. A green test run is not an enforced accessibility or full-library visual gate. |
+
+`src/stories/shards/Button.stories.svelte` still imports `ButtonIntent` and
+passes `intent` while the real component uses generated `variant` vocabulary.
+Repair that existing fixture in place and include it in validation. ColdLight's
+browser-test configuration also has no Tailwind plugin or product CSS setup;
+structural behavior tests must not be reported as styling verification.
+
+Live browser observation: after launching with `cargo xtask run-dev`, opening
+`http://localhost:1420/ui-demo` in Chrome shows **DevPulse failed to start**,
+`Cannot read properties of undefined (reading 'invoke')`. The console traces
+`SignalFabric.on` into model/project bootstrap from the root layout. A normal
+browser has no Tauri bridge. This is a reproducible limitation of the current
+review surface, not evidence of native startup failure. Make the review
+fixture render actual presentational components without booting desktop
+services; do not add fake-success IPC fallbacks to the product runtime.
+
+Native observation: the backend check passed and the Tauri app subsequently
+started. UI Demo was opened through its existing navigation and visually
+inspected at the app's default window size. Primary/secondary/ghost/danger,
+size and disabled/loading/pressed Button examples render. This is a working
+place for the owner to inspect today's subset; it is not the complete family
+or feature matrix. The app is left running for that inspection. No 1440/1024
+comparison or performance trace has been completed. On WiredFront, the actual
+screen showed joined labels (`RecentAnnotatedCollections`, `ProjectsExports`,
+`TwitchYouTubeAngryVibers`); trace the existing Tabs/Widget composition and its
+styling rather than patch each page with arbitrary spacing. The research did
+not change those implementations.
+
+Launcher observation: `xtask` cleanup reported two cargo processes killed as
+stale lock holders. Its Windows cleanup matches global process names/patterns
+(`xtask/src/zombie.rs`); it needs ownership verification before termination.
+The log does not establish that those processes belonged to this workspace.
+Record this as a tooling correctness issue, not a normal UI-test prerequisite.
+
+The raw-value count was already documented on 2026-10-24 after restored
+debug/VPB code. Recovery and integration must be distinguished: preserve
+those capabilities and repair their styling, rather than delete files to
+reduce the counter. Historical proof images remain under
+`recovered/devpulselabs/docs/proof/`; `traits-chat-1600x1000.png` was inspected.
+It shows provider tabs, sessions, conversation, context/inspector and a layered
+dark shell. It is a design/history reference, not today's rendered baseline
+and not an approved AgentHub board design.
+
+### External research and its application
+
+- [Adobe Spectrum 2 styling](https://react-spectrum.adobe.com/styling):
+  the project's cited inspiration really does generate CSS at build time,
+  use typed conditions for runtime selection, and restrict component
+  customization to preserve visual ownership. Its optimization guidance
+  requires extracted CSS and deduplication. Apply those principles in the
+  existing Svelte/Style Dictionary pipeline; do not import React or mistake
+  the current inline `renderForge` function for a compile-time macro.
+- [DTCG Format 2025.10](https://www.designtokens.org/tr/2025.10/format/):
+  typed tokens, aliases and group inheritance provide an interchange
+  contract. Our raw/semantic/component tiers are an architectural choice,
+  not a folder structure mandated by that specification.
+- [Style Dictionary formats](https://styledictionary.com/reference/hooks/formats/):
+  preserve aliases as CSS custom-property references where valid. Filtering
+  and transitive transforms require deliberate reference handling; unresolved
+  references must fail validation rather than become invisible styling loss.
+- [Svelte compiler](https://svelte.dev/docs/svelte/svelte-compiler): external,
+  statically generated CSS reduces JS and permits CSS caching. Apply that
+  principle to the existing generator and attribute selectors, without adding
+  a runtime styling library.
+- [MDN SVG use](https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/use):
+  reusable vector definitions can serve repeated geometry. Favor shared
+  symbols/defs for suitable repeated assets; verify styling inheritance and
+  accessible names in actual consumers.
+- [Browser animation performance](https://web.dev/articles/animations-guide):
+  blur/shadow painting can be expensive; profile repainting. Prefer transform
+  and opacity for motion. SVG does not make every filter free or guarantee
+  hardware acceleration.
+- [Reduced motion](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@media/prefers-reduced-motion):
+  preserve information and controls when nonessential motion is reduced.
+
+### Smallest reviewable implementation, after this research
+
+Continue 0s.6/0s.7 in place; do not introduce V2 components or compatibility
+aliases. First make the existing generation path discover and validate the
+feature files, run before builds, and detect stale output. Then use the
+existing `/ui-demo` route as the review surface, with actual ColdLight
+components and the actual chat UI adapters. No separate mock implementation.
+
+The first complete slice should show a session row, agent turn and permission
+decision across generated surface families, with their local types/tokens.
+Retain existing behavior and migrate callers in the same slice. Show site,
+page, container and instance inheritance; selected/hover/focus/disabled/error/
+loading states; keyboard interaction; long content; light/dark settings where
+supported; reduced motion; and contrast. Labels and event handlers must remain
+the same when the surface family changes. Retire replaced paths only after
+their capabilities are accounted for under the owner's include-before-delete
+rule. No visual simplification is implied by moving styling into generated CSS.
+
+Evidence for owner review must include actual before/after renders at 1440
+and 1024 wide, computed-style checks for inherited/overridden values, no inline
+visual variables on the converted slice, and keyboard tests. Build twice and
+compare generated bytes; remove/rename a fixture token to prove orphan and
+stale-output detection without deleting product capabilities.
+
+Performance is not yet measured. Record production CSS/JS transfer and parsed
+sizes, cold/warm first useful render, a 100-row scroll/selection trace, long
+tasks and paint time on this machine. Compare with the current baseline on the
+same viewport/hardware; agree a budget from that evidence. Development startup,
+history-prefix IO and browser paint are separate measurements. Do not claim
+fast startup from warm-cache results or passing generator tests.
+
+AgentHub remains owned by plan 0009 R3b: bundled supervised subprocess,
+remote Clyffy provider execution, explicit Codex subscription activation,
+authoritative working/waiting/idle observations, prefixed board tables and
+durable manual placement, nested history, read-only newest-first playback and
+explicit continuation. The thread table prefix repair is implemented; these
+runtime/product outcomes are not thereby complete. Its board should compose
+the same validated Card/Badge/StatusDot vocabulary and the planned new
+BoardColumn. A board page alone cannot demonstrate the runtime requirements.
+
+## Implementation checkpoint — 2026-10-27
+
+The first styling/build/review slice now changes the active implementation.
+This is not completion of 0s, the complete UI migration, or AgentHub R3b.
+
+- The existing SD5 entry formats its artifacts before publishing, validates
+  destinations and an output inventory, and writes changed files only.
+  `ds:tokens:check` is read-only and fails on stale or orphaned output. Orphans
+  are reported for consumer review, never automatically deleted. Removed and
+  renamed fixture inputs, unchanged mtimes, stale output and invalid outputs
+  have regressions. Writes are not claimed to be a filesystem transaction.
+- Feature token discovery now reads `domains/<domain>/ui/<name>/<name>.tokens.json`.
+  A file may contain only its own namespaced token group. Generated `data-ui`
+  CSS and types stay beside the adapter; the generated app barrel loads its
+  CSS after ColdLight. Base package generation imports no app module.
+- Normal dev/build and Storybook builds generate tokens first. Commit and
+  push freshness gates check the actual inputs/outputs; the commit gate also
+  runs generator tests. The previous mutating hook no longer races typechecks.
+- SessionRow is moved into `chat/ui/session-row/`, with local props and token
+  sources. Its selected styling now comes from generated CSS. It remains a
+  native button with keyboard activation, disabled behavior and the same
+  session-title/time presentation. The old flat import's consumers use the
+  new barrel. This is a move and reauthoring, not a removed capability.
+- AgentTurn presentation lives in `chat/ui/agent-turn/`, with local types.
+  The existing feature still owns state, copy and IPC callbacks. Provider
+  option IDs, explicit refusal and cancellation are preserved.
+- `/ui-demo` renders these actual adapters, Button and Card across all six
+  generated families, including nested glass overrides, long session titles,
+  selected/disabled rows, working/permission examples and action feedback.
+  The existing Button matrix is retained. Storybook's composition story
+  renders this same page without starting Tauri services.
+- Browser review exposed a second CSS import in Storybook. It established
+  the component layer before Tailwind's base layer, so resets removed button
+  padding, radius and disabled dimming. The preview now imports `app.css`
+  once. Computed small-button padding is 12px and radius 8px after the fix.
+- Button stories retain every story name and now demonstrate the current
+  generated API and real Card compositions instead of describing nonexistent
+  runtime class generation. Both stories' obsolete slot syntax and Panel's
+  obsolete Button prop are repaired. `check:stories` now typechecks the
+  previously excluded examples; Storybook builds and a commit hook enforce it.
+- ColdLight's local instructions and composition contract now describe the
+  same generated-CSS/base-component/feature-adapter ownership. Existing
+  unmigrated consumers are identified as remaining work, not endorsed patterns.
+
+Verification recorded during implementation:
+
+| Check | Result |
+| --- | --- |
+| Generator suites | 31 passed; repeated generation/freshness check reports 106 outputs, zero changes |
+| Desktop, ColdLight and Storybook Svelte checks | Each reports zero errors and zero warnings |
+| Real-CSS browser adapter tests | 3 passed: keyboard/selected styling, disabled activation, permission/refusal/cancel and Button geometry |
+| Chat selection regression suite | 8 passed alongside the 3 adapter tests: 11 browser tests total |
+| Generated-CSS hook boundary | 1 real-Git fixture passed: inventory-listed feature CSS qualifies, an unlisted generated filename and authored CSS do not. Freshness remains independently enforced |
+| Package boundary tests | 2 passed |
+| Production desktop build | Passed; static output written to `dist` |
+| Built Storybook review | Passed; observed real composition in Chrome at 1440 and 1024 wide |
+| Nested scope check | All six families' nested elevated glass cards compute the same glass fill and 16px radius, without an inline style on the card |
+| Responsive layout | Document width remains within both 1440 and 1024 viewports; long titles truncate and controls wrap |
+| Full boundary scanner | Still fails: undefined-var 218/176, visual utilities 2386/2298, visual-theme-token 732/732, raw-value 1089/574. No baseline raised |
+
+Logs are under `.userdata/logs/coldlight-*`; built review and screenshots
+are under `.userdata/reviews/coldlight/`. These are local evidence, not
+versioned product assets. The native window was minimized during follow-up;
+the updated native screen was not visually reverified. The standalone built
+review was served locally for inspection; no fake Tauri bridge was added.
+
+Remaining work, in order:
+
+1. Finish the base-provider contract (including typed surface scope and
+   nested reactive inheritance), and convert the still-inline Text, Heading,
+   Spinner and remaining base consumers in bounded, behavior-preserving slices.
+   The converted SessionRow root has no inline visual style; its unmigrated
+   Text descendants still do. Do not claim a zero-inline whole subtree.
+2. Resolve the recorded boundary findings in their owners. Investigate the
+   actual WiredFront tab styling, finish Panel/foundation review examples,
+   enforce accessibility, and prove light/dark, error, focus and reduced-motion
+   behavior. The current six-family matrix is not that complete coverage.
+3. Measure production transfer/parse sizes, cold/warm useful rendering and
+   100-row scroll/selection/paint behavior on the same hardware. No latency,
+   SVG acceleration or paint-performance claim follows from these builds.
+4. Complete plan 0009 R3b's runtime/provider/persistence and board work.
+   This UI slice does not bundle AgentHub, activate a subscription, execute
+   through a remote Clyffy endpoint, or implement the persisted board.
 
 ## Goal
 

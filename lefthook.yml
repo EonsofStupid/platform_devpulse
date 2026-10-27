@@ -33,6 +33,10 @@ pre-commit:
       root: "packages/coldlight"
       run: pnpm exec svelte-check --threshold error
 
+    story-types:
+      glob: ["interfaces/desktop/src/stories/**", "interfaces/desktop/.storybook/**", "interfaces/desktop/tsconfig.stories.json"]
+      run: pnpm --dir interfaces/desktop check:stories
+
     # IP boundary enforcement — blocks kernel terms in staged files
     ip-boundary-check:
       glob: ["*.{rs,ts,svelte,json}", "**/*.{rs,ts,svelte,json}"]
@@ -69,6 +73,10 @@ pre-commit:
       glob: ["interfaces/desktop/src/**/*.{svelte,css,ts}", "packages/coldlight/**/*.{svelte,css,ts}"]
       run: node scripts/hooks/no-raw-values.mjs
 
+    raw-values-tests:
+      glob: "scripts/hooks/no-raw-values*.mjs"
+      run: node --test scripts/hooks/no-raw-values.test.mjs
+
     # Routes are the folders under src/routes (plan 0008): no route typed
     # by hand outside resolve() / routeAt().
     no-hand-typed-routes:
@@ -80,11 +88,14 @@ pre-commit:
       glob: ["interfaces/desktop/src/**/*.{ts,svelte}", "packages/coldlight/**/*.{ts,svelte}"]
       run: cd scripts/docs && pnpm preflight:check
 
-    # Token regeneration (SSOT → generated files)
-    tokens-regen:
-      glob: "packages/coldlight/tokens/tokens.ts"
-      run: pnpm --dir interfaces/desktop ds:tokens:build
-      stage_fixed: true
+    # Read-only freshness gate; never race generated-file writes with typechecks.
+    tokens-check:
+      glob: ["interfaces/desktop/scripts/build/styledictionary/**", "interfaces/desktop/src/lib/domains/**/*.tokens.json", "interfaces/desktop/src/lib/domains/**/*.generated.*", "interfaces/desktop/src/lib/sys/generated/feature-styles.css", "packages/coldlight/**/*.{json,css,ts}", "interfaces/desktop/package.json"]
+      run: pnpm --dir interfaces/desktop ds:tokens:check
+
+    tokens-tests:
+      glob: "interfaces/desktop/scripts/build/styledictionary/**"
+      run: pnpm --dir interfaces/desktop ds:tokens:test
 
     # ColdLight's build scripts still live in the app until plan 0006 C2c; these
     # run from the repo root because lefthook drops staged files outside `root`.
@@ -129,3 +140,6 @@ pre-push:
     svelte-typecheck-coldlight:
       root: "packages/coldlight"
       run: pnpm exec svelte-check --threshold error
+
+    tokens-check:
+      run: pnpm --dir interfaces/desktop ds:tokens:check
