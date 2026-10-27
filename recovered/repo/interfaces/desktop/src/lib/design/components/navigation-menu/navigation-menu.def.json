@@ -1,0 +1,24 @@
+{
+  "kind": "navigation-menu",
+  "label": "Navigation Menu",
+  "category": "composite",
+  "description": "Multi-level navigation with dropdown panels for organizing complex site hierarchies",
+  "aria": null,
+  "container": true,
+  "containerSlots": ["content"],
+  "compound": true,
+  "blockCategory": "navigation",
+  "requiredAxes": ["backgroundColor", "border", "borderRadius", "shadow", "color", "typography"],
+  "defaultStyleId": "navigation-menu-default",
+  "styleIds": ["navigation-menu-default"],
+  "slots": {
+    "root": "all",
+    "list": "none",
+    "item": "none",
+    "trigger": "none",
+    "content": "none",
+    "link": "none",
+    "indicator": "none",
+    "viewport": "none"
+  }
+}

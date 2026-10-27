@@ -1,0 +1,17 @@
+{
+  "kind": "skeleton",
+  "label": "Skeleton",
+  "category": "content",
+  "description": "Animated placeholder shape indicating content is loading",
+  "aria": null,
+  "container": false,
+  "containerSlots": [],
+  "compound": false,
+  "blockCategory": "feedback",
+  "requiredAxes": ["backgroundColor", "borderRadius", "animation"],
+  "defaultStyleId": "skeleton-default",
+  "styleIds": ["skeleton-default"],
+  "slots": {
+    "root": "all"
+  }
+}

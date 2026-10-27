@@ -1,0 +1,45 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": [
+    "D:\\localdev\\platform_devpulse\\interfaces\\desktop\\src\\lib\\design\\index.ts",
+    "D:\\localdev\\platform_devpulse\\interfaces\\desktop\\src\\lib\\design\\tokens\\tokens.ts",
+    "D:\\localdev\\platform_devpulse\\interfaces\\desktop\\src\\lib\\design\\taxonomy\\index.ts",
+    "D:\\localdev\\platform_devpulse\\interfaces\\desktop\\src\\lib\\design\\recipes\\index.ts",
+    "D:\\localdev\\platform_devpulse\\interfaces\\desktop\\src\\lib\\design\\primitives\\index.ts"
+  ],
+  "entryPointStrategy": "expand",
+  "out": "D:\\localdev\\platform_devpulse\\interfaces\\desktop\\src\\lib\\design\\.cowlevel\\typedoc",
+  "json": "D:\\localdev\\platform_devpulse\\interfaces\\desktop\\src\\lib\\design\\.cowlevel\\api.json",
+  "name": "@devpulse/coldlight",
+  "includeVersion": true,
+  "excludePrivate": true,
+  "excludeInternal": true,
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "**/node_modules/**",
+    "**/.cowlevel/**",
+    "**/vite-plugin.ts",
+    "**/tailwind.preset.ts"
+  ],
+  "skipErrorChecking": true,
+  "validation": {
+    "notExported": false,
+    "invalidLink": true,
+    "notDocumented": false
+  },
+  "readme": "D:\\localdev\\platform_devpulse\\interfaces\\desktop\\src\\lib\\design\\README.md",
+  "categorizeByGroup": true,
+  "categoryOrder": [
+    "Tokens",
+    "Taxonomy",
+    "Recipes",
+    "Primitives",
+    "Patterns",
+    "Blocks",
+    "*"
+  ],
+  "sort": [
+    "source-order"
+  ]
+}

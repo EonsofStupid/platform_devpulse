@@ -1,0 +1,11 @@
+{
+	"depth": {
+		"$type": "shadow",
+		"$description": "Semantic shadow elevation aliases",
+		"flat":    { "$value": "{shadow.z0}" },
+		"raised":  { "$value": "{shadow.z1}" },
+		"panel":   { "$value": "{shadow.z2}" },
+		"overlay": { "$value": "{shadow.z3}" },
+		"modal":   { "$value": "{shadow.z4}" }
+	}
+}

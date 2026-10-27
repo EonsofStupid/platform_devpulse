@@ -1,0 +1,17 @@
+{
+  "kind": "status-dot",
+  "label": "Status Dot",
+  "category": "content",
+  "description": "Small colored circle indicating online, offline, busy, or other presence states",
+  "aria": null,
+  "container": false,
+  "containerSlots": [],
+  "compound": false,
+  "blockCategory": "content",
+  "requiredAxes": ["backgroundColor", "border", "borderRadius"],
+  "defaultStyleId": "status-dot-default",
+  "styleIds": ["status-dot-default", "status-dot-online", "status-dot-offline", "status-dot-busy", "status-dot-away"],
+  "slots": {
+    "root": "all"
+  }
+}

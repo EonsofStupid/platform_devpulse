@@ -1,0 +1,64 @@
+{
+	"name": "@devpulse/coldlight",
+	"version": "0.2.1",
+	"description": "Liquid surface design system - particle effects, metal, glass, molten aesthetics. Named for Tesla's cold light gas tubes (1870s).",
+	"author": "Jesse \"Hades\" Hall <jessay@angryvibers.com>",
+	"maintainers": [
+		"team@devpulse.app"
+	],
+	"license": "MIT",
+	"private": true,
+	"type": "module",
+	"exports": {
+		"./style-macro": {
+			"import": "./style-macro/index.ts"
+		},
+		"./behaviors": {
+			"import": "./behaviors/index.ts"
+		},
+		"./components/*": {
+			"svelte": "./components/*/index.ts"
+		},
+		"./blocks/*": {
+			"svelte": "./blocks/*/index.ts"
+		},
+		"./primitives/*": {
+			"svelte": "./primitives/*/index.ts"
+		},
+		"./utils/*": {
+			"import": "./utils/*/index.ts"
+		},
+		"./config": {
+			"import": "./coldlight.config.ts"
+		}
+	},
+	"keywords": [
+		"design-system",
+		"svelte",
+		"sveltekit",
+		"tailwind",
+		"oklch",
+		"liquid-surface",
+		"style-dictionary",
+		"dtcg",
+		"dark-mode",
+		"tesla",
+		"ui"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/devpulse/platform_devpulse",
+		"directory": "interfaces/desktop/src/lib/design"
+	},
+	"bugs": {
+		"email": "team@devpulse.app"
+	},
+	"engines": {
+		"node": ">=18"
+	},
+	"peerDependencies": {
+		"svelte": ">=5.0.0",
+		"tailwindcss": ">=4.0.0",
+		"vite": ">=5.0.0"
+	}
+}

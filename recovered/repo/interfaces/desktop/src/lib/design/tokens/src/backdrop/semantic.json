@@ -1,0 +1,17 @@
+{
+	"backdrop": {
+		"$type": "color",
+		"$description": "Background glow and grid colors for page backdrops",
+		"glow-teal":        { "$value": { "colorSpace": "oklch", "components": [0.15, 0.06, 180], "alpha": 0.30, "hex": "#001210" } },
+		"glow-purple":      { "$value": { "colorSpace": "oklch", "components": [0.15, 0.08, 280], "alpha": 0.25, "hex": "#080015" } },
+		"glow-purple-fade": { "$value": { "colorSpace": "oklch", "components": [0.10, 0.04, 180], "alpha": 0.10, "hex": "#000806" } },
+		"glow-ember":       { "$value": { "colorSpace": "oklch", "components": [0.15, 0.07, 25], "alpha": 0.25, "hex": "#160303" } },
+		"glow-cyber":       { "$value": { "colorSpace": "oklch", "components": [0.15, 0.06, 160], "alpha": 0.25, "hex": "#001108" } },
+		"glow-magenta":     { "$value": { "colorSpace": "oklch", "components": [0.15, 0.07, 330], "alpha": 0.25, "hex": "#130010" } },
+		"grid-teal":        { "$value": { "colorSpace": "oklch", "components": [0.20, 0.04, 180], "alpha": 0.08, "hex": "#001c17" } },
+		"grid-purple":      { "$value": { "colorSpace": "oklch", "components": [0.22, 0.05, 280], "alpha": 0.06, "hex": "#0f0b20" } },
+		"grid-ember":       { "$value": { "colorSpace": "oklch", "components": [0.20, 0.04, 25], "alpha": 0.06, "hex": "#1e0d09" } },
+		"grid-cyber":       { "$value": { "colorSpace": "oklch", "components": [0.20, 0.04, 160], "alpha": 0.06, "hex": "#001b0e" } },
+		"grid-magenta":     { "$value": { "colorSpace": "oklch", "components": [0.20, 0.04, 330], "alpha": 0.06, "hex": "#1c0a18" } }
+	}
+}

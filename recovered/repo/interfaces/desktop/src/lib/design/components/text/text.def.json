@@ -1,0 +1,17 @@
+{
+  "kind": "text",
+  "label": "Text",
+  "category": "content",
+  "description": "Body text element with configurable size, weight, and semantic element",
+  "aria": null,
+  "container": false,
+  "containerSlots": [],
+  "compound": false,
+  "blockCategory": "content",
+  "requiredAxes": ["typography", "color"],
+  "defaultStyleId": "text-default",
+  "styleIds": ["text-default"],
+  "slots": {
+    "root": "all"
+  }
+}

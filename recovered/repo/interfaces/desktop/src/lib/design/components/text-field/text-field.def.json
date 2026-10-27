@@ -1,0 +1,19 @@
+{
+  "kind": "text-field",
+  "label": "Text Field",
+  "category": "interactive",
+  "description": "Single-line text input with integrated label and validation support",
+  "aria": null,
+  "container": false,
+  "containerSlots": [],
+  "compound": true,
+  "blockCategory": "form",
+  "requiredAxes": ["backgroundColor", "border", "borderRadius", "typography", "color"],
+  "defaultStyleId": "text-field-default",
+  "styleIds": ["text-field-default"],
+  "slots": {
+    "root": "all",
+    "input": "none",
+    "label": "none"
+  }
+}

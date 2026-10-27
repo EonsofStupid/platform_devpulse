@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(where nvcc)",
+      "Bash(cmake:*)",
+      "Bash(cargo check:*)",
+      "Bash(npx svelte-kit sync)",
+      "Bash(timeout 30 npm run dev:*)",
+      "Bash(npm install:*)",
+      "Bash(dir:*)",
+      "Bash(findstr:*)",
+      "Bash(cat:*)",
+      "Bash(wc:*)",
+      "Bash(find:*)",
+      "Bash(taskkill:*)",
+      "Bash(powershell -Command \"Write-Host ''Downloading whisper-medium-q4k.gguf \\(~444MB\\)...''; Invoke-WebRequest -Uri ''https://huggingface.co/OllmOne/whisper-medium-GGUF/resolve/main/model-q4k.gguf'' -OutFile ''D:\\\\localdev\\\\dp_alpha\\\\models\\\\whisper\\\\model.gguf''\")",
+      "Bash(rm:*)",
+      "Bash(powershell -NoProfile -Command \". .\\\\run.ps1 -Verify\")",
+      "Bash(powershell:*)",
+      "Bash(where:*)",
+      "Bash(npx tauri icon:*)",
+      "Bash(git -C d:/localdev/alpha_devpulse log --oneline -10)",
+      "Bash(git -C:*)",
+      "Bash(git -C \"D:\\\\localdev\\\\dp_alpha\\\\rrors-port\" remote -v)",
+      "Bash(cargo metadata:*)",
+      "Bash(copy:*)",
+      "Bash(cargo test:*)"
+    ]
+  }
+}

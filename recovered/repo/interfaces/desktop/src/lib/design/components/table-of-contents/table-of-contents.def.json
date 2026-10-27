@@ -1,0 +1,20 @@
+{
+  "kind": "table-of-contents",
+  "label": "Table of Contents",
+  "category": "content",
+  "description": "Auto-generated navigation list of page headings with scroll-spy active state tracking",
+  "aria": null,
+  "container": false,
+  "containerSlots": [],
+  "compound": true,
+  "blockCategory": "navigation",
+  "requiredAxes": ["border", "color", "typography"],
+  "defaultStyleId": "table-of-contents-default",
+  "styleIds": ["table-of-contents-default"],
+  "slots": {
+    "root": "all",
+    "item": "none",
+    "link": "none",
+    "indicator": "none"
+  }
+}

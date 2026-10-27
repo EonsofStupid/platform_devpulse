@@ -1,0 +1,19 @@
+{
+  "kind": "switch",
+  "label": "Switch",
+  "category": "interactive",
+  "description": "Toggle control for switching between two mutually exclusive states like on and off",
+  "aria": "https://www.w3.org/WAI/ARIA/apg/patterns/switch/",
+  "container": false,
+  "containerSlots": [],
+  "compound": true,
+  "blockCategory": "form",
+  "requiredAxes": ["backgroundColor", "border", "borderRadius", "color"],
+  "defaultStyleId": "switch-default",
+  "styleIds": ["switch-default"],
+  "slots": {
+    "root": "all",
+    "thumb": "none",
+    "label": "none"
+  }
+}

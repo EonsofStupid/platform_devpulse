@@ -314,6 +314,21 @@ is the specific board decision (no extra library card kind).
 
 ## Log
 
+- 2026-10-27 — **Recovery audit and active delivery.** Recheck every recorded
+  recovered blob against its source in Git, and inventory deleted source
+  outside the manifest. Repair the recovery script first: its current HEAD
+  blob deduplication includes `recovered/` itself, so rerunning it can erase
+  provenance rows. Preserve the existing inventory, refuse to overwrite a
+  changed recovered file, and add read-only verification with rerun tests.
+  Report archived presence separately from active integration. Then move
+  AgentHub-owned thread tables to the `agenthub_` namespace through tested
+  data-preserving migrations and update their active callers together.
+  - Evidence: all original 4,923 archive entries match Git. The broader
+    source/supporting-file audit recovered 1,110 additional files; all 6,033
+    now match their recorded blobs, with zero uncovered deletions in scope.
+    Six real-Git recovery regressions pass. `recovered/STATUS.md` records
+    counts, active integration gaps and the explicit limits of this audit.
+
 - 2026-10-27 — **Verification checkpoint.** Full kernel/engine library suites
   pass: 199 kernel and 169 engine tests, with six existing ignored tests.
   This includes parent-cache/graph, ACP restore, and atomic-write regressions.

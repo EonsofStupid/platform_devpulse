@@ -1,0 +1,24 @@
+{
+  "kind": "table",
+  "label": "Table",
+  "category": "composite",
+  "description": "Semantic HTML table with styled header, body, and footer for presenting tabular data",
+  "aria": "https://www.w3.org/WAI/ARIA/apg/patterns/grid/",
+  "container": true,
+  "containerSlots": ["root"],
+  "compound": true,
+  "blockCategory": "data",
+  "requiredAxes": ["backgroundColor", "border", "color", "typography"],
+  "defaultStyleId": "table-default",
+  "styleIds": ["table-default"],
+  "slots": {
+    "root": "all",
+    "header": "none",
+    "headerCell": "none",
+    "body": "none",
+    "row": "none",
+    "cell": "none",
+    "footer": "none",
+    "caption": "none"
+  }
+}

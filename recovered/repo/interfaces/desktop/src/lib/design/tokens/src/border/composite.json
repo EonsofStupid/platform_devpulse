@@ -1,0 +1,62 @@
+{
+	"borderStyle": {
+		"$type": "border",
+		"$description": "Named border composites — color + width + style",
+		"subtle": {
+			"$value": {
+				"color": "{border.subtle}",
+				"width": { "value": 1, "unit": "px" },
+				"style": "solid"
+			}
+		},
+		"soft": {
+			"$value": {
+				"color": "{border.soft}",
+				"width": { "value": 1, "unit": "px" },
+				"style": "solid"
+			}
+		},
+		"emphasis": {
+			"$value": {
+				"color": "{border.emphasis}",
+				"width": { "value": 1, "unit": "px" },
+				"style": "solid"
+			}
+		},
+		"focus": {
+			"$value": {
+				"color": "{border.focus}",
+				"width": { "value": 2, "unit": "px" },
+				"style": "solid"
+			}
+		},
+		"divider": {
+			"$value": {
+				"color": "{border.divider}",
+				"width": { "value": 1, "unit": "px" },
+				"style": "solid"
+			}
+		},
+		"divider-faint": {
+			"$value": {
+				"color": "{border.divider-faint}",
+				"width": { "value": 1, "unit": "px" },
+				"style": "solid"
+			}
+		},
+		"accent-teal": {
+			"$value": {
+				"color": "{color.teal.500}",
+				"width": { "value": 1, "unit": "px" },
+				"style": "solid"
+			}
+		},
+		"accent-purple": {
+			"$value": {
+				"color": "{color.purple.500}",
+				"width": { "value": 1, "unit": "px" },
+				"style": "solid"
+			}
+		}
+	}
+}

@@ -1,0 +1,21 @@
+{
+  "kind": "range-calendar",
+  "label": "Range Calendar",
+  "category": "interactive",
+  "description": "Calendar grid supporting start and end date selection for defining date ranges",
+  "aria": "https://www.w3.org/WAI/ARIA/apg/patterns/grid/",
+  "container": false,
+  "containerSlots": [],
+  "compound": true,
+  "blockCategory": "form",
+  "requiredAxes": ["backgroundColor", "border", "borderRadius", "color", "typography"],
+  "defaultStyleId": "range-calendar-default",
+  "styleIds": ["range-calendar-default"],
+  "slots": {
+    "root": "all",
+    "header": "none",
+    "grid": "none",
+    "cell": "none",
+    "nav": "none"
+  }
+}

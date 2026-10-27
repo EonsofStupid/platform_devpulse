@@ -1,0 +1,20 @@
+{
+  "kind": "radio-group",
+  "label": "Radio Group",
+  "category": "interactive",
+  "description": "Mutually exclusive option set where only one item can be selected at a time",
+  "aria": "https://www.w3.org/WAI/ARIA/apg/patterns/radio/",
+  "container": false,
+  "containerSlots": [],
+  "compound": true,
+  "blockCategory": "form",
+  "requiredAxes": ["backgroundColor", "border", "borderRadius", "color", "typography"],
+  "defaultStyleId": "radio-group-default",
+  "styleIds": ["radio-group-default"],
+  "slots": {
+    "root": "all",
+    "item": "none",
+    "indicator": "none",
+    "label": "none"
+  }
+}

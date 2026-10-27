@@ -1,0 +1,18 @@
+{
+  "kind": "avatar-group",
+  "label": "Avatar Group",
+  "category": "content",
+  "description": "Horizontally stacked collection of avatars with overflow indicator for group display",
+  "aria": null,
+  "container": true,
+  "containerSlots": ["root"],
+  "compound": false,
+  "blockCategory": "content",
+  "requiredAxes": ["border"],
+  "defaultStyleId": "avatar-group-default",
+  "styleIds": ["avatar-group-default"],
+  "slots": {
+    "root": "all",
+    "overflow": "none"
+  }
+}

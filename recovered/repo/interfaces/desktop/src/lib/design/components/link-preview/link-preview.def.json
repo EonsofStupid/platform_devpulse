@@ -1,0 +1,22 @@
+{
+  "kind": "link-preview",
+  "label": "Link Preview",
+  "category": "interactive",
+  "description": "Hover or focus-triggered popover showing a rich preview of a linked resource",
+  "aria": null,
+  "container": false,
+  "containerSlots": [],
+  "compound": true,
+  "blockCategory": "content",
+  "requiredAxes": ["backgroundColor", "border", "borderRadius", "shadow", "typography", "color"],
+  "defaultStyleId": "link-preview-default",
+  "styleIds": ["link-preview-default"],
+  "slots": {
+    "root": "all",
+    "trigger": "none",
+    "content": "none",
+    "image": "none",
+    "title": "none",
+    "description": "none"
+  }
+}

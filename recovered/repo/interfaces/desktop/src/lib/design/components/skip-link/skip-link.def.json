@@ -1,0 +1,17 @@
+{
+  "kind": "skip-link",
+  "label": "Skip Link",
+  "category": "navigation",
+  "description": "Visually hidden link that becomes visible on focus for keyboard users to skip to main content",
+  "aria": "https://www.w3.org/WAI/ARIA/apg/patterns/link/",
+  "container": false,
+  "containerSlots": [],
+  "compound": false,
+  "blockCategory": "navigation",
+  "requiredAxes": ["backgroundColor", "color", "typography"],
+  "defaultStyleId": "skip-link-default",
+  "styleIds": ["skip-link-default"],
+  "slots": {
+    "root": "all"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "kind": "slider",
+  "label": "Slider",
+  "category": "interactive",
+  "description": "Draggable track control for selecting a numeric value or range within a defined interval",
+  "aria": "https://www.w3.org/WAI/ARIA/apg/patterns/slider/",
+  "container": false,
+  "containerSlots": [],
+  "compound": true,
+  "blockCategory": "form",
+  "requiredAxes": ["backgroundColor", "border", "borderRadius", "color"],
+  "defaultStyleId": "slider-default",
+  "styleIds": ["slider-default"],
+  "slots": {
+    "root": "all",
+    "track": "none",
+    "range": "none",
+    "thumb": "none",
+    "label": "none"
+  }
+}

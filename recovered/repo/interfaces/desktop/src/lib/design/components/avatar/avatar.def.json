@@ -1,0 +1,19 @@
+{
+  "kind": "avatar",
+  "label": "Avatar",
+  "category": "content",
+  "description": "Displays a user or entity image with a text or icon fallback when the image is unavailable",
+  "aria": null,
+  "container": false,
+  "containerSlots": [],
+  "compound": true,
+  "blockCategory": "content",
+  "requiredAxes": ["backgroundColor", "borderRadius", "border"],
+  "defaultStyleId": "avatar-default",
+  "styleIds": ["avatar-default"],
+  "slots": {
+    "root": "all",
+    "image": "none",
+    "fallback": "none"
+  }
+}

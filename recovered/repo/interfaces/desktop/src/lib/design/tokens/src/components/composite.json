@@ -1,0 +1,134 @@
+{
+	"button": {
+		"bg":           { "$type": "color", "$value": "{surface.primary}" },
+		"bg-hover":     { "$type": "color", "$value": "{surface.elevated}" },
+		"border":       { "$type": "color", "$value": "{border.subtle}" },
+		"border-focus": { "$type": "color", "$value": "{border.focus}" }
+	},
+	"checkbox": {
+		"bg":           { "$type": "color", "$value": "{surface.primary}" },
+		"bg-checked":   { "$type": "color", "$value": "{color.teal.500}" },
+		"border":       { "$type": "color", "$value": "{border.emphasis}" },
+		"border-focus": { "$type": "color", "$value": "{border.focus}" }
+	},
+	"switch": {
+		"bg":         { "$type": "color", "$value": "{surface.muted}" },
+		"bg-checked": { "$type": "color", "$value": "{color.teal.500}" },
+		"thumb":      { "$type": "color", "$value": "{text.primary}" }
+	},
+	"toggle": {
+		"bg":         { "$type": "color", "$value": "{surface.primary}" },
+		"bg-pressed": { "$type": "color", "$value": "{surface.elevated}" },
+		"border":     { "$type": "color", "$value": "{border.subtle}" }
+	},
+	"slider": {
+		"track":        { "$type": "color", "$value": "{surface.muted}" },
+		"range":        { "$type": "color", "$value": "{color.teal.500}" },
+		"thumb":        { "$type": "color", "$value": "{surface.elevated}" },
+		"thumb-border": { "$type": "color", "$value": "{border.focus}" }
+	},
+	"progress": {
+		"track": { "$type": "color", "$value": "{surface.muted}" },
+		"bar":   { "$type": "color", "$value": "{color.teal.500}" }
+	},
+	"input": {
+		"bg":           { "$type": "color", "$value": "{surface.overlay}" },
+		"bg-focus":     { "$type": "color", "$value": "{surface.elevated}" },
+		"border":       { "$type": "color", "$value": "{border.subtle}" },
+		"border-focus": { "$type": "color", "$value": "{border.focus}" }
+	},
+	"select": {
+		"bg":           { "$type": "color", "$value": "{surface.overlay}" },
+		"bg-hover":     { "$type": "color", "$value": "{surface.elevated}" },
+		"border":       { "$type": "color", "$value": "{border.subtle}" },
+		"border-focus": { "$type": "color", "$value": "{border.focus}" }
+	},
+	"combobox": {
+		"bg":                   { "$type": "color", "$value": "{surface.overlay}" },
+		"border":               { "$type": "color", "$value": "{border.subtle}" },
+		"border-focus":         { "$type": "color", "$value": "{border.focus}" },
+		"option-hover":         { "$type": "color", "$value": "{surface.elevated}" },
+		"option-selected-bg":   { "$type": "color", "$value": "{color.teal.900}" },
+		"option-selected-text": { "$type": "color", "$value": "{color.teal.300}" }
+	},
+	"radio-group": {
+		"bg":           { "$type": "color", "$value": "{surface.primary}" },
+		"bg-checked":   { "$type": "color", "$value": "{color.teal.500}" },
+		"border":       { "$type": "color", "$value": "{border.emphasis}" },
+		"border-focus": { "$type": "color", "$value": "{border.focus}" }
+	},
+	"badge": {
+		"bg":     { "$type": "color", "$value": "{surface.elevated}" },
+		"border": { "$type": "color", "$value": "{border.subtle}" }
+	},
+	"card": {
+		"bg":     { "$type": "color", "$value": "{surface.primary}" },
+		"border": { "$type": "color", "$value": "{border.soft}" },
+		"depth":  { "$type": "shadow", "$value": "{depth.raised}" }
+	},
+	"avatar": {
+		"bg":     { "$type": "color", "$value": "{surface.muted}" },
+		"border": { "$type": "color", "$value": "{border.subtle}" }
+	},
+	"table": {
+		"header-bg": { "$type": "color", "$value": "{surface.elevated}" },
+		"row-bg":    { "$type": "color", "$value": "{surface.primary}" },
+		"row-hover": { "$type": "color", "$value": "{surface.overlay}" },
+		"border":    { "$type": "color", "$value": "{border.subtle}" }
+	},
+	"skeleton": {
+		"bg":    { "$type": "color", "$value": "{surface.muted}" },
+		"shine": { "$type": "color", "$value": "{surface.elevated}" }
+	},
+	"kbd": {
+		"bg":     { "$type": "color", "$value": "{surface.elevated}" },
+		"border": { "$type": "color", "$value": "{border.soft}" }
+	},
+	"alert": {
+		"bg":     { "$type": "color", "$value": "{surface.overlay}" },
+		"border": { "$type": "color", "$value": "{border.soft}" }
+	},
+	"toast": {
+		"bg":     { "$type": "color", "$value": "{surface.elevated}" },
+		"border": { "$type": "color", "$value": "{border.soft}" },
+		"depth":  { "$type": "shadow", "$value": "{depth.overlay}" }
+	},
+	"panel": {
+		"bg":            { "$type": "color", "$value": "{surface.primary}" },
+		"border":        { "$type": "color", "$value": "{border.soft}" },
+		"header-border": { "$type": "color", "$value": "{border.subtle}" },
+		"depth":         { "$type": "shadow", "$value": "{depth.panel}" }
+	},
+	"dialog": {
+		"bg":           { "$type": "color", "$value": "{surface.overlay}" },
+		"border":       { "$type": "color", "$value": "{border.soft}" },
+		"border-focus": { "$type": "color", "$value": "{border.focus}" },
+		"depth":        { "$type": "shadow", "$value": "{depth.modal}" }
+	},
+	"tabs": {
+		"bg":           { "$type": "color", "$value": "{surface.primary}" },
+		"border":       { "$type": "color", "$value": "{border.subtle}" },
+		"border-focus": { "$type": "color", "$value": "{border.focus}" },
+		"tab-hover":    { "$type": "color", "$value": "{surface.elevated}" },
+		"tab-active":   { "$type": "color", "$value": "{surface.overlay}" },
+		"indicator":    { "$type": "color", "$value": "{color.teal.400}" }
+	},
+	"accordion": {
+		"bg":            { "$type": "color", "$value": "{surface.primary}" },
+		"border":        { "$type": "color", "$value": "{border.subtle}" },
+		"trigger-hover": { "$type": "color", "$value": "{surface.elevated}" }
+	},
+	"menu": {
+		"bg":         { "$type": "color", "$value": "{surface.overlay}" },
+		"border":     { "$type": "color", "$value": "{border.soft}" },
+		"item-hover": { "$type": "color", "$value": "{surface.elevated}" },
+		"depth":      { "$type": "shadow", "$value": "{depth.overlay}" }
+	},
+	"app-shell": {
+		"bg":           { "$type": "color", "$value": "{surface.primary}" },
+		"frame-border": { "$type": "color", "$value": "{border.soft}" }
+	},
+	"spinner": {
+		"color": { "$type": "color", "$value": "{color.teal.400}" }
+	}
+}
