@@ -112,6 +112,7 @@ class ChatState {
 
 		// A thread with one of your agents goes to that agent.
 		if (agentsState.thread(this.activeSessionId)) {
+			if (agentsState.running(this.activeSessionId)) return;
 			await this.askAgent(content.trim());
 			return;
 		}
@@ -185,13 +186,14 @@ class ChatState {
 	/**
 	 * Send a message on an agent thread. Rust saves both sides of the turn;
 	 * the stream shows the turn as it runs and reloads the saved turns when
-	 * it ends.
+	 * it ends. Dispatch waits only for acceptance; AgentHub owns live state.
 	 */
 	private async askAgent(content: string): Promise<void> {
 		const sessionId = this.activeSessionId;
 		if (!sessionId) return;
+		const projectId = this.projectId();
 		this.error = null;
-		this.isGenerating = true;
+		this.sending = true;
 		this.messages = [
 			...this.messages,
 			{
@@ -208,9 +210,16 @@ class ChatState {
 		try {
 			await agentsState.prompt(sessionId, content);
 		} finally {
-			this.isGenerating = false;
-			await this.loadActive();
-			if (agentsState.error) this.error = agentsState.error;
+			this.sending = false;
+			if (this.activeSessionId === sessionId && this.projectId() === projectId) {
+				await this.loadActive();
+				if (
+					this.activeSessionId === sessionId &&
+					this.projectId() === projectId &&
+					agentsState.error
+				)
+					this.error = agentsState.error;
+			}
 		}
 	}
 

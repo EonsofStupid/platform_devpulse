@@ -203,7 +203,11 @@ fn stop_word(stop: StopReason) -> String {
 }
 
 /// Ask you about a permission request on the running turn; `None` refuses.
-async fn ask_you(shared: &Shared, request: &RequestPermissionRequest) -> Option<String> {
+async fn ask_you(
+    shared: &Shared,
+    request: &RequestPermissionRequest,
+    wait: Duration,
+) -> Option<String> {
     let turn = shared.turn.lock().await.clone()?;
     let id = uuid::Uuid::new_v4().to_string();
     let (answer, waiting) = oneshot::channel();
@@ -237,12 +241,13 @@ async fn ask_you(shared: &Shared, request: &RequestPermissionRequest) -> Option<
         shared.pending.lock().await.remove(&id);
         return None;
     }
-    let decision = tokio::time::timeout(PERMISSION_WAIT, waiting)
+    let decision = tokio::time::timeout(wait, waiting)
         .await
         .ok()
         .and_then(Result::ok)
         .flatten();
     shared.pending.lock().await.remove(&id);
+    let _ = turn.send(AgentEvent::PermissionResolved { request: id });
     decision
 }
 
@@ -289,6 +294,7 @@ async fn run_turn(
     id: &SessionId,
     events: &mpsc::UnboundedSender<AgentEvent>,
     commands: &mut mpsc::UnboundedReceiver<Command>,
+    shared: &Shared,
 ) -> bool {
     loop {
         tokio::select! {
@@ -306,6 +312,7 @@ async fn run_turn(
             },
             command = commands.recv() => match command {
                 Some(Command::Cancel) => {
+                    shared.pending.lock().await.clear();
                     let _ = control.send_notification(CancelNotification::new(id.clone()));
                 }
                 Some(Command::Prompt { events: other, .. }) => {
@@ -345,7 +352,7 @@ async fn run(
                 // Waiting for you happens off the dispatch loop.
                 let shared = Arc::clone(&handler_shared);
                 connection.spawn(async move {
-                    let choice = ask_you(&shared, &request).await;
+                    let choice = ask_you(&shared, &request, PERMISSION_WAIT).await;
                     responder.respond(response_for(&request, choice))
                 })
             },
@@ -370,9 +377,18 @@ async fn run(
                     });
                     false
                 } else {
-                    run_turn(&mut session, &control, &id, &events, &mut commands).await
+                    run_turn(
+                        &mut session,
+                        &control,
+                        &id,
+                        &events,
+                        &mut commands,
+                        &session_shared,
+                    )
+                    .await
                 };
                 *session_shared.turn.lock().await = None;
+                session_shared.pending.lock().await.clear();
                 if closing {
                     break;
                 }
@@ -391,6 +407,7 @@ async fn run(
             let _ = turn.send(AgentEvent::Failed { message });
         }
     }
+    shared.pending.lock().await.clear();
 }
 
 async fn open_session(
@@ -453,6 +470,58 @@ mod tests {
     };
 
     use super::*;
+
+    #[tokio::test]
+    async fn every_permission_resolution_removes_the_request_and_is_observable() {
+        for action in ["answer", "expire", "cancel"] {
+            let shared = Arc::new(Shared::default());
+            let (events, mut received) = mpsc::unbounded_channel();
+            *shared.turn.lock().await = Some(events);
+            let worker = Arc::clone(&shared);
+            let request = RequestPermissionRequest::new(
+                "s1",
+                ToolCallUpdate::new("t1", ToolCallUpdateFields::default()),
+                vec![PermissionOption::new(
+                    "allow",
+                    "Allow",
+                    PermissionOptionKind::AllowOnce,
+                )],
+            );
+            let wait = if action == "expire" {
+                Duration::ZERO
+            } else {
+                Duration::from_secs(10)
+            };
+            let task =
+                devpulse_telemetry::spawn(async move { ask_you(&worker, &request, wait).await });
+            let AgentEvent::PermissionAsked { request, .. } = received.recv().await.unwrap() else {
+                panic!("permission was not published")
+            };
+            match action {
+                "answer" => {
+                    shared
+                        .pending
+                        .lock()
+                        .await
+                        .remove(&request)
+                        .unwrap()
+                        .send(Some("allow".into()))
+                        .unwrap();
+                }
+                "cancel" => shared.pending.lock().await.clear(),
+                _ => {}
+            }
+            assert_eq!(
+                task.await.unwrap(),
+                (action == "answer").then(|| "allow".to_owned())
+            );
+            assert_eq!(
+                received.recv().await,
+                Some(AgentEvent::PermissionResolved { request })
+            );
+            assert!(shared.pending.lock().await.is_empty());
+        }
+    }
 
     #[test]
     fn updates_become_what_the_chat_shows() {

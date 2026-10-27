@@ -452,6 +452,7 @@ async fn start_user_workflows(
     data_dir: &std::path::Path,
     signals: &crate::Engine,
     providers: &Arc<providers::Providers>,
+    agenthub: &Arc<agenthub::AgentHub>,
 ) -> UserWorkflows {
     let Some(user) = user else {
         return UserWorkflows::default();
@@ -505,6 +506,7 @@ async fn start_user_workflows(
         data_dir.to_path_buf(),
         Arc::clone(providers),
         projects.clone(),
+        Arc::clone(agenthub.live()),
     )));
     let rooms = agents.as_ref().map(|agents| {
         Arc::new(rooms::Rooms::new(
@@ -574,6 +576,7 @@ impl Platform {
             &data_dir,
             &user_signals,
             &providers,
+            &agenthub,
         )
         .await;
 

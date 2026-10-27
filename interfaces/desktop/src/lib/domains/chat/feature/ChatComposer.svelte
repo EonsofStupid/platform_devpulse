@@ -4,6 +4,7 @@
 <script lang="ts">
 import { ChatFooter } from "@devpulse/coldlight/components/chat-footer";
 import type { Suggestion } from "$lib/sys/generated/bindings.js";
+import { agentsState } from "../data-access/agents.state.svelte.js";
 import { chatState } from "../data-access/chat.state.svelte.js";
 import { suggestState } from "../data-access/suggest.state.svelte.js";
 import SuggestionDropdown from "./SuggestionDropdown.svelte";
@@ -69,7 +70,7 @@ function handleKeydown(e: KeyboardEvent): void {
 			onValueChange={handleValueChange}
 			onInput={handleInput}
 			onSend={handleSend}
-			disabled={chatState.sending || chatState.isGenerating}
+			disabled={chatState.sending || chatState.isGenerating || !!agentsState.running(chatState.activeSessionId)}
 		/>
 	</div>
 	<div class="flex items-center pr-2">

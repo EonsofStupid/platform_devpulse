@@ -32,6 +32,7 @@ use specta::Type;
 use tokio::sync::{mpsc, Mutex};
 use uuid::Uuid;
 
+use super::agenthub::live::Observation;
 use super::agents::{
     recovery, save_turn, save_turn_with_continuation, AgentEvent, Agents, ResumeUpdate, TurnRow,
 };
@@ -327,14 +328,22 @@ impl Rooms {
             db: Arc::clone(&self.db),
             data_dir: self.data_dir.clone(),
             agents: Arc::clone(&self.agents),
-            room,
+            room: Arc::clone(&room),
             session_id: session_id.to_owned(),
             out,
+            observation: self
+                .agents
+                .observations
+                .begin(session_id, &room.project_id, None, None),
+            places: Mutex::new(HashMap::new()),
         };
         devpulse_telemetry::spawn(async move {
             match run.ask(&question, &host).await {
                 Ok(outcome) => host.finish(outcome).await,
                 Err(error) => {
+                    host.observation.finish(&AgentEvent::Failed {
+                        message: format!("{error:#}"),
+                    });
                     let _ = host.out.send(RoomEvent::Failed {
                         message: format!("{error:#}"),
                     });
@@ -398,6 +407,8 @@ struct Host {
     room: Arc<LiveRoom>,
     session_id: String,
     out: mpsc::UnboundedSender<RoomEvent>,
+    observation: Observation,
+    places: Mutex<HashMap<String, Observation>>,
 }
 
 impl Host {
@@ -442,6 +453,14 @@ impl Host {
             outcome,
         )
         .await;
+        self.observation.finish(&match &event {
+            RoomEvent::Failed { message } => AgentEvent::Failed {
+                message: message.clone(),
+            },
+            _ => AgentEvent::TurnEnded {
+                stop: "room-finished".into(),
+            },
+        });
         let _ = self.out.send(event);
     }
 }
@@ -479,6 +498,13 @@ async fn finish_outcome(
 #[async_trait]
 impl RoomHost for Host {
     async fn ask(&self, place: &Place, prompt: &str) -> Result<String> {
+        let observation = self.agents.observations.begin(
+            &self.session_id,
+            &self.room.project_id,
+            Some(place.key()),
+            Some(place.provider),
+        );
+        self.places.lock().await.insert(place.key(), observation);
         if self.room.stopped.load(Ordering::SeqCst) {
             bail!("stopped");
         }
@@ -493,6 +519,9 @@ impl RoomHost for Host {
                     session.answer(request, None).await;
                     continue;
                 }
+            }
+            if let Some(observation) = self.places.lock().await.get(&key) {
+                observation.observe(&event);
             }
             let ended = match &event {
                 AgentEvent::Text { text: part } => {
@@ -514,7 +543,13 @@ impl RoomHost for Host {
                 return result.map(|()| text);
             }
         }
-        bail!("the agent stopped without ending its turn")
+        let message = "the agent stopped without ending its turn";
+        if let Some(observation) = self.places.lock().await.get(&key) {
+            observation.observe(&AgentEvent::Failed {
+                message: message.into(),
+            });
+        }
+        bail!("{message}")
     }
 
     async fn record(&self, turn: &RoomTurn) -> Result<()> {
@@ -570,9 +605,24 @@ impl RoomHost for Host {
                 &error,
             )
             .await;
+            if let Some(observation) = self.places.lock().await.remove(&turn.place) {
+                observation.finish(&AgentEvent::Failed {
+                    message: message.clone(),
+                });
+            }
             bail!("{message}");
         }
         *current = pending;
+        if let Some(observation) = self.places.lock().await.remove(&turn.place) {
+            observation.finish(&match &turn.failed {
+                Some(message) => AgentEvent::Failed {
+                    message: message.clone(),
+                },
+                None => AgentEvent::TurnEnded {
+                    stop: "end_turn".into(),
+                },
+            });
+        }
         let _ = self.out.send(RoomEvent::Turn { turn: turn.clone() });
         Ok(())
     }

@@ -313,6 +313,7 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             commands::containers::containers_answer,
             commands::containers::containers_run_step,
             commands::agenthub::agenthub_sessions,
+            commands::agenthub::agenthub_live,
             commands::agenthub::agenthub_session_page,
             commands::providers_status::providers_state,
             commands::providers_status::providers_check,
@@ -481,6 +482,7 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             events::UpdateInstallFinished,
             // Agent threads — one event of a running turn.
             events::AgentStreamed,
+            events::AgentHubChanged,
             // Rooms — one event of a room answering.
             events::RoomStreamed,
         ])
@@ -1172,6 +1174,10 @@ async fn boot_task(
             }
 
             // ── RRO state event bridge ───────────────────────────
+            if let Some(platform_arc) = state.platform.load_full() {
+                commands::agenthub::spawn_bridge(app.clone(), platform_arc.agenthub().live());
+            }
+
             // Subscribe to the reasoning handle's broadcast channel and
             // forward snapshots onto the Tauri event bus. Frontend listens
             // on `platform:rro-state-changed` — no polling needed.

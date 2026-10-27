@@ -25,6 +25,8 @@ use devpulse_clyffy::providers::ProviderId;
 use serde::Serialize;
 use specta::Type;
 
+pub mod live;
+
 /// One session found on this machine.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Type)]
 #[serde(rename_all = "camelCase")]
@@ -136,6 +138,7 @@ pub struct FoundPage {
 pub struct AgentHub {
     data_dir: PathBuf,
     history: Arc<Mutex<HistoryCatalog>>,
+    live: Arc<live::LiveState>,
 }
 
 impl AgentHub {
@@ -145,7 +148,13 @@ impl AgentHub {
         Self {
             data_dir,
             history: Arc::default(),
+            live: Arc::default(),
         }
+    }
+
+    /// Retained execution observations shared with the agent and room owners.
+    pub fn live(&self) -> &Arc<live::LiveState> {
+        &self.live
     }
 
     /// Every session found on this machine, newest first.

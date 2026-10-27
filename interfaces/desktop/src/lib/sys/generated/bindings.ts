@@ -2436,6 +2436,17 @@ async agenthubSessions() : Promise<Result<FoundSessions, CommandError>> {
 }
 },
 /**
+ * Current execution observations, including text and unanswered permissions.
+ */
+async agenthubLive() : Promise<Result<LiveSnapshot, CommandError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("agenthub_live") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * One page of a found session, oldest event first; `cursor` (from the
  * previous page) asks for the next older one.
  */
@@ -4380,6 +4391,7 @@ async setCommunityEnabledCmd(enabled: boolean) : Promise<Result<null, string>> {
 
 
 export const events = __makeEvents__<{
+agentHubChanged: AgentHubChanged,
 agentStreamed: AgentStreamed,
 chatSessionDeleted: ChatSessionDeleted,
 cloudCompletionFinished: CloudCompletionFinished,
@@ -4394,6 +4406,7 @@ updateAvailable: UpdateAvailable,
 updateDownloadProgress: UpdateDownloadProgress,
 updateInstallFinished: UpdateInstallFinished
 }>({
+agentHubChanged: "agent-hub-changed",
 agentStreamed: "agent-streamed",
 chatSessionDeleted: "chat-session-deleted",
 cloudCompletionFinished: "cloud-completion-finished",
@@ -4511,6 +4524,22 @@ voice_enable_aria: string;
  * `aria-label` for the voice toggle button when voice is currently active.
  */
 voice_disable_aria: string }
+/**
+ * Observed activity, never inferred from a transcript's modification time.
+ */
+export type Activity = 
+/**
+ * Execution and its persistence attempt have ended; this is not success.
+ */
+"idle" | 
+/**
+ * Execution or persistence is in progress.
+ */
+"working" | 
+/**
+ * At least one permission is actionable.
+ */
+"waitingForYou"
 /**
  * The protocol `DevPulse` speaks to it.
  */
@@ -4688,6 +4717,10 @@ export type AgentEvent =
  */
 { kind: "permissionAsked"; request: string; title: string; choices: PermissionChoice[] } | 
 /**
+ * A permission was answered, expired or withdrawn; it is no longer actionable.
+ */
+{ kind: "permissionResolved"; request: string } | 
+/**
  * The turn finished (`end_turn`, `cancelled`, `max_tokens`, …).
  */
 { kind: "turnEnded"; stop: string } | 
@@ -4695,6 +4728,18 @@ export type AgentEvent =
  * The turn could not run or failed, in the agent's own words.
  */
 { kind: "failed"; message: string }
+/**
+ * Retained AgentHub observations changed. Fetch a snapshot; notifications may coalesce.
+ */
+export type AgentHubChanged = { 
+/**
+ * Runtime identity; revisions are only comparable inside this epoch.
+ */
+epoch: string; 
+/**
+ * Latest observed revision.
+ */
+revision: number }
 /**
  * One event of an agent thread's running turn (plan 0001 B3.3): part of
  * the answer, its reasoning, a tool it uses, a permission it asks for, the
@@ -9558,6 +9603,82 @@ export type ListModelsRequest = {
  */
 provider: ProviderId }
 /**
+ * The latest observed turn of an agent, room run or room seat.
+ */
+export type LiveConversation = { 
+/**
+ * Canonical chat session.
+ */
+sessionId: string; 
+/**
+ * Canonical project.
+ */
+projectId: string; 
+/**
+ * Room seat, or none for an agent/root room run.
+ */
+place: string | null; 
+/**
+ * None only for the room run itself.
+ */
+providerId: ProviderId | null; 
+/**
+ * Changes for each new turn, guarding late events from an older turn.
+ */
+turnId: string; 
+/**
+ * Current activity, independent of success and card placement.
+ */
+activity: Activity; 
+/**
+ * Current stream; retained on failure, cleared after successful persistence.
+ */
+text: string; 
+/**
+ * All unfinished tools, in observed order.
+ */
+tools: LiveTool[]; 
+/**
+ * All actionable permissions, in observed order.
+ */
+permissions: PendingPermission[]; 
+/**
+ * A terminal execution or persistence failure.
+ */
+error: string | null; 
+/**
+ * Provider stop reason, only after completion persistence.
+ */
+stop: string | null }
+/**
+ * A consistent snapshot. A different epoch replaces all old observations.
+ */
+export type LiveSnapshot = { 
+/**
+ * Identity of this runtime instance.
+ */
+epoch: string; 
+/**
+ * Monotonically increasing within this epoch.
+ */
+revision: number; 
+/**
+ * Conversations actually observed by this runtime; absent means unknown.
+ */
+conversations: LiveConversation[] }
+/**
+ * One unfinished tool call.
+ */
+export type LiveTool = { 
+/**
+ * Provider tool identity.
+ */
+id: string; 
+/**
+ * Provider's description.
+ */
+title: string }
+/**
  * A single chat message (`OpenAI` format).
  */
 export type LlamaChatMessage = { 
@@ -10542,6 +10663,22 @@ export type ParentResolution =
  * A unique, acyclic parent artifact is available.
  */
 "resolved"
+/**
+ * An actionable request, retained until the provider resolves it.
+ */
+export type PendingPermission = { 
+/**
+ * Provider request identity.
+ */
+request: string; 
+/**
+ * Provider's explanation.
+ */
+title: string; 
+/**
+ * The provider's offered choices.
+ */
+choices: PermissionChoice[] }
 /**
  * One choice of a permission request, as the agent worded it.
  */

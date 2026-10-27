@@ -298,7 +298,7 @@ owners. Do not build another execution stack inside the board.
 | P1 fixed | **ACP continuation silently started fresh.** The ACP branch discarded the saved resume token. | The active transport now restores the saved id with advertised `session/resume`, or `session/load` when resume is not supported. Unsupported and refused restores fail explicitly without creating a new session. Ordered load replay is drained before readiness. Five SDK protocol-peer regressions verify identity/workspace, subsequent prompting, failed/unsupported restoration and replay exclusion. Vendor-to-DevPulse continuation still needs live verification before R3b.6 is complete. |
 | P1 fixed | **Successful completion did not mean saved completion.** Agent and room owners could report completion after failed writes; agent dispatch preceded saving the prompt. | Prompt persistence now precedes dispatch. A per-thread gate covers agent execution through persistence. Answer, counter and continuation commit together. `RoomHost::record` returns failures, stops later work, and retains all already-produced parallel answers with every recovery result reported. Unsaved agent completion and room outcome emit failure, never a saved completion. Unique local recovery documents preserve the output and continuation; chat keeps a selectable stream copy until dismissed. Real-Turso failure tests verify rollback and terminal events; browser tests cover retained output. Recovery is not automatic replay or crash-atomic journaling; live snapshots and recovery management remain separate work. |
 | P1 fixed | **Turn order and thread creation were not atomic.** Separate reads/writes could reuse sequence numbers or leave incomplete threads. | The existing Turso adapter now commits parameterized single-row mutations on one connection under an immediate writer lock, checking affected rows and rolling back failures. Agent and room creation use it; turn order is allocated inside the insert, with the session counter in the same transaction. Regressions verify 16 concurrent turns, first/second-statement failures, missing sessions and wrong-project writes. No database reset or compatibility path. |
-| P1 | **Live truth belongs to the engine, but currently exists only as transient events and one window's turn.** `agents.state.svelte.ts` has a single `turn`, subscribes when prompting, and ignores other session ids. Neither `Agents` nor `Rooms` exposes the required working/waiting/idle snapshot. Permission timeout/removal has no resolution event. A newly opened window cannot reconstruct an ongoing turn or waiting permission. | R3b.2 must add authoritative per-conversation state and pending requests in the existing engine owners, plus a snapshot and revisioned changes. Test two active threads, room seats, opening/reloading a second window, permission answer/timeout, cancellation and disconnect. Derive badges from this state, independently of saved card placement. |
+| P1 implementation delivered; native acceptance open | **Live truth formerly existed only as transient events and one window's turn.** Agents and rooms now share `agenthub::live::LiveState`: retained per-conversation observations, runtime epoch/revision, all pending permissions/tools, stream text and terminal failures. Chat consumes typed snapshots and coalesced `AgentHubChanged` invalidations through `domains/agenthub`, rather than a single local turn. | Kernel tests cover permission answer/expiry/cancellation removal. Runtime tests cover concurrent threads, room seats and aggregate room waiting, late events, task drop, parallel tools and persistence-gated idle. Browser tests reconstruct two independent windows, coalesce updates, reject stale revisions/epochs, recover after failed reads and preserve dismissed failure copies. Native two-window/vendor execution and actual subprocess crash/restart invalidation remain required before R3b.2 is complete. |
 | P1 fixed | **An unavailable project silently changed where tools ran.** `Agents::folder` substituted `data_dir/tools/ask` for a missing project or project-state read error; `conversation` created its working directory. Tool-enabled room seats used the same path. | `Projects::workspace` now requires a live project and an existing absolute directory, propagating database errors. Agent and room startup propagate that refusal; only an explicitly talk-only place may create its isolated folder. Five regressions cover missing/removed/restored projects, missing/non-directory/relative paths, database failure, and startup that never recreates a missing tool workspace. |
 | P2 fixed | **Late loads could replace the selected conversation.** Chat loads and thread refreshes applied responses after selection changed. | The existing Svelte stores guard success and failure by request generation and project/session identity. Session selection invalidates pending loads immediately; stale completions cannot clear a newer loading flag. Browser tests cover both response orders, same-selection refreshes, project changes and stale IPC/transport errors. The browser harness now uses the SvelteKit plugin to resolve the app's existing `$app/*` imports. |
 | Required delivery | **The board is not yet an available product surface.** Only generated bindings reference `agenthubSessions`/`agenthubSessionPage` in the frontend. There is no `domains/agenthub`, route, `agenthub_board_cards` schema or ColdLight `board-column`; room commands likewise have no frontend consumers. Parent classification, native parent references and safe artifact links are now present in the index/DTO; the UI still needs to consume them. | Finish R3b.2 and durable completion handling, then the Turso board and its own page using ColdLight card/status/badge plus the new column. Connect read-only paging, keyboard moves, manual placement persistence and chat links. Only enable Continue after the continuity and workspace checks above pass. Verify the real user journey, not just generated commands. |
@@ -313,6 +313,42 @@ ColdLight composition requirements still apply; plan 0009's card inventory
 is the specific board decision (no extra library card kind).
 
 ## Log
+
+- 2026-10-27 — **Retained live observations implemented.** Agent and room
+  producers update one state owner; provider completion clears permissions but
+  remains working through the persistence attempt. Room status aggregates its
+  waiting seats. Dropped unfinished observations expose failure. ACP publishes
+  permission resolution on answer, expiry or cancellation. Typed Tauri snapshot
+  reads and epoch/revision notifications are wired at boot, independently of
+  the prompting window. Chat hydrates on opening, selects its own session's
+  stream/permission/tools, targets stop/answer explicitly, and reloads history
+  on persisted completion. A disconnected stream clears stale permissions
+  while retaining its partial output through persistence. Provider startup
+  is also observed as working, with startup failures reported in the snapshot.
+  Full kernel/engine suites: 202 + 185 passing, six
+  existing ignores. Sixteen Chromium tests pass, including two store instances
+  representing separate windows; these are not a native vendor smoke test.
+  Desktop typecheck and the production build pass; bindings are regenerated.
+  Native cancellation during provider startup still needs the lifecycle work
+  in R3b.0; a retained snapshot alone cannot make that startup cancellable.
+  The runtime still lives
+  in the engine until R3b.0 relocates these owners into the bundled subprocess.
+
+- 2026-10-27 — **Resume: authoritative live observations (R3b.2).**
+  Replace window-local execution truth with one retained runtime state owner
+  shared by agents, room runs and room seats. Snapshots carry a runtime epoch
+  and monotonic revision; notifications invalidate snapshots, so slow windows
+  can reconstruct current state without replaying every token. Keep streamed
+  text, tools, all pending permissions and terminal failures available to a
+  newly opened window. A terminal provider event does not make a turn idle
+  until persistence completes. Permission expiry, answer and cancellation
+  remove pending requests explicitly. Wire typed Tauri commands/events and
+  chat hydration; test concurrent conversations, stale loads, late permission
+  events, terminal failures and cancellation. Implement in verified phases:
+  permission protocol; runtime owner and producers; IPC; frontend consumers.
+  This prepares the existing execution owners for subprocess extraction, not
+  a second runtime or a claim that R3b.0 packaging is complete. Process-crash
+  invalidation remains part of that actual transport boundary.
 
 - 2026-10-27 — **Durable completion repair implemented and tested.** The
   execution slice below is implemented in the existing owners, without a

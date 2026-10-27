@@ -1,115 +1,80 @@
-/**
- * @file agentsState — your threads with your agents, in the chat.
- * @module @devpulse/domains/chat/data-access/agents.state
- *
- * Rust holds each thread's live conversation (`agents` service); a turn's
- * events arrive as the `agent-streamed` event and fill `turn` while it runs.
- * Both sides of every turn are saved in the chat's turns, so the stream
- * reloads them when the turn ends. Nothing here decides anything; a refusal
- * keeps Rust's message in `error`.
- */
-
+/** @file Chat actions and retained failure copies over AgentHub's runtime snapshots. */
+import { agenthubState } from "$lib/domains/agenthub/index.js";
 import { projectsState } from "$lib/domains/app/projects/index.js";
 import type {
-	AgentEvent,
 	AgentThread,
+	LiveSnapshot,
 	PermissionChoice,
 	ProviderId,
 } from "$lib/sys/generated/bindings.js";
-import { commands, events } from "$lib/sys/generated/bindings.js";
+import { commands } from "$lib/sys/generated/bindings.js";
 import { logError } from "$lib/sys/logger.js";
 
 export type { AgentThread, PermissionChoice, ProviderId };
-
 const LOG_TARGET = "domains.chat.agents";
-
 const message = (e: unknown): string => (e instanceof Error ? e.message : String(e));
 
-/** What the running turn has shown so far. */
+/** Chat's presentation of one live agent turn. */
 export interface RunningTurn {
 	sessionId: string;
 	text: string;
-	/** The tool the agent is using now, in its words. */
 	tool: string | null;
-	/** A permission it is waiting for. */
 	permission: { request: string; title: string; choices: PermissionChoice[] } | null;
 }
 
-/** Stream output retained for copying; it is not a saved-history record. */
+/** A selectable copy; never presented as a saved history record. */
 export interface RetainedAnswer {
-	id: number;
+	id: string;
 	sessionId: string;
 	text: string;
 	message: string;
 }
 
 class AgentsStore {
-	/** The active project's threads, by session id. */
 	threads = $state<Record<string, AgentThread>>({});
-	turn = $state<RunningTurn | null>(null);
 	error = $state<string | null>(null);
 	retained = $state<RetainedAnswer[]>([]);
-	private nextRetainedId = 0;
-	private listening: Promise<unknown> | null = null;
+	private watching = false;
+	private seenFailures = new Set<string>();
 	private refreshGeneration = 0;
-	/** Resolves a prompt when its turn ends. */
-	private ending = new Map<string, () => void>();
 
-	/** Listen to the turns' events once. */
-	private listen(): Promise<unknown> {
-		this.listening ??= events.agentStreamed.listen((e) =>
-			this.apply(e.payload.sessionId, e.payload.event),
-		);
-		return this.listening;
+	async initialize(): Promise<void> {
+		if (!this.watching) {
+			this.watching = true;
+			agenthubState.observe((snapshot) => this.retainFailures(snapshot));
+		}
+		await agenthubState.connect();
 	}
 
-	private apply(sessionId: string, event: AgentEvent): void {
-		const turn = this.turn;
-		if (!turn || turn.sessionId !== sessionId) return;
-		switch (event.kind) {
-			case "text":
-				turn.text += event.text;
-				turn.tool = null;
-				break;
-			case "tool":
-				if (event.title) turn.tool = event.title;
-				if (event.status === "done" || event.status === "failed") turn.tool = null;
-				break;
-			case "permissionAsked":
-				turn.permission = {
-					request: event.request,
-					title: event.title,
-					choices: event.choices,
-				};
-				break;
-			case "failed":
-				this.error = event.message;
-				if (turn.text) {
-					this.retained.push({
-						id: ++this.nextRetainedId,
-						sessionId,
-						text: turn.text,
-						message: event.message,
-					});
-				}
-				this.finish(sessionId);
-				break;
-			case "turnEnded":
-				this.finish(sessionId);
-				break;
-			default:
-				break;
+	private retainFailures(snapshot: LiveSnapshot): void {
+		for (const turn of snapshot.conversations) {
+			if (turn.place !== null || !turn.providerId || !turn.error || !turn.text) continue;
+			const id = `${snapshot.epoch}:${turn.turnId}`;
+			if (this.seenFailures.has(id)) continue;
+			this.seenFailures.add(id);
+			this.retained.push({ id, sessionId: turn.sessionId, text: turn.text, message: turn.error });
 		}
 	}
 
-	private finish(sessionId: string): void {
-		this.turn = null;
-		this.ending.get(sessionId)?.();
-		this.ending.delete(sessionId);
+	running(sessionId: string | null): RunningTurn | null {
+		const turn = agenthubState.conversation(sessionId);
+		if (
+			!turn ||
+			!turn.providerId ||
+			turn.activity === "idle" ||
+			turn.projectId !== projectsState.activeProjectId
+		)
+			return null;
+		return {
+			sessionId: turn.sessionId,
+			text: turn.text,
+			tool: turn.tools.at(-1)?.title ?? null,
+			permission: turn.permissions[0] ?? null,
+		};
 	}
 
-	/** Dismiss only the in-window copy. Recovery files and history stay intact. */
-	dismissRetained(id: number): void {
+	/** Dismiss only the in-window copy; repeated snapshots cannot resurrect it. */
+	dismissRetained(id: string): void {
 		this.retained = this.retained.filter((answer) => answer.id !== id);
 	}
 
@@ -150,37 +115,35 @@ class AgentsStore {
 		return result.data.sessionId;
 	}
 
-	/** Send a prompt; resolves on saved completion or an explicit failure. */
+	/** Dispatch only; authoritative snapshots govern the running state and completion. */
 	async prompt(sessionId: string, text: string): Promise<void> {
 		this.error = null;
-		await this.listen();
-		this.turn = { sessionId, text: "", tool: null, permission: null };
-		const ended = new Promise<void>((resolve) => this.ending.set(sessionId, resolve));
+		await this.initialize();
+		if (!agenthubState.ready) {
+			this.error = agenthubState.error;
+			return;
+		}
 		try {
 			const result = await commands.agentPrompt(sessionId, text);
 			if (result.status === "error") throw new Error(result.error);
-		} catch (e) {
-			this.error = message(e);
-			logError(LOG_TARGET, `agentPrompt failed — ${this.error}`);
-			this.finish(sessionId);
+		} catch (error) {
+			this.error = message(error);
+			logError(LOG_TARGET, `agentPrompt failed ? ${this.error}`);
 		}
-		await ended;
+		await agenthubState.refresh();
 	}
 
-	/** Stop the running turn. */
-	async cancel(): Promise<void> {
-		const turn = this.turn;
-		if (turn) await commands.agentCancel(turn.sessionId);
+	async cancel(sessionId: string): Promise<void> {
+		await commands.agentCancel(sessionId);
+		await agenthubState.refresh();
 	}
 
-	/** Answer the waiting permission request (`null` refuses). */
-	async answer(choice: string | null): Promise<void> {
-		const turn = this.turn;
-		const permission = turn?.permission;
-		if (!turn || !permission) return;
-		turn.permission = null;
-		const result = await commands.agentAnswer(turn.sessionId, permission.request, choice);
+	async answer(sessionId: string, request: string, choice: string | null): Promise<void> {
+		const turn = agenthubState.conversation(sessionId);
+		if (!turn?.permissions.some((permission) => permission.request === request)) return;
+		const result = await commands.agentAnswer(sessionId, request, choice);
 		if (result.status === "error") this.error = result.error;
+		await agenthubState.refresh();
 	}
 }
 

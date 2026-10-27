@@ -23,6 +23,7 @@ use specta::Type;
 use tokio::sync::{mpsc, Mutex};
 use uuid::Uuid;
 
+use super::agenthub::live::LiveState;
 use super::projects::Projects;
 use super::providers::{Providers, SignedIn};
 
@@ -63,6 +64,7 @@ pub struct Agents {
     live: Mutex<HashMap<String, Arc<AgentSession>>>,
     /// A turn owns its thread until dispatch and persistence have both ended.
     turns: Mutex<HashMap<String, Arc<Mutex<()>>>>,
+    pub(super) observations: Arc<LiveState>,
 }
 
 impl Agents {
@@ -73,6 +75,7 @@ impl Agents {
         data_dir: PathBuf,
         providers: Arc<Providers>,
         projects: Option<Arc<Projects>>,
+        observations: Arc<LiveState>,
     ) -> Self {
         Self {
             db,
@@ -81,6 +84,7 @@ impl Agents {
             projects,
             live: Mutex::new(HashMap::new()),
             turns: Mutex::new(HashMap::new()),
+            observations,
         }
     }
 
@@ -311,8 +315,22 @@ impl Agents {
         let active = gate
             .try_lock_owned()
             .map_err(|_| anyhow!("the agent is still answering"))?;
-        let session = self.live_session(session_id, &record).await?;
-        let mut events = persist_before_dispatch(
+        let observation = self.observations.begin(
+            session_id,
+            &record.project_id,
+            None,
+            Some(record.provider_id),
+        );
+        let session = match self.live_session(session_id, &record).await {
+            Ok(session) => session,
+            Err(error) => {
+                observation.finish(&AgentEvent::Failed {
+                    message: format!("{error:#}"),
+                });
+                return Err(error);
+            }
+        };
+        let events = persist_before_dispatch(
             &self.db,
             session_id,
             &record.project_id,
@@ -327,7 +345,16 @@ impl Agents {
             },
             || session.prompt(text),
         )
-        .await?;
+        .await;
+        let mut events = match events {
+            Ok(events) => events,
+            Err(error) => {
+                observation.finish(&AgentEvent::Failed {
+                    message: format!("{error:#}"),
+                });
+                return Err(error);
+            }
+        };
 
         let (out, receiver) = mpsc::unbounded_channel();
         let db = Arc::clone(&self.db);
@@ -336,32 +363,7 @@ impl Agents {
         let started = Instant::now();
         devpulse_telemetry::spawn(async move {
             let _active = active;
-            let mut answer = String::new();
-            let mut stop = String::from("end_turn");
-            let mut ending = None;
-            while let Some(event) = events.recv().await {
-                match &event {
-                    AgentEvent::Text { text } => answer.push_str(text),
-                    AgentEvent::TurnEnded { stop: why } => stop.clone_from(why),
-                    AgentEvent::Failed { message } => {
-                        "failed".clone_into(&mut stop);
-                        if answer.is_empty() {
-                            answer.clone_from(message);
-                        }
-                    }
-                    _ => {}
-                }
-                // The ending event goes out only after the turn is saved, so
-                // a window that reloads on it finds the answer.
-                if event.ends_turn() {
-                    ending = Some(event);
-                    break;
-                }
-                let _ = out.send(event);
-            }
-            if ending.is_none() {
-                "failed".clone_into(&mut stop);
-            }
+            let (answer, stop, ending) = receive_answer(&mut events, &out, &observation).await;
             let latency = i64::try_from(started.elapsed().as_millis()).unwrap_or(i64::MAX);
             let token = session.resume_token().await;
             let continuation = ResumeUpdate::Agent(token.as_deref());
@@ -374,9 +376,6 @@ impl Agents {
                 latency_ms: Some(latency),
                 metadata: None,
             };
-            let ending = ending.unwrap_or(AgentEvent::Failed {
-                message: "the agent stopped without ending its turn".to_owned(),
-            });
             let event = complete_turn(
                 &db,
                 &data_dir,
@@ -387,6 +386,7 @@ impl Agents {
                 ending,
             )
             .await;
+            observation.finish(&event);
             let _ = out.send(event);
         });
         Ok(receiver)
@@ -418,6 +418,45 @@ impl Agents {
             tracing::info!(target: "agents", %session_id, "conversation closed");
         }
     }
+}
+
+async fn receive_answer(
+    events: &mut mpsc::UnboundedReceiver<AgentEvent>,
+    out: &mpsc::UnboundedSender<AgentEvent>,
+    observation: &super::agenthub::live::Observation,
+) -> (String, String, AgentEvent) {
+    let mut answer = String::new();
+    let mut stop = String::from("end_turn");
+    let mut ending = None;
+    while let Some(event) = events.recv().await {
+        observation.observe(&event);
+        match &event {
+            AgentEvent::Text { text } => answer.push_str(text),
+            AgentEvent::TurnEnded { stop: why } => stop.clone_from(why),
+            AgentEvent::Failed { message } => {
+                "failed".clone_into(&mut stop);
+                if answer.is_empty() {
+                    answer.clone_from(message);
+                }
+            }
+            _ => {}
+        }
+        // The ending event goes out only after the turn is saved, so
+        // a window that reloads on it finds the answer.
+        if event.ends_turn() {
+            ending = Some(event);
+            break;
+        }
+        let _ = out.send(event);
+    }
+    if ending.is_none() {
+        "failed".clone_into(&mut stop);
+    }
+    let ending = ending.unwrap_or(AgentEvent::Failed {
+        message: "the agent stopped without ending its turn".to_owned(),
+    });
+    observation.observe(&ending);
+    (answer, stop, ending)
 }
 
 fn prepare_workspace(cwd: &Path, talk_only: bool) -> Result<()> {
@@ -581,6 +620,42 @@ mod tests {
     #![allow(clippy::expect_used, clippy::unwrap_used, reason = "test assertions")]
 
     use super::*;
+
+    #[tokio::test]
+    async fn disconnect_clears_permissions_but_keeps_working_until_persistence() {
+        let live = Arc::new(LiveState::default());
+        let observation = live.begin("s", "p", None, Some(ProviderId::Codex));
+        let (input, mut events) = mpsc::unbounded_channel();
+        let (output, mut visible) = mpsc::unbounded_channel();
+        input
+            .send(AgentEvent::Text {
+                text: "partial answer".into(),
+            })
+            .unwrap();
+        input
+            .send(AgentEvent::PermissionAsked {
+                request: "request".into(),
+                title: "Read".into(),
+                choices: vec![],
+            })
+            .unwrap();
+        drop(input);
+        let (answer, stop, ending) = receive_answer(&mut events, &output, &observation).await;
+        assert_eq!(answer, "partial answer");
+        assert_eq!(stop, "failed");
+        assert!(matches!(ending, AgentEvent::Failed { .. }));
+        let current = live.snapshot();
+        assert!(current.conversations[0].permissions.is_empty());
+        assert_eq!(
+            current.conversations[0].activity,
+            super::super::agenthub::live::Activity::Working
+        );
+        assert!(!visible.recv().await.unwrap().ends_turn());
+        assert!(!visible.recv().await.unwrap().ends_turn());
+        assert!(visible.try_recv().is_err());
+        observation.finish(&ending);
+        assert_eq!(live.snapshot().conversations[0].text, "partial answer");
+    }
     use devpulse_clyffy::cortex::persistence::TursoOptions;
 
     async fn turn_fixture(limit: u32) -> (tempfile::TempDir, Arc<TursoAdapter>) {

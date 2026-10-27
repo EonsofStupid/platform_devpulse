@@ -22,7 +22,7 @@ const copy = $derived(copyState.catalog?.chat.agents ?? null);
 		permission={turn.permission}
 		cancelLabel={copy.stop}
 		refuseLabel={copy.refuse}
-		onAnswer={(choice) => void agentsState.answer(choice)}
-		onCancel={() => void agentsState.cancel()}
+		onAnswer={(choice) => { if (turn.permission) void agentsState.answer(turn.sessionId, turn.permission.request, choice); }}
+		onCancel={() => void agentsState.cancel(turn.sessionId)}
 	/>
 {/if}

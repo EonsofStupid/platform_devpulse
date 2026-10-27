@@ -185,6 +185,16 @@ pub struct AgentStreamed {
     pub event: devpulse_engine::platform::agents::AgentEvent,
 }
 
+/// Retained AgentHub observations changed. Fetch a snapshot; notifications may coalesce.
+#[derive(Debug, Clone, Serialize, Deserialize, Type, Event)]
+#[serde(rename_all = "camelCase")]
+pub struct AgentHubChanged {
+    /// Runtime identity; revisions are only comparable inside this epoch.
+    pub epoch: String,
+    /// Latest observed revision.
+    pub revision: u64,
+}
+
 // ── Rooms ───────────────────────────────────────────────────────────
 
 /// One event of a room answering (plan 0001 B4.2): part of a place's

@@ -4,6 +4,7 @@
 <script lang="ts">
 import { DynamicBackground } from "@devpulse/coldlight/components/dynamic-background";
 import { Text } from "@devpulse/coldlight/components/text";
+import { agenthubState } from "$lib/domains/agenthub/index.js";
 import { isInferenceReady, ModelEventCard, modelsState } from "$lib/domains/app/models/index.js";
 import { projectsState } from "$lib/domains/app/projects/index.js";
 import { agentsState } from "../data-access/agents.state.svelte.js";
@@ -17,6 +18,10 @@ import ChatStream from "./ChatStream.svelte";
 import CortexMemoryStrip from "./CortexMemoryStrip.svelte";
 
 let dismissedEvents = $state(new Set<string>());
+const finishedTurn = $derived.by(() => {
+	const turn = agenthubState.conversation(chatState.activeSessionId);
+	return turn?.activity === "idle" ? turn.turnId : null;
+});
 
 const activeModelEvents = $derived.by(() => {
 	const events: { slotId: string; status: (typeof modelsState.statuses)[string] }[] = [];
@@ -35,12 +40,14 @@ const activeModelEvents = $derived.by(() => {
 $effect(() => {
 	if (!projectsState.ready) return;
 	const project = projectsState.activeProjectId;
+	void agentsState.initialize();
 	void sessionsState.refresh();
 	if (project) void agentsState.refresh(project);
 });
 
 $effect(() => {
 	void chatState.activeSessionId;
+	void finishedTurn;
 	if (!projectsState.ready) return;
 	void projectsState.activeProjectId;
 	void chatState.loadActive();

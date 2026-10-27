@@ -79,6 +79,11 @@ pub enum AgentEvent {
         /// The choices it offers.
         choices: Vec<PermissionChoice>,
     },
+    /// A permission was answered, expired or withdrawn; it is no longer actionable.
+    PermissionResolved {
+        /// The request being removed.
+        request: String,
+    },
     /// The turn finished (`end_turn`, `cancelled`, `max_tokens`, …).
     TurnEnded {
         /// Why it stopped.

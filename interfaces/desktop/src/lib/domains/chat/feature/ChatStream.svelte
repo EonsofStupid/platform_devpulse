@@ -4,6 +4,7 @@
 -->
 <script lang="ts">
 import { cn } from "@devpulse/coldlight/utils";
+import { agenthubState } from "$lib/domains/agenthub/index.js";
 import { providersState } from "$lib/domains/app/providers/index.js";
 import { copyState } from "$lib/sys/copy/index.js";
 import { agentsState } from "../data-access/agents.state.svelte.js";
@@ -21,8 +22,9 @@ let { class: className }: Props = $props();
 let root: HTMLDivElement | undefined = $state();
 
 const thread = $derived(agentsState.thread(chatState.activeSessionId));
-const agentTurn = $derived(
-	agentsState.turn?.sessionId === chatState.activeSessionId ? agentsState.turn : null,
+const agentTurn = $derived(agentsState.running(chatState.activeSessionId));
+const runtimeError = $derived(
+	agenthubState.error ?? agenthubState.conversation(chatState.activeSessionId)?.error,
 );
 const author = $derived(
 	(thread &&
@@ -60,7 +62,7 @@ $effect(() => {
 			<MessageBubble message={msg} mode={chatState.mode} />
 		{/each}
 	{/if}
-	{#if chatState.isGenerating && streaming}
+	{#if (chatState.isGenerating || agentTurn) && streaming}
 		<MessageBubble
 			message={{
 				id: "streaming",
@@ -75,6 +77,9 @@ $effect(() => {
 	{/if}
 	{#if agentTurn}
 		<ChatAgentTurn turn={agentTurn} agent={author} />
+	{/if}
+	{#if runtimeError && retained.length === 0}
+		<p role="alert">{runtimeError}</p>
 	{/if}
 	{#if agentCopy}
 		{#each retained as answer (answer.id)}
