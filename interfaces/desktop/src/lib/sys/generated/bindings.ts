@@ -4729,7 +4729,7 @@ export type AgentEvent =
  */
 { kind: "failed"; message: string }
 /**
- * Retained AgentHub observations changed. Fetch a snapshot; notifications may coalesce.
+ * Retained `AgentHub` observations changed. Fetch a snapshot; notifications may coalesce.
  */
 export type AgentHubChanged = { 
 /**

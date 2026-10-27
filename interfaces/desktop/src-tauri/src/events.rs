@@ -185,7 +185,7 @@ pub struct AgentStreamed {
     pub event: devpulse_engine::platform::agents::AgentEvent,
 }
 
-/// Retained AgentHub observations changed. Fetch a snapshot; notifications may coalesce.
+/// Retained `AgentHub` observations changed. Fetch a snapshot; notifications may coalesce.
 #[derive(Debug, Clone, Serialize, Deserialize, Type, Event)]
 #[serde(rename_all = "camelCase")]
 pub struct AgentHubChanged {
