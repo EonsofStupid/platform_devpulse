@@ -35,11 +35,21 @@ export interface RunningTurn {
 	permission: { request: string; title: string; choices: PermissionChoice[] } | null;
 }
 
+/** Stream output retained for copying; it is not a saved-history record. */
+export interface RetainedAnswer {
+	id: number;
+	sessionId: string;
+	text: string;
+	message: string;
+}
+
 class AgentsStore {
 	/** The active project's threads, by session id. */
 	threads = $state<Record<string, AgentThread>>({});
 	turn = $state<RunningTurn | null>(null);
 	error = $state<string | null>(null);
+	retained = $state<RetainedAnswer[]>([]);
+	private nextRetainedId = 0;
 	private listening: Promise<unknown> | null = null;
 	private refreshGeneration = 0;
 	/** Resolves a prompt when its turn ends. */
@@ -74,6 +84,14 @@ class AgentsStore {
 				break;
 			case "failed":
 				this.error = event.message;
+				if (turn.text) {
+					this.retained.push({
+						id: ++this.nextRetainedId,
+						sessionId,
+						text: turn.text,
+						message: event.message,
+					});
+				}
 				this.finish(sessionId);
 				break;
 			case "turnEnded":
@@ -88,6 +106,11 @@ class AgentsStore {
 		this.turn = null;
 		this.ending.get(sessionId)?.();
 		this.ending.delete(sessionId);
+	}
+
+	/** Dismiss only the in-window copy. Recovery files and history stay intact. */
+	dismissRetained(id: number): void {
+		this.retained = this.retained.filter((answer) => answer.id !== id);
 	}
 
 	/** The thread a chat session is, if it is one. */
@@ -127,7 +150,7 @@ class AgentsStore {
 		return result.data.sessionId;
 	}
 
-	/** Send a prompt; resolves when the turn has ended (saved by Rust). */
+	/** Send a prompt; resolves on saved completion or an explicit failure. */
 	async prompt(sessionId: string, text: string): Promise<void> {
 		this.error = null;
 		await this.listen();

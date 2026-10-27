@@ -296,7 +296,7 @@ owners. Do not build another execution stack inside the board.
 | --- | --- | --- |
 | P1 fixed | **A stale card could open another source's transcript.** `history/mod.rs::locator_for` hashed provider plus relative filename only. Changing a history root to another directory containing the same filename reused the locator. The strengthened engine regression reproduced the collision before the fix. | The existing locator now includes canonical source identity. Regression coverage checks identical filenames in two roots, rejection of the old locator after switching roots, distinct session/event ids, and stable identity when reopening the same source. A future persisted board needs an explicit durable card identity; do not treat a path locator as a portable logical-session id. No legacy locator fallback. |
 | P1 fixed | **ACP continuation silently started fresh.** The ACP branch discarded the saved resume token. | The active transport now restores the saved id with advertised `session/resume`, or `session/load` when resume is not supported. Unsupported and refused restores fail explicitly without creating a new session. Ordered load replay is drained before readiness. Five SDK protocol-peer regressions verify identity/workspace, subsequent prompting, failed/unsupported restoration and replay exclusion. Vendor-to-DevPulse continuation still needs live verification before R3b.6 is complete. |
-| P1 | **Successful completion does not mean saved completion.** `platform/agents.rs::prompt` logs answer/token write failures and still sends the original terminal event; `platform/rooms.rs::Host::finish` sends `Finished` after a failed save, and `RoomHost::record` cannot return an error. An agent prompt also starts before saving the user turn. | Make persistence failure observable through the existing execution contracts, preserve the answer for recovery, and prevent untracked execution if the initiating turn cannot be stored. Inject failures before dispatch, while saving an answer/token, and while saving a room outcome; no successful persisted-state claim may escape. |
+| P1 fixed | **Successful completion did not mean saved completion.** Agent and room owners could report completion after failed writes; agent dispatch preceded saving the prompt. | Prompt persistence now precedes dispatch. A per-thread gate covers agent execution through persistence. Answer, counter and continuation commit together. `RoomHost::record` returns failures, stops later work, and retains all already-produced parallel answers with every recovery result reported. Unsaved agent completion and room outcome emit failure, never a saved completion. Unique local recovery documents preserve the output and continuation; chat keeps a selectable stream copy until dismissed. Real-Turso failure tests verify rollback and terminal events; browser tests cover retained output. Recovery is not automatic replay or crash-atomic journaling; live snapshots and recovery management remain separate work. |
 | P1 fixed | **Turn order and thread creation were not atomic.** Separate reads/writes could reuse sequence numbers or leave incomplete threads. | The existing Turso adapter now commits parameterized single-row mutations on one connection under an immediate writer lock, checking affected rows and rolling back failures. Agent and room creation use it; turn order is allocated inside the insert, with the session counter in the same transaction. Regressions verify 16 concurrent turns, first/second-statement failures, missing sessions and wrong-project writes. No database reset or compatibility path. |
 | P1 | **Live truth belongs to the engine, but currently exists only as transient events and one window's turn.** `agents.state.svelte.ts` has a single `turn`, subscribes when prompting, and ignores other session ids. Neither `Agents` nor `Rooms` exposes the required working/waiting/idle snapshot. Permission timeout/removal has no resolution event. A newly opened window cannot reconstruct an ongoing turn or waiting permission. | R3b.2 must add authoritative per-conversation state and pending requests in the existing engine owners, plus a snapshot and revisioned changes. Test two active threads, room seats, opening/reloading a second window, permission answer/timeout, cancellation and disconnect. Derive badges from this state, independently of saved card placement. |
 | P1 fixed | **An unavailable project silently changed where tools ran.** `Agents::folder` substituted `data_dir/tools/ask` for a missing project or project-state read error; `conversation` created its working directory. Tool-enabled room seats used the same path. | `Projects::workspace` now requires a live project and an existing absolute directory, propagating database errors. Agent and room startup propagate that refusal; only an explicitly talk-only place may create its isolated folder. Five regressions cover missing/removed/restored projects, missing/non-directory/relative paths, database failure, and startup that never recreates a missing tool workspace. |
@@ -313,6 +313,41 @@ ColdLight composition requirements still apply; plan 0009's card inventory
 is the specific board decision (no extra library card kind).
 
 ## Log
+
+- 2026-10-27 — **Durable completion repair implemented and tested.** The
+  execution slice below is implemented in the existing owners, without a
+  compatibility path or database reset. Kernel/engine library suites pass
+  (201 + 178 tests, six existing ignores). Three focused room regressions
+  pass after strengthening parallel failure reporting to include every
+  recovery result. Eleven Chromium chat tests pass. IPC bindings were
+  regenerated; desktop and Storybook type checks report zero errors/warnings.
+  The real `FailedTurn` adapter is reviewable at Storybook
+  `AgentHub / Failure recovery / Retained answer`, with explicit fixture
+  copy and functional dismiss/reset. Recovery documents live under the
+  configured data directory's `agenthub/recovery`; they are never replayed.
+  If both database and recovery-file writes fail, the error says so and the
+  current chat window retains its streamed copy. This is not protection
+  against a process crash before a recovery file is written, nor the
+  authoritative multi-window state required by R3b.2. Room commands still
+  have no product UI consumer. The native development app was stopped for
+  verification; native failure injection against user data was not performed.
+
+- 2026-10-27 — **Next execution slice: truthful durable completion.**
+  Reauthor the existing agent and room owners before exposing their completion
+  as board state. Save a user's prompt before dispatch; serialize a thread's
+  in-flight turn through completion persistence. Commit the assistant turn,
+  session counter and continuation token together. Make `RoomHost::record`
+  fallible and stop subsequent phases after a storage failure, while still
+  attempting to retain every answer already produced by a parallel phase.
+  Never publish `Turn`/`Finished` or successful `TurnEnded` for an unsaved
+  result. Preserve failed writes in a local recovery document and report its
+  location; retain streamed failed answers in chat. Recovery documents are
+  not another canonical database and never trigger automatic tool replay.
+  Test real-Turso rollback at every statement, prompt dispatch ordering,
+  room failure propagation, parallel answer retention and frontend failure
+  presentation. Regenerate the IPC contract and run affected suites and hooks.
+  This does not complete subprocess extraction, provider activation, live
+  snapshots, board persistence or the approved ColdLight Provider migration.
 
 - 2026-10-27 — **AgentHub table ownership implemented.** User migration 0003
   renames the existing tables in place to `agenthub_threads` and

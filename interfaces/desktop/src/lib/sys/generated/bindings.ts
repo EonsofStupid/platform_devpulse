@@ -4654,7 +4654,19 @@ refuse: string;
 /**
  * Button: stop the running turn.
  */
-stop: string }
+stop: string; 
+/**
+ * A copy retained when an agent's turn fails.
+ */
+retained_answer: string; 
+/**
+ * Explains that the copy is not proof of a durable history write.
+ */
+retained_note: string; 
+/**
+ * Dismiss the in-window copy, without deleting a recovery file.
+ */
+dismiss_retained: string }
 /**
  * Something that happened during a turn.
  */
@@ -11940,7 +11952,11 @@ export type RoomEvent =
  * The room's answer: rounds run, why they stopped, what was picked.
  * Saved.
  */
-{ kind: "finished"; outcome: Outcome }
+{ kind: "finished"; outcome: Outcome } | 
+/**
+ * The run could not be durably completed. Any recovery copy is named.
+ */
+{ kind: "failed"; message: string }
 /**
  * A room (`dpl.room/1`).
  */

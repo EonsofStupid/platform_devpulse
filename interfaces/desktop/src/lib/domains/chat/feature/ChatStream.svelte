@@ -8,6 +8,7 @@ import { providersState } from "$lib/domains/app/providers/index.js";
 import { copyState } from "$lib/sys/copy/index.js";
 import { agentsState } from "../data-access/agents.state.svelte.js";
 import { chatState } from "../data-access/chat.state.svelte.js";
+import { FailedTurn } from "../ui/failed-turn/index.js";
 import { EmptyChatState, MessageBubble, TypingIndicator } from "../ui/index.js";
 import ChatAgentTurn from "./ChatAgentTurn.svelte";
 
@@ -29,6 +30,10 @@ const author = $derived(
 		(copyState.catalog?.chat.agents.local ?? ""),
 );
 const streaming = $derived(agentTurn ? agentTurn.text : chatState.streamingContent);
+const retained = $derived(
+	agentsState.retained.filter((answer) => answer.sessionId === chatState.activeSessionId),
+);
+const agentCopy = $derived(copyState.catalog?.chat.agents);
 
 // Scroll on new messages or streaming content
 $effect(() => {
@@ -70,5 +75,12 @@ $effect(() => {
 	{/if}
 	{#if agentTurn}
 		<ChatAgentTurn turn={agentTurn} agent={author} />
+	{/if}
+	{#if agentCopy}
+		{#each retained as answer (answer.id)}
+			<FailedTurn title={agentCopy.retained_answer} note={agentCopy.retained_note}
+				message={answer.message} text={answer.text} dismissLabel={agentCopy.dismiss_retained}
+				onDismiss={() => agentsState.dismissRetained(answer.id)} />
+		{/each}
 	{/if}
 </div>

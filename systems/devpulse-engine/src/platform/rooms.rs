@@ -32,7 +32,9 @@ use specta::Type;
 use tokio::sync::{mpsc, Mutex};
 use uuid::Uuid;
 
-use super::agents::{save_turn, AgentEvent, Agents, TurnRow};
+use super::agents::{
+    recovery, save_turn, save_turn_with_continuation, AgentEvent, Agents, ResumeUpdate, TurnRow,
+};
 
 /// A room of yours.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Type)]
@@ -75,6 +77,11 @@ pub enum RoomEvent {
     Finished {
         /// How it ended.
         outcome: Outcome,
+    },
+    /// The run could not be durably completed. Any recovery copy is named.
+    Failed {
+        /// The failure, not a successful room outcome.
+        message: String,
     },
 }
 
@@ -281,7 +288,7 @@ impl Rooms {
 
     /// Ask the room a question. Your question and every turn are saved; the
     /// run's events arrive on the returned receiver, ending with
-    /// [`RoomEvent::Finished`].
+    /// [`RoomEvent::Finished`] only after saving, or [`RoomEvent::Failed`].
     ///
     /// # Errors
     /// When the question is empty, the room is unknown or still answering,
@@ -325,8 +332,14 @@ impl Rooms {
             out,
         };
         devpulse_telemetry::spawn(async move {
-            let outcome = run.ask(&question, &host).await;
-            host.finish(outcome).await;
+            match run.ask(&question, &host).await {
+                Ok(outcome) => host.finish(outcome).await,
+                Err(error) => {
+                    let _ = host.out.send(RoomEvent::Failed {
+                        message: format!("{error:#}"),
+                    });
+                }
+            }
         });
         Ok(receiver)
     }
@@ -421,33 +434,46 @@ impl Host {
 
     /// Save the run's end and say so.
     async fn finish(&self, outcome: Outcome) {
-        let metadata = serde_json::json!({ "roomOutcome": &outcome }).to_string();
-        let saved = save_turn(
+        let event = finish_outcome(
             &self.db,
+            &self.data_dir,
             &self.session_id,
             &self.room.project_id,
-            &TurnRow {
-                role: "system",
-                token_count: None,
-                content: "",
-                model_used: None,
-                finish_reason: Some("room-finished"),
-                latency_ms: None,
-                metadata: Some(&metadata),
-            },
+            outcome,
         )
         .await;
-        if let Err(e) = saved {
-            tracing::warn!(target: "rooms", session_id = %self.session_id, error = %format!("{e:#}"), "the room's outcome was not saved");
-        }
-        let winner = outcome
-            .pick
-            .as_ref()
-            .and_then(|p| p.winner_place.as_deref())
-            .unwrap_or("none");
-        tracing::info!(target: "rooms", session_id = %self.session_id, rounds = outcome.rounds, winner, "room answered");
-        let _ = self.out.send(RoomEvent::Finished { outcome });
+        let _ = self.out.send(event);
     }
+}
+
+async fn finish_outcome(
+    db: &TursoAdapter,
+    data_dir: &std::path::Path,
+    session_id: &str,
+    project_id: &str,
+    outcome: Outcome,
+) -> RoomEvent {
+    let metadata = serde_json::json!({ "roomOutcome": &outcome }).to_string();
+    let turn = TurnRow {
+        role: "system",
+        token_count: None,
+        content: "",
+        model_used: None,
+        finish_reason: Some("room-finished"),
+        latency_ms: None,
+        metadata: Some(&metadata),
+    };
+    if let Err(error) = save_turn(db, session_id, project_id, &turn).await {
+        let message = recovery::retain(data_dir, session_id, project_id, &turn, None, &error).await;
+        return RoomEvent::Failed { message };
+    }
+    let winner = outcome
+        .pick
+        .as_ref()
+        .and_then(|p| p.winner_place.as_deref())
+        .unwrap_or("none");
+    tracing::info!(target: "rooms", %session_id, rounds = outcome.rounds, winner, "room answered");
+    RoomEvent::Finished { outcome }
 }
 
 #[async_trait]
@@ -491,56 +517,127 @@ impl RoomHost for Host {
         bail!("the agent stopped without ending its turn")
     }
 
-    async fn record(&self, turn: &RoomTurn) {
+    async fn record(&self, turn: &RoomTurn) -> Result<()> {
         let session = self.room.places.lock().await.get(&turn.place).cloned();
-        if let Some(token) = match session {
+        let token = match session {
             Some(session) => session.resume_token().await,
             None => None,
-        } {
-            let tokens = {
-                let mut tokens = self.room.tokens.lock().await;
-                tokens.insert(turn.place.clone(), token);
-                serde_json::to_string(&*tokens).unwrap_or_default()
-            };
-            let saved = self
-                .db
-                .execute(
-                    "UPDATE agenthub_room_threads SET resume_tokens = ? WHERE session_id = ?",
-                    &[tokens.as_str().into(), self.session_id.as_str().into()],
-                )
-                .await;
-            if let Err(e) = saved {
-                tracing::warn!(target: "rooms", session_id = %self.session_id, error = %e, "the places' conversation tokens were not saved");
-            }
+        };
+        // Serialize token-map updates through the transaction. A failed write
+        // cannot advance the in-memory map or overwrite another place's token.
+        let mut current = self.room.tokens.lock().await;
+        let mut pending = current.clone();
+        if let Some(token) = token {
+            pending.insert(turn.place.clone(), token);
         }
+        let tokens =
+            serde_json::to_string(&pending).context("encode the room's continuation tokens")?;
+        let continuation = ResumeUpdate::Room(&tokens);
         let metadata = serde_json::json!({ "room": turn }).to_string();
         let content = if turn.text.is_empty() {
             turn.failed.clone().unwrap_or_default()
         } else {
             turn.text.clone()
         };
-        let saved = save_turn(
+        let row = TurnRow {
+            role: "assistant",
+            token_count: None,
+            content: &content,
+            model_used: Some(turn.provider.key()),
+            finish_reason: Some(if turn.failed.is_some() {
+                "failed"
+            } else {
+                "end_turn"
+            }),
+            latency_ms: None,
+            metadata: Some(&metadata),
+        };
+        if let Err(error) = save_turn_with_continuation(
             &self.db,
             &self.session_id,
             &self.room.project_id,
-            &TurnRow {
-                role: "assistant",
-                token_count: None,
-                content: &content,
-                model_used: Some(turn.provider.key()),
-                finish_reason: Some(if turn.failed.is_some() {
-                    "failed"
-                } else {
-                    "end_turn"
-                }),
-                latency_ms: None,
-                metadata: Some(&metadata),
-            },
+            &row,
+            Some(&continuation),
         )
-        .await;
-        if let Err(e) = saved {
-            tracing::warn!(target: "rooms", session_id = %self.session_id, place = %turn.place, error = %format!("{e:#}"), "a room turn was not saved");
+        .await
+        {
+            let message = recovery::retain(
+                &self.data_dir,
+                &self.session_id,
+                &self.room.project_id,
+                &row,
+                Some(&continuation),
+                &error,
+            )
+            .await;
+            bail!("{message}");
         }
+        *current = pending;
         let _ = self.out.send(RoomEvent::Turn { turn: turn.clone() });
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used, reason = "test assertions")]
+    use super::*;
+    use devpulse_clyffy::cortex::persistence::TursoOptions;
+
+    #[tokio::test]
+    async fn only_a_saved_room_outcome_reports_finished() {
+        for limit in [0, 1] {
+            let tree = tempfile::tempdir().unwrap();
+            let schema = format!("CREATE TABLE sessions (id TEXT PRIMARY KEY, project_id TEXT,
+                updated_at INTEGER DEFAULT 0, interaction_count INTEGER DEFAULT 0 CHECK(interaction_count <= {limit}));
+                CREATE TABLE turns (id TEXT, session_id TEXT, project_id TEXT, role TEXT, content TEXT,
+                sequence_num INTEGER, model_used TEXT, finish_reason TEXT, latency_ms INTEGER, metadata TEXT, token_count INTEGER);
+                INSERT INTO sessions (id, project_id) VALUES ('s', 'p');");
+            let db = TursoAdapter::open_with_schema(
+                &tree.path().join("room.db"),
+                &schema,
+                TursoOptions::default(),
+            )
+            .await
+            .unwrap();
+            let outcome = Outcome {
+                rounds: 1,
+                stopped: library::Stopped::Rounds,
+                pick: None,
+                flips: vec![],
+            };
+            let event = finish_outcome(&db, tree.path(), "s", "p", outcome.clone()).await;
+            if limit == 0 {
+                let RoomEvent::Failed { message } = event else {
+                    panic!("unsaved room outcome reported finished")
+                };
+                assert!(message.contains("Recovery copy:"));
+                assert!(db
+                    .query("SELECT id FROM turns", &[])
+                    .await
+                    .unwrap()
+                    .is_empty());
+                let path = std::fs::read_dir(tree.path().join("agenthub/recovery"))
+                    .unwrap()
+                    .next()
+                    .unwrap()
+                    .unwrap()
+                    .path();
+                let document: serde_json::Value =
+                    serde_json::from_slice(&std::fs::read(path).unwrap()).unwrap();
+                let metadata: serde_json::Value =
+                    serde_json::from_str(document["turn"]["metadata"].as_str().unwrap()).unwrap();
+                assert_eq!(metadata["roomOutcome"]["rounds"], 1);
+            } else {
+                assert_eq!(event, RoomEvent::Finished { outcome });
+                assert_eq!(
+                    db.query("SELECT finish_reason FROM turns", &[])
+                        .await
+                        .unwrap(),
+                    vec![vec!["room-finished".into()]]
+                );
+            }
+            db.close().await;
+        }
     }
 }

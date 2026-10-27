@@ -298,6 +298,9 @@ using_tool = "Using: {title}"
 asks = "{agent} asks:"
 refuse = "Don't allow"
 stop = "Stop"
+retained_answer = "Retained answer"
+retained_note = "This copy stays here until dismissed. Check the error for whether history was saved. Copy anything you need before closing this window."
+dismiss_retained = "Dismiss copy"
 
 # ─────────────────────────────────────────────────────────────────────
 # Routes — one name per route folder, keyed by its URL path (plan 0008).

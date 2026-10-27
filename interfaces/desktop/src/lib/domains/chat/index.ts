@@ -7,6 +7,7 @@ export { chatState } from "./data-access/chat.state.svelte.js";
 export { sessionsState } from "./data-access/sessions.state.svelte.js";
 export { ChatRoot } from "./feature/index.js";
 export { AgentTurn, type AgentTurnProps } from "./ui/agent-turn/index.js";
+export { FailedTurn, type FailedTurnProps } from "./ui/failed-turn/index.js";
 export { SessionRow, type SessionRowProps } from "./ui/session-row/index.js";
 export type {
 	BlockChatMessage,

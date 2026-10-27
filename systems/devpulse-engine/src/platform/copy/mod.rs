@@ -428,6 +428,12 @@ pub struct AgentChatCopy {
     pub refuse: String,
     /// Button: stop the running turn.
     pub stop: String,
+    /// A copy retained when an agent's turn fails.
+    pub retained_answer: String,
+    /// Explains that the copy is not proof of a durable history write.
+    pub retained_note: String,
+    /// Dismiss the in-window copy, without deleting a recovery file.
+    pub dismiss_retained: String,
 }
 
 /// The chat.

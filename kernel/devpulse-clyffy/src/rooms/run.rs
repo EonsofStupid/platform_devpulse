@@ -43,7 +43,7 @@ pub trait RoomHost: Send + Sync {
     /// returns the whole answer.
     async fn ask(&self, place: &Place, prompt: &str) -> Result<String>;
     /// A finished turn, for the host to keep.
-    async fn record(&self, turn: &RoomTurn);
+    async fn record(&self, turn: &RoomTurn) -> Result<()>;
 }
 
 /// One finished turn of a place.
@@ -162,7 +162,9 @@ impl RoomRun {
     }
 
     /// Run the room on one question.
-    pub async fn ask(&mut self, question: &str, host: &dyn RoomHost) -> Outcome {
+    /// # Errors
+    /// Stops before the next phase if a completed turn cannot be kept.
+    pub async fn ask(&mut self, question: &str, host: &dyn RoomHost) -> Result<Outcome> {
         let room = self.seated.room.clone();
         let selection_phase = room.selection.as_ref().and_then(|selection| {
             room.phases
@@ -184,7 +186,7 @@ impl RoomRun {
                 {
                     continue;
                 }
-                self.phase(phase, round, question, &mut log, host).await;
+                self.phase(phase, round, question, &mut log, host).await?;
             }
             if log.turns.len() == before {
                 break;
@@ -214,11 +216,11 @@ impl RoomRun {
                 let phase = &room.phases[index];
                 let start = log.turns.len();
                 self.phase(phase, outcome.rounds.max(1), question, &mut log, host)
-                    .await;
+                    .await?;
                 pick(&log.turns, &log.turns[start..], selection)
             });
         }
-        outcome
+        Ok(outcome)
     }
 
     /// One phase of one round.
@@ -229,7 +231,7 @@ impl RoomRun {
         question: &str,
         log: &mut Log,
         host: &dyn RoomHost,
-    ) {
+    ) -> Result<()> {
         let places: Vec<Place> = phase
             .seats
             .iter()
@@ -251,19 +253,28 @@ impl RoomRun {
                             .map(|(place, prompt)| host.ask(place, prompt)),
                     )
                     .await;
+                    let mut failures = Vec::new();
                     for (place, answer) in places.iter().zip(answers) {
-                        finish(place, phase, round, answer, log, host).await;
+                        // All these answers already exist. A failed write must
+                        // not discard the other places' completed work.
+                        if let Err(error) = finish(place, phase, round, answer, log, host).await {
+                            failures.push(format!("{}: {error:#}", place.key()));
+                        }
+                    }
+                    if !failures.is_empty() {
+                        anyhow::bail!("{}", failures.join("\n"));
                     }
                 }
                 PhaseMode::Sequential => {
                     for place in &places {
                         let prompt = self.prompt(place, phase, round, question, log);
                         let answer = host.ask(place, &prompt).await;
-                        finish(place, phase, round, answer, log, host).await;
+                        finish(place, phase, round, answer, log, host).await?;
                     }
                 }
             }
         }
+        Ok(())
     }
 
     /// What a place is told on its turn.
@@ -374,7 +385,7 @@ async fn finish(
     answer: Result<String>,
     log: &mut Log,
     host: &dyn RoomHost,
-) {
+) -> Result<()> {
     let (text, failed) = match answer {
         Ok(text) => (text, None),
         Err(e) => (String::new(), Some(format!("{e:#}"))),
@@ -406,8 +417,9 @@ async fn finish(
         contract_problem,
         failed,
     };
-    host.record(&turn).await;
+    let saved = host.record(&turn).await;
     log.turns.push(turn);
+    saved
 }
 
 /// `0` → `A`, `25` → `Z`, `26` → `AA`.
@@ -656,8 +668,9 @@ mod tests {
             (self.answer)(&key, n)
         }
 
-        async fn record(&self, turn: &RoomTurn) {
+        async fn record(&self, turn: &RoomTurn) -> Result<()> {
             self.recorded.lock().unwrap().push(turn.clone());
+            Ok(())
         }
     }
 
@@ -682,6 +695,54 @@ mod tests {
         RoomRun::new(seat(&Library::bundled(), "council", &seating).expect("seated"))
     }
 
+    struct StorageFailure {
+        asked: Mutex<Vec<String>>,
+        retained: Mutex<Vec<String>>,
+    }
+
+    #[async_trait]
+    impl RoomHost for StorageFailure {
+        async fn ask(&self, place: &Place, _prompt: &str) -> Result<String> {
+            self.asked.lock().unwrap().push(place.key());
+            Ok(expert(&place.key()))
+        }
+        async fn record(&self, turn: &RoomTurn) -> Result<()> {
+            self.retained.lock().unwrap().push(turn.text.clone());
+            anyhow::bail!("storage unavailable; recovery copy: {}.json", turn.place)
+        }
+    }
+
+    #[tokio::test]
+    async fn a_failed_parallel_write_retains_all_produced_answers_and_never_asks_the_selector() {
+        let host = StorageFailure {
+            asked: Mutex::new(Vec::new()),
+            retained: Mutex::new(Vec::new()),
+        };
+        let error = council().ask("Q?", &host).await.unwrap_err();
+        assert!(error.to_string().contains("storage unavailable"));
+        for place in ["answerer-1", "answerer-2", "answerer-3"] {
+            assert!(error.to_string().contains(&format!("{place}.json")));
+        }
+        assert_eq!(
+            *host.asked.lock().unwrap(),
+            ["answerer-1", "answerer-2", "answerer-3"]
+        );
+        assert_eq!(host.retained.lock().unwrap().len(), 3);
+    }
+
+    #[tokio::test]
+    async fn a_failed_sequential_write_stops_before_the_next_place() {
+        let mut run = council();
+        run.seated.room.phases[0].mode = PhaseMode::Sequential;
+        let host = StorageFailure {
+            asked: Mutex::new(Vec::new()),
+            retained: Mutex::new(Vec::new()),
+        };
+        assert!(run.ask("Q?", &host).await.is_err());
+        assert_eq!(*host.asked.lock().unwrap(), ["answerer-1"]);
+        assert_eq!(host.retained.lock().unwrap().len(), 1);
+    }
+
     fn expert(answer: &str) -> String {
         json(&serde_json::json!({"answer": answer, "confidence": 0.8, "out_of_domain": false}))
     }
@@ -703,7 +764,10 @@ mod tests {
             })
         });
         let mut run = council();
-        let outcome = run.ask("What is the capital of France?", &host).await;
+        let outcome = run
+            .ask("What is the capital of France?", &host)
+            .await
+            .unwrap();
 
         assert_eq!(outcome.rounds, 1);
         let pick = outcome.pick.expect("a pick");
@@ -748,7 +812,12 @@ mod tests {
                 expert("Paris")
             })
         });
-        let pick = council().ask("Q?", &host).await.pick.expect("a pick");
+        let pick = council()
+            .ask("Q?", &host)
+            .await
+            .unwrap()
+            .pick
+            .expect("a pick");
         assert_eq!(pick.winner, None);
         assert!(
             pick.problem
@@ -766,7 +835,7 @@ mod tests {
             "selector-1" => Ok(selector("B")),
             _ => Ok(expert("Paris")),
         });
-        let outcome = council().ask("Q?", &host).await;
+        let outcome = council().ask("Q?", &host).await.unwrap();
         let recorded = host.recorded.lock().unwrap().clone();
         let failed = recorded.iter().find(|t| t.place == "answerer-2").unwrap();
         assert_eq!(failed.failed.as_deref(), Some("not signed in"));
@@ -803,7 +872,7 @@ mod tests {
                 }))
             })
         });
-        let outcome = run.ask("Tabs or spaces?", &host).await;
+        let outcome = run.ask("Tabs or spaces?", &host).await.unwrap();
         assert_eq!(outcome.stopped, Stopped::Stable);
         assert_eq!(outcome.rounds, 2);
         assert_eq!(
@@ -846,7 +915,7 @@ mod tests {
                 _ => selector("B"),
             })
         });
-        let outcome = run.ask("Write a tagline.", &host).await;
+        let outcome = run.ask("Write a tagline.", &host).await.unwrap();
         assert_eq!(outcome.stopped, Stopped::Passed);
         assert_eq!(outcome.rounds, 2);
         let pick = outcome.pick.expect("a pick");

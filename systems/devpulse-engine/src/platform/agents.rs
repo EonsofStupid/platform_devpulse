@@ -26,6 +26,8 @@ use uuid::Uuid;
 use super::projects::Projects;
 use super::providers::{Providers, SignedIn};
 
+pub(super) mod recovery;
+
 /// A thread with one of your agents.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Type)]
 #[serde(rename_all = "camelCase")]
@@ -59,6 +61,8 @@ pub struct Agents {
     projects: Option<Arc<Projects>>,
     /// The live conversation of each thread that has one, by session id.
     live: Mutex<HashMap<String, Arc<AgentSession>>>,
+    /// A turn owns its thread until dispatch and persistence have both ended.
+    turns: Mutex<HashMap<String, Arc<Mutex<()>>>>,
 }
 
 impl Agents {
@@ -76,6 +80,7 @@ impl Agents {
             providers,
             projects,
             live: Mutex::new(HashMap::new()),
+            turns: Mutex::new(HashMap::new()),
         }
     }
 
@@ -296,9 +301,18 @@ impl Agents {
             bail!("the message is empty");
         }
         let record = self.record(session_id).await?;
+        let gate = self
+            .turns
+            .lock()
+            .await
+            .entry(session_id.to_owned())
+            .or_default()
+            .clone();
+        let active = gate
+            .try_lock_owned()
+            .map_err(|_| anyhow!("the agent is still answering"))?;
         let session = self.live_session(session_id, &record).await?;
-        let mut events = session.prompt(text).await?;
-        save_turn(
+        let mut events = persist_before_dispatch(
             &self.db,
             session_id,
             &record.project_id,
@@ -311,14 +325,17 @@ impl Agents {
                 latency_ms: None,
                 metadata: None,
             },
+            || session.prompt(text),
         )
         .await?;
 
         let (out, receiver) = mpsc::unbounded_channel();
         let db = Arc::clone(&self.db);
+        let data_dir = self.data_dir.clone();
         let session_id = session_id.to_owned();
         let started = Instant::now();
         devpulse_telemetry::spawn(async move {
+            let _active = active;
             let mut answer = String::new();
             let mut stop = String::from("end_turn");
             let mut ending = None;
@@ -346,38 +363,31 @@ impl Agents {
                 "failed".clone_into(&mut stop);
             }
             let latency = i64::try_from(started.elapsed().as_millis()).unwrap_or(i64::MAX);
-            if let Err(e) = save_turn(
+            let token = session.resume_token().await;
+            let continuation = ResumeUpdate::Agent(token.as_deref());
+            let turn = TurnRow {
+                role: "assistant",
+                token_count: None,
+                content: &answer,
+                model_used: Some(record.provider_id.key()),
+                finish_reason: Some(&stop),
+                latency_ms: Some(latency),
+                metadata: None,
+            };
+            let ending = ending.unwrap_or(AgentEvent::Failed {
+                message: "the agent stopped without ending its turn".to_owned(),
+            });
+            let event = complete_turn(
                 &db,
+                &data_dir,
                 &session_id,
                 &record.project_id,
-                &TurnRow {
-                    role: "assistant",
-                    token_count: None,
-                    content: &answer,
-                    model_used: Some(record.provider_id.key()),
-                    finish_reason: Some(&stop),
-                    latency_ms: Some(latency),
-                    metadata: None,
-                },
+                &turn,
+                &continuation,
+                ending,
             )
-            .await
-            {
-                tracing::warn!(target: "agents", %session_id, error = %format!("{e:#}"), "the answer was not saved");
-            }
-            if let Some(token) = session.resume_token().await {
-                let saved = db
-                    .execute(
-                        "UPDATE agenthub_threads SET resume_token = ? WHERE session_id = ?",
-                        &[token.as_str().into(), session_id.as_str().into()],
-                    )
-                    .await;
-                if let Err(e) = saved {
-                    tracing::warn!(target: "agents", %session_id, error = %e, "the conversation token was not saved");
-                }
-            }
-            let _ = out.send(ending.unwrap_or(AgentEvent::Failed {
-                message: "the agent stopped without ending its turn".to_owned(),
-            }));
+            .await;
+            let _ = out.send(event);
         });
         Ok(receiver)
     }
@@ -434,6 +444,7 @@ pub(super) fn parse_provider(key: &str) -> Option<ProviderId> {
 }
 
 /// One side of a turn, as the chat's `turns` table keeps it.
+#[derive(Serialize)]
 pub struct TurnRow<'a> {
     /// The speaker: user, assistant or system.
     pub role: &'a str,
@@ -461,9 +472,26 @@ pub async fn save_turn(
     project_id: &str,
     turn: &TurnRow<'_>,
 ) -> Result<String> {
+    save_turn_with_continuation(db, session_id, project_id, turn, None).await
+}
+
+/// Continuation state committed with the answer, never independently of it.
+#[derive(Serialize)]
+pub(super) enum ResumeUpdate<'a> {
+    Agent(Option<&'a str>),
+    Room(&'a str),
+}
+
+pub(super) async fn save_turn_with_continuation(
+    db: &TursoAdapter,
+    session_id: &str,
+    project_id: &str,
+    turn: &TurnRow<'_>,
+    continuation: Option<&ResumeUpdate<'_>>,
+) -> Result<String> {
     let id = format!("turn-{}", Uuid::new_v4());
     let optional_text = |v: Option<&str>| v.map_or(SqlValue::Null, SqlValue::from);
-    db.write_atomic(&[(
+    let mut writes = vec![(
         "INSERT INTO turns (id, session_id, project_id, role, content, sequence_num, model_used, \
          finish_reason, latency_ms, metadata, token_count) \
          SELECT ?, s.id, s.project_id, ?, ?, \
@@ -485,10 +513,67 @@ pub async fn save_turn(
         "UPDATE sessions SET updated_at = unixepoch(), interaction_count = interaction_count + 1 \
          WHERE id = ?",
         vec![session_id.into()],
-    )])
-    .await
-    .context("save the turn and update its thread")?;
+    )];
+    if let Some(continuation) = continuation {
+        let (query, value) = match continuation {
+            ResumeUpdate::Agent(token) => (
+                "UPDATE agenthub_threads SET resume_token = COALESCE(?, resume_token) WHERE session_id = ?",
+                optional_text(*token),
+            ),
+            ResumeUpdate::Room(tokens) => (
+                "UPDATE agenthub_room_threads SET resume_tokens = ? WHERE session_id = ?",
+                SqlValue::from(*tokens),
+            ),
+        };
+        writes.push((query, vec![value, session_id.into()]));
+    }
+    db.write_atomic(&writes)
+        .await
+        .context("save the turn and update its thread")?;
     Ok(id)
+}
+
+async fn complete_turn(
+    db: &TursoAdapter,
+    data_dir: &Path,
+    session_id: &str,
+    project_id: &str,
+    turn: &TurnRow<'_>,
+    continuation: &ResumeUpdate<'_>,
+    ending: AgentEvent,
+) -> AgentEvent {
+    match save_turn_with_continuation(db, session_id, project_id, turn, Some(continuation)).await {
+        Ok(_) => ending,
+        Err(error) => {
+            tracing::warn!(target: "agents", %session_id, error = %format!("{error:#}"), "the answer was not saved");
+            AgentEvent::Failed {
+                message: recovery::retain(
+                    data_dir,
+                    session_id,
+                    project_id,
+                    turn,
+                    Some(continuation),
+                    &error,
+                )
+                .await,
+            }
+        }
+    }
+}
+
+async fn persist_before_dispatch<T, F, Fut>(
+    db: &TursoAdapter,
+    session_id: &str,
+    project_id: &str,
+    turn: &TurnRow<'_>,
+    dispatch: F,
+) -> Result<T>
+where
+    F: FnOnce() -> Fut,
+    Fut: std::future::Future<Output = Result<T>>,
+{
+    save_turn(db, session_id, project_id, turn).await?;
+    dispatch().await
 }
 
 #[cfg(test)]
@@ -526,6 +611,169 @@ mod tests {
             latency_ms: None,
             metadata: None,
         }
+    }
+
+    #[tokio::test]
+    async fn dispatch_waits_for_the_saved_prompt_and_never_runs_on_write_failure() {
+        let (_tree, db) = turn_fixture(1).await;
+        let result = persist_before_dispatch(&db, "s", "p", &user_turn("hello"), || async {
+            assert_eq!(
+                db.query("SELECT content FROM turns", &[]).await.unwrap(),
+                vec![vec!["hello".into()]]
+            );
+            Ok(42)
+        })
+        .await
+        .unwrap();
+        assert_eq!(result, 42);
+        let dispatched = std::sync::atomic::AtomicBool::new(false);
+        let result = persist_before_dispatch(&db, "s", "p", &user_turn("next"), || async {
+            dispatched.store(true, std::sync::atomic::Ordering::SeqCst);
+            Ok(())
+        })
+        .await;
+        assert!(result.is_err());
+        assert!(!dispatched.load(std::sync::atomic::Ordering::SeqCst));
+        db.close().await;
+    }
+
+    #[tokio::test]
+    async fn continuation_answer_and_counter_commit_together_or_all_roll_back() {
+        for (table, column, room) in [
+            ("agenthub_threads", "resume_token", false),
+            ("agenthub_room_threads", "resume_tokens", true),
+        ] {
+            let (_tree, db) = turn_fixture(3).await;
+            db.execute(&format!("CREATE TABLE {table} (session_id TEXT PRIMARY KEY, {column} TEXT CHECK({column} != 'reject'))"), &[]).await.unwrap();
+            db.execute(&format!("INSERT INTO {table} VALUES ('s', 'old')"), &[])
+                .await
+                .unwrap();
+            for (content, token) in [("answer", "reject"), ("reject", "new")] {
+                let update = if room {
+                    ResumeUpdate::Room(token)
+                } else {
+                    ResumeUpdate::Agent(Some(token))
+                };
+                assert!(save_turn_with_continuation(
+                    &db,
+                    "s",
+                    "p",
+                    &user_turn(content),
+                    Some(&update)
+                )
+                .await
+                .is_err());
+                assert!(db
+                    .query("SELECT id FROM turns", &[])
+                    .await
+                    .unwrap()
+                    .is_empty());
+                assert_eq!(
+                    db.query("SELECT interaction_count FROM sessions", &[])
+                        .await
+                        .unwrap(),
+                    vec![vec![0.into()]]
+                );
+                assert_eq!(
+                    db.query(&format!("SELECT {column} FROM {table}"), &[])
+                        .await
+                        .unwrap(),
+                    vec![vec!["old".into()]]
+                );
+            }
+            let update = if room {
+                ResumeUpdate::Room("new")
+            } else {
+                ResumeUpdate::Agent(Some("new"))
+            };
+            save_turn_with_continuation(&db, "s", "p", &user_turn("answer"), Some(&update))
+                .await
+                .unwrap();
+            assert_eq!(
+                db.query(&format!("SELECT {column} FROM {table}"), &[])
+                    .await
+                    .unwrap(),
+                vec![vec!["new".into()]]
+            );
+            assert_eq!(
+                db.query("SELECT interaction_count FROM sessions", &[])
+                    .await
+                    .unwrap(),
+                vec![vec![1.into()]]
+            );
+            db.execute(&format!("DELETE FROM {table}"), &[])
+                .await
+                .unwrap();
+            assert!(save_turn_with_continuation(
+                &db,
+                "s",
+                "p",
+                &user_turn("orphan"),
+                Some(&update)
+            )
+            .await
+            .is_err());
+            assert_eq!(
+                db.query("SELECT COUNT(*) FROM turns", &[]).await.unwrap(),
+                vec![vec![1.into()]]
+            );
+            db.close().await;
+        }
+    }
+
+    #[tokio::test]
+    async fn failed_completion_sends_failure_and_retains_the_exact_answer_and_token() {
+        let (tree, db) = turn_fixture(3).await;
+        db.execute("CREATE TABLE agenthub_threads (session_id TEXT PRIMARY KEY, resume_token TEXT CHECK(resume_token != 'reject'))", &[]).await.unwrap();
+        db.execute("INSERT INTO agenthub_threads VALUES ('s', 'old')", &[])
+            .await
+            .unwrap();
+        let ended = AgentEvent::TurnEnded {
+            stop: "end_turn".into(),
+        };
+        let event = complete_turn(
+            &db,
+            tree.path(),
+            "s",
+            "p",
+            &user_turn("complete answer"),
+            &ResumeUpdate::Agent(Some("reject")),
+            ended.clone(),
+        )
+        .await;
+        let AgentEvent::Failed { message } = event else {
+            panic!("unsaved answer reported success")
+        };
+        assert!(message.contains("Recovery copy:"));
+        let path = std::fs::read_dir(tree.path().join("agenthub/recovery"))
+            .unwrap()
+            .next()
+            .unwrap()
+            .unwrap()
+            .path();
+        let document: serde_json::Value =
+            serde_json::from_slice(&std::fs::read(path).unwrap()).unwrap();
+        assert_eq!(document["turn"]["content"], "complete answer");
+        assert_eq!(document["continuation"]["Agent"], "reject");
+        assert!(db
+            .query("SELECT id FROM turns", &[])
+            .await
+            .unwrap()
+            .is_empty());
+        assert_eq!(
+            complete_turn(
+                &db,
+                tree.path(),
+                "s",
+                "p",
+                &user_turn("answer"),
+                &ResumeUpdate::Agent(Some("new")),
+                ended.clone()
+            )
+            .await,
+            ended
+        );
+        db.close().await;
     }
 
     #[tokio::test]
