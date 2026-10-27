@@ -6,6 +6,7 @@ pub mod sessions;
 pub mod suggest;
 
 use crate::state::PlatformState;
+use devpulse_engine::platform::agents::{save_turn, TurnRow};
 use devpulse_engine::platform::SqlAdapter;
 use serde::{Deserialize, Serialize};
 use specta::Type;
@@ -151,49 +152,26 @@ pub async fn send_message(
         new_id
     };
 
-    let seq_rows = adapter
-        .query(
-            "SELECT COALESCE(MAX(sequence_num), 0) + 1 AS next_seq FROM turns WHERE session_id = ?",
-            &[session_id.as_str().into()],
-        )
-        .await
-        .map_err(|e| format!("Failed to read sequence: {e}"))?;
-    let sequence_num = seq_rows
-        .first()
-        .and_then(|r| r.first())
-        .and_then(devpulse_engine::platform::SqlValue::as_integer)
-        .unwrap_or(1);
-
-    let turn_id = format!("turn-{}", Uuid::new_v4());
     let trimmed = content.trim();
     if trimmed.is_empty() {
         return Err("Message content is empty".to_string());
     }
-    let body = trimmed.to_string();
-
-    adapter
-        .execute(
-            "INSERT INTO turns (id, session_id, project_id, role, content, sequence_num, \
-			 token_count, model_used, latency_ms) VALUES (?, ?, ?, 'user', ?, ?, NULL, NULL, NULL)",
-            &[
-                turn_id.as_str().into(),
-                session_id.as_str().into(),
-                project_id.as_str().into(),
-                body.into(),
-                sequence_num.into(),
-            ],
-        )
-        .await
-        .map_err(|e| format!("Failed to insert turn: {e}"))?;
-
-    adapter
-		.execute(
-			"UPDATE sessions SET updated_at = unixepoch(), interaction_count = interaction_count + 1 \
-			 WHERE id = ?",
-			&[session_id.as_str().into()],
-		)
-		.await
-		.map_err(|e| format!("Failed to touch session: {e}"))?;
+    let turn_id = save_turn(
+        adapter,
+        &session_id,
+        &project_id,
+        &TurnRow {
+            role: "user",
+            content: trimmed,
+            token_count: None,
+            model_used: None,
+            finish_reason: None,
+            latency_ms: None,
+            metadata: None,
+        },
+    )
+    .await
+    .map_err(|e| format!("Failed to save user turn: {e:#}"))?;
 
     let created_rows = adapter
 		.query(
@@ -289,47 +267,22 @@ pub async fn store_assistant_turn(
         .ok_or("The user database is not open (see the boot log)")?;
     let adapter = svc.adapter();
 
-    let seq_rows = adapter
-        .query(
-            "SELECT COALESCE(MAX(sequence_num), 0) + 1 AS next_seq FROM turns WHERE session_id = ?",
-            &[session_id.as_str().into()],
-        )
-        .await
-        .map_err(|e| format!("Failed to read sequence: {e}"))?;
-    let sequence_num = seq_rows
-        .first()
-        .and_then(|r| r.first())
-        .and_then(devpulse_engine::platform::SqlValue::as_integer)
-        .unwrap_or(1);
-
-    let turn_id = format!("turn-{}", Uuid::new_v4());
-
-    adapter
-        .execute(
-            "INSERT INTO turns (id, session_id, project_id, role, content, sequence_num, \
-			 token_count, model_used, latency_ms) VALUES (?, ?, ?, 'assistant', ?, ?, ?, ?, ?)",
-            &[
-                turn_id.as_str().into(),
-                session_id.as_str().into(),
-                project_id.as_str().into(),
-                content.as_str().into(),
-                sequence_num.into(),
-                token_count.into(),
-                model_used.as_str().into(),
-                latency_ms.into(),
-            ],
-        )
-        .await
-        .map_err(|e| format!("Failed to insert assistant turn: {e}"))?;
-
-    adapter
-		.execute(
-			"UPDATE sessions SET updated_at = unixepoch(), interaction_count = interaction_count + 1 \
-			 WHERE id = ?",
-			&[session_id.as_str().into()],
-		)
-		.await
-		.map_err(|e| format!("Failed to touch session: {e}"))?;
+    let turn_id = save_turn(
+        adapter,
+        &session_id,
+        &project_id,
+        &TurnRow {
+            role: "assistant",
+            content: &content,
+            token_count: Some(token_count),
+            model_used: Some(&model_used),
+            finish_reason: None,
+            latency_ms: Some(latency_ms),
+            metadata: None,
+        },
+    )
+    .await
+    .map_err(|e| format!("Failed to save assistant turn: {e:#}"))?;
 
     let created_rows = adapter
 		.query(

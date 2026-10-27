@@ -195,29 +195,28 @@ impl Rooms {
         }
         let session_id = format!("sess-{}", Uuid::new_v4());
         let title = seated.room.name.clone();
-        self.sql()
-            .execute(
-                "INSERT INTO sessions (id, project_id, title, is_active) VALUES (?, ?, ?, 1)",
-                &[
-                    session_id.as_str().into(),
-                    project_id.into(),
-                    title.as_str().into(),
-                ],
-            )
-            .await
-            .context("create the room's session")?;
         let seating_json = serde_json::to_string(&seating).context("write the seating")?;
-        self.sql()
-            .execute(
-                "INSERT INTO room_threads (session_id, room_id, seating) VALUES (?, ?, ?)",
-                &[
-                    session_id.as_str().into(),
-                    room_id.into(),
-                    seating_json.as_str().into(),
-                ],
-            )
+        self.db
+            .write_atomic(&[
+                (
+                    "INSERT INTO sessions (id, project_id, title, is_active) VALUES (?, ?, ?, 1)",
+                    vec![
+                        session_id.as_str().into(),
+                        project_id.into(),
+                        title.as_str().into(),
+                    ],
+                ),
+                (
+                    "INSERT INTO room_threads (session_id, room_id, seating) VALUES (?, ?, ?)",
+                    vec![
+                        session_id.as_str().into(),
+                        room_id.into(),
+                        seating_json.as_str().into(),
+                    ],
+                ),
+            ])
             .await
-            .context("record the room's seating")?;
+            .context("create the room and its seating")?;
         tracing::info!(target: "rooms", %session_id, room = room_id, places = seated.places.len(), "room opened");
         Ok(RoomThread {
             session_id,
@@ -307,6 +306,7 @@ impl Rooms {
             &room.project_id,
             &TurnRow {
                 role: "user",
+                token_count: None,
                 content: &question,
                 model_used: None,
                 finish_reason: None,
@@ -428,6 +428,7 @@ impl Host {
             &self.room.project_id,
             &TurnRow {
                 role: "system",
+                token_count: None,
                 content: "",
                 model_used: None,
                 finish_reason: Some("room-finished"),
@@ -524,6 +525,7 @@ impl RoomHost for Host {
             &self.room.project_id,
             &TurnRow {
                 role: "assistant",
+                token_count: None,
                 content: &content,
                 model_used: Some(turn.provider.key()),
                 finish_reason: Some(if turn.failed.is_some() {

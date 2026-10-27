@@ -105,6 +105,46 @@ impl TursoAdapter {
         Ok(conn)
     }
 
+    /// Commit a logical write made of parameterized, single-row mutations.
+    /// All statements run on one connection under an immediate writer lock.
+    /// A missing target row is a failure, just like a constraint violation.
+    ///
+    /// # Errors
+    /// Rolls back when any statement fails or affects other than one row.
+    /// Connection and commit failures are returned to the caller.
+    pub async fn write_atomic(&self, statements: &[(&str, Vec<SqlValue>)]) -> Result<()> {
+        let mut connection = self.connect()?;
+        let transaction = connection
+            .transaction_with_behavior(turso::transaction::TransactionBehavior::Immediate)
+            .await
+            .context("begin atomic write")?;
+        let writes: Result<()> = async {
+            for (index, (sql, params)) in statements.iter().enumerate() {
+                let values: Vec<_> = params.iter().map(to_turso_value).collect();
+                let affected = transaction
+                    .execute(sql, values)
+                    .await
+                    .with_context(|| format!("atomic write statement {}", index + 1))?;
+                if affected != 1 {
+                    bail!(
+                        "atomic write statement {} affected {affected} rows; expected one",
+                        index + 1
+                    );
+                }
+            }
+            Ok(())
+        }
+        .await;
+        if let Err(error) = writes {
+            transaction
+                .rollback()
+                .await
+                .context("roll back failed atomic write")?;
+            return Err(error);
+        }
+        transaction.commit().await.context("commit atomic write")
+    }
+
     /// Graceful shutdown — checkpoint the WAL so the data is in the main
     /// database file and the next process opens a clean state.
     pub async fn close(&self) {
@@ -305,6 +345,56 @@ CREATE TABLE IF NOT EXISTS platform_config (
             .join(format!("devpulse-turso-test-{nanos}"))
             .join("nested")
             .join("test.db")
+    }
+
+    #[tokio::test]
+    async fn atomic_writes_rollback_on_each_statement_failure_or_missing_row() {
+        let path = unique_test_path();
+        let db =
+            TursoAdapter::open_with_schema(&path, MINIMAL_TEST_SCHEMA, TursoOptions::default())
+                .await
+                .unwrap();
+        for failed in 0..2 {
+            let statements: Vec<_> = (0..2).map(|i| (
+                if i == failed { "INSERT INTO missing_table VALUES (?)" }
+                else { "INSERT INTO platform_config (key, value, category) VALUES (?, 'v', 'test')" },
+                vec![format!("row-{i}").into()],
+            )).collect();
+            assert!(db.write_atomic(&statements).await.is_err());
+            assert!(db
+                .query("SELECT key FROM platform_config", &[])
+                .await
+                .unwrap()
+                .is_empty());
+        }
+        assert!(db.write_atomic(&[
+            ("INSERT INTO platform_config (key, value, category) VALUES ('first', 'v', 'test')", vec![]),
+            ("UPDATE platform_config SET value = 'v2' WHERE key = 'missing'", vec![]),
+        ]).await.is_err());
+        assert!(db
+            .query("SELECT key FROM platform_config", &[])
+            .await
+            .unwrap()
+            .is_empty());
+        db.write_atomic(&[
+            (
+                "INSERT INTO platform_config (key, value, category) VALUES ('first', 'v', 'test')",
+                vec![],
+            ),
+            (
+                "UPDATE platform_config SET value = 'v2' WHERE key = 'first'",
+                vec![],
+            ),
+        ])
+        .await
+        .unwrap();
+        assert_eq!(
+            db.query("SELECT value FROM platform_config", &[])
+                .await
+                .unwrap(),
+            vec![vec![SqlValue::from("v2")]]
+        );
+        db.close().await;
     }
 
     #[tokio::test]

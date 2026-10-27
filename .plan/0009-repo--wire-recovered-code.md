@@ -8,7 +8,7 @@ touches: [kernel-clyffy, engine, desktop, desktop-coldlight]
 status: in-progress
 owner: Jesse Hades Hall
 created: 2026-10-24
-updated: 2026-10-26
+updated: 2026-10-27
 supersedes: []
 specs:
   - CLAUDE.md
@@ -214,13 +214,13 @@ owners. Do not build another execution stack inside the board.
 | Priority | Finding and concrete trigger | Direct fix and acceptance evidence |
 | --- | --- | --- |
 | P1 fixed | **A stale card could open another source's transcript.** `history/mod.rs::locator_for` hashed provider plus relative filename only. Changing a history root to another directory containing the same filename reused the locator. The strengthened engine regression reproduced the collision before the fix. | The existing locator now includes canonical source identity. Regression coverage checks identical filenames in two roots, rejection of the old locator after switching roots, distinct session/event ids, and stable identity when reopening the same source. A future persisted board needs an explicit durable card identity; do not treat a path locator as a portable logical-session id. No legacy locator fallback. |
-| P1 | **ACP continuation silently starts fresh.** `providers/session/mod.rs::AgentSession::start` ignores `resume` on the ACP branch; `session/acp.rs::run` always calls `build_session`. Already acknowledged in plan 0001 B3.3's log, but it blocks R3b.6 and loses agent context after restart today. | Pass the saved id through the active ACP path, use the installed SDK's capability-checked `session/load` or `session/resume`, and return a clear error when restoration is unsupported or fails. Never silently fall back to `session/new`. Test restart continuity, unsupported capability, failed load, and replay not being appended as a new answer. |
+| P1 fixed | **ACP continuation silently started fresh.** The ACP branch discarded the saved resume token. | The active transport now restores the saved id with advertised `session/resume`, or `session/load` when resume is not supported. Unsupported and refused restores fail explicitly without creating a new session. Ordered load replay is drained before readiness. Five SDK protocol-peer regressions verify identity/workspace, subsequent prompting, failed/unsupported restoration and replay exclusion. Vendor-to-DevPulse continuation still needs live verification before R3b.6 is complete. |
 | P1 | **Successful completion does not mean saved completion.** `platform/agents.rs::prompt` logs answer/token write failures and still sends the original terminal event; `platform/rooms.rs::Host::finish` sends `Finished` after a failed save, and `RoomHost::record` cannot return an error. An agent prompt also starts before saving the user turn. | Make persistence failure observable through the existing execution contracts, preserve the answer for recovery, and prevent untracked execution if the initiating turn cannot be stored. Inject failures before dispatch, while saving an answer/token, and while saving a room outcome; no successful persisted-state claim may escape. |
-| P1 | **Turn order and thread creation are not atomic.** `platform/agents.rs::save_turn` reads `MAX(sequence_num) + 1`, inserts the turn and updates the session through separate operations/connections. `Agents::start_thread` and `Rooms::start` insert the session and subtype separately. Concurrent writes can share a sequence; partial writes can leave incomplete records. | Use one connection and transaction per logical write in the existing Turso owner, with atomic order allocation. Test simultaneous writes and rollback after each failing statement. Do not issue transaction boundaries through separate `SqlAdapter` calls, and do not delete user databases as a repair. |
+| P1 fixed | **Turn order and thread creation were not atomic.** Separate reads/writes could reuse sequence numbers or leave incomplete threads. | The existing Turso adapter now commits parameterized single-row mutations on one connection under an immediate writer lock, checking affected rows and rolling back failures. Agent and room creation use it; turn order is allocated inside the insert, with the session counter in the same transaction. Regressions verify 16 concurrent turns, first/second-statement failures, missing sessions and wrong-project writes. No database reset or compatibility path. |
 | P1 | **Live truth belongs to the engine, but currently exists only as transient events and one window's turn.** `agents.state.svelte.ts` has a single `turn`, subscribes when prompting, and ignores other session ids. Neither `Agents` nor `Rooms` exposes the required working/waiting/idle snapshot. Permission timeout/removal has no resolution event. A newly opened window cannot reconstruct an ongoing turn or waiting permission. | R3b.2 must add authoritative per-conversation state and pending requests in the existing engine owners, plus a snapshot and revisioned changes. Test two active threads, room seats, opening/reloading a second window, permission answer/timeout, cancellation and disconnect. Derive badges from this state, independently of saved card placement. |
 | P1 fixed | **An unavailable project silently changed where tools ran.** `Agents::folder` substituted `data_dir/tools/ask` for a missing project or project-state read error; `conversation` created its working directory. Tool-enabled room seats used the same path. | `Projects::workspace` now requires a live project and an existing absolute directory, propagating database errors. Agent and room startup propagate that refusal; only an explicitly talk-only place may create its isolated folder. Five regressions cover missing/removed/restored projects, missing/non-directory/relative paths, database failure, and startup that never recreates a missing tool workspace. |
-| P2 | **Late loads can replace the selected conversation.** `chat.state.svelte.ts::loadActive` and `agents.state.svelte.ts::refresh` assign their response without checking whether the selected session/project changed while awaiting it. | Guard responses by request generation and selection identity in the existing stores. Test A-to-B switching with A's slower response arriving last, including errors/loading flags. |
-| Required delivery | **The board is not yet an available product surface.** Only generated bindings reference `agenthubSessions`/`agenthubSessionPage` in the frontend. There is no `domains/agenthub`, route, `board_cards` schema or ColdLight `board-column`; room commands likewise have no frontend consumers. Parent metadata is absent from the index/DTO, despite Codex recognizing sub-agents for titles. | Finish parent identity and R3b.2 first, then the Turso board and its own page using ColdLight card/status/badge plus the new column. Connect read-only paging, keyboard moves, manual placement persistence and chat links. Only enable Continue after the continuity and workspace checks above pass. Verify the real user journey, not just generated commands. |
+| P2 fixed | **Late loads could replace the selected conversation.** Chat loads and thread refreshes applied responses after selection changed. | The existing Svelte stores guard success and failure by request generation and project/session identity. Session selection invalidates pending loads immediately; stale completions cannot clear a newer loading flag. Browser tests cover both response orders, same-selection refreshes, project changes and stale IPC/transport errors. The browser harness now uses the SvelteKit plugin to resolve the app's existing `$app/*` imports. |
+| Required delivery | **The board is not yet an available product surface.** Only generated bindings reference `agenthubSessions`/`agenthubSessionPage` in the frontend. There is no `domains/agenthub`, route, `board_cards` schema or ColdLight `board-column`; room commands likewise have no frontend consumers. Parent classification, native parent references and safe artifact links are now present in the index/DTO; the UI still needs to consume them. | Finish R3b.2 and durable completion handling, then the Turso board and its own page using ColdLight card/status/badge plus the new column. Connect read-only paging, keyboard moves, manual placement persistence and chat links. Only enable Continue after the continuity and workspace checks above pass. Verify the real user journey, not just generated commands. |
 
 Implementation order after the cache and source identity fixes:
 parent/classification metadata; execution-state and persistence correctness;
@@ -232,6 +232,61 @@ ColdLight composition requirements still apply; plan 0009's card inventory
 is the specific board decision (no extra library card kind).
 
 ## Log
+
+- 2026-10-27 — **Verification checkpoint.** Full kernel/engine library suites
+  pass: 199 kernel and 169 engine tests, with six existing ignored tests.
+  This includes parent-cache/graph, ACP restore, and atomic-write regressions.
+  IPC bindings regenerated through `cargo xtask regen-bindings`. Browser
+  selection regressions pass (eight), and the desktop type check reports
+  zero errors/warnings against the generated contract. Rustfmt and Biome
+  pass; final lint/hook results are recorded at delivery. Specta's existing
+  trailing spaces are retained in its generated file, not hand-edited.
+  No running-app, startup-latency or completed-board claim is made.
+
+- 2026-10-27 — **Atomic conversation writes.** Add a single-connection,
+  immediate transaction for parameterized single-row writes in the existing
+  Turso adapter. Each statement must affect exactly one row; failures roll
+  back the whole logical write. Use it for agent/room session creation and
+  turn insertion plus session counters. Allocate the turn order inside the
+  insert while holding the transaction's writer lock. Test concurrent turns,
+  a missing/wrong-project session and failure of each constituent statement.
+  Follow-up call-site review found the two ordinary-chat Tauri writers also
+  allocate sequences before inserting. Route them through the same engine
+  `save_turn` operation, carrying token counts and returning the created id
+  for their existing read-back. This removes the remaining cross-writer race
+  rather than maintaining a second SQL implementation.
+
+- 2026-10-27 — **Selected chat response ownership.** Guard the existing
+  chat load and agent-thread refresh with monotonically increasing request
+  generations and the selected project/session identity. A late success or
+  error cannot replace the newer selection or clear its loading flag.
+  Invalidate pending message loads immediately when selecting a session.
+  Browser regressions use deferred IPC responses in both completion orders.
+
+- 2026-10-27 — **ACP continuity repair in the active transport.**
+  Carry the saved id through `AgentSession::start` to ACP startup. After
+  initialization, prefer advertised `session/resume`, otherwise advertised
+  `session/load`; unsupported or failed restoration is an error, never a
+  new session. Drain the SDK's ordered pre-response load replay before
+  making a session ready so old content cannot become a new answer.
+  Exercise the actual SDK connection with an in-memory protocol peer:
+  request ids/workspace, subsequent prompt, unsupported capability, refused
+  restoration, and replay exclusion. No compatibility transport is added.
+
+- 2026-10-27 — **Resume R3b: parent identity before board wiring.**
+  Add explicit user-started/sub-agent/unknown classification and a separate
+  optional native parent id to the existing readers and retained index.
+  A bounded local key-only survey confirmed Claude's `isSidechain` plus
+  `sessionId` in `subagents/` files, and Codex's first own `session_meta`
+  with `source.subagent.thread_spawn.parent_thread_id` and a matching
+  top-level `parent_thread_id`. A fork id alone is not sub-agent evidence.
+  Resolve links within a provider only when the parent artifact is unique;
+  retain orphaned, ambiguous and cyclic children visibly without granting
+  continuation eligibility. Test the decoder rules, cached metadata and
+  graph resolution, then regenerate IPC types and check the desktop.
+  The history module is being read in focused chunks, not as a complete
+  single-file read. Continue into the existing execution/persistence owners
+  before enabling live board behavior or a continuation action.
 
 - 2026-10-26 — **Push gate: newly reported compression advisories.**
   The push of `4efdc5c1` passed workspace clippy but was blocked by

@@ -145,24 +145,23 @@ impl Agents {
         }
         let session_id = format!("sess-{}", Uuid::new_v4());
         let title = definition.name().to_owned();
-        self.sql()
-            .execute(
-                "INSERT INTO sessions (id, project_id, title, is_active) VALUES (?, ?, ?, 1)",
-                &[
-                    session_id.as_str().into(),
-                    project_id.into(),
-                    title.as_str().into(),
-                ],
-            )
+        self.db
+            .write_atomic(&[
+                (
+                    "INSERT INTO sessions (id, project_id, title, is_active) VALUES (?, ?, ?, 1)",
+                    vec![
+                        session_id.as_str().into(),
+                        project_id.into(),
+                        title.as_str().into(),
+                    ],
+                ),
+                (
+                    "INSERT INTO agent_threads (session_id, provider_id) VALUES (?, ?)",
+                    vec![session_id.as_str().into(), provider_id.key().into()],
+                ),
+            ])
             .await
-            .context("create the thread's session")?;
-        self.sql()
-            .execute(
-                "INSERT INTO agent_threads (session_id, provider_id) VALUES (?, ?)",
-                &[session_id.as_str().into(), provider_id.key().into()],
-            )
-            .await
-            .context("record the thread's agent")?;
+            .context("create the agent thread")?;
         tracing::info!(target: "agents", %session_id, provider = provider_id.key(), "thread started");
         Ok(AgentThread {
             session_id,
@@ -305,6 +304,7 @@ impl Agents {
             &record.project_id,
             &TurnRow {
                 role: "user",
+                token_count: None,
                 content: text,
                 model_used: None,
                 finish_reason: None,
@@ -352,6 +352,7 @@ impl Agents {
                 &record.project_id,
                 &TurnRow {
                     role: "assistant",
+                    token_count: None,
                     content: &answer,
                     model_used: Some(record.provider_id.key()),
                     finish_reason: Some(&stop),
@@ -433,61 +434,61 @@ pub(super) fn parse_provider(key: &str) -> Option<ProviderId> {
 }
 
 /// One side of a turn, as the chat's `turns` table keeps it.
-pub(super) struct TurnRow<'a> {
-    pub(super) role: &'a str,
-    pub(super) content: &'a str,
-    pub(super) model_used: Option<&'a str>,
-    pub(super) finish_reason: Option<&'a str>,
-    pub(super) latency_ms: Option<i64>,
+pub struct TurnRow<'a> {
+    /// The speaker: user, assistant or system.
+    pub role: &'a str,
+    /// The complete content to persist.
+    pub content: &'a str,
+    /// Tokens reported by the caller, when known.
+    pub token_count: Option<i64>,
+    /// The model or provider that answered.
+    pub model_used: Option<&'a str>,
+    /// Why the turn ended, when known.
+    pub finish_reason: Option<&'a str>,
+    /// Time spent producing the answer.
+    pub latency_ms: Option<i64>,
     /// A JSON object (a room turn's place, role, phase and round).
-    pub(super) metadata: Option<&'a str>,
+    pub metadata: Option<&'a str>,
 }
 
-/// Save one side of a turn in the chat's `turns` table.
-pub(super) async fn save_turn(
+/// Atomically save a chat, agent or room turn and return its created id.
+///
+/// # Errors
+/// When the session/project does not match or either database mutation fails.
+pub async fn save_turn(
     db: &TursoAdapter,
     session_id: &str,
     project_id: &str,
     turn: &TurnRow<'_>,
-) -> Result<()> {
-    let sequence = db
-        .query(
-            "SELECT COALESCE(MAX(sequence_num), 0) + 1 FROM turns WHERE session_id = ?",
-            &[session_id.into()],
-        )
-        .await
-        .context("read the turn order")?
-        .first()
-        .and_then(|r| r.first())
-        .and_then(SqlValue::as_integer)
-        .unwrap_or(1);
+) -> Result<String> {
+    let id = format!("turn-{}", Uuid::new_v4());
     let optional_text = |v: Option<&str>| v.map_or(SqlValue::Null, SqlValue::from);
-    db.execute(
+    db.write_atomic(&[(
         "INSERT INTO turns (id, session_id, project_id, role, content, sequence_num, model_used, \
-         finish_reason, latency_ms, metadata) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        &[
-            format!("turn-{}", Uuid::new_v4()).as_str().into(),
-            session_id.into(),
-            project_id.into(),
+         finish_reason, latency_ms, metadata, token_count) \
+         SELECT ?, s.id, s.project_id, ?, ?, \
+         (SELECT COALESCE(MAX(sequence_num), 0) + 1 FROM turns WHERE session_id = s.id), \
+         ?, ?, ?, ?, ? FROM sessions s WHERE s.id = ? AND s.project_id = ?",
+        vec![
+            id.as_str().into(),
             turn.role.into(),
             turn.content.into(),
-            sequence.into(),
             optional_text(turn.model_used),
             optional_text(turn.finish_reason),
             turn.latency_ms.map_or(SqlValue::Null, SqlValue::from),
             optional_text(turn.metadata),
+            turn.token_count.map_or(SqlValue::Null, SqlValue::from),
+            session_id.into(),
+            project_id.into(),
         ],
-    )
-    .await
-    .context("save the turn")?;
-    db.execute(
+    ), (
         "UPDATE sessions SET updated_at = unixepoch(), interaction_count = interaction_count + 1 \
          WHERE id = ?",
-        &[session_id.into()],
-    )
+        vec![session_id.into()],
+    )])
     .await
-    .context("touch the thread")?;
-    Ok(())
+    .context("save the turn and update its thread")?;
+    Ok(id)
 }
 
 #[cfg(test)]
@@ -495,6 +496,131 @@ mod tests {
     #![allow(clippy::expect_used, clippy::unwrap_used, reason = "test assertions")]
 
     use super::*;
+    use devpulse_clyffy::cortex::persistence::TursoOptions;
+
+    async fn turn_fixture(limit: u32) -> (tempfile::TempDir, Arc<TursoAdapter>) {
+        let tree = tempfile::tempdir().unwrap();
+        let schema = format!("CREATE TABLE sessions (id TEXT PRIMARY KEY, project_id TEXT NOT NULL,
+            updated_at INTEGER DEFAULT 0, interaction_count INTEGER DEFAULT 0 CHECK(interaction_count <= {limit}));
+            CREATE TABLE turns (id TEXT PRIMARY KEY, session_id TEXT, project_id TEXT, role TEXT,
+                content TEXT CHECK(content != 'reject'), sequence_num INTEGER, model_used TEXT,
+                finish_reason TEXT, latency_ms INTEGER, metadata TEXT, token_count INTEGER);
+            INSERT INTO sessions (id, project_id) VALUES ('s', 'p');");
+        let db = TursoAdapter::open_with_schema(
+            &tree.path().join("turns.db"),
+            &schema,
+            TursoOptions::default(),
+        )
+        .await
+        .unwrap();
+        (tree, Arc::new(db))
+    }
+
+    fn user_turn(content: &str) -> TurnRow<'_> {
+        TurnRow {
+            role: "user",
+            token_count: None,
+            content,
+            model_used: None,
+            finish_reason: None,
+            latency_ms: None,
+            metadata: None,
+        }
+    }
+
+    #[tokio::test]
+    async fn ordinary_chat_telemetry_survives_the_shared_atomic_write() {
+        let (_tree, db) = turn_fixture(1).await;
+        let id = save_turn(
+            &db,
+            "s",
+            "p",
+            &TurnRow {
+                role: "assistant",
+                content: "answer",
+                token_count: Some(42),
+                model_used: Some("chat.brain"),
+                finish_reason: Some("end_turn"),
+                latency_ms: Some(120),
+                metadata: Some("{}"),
+            },
+        )
+        .await
+        .unwrap();
+        let row = db.query("SELECT role, content, token_count, model_used, finish_reason, latency_ms, metadata FROM turns WHERE id = ?", &[id.as_str().into()]).await.unwrap();
+        assert_eq!(
+            row,
+            vec![vec![
+                "assistant".into(),
+                "answer".into(),
+                42.into(),
+                "chat.brain".into(),
+                "end_turn".into(),
+                120.into(),
+                "{}".into()
+            ]]
+        );
+        db.close().await;
+    }
+
+    #[tokio::test]
+    async fn simultaneous_turns_have_distinct_order_and_matching_counters() {
+        let (_tree, db) = turn_fixture(32).await;
+        let mut tasks = tokio::task::JoinSet::new();
+        for _ in 0..16 {
+            let db = Arc::clone(&db);
+            tasks.spawn(async move { save_turn(&db, "s", "p", &user_turn("hello")).await });
+        }
+        while let Some(result) = tasks.join_next().await {
+            result.unwrap().unwrap();
+        }
+        let order = db
+            .query("SELECT sequence_num FROM turns ORDER BY sequence_num", &[])
+            .await
+            .unwrap();
+        assert_eq!(
+            order,
+            (1..=16)
+                .map(|n| vec![SqlValue::Integer(n)])
+                .collect::<Vec<_>>()
+        );
+        assert_eq!(
+            db.query("SELECT interaction_count FROM sessions", &[])
+                .await
+                .unwrap(),
+            vec![vec![SqlValue::Integer(16)]]
+        );
+        db.close().await;
+    }
+
+    #[tokio::test]
+    async fn failed_turn_writes_leave_neither_a_turn_nor_a_counter_change() {
+        let (_tree, db) = turn_fixture(0).await;
+        // First statement constraint, second statement constraint, missing
+        // session and a mismatched project all fail without partial data.
+        for (session, project, content) in [
+            ("s", "p", "reject"),
+            ("s", "p", "hello"),
+            ("missing", "p", "hello"),
+            ("s", "wrong", "hello"),
+        ] {
+            assert!(save_turn(&db, session, project, &user_turn(content))
+                .await
+                .is_err());
+            assert!(db
+                .query("SELECT id FROM turns", &[])
+                .await
+                .unwrap()
+                .is_empty());
+            assert_eq!(
+                db.query("SELECT interaction_count FROM sessions", &[])
+                    .await
+                    .unwrap(),
+                vec![vec![SqlValue::Integer(0)]]
+            );
+        }
+        db.close().await;
+    }
 
     #[test]
     fn tool_enabled_startup_never_creates_or_substitutes_a_workspace() {
