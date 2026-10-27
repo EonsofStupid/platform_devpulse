@@ -115,7 +115,7 @@ enum Kind {
 
 impl AgentSession {
     /// Start a conversation with an installed agent at `program`, working in
-    /// `cwd`. `resume` continues a conversation a headless agent reported
+    /// `cwd`. `resume` restores a conversation the agent reported
     /// earlier ([`Self::resume_token`]). `talk_only` adds the agent's own
     /// switch for no tools when its definition has one (a headless agent's
     /// `connect.conversation.talk_only`); an ACP agent has none, so the
@@ -141,7 +141,9 @@ impl AgentSession {
         };
         let launch = connect::launch(definition, program, data_dir, "")?;
         let kind = match definition.protocol() {
-            Some(AgentProtocol::Acp) => Kind::Acp(acp::AcpSession::start(&launch, cwd).await?),
+            Some(AgentProtocol::Acp) => {
+                Kind::Acp(acp::AcpSession::start(&launch, cwd, resume).await?)
+            }
             Some(AgentProtocol::Headless) => {
                 let Some(conversation) = &connect_spec.conversation else {
                     bail!(

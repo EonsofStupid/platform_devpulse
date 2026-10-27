@@ -1,4 +1,4 @@
-//! A persistent ACP session: one agent process and one `session/new` for
+//! A persistent ACP session: one agent process and one opened or restored session for
 //! the whole thread, many `session/prompt`s on it.
 //!
 //! The connection runs on its own task. Commands (prompt, cancel, close)
@@ -25,6 +25,7 @@ use agent_client_protocol::{
     SessionMessage,
 };
 use anyhow::{anyhow, bail, Result};
+use futures::FutureExt;
 use tokio::sync::{mpsc, oneshot, Mutex};
 
 use super::{AgentEvent, PermissionChoice, TurnEvents, PERMISSION_WAIT};
@@ -68,7 +69,10 @@ impl AcpSession {
     ///
     /// # Errors
     /// The agent's or the protocol's own error, or no session in time.
-    pub async fn start(launch: &Launch, cwd: &Path) -> Result<Self> {
+    pub async fn start(launch: &Launch, cwd: &Path, resume: Option<String>) -> Result<Self> {
+        if resume.as_ref().is_some_and(|id| id.trim().is_empty()) {
+            bail!("cannot restore an agent session with an empty id");
+        }
         let (commands, receiver) = mpsc::unbounded_channel();
         let (ready_tx, ready_rx) = oneshot::channel();
         let shared = Arc::new(Shared::default());
@@ -76,6 +80,7 @@ impl AcpSession {
         let task = devpulse_telemetry::spawn(run(
             launch.clone(),
             cwd.to_path_buf(),
+            resume,
             receiver,
             Arc::clone(&shared),
         ));
@@ -320,6 +325,7 @@ async fn run_turn(
 async fn run(
     launch: Launch,
     cwd: std::path::PathBuf,
+    resume: Option<String>,
     mut commands: mpsc::UnboundedReceiver<Command>,
     shared: Arc<Shared>,
 ) {
@@ -346,45 +352,32 @@ async fn run(
             agent_client_protocol::on_receive_request!(),
         )
         .connect_with(agent, async move |connection: ConnectionTo<Agent>| {
-            connection
-                .send_request(
-                    InitializeRequest::new(ProtocolVersion::V1)
-                        .client_info(Implementation::new("DevPulse", env!("CARGO_PKG_VERSION"))),
-                )
-                .block_task()
-                .await?;
-            connection
-                .build_session(&cwd)
-                .block_task()
-                .run_until(async |mut session| {
-                    *session_shared.session_id.lock().await =
-                        Some(session.session_id().0.to_string());
-                    tell_ready(&session_shared, Ok(())).await;
-                    let control = session.connection().clone();
-                    let id = session.session_id().clone();
-                    while let Some(command) = commands.recv().await {
-                        let (text, events) = match command {
-                            Command::Prompt { text, events } => (text, events),
-                            Command::Cancel => continue,
-                            Command::Close => break,
-                        };
-                        *session_shared.turn.lock().await = Some(events.clone());
-                        let closing = if let Err(e) = session.send_prompt(&text) {
-                            let _ = events.send(AgentEvent::Failed {
-                                message: e.to_string(),
-                            });
-                            false
-                        } else {
-                            run_turn(&mut session, &control, &id, &events, &mut commands).await
-                        };
-                        *session_shared.turn.lock().await = None;
-                        if closing {
-                            break;
-                        }
-                    }
-                    Ok(())
-                })
-                .await
+            let mut session = open_session(&connection, &cwd, resume.as_deref()).await?;
+            *session_shared.session_id.lock().await = Some(session.session_id().0.to_string());
+            tell_ready(&session_shared, Ok(())).await;
+            let control = session.connection().clone();
+            let id = session.session_id().clone();
+            while let Some(command) = commands.recv().await {
+                let (text, events) = match command {
+                    Command::Prompt { text, events } => (text, events),
+                    Command::Cancel => continue,
+                    Command::Close => break,
+                };
+                *session_shared.turn.lock().await = Some(events.clone());
+                let closing = if let Err(e) = session.send_prompt(&text) {
+                    let _ = events.send(AgentEvent::Failed {
+                        message: e.to_string(),
+                    });
+                    false
+                } else {
+                    run_turn(&mut session, &control, &id, &events, &mut commands).await
+                };
+                *session_shared.turn.lock().await = None;
+                if closing {
+                    break;
+                }
+            }
+            Ok(())
         })
         .await;
     if let Err(e) = outcome {
@@ -399,6 +392,57 @@ async fn run(
         }
     }
 }
+
+async fn open_session(
+    connection: &ConnectionTo<Agent>,
+    cwd: &Path,
+    resume: Option<&str>,
+) -> Result<ActiveSession<'static, Agent>, agent_client_protocol::Error> {
+    let initialized = connection
+        .send_request(
+            InitializeRequest::new(ProtocolVersion::V1)
+                .client_info(Implementation::new("DevPulse", env!("CARGO_PKG_VERSION"))),
+        )
+        .block_task()
+        .await?;
+    let Some(id) = resume else {
+        return connection
+            .build_session(cwd)
+            .block_task()
+            .start_session()
+            .await;
+    };
+    let capabilities = initialized.agent_capabilities;
+    if capabilities.session_capabilities.resume.is_some() {
+        return Ok(connection
+            .resume_session(id.to_owned(), cwd)
+            .block_task()
+            .start_session()
+            .await?
+            .into_session());
+    }
+    if !capabilities.load_session {
+        return Err(agent_client_protocol::Error::invalid_request()
+            .data("This agent cannot restore saved sessions: it advertises neither session/resume nor session/load"));
+    }
+    let mut session = connection
+        .load_session(id.to_owned(), cwd)
+        .block_task()
+        .start_session()
+        .await?
+        .into_session();
+    // ACP requires load replay before its response. The SDK processes that
+    // response in order, so all replay is already queued here. Poll only
+    // ready updates, without a timeout that could eat the next live turn.
+    while let Some(update) = session.read_update().now_or_never() {
+        update?;
+    }
+    Ok(session)
+}
+
+#[cfg(test)]
+#[path = "acp_restore_tests.rs"]
+mod restore_tests;
 
 #[cfg(test)]
 mod tests {
