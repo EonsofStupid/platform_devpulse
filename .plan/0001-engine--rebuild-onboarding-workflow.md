@@ -1427,6 +1427,15 @@ Each phase passes:
 
 ### B5 — AgentHub board, its own module (master plan H4)
 
+**Owner correction 2026-10-27:** AgentHub is a supervised subprocess bundled
+with DevPulse, with clean `agenthub_` table ownership, remote-endpoint Clyffy
+integration and explicit activation through the user's Codex subscription.
+The active architecture and acceptance contract is in
+[plan 0009, AgentHub architecture correction](0009-repo--wire-recovered-code.md#agenthub-architecture-correction-owner-2026-10-27).
+The engine facade below is the typed client boundary, not permission to keep
+AgentHub execution in the desktop process. Endpoint/provider work remains
+owned by this plan and is consumed by AgentHub through that shared contract.
+
 Owner: "agenthub board makes it easy to share state and have AI work with
 other". Also: "the agenthub/board is its own module that our evolved chat will
 be able to easily integrate with" (2026-10-21).
@@ -1437,7 +1446,7 @@ or used), every visual in the B4.3 order.
 - **The module:**
   - `interfaces/desktop/src/lib/domains/agenthub/` (`data-access/`,
     `feature/`, `ui/`, `index.ts`);
-  - an engine `platform/agenthub.rs` facade;
+  - an engine `platform/agenthub.rs` client facade to the bundled subprocess;
   - its kernel parts.
   - Its public interface is the `index.ts` exports and typed events. Chat
     integrates through them, and neither reaches into the other.

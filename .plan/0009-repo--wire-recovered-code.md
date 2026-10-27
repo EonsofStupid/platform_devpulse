@@ -85,6 +85,85 @@ output, vendored `deps/` and generated files:
 | R3 | **AgentHub, wired (plan 0001 B5).** **R3a** your sessions found on this machine: `recovered/devpulselabs/crates/chat/store` (bounded, jailed, paged history reading, 1,111 lines) with its Claude Code and Codex readers (`providers/claude`, `providers/codex` — `impl HistoryDecoder`) authored into the kernel's `providers/history/` on DevPulse's `ProviderId`, their tests with them; an engine `agenthub` facade; Tauri intents. **R3b** the board in Turso and the `domains/agenthub` module: every live thread, room and found session a card, by state. **R3c** hand-offs between cards. | your real Claude Code and Codex sessions listed in the running app |
 | R4 | **Then by capability, in the order you set** — from the list R1 makes visible (persona memory MCP, Cortex/Knowledge page, Visual Page Builder, voice lab, Maestro, the hub pages, …), each under its owning plan. | per capability, live |
 
+### AgentHub architecture correction (owner, 2026-10-27)
+
+**Status:** Accepted product requirements; implementation remains open.
+**Decider:** Jesse Hades Hall. This direction governs R3b and the B5 work
+in plan 0001; the earlier in-process facade is not the finished architecture.
+
+> "agenthub should be properly using clean prefix tables, and properly
+> leverage the ability to integrate clyffy from remote endpoints, activate
+> with their codex subscription ... agenthub is a sub process, and properly
+> bundled with devpulse"
+
+**Context verified in the active code:** `Platform` currently constructs
+`AgentHub`, `Agents` and `Rooms` inside the desktop's engine process.
+`platform/agenthub.rs` is a retained history catalog, not a supervised
+AgentHub executable. The release configuration does not declare an
+AgentHub binary. Shared conversation tables and `agent_threads` /
+`room_threads` exist, but the board and ticket tables do not. The endpoint
+probe identifies an OpenAI-compatible server; that alone does not establish
+Clyffy execution through it. Codex uses its own login and the ACP connector,
+but `SignedIn::Yes` does not distinguish ChatGPT login from API-key login.
+
+**Decision and ownership:**
+
+- AgentHub is a bundled Rust subprocess, supervised by DevPulse through
+  the existing `devpulse-process` lifecycle machinery. It owns AgentHub
+  orchestration, the history catalog and authoritative live execution state.
+  The engine facade becomes its typed client; Tauri and Svelte consume that
+  client. Reuse and relocate the active history, agent and room capabilities
+  with their tests; do not leave a second in-process execution path.
+- AgentHub-owned SQL tables, indexes and constraints use the `agenthub_`
+  prefix. The board table is `agenthub_board_cards`; tickets and their
+  related rows follow the same namespace. Inventory the existing thread,
+  room, session and turn ownership before naming the rest. Shared chat and
+  project records retain one canonical owner and explicit references; do not
+  copy them into a second store just to add a prefix. Reauthor schema and
+  every reader/writer together. Preserve existing user records through an
+  explicit, tested data migration; no compatibility views, aliases or dual
+  writes, and no database reset.
+- Keep one authority for durable writes. The intended integration is the
+  platform's existing user-database service, reached by the subprocess over
+  typed requests. Answer, continuation token and completion state must commit
+  together before success is published. The subprocess boundary must not
+  split a logical transaction into independent acknowledgements.
+- AgentHub consumes Clyffy's provider/endpoint contract. Configured remote
+  endpoints are valid execution sources without a local model requirement.
+  Resolve the selected endpoint and model, authentication reference and
+  advertised capabilities; verify a real request, streaming, cancellation
+  and disconnect behavior. Reuse the provider owners from plan 0001, not a
+  second AgentHub-only registry. Do not send subscription credentials to a
+  remote endpoint or silently substitute a different provider.
+- Codex activation uses the user's explicit action and Codex's own sign-in.
+  Distinguish installation, connector readiness, authentication method and
+  successful use. A generic successful login check is not proof of an active
+  subscription. Keep subscription execution through the vendor's supported
+  authenticated transport; API-key usage is a separately identified choice.
+  Preserve the verified workspace and resume identity across the process
+  boundary. Do not copy login secrets into AgentHub tables or the bundle.
+- Ship the AgentHub executable and required non-secret resources in both
+  portable and installer builds. Resolve it from the installed bundle, not
+  the developer checkout or a globally installed command. Verify startup
+  readiness, protocol/build compatibility, logs, shutdown and child cleanup.
+  A crash must resolve pending requests and invalidate live state; restarting
+  the process must not silently repeat tool work.
+
+**Trade-off:** A subprocess adds transport, lifecycle and packaging work,
+but gives AgentHub the explicit runtime boundary the owner requires. Keeping
+only the current in-process facade would avoid that work but would not meet
+the requirement. The existing facade remains the integration point while
+its implementation is reauthored, not a compatibility alternative.
+
+**Acceptance before R3b is complete:** packaged clean-machine startup with
+no checkout, one supervised AgentHub child, no child after DevPulse exits;
+schema/foreign-key and record-preservation checks; two-window live-state
+reconstruction; an explicitly activated Codex subscription producing and
+continuing a saved turn; a configured remote endpoint powering Clyffy in an
+AgentHub workflow; injected database, authentication, endpoint and child
+failure with truthful UI and recoverable answers. Unit tests or a working
+history list do not substitute for these integration checks.
+
 ### R3b — the board, in detail (written 2026-10-25)
 
 What R3a's live check showed, which R3b builds on:
@@ -117,9 +196,10 @@ The library inventory for the board (plan 0001 B4.3b's first step):
 
 | # | Outcome | Check |
 | --- | --- | --- |
-| R3b.1 | **Sub-agents under their parent; the index kept.** The kernel's index says each sub-agent's parent (Claude Code: `isSidechain` and `sessionId`; Codex: its `source.subagent` and the parent field a key survey confirms first). The catalog keeps each source's index between calls and re-reads only files whose size or time changed; the engine holds one catalog. `FoundSession` gains the parent. | the current user-started sessions listed with their sub-agents under them; an unchanged second listing reads zero transcript prefixes; the first call's time measured |
-| R3b.2 | **Live state.** `Agents` and `Rooms` keep each live conversation's state — working (a prompt in flight), waiting for you (a permission or a pick unanswered), idle — and the engine publishes `agenthubChanged` when one changes. | a Codex thread shows working, then idle; a permission request shows waiting for you |
-| R3b.3 | **The board in Turso.** Columns: Working, Waiting for you, Done. Keep observed runtime state separate from persisted board placement; an explicit move wins until the user returns the card to automatic placement. Automatic placement maps working to Working, waiting to Waiting for you, and idle to Done; Done is board placement, not a claim that a task succeeded. File modification time reports recent activity only, never proves working, waiting, or completion. Found sessions without live evidence default to Done with their live state shown as unknown. A found session belongs to the most specific project folder containing its folder, using path components; the rest are "Elsewhere on this machine". What you change is kept in `board_cards` (user database): a card's column, its place, pinned, hidden. Engine `board(project)`, `move_card`; Tauri `agenthub_board`, `agenthub_move_card`. | a moved card survives state changes and restart; a recent file write does not invent a live state |
+| R3b.0 | **Runtime and provider boundary.** Extract the existing AgentHub execution owners into the bundled, supervised subprocess above; keep one typed engine client and the existing database/provider authorities. | portable and installed startup, process cleanup, durable failure handling, remote Clyffy execution and explicit Codex subscription activation |
+| R3b.1 | **Sub-agents under their parent; the index kept.** The kernel's index says each sub-agent's parent (Claude Code: `isSidechain` and `sessionId`; Codex: its `source.subagent` and the parent field a key survey confirms first). The catalog keeps each source's index between calls and re-reads only files whose size or time changed; the AgentHub runtime holds one catalog. `FoundSession` gains the parent. | the current user-started sessions listed with their sub-agents under them; an unchanged second listing reads zero transcript prefixes; the first call's time measured |
+| R3b.2 | **Live state.** The subprocess's agent and room owners keep each live conversation's state — working (a prompt in flight), waiting for you (a permission or a pick unanswered), idle. The engine relays revisioned snapshots and `agenthubChanged`; a process disconnect invalidates its live observations. | a Codex thread shows working, then idle; a permission request shows waiting for you; another window reconstructs both correctly |
+| R3b.3 | **The board in Turso.** Columns: Working, Waiting for you, Done. Keep observed runtime state separate from persisted board placement; an explicit move wins until the user returns the card to automatic placement. Automatic placement maps working to Working, waiting to Waiting for you, and idle to Done; Done is board placement, not a claim that a task succeeded. File modification time reports recent activity only, never proves working, waiting, or completion. Found sessions without live evidence default to Done with their live state shown as unknown. A found session belongs to the most specific project folder containing its folder, using path components; the rest are "Elsewhere on this machine". What you change is kept in `agenthub_board_cards` (user database): a card's column, its place, pinned, hidden. Engine `board(project)`, `move_card`; Tauri `agenthub_board`, `agenthub_move_card`. | a moved card survives state changes and restart; a recent file write does not invent a live state |
 | R3b.4 | **`board-column` in ColdLight**, as above, with its Storybook-style fixture. | the fixture renders; the curator audit has no finding |
 | R3b.5 | **The module and its page.** `domains/agenthub/`: `data-access/agenthub.service.ts` (every command and event), `agenthub.state.svelte.ts`, `ui/board-card/`, `feature/AgentHubBoard.svelte`, `index.ts` (chat integrates through it alone). The page comes from its folder (plan 0008: `_nav`, its copy). A found session opens read only, newest page first, "Show older"; sub-agents fold under their parent's card. | your real sessions on the board; screenshots at 1440 and 1024 wide |
 | R3b.6 | **Continue here.** On a session you started (not a sub-agent), "Continue in DevPulse" — your click — starts an agent thread in its project with the session's own id as the resume token, so the vendor continues it in its folder. | a Codex session from the terminal continued in DevPulse |
@@ -143,10 +223,11 @@ Owner direction for this review:
   fallback to the old implementation. Preserve recovered originals and
   capabilities under the include-before-delete rule; this is not blanket
   permission to delete unrelated code or user data.
-- **One catalog for listing and paging.** Today `platform/agenthub.rs`
-  reconstructs `history::catalog` in both `list` and `page`, and
-  `JsonlHistorySource::list` reads every prefix. The engine must own the
-  shared catalog; each source owns its bounded metadata cache. Keep
+- **One catalog for listing and paging.** The retained catalog and prefix
+  cache are now implemented in the existing engine/kernel owners. Move
+  that single catalog into the supervised AgentHub runtime; the engine
+  client must not construct a second catalog. Each source owns its bounded
+  metadata cache. Keep
   filesystem work on the existing blocking executor. Concurrent requests
   must share a refresh instead of starting duplicate scans; do not hold
   an unrelated platform lock during disk reads.
@@ -220,7 +301,7 @@ owners. Do not build another execution stack inside the board.
 | P1 | **Live truth belongs to the engine, but currently exists only as transient events and one window's turn.** `agents.state.svelte.ts` has a single `turn`, subscribes when prompting, and ignores other session ids. Neither `Agents` nor `Rooms` exposes the required working/waiting/idle snapshot. Permission timeout/removal has no resolution event. A newly opened window cannot reconstruct an ongoing turn or waiting permission. | R3b.2 must add authoritative per-conversation state and pending requests in the existing engine owners, plus a snapshot and revisioned changes. Test two active threads, room seats, opening/reloading a second window, permission answer/timeout, cancellation and disconnect. Derive badges from this state, independently of saved card placement. |
 | P1 fixed | **An unavailable project silently changed where tools ran.** `Agents::folder` substituted `data_dir/tools/ask` for a missing project or project-state read error; `conversation` created its working directory. Tool-enabled room seats used the same path. | `Projects::workspace` now requires a live project and an existing absolute directory, propagating database errors. Agent and room startup propagate that refusal; only an explicitly talk-only place may create its isolated folder. Five regressions cover missing/removed/restored projects, missing/non-directory/relative paths, database failure, and startup that never recreates a missing tool workspace. |
 | P2 fixed | **Late loads could replace the selected conversation.** Chat loads and thread refreshes applied responses after selection changed. | The existing Svelte stores guard success and failure by request generation and project/session identity. Session selection invalidates pending loads immediately; stale completions cannot clear a newer loading flag. Browser tests cover both response orders, same-selection refreshes, project changes and stale IPC/transport errors. The browser harness now uses the SvelteKit plugin to resolve the app's existing `$app/*` imports. |
-| Required delivery | **The board is not yet an available product surface.** Only generated bindings reference `agenthubSessions`/`agenthubSessionPage` in the frontend. There is no `domains/agenthub`, route, `board_cards` schema or ColdLight `board-column`; room commands likewise have no frontend consumers. Parent classification, native parent references and safe artifact links are now present in the index/DTO; the UI still needs to consume them. | Finish R3b.2 and durable completion handling, then the Turso board and its own page using ColdLight card/status/badge plus the new column. Connect read-only paging, keyboard moves, manual placement persistence and chat links. Only enable Continue after the continuity and workspace checks above pass. Verify the real user journey, not just generated commands. |
+| Required delivery | **The board is not yet an available product surface.** Only generated bindings reference `agenthubSessions`/`agenthubSessionPage` in the frontend. There is no `domains/agenthub`, route, `agenthub_board_cards` schema or ColdLight `board-column`; room commands likewise have no frontend consumers. Parent classification, native parent references and safe artifact links are now present in the index/DTO; the UI still needs to consume them. | Finish R3b.2 and durable completion handling, then the Turso board and its own page using ColdLight card/status/badge plus the new column. Connect read-only paging, keyboard moves, manual placement persistence and chat links. Only enable Continue after the continuity and workspace checks above pass. Verify the real user journey, not just generated commands. |
 
 Implementation order after the cache and source identity fixes:
 parent/classification metadata; execution-state and persistence correctness;
