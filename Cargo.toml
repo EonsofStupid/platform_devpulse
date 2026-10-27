@@ -1,7 +1,7 @@
 [workspace]
 resolver = "2"
 # Your recovered code is kept as it was, never built (plan 0009).
-exclude = ["recovered"]
+exclude = ["recovered", "deps/tantivy-sstable"]
 members = [
     "kernel/devpulse-clyffy",
     "kernel/model-loader",
@@ -179,6 +179,10 @@ unsafe_code = "deny"
 missing_docs = "warn"
 
 [patch.crates-io]
+# Turso 0.8.3 requires Tantivy 0.26.2. Use the official zstd update for its
+# SSTables (RUSTSEC-2026-0391/0398/0403/0410, plan 0009). The published
+# 0.7.0 source is unchanged; only its zstd dependency floor is updated.
+tantivy-sstable = { path = "deps/tantivy-sstable" }
 # RRO's fork of tar with set_sync method for snapshot serialization
 tar = { git = "https://github.com/EonsofStupid/tar-rs", branch = "rro-alpha" }
 # ort: fork pinned to onnxruntime 1.24.3 (crates.io rc.12 has VitisAI compile bug)

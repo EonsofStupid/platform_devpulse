@@ -59,6 +59,8 @@ deps/*
 !deps/llama-cpp-rs/
 # RRO placeholder — becomes a submodule when the new RRO repo exists.
 !deps/rro/
+# Minimal compression dependency source patch (plan 0009).
+!deps/tantivy-sstable/
 
 # llama-cpp-prebuilt — extracted static libs are fetched via
 # `cargo xtask fetch-llama-cpp` from github.com/EonsofStupid/llama-cpp-prebuilt

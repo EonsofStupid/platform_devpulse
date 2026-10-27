@@ -308,6 +308,73 @@ CREATE TABLE IF NOT EXISTS platform_config (
     }
 
     #[tokio::test]
+    async fn full_text_index_roundtrips_after_database_reopen() {
+        use std::fmt::Write as _;
+
+        async fn open(path: &Path) -> TursoAdapter {
+            let db = turso::Builder::new_local(path.to_str().unwrap())
+                .experimental_index_method(true)
+                .build()
+                .await
+                .unwrap();
+            TursoAdapter {
+                db,
+                options: TursoOptions::default(),
+            }
+        }
+
+        let path = unique_test_path();
+        let root = path.parent().unwrap().parent().unwrap().to_path_buf();
+        std::fs::create_dir_all(path.parent().unwrap()).unwrap();
+        let adapter = open(&path).await;
+        adapter
+            .execute_batch(
+                "CREATE TABLE docs (body TEXT); CREATE INDEX docs_fts ON docs USING fts(body);",
+            )
+            .await
+            .unwrap();
+        // Enough distinct terms to exercise multiple compressed dictionary blocks.
+        let mut sql = String::from("BEGIN IMMEDIATE;");
+        for row in 1..=64 {
+            let words = (0..64)
+                .map(|word| format!("term{row}word{word}"))
+                .collect::<Vec<_>>()
+                .join(" ");
+            let marker = if row == 17 { " needle" } else { "" };
+            write!(
+                sql,
+                "INSERT INTO docs(rowid, body) VALUES ({row}, '{words}{marker}');"
+            )
+            .unwrap();
+        }
+        sql.push_str("COMMIT;");
+        adapter.execute_batch(&sql).await.unwrap();
+        let query = "SELECT rowid FROM docs WHERE fts_match(body, 'needle')";
+        assert_eq!(
+            adapter.query(query, &[]).await.unwrap(),
+            vec![vec![SqlValue::Integer(17)]]
+        );
+        adapter.close().await;
+        drop(adapter);
+
+        let adapter = open(&path).await;
+        assert_eq!(
+            adapter.query(query, &[]).await.unwrap(),
+            vec![vec![SqlValue::Integer(17)]]
+        );
+        adapter.execute_batch(
+            "UPDATE docs SET body = 'replacement' WHERE rowid = 17; UPDATE docs SET body = 'needle' WHERE rowid = 18;"
+        ).await.unwrap();
+        assert_eq!(
+            adapter.query(query, &[]).await.unwrap(),
+            vec![vec![SqlValue::Integer(18)]]
+        );
+        adapter.close().await;
+        drop(adapter);
+        let _ = std::fs::remove_dir_all(root);
+    }
+
+    #[tokio::test]
     async fn open_with_schema_creates_dir_and_runs_ddl() {
         let path = unique_test_path();
         let root = path.parent().unwrap().parent().unwrap().to_path_buf();

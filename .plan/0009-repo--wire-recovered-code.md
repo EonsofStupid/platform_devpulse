@@ -233,6 +233,28 @@ is the specific board decision (no extra library card kind).
 
 ## Log
 
+- 2026-10-26 — **Push gate: newly reported compression advisories.**
+  The push of `4efdc5c1` passed workspace clippy but was blocked by
+  RUSTSEC-2026-0391, 0398, 0403 and 0410 in Turso's Tantivy compression
+  dependencies. Turso 0.8.3 and the available 0.9 prerelease both require
+  Tantivy 0.26.2; the released Tantivy 0.27 changes that package boundary.
+  Patch the published `tantivy-sstable` 0.7.0 source under
+  `deps/tantivy-sstable`, changing only its zstd dependency floor to 0.14.3.
+  Source/test/benchmark files remain byte-identical to the registry crate;
+  provenance and the upstream license are included. The upstream git snapshot
+  also changes a dictionary API and cannot be used wholesale with Tantivy
+  0.26.2. This minimal dependency change retains full-text search without
+  introducing API adapters. Resolve zstd 0.14.3, zstd-safe 8.2.0 and zstd-sys
+  2.1.2, then rerun the advisory gate, persistence tests, workspace checks and
+  push hooks. No advisory ignore or application compatibility layer.
+  - Verified final graph: `cargo deny check advisories`; kernel/engine
+    all-targets clippy with `-D warnings`; full library suites (190 kernel,
+    164 engine passed; six existing ignored tests). A new Turso regression
+    builds a full-text index with 4,096 distinct terms, searches it, reopens
+    the database and verifies index updates. All four Turso adapter tests
+    pass. Twenty upstream source/test/benchmark files were compared byte for
+    byte with the published crate. Rustfmt and diff checks pass.
+
 - 2026-10-26 — **Resume: repair the existing verification failures.**
   Reproduce the recorded kernel/engine all-targets clippy failures, repair
   the existing tests in small groups without weakening production lint

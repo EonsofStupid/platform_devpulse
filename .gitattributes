@@ -35,3 +35,5 @@
 # Your recovered code (plan 0009): kept byte for byte — no line-ending
 # conversion — and counted as vendored, not as this repo's languages.
 recovered/** -text linguist-vendored
+# Published dependency source retained byte for byte (plan 0009).
+deps/tantivy-sstable/** -text linguist-vendored
