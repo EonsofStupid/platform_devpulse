@@ -1,7 +1,7 @@
 //! Agent threads — conversations with your agents in chat (plan 0001 B3.3).
 //!
 //! A thread is a chat session (Turso `sessions`) held with one of your
-//! agents; `agent_threads` records which agent, and the token that continues
+//! agents; `agenthub_threads` records which agent, and the token that continues
 //! its conversation. The kernel holds the live conversation
 //! (`devpulse_clyffy::providers::session`); this facade keeps one per
 //! thread, saves both sides of every turn in `turns` (the same table the
@@ -93,7 +93,7 @@ impl Agents {
             .query(
                 "SELECT s.id, s.project_id, a.provider_id, COALESCE(s.title, ''), \
                  (SELECT COUNT(*) FROM turns t WHERE t.session_id = s.id), s.updated_at \
-                 FROM agent_threads a JOIN sessions s ON s.id = a.session_id \
+                 FROM agenthub_threads a JOIN sessions s ON s.id = a.session_id \
                  WHERE s.project_id = ? ORDER BY s.updated_at DESC",
                 &[project_id.into()],
             )
@@ -156,7 +156,7 @@ impl Agents {
                     ],
                 ),
                 (
-                    "INSERT INTO agent_threads (session_id, provider_id) VALUES (?, ?)",
+                    "INSERT INTO agenthub_threads (session_id, provider_id) VALUES (?, ?)",
                     vec![session_id.as_str().into(), provider_id.key().into()],
                 ),
             ])
@@ -178,7 +178,7 @@ impl Agents {
             .sql()
             .query(
                 "SELECT s.project_id, a.provider_id, a.resume_token \
-                 FROM agent_threads a JOIN sessions s ON s.id = a.session_id \
+                 FROM agenthub_threads a JOIN sessions s ON s.id = a.session_id \
                  WHERE a.session_id = ? LIMIT 1",
                 &[session_id.into()],
             )
@@ -367,7 +367,7 @@ impl Agents {
             if let Some(token) = session.resume_token().await {
                 let saved = db
                     .execute(
-                        "UPDATE agent_threads SET resume_token = ? WHERE session_id = ?",
+                        "UPDATE agenthub_threads SET resume_token = ? WHERE session_id = ?",
                         &[token.as_str().into(), session_id.as_str().into()],
                     )
                     .await;

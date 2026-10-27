@@ -2,7 +2,7 @@
 //! B4.2).
 //!
 //! A room is a chat session (Turso `sessions`) whose places your agents
-//! hold. `room_threads` records which room of your library it is, who sits
+//! hold. `agenthub_room_threads` records which room of your library it is, who sits
 //! where, and the token that continues each place's conversation. The kernel
 //! runs it (`devpulse_clyffy::rooms`); this facade is its host: one live
 //! conversation per place (opened through [`Agents`]), every turn saved in
@@ -87,7 +87,7 @@ struct LiveRoom {
     stopped: AtomicBool,
 }
 
-/// What `room_threads` holds for a room.
+/// What `agenthub_room_threads` holds for a room.
 struct RoomRecord {
     project_id: String,
     room_id: String,
@@ -145,7 +145,7 @@ impl Rooms {
             .query(
                 "SELECT s.id, s.project_id, r.room_id, COALESCE(s.title, ''), r.seating, \
                  (SELECT COUNT(*) FROM turns t WHERE t.session_id = s.id), s.updated_at \
-                 FROM room_threads r JOIN sessions s ON s.id = r.session_id \
+                 FROM agenthub_room_threads r JOIN sessions s ON s.id = r.session_id \
                  WHERE s.project_id = ? ORDER BY s.updated_at DESC",
                 &[project_id.into()],
             )
@@ -207,7 +207,7 @@ impl Rooms {
                     ],
                 ),
                 (
-                    "INSERT INTO room_threads (session_id, room_id, seating) VALUES (?, ?, ?)",
+                    "INSERT INTO agenthub_room_threads (session_id, room_id, seating) VALUES (?, ?, ?)",
                     vec![
                         session_id.as_str().into(),
                         room_id.into(),
@@ -234,7 +234,7 @@ impl Rooms {
             .sql()
             .query(
                 "SELECT s.project_id, r.room_id, r.seating, r.resume_tokens \
-                 FROM room_threads r JOIN sessions s ON s.id = r.session_id \
+                 FROM agenthub_room_threads r JOIN sessions s ON s.id = r.session_id \
                  WHERE r.session_id = ? LIMIT 1",
                 &[session_id.into()],
             )
@@ -505,7 +505,7 @@ impl RoomHost for Host {
             let saved = self
                 .db
                 .execute(
-                    "UPDATE room_threads SET resume_tokens = ? WHERE session_id = ?",
+                    "UPDATE agenthub_room_threads SET resume_tokens = ? WHERE session_id = ?",
                     &[tokens.as_str().into(), self.session_id.as_str().into()],
                 )
                 .await;

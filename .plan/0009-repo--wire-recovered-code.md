@@ -314,6 +314,18 @@ is the specific board decision (no extra library card kind).
 
 ## Log
 
+- 2026-10-27 — **AgentHub table ownership implemented.** User migration 0003
+  renames the existing tables in place to `agenthub_threads` and
+  `agenthub_room_threads`. The original definitions are included in that
+  migration for fresh installs; the base schema no longer recreates the old
+  names on later boots. All active agent/room SQL uses the prefixed tables.
+  Shared sessions and turns retain their canonical records. Three real-Turso
+  regressions verify fresh install/reopen, preserved rows/tokens/seating/
+  foreign-key references, and rollback of the first rename if the second
+  fails. Full engine library suite: 172 passed, two existing ignored;
+  all-targets clippy with `-D warnings` and rustfmt pass. This does not claim
+  that the subprocess, remote Clyffy execution or board UI is delivered.
+
 - 2026-10-27 — **Recovery audit and active delivery.** Recheck every recorded
   recovered blob against its source in Git, and inventory deleted source
   outside the manifest. Repair the recovery script first: its current HEAD

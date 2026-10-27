@@ -16,6 +16,9 @@ use devpulse_clyffy::cortex::persistence::{TursoAdapter, TursoOptions};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
+#[cfg(test)]
+mod tests;
+
 /// What a relational store applies when it opens: the base schema
 /// (idempotent `CREATE ... IF NOT EXISTS`) and its versioned migrations.
 #[derive(Debug, Clone, Copy)]
@@ -435,22 +438,9 @@ CREATE TABLE IF NOT EXISTS turns (
 CREATE INDEX IF NOT EXISTS idx_turns_session ON turns(session_id, sequence_num);
 CREATE INDEX IF NOT EXISTS idx_turns_project ON turns(project_id);
 
--- Agent threads: a session held with one of your agents (plan 0001 B3.3)
-CREATE TABLE IF NOT EXISTS agent_threads (
-    session_id TEXT PRIMARY KEY REFERENCES sessions(id) ON DELETE CASCADE,
-    provider_id TEXT NOT NULL,               -- registry id: claude-code, codex, …
-    resume_token TEXT,                       -- the agent's own id that continues it
-    created_at INTEGER DEFAULT (unixepoch())
-);
-
--- Rooms: a chat session whose seats your agents hold (plan 0001 B4.2)
-CREATE TABLE IF NOT EXISTS room_threads (
-    session_id TEXT PRIMARY KEY REFERENCES sessions(id) ON DELETE CASCADE,
-    room_id TEXT NOT NULL,                   -- library room: council, debate, …
-    seating TEXT NOT NULL,                   -- JSON [{seat, place, provider, persona}]
-    resume_tokens TEXT,                      -- JSON {place: the agent's own id that continues it}
-    created_at INTEGER DEFAULT (unixepoch())
-);
+-- AgentHub thread/seating tables are created and renamed by user migration
+-- 0003. They live in the agenthub_ namespace. Keeping their bootstrap in
+-- the versioned migration prevents a later boot recreating the old names.
 
 -- Session anchors (facts extracted during conversation)
 CREATE TABLE IF NOT EXISTS anchors (
