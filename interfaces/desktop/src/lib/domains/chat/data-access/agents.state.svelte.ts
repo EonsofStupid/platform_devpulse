@@ -9,6 +9,7 @@
  * keeps Rust's message in `error`.
  */
 
+import { projectsState } from "$lib/domains/app/projects/index.js";
 import type {
 	AgentEvent,
 	AgentThread,
@@ -40,6 +41,7 @@ class AgentsStore {
 	turn = $state<RunningTurn | null>(null);
 	error = $state<string | null>(null);
 	private listening: Promise<unknown> | null = null;
+	private refreshGeneration = 0;
 	/** Resolves a prompt when its turn ends. */
 	private ending = new Map<string, () => void>();
 
@@ -90,17 +92,26 @@ class AgentsStore {
 
 	/** The thread a chat session is, if it is one. */
 	thread(sessionId: string | null): AgentThread | null {
-		return sessionId ? (this.threads[sessionId] ?? null) : null;
+		const thread = sessionId ? this.threads[sessionId] : null;
+		return thread?.projectId === projectsState.activeProjectId ? thread : null;
 	}
 
 	/** Load a project's threads. */
 	async refresh(projectId: string): Promise<void> {
-		const result = await commands.agentThreads(projectId);
-		if (result.status === "error") {
-			this.error = result.error;
-			return;
+		const generation = ++this.refreshGeneration;
+		const current = () =>
+			generation === this.refreshGeneration && projectId === projectsState.activeProjectId;
+		try {
+			const result = await commands.agentThreads(projectId);
+			if (!current()) return;
+			if (result.status === "error") {
+				this.error = result.error;
+				return;
+			}
+			this.threads = Object.fromEntries(result.data.map((t) => [t.sessionId, t]));
+		} catch (e) {
+			if (current()) this.error = message(e);
 		}
-		this.threads = Object.fromEntries(result.data.map((t) => [t.sessionId, t]));
 	}
 
 	/** Start a thread with an agent; resolves to its session id. */

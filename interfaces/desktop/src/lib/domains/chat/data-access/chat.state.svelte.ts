@@ -31,6 +31,7 @@ class ChatState {
 	loading = $state(false);
 	error = $state<string | null>(null);
 	activeSessionId = $state<string | null>(null);
+	private loadGeneration = 0;
 
 	// ── Streaming inference state ───────────────────────
 	isGenerating = $state(false);
@@ -60,6 +61,8 @@ class ChatState {
 	}
 
 	async loadActive(): Promise<void> {
+		const generation = ++this.loadGeneration;
+		const sessionId = this.activeSessionId;
 		this.loading = true;
 		this.error = null;
 		const pid = this.projectId();
@@ -69,12 +72,17 @@ class ChatState {
 			this.loading = false;
 			return;
 		}
+		const current = () =>
+			generation === this.loadGeneration &&
+			pid === this.projectId() &&
+			sessionId === this.activeSessionId;
 		try {
-			this.messages = await chatService.loadRecent(pid, this.activeSessionId);
+			const messages = await chatService.loadRecent(pid, sessionId);
+			if (current()) this.messages = messages;
 		} catch (e) {
-			this.error = e instanceof Error ? e.message : String(e);
+			if (current()) this.error = e instanceof Error ? e.message : String(e);
 		} finally {
-			this.loading = false;
+			if (generation === this.loadGeneration) this.loading = false;
 		}
 	}
 
@@ -207,7 +215,12 @@ class ChatState {
 	}
 
 	setActiveSession(id: string | null): void {
+		if (this.activeSessionId === id) return;
+		++this.loadGeneration;
 		this.activeSessionId = id;
+		this.messages = [];
+		this.error = null;
+		this.loading = false;
 	}
 }
 
