@@ -17,7 +17,10 @@ use super::record::{
     event, history_title_fallback, names_a_session, one_line_title, redacted_shape, string_at,
     u64_at, unknown,
 };
-use super::{DecodeOutcome, HistoryDecoder, HistoryIndexMetadata, ProviderUsage, UsageReporting};
+use super::{
+    DecodeOutcome, HistoryDecoder, HistoryIndexMetadata, HistorySessionKind, ProviderUsage,
+    UsageReporting,
+};
 use crate::providers::ProviderId;
 
 /// Codex's records.
@@ -35,6 +38,8 @@ impl HistoryDecoder for CodexHistoryDecoder {
         let mut workspace = String::new();
         let mut started_at = String::new();
         let mut own_meta_seen = false;
+        let mut kind = HistorySessionKind::Unknown;
+        let mut parent_native_id = None;
         // Set when Codex spawned this session for another agent: its
         // nickname, when it has one.
         let mut subagent: Option<String> = None;
@@ -56,6 +61,7 @@ impl HistoryDecoder for CodexHistoryDecoder {
                 }
                 workspace = string_at(&value, &["payload", "cwd"]).unwrap_or(workspace);
                 started_at = string_at(&value, &["payload", "timestamp"]).unwrap_or(started_at);
+                (kind, parent_native_id) = session_origin(&value);
                 if value.pointer("/payload/source/subagent").is_some() {
                     subagent =
                         Some(string_at(&value, &["payload", "agent_nickname"]).unwrap_or_default());
@@ -73,11 +79,13 @@ impl HistoryDecoder for CodexHistoryDecoder {
             } else {
                 codex_user_text(&value)
             };
-            title = candidate
-                .map(|text| your_request(&text).to_owned())
-                .filter(|text| names_a_session(text))
-                .unwrap_or_default();
-            if !title.is_empty() {
+            if title.is_empty() {
+                title = candidate
+                    .map(|text| your_request(&text).to_owned())
+                    .filter(|text| names_a_session(text))
+                    .unwrap_or_default();
+            }
+            if !title.is_empty() && own_meta_seen {
                 break;
             }
         }
@@ -89,6 +97,8 @@ impl HistoryDecoder for CodexHistoryDecoder {
         let fallback = history_title_fallback(&label, &workspace, &started_at, &native_id);
         Some(HistoryIndexMetadata {
             native_id: ProviderSessionId(native_id),
+            kind,
+            parent_native_id,
             title: one_line_title(&title, &fallback),
             workspace,
             started_at,
@@ -120,6 +130,39 @@ impl HistoryDecoder for CodexHistoryDecoder {
             }
             other => unknown(&format!("codex.{other}"), &redacted_shape(other, &value)),
         }
+    }
+}
+
+fn session_origin(value: &Value) -> (HistorySessionKind, Option<ProviderSessionId>) {
+    let source = value.pointer("/payload/source");
+    if source.and_then(|s| s.get("subagent")).is_some() {
+        let nested = string_at(
+            value,
+            &[
+                "payload",
+                "source",
+                "subagent",
+                "thread_spawn",
+                "parent_thread_id",
+            ],
+        )
+        .filter(|id| !id.is_empty());
+        let top = string_at(value, &["payload", "parent_thread_id"]).filter(|id| !id.is_empty());
+        // Conflicting metadata cannot select a parent. A fork alone is
+        // never evidence of agent parentage.
+        let parent = match (nested, top) {
+            (Some(a), Some(b)) if a != b => None,
+            (a, b) => a.or(b),
+        };
+        (HistorySessionKind::SubAgent, parent.map(ProviderSessionId))
+    } else if matches!(
+        source.and_then(Value::as_str),
+        Some("cli" | "vscode" | "exec")
+    ) && string_at(value, &["payload", "id"]).is_some_and(|id| !id.is_empty())
+    {
+        (HistorySessionKind::UserStarted, None)
+    } else {
+        (HistorySessionKind::Unknown, None)
     }
 }
 
@@ -612,6 +655,60 @@ mod tests {
             .expect("metadata");
         assert_eq!(metadata.title, "Show the board");
         assert_eq!(your_request("Fix it"), "Fix it");
+    }
+
+    #[test]
+    fn only_own_metadata_classifies_a_codex_session() {
+        let decode = |payload: Value, rest: &str| {
+            CodexHistoryDecoder
+                .index_metadata(
+                    Path::new("rollout-child.jsonl"),
+                    &format!(
+                        "{}\n{rest}",
+                        serde_json::json!({"type":"session_meta","payload":payload})
+                    ),
+                )
+                .expect("metadata")
+        };
+        let own = serde_json::json!({"id":"child","source":{"subagent":{"thread_spawn":{"parent_thread_id":"parent"}}},"parent_thread_id":"parent"});
+        let inherited =
+            "{\"type\":\"session_meta\",\"payload\":{\"id\":\"parent\",\"source\":\"cli\"}}\n";
+        let child = decode(own.clone(), inherited);
+        assert_eq!(child.kind, HistorySessionKind::SubAgent);
+        assert_eq!(child.native_id.0, "child");
+        assert_eq!(
+            child.parent_native_id,
+            Some(ProviderSessionId("parent".into()))
+        );
+        let mut conflict = own;
+        conflict["parent_thread_id"] = serde_json::json!("different");
+        assert_eq!(decode(conflict, "").parent_native_id, None);
+        let orphan = decode(
+            serde_json::json!({"id":"child","source":{"subagent":"review"}}),
+            "",
+        );
+        assert_eq!(orphan.kind, HistorySessionKind::SubAgent);
+        assert_eq!(orphan.parent_native_id, None);
+        let fork = decode(
+            serde_json::json!({"id":"fork","source":"vscode","forked_from_id":"parent"}),
+            "",
+        );
+        assert_eq!(fork.kind, HistorySessionKind::UserStarted);
+        assert_eq!(fork.parent_native_id, None);
+        for source in [
+            Value::Null,
+            serde_json::json!("future"),
+            serde_json::json!({}),
+        ] {
+            assert_eq!(
+                decode(
+                    serde_json::json!({"id":"unknown","source":source}),
+                    inherited
+                )
+                .kind,
+                HistorySessionKind::Unknown
+            );
+        }
     }
 
     #[test]

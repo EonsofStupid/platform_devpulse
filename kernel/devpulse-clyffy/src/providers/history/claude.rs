@@ -16,7 +16,10 @@ use super::record::{
     event, history_title_fallback, names_a_session, one_line_title, redacted_shape, string_at,
     unknown,
 };
-use super::{DecodeOutcome, HistoryDecoder, HistoryIndexMetadata, ProviderUsage, UsageReporting};
+use super::{
+    DecodeOutcome, HistoryDecoder, HistoryIndexMetadata, HistorySessionKind, ProviderUsage,
+    UsageReporting,
+};
 use crate::providers::ProviderId;
 
 /// Claude Code's records.
@@ -36,10 +39,35 @@ impl HistoryDecoder for ClaudeHistoryDecoder {
         let mut ai_title = String::new();
         let mut workspace = String::new();
         let mut started_at = String::new();
+        let mut kind = if path
+            .parent()
+            .and_then(Path::file_name)
+            .is_some_and(|p| p == "subagents")
+        {
+            HistorySessionKind::SubAgent
+        } else {
+            HistorySessionKind::Unknown
+        };
+        let mut parents = std::collections::HashSet::new();
         for line in prefix.lines() {
             let Ok(value) = serde_json::from_str::<Value>(line) else {
                 continue;
             };
+            match value.get("isSidechain").and_then(Value::as_bool) {
+                Some(true) => {
+                    kind = HistorySessionKind::SubAgent;
+                    if let Some(id) = string_at(&value, &["sessionId"]).filter(|id| !id.is_empty())
+                    {
+                        parents.insert(id);
+                    }
+                }
+                Some(false) if kind != HistorySessionKind::SubAgent => {
+                    if value.get("sessionId").and_then(Value::as_str) == Some(native_id.as_str()) {
+                        kind = HistorySessionKind::UserStarted;
+                    }
+                }
+                _ => {}
+            }
             if workspace.is_empty() {
                 workspace = string_at(&value, &["cwd"]).unwrap_or_default();
             }
@@ -65,6 +93,12 @@ impl HistoryDecoder for ClaudeHistoryDecoder {
         };
         Some(HistoryIndexMetadata {
             native_id: ProviderSessionId(native_id.clone()),
+            kind,
+            parent_native_id: if parents.len() == 1 {
+                parents.into_iter().next().map(ProviderSessionId)
+            } else {
+                None
+            },
             title: one_line_title(&named, &fallback),
             workspace,
             started_at,
@@ -324,6 +358,61 @@ mod tests {
         assert_eq!(metadata.native_id.0, "session-1");
         assert_eq!(metadata.workspace, "C:/repo");
         assert_eq!(metadata.title, "Review this");
+    }
+
+    #[test]
+    fn classification_requires_evidence_and_preserves_orphaned_children() {
+        let decode = |path, prefix| {
+            ClaudeHistoryDecoder
+                .index_metadata(Path::new(path), prefix)
+                .expect("metadata")
+        };
+        let parent = decode(
+            "parent.jsonl",
+            r#"{"isSidechain":false,"sessionId":"parent"}"#,
+        );
+        assert_eq!(parent.kind, HistorySessionKind::UserStarted);
+        assert_eq!(parent.parent_native_id, None);
+        let child = decode(
+            "parent/subagents/agent-child.jsonl",
+            r#"{"isSidechain":true,"sessionId":"parent","agentId":"child"}"#,
+        );
+        assert_eq!(child.kind, HistorySessionKind::SubAgent);
+        assert_eq!(child.native_id.0, "agent-child");
+        assert_eq!(
+            child.parent_native_id,
+            Some(ProviderSessionId("parent".into()))
+        );
+        for prefix in [
+            "",
+            "{",
+            r#"{"isSidechain":false,"sessionId":"agent-child"}"#,
+        ] {
+            assert_eq!(
+                decode("parent/subagents/agent-child.jsonl", prefix).kind,
+                HistorySessionKind::SubAgent
+            );
+        }
+        for prefix in [
+            "",
+            r#"{"isSidechain":false}"#,
+            r#"{"isSidechain":false,"sessionId":"different"}"#,
+        ] {
+            assert_eq!(
+                decode("parent.jsonl", prefix).kind,
+                HistorySessionKind::Unknown
+            );
+        }
+        let conflicting = decode(
+            "child.jsonl",
+            concat!(
+                "{\"isSidechain\":true,\"sessionId\":\"a\"}\n",
+                "{\"isSidechain\":true,\"sessionId\":\"b\"}\n",
+                "{\"isSidechain\":false,\"sessionId\":\"child\"}\n"
+            ),
+        );
+        assert_eq!(conflicting.kind, HistorySessionKind::SubAgent);
+        assert_eq!(conflicting.parent_native_id, None);
     }
 
     #[test]

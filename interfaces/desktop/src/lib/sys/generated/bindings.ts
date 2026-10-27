@@ -8118,6 +8118,22 @@ locator: string;
  */
 nativeId: string | null; 
 /**
+ * Positive classification; unknown sessions cannot be continued.
+ */
+kind: HistorySessionKind; 
+/**
+ * The provider's parent reference, independent of whether it was found.
+ */
+parentNativeId: string | null; 
+/**
+ * The unique parent artifact in this provider, when safely resolved.
+ */
+parentLocator: string | null; 
+/**
+ * Why the parent is linked or left visible at the top level.
+ */
+parentResolution: ParentResolution; 
+/**
  * Its first real request, or "Claude · folder · date".
  */
 title: string; 
@@ -8801,6 +8817,22 @@ save_error_template: string;
  * `aria-label` for the lock-icon indicator pill.
  */
 lock_icon_aria: string }
+/**
+ * Evidence of who started a stored session, separate from its identity.
+ */
+export type HistorySessionKind = 
+/**
+ * Positively identified as a session started by the person.
+ */
+"userStarted" | 
+/**
+ * Spawned by an agent, even when its parent cannot be identified.
+ */
+"subAgent" | 
+/**
+ * Incomplete or unrecognized metadata; not eligible for continuation.
+ */
+"unknown"
 /**
  * One provider's history, as looked for.
  */
@@ -10470,6 +10502,34 @@ name: string;
  * What the room should fill in.
  */
 description: string }
+/**
+ * A missing or ambiguous parent never hides a sub-agent or changes its kind.
+ */
+export type ParentResolution = 
+/**
+ * A user-started session has no agent parent.
+ */
+"notApplicable" | 
+/**
+ * Metadata does not identify a parent.
+ */
+"unknown" | 
+/**
+ * The referenced parent was not found in the bounded inventory.
+ */
+"missing" | 
+/**
+ * Several artifacts have the parent's native id.
+ */
+"ambiguous" | 
+/**
+ * Following this edge would make a cycle.
+ */
+"cycle" | 
+/**
+ * A unique, acyclic parent artifact is available.
+ */
+"resolved"
 /**
  * One choice of a permission request, as the agent worded it.
  */

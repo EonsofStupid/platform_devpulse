@@ -154,11 +154,28 @@ impl HistoryLimits {
     }
 }
 
+/// Evidence of who started a stored session, separate from its identity.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
+#[serde(rename_all = "camelCase")]
+pub enum HistorySessionKind {
+    /// Positively identified as a session started by the person.
+    UserStarted,
+    /// Spawned by an agent, even when its parent cannot be identified.
+    SubAgent,
+    /// Incomplete or unrecognized metadata; not eligible for continuation.
+    Unknown,
+}
+
 /// What a reader finds at the start of a history file.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct HistoryIndexMetadata {
     /// The provider's own session id.
     pub native_id: ProviderSessionId,
+    /// How this session was started, independently of parent availability.
+    pub kind: HistorySessionKind,
+    /// Its parent's native id, not an artifact locator.
+    pub parent_native_id: Option<ProviderSessionId>,
     /// Its first real request, or a fallback.
     pub title: String,
     /// The folder it ran in.
@@ -366,6 +383,10 @@ pub struct IndexedSession {
     pub locator: HistoryLocator,
     /// As a list shows it.
     pub summary: SessionSummary,
+    /// How this session was started.
+    pub kind: HistorySessionKind,
+    /// Its parent's native id, when the reader can establish it.
+    pub parent_native_id: Option<ProviderSessionId>,
     /// When it started, as the provider wrote it.
     pub started_at: String,
     /// When its file last changed (Unix milliseconds).
@@ -981,6 +1002,8 @@ impl HistorySource for JsonlHistorySource {
                 .map_or(0, |duration| duration.as_millis() as u64);
             sessions.push(IndexedSession {
                 locator,
+                kind: metadata.kind,
+                parent_native_id: metadata.parent_native_id,
                 summary: SessionSummary {
                     id: session_id,
                     provider_id: self.provider_id(),
@@ -1312,6 +1335,8 @@ mod tests {
         fn index_metadata(&self, path: &Path, _prefix: &str) -> Option<HistoryIndexMetadata> {
             Some(HistoryIndexMetadata {
                 native_id: ProviderSessionId(path.file_stem()?.to_string_lossy().into_owned()),
+                kind: HistorySessionKind::Unknown,
+                parent_native_id: None,
                 title: path.file_stem()?.to_string_lossy().into_owned(),
                 workspace: "C:/fixture".into(),
                 started_at: "2026-07-23T00:00:00Z".into(),
@@ -1366,6 +1391,37 @@ mod tests {
             root.display().to_string()
         ))
         .unwrap()
+    }
+
+    #[test]
+    fn cached_parent_metadata_refreshes_without_merging_artifacts() {
+        let tree = TestTree::new();
+        let path = tree.root.join("child.jsonl");
+        let prefix = "{\"isSidechain\":true,\"sessionId\":\"parent\"}\n";
+        fs::write(&path, prefix).expect("child");
+        let source = JsonlHistorySource::open(
+            &tree.root,
+            claude::ClaudeHistoryDecoder,
+            HistoryLimits::default(),
+        )
+        .expect("source");
+        let first = source.list(None).expect("first");
+        assert_eq!(first.sessions[0].kind, HistorySessionKind::SubAgent);
+        assert_eq!(
+            first.sessions[0].parent_native_id,
+            Some(ProviderSessionId("parent".into()))
+        );
+        let cached = source.list(None).expect("cached");
+        assert_eq!(cached.prefix_reads, 0);
+        assert_eq!(cached.sessions, first.sessions);
+        fs::write(&path, prefix.replace("parent", "other-parent")).expect("update");
+        let refreshed = source.list(None).expect("refresh");
+        assert_eq!(refreshed.prefix_reads, 1);
+        assert_eq!(refreshed.sessions[0].locator, first.sessions[0].locator);
+        assert_eq!(
+            refreshed.sessions[0].parent_native_id,
+            Some(ProviderSessionId("other-parent".into()))
+        );
     }
 
     #[test]
@@ -1916,6 +1972,8 @@ mod tests {
             fn index_metadata(&self, path: &Path, _prefix: &str) -> Option<HistoryIndexMetadata> {
                 Some(HistoryIndexMetadata {
                     native_id: ProviderSessionId("shared-native-id".into()),
+                    kind: HistorySessionKind::Unknown,
+                    parent_native_id: None,
                     title: path.file_stem()?.to_string_lossy().into_owned(),
                     workspace: "C:/fixture".into(),
                     started_at: "2026-07-23T00:00:00Z".into(),

@@ -9,6 +9,7 @@
 //! provider's sessions newest first and pages one session from its newest
 //! record back.
 
+use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 use std::time::Instant;
@@ -17,7 +18,8 @@ use anyhow::{anyhow, Context, Result};
 use devpulse_clyffy::providers::catalog;
 use devpulse_clyffy::providers::history::events::{ChatEventContent, EventPresentation};
 use devpulse_clyffy::providers::history::{
-    self, FoundSource, HistoryCatalog, HistoryCursor, HistoryLimits, HistoryLocator, IndexedSession,
+    self, FoundSource, HistoryCatalog, HistoryCursor, HistoryLimits, HistoryLocator,
+    HistorySessionKind, IndexedSession,
 };
 use devpulse_clyffy::providers::ProviderId;
 use serde::Serialize;
@@ -33,6 +35,14 @@ pub struct FoundSession {
     pub locator: String,
     /// The provider's own id for it.
     pub native_id: Option<String>,
+    /// Positive classification; unknown sessions cannot be continued.
+    pub kind: HistorySessionKind,
+    /// The provider's parent reference, independent of whether it was found.
+    pub parent_native_id: Option<String>,
+    /// The unique parent artifact in this provider, when safely resolved.
+    pub parent_locator: Option<String>,
+    /// Why the parent is linked or left visible at the top level.
+    pub parent_resolution: ParentResolution,
     /// Its first real request, or "Claude · folder · date".
     pub title: String,
     /// The folder it ran in.
@@ -43,6 +53,24 @@ pub struct FoundSession {
     pub modified_at: i64,
     /// Its file's size in bytes.
     pub bytes: i64,
+}
+
+/// A missing or ambiguous parent never hides a sub-agent or changes its kind.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Type)]
+#[serde(rename_all = "camelCase")]
+pub enum ParentResolution {
+    /// A user-started session has no agent parent.
+    NotApplicable,
+    /// Metadata does not identify a parent.
+    Unknown,
+    /// The referenced parent was not found in the bounded inventory.
+    Missing,
+    /// Several artifacts have the parent's native id.
+    Ambiguous,
+    /// Following this edge would make a cycle.
+    Cycle,
+    /// A unique, acyclic parent artifact is available.
+    Resolved,
 }
 
 /// One provider's history, as looked for.
@@ -221,7 +249,13 @@ fn list(catalog: &HistoryCatalog, found: Vec<FoundSource>) -> FoundSessions {
         }
         sources.push(report);
     }
-    sessions.sort_by_key(|s| std::cmp::Reverse(s.modified_at));
+    sessions.sort_by(|a, b| {
+        b.modified_at
+            .cmp(&a.modified_at)
+            .then_with(|| a.provider_id.key().cmp(b.provider_id.key()))
+            .then_with(|| a.locator.cmp(&b.locator))
+    });
+    resolve_parents(&mut sessions);
     tracing::info!(
         target: "agenthub",
         sessions = sessions.len(),
@@ -236,11 +270,68 @@ fn found_session(indexed: IndexedSession) -> FoundSession {
         provider_id: indexed.summary.provider_id,
         locator: indexed.locator.value().to_string(),
         native_id: indexed.summary.provider_session_id.map(|id| id.0),
+        kind: indexed.kind,
+        parent_native_id: indexed.parent_native_id.map(|id| id.0),
+        parent_locator: None,
+        parent_resolution: ParentResolution::Unknown,
         title: indexed.summary.title,
         workspace: indexed.summary.workspace,
         started_at: indexed.started_at,
         modified_at: i64::try_from(indexed.modified_millis).unwrap_or(i64::MAX),
         bytes: i64::try_from(indexed.source_bytes).unwrap_or(i64::MAX),
+    }
+}
+
+fn resolve_parents(sessions: &mut [FoundSession]) {
+    let mut identities: HashMap<_, Vec<usize>> = HashMap::new();
+    for (i, session) in sessions.iter().enumerate() {
+        if let Some(native) = &session.native_id {
+            identities
+                .entry((session.provider_id, native.clone()))
+                .or_default()
+                .push(i);
+        }
+    }
+    let mut edges = vec![None; sessions.len()];
+    for (i, session) in sessions.iter_mut().enumerate() {
+        session.parent_locator = None;
+        session.parent_resolution = match (session.kind, &session.parent_native_id) {
+            (HistorySessionKind::UserStarted, _) => ParentResolution::NotApplicable,
+            (HistorySessionKind::SubAgent, Some(parent)) => {
+                match identities
+                    .get(&(session.provider_id, parent.clone()))
+                    .map(Vec::as_slice)
+                {
+                    Some([target]) => {
+                        edges[i] = Some(*target);
+                        ParentResolution::Resolved
+                    }
+                    Some(_) => ParentResolution::Ambiguous,
+                    None => ParentResolution::Missing,
+                }
+            }
+            _ => ParentResolution::Unknown,
+        };
+    }
+    // The bounded inventory is small. Walk each chain without recursion;
+    // sever every edge in a cycle, leaving those artifacts visible roots.
+    for start in 0..sessions.len() {
+        let mut path: Vec<usize> = Vec::new();
+        let mut next = Some(start);
+        while let Some(node) = next {
+            if let Some(at) = path.iter().position(|&previous| previous == node) {
+                for &cyclic in &path[at..] {
+                    edges[cyclic] = None;
+                    sessions[cyclic].parent_resolution = ParentResolution::Cycle;
+                }
+                break;
+            }
+            path.push(node);
+            next = edges[node];
+        }
+    }
+    for (child, parent) in edges.into_iter().enumerate() {
+        sessions[child].parent_locator = parent.map(|index| sessions[index].locator.clone());
     }
 }
 
@@ -334,6 +425,92 @@ mod tests {
 
     use super::*;
     use std::fs;
+
+    fn session(
+        provider: ProviderId,
+        locator: &str,
+        native: &str,
+        parent: Option<&str>,
+    ) -> FoundSession {
+        FoundSession {
+            provider_id: provider,
+            locator: locator.into(),
+            native_id: Some(native.into()),
+            kind: if parent.is_some() {
+                HistorySessionKind::SubAgent
+            } else {
+                HistorySessionKind::UserStarted
+            },
+            parent_native_id: parent.map(str::to_owned),
+            parent_locator: None,
+            parent_resolution: ParentResolution::Unknown,
+            title: native.into(),
+            workspace: String::new(),
+            started_at: String::new(),
+            modified_at: 0,
+            bytes: 0,
+        }
+    }
+
+    #[test]
+    fn parents_are_unique_provider_scoped_artifacts_and_orphans_stay_visible() {
+        let provider = ProviderId::Codex;
+        let mut sessions = vec![
+            session(provider, "1", "parent", None),
+            session(ProviderId::ClaudeCode, "2", "parent", None),
+            session(provider, "3", "child", Some("parent")),
+            session(provider, "4", "grandchild", Some("child")),
+            session(provider, "5", "orphan", Some("absent")),
+            session(ProviderId::ClaudeCode, "6", "wrong-provider", Some("child")),
+        ];
+        resolve_parents(&mut sessions);
+        assert_eq!(sessions.len(), 6);
+        assert_eq!(sessions[2].parent_locator.as_deref(), Some("1"));
+        assert_eq!(sessions[3].parent_locator.as_deref(), Some("3"));
+        for i in [4, 5] {
+            assert_eq!(sessions[i].kind, HistorySessionKind::SubAgent);
+            assert_eq!(sessions[i].parent_resolution, ParentResolution::Missing);
+            assert_eq!(sessions[i].parent_locator, None);
+        }
+        // A duplicate native id is a separate artifact, not a safe choice.
+        sessions.push(session(provider, "7", "parent", None));
+        resolve_parents(&mut sessions);
+        assert_eq!(sessions[2].parent_resolution, ParentResolution::Ambiguous);
+        assert_eq!(sessions[2].parent_locator, None);
+        sessions.pop();
+        resolve_parents(&mut sessions);
+        assert_eq!(sessions[2].parent_resolution, ParentResolution::Resolved);
+        assert_eq!(sessions[2].parent_locator.as_deref(), Some("1"));
+    }
+
+    #[test]
+    fn cycles_and_unknown_parentage_cannot_hide_sessions() {
+        let provider = ProviderId::Codex;
+        let mut sessions = vec![
+            session(provider, "1", "a", Some("b")),
+            session(provider, "2", "b", Some("a")),
+            session(provider, "3", "self", Some("self")),
+            session(provider, "4", "descendant", Some("a")),
+            session(provider, "5", "unknown", None),
+            session(provider, "6", "orphan", None),
+        ];
+        sessions[4].kind = HistorySessionKind::Unknown;
+        sessions[5].kind = HistorySessionKind::SubAgent;
+        resolve_parents(&mut sessions);
+        for node in &sessions[..3] {
+            assert_eq!(node.parent_resolution, ParentResolution::Cycle);
+            assert_eq!(node.parent_locator, None);
+        }
+        assert_eq!(sessions[3].parent_locator.as_deref(), Some("1"));
+        for node in &sessions[4..] {
+            assert_eq!(node.parent_resolution, ParentResolution::Unknown);
+            assert_eq!(node.parent_locator, None);
+            assert_ne!(node.kind, HistorySessionKind::UserStarted);
+        }
+        let first = sessions.clone();
+        resolve_parents(&mut sessions);
+        assert_eq!(sessions, first);
+    }
 
     #[tokio::test]
     async fn session_and_page_requests_share_the_catalog_and_observe_root_changes() {
