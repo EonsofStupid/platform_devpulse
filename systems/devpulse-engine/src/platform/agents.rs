@@ -27,6 +27,9 @@ use super::agenthub::live::LiveState;
 use super::projects::Projects;
 use super::providers::{Providers, SignedIn};
 
+mod lifecycle;
+#[cfg(test)]
+mod lifecycle_tests;
 pub(super) mod recovery;
 
 /// A thread with one of your agents.
@@ -61,9 +64,7 @@ pub struct Agents {
     providers: Arc<Providers>,
     projects: Option<Arc<Projects>>,
     /// The live conversation of each thread that has one, by session id.
-    live: Mutex<HashMap<String, Arc<AgentSession>>>,
-    /// A turn owns its thread until dispatch and persistence have both ended.
-    turns: Mutex<HashMap<String, Arc<Mutex<()>>>>,
+    live: Mutex<HashMap<String, Arc<lifecycle::Conversation>>>,
     pub(super) observations: Arc<LiveState>,
 }
 
@@ -83,7 +84,6 @@ impl Agents {
             providers,
             projects,
             live: Mutex::new(HashMap::new()),
-            turns: Mutex::new(HashMap::new()),
             observations,
         }
     }
@@ -217,19 +217,14 @@ impl Agents {
         &self,
         session_id: &str,
         record: &ThreadRecord,
+        turn: &lifecycle::Turn,
     ) -> Result<Arc<AgentSession>> {
-        let mut live = self.live.lock().await;
-        if let Some(session) = live.get(session_id) {
-            return Ok(Arc::clone(session));
-        }
-        let cwd = self.folder(&record.project_id).await?;
-        let session = Arc::new(
-            self.conversation(record.provider_id, &cwd, record.resume_token.clone(), false)
-                .await?,
-        );
-        live.insert(session_id.to_owned(), Arc::clone(&session));
-        tracing::info!(target: "agents", %session_id, provider = record.provider_id.key(), cwd = %cwd.display(), "conversation started");
-        Ok(session)
+        turn.session(async {
+            let cwd = self.folder(&record.project_id).await?;
+            let session = self.conversation(record.provider_id, &cwd, record.resume_token.clone(), false).await?;
+            tracing::info!(target: "agents", %session_id, provider = record.provider_id.key(), cwd = %cwd.display(), "conversation started");
+            Ok(session)
+        }).await
     }
 
     /// The agent is installed on this machine.
@@ -296,7 +291,7 @@ impl Agents {
     /// When the prompt is empty, the thread is unknown, or its agent cannot
     /// start.
     pub async fn prompt(
-        &self,
+        self: &Arc<Self>,
         session_id: &str,
         text: &str,
     ) -> Result<mpsc::UnboundedReceiver<AgentEvent>> {
@@ -305,24 +300,47 @@ impl Agents {
             bail!("the message is empty");
         }
         let record = self.record(session_id).await?;
-        let gate = self
-            .turns
+        let conversation = self
+            .live
             .lock()
             .await
             .entry(session_id.to_owned())
             .or_default()
             .clone();
-        let active = gate
-            .try_lock_owned()
-            .map_err(|_| anyhow!("the agent is still answering"))?;
+        let active = conversation.begin()?;
         let observation = self.observations.begin(
             session_id,
             &record.project_id,
             None,
             Some(record.provider_id),
         );
-        let session = match self.live_session(session_id, &record).await {
+        let agents = Arc::clone(self);
+        let session_id = session_id.to_owned();
+        let text = text.to_owned();
+        lifecycle::owned(async move {
+            agents
+                .prompt_owned(&session_id, &text, record, active, observation)
+                .await
+        })
+        .await
+    }
+
+    async fn prompt_owned(
+        &self,
+        session_id: &str,
+        text: &str,
+        record: ThreadRecord,
+        active: lifecycle::Turn,
+        observation: super::agenthub::live::Observation,
+    ) -> Result<mpsc::UnboundedReceiver<AgentEvent>> {
+        let session = match self.live_session(session_id, &record, &active).await {
             Ok(session) => session,
+            Err(_) if active.is_cancelled() => {
+                observation.finish(&AgentEvent::TurnEnded {
+                    stop: "cancelled".into(),
+                });
+                return Ok(lifecycle::cancelled_events());
+            }
             Err(error) => {
                 observation.finish(&AgentEvent::Failed {
                     message: format!("{error:#}"),
@@ -343,7 +361,7 @@ impl Agents {
                 latency_ms: None,
                 metadata: None,
             },
-            || session.prompt(text),
+            || active.dispatch(&session, text),
         )
         .await;
         let mut events = match events {
@@ -362,8 +380,9 @@ impl Agents {
         let session_id = session_id.to_owned();
         let started = Instant::now();
         devpulse_telemetry::spawn(async move {
-            let _active = active;
-            let (answer, stop, ending) = receive_answer(&mut events, &out, &observation).await;
+            let (answer, stop, ending) = active
+                .wait_for_answer(&session, receive_answer(&mut events, &out, &observation))
+                .await;
             let latency = i64::try_from(started.elapsed().as_millis()).unwrap_or(i64::MAX);
             let token = session.resume_token().await;
             let continuation = ResumeUpdate::Agent(token.as_deref());
@@ -388,22 +407,27 @@ impl Agents {
             .await;
             observation.finish(&event);
             let _ = out.send(event);
+            drop(active);
         });
         Ok(receiver)
     }
 
     /// Stop the running turn of a thread.
     pub async fn cancel(&self, session_id: &str) {
-        let session = self.live.lock().await.get(session_id).cloned();
-        if let Some(session) = session {
-            session.cancel().await;
+        let conversation = self.live.lock().await.get(session_id).cloned();
+        if let Some(conversation) = conversation {
+            conversation.cancel();
         }
     }
 
     /// Answer a permission request of a thread's running turn (`None`
     /// refuses). Returns `false` when it is no longer waiting.
     pub async fn answer(&self, session_id: &str, request: &str, choice: Option<String>) -> bool {
-        let session = self.live.lock().await.get(session_id).cloned();
+        let conversation = self.live.lock().await.get(session_id).cloned();
+        let session = match conversation {
+            Some(conversation) => conversation.session().await,
+            None => None,
+        };
         match session {
             Some(session) => session.answer(request, choice).await,
             None => false,
@@ -412,9 +436,9 @@ impl Agents {
 
     /// End a thread's live conversation (its history stays).
     pub async fn close(&self, session_id: &str) {
-        let session = self.live.lock().await.remove(session_id);
-        if let Some(session) = session {
-            session.close().await;
+        let conversation = self.live.lock().await.get(session_id).cloned();
+        if let Some(conversation) = conversation {
+            conversation.close().await;
             tracing::info!(target: "agents", %session_id, "conversation closed");
         }
     }
@@ -658,7 +682,7 @@ mod tests {
     }
     use devpulse_clyffy::cortex::persistence::TursoOptions;
 
-    async fn turn_fixture(limit: u32) -> (tempfile::TempDir, Arc<TursoAdapter>) {
+    pub(super) async fn turn_fixture(limit: u32) -> (tempfile::TempDir, Arc<TursoAdapter>) {
         let tree = tempfile::tempdir().unwrap();
         let schema = format!("CREATE TABLE sessions (id TEXT PRIMARY KEY, project_id TEXT NOT NULL,
             updated_at INTEGER DEFAULT 0, interaction_count INTEGER DEFAULT 0 CHECK(interaction_count <= {limit}));
@@ -676,7 +700,7 @@ mod tests {
         (tree, Arc::new(db))
     }
 
-    fn user_turn(content: &str) -> TurnRow<'_> {
+    pub(super) fn user_turn(content: &str) -> TurnRow<'_> {
         TurnRow {
             role: "user",
             token_count: None,

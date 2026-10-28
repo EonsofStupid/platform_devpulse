@@ -6,12 +6,14 @@
 
 use std::path::{Path, PathBuf};
 use std::process::Stdio;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 
 use anyhow::{anyhow, Result};
 use serde_json::Value;
 use tokio::io::{AsyncBufReadExt, AsyncReadExt, BufReader};
 use tokio::sync::{mpsc, oneshot, Mutex};
+use tokio_util::task::AbortOnDropHandle;
 
 use super::{AgentEvent, TurnEvents};
 use crate::providers::connect::Launch;
@@ -37,7 +39,8 @@ pub struct HeadlessSession {
     stop: Arc<Mutex<Option<oneshot::Sender<()>>>>,
     /// The last turn's task, which may still be waiting for its process to
     /// exit after the turn ended.
-    previous: Mutex<Option<tokio::task::JoinHandle<()>>>,
+    previous: Mutex<Option<AbortOnDropHandle<()>>>,
+    closed: AtomicBool,
 }
 
 impl HeadlessSession {
@@ -63,6 +66,7 @@ impl HeadlessSession {
             session: Arc::new(Mutex::new(resume)),
             stop: Arc::new(Mutex::new(None)),
             previous: Mutex::new(None),
+            closed: AtomicBool::new(false),
         }
     }
 
@@ -75,6 +79,21 @@ impl HeadlessSession {
     pub async fn cancel(&self) {
         if let Some(stop) = self.stop.lock().await.take() {
             let _ = stop.send(());
+        }
+    }
+
+    /// End this conversation and wait for its process task to release the child.
+    pub async fn close(&self) {
+        self.closed.store(true, Ordering::SeqCst);
+        self.cancel().await;
+        let mut previous = self.previous.lock().await;
+        // A dispatch already holding the task slot may have installed a new
+        // stop sender while Close was waiting for it.
+        self.cancel().await;
+        if let Some(task) = previous.take() {
+            if let Err(error) = finish_process(task, std::time::Duration::from_secs(5)).await {
+                tracing::warn!(target: "providers", %error, "headless conversation forced closed");
+            }
         }
     }
 
@@ -101,16 +120,20 @@ impl HeadlessSession {
     /// # Errors
     /// When a turn is already running, or the program cannot start.
     pub async fn prompt(&self, text: &str) -> Result<TurnEvents> {
+        let mut previous = self.previous.lock().await;
+        if self.closed.load(Ordering::SeqCst) {
+            return Err(anyhow!("the conversation has ended"));
+        }
         if self.stop.lock().await.is_some() {
             return Err(anyhow!("a turn is still running; wait for it or stop it"));
         }
         // The last turn has ended; let its process finish exiting so it has
         // saved the conversation this turn resumes.
-        let previous = self.previous.lock().await.take();
-        if let Some(previous) = previous {
-            if tokio::time::timeout(EXIT_WAIT, previous).await.is_err() {
-                tracing::warn!(target: "providers", "the last turn's process is still exiting");
-            }
+        if let Some(task) = previous.take() {
+            finish_process(task, EXIT_WAIT).await?;
+        }
+        if self.closed.load(Ordering::SeqCst) {
+            return Err(anyhow!("the conversation has ended"));
         }
         let mut stop_slot = self.stop.lock().await;
         if stop_slot.is_some() {
@@ -146,7 +169,7 @@ impl HeadlessSession {
         drop(stop_slot);
 
         let (events, receiver) = mpsc::unbounded_channel();
-        let task = devpulse_telemetry::spawn(stream_turn(Turn {
+        let task = AbortOnDropHandle::new(devpulse_telemetry::spawn(stream_turn(Turn {
             child,
             stdout,
             stderr,
@@ -155,9 +178,22 @@ impl HeadlessSession {
             format: self.conversation.output,
             session: Arc::clone(&self.session),
             stop_slot: Arc::clone(&self.stop),
-        }));
-        *self.previous.lock().await = Some(task);
+        })));
+        *previous = Some(task);
         Ok(receiver)
+    }
+}
+
+async fn finish_process(
+    mut task: AbortOnDropHandle<()>,
+    timeout: std::time::Duration,
+) -> Result<()> {
+    if let Ok(result) = tokio::time::timeout(timeout, &mut task).await {
+        result.map_err(|error| anyhow!("the agent process task failed: {error}"))
+    } else {
+        task.abort();
+        let _ = task.await;
+        Err(anyhow!("the previous agent process did not exit in time and was stopped; no new prompt was dispatched"))
     }
 }
 
@@ -380,6 +416,106 @@ mod tests {
     #![allow(clippy::expect_used, clippy::unwrap_used, reason = "test assertions")]
 
     use super::*;
+    use futures::FutureExt;
+
+    #[tokio::test]
+    async fn teardown_timeout_disposes_the_task_before_returning_failure() {
+        let (held, disposed) = oneshot::channel::<()>();
+        let task = AbortOnDropHandle::new(devpulse_telemetry::spawn(async move {
+            let _held = held;
+            std::future::pending::<()>().await;
+        }));
+        let error = finish_process(task, std::time::Duration::from_millis(10))
+            .await
+            .unwrap_err();
+        assert!(error.to_string().contains("no new prompt was dispatched"));
+        assert!(disposed.now_or_never().unwrap().is_err());
+    }
+
+    #[tokio::test]
+    async fn cancelling_close_does_not_detach_the_process_task_or_reopen_the_session() {
+        let session = session(false);
+        let (held, disposed) = oneshot::channel::<()>();
+        *session.previous.lock().await = Some(AbortOnDropHandle::new(devpulse_telemetry::spawn(
+            async move {
+                let _held = held;
+                std::future::pending::<()>().await;
+            },
+        )));
+        assert!(
+            tokio::time::timeout(std::time::Duration::from_millis(10), session.close())
+                .await
+                .is_err()
+        );
+        assert!(
+            tokio::time::timeout(std::time::Duration::from_secs(5), disposed)
+                .await
+                .unwrap()
+                .is_err()
+        );
+        let error = session.prompt("must not launch").await.unwrap_err();
+        assert!(error.to_string().contains("conversation has ended"));
+        session.close().await;
+    }
+
+    #[tokio::test]
+    async fn close_during_previous_exit_prevents_a_new_dispatch() {
+        let session = session(false);
+        let (release, held) = oneshot::channel();
+        *session.previous.lock().await = Some(AbortOnDropHandle::new(devpulse_telemetry::spawn(
+            async move {
+                let _ = held.await;
+            },
+        )));
+        let (result, ()) = tokio::join!(session.prompt("must not launch"), async {
+            while session.previous.try_lock().is_ok() {
+                tokio::task::yield_now().await;
+            }
+            tokio::join!(session.close(), async {
+                release.send(()).unwrap();
+            });
+        });
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("conversation has ended"));
+    }
+
+    #[cfg(windows)]
+    #[tokio::test]
+    async fn close_and_drop_terminate_the_real_headless_child() {
+        for drop_session in [false, true] {
+            let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+            let port = listener.local_addr().unwrap().port();
+            let mut session = session(false);
+            session.program = "powershell".into();
+            session.cwd = std::env::current_dir().unwrap();
+            session.conversation.output = StreamFormat::Text;
+            session.conversation.args = vec!["-NoProfile".into(), "-NonInteractive".into(), "-Command".into(), format!(
+                "$client = New-Object Net.Sockets.TcpClient('127.0.0.1', {port}); while ($true) {{ [Threading.Thread]::Sleep(100) }}"
+            )];
+            let _events = session.prompt("fixture").await.unwrap();
+            let (mut child, _) =
+                tokio::time::timeout(std::time::Duration::from_secs(10), listener.accept())
+                    .await
+                    .unwrap()
+                    .unwrap();
+            if !drop_session {
+                session.close().await;
+                assert!(session.prompt("after close").await.is_err());
+            }
+            drop(session);
+            let mut byte = [0];
+            let ended =
+                tokio::time::timeout(std::time::Duration::from_secs(5), child.read(&mut byte))
+                    .await
+                    .unwrap();
+            assert!(
+                matches!(ended, Ok(0)) || ended.is_err(),
+                "child retained its socket: {ended:?}"
+            );
+        }
+    }
 
     #[test]
     fn claude_stream_json_becomes_events_and_the_session_id() {

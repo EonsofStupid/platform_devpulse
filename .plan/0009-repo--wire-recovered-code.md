@@ -241,13 +241,54 @@ existing integration tests remain ignored across these runs. Logs are in
 All-target Clippy for kernel, engine and runtime passes with warnings denied;
 `cargo xtask build-agenthub` rebuilt and staged the development executable.
 
-Next boundary work remains concrete: replace the engine's global startup
-lock with per-conversation lifecycle control; typed host callbacks for the
-existing database/provider owners; relocate agent/room orchestration and live
+Next boundary work remains concrete: extend startup cancellation and close
+ownership to room seats; typed host callbacks for the existing
+database/provider owners; relocate agent/room orchestration and live
 state into the runtime; relay snapshots and disconnect invalidation. Then
 complete the persisted board and generated ColdLight UI, remote endpoint
 execution, explicit subscription activation/continuation and packaged native
-acceptance. None of those is satisfied by these lifecycle regressions.
+acceptance. The thread lifecycle work below does not satisfy those boundaries.
+
+**Per-conversation control phase (2026-10-28, resumed):** reauthor the
+agent thread registry as one entry per conversation, retaining its session,
+turn gate and cancellation/close signal. Never hold the registry lock across
+provider startup. Register control before publishing Working; cancellation
+must interrupt startup and prevent later dispatch when observed before it.
+Do not cancel an in-progress database transaction. A running turn retains its
+gate through answer persistence. Close runs independently of its waiter and
+keeps the entry unavailable until both cleanup and persistence have ended.
+Test independent startup, cancellation before/during startup and dispatch,
+permission access during unrelated startup, close/reopen races and persistence
+failure. This phase changes the agent owner, its lifecycle helper and tests,
+and this plan. Room-seat lifecycle and execution extraction remain separate.
+
+Per-conversation phase passes 194 engine/contract tests (8 new regressions)
+and all-target Clippy with warnings denied. Admitted startup/persistence also
+has an engine-owned task, so dropping the IPC waiter cannot abandon work.
+
+**Headless teardown phase (2026-10-28):** review of the kernel close path
+found that headless Close only sent Cancel, and its previous-turn timeout
+dropped a raw JoinHandle. Reauthor the existing task ownership with the
+workspace's Tokio utility guard, wait for shutdown, refuse reuse after Close,
+and fail a new prompt if the previous process did not exit cleanly within
+the deadline. Verify task disposal and a real fixture child's termination.
+This phase touches the headless owner, session dispatcher, kernel dependency
+declaration/lock and this plan; tests stay beside the existing headless tests.
+
+Headless verification: 23 provider-session tests pass, with one existing
+subscription integration test ignored. Four new regressions cover forced
+task disposal, abandoned Close, Close during previous-turn exit, and actual
+Windows child termination on both Close and session drop. These are local
+process fixtures, not vendor subscription or native UI acceptance.
+
+Combined verification after both changes: 212 engine/runtime tests pass
+(190 engine, 4 signal contracts, 18 runtime), plus the 23 provider-session
+tests above; four existing integration tests remain ignored. All-target
+Clippy for kernel, engine and runtime passes with warnings denied. Logs:
+`.userdata/logs/agenthub-final-tests.log`, `agenthub-headless-tests.log` and
+`agenthub-final-clippy.log`. Room review confirms that Cancel can miss a seat
+still starting and Close removes the live entry before run completion; those
+paths need the same owned-lifetime guarantees before runtime extraction.
 
 ### R3b — the board, in detail (written 2026-10-25)
 

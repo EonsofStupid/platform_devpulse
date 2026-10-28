@@ -216,7 +216,7 @@ impl AgentSession {
     pub async fn close(&self) {
         match &self.kind {
             Kind::Acp(session) => session.close().await,
-            Kind::Headless(session) => session.cancel().await,
+            Kind::Headless(session) => session.close().await,
         }
     }
 }
