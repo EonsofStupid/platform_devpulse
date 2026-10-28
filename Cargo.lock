@@ -4069,6 +4069,24 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "abd57806937c9cc163efc8ea3910e00a62e2aeb0b8119f1793a978088f8f6b04"
 
 [[package]]
+name = "devpulse-agenthub"
+version = "1.0.1"
+dependencies = [
+ "anyhow",
+ "devpulse-clyffy",
+ "devpulse-process",
+ "devpulse-telemetry",
+ "serde",
+ "serde_json",
+ "sha2",
+ "specta",
+ "tempfile",
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
+]
+
+[[package]]
 name = "devpulse-clyffy"
 version = "1.0.1"
 dependencies = [
@@ -4133,6 +4151,7 @@ dependencies = [
  "base64 0.22.1",
  "burn",
  "chrono",
+ "devpulse-agenthub",
  "devpulse-clyffy",
  "devpulse-process",
  "devpulse-telemetry",

@@ -1166,6 +1166,8 @@ fn utf8_filename(path: &Path) -> Result<&str> {
 
 #[cfg(test)]
 mod tests {
+    #![allow(clippy::expect_used, clippy::unwrap_used, reason = "test assertions")]
+
     use super::*;
 
     #[test]
@@ -1564,6 +1566,30 @@ mod tests {
             fs::create_dir_all(parent).expect("mk parent");
         }
         fs::write(p, content).expect("write fixture");
+    }
+
+    #[test]
+    fn agenthub_is_required_beside_the_portable_desktop() {
+        let mut plan = fake_plan_with_declared_resources(0);
+        plan.conf.external_bins = vec!["binaries/devpulse-agenthub".into()];
+        assert!(plan_copies(&plan)
+            .expect_err("missing runtime must fail")
+            .to_string()
+            .contains("devpulse-agenthub.exe"));
+        write_file(
+            &plan.target_release.join("devpulse-agenthub.exe"),
+            b"runtime fixture",
+        );
+        let copies = plan_copies(&plan).expect("runtime is available");
+        let runtime = copies
+            .iter()
+            .find(|entry| entry.category == "external_bin")
+            .expect("runtime is packaged");
+        assert_eq!(runtime.dest_rel, PathBuf::from("devpulse-agenthub.exe"));
+        assert_eq!(
+            runtime.source,
+            plan.target_release.join("devpulse-agenthub.exe")
+        );
     }
 
     fn fake_plan_with_declared_resources(n: usize) -> PackagePlan {

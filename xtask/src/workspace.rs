@@ -399,7 +399,10 @@ impl Workspace {
         #[cfg(not(any(target_os = "windows", target_os = "macos", target_os = "linux")))]
         let platform_override: Option<&str> = None;
 
-        if let Some(filename) = platform_override {
+        for filename in platform_override
+            .into_iter()
+            .chain(Some("tauri.agenthub.conf.json"))
+        {
             let override_path = self
                 .root
                 .join("interfaces")
@@ -408,11 +411,11 @@ impl Workspace {
                 .join(filename);
             if override_path.exists() {
                 let override_raw = std::fs::read_to_string(&override_path).with_context(|| {
-                    format!("reading platform override {}", override_path.display())
+                    format!("reading bundle override {}", override_path.display())
                 })?;
                 let override_value: serde_json::Value = serde_json::from_str(&override_raw)
                     .with_context(|| {
-                        format!("parsing platform override {}", override_path.display())
+                        format!("parsing bundle override {}", override_path.display())
                     })?;
                 merge_rfc7396(&mut value, &override_value);
             }
@@ -577,6 +580,8 @@ fn merge_rfc7396(target: &mut serde_json::Value, patch: &serde_json::Value) {
 
 #[cfg(test)]
 mod merge_tests {
+    #![allow(clippy::expect_used, reason = "test assertions")]
+
     use super::merge_rfc7396;
     use serde_json::json;
 
@@ -616,6 +621,20 @@ mod merge_tests {
         let patch = json!({ "version": "0.2.0" });
         merge_rfc7396(&mut base, &patch);
         assert_eq!(base, json!({ "version": "0.2.0" }));
+    }
+
+    #[test]
+    fn shipped_runtime_overlay_is_visible_to_portable_packaging() {
+        let ws = super::Workspace::discover().expect("workspace");
+        let config = ws.tauri_config().expect("bundle declarations");
+        assert_eq!(config.external_bins, ["binaries/devpulse-agenthub"]);
+        let overlay = ws
+            .desktop_dir()
+            .join(crate::commands::build_agenthub::BUNDLE_CONFIG);
+        assert!(
+            overlay.is_file(),
+            "Tauri and the portable planner must use the same declaration"
+        );
     }
 }
 
@@ -2168,6 +2187,8 @@ fn find_root(start: &Path) -> Option<PathBuf> {
 
 #[cfg(test)]
 mod tests {
+    #![allow(clippy::expect_used, clippy::unwrap_used, reason = "test assertions")]
+
     use super::*;
     use std::io::Read;
     use std::sync::atomic::{AtomicU64, Ordering};

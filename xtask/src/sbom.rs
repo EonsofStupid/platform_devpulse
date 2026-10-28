@@ -249,6 +249,8 @@ pub fn write_bom(bom: &Bom, path: &Path) -> Result<()> {
 
 #[cfg(test)]
 mod tests {
+    #![allow(clippy::expect_used, clippy::unwrap_used, reason = "test assertions")]
+
     use super::*;
 
     #[test]

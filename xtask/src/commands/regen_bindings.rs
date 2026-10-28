@@ -149,6 +149,8 @@ fn fmt_time(t: SystemTime) -> String {
 
 #[cfg(test)]
 mod tests {
+    #![allow(clippy::unwrap_used, reason = "test assertions")]
+
     use super::*;
     use std::fs;
     use std::time::Duration;

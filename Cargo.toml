@@ -7,6 +7,7 @@ members = [
     "kernel/model-loader",
     "kernel/rrd",
     "systems/devpulse-engine",
+    "systems/devpulse-agenthub",
     "systems/devpulse-media",
     "systems/infra/devpulse-process",
     "systems/infra/devpulse-telemetry",

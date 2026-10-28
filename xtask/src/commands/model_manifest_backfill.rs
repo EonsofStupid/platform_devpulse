@@ -692,11 +692,12 @@ mod tests {
         assert_eq!(infer_parameter_count(&["qwen3-0.6b"], ""), Some(0.6));
         assert_eq!(
             infer_parameter_count(&["chat", "qwen--qwen3.5-9b"], ""),
-            Some(3.5)
+            Some(9.0)
         );
-        // ^ matches the FIRST number followed by 'b' — "3.5" in
-        // "qwen3.5-9b". Edge case: not perfect, but backfill notes
-        // field warns reviewer to verify.
+        // A model version is not a size: only a number followed by B counts.
+        assert_eq!(infer_parameter_count(&["qwen3.5"], ""), None);
+        assert_eq!(infer_parameter_count(&["model-3.5B"], ""), Some(3.5));
+        assert_eq!(infer_parameter_count(&["model-35B-A3B"], ""), Some(35.0));
     }
 
     #[test]

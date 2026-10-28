@@ -132,7 +132,12 @@ impl Task for Dev {
         let tee = ws.spawn_tee_log_non_blocking(
             &ws.desktop_dir(),
             "pnpm",
-            &["tauri", "dev"],
+            &[
+                "tauri",
+                "dev",
+                "--config",
+                super::build_agenthub::BUNDLE_CONFIG,
+            ],
             &stdio_log,
         )?;
 
@@ -189,6 +194,7 @@ fn run_backend_compile(
     // No hardcoded env vars here. Everything derives from the config.
     println!("  > Build env from [build.deps.*] SSOT:");
     platform_config.build.apply_env(ws.root());
+    super::build_agenthub::build(ws, false)?;
 
     let compile_start = Instant::now();
     // Auto-pick acceleration features (GPU + CPU MKL) based on host SDK

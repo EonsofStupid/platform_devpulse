@@ -1,0 +1,26 @@
+[package]
+name = "devpulse-agenthub"
+version = "1.0.1"
+edition = "2021"
+description = "DevPulse's supervised AgentHub runtime and typed private process client"
+
+[lints]
+workspace = true
+
+[dependencies]
+anyhow = { workspace = true }
+devpulse-clyffy = { path = "../../kernel/devpulse-clyffy", features = ["specta"] }
+devpulse-process = { workspace = true }
+devpulse-telemetry = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+specta = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+
+[dev-dependencies]
+tempfile = "3"
+
+[build-dependencies]
+sha2 = "0.10"

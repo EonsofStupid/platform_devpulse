@@ -88,3 +88,6 @@ interfaces/desktop/src-tauri/resources/devforge/linux-x64/*
 interfaces/desktop/src-tauri/resources/devforge/darwin-arm64/*
 !interfaces/desktop/src-tauri/resources/devforge/darwin-arm64/.gitkeep
 !interfaces/desktop/src-tauri/resources/devforge/manifest.json
+
+# Built by xtask before dev/release; shipped via tauri.agenthub.conf.json.
+interfaces/desktop/src-tauri/binaries/

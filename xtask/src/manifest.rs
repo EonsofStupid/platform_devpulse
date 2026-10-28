@@ -360,6 +360,8 @@ pub fn sha256_file(path: &Path) -> Result<String> {
 
 #[cfg(test)]
 mod tests {
+    #![allow(clippy::expect_used, reason = "test assertions")]
+
     use super::*;
 
     fn test_tmp_path(name: &str) -> PathBuf {

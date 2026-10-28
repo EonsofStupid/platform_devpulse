@@ -239,6 +239,7 @@ fn run_inner(ws: &Workspace, sink: &EventSink, portable_only: bool) -> anyhow::R
     println!("  > Build env from [build.deps.*] SSOT:");
     let stage_guard = sink.start("build-env");
     platform_config.build.apply_env(ws.root());
+    super::build_agenthub::build(ws, true)?;
     stage_guard.ok();
 
     // ── Stage 7: Launch `pnpm tauri build` with teed transcript ──
@@ -258,6 +259,10 @@ fn run_inner(ws: &Workspace, sink: &EventSink, portable_only: bool) -> anyhow::R
     } else {
         vec!["tauri".into(), "build".into()]
     };
+    pnpm_args.extend([
+        "--config".into(),
+        super::build_agenthub::BUNDLE_CONFIG.into(),
+    ]);
     if let Some(feats) = accel_feats.as_deref() {
         pnpm_args.push("--features".into());
         pnpm_args.push(feats.into());
@@ -1148,6 +1153,8 @@ fn strip_log_prefix(line: &str) -> &str {
 
 #[cfg(test)]
 mod tests {
+    #![allow(clippy::expect_used, clippy::unwrap_used, reason = "test assertions")]
+
     use super::{classify_from_transcript, strip_log_prefix, TauriStage};
 
     #[test]

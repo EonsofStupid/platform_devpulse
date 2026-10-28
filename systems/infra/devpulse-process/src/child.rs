@@ -76,9 +76,51 @@ impl SupervisedChild {
     /// Returns an error naming the program if it cannot be started, or (on
     /// Windows) put in the job; in that case the process is ended again.
     pub fn spawn(spec: &ChildSpec, lines: LineSink) -> Result<Self> {
+        let mut child = Self::start(spec, Stdio::null())?;
+        if let Some(out) = child.child.stdout.take() {
+            forward(out, Stream::Stdout, Arc::clone(&lines));
+        }
+        if let Some(err) = child.child.stderr.take() {
+            forward(err, Stream::Stderr, lines);
+        }
+        Ok(child)
+    }
+
+    /// Start a protocol peer. The caller owns stdin/stdout; only stderr is
+    /// forwarded to the log sink. Dropping the supervisor still ends the
+    /// child even when the caller retains a pipe.
+    ///
+    /// # Errors
+    /// As [`Self::spawn`], or if a requested pipe is unavailable.
+    pub fn spawn_piped(
+        spec: &ChildSpec,
+        lines: LineSink,
+    ) -> Result<(
+        Self,
+        tokio::process::ChildStdin,
+        tokio::process::ChildStdout,
+    )> {
+        let mut child = Self::start(spec, Stdio::piped())?;
+        let input = child
+            .child
+            .stdin
+            .take()
+            .context("child stdin unavailable")?;
+        let output = child
+            .child
+            .stdout
+            .take()
+            .context("child stdout unavailable")?;
+        if let Some(err) = child.child.stderr.take() {
+            forward(err, Stream::Stderr, lines);
+        }
+        Ok((child, input, output))
+    }
+
+    fn start(spec: &ChildSpec, input: Stdio) -> Result<Self> {
         let mut cmd = tokio::process::Command::new(&spec.program);
         cmd.args(&spec.args)
-            .stdin(Stdio::null())
+            .stdin(input)
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())
             .kill_on_drop(true);
@@ -131,12 +173,6 @@ impl SupervisedChild {
             }
         }
 
-        if let Some(out) = child.stdout.take() {
-            forward(out, Stream::Stdout, Arc::clone(&lines));
-        }
-        if let Some(err) = child.stderr.take() {
-            forward(err, Stream::Stderr, lines);
-        }
         Ok(Self {
             name: spec.name.clone(),
             pid,
@@ -323,5 +359,57 @@ mod tests {
         };
         let err = SupervisedChild::spawn(&spec, sink).expect_err("not installed");
         assert!(format!("{err:#}").contains("ghost"), "{err:#}");
+    }
+
+    #[tokio::test]
+    async fn protocol_pipes_are_private_and_eof_stops_the_peer() {
+        use tokio::io::AsyncWriteExt;
+
+        #[cfg(windows)]
+        let (program, args) = (
+            "powershell",
+            vec!["-NoProfile", "-NonInteractive", "-Command",
+                "[Console]::Error.WriteLine('log'); while ($null -ne ($line = [Console]::ReadLine())) { [Console]::WriteLine($line) }"],
+        );
+        #[cfg(unix)]
+        let (program, args) = (
+            "sh",
+            vec![
+                "-c",
+                "echo log >&2; while IFS= read -r line; do printf '%s\\n' \"$line\"; done",
+            ],
+        );
+        let spec = ChildSpec {
+            name: "protocol".into(),
+            program: program.into(),
+            args: args.into_iter().map(str::to_owned).collect(),
+            ..ChildSpec::default()
+        };
+        let (sink, seen) = collecting();
+        let (mut child, mut input, output) =
+            SupervisedChild::spawn_piped(&spec, sink).expect("starts");
+        input.write_all(b"private payload\n").await.expect("write");
+        input.flush().await.expect("flush");
+        let mut output = BufReader::new(output).lines();
+        assert_eq!(
+            tokio::time::timeout(Duration::from_secs(10), output.next_line())
+                .await
+                .expect("response in time")
+                .expect("read"),
+            Some("private payload".into())
+        );
+        drop(input);
+        assert!(tokio::time::timeout(Duration::from_secs(10), child.wait())
+            .await
+            .expect("EOF ends peer")
+            .expect("exit")
+            .success());
+        for _ in 0..40 {
+            if !seen.lock().unwrap().is_empty() {
+                break;
+            }
+            tokio::time::sleep(Duration::from_millis(25)).await;
+        }
+        assert_eq!(*seen.lock().unwrap(), vec![(Stream::Stderr, "log".into())]);
     }
 }

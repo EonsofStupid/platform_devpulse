@@ -45,6 +45,11 @@ enum Commands {
     Deps,
     /// Start the full Tauri dev environment (desktop + engine).
     RunDev,
+    /// Build and stage the bundled `AgentHub` runtime, without launching the app.
+    BuildAgenthub {
+        #[arg(long)]
+        release: bool,
+    },
     /// Build the portable release bundle — standalone .exe + Windows installers.
     /// Runs `pnpm tauri build` with the hardened [build.deps.*] env.
     BuildRelease {
@@ -188,6 +193,9 @@ fn main() -> anyhow::Result<()> {
         Commands::Preflight => Box::new(commands::preflight::Preflight),
         Commands::Deps => Box::new(commands::deps::Deps),
         Commands::RunDev => Box::new(commands::dev::Dev),
+        Commands::BuildAgenthub { release } => {
+            Box::new(commands::build_agenthub::BuildAgentHub { release })
+        }
         Commands::BuildRelease { portable_only } => {
             Box::new(commands::build_release::BuildRelease { portable_only })
         }

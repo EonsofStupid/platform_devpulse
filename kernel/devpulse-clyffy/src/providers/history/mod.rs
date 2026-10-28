@@ -155,7 +155,7 @@ impl HistoryLimits {
 }
 
 /// Evidence of who started a stored session, separate from its identity.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 #[serde(rename_all = "camelCase")]
 pub enum HistorySessionKind {

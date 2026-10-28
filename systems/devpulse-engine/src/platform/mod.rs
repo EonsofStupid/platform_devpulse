@@ -1623,13 +1623,18 @@ impl Platform {
         &self.grammar
     }
 
-    /// Graceful shutdown — close all services in reverse boot order.
+    /// Stop the owned runtime, then close services in reverse boot order.
     ///
     /// Uses `for_each_service_rev!` — the same enumeration point as health,
-    /// but in reverse. Flushes WALs, checkpoints databases, releases file
-    /// locks within a 5-second deadline.
+    /// but in reverse. After the runtime's graceful-stop policy completes,
+    /// infrastructure shares a 5-second deadline to flush WALs, checkpoint
+    /// databases and release file locks.
     #[allow(clippy::cast_possible_truncation)]
     pub async fn shutdown(&self) {
+        // Close the protocol while its platform authorities are still alive.
+        if let Err(error) = self.agenthub.shutdown().await {
+            tracing::warn!(target: "agenthub", %error, "runtime shutdown failed");
+        }
         let start = Instant::now();
         tracing::info!("Platform shutting down — closing services");
         let deadline = std::time::Duration::from_secs(5);

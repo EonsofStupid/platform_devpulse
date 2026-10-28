@@ -363,6 +363,8 @@ impl SummaryCounts {
 
 #[cfg(test)]
 mod tests {
+    #![allow(clippy::expect_used, reason = "test assertions")]
+
     use super::*;
 
     /// Test-specific log path under the OS temp dir. Test name keeps runs

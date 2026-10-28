@@ -96,7 +96,7 @@ in plan 0001; the earlier in-process facade is not the finished architecture.
 > with their codex subscription ... agenthub is a sub process, and properly
 > bundled with devpulse"
 
-**Context verified in the active code:** `Platform` currently constructs
+**Context at the architecture review (before the extraction below):** `Platform` constructs
 `AgentHub`, `Agents` and `Rooms` inside the desktop's engine process.
 `platform/agenthub.rs` is a retained history catalog, not a supervised
 AgentHub executable. The release configuration does not declare an
@@ -163,6 +163,36 @@ continuing a saved turn; a configured remote endpoint powering Clyffy in an
 AgentHub workflow; injected database, authentication, endpoint and child
 failure with truthful UI and recoverable answers. Unit tests or a working
 history list do not substitute for these integration checks.
+
+**Execution slice (2026-10-27, resumed):** move the retained history owner
+and its existing tests into `systems/devpulse-agenthub`, reached only by
+the engine's existing facade over private supervised stdin/stdout. Extend
+`devpulse-process` to hand protocol pipes to its caller while keeping stderr
+as logs and retaining its Job Object/process-group ownership. Use bounded,
+typed frames, a protocol/build handshake before requests, serialized request
+ownership and fail-closed disconnects; never replay a failed request. Build
+and stage the executable through xtask for development and both release
+formats. Tauri's official sidecar contract requires a target-suffixed source
+binary in `bundle.externalBin` (research:
+https://v2.tauri.app/develop/sidecar/). Agent/room execution and live state
+still require extraction after this slice; this does not complete R3b.0.
+
+Packaging uses the explicit `tauri.agenthub.conf.json` overlay for the
+runtime declaration. Both xtask launch/build commands pass it to Tauri,
+and the portable planner merges the same file after platform overrides.
+`cargo xtask build-agenthub [--release]` compiles/stages the real executable;
+`run-dev` and `build-release` invoke the same builder automatically. Ordinary
+workspace typechecking does not require a pre-existing packaged executable.
+
+The first executable slice owns history only. Agent/room orchestration and
+the authoritative live observations still run in the engine. Before moving
+those owners, extend the private connection for typed host callbacks and
+live notifications: persistence stays with the engine's existing Turso
+authority, provider resolution stays with its existing registry, and closing
+a window must never terminate unrelated tool work. The current serialized
+history exchange deliberately fails closed if interrupted; it is not yet
+the transport for long-running agent execution. No UI surface or vendor/
+remote execution acceptance is implied by the history process tests.
 
 ### R3b — the board, in detail (written 2026-10-25)
 
@@ -301,7 +331,7 @@ owners. Do not build another execution stack inside the board.
 | P1 implementation delivered; native acceptance open | **Live truth formerly existed only as transient events and one window's turn.** Agents and rooms now share `agenthub::live::LiveState`: retained per-conversation observations, runtime epoch/revision, all pending permissions/tools, stream text and terminal failures. Chat consumes typed snapshots and coalesced `AgentHubChanged` invalidations through `domains/agenthub`, rather than a single local turn. | Kernel tests cover permission answer/expiry/cancellation removal. Runtime tests cover concurrent threads, room seats and aggregate room waiting, late events, task drop, parallel tools and persistence-gated idle. Browser tests reconstruct two independent windows, coalesce updates, reject stale revisions/epochs, recover after failed reads and preserve dismissed failure copies. Native two-window/vendor execution and actual subprocess crash/restart invalidation remain required before R3b.2 is complete. |
 | P1 fixed | **An unavailable project silently changed where tools ran.** `Agents::folder` substituted `data_dir/tools/ask` for a missing project or project-state read error; `conversation` created its working directory. Tool-enabled room seats used the same path. | `Projects::workspace` now requires a live project and an existing absolute directory, propagating database errors. Agent and room startup propagate that refusal; only an explicitly talk-only place may create its isolated folder. Five regressions cover missing/removed/restored projects, missing/non-directory/relative paths, database failure, and startup that never recreates a missing tool workspace. |
 | P2 fixed | **Late loads could replace the selected conversation.** Chat loads and thread refreshes applied responses after selection changed. | The existing Svelte stores guard success and failure by request generation and project/session identity. Session selection invalidates pending loads immediately; stale completions cannot clear a newer loading flag. Browser tests cover both response orders, same-selection refreshes, project changes and stale IPC/transport errors. The browser harness now uses the SvelteKit plugin to resolve the app's existing `$app/*` imports. |
-| Required delivery | **The board is not yet an available product surface.** Only generated bindings reference `agenthubSessions`/`agenthubSessionPage` in the frontend. There is no `domains/agenthub`, route, `agenthub_board_cards` schema or ColdLight `board-column`; room commands likewise have no frontend consumers. Parent classification, native parent references and safe artifact links are now present in the index/DTO; the UI still needs to consume them. | Finish R3b.2 and durable completion handling, then the Turso board and its own page using ColdLight card/status/badge plus the new column. Connect read-only paging, keyboard moves, manual placement persistence and chat links. Only enable Continue after the continuity and workspace checks above pass. Verify the real user journey, not just generated commands. |
+| Required delivery | **The board is not yet an available product surface.** Only generated bindings reference `agenthubSessions`/`agenthubSessionPage` in the frontend. `domains/agenthub` now supplies live snapshots to chat, but there is no board route, `agenthub_board_cards` schema or ColdLight `board-column`; room commands likewise have no frontend consumers. Parent classification, native parent references and safe artifact links are now present in the index/DTO; the UI still needs to consume them. | Finish R3b.2 and durable completion handling, then the Turso board and its own page using ColdLight card/status/badge plus the new column. Connect read-only paging, keyboard moves, manual placement persistence and chat links. Only enable Continue after the continuity and workspace checks above pass. Verify the real user journey, not just generated commands. |
 
 Implementation order after the cache and source identity fixes:
 parent/classification metadata; execution-state and persistence correctness;
@@ -313,6 +343,35 @@ ColdLight composition requirements still apply; plan 0009's card inventory
 is the specific board decision (no extra library card kind).
 
 ## Log
+
+- 2026-10-27 — **History moved into the supervised executable (R3b.0 slice).**
+  `systems/devpulse-agenthub` now owns the retained catalog and all three
+  existing catalog/parent-linking tests. The engine facade delegates over
+  private bounded stdin/stdout frames; only stderr is forwarded to logs.
+  The supervisor retains its process/job ownership. Protocol, package version
+  and a fingerprint of runtime/provider sources and bundled definitions must
+  match before requests. Disconnects, timeouts and interrupted exchanges fail
+  closed without replay; shutdown closes stdin, drains output, then uses the
+  existing stop policy if the peer does not exit. The new xtask builder stages
+  the target-suffixed binary and is wired into dev and release; the portable
+  planner consumes the same Tauri overlay and refuses a missing runtime.
+  Verification: 7 runtime unit tests, 5 actual-executable tests (including a
+  copied binary outside the checkout), 12 supervisor tests, 182 engine tests,
+  4 signal-contract tests and 107 xtask tests pass; five existing helper/
+  environment-dependent tests remain ignored. All-target Clippy exposed
+  existing xtask test-assertion lint failures, now scoped to test modules
+  using the repository's convention. An incorrect manifest-test expectation
+  for `qwen3.5-9b` now expects 9B, with decimal and MoE cases retained.
+  The real debug executable found 191 sessions (Claude Code 144, Codex 47):
+  handshake 382 ms, first listing 3,754 ms, repeated listing 49 ms. The second
+  listing read **zero prefixes and zero prefix bytes** for both providers.
+  The first still read 22,880,087 bytes: cold-load performance is not fixed.
+  Probe logs: `.userdata/logs/agenthub-real-history-{summary.json,child.log}`.
+  No runtime remained after shutdown, and recovered originals are unchanged.
+  **Still open:** agent/room/live-state extraction and bidirectional host
+  callbacks; remote Clyffy and Codex subscription workflows; board storage,
+  ColdLight column and page; native UI and full installer/clean-machine
+  acceptance. No board UI exists yet; this does not complete R3b.
 
 - 2026-10-27 — **Retained live observations implemented.** Agent and room
   producers update one state owner; provider completion clears permissions but
