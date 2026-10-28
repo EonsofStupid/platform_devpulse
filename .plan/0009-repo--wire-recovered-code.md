@@ -189,10 +189,65 @@ the authoritative live observations still run in the engine. Before moving
 those owners, extend the private connection for typed host callbacks and
 live notifications: persistence stays with the engine's existing Turso
 authority, provider resolution stays with its existing registry, and closing
-a window must never terminate unrelated tool work. The current serialized
-history exchange deliberately fails closed if interrupted; it is not yet
-the transport for long-running agent execution. No UI surface or vendor/
+a window must never terminate unrelated tool work. The first serialized
+history exchange failed closed if its caller was interrupted; the worker
+phase below corrects that lifetime. It is still not the bidirectional
+transport for long-running agent execution. No UI surface or vendor/
 remote execution acceptance is implied by the history process tests.
+
+**Worker execution phase (2026-10-27, delivered):** reauthor the existing
+history client so a background worker owns the supervised child and every
+accepted exchange. A caller dropping its response receiver must not drop
+the process or lose framing for another window. Bound the request queue,
+retain fail-closed transport errors without replay, detect child exit even
+while idle, and make shutdown independent of the future that requested it.
+Verify cancellation after dispatch, the next queued reply, startup failure,
+idle/pending child failure and shutdown with real supervised test children.
+This phase changes the client, its worker and tests; it does not introduce
+an alternate transport or claim agent/room extraction. Typed host callbacks,
+live notifications and runtime-owned execution remain the following boundary
+work before R3b.0 can pass.
+
+Worker phase verified: 13 unit tests and 5 actual-executable tests pass;
+all-target Clippy passes with warnings denied. Controlled supervised peers
+verify interrupted startup/callers, distinct subsequent replies, a saturated
+32-command queue, pending/idle child failure, timeout, repeated shutdown and
+cleanup after the shutdown caller or client is dropped.
+
+**ACP lifecycle phase (2026-10-27, delivered):** the review found two ACP task-detachment
+paths: dropping `AcpSession::start` while waiting for readiness drops a raw
+JoinHandle, and the existing close timeout does the same. Tokio documents
+that a dropped [JoinHandle](https://docs.rs/tokio/latest/tokio/task/struct.JoinHandle.html)
+detaches its task. The installed ACP SDK 3.4.0's `acp_agent.rs` owns a
+`ChildGuard` that terminates its child when the connection future is dropped
+(Unix also terminates its process group; Windows descendant supervision
+still requires the AgentHub Job boundary). Give the connection one background
+owner with an explicit lifetime signal and confirmed cleanup. Dropped startup
+or session handles must stop it; an explicit close must finish even when its
+waiter leaves. Preserve graceful close, force disposal after its deadline,
+clear pending permissions/turn senders, and test the actual ownership paths.
+This phase touches ACP and its lifecycle tests plus this plan, and does not
+claim that the engine's startup Cancel button or subprocess extraction is done.
+
+Verification: 19 provider-session tests pass (7 new lifecycle regressions,
+including cancelling a real SDK-launched Windows child before readiness).
+Graceful and forced close, abandoned close waiters, session drop, startup
+failure/timeout and connection panic clear their retained resources. Existing
+ACP restore and permission-resolution tests still pass. The engine/runtime
+run passes 204 tests (182 engine, 4 signal contracts, 18 AgentHub); four
+existing integration tests remain ignored across these runs. Logs are in
+`.userdata/logs/agenthub-acp-lifecycle-tests.log` and
+`.userdata/logs/agenthub-lifecycle-engine-tests.log`.
+All-target Clippy for kernel, engine and runtime passes with warnings denied;
+`cargo xtask build-agenthub` rebuilt and staged the development executable.
+
+Next boundary work remains concrete: replace the engine's global startup
+lock with per-conversation lifecycle control; typed host callbacks for the
+existing database/provider owners; relocate agent/room orchestration and live
+state into the runtime; relay snapshots and disconnect invalidation. Then
+complete the persisted board and generated ColdLight UI, remote endpoint
+execution, explicit subscription activation/continuation and packaged native
+acceptance. None of those is satisfied by these lifecycle regressions.
 
 ### R3b — the board, in detail (written 2026-10-25)
 

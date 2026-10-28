@@ -1,7 +1,7 @@
-//! One supervised peer, with exclusive ownership of every request exchange.
+//! A shared client whose background worker owns the supervised peer.
 //!
-//! A cancelled exchange drops its peer and leaves the client failed. A later
-//! caller cannot consume an old reply or silently replay an interrupted call.
+//! Dropping a caller abandons only its reply. Accepted exchanges finish in
+//! order, independently of windows, without replay or losing pipe framing.
 
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
@@ -16,6 +16,9 @@ use tokio::sync::{watch, Mutex};
 use crate::history::{FoundPage, FoundSessions};
 use crate::protocol::{self, Hello, Reply, Request};
 
+mod worker;
+use worker::Worker;
+
 /// The executable name in an installed bundle, beside the desktop executable.
 pub const EXECUTABLE: &str = if cfg!(windows) {
     "devpulse-agenthub.exe"
@@ -27,15 +30,8 @@ pub const EXECUTABLE: &str = if cfg!(windows) {
 pub struct Client {
     program: PathBuf,
     data_dir: PathBuf,
-    state: Mutex<State>,
+    worker: Mutex<Option<Worker>>,
     stopping: watch::Sender<bool>,
-}
-
-enum State {
-    Cold,
-    Running(Box<Peer>),
-    Failed(String),
-    Stopped,
 }
 
 struct Peer {
@@ -64,7 +60,7 @@ impl Client {
         Self {
             program,
             data_dir,
-            state: Mutex::new(State::Cold),
+            worker: Mutex::new(None),
             stopping: watch::channel(false).0,
         }
     }
@@ -106,64 +102,24 @@ impl Client {
     }
 
     async fn request(&self, request: Request) -> Result<Reply> {
-        let mut stopping = self.stopping.subscribe();
-        let mut state = self.state.lock().await;
-        if *stopping.borrow() {
-            bail!("AgentHub is shutting down");
-        }
-        let previous = std::mem::replace(
-            &mut *state,
-            State::Failed("AgentHub request was interrupted; restart DevPulse to reconnect".into()),
-        );
-        let mut peer = match previous {
-            State::Cold => {
-                let started = tokio::time::timeout(
-                    Duration::from_secs(15),
-                    Peer::start(&self.program, &self.data_dir),
-                )
-                .await
-                .context("AgentHub startup timed out")
-                .and_then(|result| result);
-                match started {
-                    Ok(peer) => Box::new(peer),
-                    Err(error) => {
-                        let error = format!("{error:#}");
-                        *state = State::Failed(error.clone());
-                        bail!("{error}");
-                    }
-                }
-            }
-            State::Running(peer) => peer,
-            State::Failed(error) => {
-                *state = State::Failed(error.clone());
-                bail!("{error}");
-            }
-            State::Stopped => {
-                *state = State::Stopped;
-                bail!("AgentHub has stopped");
-            }
-        };
-        let result = tokio::select! {
-            result = tokio::time::timeout(Duration::from_secs(60), peer.exchange(&request)) => result.context("AgentHub request timed out").and_then(|result| result),
-            _ = stopping.changed() => {
-                // Shutdown owns the unfinished exchange and drains its output.
-                *state = State::Running(peer);
+        let worker = {
+            let mut worker = self.worker.lock().await;
+            if *self.stopping.borrow() {
                 bail!("AgentHub is shutting down");
             }
+            worker
+                .get_or_insert_with(|| {
+                    let program = self.program.clone();
+                    let data_dir = self.data_dir.clone();
+                    Worker::start(
+                        async move { Peer::start(&program, &data_dir).await },
+                        self.stopping.subscribe(),
+                        Duration::from_secs(60),
+                    )
+                })
+                .clone()
         };
-        match result {
-            Ok(reply) => {
-                *state = State::Running(peer);
-                Ok(reply)
-            }
-            Err(error) => {
-                let message =
-                    format!("AgentHub connection failed: {error:#}; restart DevPulse to reconnect");
-                *state = State::Failed(message.clone());
-                // Peer drops here, ending the child/job. No automatic replay.
-                bail!("{message}")
-            }
-        }
+        worker.request(request).await
     }
 
     /// Close stdin, drain pending output, and wait for a graceful exit before
@@ -173,9 +129,9 @@ impl Client {
     /// When the OS cannot wait for or stop the child.
     pub async fn shutdown(&self) -> Result<()> {
         self.stopping.send_replace(true);
-        let mut state = self.state.lock().await;
-        if let State::Running(peer) = std::mem::replace(&mut *state, State::Stopped) {
-            peer.close().await?;
+        let worker = self.worker.lock().await.clone();
+        if let Some(mut worker) = worker {
+            worker.finished().await?;
         }
         Ok(())
     }

@@ -32,6 +32,8 @@ use super::{AgentEvent, PermissionChoice, TurnEvents, PERMISSION_WAIT};
 use crate::providers::connect::acp::refuse;
 use crate::providers::connect::Launch;
 
+mod lifecycle;
+
 /// How long the agent may take to start and open its session.
 const START_TIMEOUT: Duration = Duration::from_secs(120);
 
@@ -61,7 +63,7 @@ struct Shared {
 pub struct AcpSession {
     commands: mpsc::UnboundedSender<Command>,
     shared: Arc<Shared>,
-    task: Mutex<Option<tokio::task::JoinHandle<()>>>,
+    connection: lifecycle::Connection,
 }
 
 impl AcpSession {
@@ -77,35 +79,39 @@ impl AcpSession {
         let (ready_tx, ready_rx) = oneshot::channel();
         let shared = Arc::new(Shared::default());
         *shared.ready.lock().await = Some(ready_tx);
-        let task = devpulse_telemetry::spawn(run(
-            launch.clone(),
-            cwd.to_path_buf(),
-            resume,
-            receiver,
+        let connection = lifecycle::Connection::start(
+            run(
+                launch.clone(),
+                cwd.to_path_buf(),
+                resume,
+                receiver,
+                Arc::clone(&shared),
+            ),
             Arc::clone(&shared),
-        ));
-        match tokio::time::timeout(START_TIMEOUT, ready_rx).await {
-            Ok(Ok(Ok(()))) => Ok(Self {
-                commands,
-                shared,
-                task: Mutex::new(Some(task)),
-            }),
-            Ok(Ok(Err(message))) => {
-                task.abort();
-                Err(anyhow!(message))
-            }
-            Ok(Err(_)) => {
-                task.abort();
-                bail!("the agent stopped before its session opened")
-            }
-            Err(_) => {
-                task.abort();
-                bail!(
-                    "the agent opened no session within {}s",
-                    START_TIMEOUT.as_secs()
-                )
-            }
+            Duration::from_secs(5),
+        );
+        Self {
+            commands,
+            shared,
+            connection,
         }
+        .await_ready(ready_rx, START_TIMEOUT)
+        .await
+    }
+
+    async fn await_ready(
+        self,
+        ready: oneshot::Receiver<Result<(), String>>,
+        timeout: Duration,
+    ) -> Result<Self> {
+        let error = match tokio::time::timeout(timeout, ready).await {
+            Ok(Ok(Ok(()))) => return Ok(self),
+            Ok(Ok(Err(message))) => message,
+            Ok(Err(_)) => "the agent stopped before its session opened".into(),
+            Err(_) => format!("the agent opened no session within {}s", timeout.as_secs()),
+        };
+        self.close().await;
+        Err(anyhow!(error))
     }
 
     /// Send one prompt.
@@ -146,15 +152,7 @@ impl AcpSession {
     /// End the conversation; the agent's process stops with the connection.
     pub async fn close(&self) {
         let _ = self.commands.send(Command::Close);
-        let task = self.task.lock().await.take();
-        if let Some(task) = task {
-            if tokio::time::timeout(Duration::from_secs(5), task)
-                .await
-                .is_err()
-            {
-                tracing::warn!(target: "providers", "an agent session did not close in time");
-            }
-        }
+        self.connection.close().await;
     }
 }
 
@@ -460,6 +458,10 @@ async fn open_session(
 #[cfg(test)]
 #[path = "acp_restore_tests.rs"]
 mod restore_tests;
+
+#[cfg(test)]
+#[path = "acp_lifecycle_tests.rs"]
+mod lifecycle_tests;
 
 #[cfg(test)]
 mod tests {
