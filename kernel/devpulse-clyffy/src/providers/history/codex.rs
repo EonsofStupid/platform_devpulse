@@ -230,7 +230,10 @@ fn decode_event_message(payload: &Value) -> DecodeOutcome {
         // These are notifications about the same messages, not additional
         // conversation entries. Selecting the durable representation here
         // works across byte/page boundaries and preserves repeated messages.
-        "user_message" | "agent_message" => DecodeOutcome::IgnoreKnown,
+        // Reasoning and world state are also known non-transcript records.
+        "user_message" | "agent_message" | "agent_reasoning" | "world_state" => {
+            DecodeOutcome::IgnoreKnown
+        }
         "task_started" => event(ChatEventContent::SessionStarted),
         "task_complete" => event(ChatEventContent::TurnCompleted),
         "turn_aborted" => event(ChatEventContent::TurnInterrupted),
@@ -268,7 +271,6 @@ fn decode_event_message(payload: &Value) -> DecodeOutcome {
                 string_at(payload, &["explanation"]).unwrap_or_else(|| "Codex plan updated".into());
             event(ChatEventContent::PlanUpdated(summary))
         }
-        "agent_reasoning" | "world_state" => DecodeOutcome::IgnoreKnown,
         other => unknown(
             &format!("codex.event_msg.{other}"),
             &redacted_shape(other, payload),
