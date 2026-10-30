@@ -323,6 +323,10 @@ label = "Home"
 [nav."/devpulse/community"]
 label = "Community"
 
+[nav."/overmind/agenthub"]
+label = "AgentHub"
+blurb = "Your agents, live conversations and session history."
+
 [nav."/devpulse/models"]
 label = "Models"
 blurb = "Slot management, downloads."

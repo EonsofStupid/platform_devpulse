@@ -20,7 +20,11 @@ vi.mock("$lib/sys/generated/bindings.js", () => ({
 	commands: { agentThreads: mocks.agentThreads },
 	events: {},
 }));
-vi.mock("$lib/sys/logger.js", () => ({ logError: vi.fn(), logInfo: vi.fn() }));
+vi.mock("$lib/sys/logger.js", async (importOriginal) => ({
+	...(await importOriginal<typeof import("$lib/sys/logger.js")>()),
+	logError: vi.fn(),
+	logInfo: vi.fn(),
+}));
 vi.mock("$lib/sys/runes/global.svelte.js", () => ({ globalState: {} }));
 vi.mock("../util/format.js", () => ({ toBlockMessage: vi.fn() }));
 vi.mock("./chat.service.js", () => ({ loadRecent: mocks.loadRecent }));

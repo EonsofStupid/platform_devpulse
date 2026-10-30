@@ -13,6 +13,7 @@ import { updatesState } from "$lib/domains/app/updates/index.js";
 import { authState } from "$lib/domains/auth/index.js";
 import { clyffyStatus } from "$lib/domains/clyffy/index.js";
 import BootOverlay from "$lib/layouts/app/BootOverlay.svelte";
+import { startMainNavigation } from "$lib/sys/bindings/window/index.js";
 import { copyState } from "$lib/sys/copy/index.js";
 import { HfTokenPanel } from "$lib/sys/debug/index.js";
 import ErrorOverlay from "$lib/sys/ErrorOverlay.svelte";
@@ -41,6 +42,9 @@ onMount(() => {
 	// Everything goes to the Rust tracing pipeline → session JSONL.
 	installGlobalHandlers();
 	logInfo("layout", "Root layout mounted");
+	const stopMainNavigation = startMainNavigation((error) =>
+		logError("window-navigation", String(error)),
+	);
 	// biome-ignore lint/suspicious/noExplicitAny: Tauri injects __TAURI_INTERNALS__ on window
 	logInfo("layout", `__TAURI_INTERNALS__: ${typeof (window as any).__TAURI_INTERNALS__}`);
 
@@ -137,6 +141,7 @@ onMount(() => {
 	}, 30_000);
 
 	return () => {
+		stopMainNavigation();
 		detachDownloadBridge?.();
 		stopClyffyStatus();
 		stopProjects();

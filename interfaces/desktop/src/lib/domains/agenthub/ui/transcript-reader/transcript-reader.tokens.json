@@ -1,0 +1,13 @@
+{
+	"agenthub-transcript-reader": {
+		"$extensions": { "com.coldlight": { "accepts": ["surface", "text", "frame"], "slot": "root" } },
+		"base": { "overflow": { "$value": "hidden" } },
+		"part": {
+			"message": {
+				"border-left-width": { "$type": "dimension", "$value": { "value": 2, "unit": "px" } },
+				"border-left-color": { "$type": "color", "$value": "var(--accent-teal-main)" },
+				"overflow-wrap": { "$value": "anywhere" }
+			}
+		}
+	}
+}

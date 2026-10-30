@@ -329,17 +329,13 @@ fn run_prelaunch_checks(
     // ── Stage 5.6: Build lock scan ──
     stage::section("Build Lock");
     let lock_start = Instant::now();
-    let lock_killed = zombie::clear_build_lock_holders();
-    if lock_killed > 0 {
-        log.stage_timed(
-            "build_lock",
-            "OK",
-            &format!("killed {lock_killed} lock holder(s)"),
-            lock_start,
-        )?;
-    } else {
-        log.stage_timed("build_lock", "OK", "lock is free", lock_start)?;
-    }
+    let other_builds = zombie::inspect_build_processes();
+    log.stage_timed(
+        "build_lock",
+        "OK",
+        &format!("{other_builds} other Rust process(es) left running; Cargo manages build locks"),
+        lock_start,
+    )?;
 
     Ok(())
 }

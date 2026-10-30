@@ -2,11 +2,14 @@
   @feature ChatRoot — golden chat composition (atmosphere + chrome + stream + composer)
 -->
 <script lang="ts">
+import { Button } from "@devpulse/coldlight/components/button";
 import { DynamicBackground } from "@devpulse/coldlight/components/dynamic-background";
 import { Text } from "@devpulse/coldlight/components/text";
 import { agenthubState } from "$lib/domains/agenthub/index.js";
 import { isInferenceReady, ModelEventCard, modelsState } from "$lib/domains/app/models/index.js";
 import { projectsState } from "$lib/domains/app/projects/index.js";
+import { openMainPage } from "$lib/sys/bindings/window/index.js";
+import { type RouteNode, routeAt, routeCopy } from "$lib/sys/routing/index.js";
 import { agentsState } from "../data-access/agents.state.svelte.js";
 import { chatState } from "../data-access/chat.state.svelte.js";
 import { sessionsState } from "../data-access/sessions.state.svelte.js";
@@ -18,6 +21,18 @@ import ChatStream from "./ChatStream.svelte";
 import CortexMemoryStrip from "./CortexMemoryStrip.svelte";
 
 let dismissedEvents = $state(new Set<string>());
+const hub = routeAt("/overmind/agenthub");
+const aiSettings = routeAt("/devpulse/settings/ai");
+let navigationError = $state<string | null>(null);
+let showSessions = $state(false);
+async function openPage(route: RouteNode, conversation: string | null = null) {
+	navigationError = null;
+	try {
+		await openMainPage(route, conversation);
+	} catch (error) {
+		navigationError = error instanceof Error ? error.message : String(error);
+	}
+}
 const finishedTurn = $derived.by(() => {
 	const turn = agenthubState.conversation(chatState.activeSessionId);
 	return turn?.activity === "idle" ? turn.turnId : null;
@@ -64,13 +79,21 @@ $effect(() => {
 			<ChatModeSelector />
 		</aside>
 		<div class="flex min-h-0 min-w-0 flex-1 flex-col gap-2">
-			<div class="flex items-center justify-between gap-2 border-b border-[var(--border-subtle)] pb-1">
-				<Text size="xs" weight="semibold" class="text-[var(--text-muted)]">CHAT</Text>
-				<ChatActionsMenu />
+			<div class="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] pb-1">
+				<Text size="xs" weight="semibold" class="truncate">{projectsState.activeProject?.name ?? "Choose a project to chat"}</Text>
+				<div class="flex flex-wrap items-center gap-2">
+					<Button variant="ghost" size="sm" class="md:hidden" aria-expanded={showSessions} aria-controls="chat-sessions" onclick={() => { showSessions = !showSessions; }}>Sessions</Button>
+					{#if hub}<Button variant="ghost" size="sm" onclick={() => void openPage(hub, chatState.activeSessionId)} title="Open AgentHub in Overmind">{routeCopy(hub)?.label ?? "AgentHub"}</Button>{/if}
+					{#if aiSettings}<Button variant="ghost" size="sm" onclick={() => void openPage(aiSettings)}>Your AI</Button>{/if}
+					<ChatActionsMenu />
+				</div>
 			</div>
+			{#if navigationError}<Text role="alert" size="xs">{navigationError}</Text>{/if}
 			<CortexMemoryStrip />
-			<div class="flex min-h-0 flex-1 gap-2">
-				<ChatSessionList />
+			<div class="relative flex min-h-0 flex-1 gap-2">
+				<div id="chat-sessions" class={`${showSessions ? "flex" : "hidden"} absolute inset-y-0 left-0 z-20 w-56 md:static md:flex md:w-48 md:shrink-0`}>
+					<ChatSessionList onSelect={() => { showSessions = false; }} />
+				</div>
 				<ChatStream class="min-w-0" />
 			</div>
 			<ChatComposer />

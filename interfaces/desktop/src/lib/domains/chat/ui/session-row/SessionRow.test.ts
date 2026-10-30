@@ -37,3 +37,20 @@ it("disabled rows cannot invoke selection", async () => {
 	expect(button.disabled).toBe(true);
 	expect(onClick).not.toHaveBeenCalled();
 });
+
+it("keeps the title and timestamp readable when the session rail must scroll", () => {
+	const { container } = render(SessionRow, {
+		props: { session, active: false, onClick: () => {} },
+	});
+	const row = container.querySelector("button");
+	if (!row) throw new Error("Session button is missing");
+	const naturalHeight = row.getBoundingClientRect().height;
+	container.style.cssText = "display:flex;flex-direction:column;height:24px;overflow-y:auto";
+	expect(row.getBoundingClientRect().height).toBe(naturalHeight);
+	expect(container.scrollHeight).toBeGreaterThan(container.clientHeight);
+	for (const text of row.children) {
+		expect(text.getBoundingClientRect().bottom).toBeLessThanOrEqual(
+			row.getBoundingClientRect().bottom,
+		);
+	}
+});

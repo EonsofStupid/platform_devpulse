@@ -68,6 +68,12 @@ describe("route manifest", () => {
 	it("finds each page by its path", () => {
 		for (const path of expected) expect(findRoute(path)?.hasPage, path).toBe(true);
 	});
+
+	it("owns AgentHub under Overmind with no parallel DevPulse page", () => {
+		const overmind = findRoute("/overmind");
+		expect(overmind?.children.some((child) => child.path === "/overmind/agenthub")).toBe(true);
+		expect(findRoute("/devpulse/agenthub")).toBeUndefined();
+	});
 });
 
 function sourceFiles(dir: string, out: string[] = []): string[] {

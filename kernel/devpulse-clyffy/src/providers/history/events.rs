@@ -366,18 +366,18 @@ impl ChatEventContent {
             Self::SessionStarted
             | Self::ModelSelected { .. }
             | Self::StatusUpdated(_)
+            | Self::ToolStarted { .. }
+            | Self::ToolCompleted { .. }
+            | Self::UsageUpdated { .. }
             | Self::TurnCompleted
             | Self::TurnInterrupted => EventPresentation::Activity,
             Self::Unknown(_) => EventPresentation::Diagnostics,
             Self::UserMessage(_)
             | Self::AssistantMessage(_)
             | Self::PlanUpdated(_)
-            | Self::ToolStarted { .. }
-            | Self::ToolCompleted { .. }
             | Self::DiffUpdated(_)
             | Self::ApprovalRequested { .. }
             | Self::ApprovalResolved { .. }
-            | Self::UsageUpdated { .. }
             | Self::TurnFailed { .. }
             | Self::ProviderWarning(_) => EventPresentation::Conversation,
         }
@@ -397,4 +397,38 @@ pub struct ChatEvent {
     pub turn_id: Option<TurnId>,
     /// What happened.
     pub content: ChatEventContent,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{ChatEventContent, EventPresentation, TokenUsage};
+
+    #[test]
+    fn tools_and_usage_are_activity_while_messages_and_failures_remain_visible() {
+        for content in [
+            ChatEventContent::ToolStarted {
+                label: "exec".into(),
+            },
+            ChatEventContent::ToolCompleted {
+                label: "exec".into(),
+                succeeded: true,
+            },
+            ChatEventContent::UsageUpdated {
+                summary: "token usage".into(),
+                usage: TokenUsage::default(),
+            },
+        ] {
+            assert_eq!(content.presentation(), EventPresentation::Activity);
+        }
+        for content in [
+            ChatEventContent::UserMessage("question".into()),
+            ChatEventContent::AssistantMessage("answer".into()),
+            ChatEventContent::TurnFailed {
+                message: "disconnected".into(),
+            },
+            ChatEventContent::ProviderWarning("warning".into()),
+        ] {
+            assert_eq!(content.presentation(), EventPresentation::Conversation);
+        }
+    }
 }

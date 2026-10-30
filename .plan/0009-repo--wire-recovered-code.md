@@ -290,6 +290,30 @@ Clippy for kernel, engine and runtime passes with warnings denied. Logs:
 still starting and Close removes the live entry before run completion; those
 paths need the same owned-lifetime guarantees before runtime extraction.
 
+**Visible chat/AgentHub phase (2026-10-29, owner correction):** the owner
+requires the chat and AgentHub experience to be established, not another
+isolated backend milestone. Wire the existing subprocess catalog and paging
+commands into the AgentHub domain under Overmind, cross-linked from the
+separate tailored chat interface. Present provider-scoped parent/child sessions, retained live
+activity, source failures and a read-only newest-page transcript reader with
+explicit older paging. Preserve unknown/orphan sub-agents and distinguish
+historical activity from observed live state. Use typed ColdLight adapters
+with colocated generated visuals; do not create an execution stack in UI.
+Deliver in verified phases of at most five authored files: catalog state and
+race tests; session and transcript adapters; feature/page/navigation/chat
+wiring. Render and test the visible flow. Persisted board placement, runtime
+extraction and explicit continuation still require their original acceptance
+checks; this session browser must not masquerade as the finished board.
+
+Native verification exposed an unsafe existing launcher boundary:
+`clear_build_lock_holders` kills every non-ancestor cargo/rustc process by
+name, including other workspaces. The 2026-10-29 launcher log reported four
+Cargo processes killed. Reauthor this scan as diagnostics only on Windows
+and Unix; let Cargo own its normal file locking. Update dev/release callers
+and their messages together, with no compatibility alias. This safety phase
+touches the existing scanner, both callers and this plan. Do not repeat the
+old launcher after this finding.
+
 ### R3b — the board, in detail (written 2026-10-25)
 
 What R3a's live check showed, which R3b builds on:
@@ -330,11 +354,66 @@ The library inventory for the board (plan 0001 B4.3b's first step):
 | R3b.5 | **The module and its page.** `domains/agenthub/`: `data-access/agenthub.service.ts` (every command and event), `agenthub.state.svelte.ts`, `ui/board-card/`, `feature/AgentHubBoard.svelte`, `index.ts` (chat integrates through it alone). The page comes from its folder (plan 0008: `_nav`, its copy). A found session opens read only, newest page first, "Show older"; sub-agents fold under their parent's card. | your real sessions on the board; screenshots at 1440 and 1024 wide |
 | R3b.6 | **Continue here.** On a session you started (not a sub-agent), "Continue in DevPulse" — your click — starts an agent thread in its project with the session's own id as the resume token, so the vendor continues it in its folder. | a Codex session from the terminal continued in DevPulse |
 
-**Q54 implementation recommendation (Codex review, 2026-10-25):** its own
-page in the navigation, **DevPulse › AgentHub**, with chat linking to it.
-The board spans sessions, agents and rooms and needs its own stable route.
-Use this as the implementation default; it is not a recorded owner answer
-to Q54.
+**Q54 owner correction (2026-10-29):** AgentHub belongs under **Overmind**,
+at `/overmind/agenthub`. The earlier DevPulse placement was an unapproved
+implementation assumption and is superseded. Chat keeps its tailored native
+interface; its contextual links open the owning main-window page instead of
+replacing chat with the application shell. Preserve the active conversation.
+Correct the route folder and copy together, expose the entry from Overmind,
+and verify navigation in both native windows. Reuse the existing domain,
+typed ColdLight components and generated feature CSS. No redirect or duplicate
+page at the mistaken path. Fix the observed compact-chat clipping in the
+existing owners, with layout and cross-window failure regression tests.
+This correction does not mark the persisted board or provider acceptance done.
+
+Correction evidence (2026-10-29): the route folder and copy now live at
+`/overmind/agenthub`, with an Overmind dashboard entry and the normal generated
+submenu. Chat opens that page in the main window using an acknowledged,
+targeted Tauri event; it keeps its route, draft and active session. The link
+carries the selected conversation ID, which the hub identifies only when a
+retained live observation exists. The return action focuses the existing chat.
+Window opening restores minimized/hidden windows before focusing them.
+The compact chat session rail is collapsible, its rows keep their natural
+height, and export/delete actions remain behind the existing confirmation
+dialogs through a compact ColdLight popover. Transcript messages likewise
+keep their height in the scrolling reader and use generated part styling.
+
+Research: existing Overmind route/navigation and native window owners;
+`recovered/devpulselabs/docs/proof/chat-steam-compact-native.png` and
+`chat-content-spine-native.png` (distinct chat surface with contextual links);
+[Tauri targeted events](https://v2.tauri.app/reference/javascript/api/namespaceevent/).
+Browser verification: 35 tests across history, live state, chat selection,
+failure retention, scrolling rows and cross-window acknowledgement/error/
+timeout cleanup. Route/ColdLight architecture: 12 tests. Desktop type check:
+zero errors/warnings. Generated CSS: 110 outputs verified, zero changed.
+Native acceptance passed: Overmind dashboard and submenu open AgentHub;
+202 sessions load (146 Claude Code, 56 Codex); compact chat keeps its selected
+conversation through the AgentHub round trip. Closing the main window while
+chat stays open and following the link recreates the main window at AgentHub
+through a readiness handshake. Seven navigation regressions cover delivery,
+acknowledgement, errors, timeout cleanup, startup and duplicate delivery.
+The rebuilt reader opens at the newest message, with readable row heights,
+generated message borders, and one entry per actual Codex message. Local
+evidence: `.userdata/proof/overmind-agenthub-native.jpg` and
+`.userdata/proof/chat-overmind-native.jpg`. Rust history: 47 tests passed;
+launcher compiler-survival regression passed. R3b remains incomplete as
+specified in the table above; this verifies the ownership/UI correction.
+
+Native finding: the normalized history model marked `ToolStarted`,
+`ToolCompleted` and `UsageUpdated` as conversation content. Correct their
+existing presentation owner to Activity so the reader's tools/diagnostics
+toggle does what it says; preserve messages, warnings and failures as visible
+conversation content. Add a model regression, rebuild the bundled runtime,
+and recheck the real transcript. No UI-only filter or data deletion.
+
+Native finding: Codex rollout messages appeared twice because the reader
+treated both `response_item.message` and its completion notification as
+conversation entries. Codex's [rollout persistence policy](https://github.com/openai/codex/blob/main/codex-rs/rollout/src/policy.rs)
+persists raw message items in both history modes. Use those as the rollout
+transcript authority; completion notifications remain known non-displayable
+records. Standalone `item.completed` output retains its own decoder. Verify
+old and current notification shapes, repeated identical real messages, and
+one-event pages across mirror boundaries. Do not deduplicate by message text.
 
 #### R3b implementation contract (Codex review, 2026-10-25)
 

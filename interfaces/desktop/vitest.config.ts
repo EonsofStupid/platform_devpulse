@@ -34,7 +34,7 @@ export default defineConfig({
 	plugins: [tailwindcss(), sveltekit()],
 	// Pre-bundled so Vite does not re-optimize and reload a test mid-run when a test first imports it.
 	optimizeDeps: {
-		include: ["@tauri-apps/api/webviewWindow"],
+		include: ["@tauri-apps/api/webviewWindow", "@tauri-apps/api/window"],
 	},
 	resolve: {
 		alias: {

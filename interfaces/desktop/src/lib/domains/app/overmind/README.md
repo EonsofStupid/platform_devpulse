@@ -93,6 +93,7 @@ Sub-Agents to help the user theorycraft:
 | Route | Purpose | Component |
 |-------|---------|-----------|
 | `/overmind` | Dashboard (default) | `OvermindDashboard.svelte` |
+| `/overmind/agenthub` | AgentHub: agent activity and read-only session history; persisted board still in plan 0009 | `domains/agenthub/feature/AgentHub.svelte` |
 | `/overmind/session/:id` | Active sandbox | `SessionWorkspace.svelte` |
 | `/overmind/classroom` | Visual lessons | `ClassroomPage.svelte` |
 | `/overmind/agents` | Agent testing | `AgentTestingPage.svelte` |

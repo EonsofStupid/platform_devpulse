@@ -204,18 +204,13 @@ fn run_inner(ws: &Workspace, sink: &EventSink, portable_only: bool) -> anyhow::R
     };
 
     // ── Stage 3: Zombie cleanup ──
-    // Clear stale cargo/rustc/node from crashed sessions. A previous
-    // dev run can leave build-lock holders that silently block release.
+    // Report concurrent builds. A process name cannot prove lock ownership.
     stage::section("Cleanup");
     let cleanup_guard = sink.start("cleanup-build-locks");
-    let lock_killed = zombie::clear_build_lock_holders();
-    if lock_killed > 0 {
-        crate::xinfo!("  [OK] killed {lock_killed} stale build-lock holder(s)");
-        cleanup_guard.ok_with(EventBuilder::new().detail(format!("killed {lock_killed}")));
-    } else {
-        crate::xinfo!("  [OK] no stale build-lock holders");
-        cleanup_guard.ok_with(EventBuilder::new().detail("no stale holders"));
-    }
+    let other_builds = zombie::inspect_build_processes();
+    cleanup_guard.ok_with(EventBuilder::new().detail(format!(
+        "{other_builds} other Rust process(es) left running; Cargo manages build locks"
+    )));
 
     // ── Stage 4: Pre-flight ──
     stage::section("Pre-flight");

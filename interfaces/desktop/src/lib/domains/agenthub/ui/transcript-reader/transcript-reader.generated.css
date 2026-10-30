@@ -1,0 +1,17 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+[data-ui="agenthub-transcript-reader"][data-slot="root"] {
+	--agenthub-transcript-reader-overflow: hidden;
+	overflow: var(--agenthub-transcript-reader-overflow);
+}
+
+[data-ui="agenthub-transcript-reader"][data-slot="message"] {
+	--agenthub-transcript-reader-message-border-left-width: 0.125rem;
+	border-left-width: var(--agenthub-transcript-reader-message-border-left-width);
+	--agenthub-transcript-reader-message-border-left-color: var(--accent-teal-main);
+	border-left-color: var(--agenthub-transcript-reader-message-border-left-color);
+	--agenthub-transcript-reader-message-overflow-wrap: anywhere;
+	overflow-wrap: var(--agenthub-transcript-reader-message-overflow-wrap);
+}

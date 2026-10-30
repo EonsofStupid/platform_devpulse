@@ -35,7 +35,7 @@ async function open(role: WindowRole): Promise<void> {
 </script>
 
 <ChatFrame state="open" engaged={true}>
-	<ChatTopBar hubLabel={globalState.current_domain.toUpperCase()} title="CORTEX MEMORY">
+	<ChatTopBar hubLabel={globalState.current_domain.toUpperCase()} title="CHAT">
 		{#snippet children()}
 			<Button variant="ghost" size="sm" onclick={() => open("KnowledgeViewer")} title="Knowledge Viewer" aria-label="Open Knowledge Viewer">
 				<Brain size={14} />

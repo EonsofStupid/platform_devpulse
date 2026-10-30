@@ -62,7 +62,9 @@ const m = $derived(renderForge({ kind: "chat-frame", preset: "default" }));
 	.chat-frame {
 		position: relative;
 		display: grid;
-		grid-template-rows: var(--chat-topbar-height, 2.5rem) 1fr var(--chat-footer-height, 3.5rem);
+		/* An absent direct footer must not reserve a blank row. The chat feature
+		   owns its composer inside the dashboard; standalone footers size naturally. */
+		grid-template-rows: var(--chat-topbar-height, 2.5rem) minmax(0, 1fr) auto;
 		grid-template-columns: 1fr;
 		grid-template-areas:
 			"topbar"

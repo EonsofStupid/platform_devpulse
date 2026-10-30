@@ -1,0 +1,47 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+[data-ui="agenthub-history-row"][data-slot="root"] {
+	--agenthub-history-row-border-left-width: 0.1875rem;
+	--agenthub-history-row-border-left-color: oklch(0.0000 0.0000 0.00 / 0);
+	border-left-width: var(--agenthub-history-row-border-left-width);
+	border-left-color: var(--agenthub-history-row-border-left-color);
+}
+
+[data-ui="agenthub-history-row"][data-slot="root"] {
+	cursor: pointer;
+	outline-offset: var(--focus-offset, 2px);
+	-webkit-tap-highlight-color: transparent;
+}
+
+[data-ui="agenthub-history-row"][data-slot="root"]:focus-visible {
+	outline: 2px solid var(--focus-ring, currentColor);
+	outline-offset: var(--focus-offset, 2px);
+}
+
+[data-ui="agenthub-history-row"][data-slot="root"]:is(:disabled, [data-disabled], [aria-disabled="true"]) {
+	cursor: not-allowed;
+	pointer-events: none;
+}
+
+[data-ui="agenthub-history-row"][data-slot="root"]:hover {
+	filter: var(--hover-filter, brightness(1.1));
+}
+
+[data-ui="agenthub-history-row"][data-slot="root"]:active {
+	filter: var(--active-filter, brightness(0.9));
+}
+
+[data-ui="agenthub-history-row"][data-slot="root"][data-selected] {
+	--agenthub-history-row-background-color: var(--accent-teal-fill);
+	--agenthub-history-row-border-left-color: var(--accent-teal-main);
+	--agenthub-history-row-box-shadow: none;
+	background-color: var(--agenthub-history-row-background-color);
+	box-shadow: var(--agenthub-history-row-box-shadow);
+}
+
+[data-ui="agenthub-history-row"][data-slot="metadata"] {
+	--agenthub-history-row-metadata-color: var(--text-muted);
+	color: var(--agenthub-history-row-metadata-color);
+}

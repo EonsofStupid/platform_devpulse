@@ -1,0 +1,17 @@
+{
+	"agenthub-history-row": {
+		"$extensions": { "com.coldlight": { "accepts": ["interactive"], "slot": "root" } },
+		"base": {
+			"border-left-width": { "$type": "dimension", "$value": { "value": 3, "unit": "px" } },
+			"border-left-color": { "$type": "color", "$value": "transparent" }
+		},
+		"state": {
+			"selected": {
+				"background-color": { "$type": "color", "$value": "var(--accent-teal-fill)" },
+				"border-left-color": { "$type": "color", "$value": "var(--accent-teal-main)" },
+				"box-shadow": { "$value": "none" }
+			}
+		},
+		"part": { "metadata": { "color": { "$type": "color", "$value": "{text.muted}" } } }
+	}
+}

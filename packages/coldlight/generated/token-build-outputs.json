@@ -1,4 +1,8 @@
 [
+	"interfaces/desktop/src/lib/domains/agenthub/ui/history-row/history-row.generated.css",
+	"interfaces/desktop/src/lib/domains/agenthub/ui/history-row/history-row.generated.ts",
+	"interfaces/desktop/src/lib/domains/agenthub/ui/transcript-reader/transcript-reader.generated.css",
+	"interfaces/desktop/src/lib/domains/agenthub/ui/transcript-reader/transcript-reader.generated.ts",
 	"interfaces/desktop/src/lib/domains/chat/ui/session-row/session-row.generated.css",
 	"interfaces/desktop/src/lib/domains/chat/ui/session-row/session-row.generated.ts",
 	"interfaces/desktop/src/lib/sys/generated/feature-styles.css",

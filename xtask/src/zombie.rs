@@ -231,44 +231,38 @@ fn zombie_patterns(dev_port: u16) -> Vec<String> {
     ]
 }
 
-/// Kill stale cargo/rustc processes that would hold the build directory lock.
-///
-/// Called before `cargo check` to guarantee the lock is free. If zombies from
-/// a crashed session are sitting on the lock, we'd block forever with zero
-/// output — the exact "frozen pipeline" bug. This makes the failure visible
-/// and recovers automatically.
-pub fn clear_build_lock_holders() -> u32 {
+/// Report other Rust processes without assuming they own this workspace's lock.
+/// Cargo coordinates its file locks; process names never establish ownership.
+pub fn inspect_build_processes() -> u32 {
     let stage = Stage::start("build lock scan");
 
     #[cfg(windows)]
-    let killed = clear_build_lock_windows();
+    let found = inspect_build_processes_windows();
 
     #[cfg(not(windows))]
-    let killed = clear_build_lock_unix();
+    let found = inspect_build_processes_unix();
 
-    if killed == 0 {
-        stage.ok_with("no stale cargo/rustc — build lock is free");
+    if found == 0 {
+        stage.ok_with("no other Rust processes observed; Cargo manages build locks");
     } else {
         stage.ok_with(format!(
-            "killed {killed} stale process(es) holding build lock"
+            "{found} other Rust process(es) observed; left running, Cargo manages build locks"
         ));
     }
 
-    killed
+    found
 }
 
 #[cfg(windows)]
-fn clear_build_lock_windows() -> u32 {
-    use std::process::Command;
-
+fn inspect_build_processes_windows() -> u32 {
     let my_pid = std::process::id();
     // Protect our entire ancestor chain — cargo.exe spawned us via `cargo xtask`,
     // and that cargo may itself have a parent (terminal, IDE, etc.).
     let ancestors = get_ancestor_pids_windows();
-    let mut killed = 0u32;
+    let mut found = 0u32;
 
     for name in &["cargo", "rustc"] {
-        println!("    scanning for stale {name}.exe ...");
+        println!("    checking running {name}.exe ...");
 
         let output = match run_with_timeout(
             "tasklist",
@@ -306,16 +300,15 @@ fn clear_build_lock_windows() -> u32 {
                     println!("    skipping {name}.exe (PID {pid}) — ancestor process");
                     continue;
                 }
-                println!("  [>>] killing stale {name}.exe (PID {pid}) — would block build lock");
-                let _ = Command::new("taskkill")
-                    .args(["/F", "/PID", &pid.to_string()])
-                    .output();
-                killed += 1;
+                println!(
+                    "  [info] {name}.exe (PID {pid}) is running; ownership unknown, left untouched"
+                );
+                found += 1;
             }
         }
     }
 
-    killed
+    found
 }
 
 /// Collect the full ancestor chain of cargo.exe PIDs that lead to us.
@@ -356,14 +349,12 @@ fn get_parent_pid_of(pid: u32) -> Option<u32> {
 }
 
 #[cfg(not(windows))]
-fn clear_build_lock_unix() -> u32 {
-    use std::process::Command;
-
+fn inspect_build_processes_unix() -> u32 {
     let my_pid = std::process::id();
-    let mut killed = 0u32;
+    let mut found = 0u32;
 
     for name in &["cargo", "rustc"] {
-        println!("    scanning for stale {name} ...");
+        println!("    checking running {name} ...");
 
         let output = match run_with_timeout("pgrep", &["-x", name], SUBPROCESS_TIMEOUT_SECS) {
             Ok(o) => o,
@@ -382,13 +373,12 @@ fn clear_build_lock_unix() -> u32 {
             if pid.parse::<u32>().ok() == Some(my_pid) {
                 continue;
             }
-            println!("  [>>] killing stale {name} (PID {pid}) — would block build lock");
-            let _ = Command::new("kill").args(["-9", pid]).output();
-            killed += 1;
+            println!("  [info] {name} (PID {pid}) is running; ownership unknown, left untouched");
+            found += 1;
         }
     }
 
-    killed
+    found
 }
 
 /// Scan for and kill zombie processes from previous dev sessions.
@@ -545,4 +535,52 @@ fn parse_csv_pid(line: &str) -> Option<u32> {
     let _name = parts.next()?;
     let pid_field = parts.next()?.trim().trim_matches('"');
     pid_field.parse::<u32>().ok()
+}
+
+#[cfg(all(test, windows))]
+#[allow(clippy::unwrap_used, reason = "test assertions")]
+mod tests {
+    use std::process::{Child, Command, Stdio};
+
+    struct Compiler(Child);
+
+    impl Drop for Compiler {
+        fn drop(&mut self) {
+            // Only this fixture is ours to stop; never kill by image name.
+            let _ = self.0.kill();
+            let _ = self.0.wait();
+        }
+    }
+
+    #[test]
+    fn build_inspection_leaves_an_unrelated_compiler_running() {
+        let compiler = Command::new("rustup")
+            .args(["which", "rustc"])
+            .output()
+            .unwrap();
+        assert!(compiler.status.success());
+        let path = String::from_utf8(compiler.stdout).unwrap();
+        // An actual compiler waiting for source on stdin stays alive throughout
+        // the scan. Its name cannot establish that it belongs to this launcher.
+        let mut child = Compiler(
+            Command::new(path.trim())
+                .args([
+                    "--crate-name",
+                    "devpulse_lock_probe",
+                    "--crate-type",
+                    "lib",
+                    "--emit",
+                    "metadata",
+                    "-",
+                ])
+                .stdin(Stdio::piped())
+                .stdout(Stdio::null())
+                .stderr(Stdio::null())
+                .spawn()
+                .unwrap(),
+        );
+        assert!(child.0.try_wait().unwrap().is_none());
+        assert!(super::inspect_build_processes() > 0);
+        assert!(child.0.try_wait().unwrap().is_none());
+    }
 }

@@ -1,2 +1,4 @@
 /* AUTO-GENERATED — DO NOT EDIT. Feature-local UI styles. */
+@import "../../domains/agenthub/ui/history-row/history-row.generated.css" layer(components);
+@import "../../domains/agenthub/ui/transcript-reader/transcript-reader.generated.css" layer(components);
 @import "../../domains/chat/ui/session-row/session-row.generated.css" layer(components);

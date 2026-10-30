@@ -31,6 +31,8 @@ pub async fn open_window(app: tauri::AppHandle, role: WindowRole) -> Result<Wind
 
     // Already open? Focus it.
     if let Some(window) = app.get_webview_window(label) {
+        window.unminimize().map_err(|e| e.to_string())?;
+        window.show().map_err(|e| e.to_string())?;
         window.set_focus().map_err(|e| e.to_string())?;
         return Ok(WindowInfo {
             role: role.clone(),

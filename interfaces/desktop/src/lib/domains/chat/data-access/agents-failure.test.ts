@@ -9,7 +9,10 @@ const mocks = vi.hoisted(() => ({
 	current: null as LiveSnapshot | null,
 }));
 vi.mock("$lib/domains/app/projects/index.js", () => ({ projectsState: { activeProjectId: "p" } }));
-vi.mock("$lib/sys/logger.js", () => ({ logError: vi.fn() }));
+vi.mock("$lib/sys/logger.js", async (importOriginal) => ({
+	...(await importOriginal<typeof import("$lib/sys/logger.js")>()),
+	logError: vi.fn(),
+}));
 vi.mock("$lib/sys/generated/bindings.js", () => ({
 	commands: {
 		agentPrompt: mocks.prompt,

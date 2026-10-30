@@ -226,23 +226,11 @@ fn decode_event_message(payload: &Value) -> DecodeOutcome {
         .and_then(Value::as_str)
         .unwrap_or("missing");
     match event_type {
-        "user_message" => string_at(payload, &["message"])
-            .map(ChatEventContent::UserMessage)
-            .map_or_else(
-                || unknown("codex.event_msg.user_message", "user message without text"),
-                event,
-            ),
-        "agent_message" => string_at(payload, &["message"])
-            .map(ChatEventContent::AssistantMessage)
-            .map_or_else(
-                || {
-                    unknown(
-                        "codex.event_msg.agent_message",
-                        "agent message without text",
-                    )
-                },
-                event,
-            ),
+        // Rollouts persist response_item.message in both history modes.
+        // These are notifications about the same messages, not additional
+        // conversation entries. Selecting the durable representation here
+        // works across byte/page boundaries and preserves repeated messages.
+        "user_message" | "agent_message" => DecodeOutcome::IgnoreKnown,
         "task_started" => event(ChatEventContent::SessionStarted),
         "task_complete" => event(ChatEventContent::TurnCompleted),
         "turn_aborted" => event(ChatEventContent::TurnInterrupted),
@@ -253,7 +241,15 @@ fn decode_event_message(payload: &Value) -> DecodeOutcome {
                 usage,
             })
         }
-        "item_completed" => decode_completed_item(payload.get("item").unwrap_or(&Value::Null)),
+        "item_completed" => {
+            let item = payload.get("item").unwrap_or(&Value::Null);
+            match item.get("type").and_then(Value::as_str) {
+                Some("user_message" | "UserMessage" | "agent_message" | "AgentMessage") => {
+                    DecodeOutcome::IgnoreKnown
+                }
+                _ => decode_completed_item(item),
+            }
+        }
         "thread_settings_applied" => string_at(payload, &["thread_settings", "model"])
             .map(|model| ChatEventContent::ModelSelected { model })
             .map_or_else(
@@ -741,13 +737,13 @@ mod tests {
             decode(
                 r#"{"type":"event_msg","payload":{"type":"item_completed","item":{"type":"AgentMessage","content":[{"type":"Text","text":"Done."}]}}}"#
             ),
-            event(ChatEventContent::AssistantMessage("Done.".into()))
+            DecodeOutcome::IgnoreKnown
         );
         assert_eq!(
             decode(
                 r#"{"type":"event_msg","payload":{"type":"item_completed","item":{"type":"UserMessage","content":[{"type":"text","text":"Ship it"}]}}}"#
             ),
-            event(ChatEventContent::UserMessage("Ship it".into()))
+            DecodeOutcome::IgnoreKnown
         );
         assert_eq!(
             decode(
@@ -799,6 +795,99 @@ mod tests {
                 DecodeOutcome::IgnoreKnown
             );
         }
+    }
+
+    #[test]
+    fn rollout_notifications_do_not_create_second_messages() {
+        for kind in ["user_message", "agent_message"] {
+            assert_eq!(
+                CodexHistoryDecoder.decode_line(&format!(
+                    r#"{{"type":"event_msg","payload":{{"type":"{kind}","message":"same words"}}}}"#
+                )),
+                DecodeOutcome::IgnoreKnown
+            );
+        }
+        for kind in [
+            "user_message",
+            "UserMessage",
+            "agent_message",
+            "AgentMessage",
+        ] {
+            assert_eq!(
+                CodexHistoryDecoder.decode_line(&format!(
+                    r#"{{"type":"event_msg","payload":{{"type":"item_completed","item":{{"type":"{kind}","text":"same words"}}}}}}"#
+                )),
+                DecodeOutcome::IgnoreKnown
+            );
+        }
+        // CLI JSON output is a separate format, with no rollout response item.
+        assert_eq!(
+            CodexHistoryDecoder.decode_line(
+                r#"{"type":"item.completed","item":{"type":"agent_message","text":"Done."}}"#
+            ),
+            event(ChatEventContent::AssistantMessage("Done.".into()))
+        );
+    }
+
+    #[test]
+    fn rollout_pages_preserve_repeated_real_messages_without_mirrors() {
+        use super::super::{HistoryLimits, HistorySource, JsonlHistorySource};
+
+        struct Fixture(std::path::PathBuf);
+        impl Drop for Fixture {
+            fn drop(&mut self) {
+                let _ = std::fs::remove_dir_all(&self.0);
+            }
+        }
+        let fixture = Fixture(
+            std::env::temp_dir().join(format!("devpulse-codex-mirrors-{}", uuid::Uuid::new_v4())),
+        );
+        std::fs::create_dir(&fixture.0).unwrap();
+        let records = concat!(
+            "{\"type\":\"session_meta\",\"payload\":{\"id\":\"thread\"}}\n",
+            "{\"type\":\"response_item\",\"payload\":{\"type\":\"message\",\"role\":\"user\",\"content\":\"repeat\"}}\n",
+            "{\"type\":\"event_msg\",\"payload\":{\"type\":\"user_message\",\"message\":\"repeat\"}}\n",
+            "{\"type\":\"event_msg\",\"payload\":{\"type\":\"agent_message\",\"message\":\"reply\"}}\n",
+            "{\"type\":\"response_item\",\"payload\":{\"type\":\"message\",\"role\":\"assistant\",\"content\":\"reply\"}}\n",
+            "{\"type\":\"response_item\",\"payload\":{\"type\":\"message\",\"role\":\"user\",\"content\":\"repeat\"}}\n",
+            "{\"type\":\"event_msg\",\"payload\":{\"type\":\"item_completed\",\"item\":{\"type\":\"UserMessage\",\"text\":\"repeat\"}}}\n",
+            "{\"type\":\"event_msg\",\"payload\":{\"type\":\"item_completed\",\"item\":{\"type\":\"AgentMessage\",\"text\":\"reply\"}}}\n",
+            "{\"type\":\"response_item\",\"payload\":{\"type\":\"message\",\"role\":\"assistant\",\"content\":\"reply\"}}\n",
+        );
+        std::fs::write(fixture.0.join("rollout.jsonl"), records).unwrap();
+        let source = JsonlHistorySource::open(
+            &fixture.0,
+            CodexHistoryDecoder,
+            HistoryLimits {
+                page_events: 1,
+                ..HistoryLimits::default()
+            },
+        )
+        .unwrap();
+        let locator = source.list(None).unwrap().sessions[0].locator;
+        let mut cursor = None;
+        let mut messages = Vec::new();
+        let mut ids = std::collections::HashSet::new();
+        loop {
+            let page = source.page(locator, cursor).unwrap();
+            assert!(page.events.len() <= 1);
+            for entry in page.events {
+                assert!(ids.insert(entry.id));
+                messages.push(entry.content);
+            }
+            let Some(next) = page.next_cursor else { break };
+            assert!(cursor.is_none_or(|previous| next.before_byte < previous.before_byte));
+            cursor = Some(next);
+        }
+        assert_eq!(
+            messages,
+            vec![
+                ChatEventContent::AssistantMessage("reply".into()),
+                ChatEventContent::UserMessage("repeat".into()),
+                ChatEventContent::AssistantMessage("reply".into()),
+                ChatEventContent::UserMessage("repeat".into()),
+            ]
+        );
     }
 
     #[test]
