@@ -41,7 +41,8 @@ Pre-release — aggressive reauthoring, no shims.
 - `cd interfaces/desktop && pnpm ds:tokens:build` — ColdLight token regen
 
 ## Structure
-- `kernel/devpulse-clyffy/`, `kernel/model-loader/` — the kernel: AI only
+- `kernel/devpulse-clyffy/`, `kernel/model-loader/`, `kernel/devpulse-persona-mcp/`
+  — the kernel: AI only
   (AI config and anything that drives an AI connection); the engine is
   everything else. Vocabulary is public (owner 2026-10-19: "everything is
   public"): `systems/devpulse-engine/ip/kernel_terms.toml` maps layman ↔

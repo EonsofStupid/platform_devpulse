@@ -8,7 +8,7 @@ touches: [kernel-clyffy, engine, desktop, desktop-coldlight]
 status: in-progress
 owner: Jesse Hades Hall
 created: 2026-10-24
-updated: 2026-10-31
+updated: 2026-11-01
 supersedes: []
 specs:
   - CLAUDE.md
@@ -18,10 +18,141 @@ specs:
 
 ## Goal
 
-Every piece of code you wrote that left this repo's tree is back in it,
-unchanged, under `recovered/`, with where it came from. The chat crates from
-devpulselabs are copied in once. Each capability is then wired back into the
-product working, AgentHub first.
+Restore the owner's code, documentation, planning and organized directory
+structure to their proper owning locations, retaining provenance and original
+content. `recovered/` is temporary recovery staging, not the final destination.
+Reconcile existing implementations without overwriting or discarding authored
+work. AI configuration and connection/execution logic belong under `kernel/`,
+with configurable endpoints. Restore functioning consumers directly; do not
+introduce compatibility layers or parallel replacement implementations.
+
+## Restoration correction — governing direction, 2026-11-01
+
+The owner explicitly rejected leaving years of work in a recovery folder.
+This instruction governs the restoration sequence ahead of additional factory
+UI work. Preserve the earlier plans below as decision history; do not erase
+their content when updating current implementation requirements.
+
+1. Restore missing documentation and supporting documentation-site files to
+   their recorded original paths, byte-for-byte. Refuse existing destinations;
+   record restored locations in the provenance manifest. Verify all content
+   before removing a staging copy. Extend the recovery checker so reruns do not
+   recreate restored staging files. Existing documents require reconciliation,
+   not replacement by older copies.
+2. Audit remaining recovery paths against active owners and Git history,
+   including planning that survives at another path or changed in place.
+   Documentation restoration alone does not establish complete recovery.
+3. Move AI ownership out of engine into kernel in verified phases, updating
+   callers and endpoint configuration directly. Retain engine platform services
+   and supervision where appropriate. Inventory preserved capabilities before
+   removing any duplicate implementation.
+4. Resume the AgentHub ticket factory and chat-owned Council against the
+   restored architecture. The factory fixture is not runtime completion.
+
+Initial inventory: 689 documentation/supporting files have absent original
+destinations and no case-disambiguated recovery paths. This includes historical
+generated documentation; the count is not a count of authored plans or features.
+
+Restoration evidence (2026-11-01): 691 documents and supporting files returned
+to their recorded paths, 2,870,573 bytes verified against Git. The follow-up
+coverage scan found two more missing source revisions, bringing the manifest
+to 6,048 entries: 691 restored and 5,357 still staged. The separately imported
+devpulselabs sources are not part of that count. Existing documents were not
+overwritten. Git recognizes 690 exact renames and one newly recovered document;
+there are no standalone deletions in this change. Desktop `pnpm check` passes
+with zero errors/warnings. The manifest records the restored paths and checks
+them without recreating staging copies.
+The twelve recovery regression tests pass, including text history, original
+bytes, destination conflicts, interrupted cleanup and workspace path containment.
+
+Kernel ownership correction: the existing engine `onboarding/probes/` moves
+directly to `kernel/devpulse-clyffy/src/providers/adapters/`, the owner specified
+by plan 0001 R5. Remove the old module/export; retain the probe and tests.
+No production caller was found. This is an ownership correction, not completion
+of R5: configurable endpoint persistence, credential resolution and connection
+to chat execution still need to be implemented against the existing providers.
+`cargo check -p devpulse-clyffy -p devpulse-engine` and the targeted rustfmt check
+pass with the corrected ownership.
+The four moved adapter unit tests pass; the live endpoint test is explicitly
+ignored without `DEVPULSE_LIVE_ENDPOINT`. This does not verify a remote server
+or complete the missing production connection flow.
+
+Remaining source reconciliation includes the old connectome-to-cortex changes,
+Maestro (the active directory currently contains only its README), persona MCP,
+and historical desktop implementations. These require capability-by-capability
+comparison with current owners before integration. The restored sprint and
+ColdLight plans must inform that comparison; historical instructions do not
+override the owner's current colocated UI and endpoint requirements.
+
+### Executable restoration: persona memory (2026-11-01)
+
+Restore the preserved `systems/devpulse-persona-mcp` crate into
+`kernel/devpulse-persona-mcp`, preserving its handlers, schema, protocol and
+tests. The current owner ruling puts AI services in kernel; this supersedes
+the historical systems path in plan 0001 B6.1. Add the restored crate to the
+workspace and replace removed connectome/libSQL dependencies with the existing
+Turso adapter. Hold a connection for each operation rather than sharing one
+connection across callers. Repair failures exposed by the preserved tests;
+add behavioral coverage for concurrent writes, filter correctness, limits and
+idempotency where the implementation needs correction. Verify the stdio boundary
+and explicit database configuration before counting the service as executable.
+
+Original recovery copies remain until the restored implementation compiles,
+tests pass, and the provenance record identifies the current owner and reviewed
+content. Reconciled source retains its original Git reference and a digest of
+the verified restored version; an unrecorded edit must still fail the audit.
+Bundling and session attachment are separate acceptance checks, not implied by
+the crate compiling. Continue the remaining owner-by-owner restoration after
+this first executable boundary is established.
+
+Verified outcome: the kernel workspace member passes `cargo check`, all 26
+tests, `cargo fmt --check` and all-target Clippy with warnings denied. Actual
+subprocess tests exercise initialization, tool calls and persistence across
+restart. Repairs include atomic writes plus idempotency, natural-key uniqueness,
+Unicode limits, expired cache handling, honest text-only recall and MCP tool
+result framing. `DEVPULSE_PERSONA_DB` must explicitly name an absolute path.
+Remote authentication, non-text retrieval, bundling and session attachment are
+not complete. The protocol repair follows the official MCP 2025-06-18 tools and
+stdio transport specifications; it does not introduce an HTTP listener.
+
+The 12 original persona files now map to reviewed kernel destinations. Another
+13 connectome files map to existing cortex implementations after confirming
+that their only differences are namespace names/imports. Original Git revisions
+remain in the manifest alongside reviewed destination hashes and notes. These
+25 staging copies were removed only after verification. Current totals are
+716 restored/reconciled, 5,332 still staged, 6,048 provenance records. All
+13 recovery regression tests and the full manifest check pass. This supersedes
+the earlier documentation-only counts above; it is not full restoration.
+
+ColdLight reconciliation: compare the preserved design tree with the current
+package before restoring duplicate components. Ten existing files (WizardDialog
+and nine primitives) retain the original contents with only `$lib/design/`
+imports changed to `#coldlight/`. Full diffs were reviewed and the ColdLight
+package check passes with zero errors/warnings. Record those precise owners and
+reviewed hashes in the provenance manifest before removing their staging
+copies. This proves source preservation, not that every historical visual
+capability has been restored or migrated to generated CSS. The other 176
+same-relative-path candidates have additional differences requiring review.
+
+Continue the kernel reconciliation by reviewing full connectome-to-cortex
+diffs. The next 24 files preserve their declarations and algorithms while
+updating storage terminology/imports, adding existing module exports, returning
+test errors directly, or removing compiled Surreal-specific derives in favor
+of the current serialized server boundary. Record each difference explicitly;
+do not count a preserved barrel or data type as proof that its full feature is
+wired. Larger persistence, retrieval and remote-client changes remain separate
+reviews. Current active sources are retained; this phase removes only verified
+staging copies after recording their current owners and original revisions.
+
+Latest verification: 750 records now identify restored/reconciled destinations;
+5,298 remain staged. All 6,048 provenance checks pass, with zero uncovered
+deletions within the audit's stated scope. Imported devpulselabs and changes
+inside surviving files still require separate review. Plan 0007 records the
+additional llama-server/STT/TTS kernel ownership correction, atomic settings
+repair and download path fix (175 selected model-loader tests, Clippy, rustfmt,
+engine/desktop compilation pass). The persona service remains executable but
+not yet bundled/attached to desktop sessions. AgentHub factory F1–F5 and the
+historical ColdLight capability reconciliation remain incomplete.
 
 ## AgentHub factory and human supervision — governing plan, 2026-10-31
 

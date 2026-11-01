@@ -4,7 +4,7 @@
 //! slot starts the sidecar with them ([`super::llama::start_server`]).
 
 use crate::state::PlatformState;
-use devpulse_engine::platform::LlamaServerConfig;
+use model_loader::runtimes::llama_server::LlamaServerConfig;
 use tauri::State;
 
 /// Your llama-server settings, or the defaults.

@@ -17,8 +17,9 @@
 //!   that hold repositories).
 //! - [`you`] — the "You" form: name, email, projects folder.
 //! - [`scan`] — the repositories in your projects folder, with languages.
-//! - [`probes`] — identify the protocol an AI endpoint speaks. Moves to the
-//!   kernel's provider adapters in plan 0001 R5 (slice 5).
+//!
+//! AI endpoint protocol discovery belongs to
+//! `devpulse_clyffy::providers::adapters` in the kernel.
 //!
 //! # Honesty rule
 //!
@@ -27,7 +28,6 @@
 
 pub mod detect;
 pub mod flow;
-pub mod probes;
 pub mod scan;
 pub mod state;
 pub mod store;
@@ -35,6 +35,5 @@ pub mod workflow;
 pub mod you;
 
 pub use flow::{Flow, LoadedFlow, Stage};
-pub use probes::{identify, EndpointCapabilities, EndpointProbe, EndpointProtocol, ProbeOutcome};
 pub use state::{Detected, DetectedFolder, OnboardingState, OnboardingStatus, Requirement};
 pub use workflow::Onboarding;

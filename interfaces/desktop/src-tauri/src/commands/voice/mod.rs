@@ -1045,7 +1045,7 @@ pub async fn run_sts_pipeline(
 // Kokoros (TTS) — user-scope config persistence
 // ═══════════════════════════════════════════════════════════════
 
-use devpulse_engine::platform::{VoiceSttConfig, VoiceTtsConfig};
+use model_loader::runtimes::{voice_stt::VoiceSttConfig, voice_tts::VoiceTtsConfig};
 
 /// Load the persisted TTS config (default voice + default speed).
 ///

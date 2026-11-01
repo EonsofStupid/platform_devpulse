@@ -189,43 +189,45 @@ mod tests {
     use super::*;
 
     #[test]
-    fn slot_loaded_serializes_to_kebab_name_with_props() {
+    fn slot_loaded_serializes_to_kebab_name_with_props() -> serde_json::Result<()> {
         let evt = AnalyticsEvent::SlotLoaded {
             slot_id: "rag.embedder".to_string(),
             runtime: "burn".to_string(),
             repo_id: "microsoft/harrier-oss-v1-0.6b".to_string(),
             duration_ms: 1234,
         };
-        let json = serde_json::to_string(&evt).expect("serialize");
+        let json = serde_json::to_string(&evt)?;
         assert!(json.contains("\"name\":\"slot-loaded\""), "actual: {json}");
         assert!(
             json.contains("\"slot_id\":\"rag.embedder\""),
             "actual: {json}"
         );
         assert!(json.contains("\"runtime\":\"burn\""), "actual: {json}");
+        Ok(())
     }
 
     #[test]
-    fn auth_signed_in_serializes_with_user_id() {
+    fn auth_signed_in_serializes_with_user_id() -> serde_json::Result<()> {
         let evt = AnalyticsEvent::AuthSignedIn {
             user_id: "00000000-0000-0000-0000-000000000001".to_string(),
         };
-        let json = serde_json::to_string(&evt).expect("serialize");
+        let json = serde_json::to_string(&evt)?;
         assert!(
             json.contains("\"name\":\"auth-signed-in\""),
             "actual: {json}"
         );
         assert!(json.contains("\"user_id\":\"00000000"), "actual: {json}");
+        Ok(())
     }
 
     #[test]
-    fn embedder_first_query_props_minimal() {
+    fn embedder_first_query_props_minimal() -> serde_json::Result<()> {
         let evt = AnalyticsEvent::EmbedderFirstQuery {
             slot_id: "rag.embedder".to_string(),
             runtime: "candle".to_string(),
             latency_ms: 42,
         };
-        let json = serde_json::to_string(&evt).expect("serialize");
+        let json = serde_json::to_string(&evt)?;
         assert!(
             json.contains("\"name\":\"embedder-first-query\""),
             "actual: {json}"
@@ -236,5 +238,6 @@ mod tests {
         );
         assert!(json.contains("\"runtime\":\"candle\""), "actual: {json}");
         assert!(json.contains("\"latency_ms\":42"), "actual: {json}");
+        Ok(())
     }
 }

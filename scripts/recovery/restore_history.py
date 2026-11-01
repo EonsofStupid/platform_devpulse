@@ -11,14 +11,23 @@ list defines coverage; known build, vendor and generated directories are
 excluded by SKIP. Archived documentation can itself include generated HTML.
 
 Read-only on history: `git log`, `git ls-files`, `git ls-tree`, `git
-cat-file`. Writes only under `recovered/repo/`. Run from the repository root:
+cat-file`. Default recovery writes under `recovered/repo/`. `--restore-docs`
+moves verified documentation to absent original paths and records `restored_to`
+before removing staging copies. Checks validate unreconciled content against
+the original Git blob. Explicitly reconciled destinations require a review note
+and restored_sha256; their original Git reference remains recorded, and any
+remaining staging copy must still match the original blob. Unrecorded changes
+fail verification rather than being overwritten.
+Run from the repository root:
 
     python -I scripts/recovery/restore_history.py
     python -I scripts/recovery/restore_history.py --check
+    python -I scripts/recovery/restore_history.py --restore-docs
 """
 import argparse
 import collections
 import csv
+import hashlib
 import os
 from pathlib import Path
 import subprocess
@@ -37,7 +46,8 @@ SOURCE_NAMES = {".gitignore", ".gitkeep", ".keep", ".nojekyll", "phase1,md"}
 SKIP = ("node_modules/", "target/", "/generated/", ".svelte-kit/", "dist/", "build/", "deps/", "recovered/")
 OUT = os.path.join("recovered", "repo")
 FIELDS = ["path", "recovered_as", "copied_from", "deleted_by", "deleted_on",
-          "name_at_head", "deleting_commit_subject"]
+          "name_at_head", "deleting_commit_subject", "restored_to",
+          "restored_sha256", "restoration_note"]
 
 
 def git(*args, input=None, binary=False):
@@ -73,7 +83,69 @@ def read_blobs(queries):
         yield oid, body
 
 
-def restore(check=False):
+def restored_path(relative):
+    root = Path.cwd().resolve()
+    target = (root / relative).resolve()
+    if (not relative or not target.is_relative_to(root) or target == root
+            or target.is_relative_to((root / "recovered").resolve())
+            or target.is_relative_to((root / ".git").resolve())):
+        raise ValueError(f"restoration path leaves active tree: {relative}")
+    return target
+
+
+def write_manifest(manifest, rows):
+    manifest.parent.mkdir(parents=True, exist_ok=True)
+    temporary = manifest.with_suffix(".tsv.tmp")
+    with temporary.open("w", encoding="utf-8", newline="") as out:
+        writer = csv.DictWriter(out, fieldnames=FIELDS, delimiter="\t", lineterminator="\n")
+        writer.writeheader()
+        writer.writerows(sorted(rows, key=lambda r: (r["path"], r["copied_from"])))
+    temporary.replace(manifest)
+
+
+def restore_documents(manifest, rows):
+    candidates = [r for r in rows if r["path"].startswith(("docs/", "temp_docs/"))
+                  or Path(r["path"]).suffix.lower() in (".md", ".mdx", ".txt")]
+    pending = []
+    targets = set()
+    # Preflight the entire set before writing any destination.
+    for row in candidates:
+        destination = row.get("restored_to") or row["path"]
+        target = restored_path(destination)
+        key = str(target).casefold()
+        if key in targets:
+            raise ValueError(f"conflicting documentation versions: {destination}")
+        targets.add(key)
+        source = target_path(row["recovered_as"])
+        if row.get("restored_to"):
+            if source.exists():
+                if source.read_bytes() != target.read_bytes():
+                    raise ValueError(f"staging and restored versions differ: {destination}")
+                pending.append((row, source, target, False))
+            continue
+        if target.exists():
+            raise ValueError(f"restoration destination already exists: {destination}")
+        pending.append((row, source, target, True))
+    for row, source, target, create in pending:
+        if create:
+            target.parent.mkdir(parents=True, exist_ok=True)
+            # Exclusive creation protects a concurrent edit after preflight.
+            with target.open("xb") as output:
+                output.write(source.read_bytes())
+            if target.read_bytes() != source.read_bytes():
+                raise ValueError(f"restoration verification failed: {target}")
+            row["restored_to"] = row["path"]
+            # Persist provenance before removing any staging copy. Interrupted
+            # runs retain either both copies or a verified recorded destination.
+            write_manifest(manifest, rows)
+    for row, source, target, create in pending:
+        if source.read_bytes() != target.read_bytes():
+            raise ValueError(f"restoration changed before staging removal: {target}")
+        source.unlink()
+    print(f"documentation restored to original locations: {sum(p[3] for p in pending)}")
+
+
+def restore(check=False, documents=False):
     manifest = Path(OUT) / "SOURCES.tsv"
     rows = []
     if manifest.exists():
@@ -84,9 +156,23 @@ def restore(check=False):
     taken = set()
     known = set()
     for row, (oid, body) in zip(rows, read_blobs(queries)):
-        target = target_path(row["recovered_as"])
-        if not target.is_file() or target.read_bytes() != body:
+        target = (restored_path(row["restored_to"]) if row.get("restored_to")
+                  else target_path(row["recovered_as"]))
+        digest = row.get("restored_sha256")
+        if digest and (not row.get("restored_to") or not row.get("restoration_note")):
+            raise ValueError(f"reconciled source requires a destination and review note: {target}")
+        matches = target.is_file() and (
+            hashlib.sha256(target.read_bytes()).hexdigest() == digest
+            if digest else target.read_bytes() == body
+        )
+        if not matches:
             raise ValueError(f"recovered file missing or changed; refusing overwrite: {target}")
+        # A reconciled implementation may change APIs while preserving the
+        # original revision in Git. Any remaining staging copy must still be
+        # exact, even when the active destination has a reviewed digest.
+        staged = target_path(row["recovered_as"])
+        if row.get("restored_to") and staged.exists() and staged.read_bytes() != body:
+            raise ValueError(f"staging copy changed after restoration: {staged}")
         key = row["recovered_as"].lower()
         if key in taken:
             raise ValueError(f"duplicate recovery target: {key}")
@@ -170,24 +256,22 @@ def restore(check=False):
                 ])))
 
     if not check and (written or not manifest.exists()):
-        manifest.parent.mkdir(parents=True, exist_ok=True)
-        temporary = manifest.with_suffix(".tsv.tmp")
-        with temporary.open("w", encoding="utf-8", newline="") as out:
-            writer = csv.DictWriter(out, fieldnames=FIELDS, delimiter="\t", lineterminator="\n")
-            writer.writeheader()
-            writer.writerows(sorted(rows, key=lambda r: (r["path"], r["copied_from"])))
-        temporary.replace(manifest)
-    print(f"verified archive: {len(known)}; {'unrecovered' if check else 'added'}: {written}; "
+        write_manifest(manifest, rows)
+    if documents:
+        restore_documents(manifest, rows)
+    print(f"verified preserved sources: {len(known)}; {'unrecovered' if check else 'added'}: {written}; "
           f"survive verbatim in active HEAD: {survived}")
     return int(check and written > 0)
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--check", action="store_true", help="verify archive and coverage without writing")
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--check", action="store_true", help="verify staged/restored content and coverage without writing")
+    mode.add_argument("--restore-docs", action="store_true", help="restore staged documentation to its original paths")
     args = parser.parse_args()
     try:
-        return restore(check=args.check)
+        return restore(check=args.check, documents=args.restore_docs)
     except (ValueError, OSError, subprocess.CalledProcessError) as error:
         print(f"Recovery failed: {error}", file=sys.stderr)
         return 1

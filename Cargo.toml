@@ -1,9 +1,10 @@
 [workspace]
 resolver = "2"
-# Your recovered code is kept as it was, never built (plan 0009).
+# Recovery staging is excluded; restored crates build from their owning paths (plan 0009).
 exclude = ["recovered", "deps/tantivy-sstable"]
 members = [
     "kernel/devpulse-clyffy",
+    "kernel/devpulse-persona-mcp",
     "kernel/model-loader",
     "kernel/rrd",
     "systems/devpulse-engine",

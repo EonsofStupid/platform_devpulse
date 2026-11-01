@@ -1469,10 +1469,13 @@ or used), every visual in the B4.3 order.
 
 ### B6 — your context in every session (master plan H4)
 
-- **B6.1 Memory blocks restored.** `systems/devpulse-persona-mcp/` from
-  `c6ce222c^` (load, save, recall and list memory blocks; idempotency), on
-  Turso instead of libSQL. It was deleted in the kernel cut, and the
-  include-before-delete rule applies.
+- **B6.1 Memory blocks restored.** The historical `systems/devpulse-persona-mcp/`
+  from `c6ce222c^` now lives at `kernel/devpulse-persona-mcp/`, following the
+  owner's AI ownership ruling. Restoration verified 2026-11-01: current Turso
+  adapter, load/save/list/text recall, atomic idempotency, 26 passing tests
+  including subprocess and restart checks; all-target Clippy and rustfmt pass.
+  Original provenance is retained under plan 0009. Vector/graph recall is still
+  unconfigured and returns an explicit error; session attachment remains B6.2.
 - **B6.2 Served.** The kernel MCP SSE server (configured, never started:
   `engine/src/claude/mod.rs:349`, port 9315) starts with the app. ACP
   `session/new` passes it in `mcpServers`, and Claude Code gets an

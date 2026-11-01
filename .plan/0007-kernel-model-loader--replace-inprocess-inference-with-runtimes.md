@@ -9,7 +9,7 @@ touches: [kernel-clyffy, engine, process, desktop-tauri, desktop-devtools, deskt
 status: in-progress
 owner: jesse
 created: 2026-10-11
-updated: 2026-10-24
+updated: 2026-11-01
 supersedes: []
 specs:
   - scripts/docs/specs/MODEL-LOADER-UX-REQUIREMENTS.md
@@ -19,6 +19,42 @@ specs:
 # Run AI as prebuilt runtimes, not compiled-in engines
 
 ## Goal
+
+Restoration correction (2026-11-01, plan 0009): move the existing llama-server
+settings/flag-generation module out of engine services into this plan's
+`kernel/model-loader/src/runtimes/llama_server.rs` owner. Preserve its persisted
+settings and tests, make Specta derivation feature-gated, and update engine and
+desktop callers to the kernel type directly. Remove the old engine module and
+type export once the kernel implementation is verified. This ownership move
+does not complete runtime installation or remote endpoint routing.
+
+Verification: the two preserved llama-server configuration tests pass from
+kernel; engine and desktop backend compile, with the desktop importing the
+kernel type directly and the old engine module/export removed. Extend this
+ownership correction to the STT/TTS configuration modules under `runtimes/`.
+Preserve their settings, validation and tests; keep platform data-directory
+selection in engine. Correct the shared fixed-temporary-name save pattern with
+unique sibling files, checked synchronization and atomic replacement. Verify
+concurrent writes and existing-file replacement using temporary test data.
+These settings do not themselves implement voice endpoint selection; routing,
+provider credentials and the remaining compiled-in runtimes remain open work.
+
+The all-target Clippy pass exposed existing test failures in download scope,
+slot symlinks, backend resolution and analytics serialization. Repair those
+tests without weakening their assertions. Scope review also found that literal
+dot segments and directly deserialized project IDs could bypass constructor
+sanitization. Enforce safe components at path resolution and add regression
+coverage for those inputs before treating the kernel validation as complete.
+
+Verified outcome (2026-11-01): all three settings modules now live under kernel;
+engine supplies the configured data location and desktop uses kernel types.
+Readers and writers coordinate through stable sibling `.lock` files, with
+unique temporary files and checked synchronization before replacement. The
+Windows concurrent-read/write regression passes. The model-loader library suite
+with `--no-default-features --features specta,mode-dev` passes 175 tests, its
+all-target Clippy pass denies warnings successfully, and targeted rustfmt is
+clean. Engine and desktop backend compile. No runtime installation, remote
+endpoint, voice inference or subscription activation is claimed by this slice.
 
 DevPulse compiles no AI inference engine. Every local capability runs as a
 **prebuilt server binary** — upstream's where one exists, ours (built once in

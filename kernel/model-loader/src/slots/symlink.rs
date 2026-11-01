@@ -274,11 +274,11 @@ mod tests {
     }
 
     #[test]
-    fn assign_creates_symlink_when_target_exists() {
-        let userdata = tempdir().unwrap();
-        let model_root = tempdir().unwrap();
+    fn assign_creates_symlink_when_target_exists() -> anyhow::Result<()> {
+        let userdata = tempdir()?;
+        let model_root = tempdir()?;
         let target = model_root.path().join("nemotron.gguf");
-        fs::write(&target, b"fake gguf bytes").unwrap();
+        fs::write(&target, b"fake gguf bytes")?;
 
         // On Windows this test only passes when Developer Mode is on or
         // the process is elevated — same constraint the runtime hits.
@@ -286,19 +286,21 @@ mod tests {
         if let Err(LoaderError::Io { reason, .. }) = &result {
             if reason.contains("ERROR_PRIVILEGE_NOT_HELD") {
                 eprintln!("skipping: needs Developer Mode on Windows");
-                return;
+                return Ok(());
             }
         }
-        let link = result.unwrap();
+        let link = result?;
         assert!(link.exists(), "link should be visible to Path::exists");
-        let canonical = fs::canonicalize(&link).unwrap();
-        let target_canonical = fs::canonicalize(&target).unwrap();
+        let canonical = fs::canonicalize(&link)?;
+        let target_canonical = fs::canonicalize(&target)?;
         assert_eq!(canonical, target_canonical);
+        Ok(())
     }
 
     #[test]
-    fn unassign_no_op_on_missing_dir() {
-        let userdata = tempdir().unwrap();
+    fn unassign_no_op_on_missing_dir() -> anyhow::Result<()> {
+        let userdata = tempdir()?;
         assert!(unassign(userdata.path(), "chat.brain").is_ok());
+        Ok(())
     }
 }

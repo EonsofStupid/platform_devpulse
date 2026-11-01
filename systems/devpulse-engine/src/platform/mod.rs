@@ -52,11 +52,13 @@ pub use config::{
     retrieval_param_meta, sanitize_path, DataScope, ExecutionLane, LaneToggle, LaneTraceConfig,
     PlatformBootConfig, PlatformConfig, RetrievalConfig, RetrievalParamMeta, RetrievalPreset,
 };
+use devpulse_clyffy::model_loader::runtimes::llama_server::{self, LlamaServerConfig};
+use devpulse_clyffy::model_loader::runtimes::voice_stt::{self, VoiceSttConfig};
+use devpulse_clyffy::model_loader::runtimes::voice_tts::{self, VoiceTtsConfig};
 pub use health::{HealthStatus, SubsystemHealth, SystemHealth};
 pub use init::{InitEvent, InitStatus};
 pub use metrics::ProcessMetrics;
 pub use services::candle_config::CandleConfig;
-pub use services::llama_server_config::LlamaServerConfig;
 pub use services::routing_config::{
     EscalationConfig, EscalationTier, EscalationTierId, InferenceProvider, LatencyConfig,
     RoutingConfig,
@@ -69,8 +71,6 @@ pub use services::sidecars::surreal::{
     SurrealConfigView, SurrealHealth, SurrealService, SurrealStatus, SurrealUserConfig,
 };
 pub use services::status::{ServiceRuntimeState, ServiceStatusSnapshot};
-pub use services::voice_stt_config::VoiceSttConfig;
-pub use services::voice_tts_config::VoiceTtsConfig;
 pub use services::{Service, ServiceRole, ServiceState};
 
 // ════════════════════════════════════════════════════════════════
@@ -1253,7 +1253,7 @@ impl Platform {
     /// defaults so the devtool can still render.
     #[must_use]
     pub fn voice_tts_config_load(&self) -> VoiceTtsConfig {
-        services::voice_tts_config::load(&self.data_dir)
+        voice_tts::load(&self.data_dir)
     }
 
     /// Persist user-scope TTS preferences atomically. Returns the
@@ -1264,7 +1264,7 @@ impl Platform {
     /// - Creating the `user/` directory fails.
     /// - Temp-file write or rename fails.
     pub fn voice_tts_config_save(&self, cfg: &VoiceTtsConfig) -> Result<VoiceTtsConfig> {
-        services::voice_tts_config::save(&self.data_dir, cfg)
+        voice_tts::save(&self.data_dir, cfg)
     }
 
     // ── Voice STT config (user scope) ──────────────────────────
@@ -1272,7 +1272,7 @@ impl Platform {
     /// Load user-scope STT preferences.
     #[must_use]
     pub fn voice_stt_config_load(&self) -> VoiceSttConfig {
-        services::voice_stt_config::load(&self.data_dir)
+        voice_stt::load(&self.data_dir)
     }
 
     /// Persist user-scope STT preferences atomically. Returns the
@@ -1282,7 +1282,7 @@ impl Platform {
     /// - Creating the `user/` directory fails.
     /// - Temp-file write or rename fails.
     pub fn voice_stt_config_save(&self, cfg: &VoiceSttConfig) -> Result<VoiceSttConfig> {
-        services::voice_stt_config::save(&self.data_dir, cfg)
+        voice_stt::save(&self.data_dir, cfg)
     }
 
     // ── Routing config (user scope) ────────────────────────────
@@ -1446,14 +1446,14 @@ impl Platform {
     /// Your llama-server settings, or the defaults (what the devtool shows).
     #[must_use]
     pub fn llama_server_config_load(&self) -> LlamaServerConfig {
-        services::llama_server_config::load(&self.data_dir)
+        llama_server::load(&self.data_dir)
     }
 
     /// Your saved llama-server settings; `None` when you have saved none,
     /// so the server keeps its defaults.
     #[must_use]
     pub fn llama_server_config_saved(&self) -> Option<LlamaServerConfig> {
-        services::llama_server_config::load_saved(&self.data_dir)
+        llama_server::load_saved(&self.data_dir)
     }
 
     /// Persist llama-server settings atomically. Returns the clamped value.
@@ -1462,7 +1462,7 @@ impl Platform {
     /// - Creating the `user/` directory fails.
     /// - Temp-file write or rename fails.
     pub fn llama_server_config_save(&self, cfg: &LlamaServerConfig) -> Result<LlamaServerConfig> {
-        services::llama_server_config::save(&self.data_dir, cfg)
+        llama_server::save(&self.data_dir, cfg)
     }
 
     /// Lazy-start Ollama and return the running service.

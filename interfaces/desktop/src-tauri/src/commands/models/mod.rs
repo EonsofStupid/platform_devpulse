@@ -610,7 +610,7 @@ async fn load_via_sidecar(
     loader: &ModelLoaderService,
     llama_state: State<'_, crate::commands::llama::LlamaServerState>,
     slot_id: &str,
-    settings: Option<devpulse_engine::platform::LlamaServerConfig>,
+    settings: Option<model_loader::runtimes::llama_server::LlamaServerConfig>,
 ) -> Result<(), devpulse_engine::platform::LoadError> {
     let slots = loader.list_slots().await;
     let slot = slots.iter().find(|s| s.id == slot_id).ok_or_else(|| {

@@ -258,23 +258,22 @@ mod tests {
     #[test]
     fn qwen3_safetensors_resolves_to_candle_qwen3() {
         let result = resolve_compatibility(ArchId::Qwen3, ModelFormat::Safetensors);
-        match result {
-            Resolution::Ok { backend, notes: _ } => {
-                if cfg!(feature = "candle-backend") {
-                    assert_eq!(
-                        backend,
-                        BackendId::CandleSafetensorsQwen3,
-                        "Qwen3 safetensors must resolve to the arch-native loader"
-                    );
-                }
-            }
-            Resolution::Unsupported { .. } => {
-                // Only acceptable when the candle feature is OFF.
-                assert!(
-                    !cfg!(feature = "candle-backend"),
-                    "Qwen3 safetensors should resolve when candle-backend is on"
-                );
-            }
+        if cfg!(feature = "candle-backend") {
+            assert!(
+                matches!(
+                    result,
+                    Resolution::Ok {
+                        backend: BackendId::CandleSafetensorsQwen3,
+                        ..
+                    }
+                ),
+                "Qwen3 must resolve to its installed backend: {result:?}"
+            );
+        } else {
+            assert!(
+                matches!(result, Resolution::Unsupported { .. }),
+                "Qwen3 must not resolve to a disabled backend: {result:?}"
+            );
         }
     }
 

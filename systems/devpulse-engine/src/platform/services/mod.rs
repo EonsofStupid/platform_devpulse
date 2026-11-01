@@ -26,14 +26,11 @@ pub mod model_loader;
 #[cfg(feature = "inference")]
 pub use model_loader::ModelDownloadScope;
 pub mod candle_config;
-pub mod llama_server_config;
 #[cfg(feature = "inference")]
 pub mod model_loader_log;
 pub mod routing_config;
 pub mod sherpa_streaming;
 pub mod sidecars;
-pub mod voice_stt_config;
-pub mod voice_tts_config;
 
 use anyhow::Result;
 use serde::{Deserialize, Serialize};

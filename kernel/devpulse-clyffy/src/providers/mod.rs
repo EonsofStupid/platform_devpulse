@@ -15,6 +15,7 @@
 //! registry as `ai_providers`.
 
 pub mod actions;
+pub mod adapters;
 pub mod catalog;
 pub mod connect;
 pub mod definition;

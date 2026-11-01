@@ -1,5 +1,6 @@
 """Real Git regressions for archive preservation; no application files touched."""
 import csv
+import hashlib
 from pathlib import Path
 import subprocess
 import sys
@@ -104,6 +105,130 @@ class RecoveryTests(unittest.TestCase):
         for name, body in sources.items():
             self.assertEqual((self.root / "recovered/repo" / name).read_bytes(), body)
         self.run_script("--check")
+
+    def deleted_documents(self):
+        sources = {"docs/design.md": b"# Years of design\r\n",
+                   "history.txt": b"Original project notes\r\n",
+                   "temp_docs/static/logo.png": bytes(range(256)),
+                   "kernel/example/README.md": b"# Architecture\n"}
+        for name, body in sources.items():
+            target = self.root / name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(body)
+        self.commit()
+        self.git("rm", *sources)
+        self.commit()
+        self.run_script()
+        return sources
+
+    def test_document_restoration_preserves_bytes_and_does_not_recreate_staging(self):
+        sources = self.deleted_documents()
+        self.run_script("--restore-docs")
+        manifest = self.root / "recovered/repo/SOURCES.tsv"
+        before = manifest.read_bytes()
+        for name, body in sources.items():
+            self.assertEqual((self.root / name).read_bytes(), body)
+            self.assertFalse((self.root / "recovered/repo" / name).exists())
+        with manifest.open(newline="", encoding="utf-8") as source:
+            rows = list(csv.DictReader(source, delimiter="\t"))
+        self.assertEqual({r["restored_to"] for r in rows}, set(sources))
+        self.run_script("--check")
+        self.run_script()
+        self.run_script("--restore-docs")
+        self.assertEqual(manifest.read_bytes(), before)
+        self.commit()
+        self.run_script("--check")
+
+    def test_existing_document_blocks_entire_move_without_overwrite(self):
+        sources = self.deleted_documents()
+        destination = self.root / "kernel/example/README.md"
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_bytes(b"Newer work\n")
+        self.run_script("--restore-docs", success=False)
+        self.assertEqual(destination.read_bytes(), b"Newer work\n")
+        self.assertFalse((self.root / "docs/design.md").exists())
+        for name, body in sources.items():
+            self.assertEqual((self.root / "recovered/repo" / name).read_bytes(), body)
+
+    def test_restored_document_changes_and_missing_files_are_reported(self):
+        self.deleted_documents()
+        self.run_script("--restore-docs")
+        destination = self.root / "docs/design.md"
+        destination.write_bytes(b"User revision\n")
+        self.run_script("--check", success=False)
+        self.run_script("--restore-docs", success=False)
+        self.assertEqual(destination.read_bytes(), b"User revision\n")
+        destination.unlink()
+        self.run_script("--check", success=False)
+
+    def test_interrupted_staging_cleanup_resumes_without_overwrite(self):
+        sources = self.deleted_documents()
+        self.run_script("--restore-docs")
+        for name, body in sources.items():
+            staged = self.root / "recovered/repo" / name
+            staged.parent.mkdir(parents=True, exist_ok=True)
+            staged.write_bytes(body)
+        self.run_script("--restore-docs")
+        for name, body in sources.items():
+            self.assertEqual((self.root / name).read_bytes(), body)
+            self.assertFalse((self.root / "recovered/repo" / name).exists())
+
+    def test_newly_discovered_document_is_restored_in_one_command(self):
+        destination = self.root / "design.md"
+        destination.write_bytes(b"# Original plan\n")
+        self.commit()
+        self.git("rm", "design.md")
+        self.commit()
+        self.run_script("--restore-docs")
+        self.assertEqual(destination.read_bytes(), b"# Original plan\n")
+        self.assertFalse((self.root / "recovered/repo/design.md").exists())
+        self.run_script("--check")
+
+    def test_restored_location_cannot_point_outside_workspace(self):
+        self.deleted_documents()
+        manifest = self.root / "recovered/repo/SOURCES.tsv"
+        with manifest.open(newline="", encoding="utf-8") as source:
+            reader = csv.DictReader(source, delimiter="\t")
+            fields = reader.fieldnames
+            rows = list(reader)
+        rows[0]["restored_to"] = "../outside-design.md"
+        with manifest.open("w", newline="", encoding="utf-8") as output:
+            writer = csv.DictWriter(output, fieldnames=fields, delimiter="\t")
+            writer.writeheader()
+            writer.writerows(rows)
+        result = self.run_script("--restore-docs", success=False)
+        self.assertIn("restoration path leaves active tree", result.stderr)
+
+    def test_reconciled_source_retains_origin_and_checks_reviewed_content(self):
+        self.deleted()
+        self.run_script()
+        manifest = self.root / "recovered/repo/SOURCES.tsv"
+        with manifest.open(newline="", encoding="utf-8") as source:
+            reader = csv.DictReader(source, delimiter="\t")
+            fields = reader.fieldnames
+            rows = list(reader)
+        target = self.root / "kernel/restored.rs"
+        target.parent.mkdir()
+        reviewed = b"pub fn restored_with_current_dependencies() {}\n"
+        target.write_bytes(reviewed)
+        rows[0].update(restored_to="kernel/restored.rs",
+                       restored_sha256=hashlib.sha256(reviewed).hexdigest(),
+                       restoration_note="Original behavior retained; current owner and API repaired.")
+        with manifest.open("w", newline="", encoding="utf-8") as output:
+            writer = csv.DictWriter(output, fieldnames=fields, delimiter="\t")
+            writer.writeheader()
+            writer.writerows(rows)
+        self.run_script("--check")
+        staged = self.root / "recovered/repo/lost.rs"
+        original = staged.read_bytes()
+        staged.write_bytes(b"Unreviewed archive modification\n")
+        self.run_script("--check", success=False)
+        staged.write_bytes(original)
+        staged.unlink()
+        self.run_script("--check")
+        target.write_bytes(b"Unreviewed implementation change\n")
+        self.run_script("--check", success=False)
+        self.assertEqual(target.read_bytes(), b"Unreviewed implementation change\n")
 
 
 if __name__ == "__main__":

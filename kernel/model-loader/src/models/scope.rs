@@ -89,7 +89,17 @@ impl DownloadScope {
     pub fn resolve_root(&self, models_dir: &Path) -> PathBuf {
         match self {
             Self::Global => models_dir.to_path_buf(),
-            Self::Project(id) => models_dir.join(PER_PROJECT_ROOT).join(id),
+            Self::Project(id) => {
+                // The enum is also constructed directly and through serde;
+                // its constructor cannot be the only path-safety boundary.
+                let cleaned = sanitise_token(id);
+                let component = if cleaned.is_empty() {
+                    UNSCOPED_PLACEHOLDER
+                } else {
+                    &cleaned
+                };
+                models_dir.join(PER_PROJECT_ROOT).join(component)
+            }
         }
     }
 }
@@ -126,11 +136,15 @@ pub fn resolve_bundle_dir(models_dir: &Path, scope: &DownloadScope, repo_id: &st
 /// Sanitise a path component — keep `[A-Za-z0-9._-]`, drop everything
 /// else. HF's own repo-id rules produce that alphabet, so legitimate
 /// repos pass through unchanged. Length is not bounded here; the
-/// filesystem will reject anything genuinely too long.
+/// filesystem will reject anything genuinely too long. Remove trailing dots
+/// for consistent Windows behavior; dot-only names become empty rather than
+/// resolving to the current or parent directory.
 pub fn sanitise_token(raw: &str) -> String {
-    raw.chars()
+    let cleaned: String = raw
+        .chars()
         .filter(|c| c.is_ascii_alphanumeric() || matches!(c, '.' | '_' | '-'))
-        .collect()
+        .collect();
+    cleaned.trim_end_matches('.').to_owned()
 }
 
 #[cfg(test)]
@@ -144,29 +158,36 @@ mod tests {
     }
 
     #[test]
-    fn project_resolves_under_per_project_subdir() {
-        let scope = DownloadScope::project("alpha").unwrap();
+    fn project_resolves_under_per_project_subdir() -> anyhow::Result<()> {
+        let scope = DownloadScope::project("alpha")
+            .ok_or_else(|| anyhow::anyhow!("valid project rejected"))?;
         assert_eq!(
             scope.resolve_root(Path::new("/m")),
             PathBuf::from("/m/_per_project/alpha"),
         );
+        Ok(())
     }
 
     #[test]
-    fn project_with_traversal_chars_is_sanitised() {
-        let scope = DownloadScope::project("../evil").unwrap();
+    fn project_with_traversal_chars_is_sanitised() -> anyhow::Result<()> {
+        let scope = DownloadScope::project("../evil")
+            .ok_or_else(|| anyhow::anyhow!("sanitized project rejected"))?;
         // `..` (dots are kept) and `/` are stripped; what's left is "..evil"
         // — still fully inside `_per_project/`.
         assert_eq!(
             scope.resolve_root(Path::new("/m")),
             PathBuf::from("/m/_per_project/..evil"),
         );
+        Ok(())
     }
 
     #[test]
     fn project_with_only_invalid_chars_returns_none() {
         assert!(DownloadScope::project("///").is_none());
         assert!(DownloadScope::project("").is_none());
+        assert!(DownloadScope::project(".").is_none());
+        assert!(DownloadScope::project("..").is_none());
+        assert!(DownloadScope::project("...").is_none());
     }
 
     #[test]
@@ -181,11 +202,8 @@ mod tests {
 
     #[test]
     fn bundle_dir_strips_traversal_segments() {
-        // `..` would normally be a parent-traversal but each segment is
-        // sanitised independently — `..` survives as a literal name
-        // (dots are allowed) but cannot escape the join() chain.
-        let dir = resolve_bundle_dir(Path::new("/m"), &DownloadScope::Global, "bad/evil");
-        assert_eq!(dir, PathBuf::from("/m/bad/evil"));
+        let dir = resolve_bundle_dir(Path::new("/m"), &DownloadScope::Global, "../..");
+        assert_eq!(dir, PathBuf::from("/m/__unscoped__/__unscoped__"));
     }
 
     #[test]
@@ -195,23 +213,62 @@ mod tests {
     }
 
     #[test]
-    fn bundle_dir_under_project_scope_nests_correctly() {
-        let scope = DownloadScope::project("alpha").unwrap();
+    fn bundle_dir_under_project_scope_nests_correctly() -> anyhow::Result<()> {
+        let scope = DownloadScope::project("alpha")
+            .ok_or_else(|| anyhow::anyhow!("valid project rejected"))?;
         let dir = resolve_bundle_dir(Path::new("/m"), &scope, "owner/name");
         assert_eq!(dir, PathBuf::from("/m/_per_project/alpha/owner/name"));
+        Ok(())
     }
 
     #[test]
-    fn wire_format_round_trip() {
-        let global = serde_json::to_string(&DownloadScope::Global).unwrap();
+    fn wire_format_round_trip() -> serde_json::Result<()> {
+        let global = serde_json::to_string(&DownloadScope::Global)?;
         assert_eq!(global, r#"{"kind":"global"}"#);
 
-        let project = serde_json::to_string(&DownloadScope::Project("alpha".to_string())).unwrap();
+        let project = serde_json::to_string(&DownloadScope::Project("alpha".to_string()))?;
         assert_eq!(project, r#"{"kind":"project","id":"alpha"}"#);
 
-        let parsed: DownloadScope =
-            serde_json::from_str(r#"{"kind":"project","id":"beta"}"#).unwrap();
+        let parsed: DownloadScope = serde_json::from_str(r#"{"kind":"project","id":"beta"}"#)?;
         assert_eq!(parsed, DownloadScope::Project("beta".to_string()));
+        Ok(())
+    }
+
+    #[test]
+    fn deserialized_projects_and_repo_ids_cannot_escape_the_model_root() -> anyhow::Result<()> {
+        let root = Path::new("models");
+        for id in [
+            "..",
+            ".",
+            "...",
+            "../../outside",
+            "/absolute",
+            r"C:\outside",
+            "valid-project",
+        ] {
+            let scope: DownloadScope =
+                serde_json::from_value(serde_json::json!({"kind": "project", "id": id}))?;
+            for repo in [
+                "../..",
+                "./model",
+                "owner/..",
+                "/model",
+                "owner/repo",
+                ".../...",
+            ] {
+                let destination = resolve_bundle_dir(root, &scope, repo);
+                let relative = destination.strip_prefix(root.join(PER_PROJECT_ROOT))?;
+                let components: Vec<_> = relative.components().collect();
+                assert_eq!(components.len(), 3, "{destination:?}");
+                assert!(
+                    components
+                        .iter()
+                        .all(|part| matches!(part, std::path::Component::Normal(_))),
+                    "{destination:?}"
+                );
+            }
+        }
+        Ok(())
     }
 
     #[test]

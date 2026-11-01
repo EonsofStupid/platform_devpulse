@@ -4207,6 +4207,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "devpulse-persona-mcp"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "base64 0.22.1",
+ "chrono",
+ "devpulse-clyffy",
+ "devpulse-telemetry",
+ "moka",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "thiserror 2.0.18",
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
+ "turso",
+ "uuid 1.23.0",
+]
+
+[[package]]
 name = "devpulse-process"
 version = "0.1.0"
 dependencies = [
@@ -4253,6 +4275,7 @@ dependencies = [
  "futures",
  "image",
  "keyring",
+ "model-loader",
  "nokhwa",
  "portpicker",
  "rand 0.8.8",
