@@ -16,7 +16,6 @@ import {
 	ArrowLeft,
 	Brain,
 	Check,
-	Cloud,
 	Headphones,
 	Image,
 	Key,
@@ -40,7 +39,7 @@ const overlayState = setupWizardOverlayState;
 
 // ── API key summary ─────────────────────────────────────
 let apiKeyStatuses = $state<ApiKeyStatus[]>([]);
-const connectedProviders = $derived(apiKeyStatuses.filter((s) => s.stored));
+const providersWithKeys = $derived(apiKeyStatuses.filter((s) => s.stored));
 
 $effect(() => {
 	void loadApiKeyStatuses();
@@ -186,26 +185,26 @@ function handleBack(): void {
 		{/each}
 	</div>
 
-	<!-- API key summary — shows which providers are connected, mirrors completion screen archive -->
+	<!-- Saved credentials are not connection or inference readiness. -->
 	<div class="d-api-row">
 		<div class="d-api-head">
 			<Key size={16} />
-			<Text size="sm" weight="bold">Cloud providers</Text>
+			<Text size="sm" weight="bold">Saved API keys</Text>
 			<WizardHelpTip
-				tip="Optional. DevPulse runs locally without these. Connected providers are available to the escalation chain."
+				tip="These providers have saved keys. Their connections and capabilities still need to be checked."
 				label="What are these?"
 			/>
 		</div>
-		{#if connectedProviders.length === 0}
+		{#if providersWithKeys.length === 0}
 			<Text size="xs" color="muted">
-				No cloud providers connected. Local-only mode — every request stays on your machine.
+				No API keys saved. Some endpoints work without a key; subscriptions use their own sign-in.
 				You can add keys anytime from Settings → Routing.
 			</Text>
 		{:else}
 			<div class="d-api-chips">
-				{#each connectedProviders as p (p.provider)}
+				{#each providersWithKeys as p (p.provider)}
 					<span class="d-api-chip">
-						<Cloud size={12} />
+						<Key size={12} />
 						<Text size="xs" weight="bold">{p.displayName}</Text>
 						<Check size={10} />
 					</span>

@@ -14,14 +14,13 @@
 //! and not pretend a stale "OK" from yesterday is still true.
 #![expect(
     clippy::missing_errors_doc,
-    reason = "Tauri command module — every Result-returning fn is a thin wrapper over the ai_providers registry + keychain (validate fans out to `client::list_models`). Failure modes are described in the per-fn doc summary above and surface as `CommandError`."
+    reason = "Tauri boundary over the kernel model-discovery adapter and OS keychain; documented failures surface as CommandError."
 )]
 
-pub mod client;
+mod cache;
 pub mod dto;
 
-use std::collections::HashMap;
-use std::sync::Mutex;
+use std::sync::OnceLock;
 use std::time::Instant;
 
 use devpulse_engine::ai_providers::{self, BillingModel, ProviderId, Transport};
@@ -33,21 +32,16 @@ use dto::{ProviderModelInfo, ProviderStatus, ValidationResult};
 use super::_util::{now_ms, CommandError};
 use super::credentials;
 
-/// Per-provider validation cache.
-///
-/// In-memory only — cleared on restart. Promoted to Turso only if the
-/// devtool ever needs cross-restart "last seen healthy" UX, which the
-/// validate-on-save model deliberately avoids.
-struct CacheEntry {
-    validated_at_ms: i64,
-    models: Vec<ProviderModelInfo>,
-    error: Option<String>,
+use cache::{CacheEntry, CredentialChange, ValidationCache};
+
+fn cache() -> &'static ValidationCache {
+    static CACHE: OnceLock<ValidationCache> = OnceLock::new();
+    CACHE.get_or_init(ValidationCache::default)
 }
 
-fn cache() -> &'static Mutex<HashMap<ProviderId, CacheEntry>> {
-    static CACHE: std::sync::OnceLock<Mutex<HashMap<ProviderId, CacheEntry>>> =
-        std::sync::OnceLock::new();
-    CACHE.get_or_init(|| Mutex::new(HashMap::new()))
+/// Begin a vault mutation, invalidating existing and in-flight model discovery.
+pub(super) fn credential_change(provider: ProviderId) -> CredentialChange<'static> {
+    cache().credential_change(provider)
 }
 
 /// Snapshot every visible provider's current status.
@@ -58,62 +52,71 @@ fn cache() -> &'static Mutex<HashMap<ProviderId, CacheEntry>> {
 #[tauri::command]
 #[specta::specta]
 pub async fn list_provider_status() -> Result<Vec<ProviderStatus>, CommandError> {
-    let cache_snapshot = snapshot_cache();
     let mut out = Vec::new();
     for entry in ai_providers::visible() {
         let configured = is_configured(entry).await;
-        let cached = cache_snapshot.get(&entry.id);
+        let cached = cache().snapshot(entry.id);
         out.push(ProviderStatus {
             id: entry.id,
             display_name: entry.display_name.to_string(),
             configured,
             requires_account_setup: matches!(entry.id, ProviderId::Fireworks),
             is_local: matches!(entry.billing, BillingModel::Local),
-            last_validated_at_ms: cached.map(|c| c.validated_at_ms),
-            last_error: cached.and_then(|c| c.error.clone()),
-            model_count: cached.map(|c| c.models.len() as u32),
+            last_endpoint: cached.as_ref().map(|c| c.endpoint.clone()),
+            last_validated_at_ms: cached.as_ref().map(|c| c.validated_at_ms),
+            last_error: cached.as_ref().and_then(|c| c.error.clone()),
+            model_count: cached.as_ref().map(|c| c.models.len() as u32),
         });
     }
     Ok(out)
 }
 
-/// Validate a provider by listing its models — the canonical "is this
-/// connection working" call that doubles as the model-picker refresh.
+/// Check model discovery for the current credential generation.
+/// This does not verify chat, embeddings or any other inference operation.
 ///
 /// On success: caches the model list + clears any prior error.
 /// On failure: caches the classified error so the Status tab can
 /// surface it without a re-call.
 ///
-/// Always returns `Ok(ValidationResult)` — the result's `ok` field
-/// distinguishes success from classified failure. Returning `Err` would
-/// force the frontend to do double-dispatch on transport failure.
+/// Network/vault outcomes use `ValidationResult`. A credential mutation or newer
+/// check superseding this request returns an error and never publishes old evidence.
 #[tauri::command]
 #[specta::specta]
-pub async fn validate_provider(provider: ProviderId) -> Result<ValidationResult, CommandError> {
+pub async fn validate_provider(
+    provider: ProviderId,
+    endpoint: String,
+) -> Result<ValidationResult, CommandError> {
     let entry = ai_providers::find(provider)
         .ok_or_else(|| CommandError::not_configured(format!("Unknown provider: {provider:?}")))?;
 
-    let api_key = if matches!(entry.billing, BillingModel::PerToken) {
-        credentials::get_api_key(provider).await?
-    } else {
-        None
-    };
-
+    let ticket = cache().begin(provider)?;
+    let endpoint = ai_providers::models::normalize_endpoint(&endpoint)?;
     let started = Instant::now();
-    let result = client::fetch_models(provider, api_key.as_deref()).await;
+    let result = async {
+        let api_key = if entry.supports_api_key() {
+            credentials::get_api_key(provider).await?
+        } else {
+            None
+        };
+        ai_providers::models::fetch_models(provider, &endpoint, api_key.as_deref())
+            .await
+            .map_err(CommandError::from)
+    }
+    .await;
     let latency_ms = u64::try_from(started.elapsed().as_millis()).unwrap_or(u64::MAX);
 
     match result {
         Ok(models) => {
             let count = models.len();
-            store_cache_entry(
-                provider,
+            cache().complete(
+                ticket,
                 CacheEntry {
+                    endpoint: endpoint.clone(),
                     validated_at_ms: now_ms(),
                     models: models.clone(),
                     error: None,
                 },
-            );
+            )?;
             tracing::info!(
                 provider = ?provider,
                 model_count = count,
@@ -122,6 +125,7 @@ pub async fn validate_provider(provider: ProviderId) -> Result<ValidationResult,
             );
             Ok(ValidationResult {
                 provider,
+                endpoint,
                 ok: true,
                 latency_ms,
                 models,
@@ -130,14 +134,15 @@ pub async fn validate_provider(provider: ProviderId) -> Result<ValidationResult,
             })
         }
         Err(err) => {
-            store_cache_entry(
-                provider,
+            cache().complete(
+                ticket,
                 CacheEntry {
+                    endpoint: endpoint.clone(),
                     validated_at_ms: now_ms(),
                     models: Vec::new(),
                     error: Some(err.message.clone()),
                 },
-            );
+            )?;
             tracing::warn!(
                 provider = ?provider,
                 kind = ?err.kind,
@@ -147,6 +152,7 @@ pub async fn validate_provider(provider: ProviderId) -> Result<ValidationResult,
             );
             Ok(ValidationResult {
                 provider,
+                endpoint,
                 ok: false,
                 latency_ms,
                 models: Vec::new(),
@@ -169,6 +175,8 @@ pub async fn validate_provider(provider: ProviderId) -> Result<ValidationResult,
 pub struct ListModelsRequest {
     /// Provider whose models to list.
     pub provider: ProviderId,
+    /// Configured API base URL, including its version/path prefix.
+    pub endpoint: String,
 }
 
 /// Refresh the model list for one provider.
@@ -182,7 +190,7 @@ pub struct ListModelsRequest {
 pub async fn list_provider_models(
     request: ListModelsRequest,
 ) -> Result<Vec<ProviderModelInfo>, CommandError> {
-    let result = validate_provider(request.provider).await?;
+    let result = validate_provider(request.provider, request.endpoint).await?;
     if result.ok {
         Ok(result.models)
     } else {
@@ -200,43 +208,6 @@ pub async fn list_provider_models(
     }
 }
 
-/// Snapshot the cache as a plain `HashMap` so callers can iterate
-/// without holding the mutex across awaits.
-fn snapshot_cache() -> HashMap<ProviderId, CacheEntry> {
-    let guard = cache().lock();
-    let map = match guard {
-        Ok(m) => m,
-        Err(poisoned) => {
-            tracing::warn!("providers cache mutex poisoned — recovering");
-            poisoned.into_inner()
-        }
-    };
-    map.iter()
-        .map(|(k, v)| {
-            (
-                *k,
-                CacheEntry {
-                    validated_at_ms: v.validated_at_ms,
-                    models: v.models.clone(),
-                    error: v.error.clone(),
-                },
-            )
-        })
-        .collect()
-}
-
-fn store_cache_entry(provider: ProviderId, entry: CacheEntry) {
-    let guard = cache().lock();
-    let mut map = match guard {
-        Ok(m) => m,
-        Err(poisoned) => {
-            tracing::warn!("providers cache mutex poisoned on write — recovering");
-            poisoned.into_inner()
-        }
-    };
-    map.insert(provider, entry);
-}
-
 /// True when this provider has the runtime config it needs to actually
 /// be called: a key in the vault for cloud providers, or a present
 /// transport entry for local ones (reachability is decided by validate).
@@ -250,7 +221,7 @@ async fn is_configured(entry: &ai_providers::AiProvider) -> bool {
                 .await
                 .ok()
                 .flatten()
-                .is_some_and(|k| !k.is_empty())
+                .is_some_and(|k| !k.trim().is_empty())
         }
         BillingModel::Local => {
             // Local — at least one transport with a discoverable URL.

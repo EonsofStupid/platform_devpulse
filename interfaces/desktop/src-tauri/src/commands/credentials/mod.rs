@@ -20,7 +20,7 @@
 
 use crate::commands::_util::CommandError;
 use crate::state::PlatformState;
-use devpulse_engine::ai_providers::{self, BillingModel, ProviderId, Transport};
+use devpulse_engine::ai_providers::{self, ProviderId};
 use devpulse_engine::platform::SqlAdapter;
 use serde::{Deserialize, Serialize};
 use specta::Type;
@@ -58,7 +58,7 @@ pub struct ApiKeyStatus {
 /// does not roll back the keychain write (keychain is the source of truth).
 ///
 /// # Errors
-/// - Provider has no API-key transport (e.g. local Ollama, subscription path).
+/// - Provider has no HTTP credential transport (e.g. subscription CLI).
 /// - Keychain write failed.
 #[tauri::command]
 #[specta::specta]
@@ -68,7 +68,11 @@ pub async fn store_api_key(
     key: String,
 ) -> Result<(), CommandError> {
     let entry = registry_entry(provider)?;
-    require_api_key_billing(entry)?;
+    require_api_key_transport(entry)?;
+    if key.trim().is_empty() {
+        return Err(CommandError::not_configured("API key cannot be empty"));
+    }
+    let _change = super::providers::credential_change(provider);
 
     let keyring_key = keyring_key_for(provider);
     let keyring_entry = keyring::Entry::new(SERVICE_NAME, &keyring_key)
@@ -99,9 +103,7 @@ pub async fn store_api_key(
 ///
 /// # Errors
 /// Keychain access failure.
-#[tauri::command]
-#[specta::specta]
-pub async fn get_api_key(provider: ProviderId) -> Result<Option<String>, CommandError> {
+pub(super) async fn get_api_key(provider: ProviderId) -> Result<Option<String>, CommandError> {
     let _entry = registry_entry(provider)?;
     let keyring_key = keyring_key_for(provider);
     let keyring_entry = keyring::Entry::new(SERVICE_NAME, &keyring_key)
@@ -128,6 +130,7 @@ pub async fn delete_api_key(
     provider: ProviderId,
 ) -> Result<(), CommandError> {
     let entry = registry_entry(provider)?;
+    let _change = super::providers::credential_change(provider);
     let keyring_key = keyring_key_for(provider);
     let keyring_entry = keyring::Entry::new(SERVICE_NAME, &keyring_key)
         .map_err(|e| CommandError::internal(format!("Keyring entry construction failed: {e}")))?;
@@ -152,9 +155,8 @@ pub async fn delete_api_key(
 
 /// Status snapshot for every provider in the registry that takes an API key.
 ///
-/// Skips local-only providers (Ollama, LM Studio, vLLM) and the subscription
-/// path — they don't have API keys, so showing them with `stored: false`
-/// would just confuse the operator.
+/// Includes local HTTP servers, which may require authentication. Subscription
+/// programs retain their own sign-in and are excluded.
 ///
 /// # Errors
 /// Returns [`CommandError`] when keychain access fails while probing
@@ -164,7 +166,7 @@ pub async fn delete_api_key(
 pub async fn get_api_key_status() -> Result<Vec<ApiKeyStatus>, CommandError> {
     let mut out = Vec::new();
     for provider in ai_providers::visible() {
-        if !provider_takes_api_key(provider) {
+        if !provider.supports_api_key() {
             continue;
         }
         let keyring_key = keyring_key_for(provider.id);
@@ -201,36 +203,16 @@ fn registry_entry(id: ProviderId) -> Result<&'static ai_providers::AiProvider, C
         .ok_or_else(|| CommandError::not_configured(format!("Unknown provider: {id:?}")))
 }
 
-/// Reject providers that don't take an API key (local servers, subscription path).
-fn require_api_key_billing(entry: &ai_providers::AiProvider) -> Result<(), CommandError> {
-    if matches!(entry.billing, BillingModel::PerToken)
-        && entry.transports.iter().any(|t| {
-            matches!(
-                t,
-                Transport::ApiKey { .. } | Transport::OpenAiCompatible { .. }
-            )
-        })
-    {
+/// Transport support determines credential eligibility, independently of billing.
+fn require_api_key_transport(entry: &ai_providers::AiProvider) -> Result<(), CommandError> {
+    if entry.supports_api_key() {
         Ok(())
     } else {
         Err(CommandError::not_configured(format!(
-            "Provider {} does not use an API key (billing: {:?})",
-            entry.display_name, entry.billing
+            "Provider {} owns its sign-in; it has no HTTP API-key transport",
+            entry.display_name
         )))
     }
-}
-
-/// Provider-aware predicate for `get_api_key_status` — returns `true` for
-/// vendors that need a key. Local runtimes and the subscription path
-/// return `false` so they don't show up as "API key missing".
-fn provider_takes_api_key(p: &ai_providers::AiProvider) -> bool {
-    matches!(p.billing, BillingModel::PerToken)
-        && p.transports.iter().any(|t| {
-            matches!(
-                t,
-                Transport::ApiKey { .. } | Transport::OpenAiCompatible { .. }
-            )
-        })
 }
 
 /// Build the keyring key name for a provider — `api_key_<id>` where
@@ -246,8 +228,8 @@ fn keyring_key_for(id: ProviderId) -> String {
 
 /// First-8-chars-then-mask preview, never revealing entropy.
 fn mask_preview(key: &str) -> String {
-    if key.len() > 8 {
-        format!("{}...****", &key[..8])
+    if key.chars().count() > 8 {
+        format!("{}...****", key.chars().take(8).collect::<String>())
     } else {
         "****".to_string()
     }
@@ -352,11 +334,18 @@ mod tests {
     }
 
     #[test]
-    fn local_runtimes_excluded_from_status_query() {
-        let ollama = ai_providers::find(ProviderId::Ollama).unwrap();
-        assert!(!provider_takes_api_key(ollama));
-        let lm_studio = ai_providers::find(ProviderId::LmStudio).unwrap();
-        assert!(!provider_takes_api_key(lm_studio));
+    fn local_http_servers_support_credentials() {
+        for id in [ProviderId::Ollama, ProviderId::LmStudio, ProviderId::Vllm] {
+            let entry = ai_providers::find(id).unwrap();
+            assert!(entry.supports_api_key());
+            assert!(require_api_key_transport(entry).is_ok());
+        }
+    }
+
+    #[test]
+    fn masking_never_slices_a_utf8_code_point() {
+        assert_eq!(mask_preview("abcdefg🔑more"), "abcdefg🔑...****");
+        assert_eq!(mask_preview("🔑🔑🔑"), "****");
     }
 
     #[test]
@@ -364,7 +353,8 @@ mod tests {
         // Subscriptions are reached through the vendor's own program; none
         // takes an API key here.
         for sub in ai_providers::by_classification(ai_providers::Classification::SubscriptionPath) {
-            assert!(!provider_takes_api_key(sub), "{:?}", sub.id);
+            assert!(!sub.supports_api_key(), "{:?}", sub.id);
+            assert!(require_api_key_transport(sub).is_err());
         }
     }
 
@@ -379,7 +369,7 @@ mod tests {
             ProviderId::Groq,
         ] {
             let p = ai_providers::find(id).unwrap();
-            assert!(provider_takes_api_key(p), "{id:?} should take an API key");
+            assert!(p.supports_api_key(), "{id:?} should take an API key");
         }
     }
 }

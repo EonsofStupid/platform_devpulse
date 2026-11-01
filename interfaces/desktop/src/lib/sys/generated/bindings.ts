@@ -1947,20 +1947,19 @@ async listProviderStatus() : Promise<Result<ProviderStatus[], CommandError>> {
 }
 },
 /**
- * Validate a provider by listing its models — the canonical "is this
- * connection working" call that doubles as the model-picker refresh.
+ * Check model discovery for the current credential generation.
+ * This does not verify chat, embeddings or any other inference operation.
  * 
  * On success: caches the model list + clears any prior error.
  * On failure: caches the classified error so the Status tab can
  * surface it without a re-call.
  * 
- * Always returns `Ok(ValidationResult)` — the result's `ok` field
- * distinguishes success from classified failure. Returning `Err` would
- * force the frontend to do double-dispatch on transport failure.
+ * Network/vault outcomes use `ValidationResult`. A credential mutation or newer
+ * check superseding this request returns an error and never publishes old evidence.
  */
-async validateProvider(provider: ProviderId) : Promise<Result<ValidationResult, CommandError>> {
+async validateProvider(provider: ProviderId, endpoint: string) : Promise<Result<ValidationResult, CommandError>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("validate_provider", { provider }) };
+    return { status: "ok", data: await TAURI_INVOKE("validate_provider", { provider, endpoint }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -3868,32 +3867,12 @@ async voiceSttSaveConfig(cfg: VoiceSttConfig) : Promise<Result<VoiceSttConfig, s
  * does not roll back the keychain write (keychain is the source of truth).
  * 
  * # Errors
- * - Provider has no API-key transport (e.g. local Ollama, subscription path).
+ * - Provider has no HTTP credential transport (e.g. subscription CLI).
  * - Keychain write failed.
  */
 async storeApiKey(provider: ProviderId, key: string) : Promise<Result<null, CommandError>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("store_api_key", { provider, key }) };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
-/**
- * Retrieve an API key from the OS keychain.
- * 
- * Backend-only consumer — never call this and pass the result to the
- * frontend. Provider clients (Anthropic / `OpenAI` / etc) call this to
- * load a key right before issuing a request.
- * 
- * Returns `Ok(None)` when the key has never been stored.
- * 
- * # Errors
- * Keychain access failure.
- */
-async getApiKey(provider: ProviderId) : Promise<Result<string | null, CommandError>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("get_api_key", { provider }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -3918,9 +3897,8 @@ async deleteApiKey(provider: ProviderId) : Promise<Result<null, CommandError>> {
 /**
  * Status snapshot for every provider in the registry that takes an API key.
  * 
- * Skips local-only providers (Ollama, LM Studio, vLLM) and the subscription
- * path — they don't have API keys, so showing them with `stored: false`
- * would just confuse the operator.
+ * Includes local HTTP servers, which may require authentication. Subscription
+ * programs retain their own sign-in and are excluded.
  * 
  * # Errors
  * Returns [`CommandError`] when keychain access fails while probing
@@ -9601,7 +9579,11 @@ export type ListModelsRequest = {
 /**
  * Provider whose models to list.
  */
-provider: ProviderId }
+provider: ProviderId; 
+/**
+ * Configured API base URL, including its version/path prefix.
+ */
+endpoint: string }
 /**
  * The latest observed turn of an agent, room run or room seat.
  */
@@ -11511,22 +11493,15 @@ export type ProviderKind =
  */
 "desktop_app"
 /**
- * One row from a `/v1/models` response — projected to what the UI shows.
- * 
- * Vendor responses include more (`created_at`, `owned_by`, capabilities,
- * pricing) but those vary. We surface only the model id; per-vendor
- * detail panels can re-fetch when they need richer metadata.
+ * One model advertised by an endpoint. Listing is not an inference check.
  */
 export type ProviderModelInfo = { 
 /**
- * Vendor model identifier — what callers pass as `model:` in chat
- * requests (e.g. "gpt-4o", "claude-sonnet-4-20250514", "llama3:70b").
+ * Identifier accepted by the provider's model selector.
  */
 id: string; 
 /**
- * Optional owner label — `OpenAI` returns "openai"/"system", Hugging
- * Face returns the namespace, Ollama returns the digest. UI shows
- * it as a subtitle when present.
+ * Provider-supplied owner or namespace, if present.
  */
 ownedBy: string | null }
 /**
@@ -11622,8 +11597,8 @@ id: ProviderId;
  */
 displayName: string; 
 /**
- * `true` when the operator has stored a key (cloud) or the local
- * server is reachable (local). Drives the "configured" pill.
+ * Configuration is present: a key for cloud APIs or an HTTP transport for
+ * local presets. This does not establish reachability or inference readiness.
  */
 configured: boolean; 
 /**
@@ -11633,14 +11608,16 @@ configured: boolean;
  */
 requiresAccountSetup: boolean; 
 /**
- * `true` for `Transport::LocalHttp` providers (Ollama, LM Studio,
- * vLLM). The UI hides the API-key form for these.
+ * Local billing classification. Local HTTP endpoints can still require keys.
  */
 isLocal: boolean; 
 /**
- * Last successful validation as epoch milliseconds (`None` if never
- * validated this process). Cleared on restart — the cache is in
- * memory only.
+ * Explicit API endpoint used by the current model-list observation.
+ */
+lastEndpoint: string | null; 
+/**
+ * Last completed model-list attempt for current credentials, in epoch ms.
+ * Cleared on a new check, credential mutation or application restart.
  */
 lastValidatedAtMs: number | null; 
 /**
@@ -11650,8 +11627,7 @@ lastValidatedAtMs: number | null;
  */
 lastError: string | null; 
 /**
- * Number of models returned by the most recent successful validation
- * (`None` if never validated).
+ * Model count from the current attempt; zero on failure, absent when unverified.
  */
 modelCount: number | null }
 /**
@@ -14623,7 +14599,11 @@ export type ValidationResult = {
  */
 provider: ProviderId; 
 /**
- * `true` when the call succeeded and `models` is populated.
+ * Explicit API endpoint checked, independent of provider presets.
+ */
+endpoint: string; 
+/**
+ * Model listing succeeded (possibly empty); this does not verify inference.
  */
 ok: boolean; 
 /**

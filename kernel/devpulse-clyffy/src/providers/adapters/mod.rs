@@ -3,6 +3,7 @@
 //! One adapter per protocol. Adding a protocol = one file in this folder +
 //! one entry in [`registry`].
 
+pub mod models;
 mod openai_compatible;
 
 pub use openai_compatible::OpenAiCompatibleProbe;

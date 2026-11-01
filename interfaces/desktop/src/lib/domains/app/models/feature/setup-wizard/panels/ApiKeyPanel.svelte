@@ -2,7 +2,7 @@
   @file ApiKeyPanel.svelte
   @domain models/setup-wizard/panels
 
-  Cloud API key management — Anthropic, OpenAI, Google, and any other
+  HTTP endpoint key management — local servers, cloud vendors, and any other
   provider the SSOT registry returns from `get_api_key_status`. Stores
   via the OS keychain through `commands.storeApiKey`. Masked preview
   for stored keys. Layman copy explains WHY a customer might add a
@@ -18,7 +18,7 @@ import { Button } from "@devpulse/coldlight/components/button";
 import { Heading } from "@devpulse/coldlight/components/heading";
 import { Spinner } from "@devpulse/coldlight/components/spinner";
 import { Text } from "@devpulse/coldlight/components/text";
-import { Check, Cloud, Eye, EyeOff, Key, Plus, Shield, Trash2, X } from "lucide-svelte";
+import { Check, Eye, EyeOff, Key, Plus, Shield, Trash2, X } from "lucide-svelte";
 import { withAction } from "$lib/sys/action-bus.svelte.js";
 import { type ApiKeyStatus, commands, type ProviderId } from "$lib/sys/generated/bindings.js";
 import { logError, logInfo } from "$lib/sys/logger.js";
@@ -239,10 +239,10 @@ function handleKeydown(e: KeyboardEvent): void {
 	<div class="ak-head">
 		<div class="ak-head-icon"><Key size={18} /></div>
 		<div class="ak-head-text">
-			<Heading level={3} size="sm">Cloud AI providers</Heading>
+			<Heading level={3} size="sm">AI provider credentials</Heading>
 			<Text size="xs" color="muted">
-				Optional. Your local AI runs without these. Add keys to unlock cloud fallback when
-				local models need help.
+				Add a key when an endpoint requires one, whether it runs locally or remotely.
+				Saving a key does not test the connection.
 			</Text>
 		</div>
 	</div>
@@ -250,8 +250,8 @@ function handleKeydown(e: KeyboardEvent): void {
 	<div class="ak-security">
 		<Shield size={14} />
 		<Text size="xs">
-			Keys live in your OS keychain (Windows Credential Manager). They never leave your
-			machine except in API calls you trigger.
+			Keys stay in your operating system's credential store. This panel receives only
+			masked status, never a saved key.
 		</Text>
 	</div>
 
@@ -281,21 +281,21 @@ function handleKeydown(e: KeyboardEvent): void {
 		{@const meta = metaFor(status.provider)}
 		<div class="ak-card" class:ak-card-stored={status.stored}>
 			<div class="ak-card-head">
-				<div class="ak-card-icon"><Cloud size={18} /></div>
+				<div class="ak-card-icon"><Key size={18} /></div>
 				<div class="ak-card-info">
 					<Text size="sm" weight="bold">{status.displayName}</Text>
 					<Text size="xs" color="muted">
-						{meta?.desc ?? "Cloud provider — optional fallback."}
+						{meta?.desc ?? "Add a key only if this provider's endpoint requires one."}
 					</Text>
 				</div>
 				<div class="ak-card-status">
 					{#if status.stored}
-						<Badge variant="positive" size="sm">
+						<Badge variant="neutral" size="sm">
 							<Check size={10} />
-							Connected
+							Key saved
 						</Badge>
 					{:else}
-						<Badge variant="neutral" size="sm">Not set up</Badge>
+						<Badge variant="neutral" size="sm">No key saved</Badge>
 					{/if}
 				</div>
 			</div>

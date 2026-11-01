@@ -6,7 +6,6 @@
 import { commands } from "$lib/sys/generated/bindings.js";
 
 export const storeApiKey = commands.storeApiKey;
-export const getApiKey = commands.getApiKey;
 export const deleteApiKey = commands.deleteApiKey;
 export const getApiKeyStatus = commands.getApiKeyStatus;
 

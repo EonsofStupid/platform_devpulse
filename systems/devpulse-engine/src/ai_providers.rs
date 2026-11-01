@@ -20,8 +20,8 @@
 //! Breaking change. The wire id is in user config files, telemetry, and
 //! devtool URLs.
 
-// Shared provider definitions — ids, vendors, transports, billing,
-// capabilities; layman names, no kernel internals.
+// Kernel-owned provider definitions and HTTP operations exposed through the engine.
+pub use devpulse_clyffy::providers::adapters::models;
 pub use devpulse_clyffy::providers::registry::{by_capability, by_classification, find, PROVIDERS};
 pub use devpulse_clyffy::providers::types::{
     AgentProtocol, AiProvider, BillingModel, Capabilities, Classification, McpClient, ProviderId,

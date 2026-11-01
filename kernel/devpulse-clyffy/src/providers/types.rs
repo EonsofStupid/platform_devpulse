@@ -331,3 +331,19 @@ pub struct AiProvider {
     /// Devtool tab grouping (a provider can carry several).
     pub classifications: &'static [Classification],
 }
+
+impl AiProvider {
+    /// HTTP endpoints may require a credential regardless of where they run
+    /// or how they are billed. Subscription programs own their own sign-in.
+    #[must_use]
+    pub fn supports_api_key(&self) -> bool {
+        self.transports.iter().any(|transport| {
+            matches!(
+                transport,
+                Transport::ApiKey { .. }
+                    | Transport::OpenAiCompatible { .. }
+                    | Transport::LocalHttp { .. }
+            )
+        })
+    }
+}

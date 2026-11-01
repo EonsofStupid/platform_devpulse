@@ -423,7 +423,6 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             commands::voice::voice_stt_save_config,
             // Credential management (keyring)
             commands::credentials::store_api_key,
-            commands::credentials::get_api_key,
             commands::credentials::delete_api_key,
             commands::credentials::get_api_key_status,
             // llama.cpp sidecar (GGUF inference)

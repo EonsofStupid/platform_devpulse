@@ -191,12 +191,13 @@ list does not prove support for every operation. Failed authentication,
 disconnects and configuration changes must invalidate affected readiness;
 late probe results must not activate a different or superseded connection.
 
-Audit evidence: `kernel/devpulse-clyffy/src/providers/adapters/identify` has
-no production caller. The desktop provider client in
-`interfaces/desktop/src-tauri/src/commands/providers/client.rs` still resolves
-model-listing URLs from fixed registry transports, including localhost
-defaults. This is incomplete R5/B1 work in plan 0001, not a completed endpoint
-activation flow. Replace that path through the existing kernel provider owner,
+Initial audit evidence: `kernel/devpulse-clyffy/src/providers/adapters/identify`
+had no production caller, and the desktop `commands/providers/client.rs` resolved
+model-listing URLs from fixed registry transports, including localhost defaults.
+The credential/model-discovery integration below moves that client into the
+kernel and requires an explicit endpoint; generic `identify` integration and
+the remaining R5/B1 activation work are still incomplete. Continue through that
+kernel provider owner,
 persist configured connections, resolve credentials through their existing
 owner, and make service/UI readiness consume the same verified connection.
 Provider defaults may seed editable configuration; they must not override it.
@@ -297,6 +298,57 @@ and shutdown, restoration of remaining historical behavior, and the factory
 workflow. This integration does not establish an all-services readiness contract
 or finish R3b/F1–F5. Packaged Tauri acceptance and live remote endpoint activation
 have not been exercised here.
+
+Credential/model-discovery integration (2026-11-01).
+The initial audit found `get_api_key` exposed through Tauri despite its
+backend-only contract, and key storage/status/model validation excluded local
+HTTP servers by billing model. Reauthor these existing paths before expanding
+endpoint activation: kernel transport metadata decides whether credentials are
+supported; the OS vault remains the secret owner; only masked status crosses IPC.
+Invalidate model-list observations during every credential mutation and reject
+late or superseded probes. Keep failure classifications and real request tests.
+Model discovery remains evidence for model discovery only, never inference.
+Remove the frontend secret getter after verifying its consumers and retain the
+Rust getter for backend callers. Test credential policy, UTF-8-safe masking,
+in-flight invalidation, overlapping mutations and out-of-order completions.
+This is a bounded part of step 2; saved endpoint configuration, capability
+activation and the full factory remain open. The preserved historical provider
+command module (`alpha/desktop/src-tauri/src/commands/providers/mod.rs`) was
+reviewed: it contains hardcoded availability stubs, so it stays preserved rather
+than replacing the current real credential and provider implementations.
+Move the current desktop model-discovery HTTP implementation and its regression
+tests to `kernel/devpulse-clyffy/src/providers/adapters/models/`. The engine
+re-exports that owner; Tauri resolves vault credentials and maps typed errors.
+Preserve vendor parsing and failure classifications through the move. Google
+documents header authentication at https://ai.google.dev/api; use that instead
+of URL secrets. Disable redirects for these credential-bearing requests, retain
+deadlines on every client path, and redact echoed credentials before truncation.
+UI key panels must say key saved, not connected or inference-ready.
+The moved model-list operation requires an explicit API base endpoint from its
+caller; registry URLs remain presets, never a runtime fallback. Validate HTTP(S)
+addresses and reject embedded URL credentials/query secrets. Return the checked
+endpoint with observations so a provider label cannot conceal which server was
+contacted. Saved endpoint instances/editor and operation activation remain next;
+this request contract must not be represented as their completion.
+
+Implemented and checked: 16 kernel model-discovery tests and 49 desktop command
+tests pass, including authenticated custom endpoints, redirect rejection,
+credential redaction, stale results and cancelled credential mutations. The
+credential panel browser test passes. Svelte reports zero errors and warnings;
+the production Vite build, 773-file Biome check, structure preflight and workspace
+rustfmt pass. Tests use dummy credentials and loopback servers, not the operator's
+vault or application database. Bindings were regenerated from the Rust commands.
+The moved implementation retains the original vendor parsers and all eleven
+original client tests; five additional tests cover the corrected contracts.
+Credential references and observations are still provider-scoped. Persisted
+connection identities, revisions, per-connection credentials and capability
+activation are outstanding; do not label the current provider preset as a
+configured, verified endpoint instance. Packaged Tauri and real vendor account
+acceptance remain untested.
+All 20 architecture tests pass. The first run timed out during the unchanged
+ColdLight filesystem scan under simultaneous builds; the full rerun passed with
+that scan at 173 ms. Workspace Clippy with warnings denied passes. Completion
+intentionally consumes each validation ticket so it cannot publish twice.
 
 ### Owner correction: included kernel and visible advanced UI (2026-11-01)
 

@@ -28,26 +28,25 @@ pub struct ProviderStatus {
     /// Layman-friendly vendor + product name (copied from the SSOT so
     /// the frontend doesn't need a second registry lookup).
     pub display_name: String,
-    /// `true` when the operator has stored a key (cloud) or the local
-    /// server is reachable (local). Drives the "configured" pill.
+    /// Configuration is present: a key for cloud APIs or an HTTP transport for
+    /// local presets. This does not establish reachability or inference readiness.
     pub configured: bool,
     /// `true` when this entry needs an account-scoped flow that we
     /// haven't built yet (currently only Fireworks). UI shows the
     /// "needs account ID" notice instead of a key form.
     pub requires_account_setup: bool,
-    /// `true` for `Transport::LocalHttp` providers (Ollama, LM Studio,
-    /// vLLM). The UI hides the API-key form for these.
+    /// Local billing classification. Local HTTP endpoints can still require keys.
     pub is_local: bool,
-    /// Last successful validation as epoch milliseconds (`None` if never
-    /// validated this process). Cleared on restart — the cache is in
-    /// memory only.
+    /// Explicit API endpoint used by the current model-list observation.
+    pub last_endpoint: Option<String>,
+    /// Last completed model-list attempt for current credentials, in epoch ms.
+    /// Cleared on a new check, credential mutation or application restart.
     pub last_validated_at_ms: Option<i64>,
     /// Last validation error (`None` if last attempt succeeded or no
     /// attempts have run). Surfaces verbatim so the UI can show "401
     /// `authentication_error`: Invalid API key" rather than just "fail".
     pub last_error: Option<String>,
-    /// Number of models returned by the most recent successful validation
-    /// (`None` if never validated).
+    /// Model count from the current attempt; zero on failure, absent when unverified.
     pub model_count: Option<u32>,
 }
 
@@ -57,7 +56,9 @@ pub struct ProviderStatus {
 pub struct ValidationResult {
     /// Provider that was validated.
     pub provider: ProviderId,
-    /// `true` when the call succeeded and `models` is populated.
+    /// Explicit API endpoint checked, independent of provider presets.
+    pub endpoint: String,
+    /// Model listing succeeded (possibly empty); this does not verify inference.
     pub ok: bool,
     /// Wall-clock latency in milliseconds. Useful in the devtool to spot
     /// slow regions / cold starts.
@@ -70,25 +71,4 @@ pub struct ValidationResult {
     pub error_message: Option<String>,
 }
 
-/// One row from a `/v1/models` response — projected to what the UI shows.
-///
-/// Vendor responses include more (`created_at`, `owned_by`, capabilities,
-/// pricing) but those vary. We surface only the model id; per-vendor
-/// detail panels can re-fetch when they need richer metadata.
-#[derive(Debug, Clone, Serialize, Type)]
-#[serde(rename_all = "camelCase")]
-pub struct ProviderModelInfo {
-    /// Vendor model identifier — what callers pass as `model:` in chat
-    /// requests (e.g. "gpt-4o", "claude-sonnet-4-20250514", "llama3:70b").
-    pub id: String,
-    /// Optional owner label — `OpenAI` returns "openai"/"system", Hugging
-    /// Face returns the namespace, Ollama returns the digest. UI shows
-    /// it as a subtitle when present.
-    pub owned_by: Option<String>,
-}
-
-// Provider call failures use the unified `commands::_util::ErrorKind`
-// classification. The earlier `ProviderErrorKind` enum was deleted in
-// the F-1 foundation pass — every variant maps to the same-named
-// variant on `ErrorKind` (AuthFailed / RateLimit / QuotaExhausted /
-// Network / Server / Parse / NotConfigured / NotImplemented).
+pub use devpulse_engine::ai_providers::models::ProviderModelInfo;

@@ -182,6 +182,28 @@ impl std::fmt::Display for CommandError {
 
 impl std::error::Error for CommandError {}
 
+impl From<devpulse_engine::ai_providers::models::ModelDiscoveryError> for CommandError {
+    fn from(error: devpulse_engine::ai_providers::models::ModelDiscoveryError) -> Self {
+        use devpulse_engine::ai_providers::models::ModelDiscoveryErrorKind;
+        let kind = match error.kind {
+            ModelDiscoveryErrorKind::AuthFailed => ErrorKind::AuthFailed,
+            ModelDiscoveryErrorKind::RateLimit => ErrorKind::RateLimit,
+            ModelDiscoveryErrorKind::QuotaExhausted => ErrorKind::QuotaExhausted,
+            ModelDiscoveryErrorKind::Network => ErrorKind::Network,
+            ModelDiscoveryErrorKind::Server => ErrorKind::Server,
+            ModelDiscoveryErrorKind::Parse => ErrorKind::Parse,
+            ModelDiscoveryErrorKind::NotConfigured => ErrorKind::NotConfigured,
+            ModelDiscoveryErrorKind::NotImplemented => ErrorKind::NotImplemented,
+            ModelDiscoveryErrorKind::Internal => ErrorKind::Internal,
+        };
+        Self {
+            kind,
+            message: error.message,
+            context: error.context,
+        }
+    }
+}
+
 // ── Conservative From impls ────────────────────────────────────────
 
 impl From<std::io::Error> for CommandError {
