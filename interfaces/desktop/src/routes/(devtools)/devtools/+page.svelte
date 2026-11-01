@@ -15,7 +15,7 @@ import { Activity, ExternalLink, Grid3x3, Settings, X } from "lucide-svelte";
 import { onMount, untrack } from "svelte";
 import { page } from "$app/state";
 import LiveSubsystemStrip from "$lib/devtools/_shared/LiveSubsystemStrip.svelte";
-import { devtoolNav, devtoolTiers } from "$lib/devtools/index.js";
+import { devtoolNav, devtoolTiers, ServiceStatus } from "$lib/devtools/index.js";
 import { copyState } from "$lib/sys/copy/index.js";
 import type {
 	LaneToggle,
@@ -145,48 +145,28 @@ async function setPreset(preset: "off" | "standard" | "debug"): Promise<void> {
 let platformConfig = $state<PlatformConfig | null>(null);
 let services = $state<ServiceStatusSnapshot[] | null>(null);
 let configError = $state<string | null>(null);
+let configLoading = $state(false);
 
 async function loadPlatformConfig(): Promise<void> {
-	const [settings, svc] = await Promise.all([commands.getSettings(), commands.listServices()]);
-	if (settings.status === "ok") {
-		platformConfig = settings.data;
-	} else {
-		configError = settings.error;
-	}
-	if (svc.status === "ok") {
-		services = svc.data;
-	} else if (!configError) {
-		configError = svc.error;
-	}
-}
-
-function runtimeStateLabel(state: ServiceStatusSnapshot["runtime_state"]): string {
-	switch (state) {
-		case "not-compiled":
-			return "Not compiled";
-		case "config-disabled":
-			return "Disabled in config";
-		case "stopped":
-			return "Stopped";
-		case "running":
-			return "Running";
-		case "unknown":
-			return "Unknown";
-	}
-}
-
-function runtimeStateColor(state: ServiceStatusSnapshot["runtime_state"]): string {
-	switch (state) {
-		case "running":
-			return "var(--signal-success)";
-		case "stopped":
-			return "var(--signal-warning)";
-		case "config-disabled":
-			return "var(--text-secondary)";
-		case "not-compiled":
-			return "var(--text-muted)";
-		case "unknown":
-			return "var(--signal-warning)";
+	if (configLoading) return;
+	configLoading = true;
+	configError = null;
+	try {
+		const [settings, svc] = await Promise.all([commands.getSettings(), commands.listServices()]);
+		if (settings.status === "ok") {
+			platformConfig = settings.data;
+		} else {
+			configError = settings.error;
+		}
+		if (svc.status === "ok") {
+			services = svc.data;
+		} else if (!configError) {
+			configError = svc.error;
+		}
+	} catch (error) {
+		configError = error instanceof Error ? error.message : "Unable to read service status.";
+	} finally {
+		configLoading = false;
 	}
 }
 
@@ -482,6 +462,7 @@ let laneGroups = $derived<LaneGroup[]>(
 		<!-- CONFIG TAB -->
 		{:else if activeTab === "config"}
 			<div class="p-4">
+				<Button variant="secondary" disabled={configLoading} onclick={() => void loadPlatformConfig()}>{configLoading ? "Checking services…" : "Refresh service status"}</Button>
 				{#if configError}
 					<Text size="sm" color="muted">{configError}</Text>
 				{:else if platformConfig && services}
@@ -504,7 +485,7 @@ let laneGroups = $derived<LaneGroup[]>(
 							<div class="ds-card">
 								<Text size="xs" weight="semibold" color="secondary">{group.label}</Text>
 								<div class="mt-2 space-y-2 text-xs">
-									{#each group.items as svc}
+									{#each group.items as svc (svc.service_id)}
 										<div class="flex items-start justify-between gap-3">
 											<div class="flex flex-col">
 												<span class="font-medium">{svc.public_name}</span>
@@ -516,9 +497,7 @@ let laneGroups = $derived<LaneGroup[]>(
 												</span>
 											</div>
 											<div class="flex flex-col items-end gap-0.5">
-												<span style={`color: ${runtimeStateColor(svc.runtime_state)}`}>
-													{runtimeStateLabel(svc.runtime_state)}
-												</span>
+												<ServiceStatus service={svc} />
 												<span class="text-[10px] text-[var(--text-muted)]">
 													compiled: {svc.compiled_in ? "yes" : "no"}
 													· config: {svc.config_enabled ? "on" : "off"}

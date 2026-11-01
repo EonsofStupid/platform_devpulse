@@ -171,6 +171,7 @@ async fn cancellation_during_startup_does_not_cancel_the_shared_start() {
         async { start.await.context("release test peer") },
         Duration::from_secs(30),
     ));
+    assert_eq!(client.status().await.state, RuntimeState::Starting);
     // Poll through enqueue while startup is still held.
     assert!(
         tokio::time::timeout(Duration::from_millis(50), client.sessions())
@@ -181,12 +182,14 @@ async fn cancellation_during_startup_does_not_cancel_the_shared_start() {
         .send(fixture.peer())
         .unwrap_or_else(|_| panic!("startup was cancelled"));
     fixture.seen(0).await;
+    assert_eq!(client.status().await.state, RuntimeState::Connected);
     let second = call(&client);
     fixture.release(0);
     fixture.seen(1).await;
     fixture.release(1);
     assert_eq!(second.await.unwrap(), "second");
     shutdown(&client).await;
+    assert_eq!(client.status().await.state, RuntimeState::Stopped);
 }
 
 #[tokio::test]
@@ -248,6 +251,7 @@ async fn an_idle_child_exit_is_observed_without_another_request() {
     std::fs::write(fixture.dir.path().join("idle"), "").unwrap();
     let client = fixture.client(Duration::from_secs(30));
     fixture.seen(0).await;
+    assert_eq!(client.status().await.state, RuntimeState::Connected);
     // No request or shutdown call triggers discovery of the exit.
     let mut monitor = client.worker.lock().await.clone().unwrap();
     std::fs::write(fixture.dir.path().join("fail"), "").unwrap();
@@ -255,6 +259,9 @@ async fn an_idle_child_exit_is_observed_without_another_request() {
         .await
         .unwrap()
         .unwrap();
+    let status = client.status().await;
+    assert_eq!(status.state, RuntimeState::Failed);
+    assert!(status.message.unwrap().contains("exited"));
     let error = client.sessions().await.unwrap_err().to_string();
     assert!(error.contains("exited"), "{error}");
     shutdown(&client).await;
@@ -292,7 +299,10 @@ async fn dropping_the_client_closes_the_child_without_explicit_shutdown() {
 #[tokio::test]
 async fn shutdown_before_first_request_does_not_start_a_child() {
     let client = Client::new("must-never-start".into(), PathBuf::new());
+    assert_eq!(client.status().await.state, RuntimeState::Stopped);
+    assert!(client.worker.lock().await.is_none());
     shutdown(&client).await;
+    assert_eq!(client.status().await.state, RuntimeState::Stopped);
     assert!(client
         .sessions()
         .await
@@ -300,4 +310,21 @@ async fn shutdown_before_first_request_does_not_start_a_child() {
         .to_string()
         .contains("shutting down"));
     assert!(client.worker.lock().await.is_none());
+}
+
+#[tokio::test]
+async fn startup_failure_is_observable_without_retrying_the_process() {
+    let directory = tempfile::tempdir().unwrap();
+    let client = Client::new(
+        directory.path().join("missing-agenthub"),
+        directory.path().into(),
+    );
+    assert_eq!(client.status().await.state, RuntimeState::Stopped);
+    let error = client.sessions().await.unwrap_err().to_string();
+    let status = client.status().await;
+    assert_eq!(status.state, RuntimeState::Failed);
+    assert!(status.message.unwrap().contains(&error));
+    assert_eq!(client.sessions().await.unwrap_err().to_string(), error);
+    shutdown(&client).await;
+    assert_eq!(client.status().await.state, RuntimeState::Failed);
 }

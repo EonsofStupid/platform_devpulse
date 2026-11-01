@@ -69,7 +69,7 @@ export function groupHealthSubsystems(subs: SubsystemHealth[]): HealthGroup[] {
 	const system: SubsystemHealth[] = [];
 
 	subs.forEach((s) => {
-		const key = classifySubsystem(s.name);
+		const key = s.group;
 		if (key === "stores") stores.push(s);
 		else if (key === "graph") graph.push(s);
 		else if (key === "ai") ai.push(s);

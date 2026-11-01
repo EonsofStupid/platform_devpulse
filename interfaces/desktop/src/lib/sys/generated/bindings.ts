@@ -6986,7 +6986,7 @@ uptime_secs: number }
  */
 export type DataScope = 
 /**
- * Kernel/engine internals — never user-facing.
+ * Platform-owned data, observable through the included kernel and engine.
  */
 "System" | 
 /**
@@ -9047,7 +9047,7 @@ text: string }
  */
 export type InitEvent = { 
 /**
- * Step name (public-safe, `ip_term!()` already applied).
+ * Stable step identity; the UI selects a simple or advanced label.
  */
 step: string; 
 /**
@@ -10355,6 +10355,22 @@ isPrimary: boolean;
  * platforms best-effort).
  */
 isBuiltin: boolean }
+/**
+ * What was actually checked. A process handshake does not prove inference.
+ */
+export type ObservationEvidence = 
+/**
+ * Configuration/presence only, no successful service check.
+ */
+"none" | 
+/**
+ * The existing service adapter performed its health operation.
+ */
+"service-probe" | 
+/**
+ * Supervisor reports a completed protocol handshake and a connected peer.
+ */
+"protocol-handshake"
 /**
  * Partial GPU offload hints for llama.cpp-backed slots that exceed
  * the GPU VRAM budget.
@@ -12760,6 +12776,110 @@ export type SelectionMethod =
  */
 "human"
 /**
+ * UI grouping bucket for a boot step.
+ * 
+ * The TypeScript-literal form (`as_ts_literal`) must stay aligned with
+ * `SubsystemGroupKind` in `interfaces/desktop/src/lib/layouts/app/StatusBar.types.ts`.
+ * `cargo xtask generate-ts-manifest` emits the TS source from this enum.
+ */
+export type ServiceGroup = 
+/**
+ * Data stores: Turso, `DuckDB`, `Moka`.
+ */
+"stores" | 
+/**
+ * Graph services: `SurrealDB` namespaces + HTTP sidecar.
+ */
+"graph" | 
+/**
+ * AI capability surface: Model Loader, Vector store.
+ */
+"ai" | 
+/**
+ * Platform plumbing: preflight, Grammar service, etc.
+ */
+"system"
+/**
+ * Explicit diagnosis for UI and control-plane consumers.
+ */
+export type ServiceIssue = { 
+/**
+ * Stable reason for programmatic consumers.
+ */
+code: ServiceIssueCode; 
+/**
+ * Actual failure or explanation; never used as an identity.
+ */
+message: string }
+/**
+ * Machine-readable reason, separate from the human-readable detail.
+ */
+export type ServiceIssueCode = 
+/**
+ * No operation-level health check is wired for this service.
+ */
+"unverified" | 
+/**
+ * The service adapter's health operation failed.
+ */
+"probe-failed" | 
+/**
+ * The health operation did not complete within its deadline.
+ */
+"probe-timed-out" | 
+/**
+ * Service lifecycle is not ready despite a successful health operation.
+ */
+"lifecycle-not-ready" | 
+/**
+ * Supervised process startup, transport or cleanup failed.
+ */
+"runtime-failed"
+/**
+ * A point-in-time observation. It does not grant permission to execute work.
+ */
+export type ServiceObservation = { 
+/**
+ * Existing adapter lifecycle, when an adapter is present.
+ */
+lifecycle: ServiceState | null; 
+/**
+ * Separately verified availability.
+ */
+readiness: ServiceReadiness; 
+/**
+ * Source of the observation.
+ */
+evidence: ObservationEvidence; 
+/**
+ * When this snapshot was observed, Unix milliseconds (not a lease).
+ */
+observed_at_ms: number; 
+/**
+ * Time taken by this health probe; absent when no probe ran.
+ */
+latency_us: number | null; 
+/**
+ * Structured failure or explanation.
+ */
+issue: ServiceIssue | null }
+/**
+ * Availability of the service contract, not of every downstream capability.
+ */
+export type ServiceReadiness = 
+/**
+ * A real service check succeeded and lifecycle permits work.
+ */
+"ready" | 
+/**
+ * The service is unavailable, failed or still starting/stopping.
+ */
+"not-ready" | 
+/**
+ * No operation-level readiness evidence is available.
+ */
+"unknown"
+/**
  * Identifies a service's role in the platform.
  * 
  * `Deserialize` is required by `InternalEvent::SidecarPhaseTransition`
@@ -12806,7 +12926,11 @@ export type ServiceRole =
 /**
  * Surreal service (managed `surreal start` child process).
  */
-"Surreal"
+"Surreal" | 
+/**
+ * Bundled AI ticket/history runtime, started on demand.
+ */
+"AgentHub"
 /**
  * Whether a service is actually alive right now.
  * 
@@ -12832,6 +12956,18 @@ export type ServiceRuntimeState =
  * Service Arc is present — it booted and hasn't been torn down.
  */
 "running" | 
+/**
+ * Process startup or handshake has not completed.
+ */
+"starting" | 
+/**
+ * Shutdown is in progress; new operations are unavailable.
+ */
+"stopping" | 
+/**
+ * The runtime or its startup failed.
+ */
+"failed" | 
 /**
  * Runtime state cannot be reported (e.g. no accessor on Platform).
  * Caller should rely on `compiled_in` / `config_enabled` instead.
@@ -12870,6 +13006,10 @@ export type ServiceState =
  */
 export type ServiceStatusSnapshot = { 
 /**
+ * Stable scope/role identity; display names and file paths are not identifiers.
+ */
+service_id: string; 
+/**
  * Role identifier — maps to [`ServiceRole`].
  */
 role: ServiceRole; 
@@ -12888,7 +13028,7 @@ public_name: string;
 /**
  * UI grouping literal — matches `ServiceGroup::as_ts_literal`.
  */
-group: string; 
+group: ServiceGroup; 
 /**
  * Cargo feature that gates this service. `None` = always compiled.
  */
@@ -12912,7 +13052,11 @@ config_critical: boolean;
 /**
  * Dynamic runtime liveness — see [`ServiceRuntimeState`].
  */
-runtime_state: ServiceRuntimeState }
+runtime_state: ServiceRuntimeState; 
+/**
+ * Readiness evidence independent of configuration and object presence.
+ */
+observation: ServiceObservation }
 /**
  * Whether the `sherpa` cargo feature was enabled at compile time.
  * The devtool uses this to render a "not available in this build"
@@ -13574,15 +13718,23 @@ voice: string }
  */
 export type SubsystemHealth = { 
 /**
- * Public name for this subsystem (`ip_term!()` applied at creation).
+ * Stable identity from the service manifest.
+ */
+service_id: string; 
+/**
+ * Group declared by the manifest, never inferred from translated labels.
+ */
+group: ServiceGroup; 
+/**
+ * Presentation label from the same manifest.
  */
 name: string; 
 /**
- * Lifecycle state — Created, Booting, Ready, Degraded, or Failed.
+ * Observed adapter lifecycle; absent when unavailable or unverified.
  */
-state: ServiceState; 
+state: ServiceState | null; 
 /**
- * Ping result status — Healthy if ping succeeded, Down if it failed.
+ * Health derived from the inventory's readiness evidence.
  */
 status: HealthStatus; 
 /**

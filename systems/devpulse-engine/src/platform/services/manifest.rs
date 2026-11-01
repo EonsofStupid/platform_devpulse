@@ -22,12 +22,14 @@
 //!
 //! # Contract
 //! - Every `ServiceRole` variant MUST have at least one manifest entry.
-//! - `meta_for_role()` uses exhaustive match — compiler fails if a role is missing.
+//! - Role lookup reads the manifest; tests reject duplicate identities and drift.
 //! - Adding a new service = add one entry here + implement `Service` trait.
 //! - Adding a new emitted step = add one entry to [`BOOT_STEP_MANIFEST`].
 
 use super::ServiceRole;
 use crate::platform::config::DataScope;
+use serde::Serialize;
+use specta::Type;
 
 // ═══════════════════════════════════════════════════════════════
 // UI grouping — shared with frontend via xtask codegen
@@ -38,7 +40,8 @@ use crate::platform::config::DataScope;
 /// The TypeScript-literal form (`as_ts_literal`) must stay aligned with
 /// `SubsystemGroupKind` in `interfaces/desktop/src/lib/layouts/app/StatusBar.types.ts`.
 /// `cargo xtask generate-ts-manifest` emits the TS source from this enum.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Type)]
+#[serde(rename_all = "kebab-case")]
 pub enum ServiceGroup {
     /// Data stores: Turso, `DuckDB`, `Moka`.
     Stores,
@@ -225,6 +228,15 @@ pub const SERVICE_MANIFEST: &[ServiceMeta] = &[
         step_id: None,
         group: ServiceGroup::System,
     },
+    ServiceMeta {
+        role: ServiceRole::AgentHub,
+        scope: DataScope::System,
+        stage: 15,
+        public_name: "AgentHub",
+        feature_gate: None,
+        step_id: None, // Lazily started by the shared process client.
+        group: ServiceGroup::System,
+    },
 ];
 
 /// Total number of boot stages (including preflight + validation).
@@ -235,23 +247,9 @@ pub const SERVICE_COUNT: usize = SERVICE_MANIFEST.len();
 
 /// Look up the first manifest entry for a given role.
 ///
-/// # Contract
-/// Every `ServiceRole` variant MUST have at least one entry in the manifest.
-/// This function uses exhaustive match — compiler error if a role is missing.
-pub fn meta_for_role(role: ServiceRole) -> &'static ServiceMeta {
-    let idx = match role {
-        ServiceRole::Surreal => 0,
-        ServiceRole::Relational => 1, // System relational (first entry)
-        ServiceRole::Analytics => 2,
-        ServiceRole::Graph => 3, // System graph (first entry)
-        ServiceRole::Cache => 4,
-        ServiceRole::Vector => 8,
-        ServiceRole::Grammar => 9,
-        ServiceRole::ModelLoader => 10,
-        ServiceRole::DevForge => 11,
-        ServiceRole::Ollama => 12,
-    };
-    &SERVICE_MANIFEST[idx]
+/// Missing entries are explicit; insertion/reordering cannot redirect a role.
+pub fn meta_for_role(role: ServiceRole) -> Option<&'static ServiceMeta> {
+    SERVICE_MANIFEST.iter().find(|meta| meta.role == role)
 }
 
 /// Count how many services are enabled in the manifest (excludes feature-gated
@@ -404,6 +402,24 @@ pub fn boot_step_for(step_id: &str) -> Option<&'static BootStepMeta> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn service_identities_are_unique_and_role_lookup_cannot_shift() {
+        use crate::platform::services::status::{snapshot_from, ServiceRuntimeState};
+        let mut identities = HashSet::new();
+        for meta in SERVICE_MANIFEST {
+            let snapshot = snapshot_from(meta, true, false, ServiceRuntimeState::Stopped);
+            assert!(identities.insert(snapshot.service_id));
+            assert_eq!(
+                meta_for_role(meta.role).map(|entry| entry.role),
+                Some(meta.role)
+            );
+        }
+        assert_eq!(
+            meta_for_role(ServiceRole::AgentHub).map(|entry| entry.public_name),
+            Some("AgentHub")
+        );
+    }
     use std::collections::HashSet;
 
     #[test]

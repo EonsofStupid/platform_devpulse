@@ -204,6 +204,100 @@ Subscription providers retain their vendor sign-in and supported transport.
 Verify local and remote connections, required authentication, unavailable or
 unsupported capabilities, endpoint changes during probes, and reconnects.
 
+### Control-plane consistency and preserved service patterns (2026-11-01)
+
+The owner authorizes continuing implementation, with restoration/review before
+replacement. Canonical consistency is not yet enforced across all runtimes.
+Keep the existing engine service manifest as the platform inventory. AI endpoint
+configuration and protocol verification remain kernel-owned. UI consumes generated
+contracts. Never infer readiness from an allocated object, saved URL or process
+spawn. Reading status must not activate a lazy service.
+
+Reviewed historical sources and their retained design intent:
+
+| Preserved source | Pattern worth retaining | Current owner / remaining work |
+| --- | --- | --- |
+| `alpha/orchestrator/src/infra/core/registry.rs` | Project UUID remains stable when paths change | Engine project identity; do not replace identity with display labels or paths |
+| `alpha/orchestrator/src/infra/core/scope.rs` | Explicit project/global ownership and scoped collections | Engine scoping plus kernel persistence; review individual APIs before moving |
+| `alpha/orchestrator/src/infra/core/services/mod.rs` | Configured/enabled and actually loaded are separate | Extend engine status with separate lifecycle and readiness evidence |
+| `alpha/orchestrator/src/infra/core/services/{traits,descriptors}.rs` | Typed operations separate from model metadata | Kernel providers/model-loader; retain old implementations until reconciled |
+| `alpha/engine/src/system_status.rs` | Load failures, timing and resource observations are first-class | Engine service status; retain resource observations for later wiring |
+| `alpha/orchestrator/src/types/infra_signal.rs` | Typed execution events and outcomes | Kernel emits facts; engine observes and routes them |
+| `scripts/docs/sprints/SPRINT-PLATFORM-SERVICE-MANAGER.md` | Registered services, bounded health/shutdown, scalable inventory | Existing manifest is useful but runtime dispatch still needs consolidation |
+
+The `alpha/` sources above remain byte-preserved under `recovered/repo/` until
+their full behavior is restored or individually reconciled. This review is not
+a claim that those files have been restored. The service-manager document is
+already restored at its original path. Historical compiled-in model choices do
+not override the owner's current endpoint-based architecture.
+
+Execution sequence:
+
+1. Extend the existing service status contract with stable service IDs,
+   lifecycle, separately verified readiness, observation time and typed failure
+   reasons. Bound health probes and keep absence/unknown distinct from ready.
+   Include AgentHub in the inventory and expose its actual handshake/worker
+   lifecycle without starting it during status reads. Update generated bindings
+   and the current service UI, then test failures, timeouts and lazy startup.
+2. Connect configured local/remote endpoint identity, protocol, credential
+   reference and configuration revision to that contract through kernel adapters.
+   Reject stale observations and invalidate readiness on configuration changes.
+   Verify capabilities per operation; model listing is not inference readiness.
+3. Extend inventory with explicit dependency/capability relationships suitable
+   for service grouping and future mindmapping. Preserve original typed signal,
+   scoped identity and project graph patterns; never infer edges from names.
+4. Consolidate remaining lifecycle consumers around the inventory, including
+   health/shutdown and service/UI activation. Account explicitly for AI provider,
+   model runtime, audio, container and telemetry coverage before claiming all
+   services adhere. Preserve factory/Council boundaries from the governing plan.
+
+Work in bounded groups, verify each integration and record exact restoration
+and test results. No alternate compatibility registry, hidden kernel or bulk
+deletion of staged code. The first step establishes observable service truth;
+it does not finish endpoint activation or the AgentHub factory.
+
+First integration implemented (2026-11-01):
+
+- The existing manifest now includes the AgentHub subprocess. Scope/role IDs,
+  typed groups, lifecycle, readiness, evidence, observation time, latency and
+  structured issues cross the generated Rust/TypeScript boundary. Status reads
+  do not launch AgentHub or read session histories. Its verified protocol hello
+  remains distinct from unverified ticket/provider capabilities.
+- Service health derives from those same observations. Independent async probes
+  have two-second deadlines; object presence alone cannot produce Healthy.
+  Optional dormant services are excluded from aggregate health, while missing
+  required services remain failures. Model-manager/grammar presence remains
+  explicitly unverified until real operation checks are wired.
+- Replaced the old forward health enumeration with the manifest-based collector;
+  reverse shutdown enumeration remains pending consolidation. Fixed a discovered
+  lookup bug: array indices had shifted after User Analytics was inserted, so
+  role lookup could return another service's metadata. Lookup now searches the
+  actual manifest and regression checks cover role identity and unique IDs.
+- DevTools → Config has refreshable observations through a colocated renderer
+  and props type, using existing ColdLight Badge/Text primitives. The status bar
+  groups health by typed manifest groups, never translated names. Health types
+  now re-export the generated IPC types instead of maintaining a second schema.
+- No staged historical source was deleted or claimed as newly restored by this
+  integration. Full preservation audit: 6,054 verified records, zero uncovered
+  deletions within the audit's defined coverage, 403 verbatim active survivors.
+  Restoration totals remain 756 restored/reconciled and 5,298 staged records;
+  these records include historical variants and assets, not missing-feature counts.
+- Engine: 188 tests passed, one existing ignored. AgentHub: 14 unit and five
+  real-process integration tests passed. Two service-status browser tests passed.
+  Svelte check: zero errors or warnings; Biome: 771 files; structure preflight,
+  rustfmt and production Vite build passed. All 19 architecture checks passed
+  on rerun; the initial ColdLight scan exceeded its five-second timeout under
+  concurrent builds and passed unchanged in isolation and in the full rerun.
+  Workspace Clippy with warnings denied passed. Normal commit/push hooks remain
+  enabled for this checkpoint.
+
+Still open: endpoint configuration revision/authentication/capability validation,
+dependency edges for mindmapping, complete runtime inventory, unified activation
+and shutdown, restoration of remaining historical behavior, and the factory
+workflow. This integration does not establish an all-services readiness contract
+or finish R3b/F1–F5. Packaged Tauri acceptance and live remote endpoint activation
+have not been exercised here.
+
 ### Owner correction: included kernel and visible advanced UI (2026-11-01)
 
 The owner reverses the old IP-hiding rule: the kernel is included, nothing

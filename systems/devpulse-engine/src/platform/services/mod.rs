@@ -63,6 +63,28 @@ pub enum ServiceRole {
     Ollama,
     /// Surreal service (managed `surreal start` child process).
     Surreal,
+    /// Bundled AI ticket/history runtime, started on demand.
+    AgentHub,
+}
+
+impl ServiceRole {
+    /// Stable identity component, independent of translated display labels.
+    #[must_use]
+    pub const fn key(self) -> &'static str {
+        match self {
+            Self::Relational => "relational",
+            Self::Analytics => "analytics",
+            Self::Graph => "graph",
+            Self::Cache => "cache",
+            Self::Vector => "vector",
+            Self::Grammar => "grammar",
+            Self::DevForge => "devforge",
+            Self::ModelLoader => "model-loader",
+            Self::Ollama => "ollama",
+            Self::Surreal => "surreal",
+            Self::AgentHub => "agenthub",
+        }
+    }
 }
 
 /// Lifecycle state of a platform service.

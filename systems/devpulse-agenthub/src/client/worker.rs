@@ -6,7 +6,7 @@ use std::time::Duration;
 use anyhow::{anyhow, bail, Context, Result};
 use tokio::sync::{mpsc, oneshot, watch};
 
-use super::{Peer, Reply, Request};
+use super::{Peer, Reply, Request, RuntimeState, RuntimeStatus};
 
 const QUEUE_CAPACITY: usize = 32;
 const STOPPING: &str = "AgentHub is shutting down";
@@ -19,7 +19,8 @@ struct Command {
 #[derive(Clone, Default)]
 enum Progress {
     #[default]
-    Running,
+    Starting,
+    Connected,
     Closing(String),
     Finished {
         error: String,
@@ -41,7 +42,7 @@ impl Worker {
         request_timeout: Duration,
     ) -> Self {
         let (commands, incoming) = mpsc::channel(QUEUE_CAPACITY);
-        let (progress, observed) = watch::channel(Progress::Running);
+        let (progress, observed) = watch::channel(Progress::Starting);
         devpulse_telemetry::spawn(run(start, incoming, stopping, progress, request_timeout));
         Self {
             commands,
@@ -76,6 +77,25 @@ impl Worker {
         }
     }
 
+    pub(super) fn status(&self) -> RuntimeStatus {
+        let (state, message) = match &*self.progress.borrow() {
+            Progress::Starting => (RuntimeState::Starting, None),
+            Progress::Connected => (RuntimeState::Connected, None),
+            Progress::Closing(error) if error == STOPPING => (RuntimeState::Stopping, None),
+            Progress::Finished {
+                error,
+                cleanup: Ok(()),
+            } if error == STOPPING => (RuntimeState::Stopped, None),
+            Progress::Finished {
+                cleanup: Err(error),
+                ..
+            }
+            | Progress::Closing(error)
+            | Progress::Finished { error, .. } => (RuntimeState::Failed, Some(error.clone())),
+        };
+        RuntimeStatus { state, message }
+    }
+
     #[cfg(test)]
     pub(super) fn queue_is_full(&self) -> bool {
         self.commands.capacity() == 0
@@ -83,7 +103,7 @@ impl Worker {
 
     fn terminal_error(&self) -> Option<String> {
         match &*self.progress.borrow() {
-            Progress::Running => None,
+            Progress::Starting | Progress::Connected => None,
             Progress::Closing(error) | Progress::Finished { error, .. } => Some(error.clone()),
         }
     }
@@ -116,6 +136,7 @@ async fn run(
     };
     let (peer, error) = match started {
         Ok(mut peer) => {
+            progress.send_replace(Progress::Connected);
             let error = serve(&mut peer, &mut incoming, &mut stopping, request_timeout).await;
             (Some(peer), error)
         }

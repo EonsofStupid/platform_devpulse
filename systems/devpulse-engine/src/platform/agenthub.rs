@@ -37,6 +37,17 @@ impl AgentHub {
         &self.live
     }
 
+    /// Observe the bundled runtime without starting it or reading history.
+    pub async fn status(&self) -> devpulse_agenthub::client::RuntimeStatus {
+        match &self.client {
+            Ok(client) => client.status().await,
+            Err(error) => devpulse_agenthub::client::RuntimeStatus {
+                state: devpulse_agenthub::client::RuntimeState::Failed,
+                message: Some(error.clone()),
+            },
+        }
+    }
+
     fn client(&self) -> Result<&Client> {
         self.client.as_ref().map_err(|error| anyhow!("{error}"))
     }

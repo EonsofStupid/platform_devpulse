@@ -34,6 +34,30 @@ pub struct Client {
     stopping: watch::Sender<bool>,
 }
 
+/// Observed process lifecycle. Reading it never starts or restarts the child.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RuntimeState {
+    /// No child has been requested, or graceful shutdown has completed.
+    Stopped,
+    /// Spawn and protocol handshake are still in progress.
+    Starting,
+    /// The protocol handshake completed and the worker monitors the peer.
+    Connected,
+    /// Shutdown was requested; the peer is no longer available for new work.
+    Stopping,
+    /// Startup, transport, process or cleanup failed.
+    Failed,
+}
+
+/// Facts from the existing supervisor, not another lifecycle controller.
+#[derive(Debug, Clone)]
+pub struct RuntimeStatus {
+    /// Current observed lifecycle.
+    pub state: RuntimeState,
+    /// Failure detail, when available.
+    pub message: Option<String>,
+}
+
 struct Peer {
     child: SupervisedChild,
     input: ChildStdin,
@@ -63,6 +87,27 @@ impl Client {
             worker: Mutex::new(None),
             stopping: watch::channel(false).0,
         }
+    }
+
+    /// Observe the existing worker without spawning a process or listing history.
+    pub async fn status(&self) -> RuntimeStatus {
+        let worker = self.worker.lock().await;
+        let mut status = worker.as_ref().map_or(
+            RuntimeStatus {
+                state: RuntimeState::Stopped,
+                message: None,
+            },
+            Worker::status,
+        );
+        if *self.stopping.borrow()
+            && matches!(
+                status.state,
+                RuntimeState::Starting | RuntimeState::Connected
+            )
+        {
+            status.state = RuntimeState::Stopping;
+        }
+        status
     }
 
     /// List through the child-owned retained catalog.

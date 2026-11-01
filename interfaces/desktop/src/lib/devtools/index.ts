@@ -45,6 +45,7 @@ export type {
 	HealthBadge,
 	HealthState,
 } from "./_shared/types.js";
+export { default as ServiceStatus } from "./_shared/ui/service-status/ServiceStatus.svelte";
 export {
 	type DevtoolBucket,
 	type DevtoolPlace,

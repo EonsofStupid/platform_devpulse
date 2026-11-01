@@ -2,14 +2,14 @@
 //!
 //! Every entry is derived from the SSOT [`SERVICE_MANIFEST`] at the
 //! moment `Platform::services_status()` is called. There is NO parallel
-//! `DatabaseConfig`-style mirror: adding a service means adding one
-//! `ServiceMeta` entry + the corresponding `ServiceEntry` in config.
-//! The UI picks it up with zero churn.
+//! `DatabaseConfig`-style mirror. Registered services provide manifest metadata,
+//! configuration policy, and an observation adapter; the UI consumes the result.
 //!
-//! # Three signals per service
+//! # Independent signals per service
 //! - `compiled_in`    — was the cargo `feature_gate` active for this build?
 //! - `config_enabled` — is `[services.<scope>.<role>].enabled` true in TOML?
-//! - `runtime_state`  — is the service Arc actually present right now?
+//! - `runtime_state`  — presence/lifecycle, never proof of readiness.
+//! - `observation`    — bounded probe or supervisor evidence, including failures.
 //!
 //! The UI renders whichever of these is the source of the current
 //! state so the user sees exactly why something is or isn't live.
@@ -22,9 +22,14 @@
 use serde::Serialize;
 use specta::Type;
 
-use super::manifest::{ServiceMeta, SERVICE_MANIFEST};
+use super::manifest::{ServiceGroup, ServiceMeta, SERVICE_MANIFEST};
 use super::ServiceRole;
 use crate::platform::config::DataScope;
+
+mod observation;
+pub use observation::{
+    ObservationEvidence, ServiceIssue, ServiceIssueCode, ServiceObservation, ServiceReadiness,
+};
 
 /// Whether a service is actually alive right now.
 ///
@@ -43,6 +48,12 @@ pub enum ServiceRuntimeState {
     Stopped,
     /// Service Arc is present — it booted and hasn't been torn down.
     Running,
+    /// Process startup or handshake has not completed.
+    Starting,
+    /// Shutdown is in progress; new operations are unavailable.
+    Stopping,
+    /// The runtime or its startup failed.
+    Failed,
     /// Runtime state cannot be reported (e.g. no accessor on Platform).
     /// Caller should rely on `compiled_in` / `config_enabled` instead.
     Unknown,
@@ -52,6 +63,8 @@ pub enum ServiceRuntimeState {
 /// at a single point in time.
 #[derive(Debug, Clone, Serialize, Type)]
 pub struct ServiceStatusSnapshot {
+    /// Stable scope/role identity; display names and file paths are not identifiers.
+    pub service_id: String,
     /// Role identifier — maps to [`ServiceRole`].
     pub role: ServiceRole,
     /// Scope bucket — maps to [`DataScope`].
@@ -61,7 +74,7 @@ pub struct ServiceStatusSnapshot {
     /// Public name ("Vector Store", "Grammar Engine", …).
     pub public_name: String,
     /// UI grouping literal — matches `ServiceGroup::as_ts_literal`.
-    pub group: String,
+    pub group: ServiceGroup,
     /// Cargo feature that gates this service. `None` = always compiled.
     pub feature_gate: Option<String>,
     /// `InitEvent` `step_id` (absent for lazy services).
@@ -74,6 +87,8 @@ pub struct ServiceStatusSnapshot {
     pub config_critical: bool,
     /// Dynamic runtime liveness — see [`ServiceRuntimeState`].
     pub runtime_state: ServiceRuntimeState,
+    /// Readiness evidence independent of configuration and object presence.
+    pub observation: ServiceObservation,
 }
 
 /// Evaluate the cargo-feature gate on `meta` against the features this
@@ -110,18 +125,19 @@ pub fn snapshot_from(
     config_critical: bool,
     runtime_state: ServiceRuntimeState,
 ) -> ServiceStatusSnapshot {
-    let group_literal = meta.group.as_ts_literal();
     ServiceStatusSnapshot {
+        service_id: format!("{}.{}", meta.scope.dir_name(), meta.role.key()),
         role: meta.role,
         scope: meta.scope,
         stage: meta.stage,
         public_name: meta.public_name.to_string(),
-        group: group_literal.to_string(),
+        group: meta.group,
         feature_gate: meta.feature_gate.map(ToString::to_string),
         step_id: meta.step_id.map(ToString::to_string),
         compiled_in: feature_gate_compiled_in(meta),
         config_enabled,
         config_critical,
         runtime_state,
+        observation: ServiceObservation::unobserved(runtime_state),
     }
 }

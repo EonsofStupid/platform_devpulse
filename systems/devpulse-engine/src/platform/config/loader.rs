@@ -1729,7 +1729,7 @@ impl Default for BootGateConfig {
 /// Identifies which scope a store belongs to.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, Type)]
 pub enum DataScope {
-    /// Kernel/engine internals — never user-facing.
+    /// Platform-owned data, observable through the included kernel and engine.
     System,
     /// User-owned data — sessions, preferences, memories.
     User,
@@ -1805,6 +1805,8 @@ impl PlatformBootConfig {
     ) -> Option<(bool, bool)> {
         use crate::platform::services::ServiceRole;
         match (role, scope) {
+            // Bundled and available on demand; no automatic startup or config toggle.
+            (ServiceRole::AgentHub, DataScope::System) => Some((true, false)),
             (ServiceRole::Relational, DataScope::System) => Some((
                 self.services.system.relational.enabled,
                 self.services.system.relational.critical,

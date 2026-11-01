@@ -256,43 +256,8 @@ use crate::platform::facade::events::InternalEvent;
 use devpulse_telemetry::prelude::{broadcast_channel, BroadcastSender};
 
 // ═══════════════════════════════════════════════════════════════
-// Service enumeration macro — THE single point of service listing
+// Service field enumeration for shutdown
 // ═══════════════════════════════════════════════════════════════
-
-/// Enumerate every service field on Platform, applying `$action!(field)`.
-///
-/// This is the **single enumeration point** for all service iteration.
-/// Health, shutdown, and validation all expand this macro. Adding a new
-/// service = add ONE line here. Everything else derives automatically.
-///
-/// The `$action` parameter is a macro that receives `self.field_name`.
-/// Feature gates are handled inline — non-compiled services are skipped.
-macro_rules! for_each_service {
-    ($self:ident, $action:ident) => {
-        // SurrealDB sidecar — runs FIRST in health checks (the graph
-        // scopes below hold WS clients; sidecar health is the upstream
-        // signal).
-        $action!($self.surreal);
-        // System scope (boot order)
-        $action!($self.system_relational);
-        $action!($self.system_analytics);
-        $action!($self.system_graph);
-        $action!($self.system_cache);
-        // User scope
-        $action!($self.user_relational);
-        $action!($self.user_analytics);
-        $action!($self.user_graph);
-        // Global scope
-        $action!($self.global_graph);
-        // Feature-gated services
-        #[cfg(feature = "rro")]
-        $action!($self.vector);
-        #[cfg(feature = "inference")]
-        $action!($self.model_loader);
-        // DevForge is NOT in this macro — it's lazy-started on user demand
-        // and lives in `ArcSwapOption`. Health + shutdown touch it manually.
-    };
-}
 
 /// Reverse enumeration for shutdown (last booted = first shutdown).
 macro_rules! for_each_service_rev {
@@ -676,48 +641,9 @@ impl Platform {
         &self.internal_tx
     }
 
-    /// Get system health by pinging all active services.
-    ///
-    /// Uses `for_each_service!` — the single enumeration point for all
-    /// service iteration. Adding a new service = add ONE line to the macro.
+    /// Health and inventory consume the same bounded service observations.
     pub async fn health(&self) -> SystemHealth {
-        let mut subsystems = Vec::new();
-
-        // Single enumeration point — health, shutdown, and validation
-        // all expand this same macro with different per-service actions.
-        macro_rules! ping {
-            ($field:expr) => {
-                if let Some(s) = &$field {
-                    subsystems.push(ping_service(s.as_ref()).await);
-                }
-            };
-        }
-        for_each_service!(self, ping);
-
-        // DevForge is lazy-started, not in the macro. Only ping it if
-        // the user has opened the code-editor window at least once.
-        if let Some(s) = self.devforge.load_full() {
-            subsystems.push(ping_service(s.as_ref()).await);
-        }
-        // Ollama sidecar is lazy-started via the devtool. Only ping it
-        // if the user has clicked Start at least once.
-        if let Some(s) = self.ollama.load_full() {
-            subsystems.push(ping_service(s.as_ref()).await);
-        }
-
-        let status = if subsystems.iter().all(|s| s.status == HealthStatus::Healthy) {
-            HealthStatus::Healthy
-        } else if subsystems.iter().any(|s| s.status == HealthStatus::Down) {
-            HealthStatus::Degraded
-        } else {
-            HealthStatus::Unknown
-        };
-
-        SystemHealth {
-            status,
-            uptime_secs: self.boot_time.elapsed().as_secs(),
-            subsystems,
-        }
+        SystemHealth::from_services(self.services_status().await, self.uptime_secs())
     }
 
     /// Get platform configuration (public-safe).
@@ -728,85 +654,111 @@ impl Platform {
         }
     }
 
-    /// Snapshot every service in [`SERVICE_MANIFEST`] with its static
-    /// metadata + the three dynamic signals (compiled / config / runtime).
-    ///
-    /// This is the SOLE authoritative surface for "what services does
-    /// the platform know about, and what state are they in right now".
-    /// The devtools config tab consumes it verbatim — there is no
-    /// hand-maintained `DatabaseConfig` mirror.
+    /// Observe registered platform services without activating lazy runtimes.
+    /// Independent probes run concurrently and each has a bounded deadline.
+    /// Provider/model operation readiness remains owned by its kernel adapter.
     pub async fn services_status(&self) -> Vec<ServiceStatusSnapshot> {
-        use services::status::{feature_gate_compiled_in, manifest_entries, snapshot_from};
-
-        let grammar_runtime_enabled = self.grammar.snapshot().await.enabled;
-
-        let mut out = Vec::with_capacity(manifest_entries().count());
-        for meta in manifest_entries() {
-            let compiled = feature_gate_compiled_in(meta);
+        use services::status::{
+            feature_gate_compiled_in, manifest_entries, snapshot_from, ServiceObservation,
+        };
+        futures::future::join_all(manifest_entries().map(|meta| async move {
             let (config_enabled, config_critical) = self
                 .boot_config
                 .service_flags(meta.role, meta.scope)
                 .unwrap_or((false, false));
-
-            let runtime_state = if !compiled {
-                ServiceRuntimeState::NotCompiled
+            let excluded = if !feature_gate_compiled_in(meta) {
+                Some(ServiceRuntimeState::NotCompiled)
             } else if !config_enabled {
-                ServiceRuntimeState::ConfigDisabled
+                Some(ServiceRuntimeState::ConfigDisabled)
             } else {
-                self.runtime_state_for(meta.role, meta.scope, grammar_runtime_enabled)
+                None
             };
-
-            out.push(snapshot_from(
-                meta,
-                config_enabled,
-                config_critical,
-                runtime_state,
-            ));
-        }
-        out
+            let (runtime_state, observation) = match excluded {
+                Some(state) => (state, ServiceObservation::unobserved(state)),
+                None => self.observe_service(meta.role, meta.scope).await,
+            };
+            let mut snapshot = snapshot_from(meta, config_enabled, config_critical, runtime_state);
+            snapshot.observation = observation;
+            snapshot
+        }))
+        .await
     }
 
-    /// Dispatch from (role, scope) → live `ServiceRuntimeState` by reading
-    /// the matching accessor on `self`. Caller must have already ruled
-    /// out `NotCompiled` / `ConfigDisabled` before invoking.
-    fn runtime_state_for(
+    /// One runtime dispatch for both presence and evidence. No status read starts a service.
+    async fn observe_service(
         &self,
         role: ServiceRole,
         scope: config::DataScope,
-        grammar_runtime_enabled: bool,
-    ) -> ServiceRuntimeState {
+    ) -> (ServiceRuntimeState, services::status::ServiceObservation) {
         use config::DataScope;
-        let present = match (role, scope) {
-            (ServiceRole::Relational, DataScope::System) => self.system_relational.is_some(),
-            (ServiceRole::Analytics, DataScope::System) => self.system_analytics.is_some(),
-            (ServiceRole::Graph, DataScope::System) => self.system_graph.is_some(),
-            (ServiceRole::Cache, DataScope::System) => self.system_cache.is_some(),
-            (ServiceRole::Relational, DataScope::User) => self.user_relational.is_some(),
-            (ServiceRole::Analytics, DataScope::User) => self.user_analytics.is_some(),
-            (ServiceRole::Graph, DataScope::User) => self.user_graph.is_some(),
-            (ServiceRole::Graph, DataScope::Global) => self.global_graph.is_some(),
-            #[cfg(feature = "rro")]
-            (ServiceRole::Vector, DataScope::System) => self.vector.is_some(),
-            #[cfg(not(feature = "rro"))]
-            (ServiceRole::Vector, DataScope::System) => return ServiceRuntimeState::NotCompiled,
-            #[cfg(feature = "inference")]
-            (ServiceRole::ModelLoader, DataScope::System) => self.model_loader.is_some(),
-            #[cfg(not(feature = "inference"))]
-            (ServiceRole::ModelLoader, DataScope::System) => {
-                return ServiceRuntimeState::NotCompiled
-            }
-            (ServiceRole::DevForge, DataScope::System) => self.devforge.load_full().is_some(),
-            (ServiceRole::Ollama, DataScope::System) => self.ollama.load_full().is_some(),
-            (ServiceRole::Surreal, DataScope::System) => self.surreal.is_some(),
-            (ServiceRole::Grammar, DataScope::System) => grammar_runtime_enabled,
-            // Any (role, scope) pair not in SERVICE_MANIFEST shouldn't
-            // reach here — manifest→runtime dispatch covers every entry.
-            _ => return ServiceRuntimeState::Unknown,
+        use services::status::ServiceObservation;
+        let absent = || {
+            (
+                ServiceRuntimeState::Stopped,
+                ServiceObservation::unobserved(ServiceRuntimeState::Stopped),
+            )
         };
-        if present {
-            ServiceRuntimeState::Running
-        } else {
-            ServiceRuntimeState::Stopped
+        macro_rules! observe {
+            ($service:expr) => {
+                match $service {
+                    Some(service) => (
+                        ServiceRuntimeState::Running,
+                        ServiceObservation::probe(
+                            service.as_ref(),
+                            std::time::Duration::from_secs(2),
+                        )
+                        .await,
+                    ),
+                    None => absent(),
+                }
+            };
+        }
+        match (role, scope) {
+            (ServiceRole::Relational, DataScope::System) => {
+                observe!(self.system_relational.as_ref())
+            }
+            (ServiceRole::Analytics, DataScope::System) => observe!(self.system_analytics.as_ref()),
+            (ServiceRole::Graph, DataScope::System) => observe!(self.system_graph.as_ref()),
+            (ServiceRole::Cache, DataScope::System) => observe!(self.system_cache.as_ref()),
+            (ServiceRole::Relational, DataScope::User) => observe!(self.user_relational.as_ref()),
+            (ServiceRole::Analytics, DataScope::User) => observe!(self.user_analytics.as_ref()),
+            (ServiceRole::Graph, DataScope::User) => observe!(self.user_graph.as_ref()),
+            (ServiceRole::Graph, DataScope::Global) => observe!(self.global_graph.as_ref()),
+            #[cfg(feature = "rro")]
+            (ServiceRole::Vector, DataScope::System) => observe!(self.vector.as_ref()),
+            (ServiceRole::DevForge, DataScope::System) => observe!(self.devforge.load_full()),
+            (ServiceRole::Ollama, DataScope::System) => observe!(self.ollama.load_full()),
+            (ServiceRole::Surreal, DataScope::System) => observe!(self.surreal.as_ref()),
+            #[cfg(feature = "inference")]
+            (ServiceRole::ModelLoader, DataScope::System) => {
+                if self.model_loader.is_some() {
+                    (ServiceRuntimeState::Running, ServiceObservation::unverified(
+                        "Model manager is present; model and endpoint readiness require their own operation checks."))
+                } else {
+                    absent()
+                }
+            }
+            (ServiceRole::Grammar, DataScope::System) => {
+                if self.grammar.snapshot().await.enabled {
+                    (
+                        ServiceRuntimeState::Running,
+                        ServiceObservation::unverified(
+                            "Grammar is enabled; no operation-level service probe is wired.",
+                        ),
+                    )
+                } else {
+                    absent()
+                }
+            }
+            (ServiceRole::AgentHub, DataScope::System) => {
+                ServiceObservation::agenthub(self.agenthub.status().await)
+            }
+            _ => (
+                ServiceRuntimeState::Unknown,
+                ServiceObservation::unverified(
+                    "No service probe is registered for this role and scope.",
+                ),
+            ),
         }
     }
 
@@ -1625,8 +1577,8 @@ impl Platform {
 
     /// Stop the owned runtime, then close services in reverse boot order.
     ///
-    /// Uses `for_each_service_rev!` — the same enumeration point as health,
-    /// but in reverse. After the runtime's graceful-stop policy completes,
+    /// Uses `for_each_service_rev!` to close fields in reverse boot order.
+    /// After the runtime's graceful-stop policy completes,
     /// infrastructure shares a 5-second deadline to flush WALs, checkpoint
     /// databases and release file locks.
     #[allow(clippy::cast_possible_truncation)]
@@ -1700,41 +1652,5 @@ impl Platform {
     /// Get the boot config.
     pub fn boot_config(&self) -> &PlatformBootConfig {
         &self.boot_config
-    }
-}
-
-// ═══════════════════════════════════════════════════════════════
-// Health check utility
-// ═══════════════════════════════════════════════════════════════
-
-/// Ping a single service and return its health.
-#[allow(clippy::cast_possible_truncation)]
-async fn ping_service<S: Service>(svc: &S) -> SubsystemHealth {
-    let start = Instant::now();
-    let result = svc.ping().await;
-    let latency_us = start.elapsed().as_micros() as u64;
-
-    match result {
-        Ok(()) => SubsystemHealth {
-            name: svc.name().to_string(),
-            state: svc.state(),
-            status: HealthStatus::Healthy,
-            latency_us: Some(latency_us),
-            message: None,
-        },
-        Err(e) => {
-            tracing::warn!(
-                service = svc.name(),
-                error = ?e,
-                "Health ping failed"
-            );
-            SubsystemHealth {
-                name: svc.name().to_string(),
-                state: svc.state(),
-                status: HealthStatus::Down,
-                latency_us: Some(latency_us),
-                message: Some(format!("{e:#}")),
-            }
-        }
     }
 }
