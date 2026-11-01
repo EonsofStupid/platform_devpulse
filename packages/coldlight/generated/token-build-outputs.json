@@ -1,6 +1,10 @@
 [
+	"interfaces/desktop/src/lib/domains/agenthub/ui/factory-board/factory-board.generated.css",
+	"interfaces/desktop/src/lib/domains/agenthub/ui/factory-board/factory-board.generated.ts",
 	"interfaces/desktop/src/lib/domains/agenthub/ui/history-row/history-row.generated.css",
 	"interfaces/desktop/src/lib/domains/agenthub/ui/history-row/history-row.generated.ts",
+	"interfaces/desktop/src/lib/domains/agenthub/ui/ticket-detail/ticket-detail.generated.css",
+	"interfaces/desktop/src/lib/domains/agenthub/ui/ticket-detail/ticket-detail.generated.ts",
 	"interfaces/desktop/src/lib/domains/agenthub/ui/transcript-reader/transcript-reader.generated.css",
 	"interfaces/desktop/src/lib/domains/agenthub/ui/transcript-reader/transcript-reader.generated.ts",
 	"interfaces/desktop/src/lib/domains/chat/ui/session-row/session-row.generated.css",

@@ -1,0 +1,14 @@
+{
+	"agenthub-ticket-detail": {
+		"$extensions": { "com.coldlight": { "slot": "root" } },
+		"base": {
+			"background-image": {
+				"$value": "radial-gradient(ellipse at top left, var(--accent-primary-fill), transparent 65%)"
+			},
+			"border": {
+				"$value": "1px solid color-mix(in oklch, var(--accent-primary-main) 30%, transparent)"
+			},
+			"border-radius": { "$type": "dimension", "$value": { "value": 16, "unit": "px" } }
+		}
+	}
+}

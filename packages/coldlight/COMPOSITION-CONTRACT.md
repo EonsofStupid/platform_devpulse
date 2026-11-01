@@ -93,7 +93,12 @@ are the actual contract; do not copy DTO shapes into another registry.
 The real session-row and agent-turn adapters in the chat domain are working
 examples. Preserve native semantics, focus, disabled behavior and provider
 choice IDs when moving presentation. Expose reusable adapters through the
-domain public API when another domain needs them.
+domain public API when another domain needs them. A domain may expose its
+existing `ui/index.ts` as a presentation-only public API, separate from its
+runtime `index.ts`. Keep that UI entry free of data-access/feature imports and
+move its presentation callers together; do not re-export those UI components
+from the runtime entry as compatibility aliases. Chat uses this split so a
+Council configuration or review composition does not load the whole chat app.
 
 ## Refuse duplication; extend the owner
 

@@ -1,0 +1,12 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+[data-ui="agenthub-ticket-detail"][data-slot="root"] {
+	--agenthub-ticket-detail-background-image: radial-gradient(ellipse at top left, var(--accent-primary-fill), transparent 65%);
+	--agenthub-ticket-detail-border: 1px solid color-mix(in oklch, var(--accent-primary-main) 30%, transparent);
+	--agenthub-ticket-detail-border-radius: 1rem;
+	background-image: var(--agenthub-ticket-detail-background-image);
+	border: var(--agenthub-ticket-detail-border);
+	border-radius: var(--agenthub-ticket-detail-border-radius);
+}

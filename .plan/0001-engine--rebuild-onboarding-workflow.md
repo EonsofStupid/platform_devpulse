@@ -18,7 +18,7 @@ touches: [kernel-clyffy, kernel-model-loader, desktop-tauri, desktop-onboarding,
 status: draft
 owner: Jesse Hades Hall
 created: 2026-10-10
-updated: 2026-10-23
+updated: 2026-10-31
 supersedes: [0002]   # reserved for "user-managed AI endpoints", never written; folded in here
 specs:
   # Research for this revision, read in full before writing (2026-10-12):
@@ -899,7 +899,7 @@ even loading … you keep just making new shit". And: local AI must be
 | B2 | Your AI notices updates, Antigravity listed | kernel provider checks at boot and on a timer → the notification centre; an Antigravity definition | a newer version shows as a notification |
 | B3 | Each subscription in chat (D1) | Codex `app-server` + adoption/update, Grok ACP, Claude Code stream-json, Antigravity `agy` headless; threads in Turso | the same question to Claude, Codex, Grok and Antigravity in one window |
 | B4 | Rooms (channels) and roles | `dpl-chat-core` rooms/roles library + your files; seats take a subscription or an endpoint; ColdLight's unused sidebar / popover / combobox / tree / toaster | a Council room with two agents in seats |
-| B5 | AgentHub | `dpl-chat-store` + the Claude / Codex decoders: every session on disk, plus live threads; the old React console's design in Svelte | your real Claude Code and Codex sessions listed |
+| B5 | AgentHub AI factory/ticketing board under Overmind | Existing database, provider and bundled process owners; history as linked context. Governing design and revised delivery order: plan 0009, "AgentHub factory and human supervision" (2026-10-31). Council remains in chat under B4. | a persisted ticket worked by AIs with shared state, evidence and a durable human review/resume |
 | B6 | Your context in every session | the configured MCP SSE server started; `session/new` `mcpServers` | an agent answers with DevPulse-only context |
 | B7 | Your checkpoint | — | your sign-off |
 
@@ -1042,18 +1042,22 @@ registry, read 2026-10-24; nothing was run):
   is Cursor's; the Antigravity ACP server is a separate binary
   (`agy_acp_server`).
 
-**B5.4 — tickets, the software factory.** Turso `ticket_boards` (per
-project, its prefix, the next number) and `tickets` (`PREFIX-n`, title, body,
-status, assignee: an agent or a person), with a history table. Any agent picks
-a ticket up as a prompt in a thread or room, and its answer is recorded on the
-ticket. The prefix scheme is Q51. Built after B5.1–B5.3 inside
-`domains/agenthub`.
+**B5.4 — tickets, the software factory (owner correction 2026-10-31).**
+Tickets are AgentHub's central domain, not a later addition after a session
+board. The governing proposal is [plan 0009: AgentHub factory and human
+supervision](0009-repo--wire-recovered-code.md#agenthub-factory-and-human-supervision--governing-plan-2026-10-31).
+Use clearly owned `agenthub_` SQL tables for durable work, assignments, shared
+state, evidence and human decisions. Shared chat/project records keep their
+canonical owners. Council configuration and premade role assignment belong in
+chat (B4), linked to tickets. Email/push and reviewed workflow improvement,
+with optional model training, follow the same durable decision model. The
+earlier history-first ordering is superseded by that plan's F0–F5 proposal.
 
 **Questions for you:**
 
 - **Q50 — answered:** allowed; you click every install, sign-in and update
   (above, B3.10).
-- **Q51 Ticket prefix.** One prefix per project (suggested from its name,
+- **Q51 Display ticket prefix (separate from the `agenthub_` SQL namespace).** One prefix per project (suggested from its name,
   editable, like `DP-42`), or one for the whole devspace?
 - **Q52 "affinity".** AFFiNE, the open-source local-first Notion alternative?
   Overmind's plan waits for this answer.

@@ -35,6 +35,8 @@ let {
 	open,
 	onOpenChange,
 	placeholder,
+	"aria-label": ariaLabel,
+	"aria-labelledby": ariaLabelledby,
 	disabled = false,
 	preset = "default",
 	children,
@@ -56,6 +58,12 @@ const hook = useSelect({
 	onOpenChange: (v) => onOpenChange?.(v),
 	get placeholder() {
 		return placeholder;
+	},
+	get "aria-label"() {
+		return ariaLabel ?? undefined;
+	},
+	get "aria-labelledby"() {
+		return ariaLabelledby ?? undefined;
 	},
 });
 

@@ -8,7 +8,7 @@ touches: [kernel-clyffy, engine, desktop, desktop-coldlight]
 status: in-progress
 owner: Jesse Hades Hall
 created: 2026-10-24
-updated: 2026-10-27
+updated: 2026-10-31
 supersedes: []
 specs:
   - CLAUDE.md
@@ -22,6 +22,296 @@ Every piece of code you wrote that left this repo's tree is back in it,
 unchanged, under `recovered/`, with where it came from. The chat crates from
 devpulselabs are copied in once. Each capability is then wired back into the
 product working, AgentHub first.
+
+## AgentHub factory and human supervision — governing plan, 2026-10-31
+
+**Status:** The owner's resume authorizes F0: a clickable ColdLight factory
+fixture for board, ticket, chat-owned Council assignment and human review.
+Sample state must be explicit and isolated from production. Review this concrete
+flow before expanding the runtime in F1–F5. The factory is not complete.
+This slice does not run agents, send notifications or launch training jobs.
+**Decider:** Jesse Hades Hall.
+
+Owner correction: AgentHub is the AI factory/ticketing board under Overmind.
+Council belongs in the tailored chat experience, with configurable participants
+and premade roles assigned through UI. AgentHub has durable, clearly prefixed
+tables so different AIs can generate tickets, share state and collaborate.
+Email, push and supervised improvement make human involvement configurable.
+
+This section governs R3b/R3c and plan 0001 B5. A session is not a ticket; a
+Council is not the board; an idle agent does not imply completed work. Earlier
+session-card columns and the history-first delivery sequence below are retained
+as historical decisions and evidence, not current implementation instructions.
+The 2026-10-29 navigation/readability checks did not validate the factory product.
+
+### Context: what exists and what must change
+
+| Existing owner inspected | Finding and disposition |
+| --- | --- |
+| `systems/devpulse-agenthub/src/protocol.rs` and engine `platform/agenthub.rs` | Bundled supervised child and retained history are real. The private requests are only `Sessions` and `Page`; live agent/room execution still belongs to the engine. Extend this boundary for ticket orchestration, durable checkpoints and execution; do not create a second runtime. |
+| `interfaces/desktop/src/lib/domains/agenthub/feature/AgentHub.svelte` | Current primary surface is a session library. Replace its primary composition with the ticket factory. Preserve the history capability as linked context in chat/ticket detail, with an explicit consumer before moving it. No mass deletion or automatic session-to-ticket import. |
+| `kernel/devpulse-clyffy/config/rooms/council.json`, `config/roles/`, engine `platform/rooms.rs` | Council phases and premade roles already exist. The inspected chat UI has no room-command consumers. Build the configuration/role-assignment flow in chat from these owners. Keep the preset's blind answers and anonymized selection semantics; arbitrary shared context must not defeat them. |
+| `systems/devpulse-engine/migrations/user/0003_agenthub_thread_ownership.sql` | `agenthub_threads` and `agenthub_room_threads` preserve continuation/seating records. They are not ticket tables. Audit their actual ownership before any rename; a SQL prefix must not move Council's product identity into AgentHub. |
+| Engine `platform/services/relational.rs` | Shared `projects`, `sessions`, `turns`, `corrections` and `learnings` already exist. Reference their canonical records. Existing correction tables alone do not provide a reviewed training workflow. |
+| ColdLight `COMPOSITION-CONTRACT.md` | The required two-stage component/composition architecture and generated styling already have an explicit contract. Use it; do not introduce another preset system. |
+| Notification/training integration search | The inspected active engine/runtime/chat paths do not establish durable ticket notifications or model training jobs. Existing toast/notification behaviors are UI building blocks, not delivery services. Recovery search found historical notification components; no recovered ticket engine was identified by this bounded search. |
+
+### Decision: tickets carry work; chat carries conversation
+
+AgentHub owns the work specification, dependencies, assignments, execution
+attempts, shared evidence, decisions and accepted outcome. Chat provides the
+conversation and Council configuration. A ticket can link multiple conversations
+and runs; a conversation can propose several tickets. Council can plan, critique
+or review ticket work without becoming a board column or a replacement board.
+Shared execution machinery may run in the supervised child without changing
+those product boundaries: Council configuration remains owned by chat.
+
+Example acceptance journey: create a ticket with a goal and acceptance criteria;
+use chat to assign a planner, worker and independent reviewer from available
+roles/providers; generate bounded subtasks; have two AIs contribute distinct
+artifacts; pause before a configured action; open the review from a notification;
+correct the proposal; resume the authorized attempt; accept the result against
+the ticket criteria. Reopening DevPulse reconstructs the same work and decisions.
+
+Proposed starting workflow: **Intake → Ready → Working → Review → Done**, with
+explicit Blocked and Cancelled outcomes. Names/columns remain configurable.
+Store ticket workflow state separately from run activity (queued/running/
+waiting/interrupted/failed) and view ordering. Moving a card requests a validated
+workflow transition; changing visual order alone never approves or executes work.
+Done requires persisted acceptance evidence under the selected policy.
+
+Tickets may originate from a person, chat/Council, an AI proposal or a configured
+integration. AI-created tickets retain source, parent, rationale, deduplication
+key and applicable policy. Intake/automatic admission and limits on child tickets,
+depth, concurrent work, retries and spend/time are explicit. A model cannot grant
+itself more authority by creating another ticket or delegating to another AI.
+
+### Durable model and shared-work rules
+
+The SQL namespace is `agenthub_`, including owned indexes and constraints. The
+human-facing key, such as `DP-42`, is a separate configurable board/project prefix;
+it is not a SQL table prefix. Stable internal IDs survive display-key changes.
+The following are proposed logical tables, to validate against the schema before
+implementation and add only as their delivery slices require:
+
+| Table family | Responsibility |
+| --- | --- |
+| `agenthub_boards`, `agenthub_workflows`, `agenthub_tickets` | Project scope, workflow versions, ticket number allocation, goal, criteria, priority, lifecycle and revision. |
+| `agenthub_dependencies`, `agenthub_assignments`, `agenthub_ticket_links` | Parent/dependency graph, role/participant assignments, references to canonical chat sessions, Council runs and source records. |
+| `agenthub_runs`, `agenthub_steps`, `agenthub_checkpoints` | Attempts, provider/model/role/policy versions, bounded work units, claims, fencing tokens, execution receipts and restart state. |
+| `agenthub_artifacts`, `agenthub_context_revisions`, `agenthub_events` | Versioned outputs, evidence and shared decisions with author/provenance; an ordered audit trail. Large content uses verified artifact references, not repeated stream blobs. |
+| `agenthub_supervision_policies`, `agenthub_reviews`, `agenthub_review_decisions` | Immutable policy versions, the exact proposal under review, reviewer authority, decision, edits, reason and expiry. |
+| `agenthub_outbox`, `agenthub_notification_rules`, `agenthub_deliveries` | Transactional event publication and ticket notification preferences/delivery attempts. Reuse a platform-wide delivery owner if its implementation audit finds one; never duplicate provider credentials. |
+| `agenthub_feedback` | Ticket-specific correction/evaluation links to canonical corrections and learning records; eligibility/provenance for later reviewed datasets. Training assets/jobs belong to the model/training owner, not another copy of ticket state. |
+
+Keep one durable write authority in the existing engine user-database service.
+The bundled AgentHub child submits typed domain operations over a correlated,
+bidirectional protocol; no raw SQL or credentials are exposed to AI workers.
+Validate project scope, actor authority, expected revision, policy and claim in
+the durable transaction. Commit state changes, audit event and outbox record
+together, then notify subscribers. Materialized rows plus an audit log are enough;
+a new event-sourcing infrastructure is not a prerequisite.
+
+Multiple agents collaborate through explicit assignments, handoff artifacts and
+versioned context. A worker reads a named context revision and submits a proposed
+delta; conflicts are surfaced or reviewed, never silently last-write-wins. A
+parallel contribution has its own step/claim, so a ticket can have several AIs
+without two workers owning the same exclusive step. Dependency cycles are refused.
+For code work, include isolated worktrees or scoped resource claims and an explicit
+integration step; shared database state does not make concurrent filesystem edits
+safe. Council visibility rules constrain which contributions each seat can read.
+
+Claims have leases and monotonic fencing tokens. Late results from an expired
+claim cannot advance the current attempt. Bounded dispatch uses idempotency keys
+where the downstream action supports them. If an external side effect may have
+occurred before a crash, persist an uncertain/interrupted outcome and reconcile
+before another attempt. Do not promise exactly-once external execution. Resume
+starts from the committed checkpoint; it never blindly repeats completed tools.
+
+### Human involvement is a versioned execution policy
+
+Offer understandable presets, then reveal their editable rules. Proposed presets:
+**Guide each step**, **Review milestones**, **Work within limits**. These configure
+the same policy engine rather than separate execution paths or a vague trust slider.
+
+| Configurable dimension | Concrete control |
+| --- | --- |
+| Checkpoints | Review ticket admission, plan, selected tool/action classes, handoffs, artifact acceptance or completion. |
+| Authority | Allowed workspaces, tools, endpoints and actions; per-run limits; named human reviewers and optional independent AI review. |
+| Escalation | Ask on missing information, failed checks, conflicting evidence, exhausted limits or policy-defined conditions. Model-reported confidence alone cannot authorize work. |
+| Response | Approve once, edit and approve the resulting revision, request changes, reject, pause, cancel or reassign. Each action has a distinct state transition. |
+| Timing | Deadlines, reminders, quiet hours and escalation recipients. Silence/timeout is not approval; a policy may explicitly choose pause or cancellation. |
+| Learning | Record feedback, propose a scoped workflow/role change, and separately choose whether reviewed examples may enter a dataset. |
+
+The review UI shows the proposed action/change, affected resources, evidence,
+acceptance criteria, expected cost where available and why this checkpoint fired.
+Approval binds to a specific ticket/step/proposal revision and policy version.
+Changed proposals invalidate old approval; a human edit produces a new revision
+and is validated before dispatch. Duplicate decisions are idempotent; conflicting
+decisions are rejected visibly. Authorization to act and judgment that an answer
+is correct are separate facts.
+
+Enforce policy in the execution boundary, not only in Svelte or prompt text.
+Audit each provider's real controls. If a CLI cannot expose/intercept an action
+that a selected policy requires reviewing, that provider cannot run that policy's
+tool-enabled workflow; offer an explicit talk-only proposal or a supported route.
+Closing a window does not dismiss pending review. Tightening/revoking authority
+affects pending dispatch and triggers controlled cancellation where possible;
+already completed external actions are not claimed to be undone.
+
+### Notifications and supervised improvement
+
+Notifications arise from committed ticket/review events. In-app inbox, native
+desktop alerts, email and remote device push are separate delivery channels with
+shared preferences, deduplication, retry/backoff, delivery status and escalation.
+The outbox survives crashes and is reconciled after restart. Channel failure does
+not lose the review or complete the ticket. Default payloads are summaries with a
+link to current evidence; full prompts/artifacts are not copied into every alert.
+
+Desktop notifications do not establish remote push while the computer is off.
+Plan two explicit operating modes: portable/local processing while the supervised
+host runs; optional always-on authenticated hosting/relay for remote work and
+delivery. A remote inference endpoint alone is not an always-on ticket coordinator.
+Remote review must resolve to the same authority with project-scoped identity,
+current revision and expiring, replay-resistant actions. A link click or arbitrary
+email reply must not become an approval. Incoming email-to-ticket intake is a
+separate optional integration, with source verification and bounded admission.
+
+Planning assumption pending the owner's training clarification: include both
+tracks, deliver workflow supervision first. **Workflow improvement** turns a
+reviewed correction into a proposed, versioned role/prompt/policy change with
+scope, explanation, evaluation and rollback. It does not change model weights.
+**Model training** requires separately reviewed examples, dataset versions,
+provenance/consent, exclusions, train/evaluation separation and a compatible
+training backend. Retain input, observed output, corrected target, rationale and
+task/role/model versions; never label every approval or successful run ground truth.
+Do not collect hidden reasoning as a training requirement. Split related tickets
+and conversation families together to avoid evaluation leakage.
+
+A training job becomes work that can itself be tracked on the board: prepare,
+review dataset, train through the training owner, evaluate against a held-out
+baseline, then explicitly promote or reject a candidate. Keep model/adapter
+lineage and rollback. Codex subscription activation, remote inference capability
+and model-training availability are independent contracts; verify support before
+offering Train. No training backend or notification vendor is selected by this plan.
+
+### ColdLight experience and delivery order
+
+The board shows the work, blockers, responsible roles and pending decisions.
+Ticket detail exposes brief/criteria, dependencies, assignments, artifacts,
+activity and review. Chat owns Council template selection, premade-role editing,
+provider-to-seat assignment and the linked conversation. A supervision inspector
+previews which checkpoints a policy would trigger before it is applied. Training
+review presents corrections and candidate examples explicitly rather than a
+single unexplained rating. Cross-links preserve ticket and conversation identity.
+
+Follow `packages/coldlight/COMPOSITION-CONTRACT.md`: reusable typed components
+and behaviors in ColdLight, domain render compositions/types/tokens colocated in
+`domains/agenthub/ui/<name>/` and `domains/chat/ui/<name>/`; data and commands in
+their existing data-access owners. DTCG → generated CSS/TS at build time; reusable
+SVG geometry, generated visual families and state treatments. Layout utilities
+remain layout. No inline visual engine, duplicate component registry or parallel
+V2 implementation. Audit Card, Badge, Avatar, status, dialogs, tables, drag/drop
+and review behaviors before adding a reusable board column. Keyboard moves and
+an equivalent list view must expose the same validated workflow actions.
+
+Measure cold board load, incremental updates, DOM/paint cost and native interaction
+at agreed ticket volumes and 1024/1440 widths. Use bounded queries/paging and
+virtualization when warranted; loading a board must not scan transcript contents.
+Test long content, pending/conflicting/stale decisions, offline recovery, focus,
+contrast, reduced motion and generated visual families with actual CSS loaded.
+
+| Order | Reviewable delivery | Required proof |
+| --- | --- | --- |
+| F0 — agree the product | One clickable ColdLight fixture of board → ticket → Council assignment → human review, with clearly labeled fixture data and supervision policy examples. Inventory ownership and preserve the useful current code. | Owner can judge the intended workflow before further runtime expansion; no claim that fixture work is functional backend delivery. |
+| F1 — durable tickets | Prefix schema, workflow/revision rules, manual ticket creation, generated draft intake, real board/detail UI and persistence commands. | Reopen/restart preserves tickets; concurrent creation has unique numbers; unauthorized/stale transitions fail; history is linked context only. |
+| F2 — one supervised worker | Bidirectional process boundary, durable claims/checkpoints, provider capability checks and one complete ticket run through existing provider owners. | Real selected provider produces persisted evidence; pause/review survives restart; approval resumes the exact step; crash cannot silently duplicate actions. |
+| F3 — collaborating AIs and Council | Chat role/seat configuration, versioned shared context, parallel step assignments, dependency handoffs and independent review. | Two distinct AIs contribute to one ticket; conflicts are visible; Council visibility rules hold; reassignment rejects stale worker writes. |
+| F4 — reach the human | Persisted review inbox, native alerts, email and selected remote push/hosting path, with visible delivery status. | Lost connection, duplicate delivery, expired review and offline host are truthful; a real notification opens the correct current review. |
+| F5 — improvement with evidence | Reviewed feedback, versioned workflow changes, optional curated dataset/training/evaluation/promotion flow. | A correction improves a measured subsequent task; excluded data stays excluded; a worse candidate is rejected and rollback works. |
+| Release gate | Complete bundled/installed/portable and chosen remote operating modes. | Clean-machine launch, subprocess cleanup, migration record preservation, endpoint/Codex activation, recovery and the full visible factory journey. |
+
+Each row is split into bounded implementation phases in this same plan; none is
+permission to skip correctness or defer all UI until backend work is finished.
+The owner's resume starts F0. The first functional backend milestone remains
+a persisted ticket with a real worker and a durable human decision.
+
+### F0 implementation and review evidence — 2026-10-31
+
+The clickable fixture is `AgentHub/Factory review` in Storybook, authored in
+`interfaces/desktop/src/stories/AgentFactoryReview.stories.svelte`. It composes
+typed `agenthub/ui/factory-board`, `agenthub/ui/ticket-detail` and the chat-owned
+`chat/ui/council-config` adapters. Styles are generated from colocated DTCG
+tokens through the existing pipeline. Existing Card/Button/Badge/Checkbox/Select
+components provide the behavior and surfaces. No duplicate board-card kind,
+compatibility facade or inline visual engine was added.
+
+The fixture supports manual intake with criteria, ticket evidence inspection,
+Council role/provider assignment, three supervision examples, acceptance gated
+by criteria, corrections and a new sample proposal. It resets on reload and is
+explicitly sample data. The Council preset preserves three blind answerers and
+an independent selector; selecting an answerer's vendor for the selector blocks
+save. Production session/history code and all recovered code remain present.
+
+Review route while the local compiled preview server runs:
+`http://127.0.0.1:6006/iframe.html?id=agenthub-factory-review--tickets-and-human-review&viewMode=story`.
+Open DP-42, inspect evidence, change supervision, request a correction, load the
+revised sample and confirm the criteria. Open Council in chat to assign premade
+roles. New ticket creates a sample Intake card; neither action starts an agent.
+
+Verification: eight browser/story tests pass across the factory, retained
+failure-review story and ColdLight composition story; 19 architecture tests
+pass with one existing skip. App, stories and ColdLight type checks have zero
+errors/warnings; scoped Biome and token freshness pass (114 generated outputs).
+`pnpm build-storybook` completes. Screenshots at 1440, 1024 and 390 pixels and
+test/build logs are retained under `.userdata/proof/`.
+
+Direct fixes found while exercising F0:
+- ColdLight Select now forwards accessible names to its combobox behavior.
+- Chat's existing `ui/index.ts` is its public presentation entry, separate from
+  its runtime entry. All presentation callers moved together; no compatibility
+  exports remain. Importing Council configuration no longer imports ChatRoot,
+  provider/project state or the full AgentHub session feature.
+- TypeScript excludes generated `storybook-static` vendor bundles from authored
+  source checking. Storybook prebundles native window helpers before rendering.
+
+Owner workflow/visual acceptance is still pending. F0 is not R3b completion:
+database tickets, subprocess work/checkpoints, real Council execution/provider
+activation, configurable delivery and reviewed improvement are F1–F5. This
+preview does not implement drag/reorder, durable policy enforcement, remote
+endpoint authentication, Codex subscription activation, notifications or model
+training. Native/installed validation and production-scale cold-load/paint
+budgets remain release work. Vite's development preview was slow to compile;
+the review URL serves the verified compiled Storybook output instead. Do not
+treat this as a production startup-performance measurement.
+
+### Options, consequences and research
+
+| Option | Assessment |
+| --- | --- |
+| Continue the session/status board | Reuses the current view but does not model factory work, durable acceptance or shared ticket state. Rejected by owner correction. |
+| Ticket domain on existing database/provider/process owners | Proposed: preserves useful code and gives the factory one durable authority. Requires real workflow, concurrency, recovery and review design. |
+| Introduce a separate workflow platform immediately | Adds another persistence/deployment boundary before requirements are proven. Not selected; reconsider only if the implemented workload demonstrates a need. |
+
+Primary-source research informs these recommendations; it does not select new
+dependencies. [LangGraph durable interrupts](https://docs.langchain.com/oss/python/langgraph/interrupts)
+illustrate persisted human pauses and the danger of replayed side effects.
+[AWS transactional outbox guidance](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html)
+supports committing publication intent with state and handling duplicate delivery.
+[Tauri notifications](https://v2.tauri.app/plugin/notification/) cover native
+alerts and document installed-app constraints on Windows; portable and remote
+push acceptance therefore need separate checks.
+[Hugging Face SFT](https://huggingface.co/docs/trl/sft_trainer) documents explicit
+training datasets and adapter training, distinct from conversational feedback.
+[OpenAI fine-tuning guidance](https://developers.openai.com/api/docs/guides/supervised-fine-tuning)
+emphasizes evaluation before training and currently documents availability
+restrictions; do not promise training based on an inference/subscription login.
+
+Open product choices for the fixture: intended supervision presets/defaults;
+project versus board scope of display ticket prefixes; desktop-only versus
+phone/web push and always-on hosting; workflow coaching versus actual model
+training (or both); first representative factory task and expected board scale.
+Defaults above are proposals, not answers supplied by the owner.
 
 ## Owner direction (2026-10-24)
 
@@ -82,7 +372,7 @@ output, vendored `deps/` and generated files:
 | --- | --- | --- |
 | R1 | **The repo's history, back.** `scripts/recovery/restore_history.py` writes every missing code file to `recovered/repo/<original path>` from the commit just before its deletion; `recovered/repo/SOURCES.tsv` says, per file, the commit it came from, the commit that deleted it, the date, and whether its name still exists at HEAD. `recovered/` is excluded from Biome, the lefthook hooks and any workspace glob. | 4,923 files present; every one byte-identical to `git show <commit>^:<path>`; `pnpm check`, `cargo check`, the hooks unaffected |
 | R2 | **devpulselabs' chat crates, copied in once.** `crates/chat/**`, its workspace `Cargo.toml`, and its chat docs to `recovered/devpulselabs/` (tracked and untracked files, its `.gitignore` respected), with the source commit recorded. Never read from `D:\projects\devpulselabs` again. | file count and hashes match the source |
-| R3 | **AgentHub, wired (plan 0001 B5).** **R3a** your sessions found on this machine: `recovered/devpulselabs/crates/chat/store` (bounded, jailed, paged history reading, 1,111 lines) with its Claude Code and Codex readers (`providers/claude`, `providers/codex` — `impl HistoryDecoder`) authored into the kernel's `providers/history/` on DevPulse's `ProviderId`, their tests with them; an engine `agenthub` facade; Tauri intents. **R3b** the board in Turso and the `domains/agenthub` module: every live thread, room and found session a card, by state. **R3c** hand-offs between cards. | your real Claude Code and Codex sessions listed in the running app |
+| R3 | **AgentHub AI factory (plan 0001 B5).** Retain the R3a history capability as linked context. R3b/R3c now follow the governing 2026-10-31 F0–F5 proposal above: durable tickets, cooperating AIs, configurable human supervision, notifications and reviewed improvement. Council configuration belongs in chat. | a persisted ticket worked collaboratively, reviewed against evidence, resumed safely and reconstructed after restart |
 | R4 | **Then by capability, in the order you set** — from the list R1 makes visible (persona memory MCP, Cortex/Knowledge page, Visual Page Builder, voice lab, Maestro, the hub pages, …), each under its owning plan. | per capability, live |
 
 ### AgentHub architecture correction (owner, 2026-10-27)
@@ -315,6 +605,11 @@ touches the existing scanner, both callers and this plan. Do not repeat the
 old launcher after this finding.
 
 ### R3b — the board, in detail (written 2026-10-25)
+
+**Historical design, superseded by the 2026-10-31 governing section above.**
+Keep the measured history/cache evidence and useful components. Do not implement
+the session-card model, idle-to-Done mapping or history-first sequence as the
+factory board. F0–F5 now define the proposed delivery order around actual tickets.
 
 What R3a's live check showed, which R3b builds on:
 

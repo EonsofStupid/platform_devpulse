@@ -1,0 +1,54 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+[data-ui="agenthub-factory-board"][data-slot="root"] {
+
+}
+
+[data-ui="agenthub-factory-board"][data-slot="root"] {
+	cursor: pointer;
+	outline-offset: var(--focus-offset, 2px);
+	-webkit-tap-highlight-color: transparent;
+}
+
+[data-ui="agenthub-factory-board"][data-slot="root"]:focus-visible {
+	outline: 2px solid var(--focus-ring, currentColor);
+	outline-offset: var(--focus-offset, 2px);
+}
+
+[data-ui="agenthub-factory-board"][data-slot="root"]:is(:disabled, [data-disabled], [aria-disabled="true"]) {
+	cursor: not-allowed;
+	pointer-events: none;
+}
+
+[data-ui="agenthub-factory-board"][data-slot="root"]:hover {
+	filter: var(--hover-filter, brightness(1.1));
+}
+
+[data-ui="agenthub-factory-board"][data-slot="root"]:active {
+	filter: var(--active-filter, brightness(0.9));
+}
+
+[data-ui="agenthub-factory-board"][data-slot="root"][data-selected] {
+	--agenthub-factory-board-border-color: var(--accent-primary-main);
+	--agenthub-factory-board-box-shadow: 0 0 0 1px var(--accent-primary-main);
+	border-color: var(--agenthub-factory-board-border-color);
+	box-shadow: var(--agenthub-factory-board-box-shadow);
+}
+
+[data-ui="agenthub-factory-board"][data-slot="column"] {
+	--agenthub-factory-board-column-background-color: color-mix(in oklch, var(--accent-primary-fill) 30%, transparent);
+	background-color: var(--agenthub-factory-board-column-background-color);
+	--agenthub-factory-board-column-border-radius: 0.75rem;
+	border-radius: var(--agenthub-factory-board-column-border-radius);
+	--agenthub-factory-board-column-border: 1px solid color-mix(in oklch, var(--accent-primary-main) 15%, transparent);
+	border: var(--agenthub-factory-board-column-border);
+	--agenthub-factory-board-column-min-height: 22.5rem;
+	min-height: var(--agenthub-factory-board-column-min-height);
+}
+
+[data-ui="agenthub-factory-board"][data-slot="muted"] {
+	--agenthub-factory-board-muted-color: var(--text-secondary);
+	color: var(--agenthub-factory-board-muted-color);
+}

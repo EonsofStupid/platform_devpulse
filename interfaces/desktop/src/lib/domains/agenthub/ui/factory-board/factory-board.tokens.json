@@ -1,0 +1,25 @@
+{
+	"agenthub-factory-board": {
+		"$extensions": { "com.coldlight": { "accepts": ["interactive"], "slot": "root" } },
+		"state": {
+			"selected": {
+				"border-color": { "$type": "color", "$value": "var(--accent-primary-main)" },
+				"box-shadow": { "$value": "0 0 0 1px var(--accent-primary-main)" }
+			}
+		},
+		"part": {
+			"column": {
+				"background-color": {
+					"$type": "color",
+					"$value": "color-mix(in oklch, var(--accent-primary-fill) 30%, transparent)"
+				},
+				"border-radius": { "$type": "dimension", "$value": { "value": 12, "unit": "px" } },
+				"border": {
+					"$value": "1px solid color-mix(in oklch, var(--accent-primary-main) 15%, transparent)"
+				},
+				"min-height": { "$type": "dimension", "$value": { "value": 360, "unit": "px" } }
+			},
+			"muted": { "color": { "$type": "color", "$value": "{text.secondary}" } }
+		}
+	}
+}

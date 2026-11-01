@@ -1,6 +1,6 @@
 <script module>
 import { defineMeta } from "@storybook/addon-svelte-csf";
-import { FailedTurn } from "$lib/domains/chat/index.js";
+import { FailedTurn } from "$lib/domains/chat/ui/index.js";
 
 const { Story } = defineMeta({
 	title: "AgentHub/Failure recovery",

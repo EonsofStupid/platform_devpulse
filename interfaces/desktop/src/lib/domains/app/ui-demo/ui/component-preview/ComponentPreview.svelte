@@ -3,7 +3,7 @@ import { BUTTON_VARIANTS, Button } from "@devpulse/coldlight/components/button";
 import { CARD_VARIANTS, Card } from "@devpulse/coldlight/components/card";
 import { Heading } from "@devpulse/coldlight/components/heading";
 import { Text } from "@devpulse/coldlight/components/text";
-import { AgentTurn, SessionRow } from "$lib/domains/chat/index.js";
+import { AgentTurn, SessionRow } from "$lib/domains/chat/ui/index.js";
 import type { ComponentPreviewProps } from "./component-preview.types.js";
 
 let { family, selected, onSelect, onAction }: ComponentPreviewProps = $props();
