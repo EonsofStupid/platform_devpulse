@@ -349,6 +349,14 @@ All 20 architecture tests pass. The first run timed out during the unchanged
 ColdLight filesystem scan under simultaneous builds; the full rerun passed with
 that scan at 173 ms. Workspace Clippy with warnings denied passes. Completion
 intentionally consumes each validation ticket so it cannot publish twice.
+Code checkpoint: `a98f86e3`; normal pre-commit and commit-message hooks passed.
+`recovered/repo/SOURCES.tsv` records the desktop client's original revision and
+the reviewed kernel destination with its SHA-256. Post-commit preservation audit:
+6,055 verified records, zero uncovered deletions within the audit's defined
+coverage, 403 verbatim active survivors. Totals are 757 restored/reconciled and
+5,298 staged records. The additional reconciliation records this live source
+move; it does not represent another archived feature restored. No staged
+historical source was removed. Full restoration and R3b remain incomplete.
 
 ### Owner correction: included kernel and visible advanced UI (2026-11-01)
 
