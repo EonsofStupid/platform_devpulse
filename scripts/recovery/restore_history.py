@@ -248,7 +248,9 @@ def restore(check=False, documents=False):
         rows.append(dict(zip(FIELDS, [
                     path,
                     recovered_as,
-                    f"{sha[:8]}^",
+                    # The deletion may exist only on a local safety branch.
+                    # Reference its actual source commit, not that branch's child.
+                    git("rev-parse", f"{sha}^").strip(),
                     sha[:8],
                     date,
                     "yes" if head_names.get(name) else "no",

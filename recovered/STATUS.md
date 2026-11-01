@@ -20,10 +20,20 @@ excluded from the workspace build and does not restore a working feature.
   staged pending consumer reconciliation; the old design `CLAUDE.md` was restored
   with the documents. Its old prohibition on `ui/` does not override the owner's
   current component/type/colocated-UI architecture.
-- All 6,048 provenance entries pass comparison against their original Git blob
-  or explicitly reviewed restoration digest. There are now 750 restored or
+- All 6,054 provenance entries pass comparison against their original Git blob
+  or explicitly reviewed restoration digest. There are now 756 restored or
   reconciled entries and 5,298 still staged. Another 403 deleted paths survive
   verbatim in active HEAD. Imported devpulselabs sources are counted separately.
+- Six of those reconciled entries record direct replacements for obsolete
+  hiding policies under the owner's 2026-11-01 reversal. These are not six newly
+  restored features: build-only UI flags now use runtime presentation;
+  vocabulary bans now use label validation; architecture checks require an
+  included kernel; unused model-loader access restrictions are removed. Each
+  original Git source is retained alongside a reviewed replacement digest.
+  No staged implementation was discarded by this policy correction.
+  The current model-loader suite passes 170 tests without secrecy features;
+  five old build-mode policy tests no longer apply. See plan 0009 for UI,
+  engine, browser, architecture and production-build validation.
 - Restored the 12-file persona MCP crate into `kernel/devpulse-persona-mcp`
   and the Rust workspace. Its 26 tests pass, including actual stdio subprocess
   tests, concurrent writes, transaction rollback and persistence across restart.
@@ -53,10 +63,13 @@ excluded from the workspace build and does not restore a working feature.
   specta,mode-dev --lib`) passes all 175 tests, including the ten runtime
   settings tests. Its all-target Clippy check and targeted rustfmt pass;
   engine and desktop backend compile after the changes.
-- The thirteen recovery regression tests pass. They cover original-path restoration,
+- The fourteen recovery regression tests pass. They cover original-path restoration,
   destination conflicts, modified/missing restored files, interrupted cleanup,
   repeat runs, new discoveries in one command, workspace path containment and
-  preservation of earlier recovered versions and explicit reconciled digests.
+  preservation of earlier recovered versions and explicit reconciled digests,
+  and a clean clone without the local deletion commit. Source references now
+  use full resolved commit IDs; all 169 source revisions are reachable from
+  published origin history or the current branch being pushed.
 - `pnpm check` passes with zero errors/warnings. `cargo check -p devpulse-clyffy
   -p devpulse-engine` and targeted `cargo fmt --check` pass after moving the
   endpoint adapter from engine onboarding to kernel provider adapters.

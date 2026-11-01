@@ -1,6 +1,7 @@
 """Real Git regressions for archive preservation; no application files touched."""
 import csv
 import hashlib
+import shutil
 from pathlib import Path
 import subprocess
 import sys
@@ -55,6 +56,30 @@ class RecoveryTests(unittest.TestCase):
         result = self.run_script("--check", success=False)
         self.assertIn("unrecovered: 1", result.stdout)
         self.assertFalse((self.root / "recovered").exists())
+
+    def test_source_reference_survives_without_local_deletion_commit(self):
+        (self.root / "lost.rs").write_bytes(b"pub fn recovered() {}\n")
+        self.commit()
+        source_commit = self.git("rev-parse", "HEAD").stdout.decode().strip()
+        self.git("branch", "published")
+        self.git("rm", "lost.rs")
+        self.commit()
+        deletion = self.git("rev-parse", "HEAD").stdout.decode().strip()
+        self.run_script()
+        with tempfile.TemporaryDirectory(prefix="devpulse-published-") as directory:
+            checkout = Path(directory) / "repo"
+            self.git("clone", "--quiet", "--no-local", "--single-branch", "--branch",
+                     "published", str(self.root), str(checkout))
+            missing = subprocess.run(["git", "cat-file", "-e", deletion], cwd=checkout,
+                                     capture_output=True)
+            self.assertNotEqual(missing.returncode, 0)
+            shutil.copytree(self.root / "recovered", checkout / "recovered")
+            with (checkout / "recovered/repo/SOURCES.tsv").open(encoding="utf-8", newline="") as source:
+                row = next(csv.DictReader(source, delimiter="\t"))
+            self.assertEqual(row["copied_from"], source_commit)
+            result = subprocess.run([sys.executable, "-I", str(SCRIPT), "--check"],
+                                    cwd=checkout, capture_output=True, text=True)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
     def test_modified_archive_is_never_overwritten(self):
         self.deleted()

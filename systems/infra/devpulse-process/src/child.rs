@@ -154,9 +154,11 @@ impl SupervisedChild {
         let job = crate::job::JobGuard::new(crate::job::Breakaway::Refused)
             .with_context(|| format!("create the job for {}", spec.name))?;
 
-        let mut child = cmd
+        let child = cmd
             .spawn()
             .with_context(|| format!("start {} ({})", spec.name, spec.program.display()))?;
+        #[cfg(windows)]
+        let mut child = child;
         let pid = child
             .id()
             .with_context(|| format!("{} exited before it could be watched", spec.name))?;

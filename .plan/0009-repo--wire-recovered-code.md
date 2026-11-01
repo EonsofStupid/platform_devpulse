@@ -278,6 +278,20 @@ Completed behavior and validation (2026-11-01):
 - This verifies the shipped UI bundle and native compilation. A packaged Tauri
   installer and live endpoint activation were not exercised by this slice.
 
+Baseline CI follow-up: run 41334221426 exposed a source-reference problem and
+a Linux-only lint failure. Three manifest entries used a local safety commit's
+parent expression, even though the resolved source commits are published.
+Normalize source references to full source commit IDs, verify their reachability
+and content, and retain deletion metadata. Scope child-process mutability to
+Windows, where job-assignment failure must kill the spawned child. Run the
+process tests, recovery regression tests and full preservation audit before push.
+Implemented: all 6,054 source records use full commit IDs; all 169 referenced
+revisions are reachable from origin history or this branch. The writer now
+records actual source revisions for future recoveries. Fourteen recovery tests
+pass, including a clean clone without the local deletion commit. The full audit
+reports zero uncovered deletions and 403 verbatim survivors. Process supervision
+passes 12 tests (two existing ignored) and targeted Clippy with warnings denied.
+
 ## AgentHub factory and human supervision — governing plan, 2026-10-31
 
 **Status:** The owner's resume authorizes F0: a clickable ColdLight factory
