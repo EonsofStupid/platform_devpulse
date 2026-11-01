@@ -27,6 +27,21 @@ env:
   CARGO_PROFILE_DEV_DEBUG: "0"
 
 jobs:
+  restoration:
+    name: Restoration provenance
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # SOURCES.tsv retains original revisions across repository history.
+          fetch-depth: 0
+
+      - name: Recovery regression tests
+        run: python3 -I scripts/recovery/test_restore_history.py
+
+      - name: Verify every preserved or restored source
+        run: python3 -I scripts/recovery/restore_history.py --check
+
   rust:
     name: Rust Checks
     runs-on: ubuntu-latest
@@ -218,13 +233,13 @@ jobs:
   # Gate job — configure branch protection to require this single check
   ci-pass:
     name: CI Pass
-    needs: [rust, desktop]
+    needs: [rust, desktop, restoration]
     runs-on: ubuntu-latest
     if: always()
     steps:
       - name: Check results
         run: |
-          if [[ "${{ needs.rust.result }}" != "success" || "${{ needs.desktop.result }}" != "success" ]]; then
-            echo "CI failed: rust=${{ needs.rust.result }}, desktop=${{ needs.desktop.result }}"
+          if [[ "${{ needs.rust.result }}" != "success" || "${{ needs.desktop.result }}" != "success" || "${{ needs.restoration.result }}" != "success" ]]; then
+            echo "CI failed: rust=${{ needs.rust.result }}, desktop=${{ needs.desktop.result }}, restoration=${{ needs.restoration.result }}"
             exit 1
           fi

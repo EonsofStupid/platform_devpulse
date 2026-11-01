@@ -154,6 +154,30 @@ engine/desktop compilation pass). The persona service remains executable but
 not yet bundled/attached to desktop sessions. AgentHub factory F1–F5 and the
 historical ColdLight capability reconciliation remain incomplete.
 
+### Shared baseline and deployment readiness (2026-11-01)
+
+The owner requests commit, merge and push, then continued baseline work before
+deploying the panel to servers. Commit `88b8a704` captures the verified
+restoration; main fast-forwards without rewriting history. The regenerated
+Tauri bindings are unchanged and the production Svelte build succeeds.
+These results establish a source/build baseline, not a working hosted factory.
+
+Add restoration regression tests and the full provenance audit to CI, using
+a full-history checkout because the manifest names historical Git blobs.
+Require this job in the existing CI Pass gate. Check committed destinations
+and source-revision reachability so the audit does not depend on local-only
+files or history. All 168 referenced source revisions were found reachable
+from published refs or the branch being pushed.
+
+The only active interface in this checkout is the desktop Svelte application;
+its command/event transport is Tauri. AgentHub uses a private supervised
+process boundary, not a public server API. A static build is therefore only
+the UI assets. The hosted mode still needs an explicitly selected server
+boundary, authentication/authorization, persistence and event transport, and
+end-to-end factory acceptance under F1–F5. Preserve the same kernel owners,
+prefixed ticket tables, ColdLight components and chat/Council product boundary.
+Do not expose private subprocess messages as an unauthenticated web API.
+
 ## AgentHub factory and human supervision — governing plan, 2026-10-31
 
 **Status:** The owner's resume authorizes F0: a clickable ColdLight factory
