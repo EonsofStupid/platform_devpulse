@@ -318,7 +318,7 @@ macro_rules! for_each_service_rev {
 /// Platform engine — sole public API for persistence, health, config.
 ///
 /// Owns all service lifecycles. Tauri talks to this, never to clyffy directly.
-/// All user-facing strings pass through `ip_term!()` at this boundary.
+/// Technical identities cross unchanged; the UI selects presentation labels.
 ///
 /// Services are organized by scope:
 /// Capacity of the platform-internal `InternalEvent` broadcast channel.

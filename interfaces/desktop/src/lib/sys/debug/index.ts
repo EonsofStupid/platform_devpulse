@@ -4,12 +4,11 @@
  * @layer lib
  *
  * VibePulse is the devtools overlay portal (V icon).
- * Every devtool registers here. Feature-gated via DEBUG_FLAG.
+ * Advanced tools are included in the shipped application.
  *
  * Devtools:
  *   - VPB (Visual Page Builder) — lives under design/, ColdLight devtool
  *   - (future devtools register here)
  */
 
-export { __DEV__, isDev } from "./DEBUG_FLAG";
 export { default as HfTokenPanel } from "./HfTokenPanel.svelte";

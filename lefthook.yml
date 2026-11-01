@@ -37,12 +37,10 @@ pre-commit:
       glob: ["interfaces/desktop/src/stories/**", "interfaces/desktop/.storybook/**", "interfaces/desktop/tsconfig.stories.json"]
       run: pnpm --dir interfaces/desktop check:stories
 
-    # IP boundary enforcement — blocks kernel terms in staged files
-    ip-boundary-check:
-      glob: ["*.{rs,ts,svelte,json}", "**/*.{rs,ts,svelte,json}"]
-      # Your recovered code is kept as it was, never built or linted (plan 0009).
-      exclude: ["recovered/**"]
-      run: bash scripts/hooks/ip-boundary-check.sh
+    # Validate both presentation labels; kernel vocabulary is always allowed.
+    terminology-check:
+      glob: ["systems/devpulse-engine/ip/kernel_terms.toml", "interfaces/desktop/scripts/build/terminology/**", "interfaces/desktop/src/lib/sys/generated/terminology.ts"]
+      run: pnpm --dir interfaces/desktop test:arch -- tests/architecture/terminology.test.ts
 
     # Bindings drift guard — if Tauri command .rs files changed but
     # bindings.ts was not regenerated, block commit with an actionable

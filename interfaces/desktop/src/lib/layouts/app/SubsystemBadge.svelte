@@ -18,8 +18,9 @@ import { Badge } from "@devpulse/coldlight/components/badge";
 import { Text } from "@devpulse/coldlight/components/text";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@devpulse/coldlight/components/tooltip";
 import { hstack, stack } from "@devpulse/coldlight/utils";
+import { presentationState } from "$lib/domains/app/devpulse/index.js";
 import { clyffyStatus } from "$lib/domains/clyffy/index.js";
-import { DEV_MODE, devLabel, TERMS } from "$lib/sys/generated/terminology.js";
+import { findTerm } from "$lib/sys/generated/terminology.js";
 import { getIcon } from "$lib/sys/generated/terminology-icons.js";
 import type { SubsystemInfo } from "$lib/sys/runes/platformState.svelte.js";
 
@@ -31,14 +32,14 @@ interface Props {
 
 let { subsystem, groupKind = "system" }: Props = $props();
 
-const term = $derived(TERMS[subsystem.name]);
+const term = $derived(findTerm(subsystem.name));
 const Icon = $derived(getIcon(subsystem.name));
 
 const variant = $derived(
 	subsystem.state === "ready" ? "positive" : subsystem.state === "failed" ? "negative" : "neutral",
 );
 
-const triggerLabel = $derived(DEV_MODE ? devLabel(subsystem.name) : (term?.prod ?? subsystem.name));
+const triggerLabel = $derived(presentationState.label(subsystem.name));
 
 const latencyText = $derived(
 	subsystem.latencyMs === null

@@ -4,7 +4,7 @@
 |-------|-------|
 | **Status** | `RATIFIED` |
 | **Version** | `1.0.0` |
-| **Last Updated** | `2026-05-10` |
+| **Last Updated** | `2026-11-01` (kernel visibility correction) |
 | **Owner** | `@jesse` |
 | **Part of** | DevPulse Platform |
 | **Governed by** | `PHILOSOPHY.md` (Clyffy approach) |
@@ -410,7 +410,7 @@ CORTEX.md (LOCKED v1.0.0) defines the **rumination pipeline + COSTAR+IC + govern
 **Outbound (Cortex → UI):**
 - Every transition emits to `InternalEvent` broadcast bus AND `tracing` (project memory: dual observability is required).
 - The Tauri bindings layer translates engine events into Svelte rune updates.
-- Vocabulary is public (owner 2026-10-19: "everything is public"); `kernel_terms.toml` maps layman ↔ advanced labels and its enforcement is off. The prompt recipes stay the kernel's.
+- Owner 2026-11-01: the kernel is included and no implementation detail or prompt recipe is hidden for IP protection. Kernel ownership remains an organizational boundary. `kernel_terms.toml` supplies generated layman ↔ advanced labels with enforcement off; the shipped application's advanced UI exposes the available technical detail and controls. Presentation preferences must preserve original identities and payloads. This supersedes historical vocabulary bans and recipe-secrecy doctrine; credentials and authorization remain separate concerns.
 
 ### 7.4 Governance — the permission gate around generation
 

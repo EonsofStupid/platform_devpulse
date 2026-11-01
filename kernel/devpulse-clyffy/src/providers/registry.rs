@@ -72,7 +72,6 @@ pub const PROVIDERS: &[AiProvider] = &[
         sdk: SdkBackend::VendorHeadless,
         docs_url: "https://code.claude.com/docs/en/setup",
         classifications: &[Classification::SubscriptionPath],
-        dev_only: false,
     },
     AiProvider {
         id: ProviderId::Codex,
@@ -86,7 +85,6 @@ pub const PROVIDERS: &[AiProvider] = &[
         sdk: SdkBackend::AgentClientProtocol,
         docs_url: "https://github.com/openai/codex",
         classifications: &[Classification::SubscriptionPath],
-        dev_only: false,
     },
     AiProvider {
         id: ProviderId::GrokBuild,
@@ -100,7 +98,6 @@ pub const PROVIDERS: &[AiProvider] = &[
         sdk: SdkBackend::AgentClientProtocol,
         docs_url: "https://docs.x.ai/build/overview",
         classifications: &[Classification::SubscriptionPath],
-        dev_only: false,
     },
     AiProvider {
         id: ProviderId::AntigravityCli,
@@ -114,7 +111,6 @@ pub const PROVIDERS: &[AiProvider] = &[
         sdk: SdkBackend::VendorHeadless,
         docs_url: "https://antigravity.google/docs/cli/overview",
         classifications: &[Classification::SubscriptionPath],
-        dev_only: false,
     },
     AiProvider {
         id: ProviderId::GeminiCli,
@@ -128,7 +124,6 @@ pub const PROVIDERS: &[AiProvider] = &[
         sdk: SdkBackend::AgentClientProtocol,
         docs_url: "https://github.com/google-gemini/gemini-cli",
         classifications: &[Classification::SubscriptionPath],
-        dev_only: false,
     },
     AiProvider {
         id: ProviderId::Cursor,
@@ -142,7 +137,6 @@ pub const PROVIDERS: &[AiProvider] = &[
         sdk: SdkBackend::AgentClientProtocol,
         docs_url: "https://cursor.com/docs/cli/overview",
         classifications: &[Classification::SubscriptionPath],
-        dev_only: false,
     },
     // ── Desktop apps: no programmatic chat; they host DevPulse's MCP ──
     AiProvider {
@@ -157,7 +151,6 @@ pub const PROVIDERS: &[AiProvider] = &[
         sdk: SdkBackend::SubprocessMcp,
         docs_url: "https://claude.ai/download",
         classifications: &[Classification::DesktopApp],
-        dev_only: false,
     },
     AiProvider {
         id: ProviderId::Antigravity,
@@ -171,7 +164,6 @@ pub const PROVIDERS: &[AiProvider] = &[
         sdk: SdkBackend::SubprocessMcp,
         docs_url: "https://antigravity.google",
         classifications: &[Classification::DesktopApp],
-        dev_only: false,
     },
     // ── Native API clients (hand-rolled, vendor-specific protocols) ──
     AiProvider {
@@ -193,7 +185,6 @@ pub const PROVIDERS: &[AiProvider] = &[
         sdk: SdkBackend::AnthropicNative,
         docs_url: "https://docs.claude.com/en/api/overview",
         classifications: &[Classification::Native],
-        dev_only: false,
     },
     AiProvider {
         id: ProviderId::GoogleGemini,
@@ -214,7 +205,6 @@ pub const PROVIDERS: &[AiProvider] = &[
         sdk: SdkBackend::GeminiNative,
         docs_url: "https://ai.google.dev/gemini-api/docs",
         classifications: &[Classification::Native],
-        dev_only: false,
     },
     AiProvider {
         id: ProviderId::Cohere,
@@ -235,7 +225,6 @@ pub const PROVIDERS: &[AiProvider] = &[
         sdk: SdkBackend::CohereNative,
         docs_url: "https://docs.cohere.com/reference",
         classifications: &[Classification::Native],
-        dev_only: false,
     },
     AiProvider {
         id: ProviderId::Replicate,
@@ -256,7 +245,6 @@ pub const PROVIDERS: &[AiProvider] = &[
         sdk: SdkBackend::ReplicateNative,
         docs_url: "https://replicate.com/docs/reference/http",
         classifications: &[Classification::Native],
-        dev_only: false,
     },
     AiProvider {
         id: ProviderId::HuggingFace,
@@ -277,7 +265,6 @@ pub const PROVIDERS: &[AiProvider] = &[
         sdk: SdkBackend::HuggingFaceNative,
         docs_url: "https://huggingface.co/docs/api-inference",
         classifications: &[Classification::Native],
-        dev_only: false,
     },
     // ── OpenAI-compatible (single client, multiple base URLs) ────────
     AiProvider {
@@ -299,7 +286,6 @@ pub const PROVIDERS: &[AiProvider] = &[
         sdk: SdkBackend::AsyncOpenAi,
         docs_url: "https://platform.openai.com/docs",
         classifications: &[Classification::OpenAiCompatible],
-        dev_only: false,
     },
     AiProvider {
         id: ProviderId::Mistral,
@@ -320,7 +306,6 @@ pub const PROVIDERS: &[AiProvider] = &[
         sdk: SdkBackend::AsyncOpenAi,
         docs_url: "https://docs.mistral.ai",
         classifications: &[Classification::OpenAiCompatible],
-        dev_only: false,
     },
     AiProvider {
         id: ProviderId::Xai,
@@ -341,7 +326,6 @@ pub const PROVIDERS: &[AiProvider] = &[
         sdk: SdkBackend::AsyncOpenAi,
         docs_url: "https://docs.x.ai",
         classifications: &[Classification::OpenAiCompatible],
-        dev_only: false,
     },
     AiProvider {
         id: ProviderId::DeepSeek,
@@ -362,7 +346,6 @@ pub const PROVIDERS: &[AiProvider] = &[
         sdk: SdkBackend::AsyncOpenAi,
         docs_url: "https://api-docs.deepseek.com",
         classifications: &[Classification::OpenAiCompatible],
-        dev_only: false,
     },
     AiProvider {
         id: ProviderId::Groq,
@@ -383,7 +366,6 @@ pub const PROVIDERS: &[AiProvider] = &[
         sdk: SdkBackend::AsyncOpenAi,
         docs_url: "https://console.groq.com/docs",
         classifications: &[Classification::OpenAiCompatible],
-        dev_only: false,
     },
     AiProvider {
         id: ProviderId::Together,
@@ -404,7 +386,6 @@ pub const PROVIDERS: &[AiProvider] = &[
         sdk: SdkBackend::AsyncOpenAi,
         docs_url: "https://docs.together.ai",
         classifications: &[Classification::OpenAiCompatible],
-        dev_only: false,
     },
     AiProvider {
         id: ProviderId::Fireworks,
@@ -425,7 +406,6 @@ pub const PROVIDERS: &[AiProvider] = &[
         sdk: SdkBackend::AsyncOpenAi,
         docs_url: "https://docs.fireworks.ai",
         classifications: &[Classification::OpenAiCompatible],
-        dev_only: false,
     },
     // ── Local runtimes (operator's own compute) ──────────────────────
     AiProvider {
@@ -452,7 +432,6 @@ pub const PROVIDERS: &[AiProvider] = &[
         sdk: SdkBackend::OllamaNative,
         docs_url: "https://github.com/ollama/ollama/blob/main/docs/api.md",
         classifications: &[Classification::Local, Classification::OpenAiCompatible],
-        dev_only: false,
     },
     AiProvider {
         id: ProviderId::LmStudio,
@@ -473,7 +452,6 @@ pub const PROVIDERS: &[AiProvider] = &[
         sdk: SdkBackend::AsyncOpenAi,
         docs_url: "https://lmstudio.ai/docs/local-server",
         classifications: &[Classification::Local, Classification::OpenAiCompatible],
-        dev_only: false,
     },
     AiProvider {
         id: ProviderId::Vllm,
@@ -494,7 +472,6 @@ pub const PROVIDERS: &[AiProvider] = &[
         sdk: SdkBackend::AsyncOpenAi,
         docs_url: "https://docs.vllm.ai",
         classifications: &[Classification::Local, Classification::OpenAiCompatible],
-        dev_only: false,
     },
 ];
 
@@ -517,13 +494,9 @@ pub fn by_capability(
     PROVIDERS.iter().filter(move |p| filter(&p.capabilities))
 }
 
-/// The entries a build shows. A release build passes `false` and hides
-/// every `dev_only = true` provider; the engine decides (its `kernel`
-/// feature marks a dev build).
-pub fn visible(include_dev_only: bool) -> impl Iterator<Item = &'static AiProvider> {
-    PROVIDERS
-        .iter()
-        .filter(move |p| !p.dev_only || include_dev_only)
+/// All configured provider definitions are visible in every build.
+pub fn visible() -> impl Iterator<Item = &'static AiProvider> {
+    PROVIDERS.iter()
 }
 
 #[cfg(test)]
@@ -633,10 +606,14 @@ mod tests {
     }
 
     #[test]
-    fn a_release_build_hides_dev_only_rows() {
-        let all = visible(true).count();
-        let release = visible(false).count();
-        let dev_only = PROVIDERS.iter().filter(|p| p.dev_only).count();
-        assert_eq!(all - release, dev_only);
+    fn every_provider_is_available_without_a_build_mode() {
+        let ids: Vec<_> = visible().map(|provider| provider.id).collect();
+        assert_eq!(
+            ids,
+            PROVIDERS
+                .iter()
+                .map(|provider| provider.id)
+                .collect::<Vec<_>>()
+        );
     }
 }

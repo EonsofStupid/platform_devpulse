@@ -1,7 +1,7 @@
 //! Build script for `DevPulse` engine.
 //!
 //! Reads `ip/kernel_terms.toml` and generates:
-//! - `engine_vocabulary.rs` — `HashMap` entries for engine builds (`ip_term!` remapping)
+//! - `engine_vocabulary.rs` — `HashMap` entries for presentation labels in every build
 //! - `scanner_terms.json` — term list for CI scanner
 //!
 //! Scans `migrations/{system,user,project}/NNNN_name.sql` and generates

@@ -1,8 +1,8 @@
 //! Integrations axis — external provider adapters.
 //!
 //! Members bridge the platform to external services. Each integration
-//! respects the IP-protection boundary: adapter types stay on this side;
-//! provider-specific vocabulary does not leak into other axes.
+//! keeps configuration in its owning module; provider terminology remains
+//! available to simple and advanced presentation.
 //!
 //! # Modules (authored as S0 phases land)
 //!

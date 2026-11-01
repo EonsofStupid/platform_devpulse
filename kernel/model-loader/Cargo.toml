@@ -5,7 +5,7 @@ edition = "2021"
 description = "Self-enclosed model management crate — zero DevPulse dependencies"
 
 [features]
-default = ["candle-backend", "mode-dev"]
+default = ["candle-backend"]
 candle-backend = [
     "dep:candle-core",
     "dep:candle-nn",
@@ -46,13 +46,7 @@ mkl = ["candle-core/mkl"]
 cuda = ["candle-core/cuda"]
 specta = ["dep:specta"]
 
-# ── Build-mode selection (exactly one of the three must be active) ──
-# `mode-dev` is the default so local cargo workflows behave as today.
-# Release/customer builds swap it out via `--no-default-features`
-# plus the chosen mode feature. See `src/build_mode.rs` for behaviour.
-mode-dev = []
-mode-production = []
-mode-customer = []
+# Built-in controls are not restricted by customer/developer build modes.
 
 [dependencies]
 # Core (always)

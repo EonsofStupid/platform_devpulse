@@ -1,7 +1,7 @@
 //! Health check types for the platform engine.
 //!
 //! These types are what Tauri and the frontend see.
-//! No clyffy internals leak through these types.
+//! Technical subsystem identities remain available for advanced presentation.
 
 use crate::platform::services::ServiceState;
 use serde::Serialize;
@@ -21,7 +21,7 @@ pub struct SystemHealth {
 /// Health of an individual subsystem (database, cache, etc.).
 #[derive(Debug, Clone, Serialize, Type)]
 pub struct SubsystemHealth {
-    /// Public name for this subsystem (`ip_term!()` applied at creation).
+    /// Stable name for this subsystem; presentation labels are resolved by the UI.
     pub name: String,
     /// Lifecycle state — Created, Booting, Ready, Degraded, or Failed.
     pub state: ServiceState,

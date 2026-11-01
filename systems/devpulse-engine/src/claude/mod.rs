@@ -6,11 +6,9 @@
 //!
 //! DevPulse supports every way to connect Claude:
 //!
-//! | Mode               | Who Uses It     | Transport    | Feature Gate     |
-//! |--------------------|-----------------|--------------|------------------|
-//! | Sidecar            | Jesse (dev)     | MCP (SSE)    | internal         |
-//! | Claude Code CLI    | Jesse (dev)     | MCP (stdio)  | internal         |
-//! | API-Enhanced       | End users       | HTTP API     | always available |
+//! Sidecar (MCP SSE), Claude Code (MCP stdio) and API connections are
+//! configured at runtime in every build. Connection and tool permissions
+//! remain explicit configuration; selecting advanced labels grants nothing.
 //!
 //! All three connect to the SAME DevPulse infrastructure:
 //! - Same databases (Turso, SurrealDB, DuckDB, Qdrant)
@@ -19,7 +17,7 @@
 //! - Same lane tracing
 //!
 //! The difference is transport and security boundary:
-//! - Sidecar + Claude Code: full 32-tool MCP surface (#[cfg(feature = "internal")])
+//! - Sidecar and Claude Code are configured at runtime in every build.
 //! - API-Enhanced: 5 project-scoped tools, orchestrator mediates everything
 //!
 //! ## Architecture
@@ -29,7 +27,7 @@
 //!                    │     DevPulse MCP Server          │
 //!                    │     localhost:9315 (SSE)          │
 //!                    │     + stdio for Claude Code       │
-//!                    │     32 tools (internal builds)    │
+//!                    │     configured tool permissions    │
 //!                    └──────────┬──────────┬─────────────┘
 //!                               │          │
 //!              ┌────────────────┤          ├────────────────┐
@@ -77,7 +75,7 @@ pub struct ClaudeConfig {
 
 /// Claude Desktop runs as a managed child process of `DevPulse`.
 /// Jesse's subscription, full thinking/artifacts/MCP.
-/// Feature-gated: only exists in internal builds.
+/// Included in every build; enabled through runtime configuration.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SidecarConfig {
     /// Enable sidecar mode
@@ -106,7 +104,7 @@ pub struct SidecarConfig {
 
 /// Claude Code connects via stdio MCP transport.
 /// Jesse runs `claude` in terminal, it auto-discovers `DevPulse`.
-/// Feature-gated: config only meaningful in internal builds.
+/// Runtime connection configuration, available in every build.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ClaudeCodeConfig {
     /// Enable Claude Code integration
@@ -175,7 +173,7 @@ pub struct ProviderFrame {
 /// `DevPulse`'s MCP server. Serves ALL Claude connection modes.
 /// Sidecar connects via SSE. Claude Code connects via stdio.
 /// Browser claude.ai connects via SSE.
-/// All see the same 32 tools (internal builds).
+/// All see the same configured tool permissions.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct McpServerConfig {
     /// Start MCP server on `DevPulse` launch
@@ -287,7 +285,7 @@ pub enum LaunchType {
 impl Default for SidecarConfig {
     fn default() -> Self {
         Self {
-            enabled: cfg!(feature = "internal"),
+            enabled: false,
             sidecar_name: "claude-desktop".into(),
             launch_args: vec![],
             auto_launch: false,
@@ -300,7 +298,7 @@ impl Default for SidecarConfig {
 impl Default for ClaudeCodeConfig {
     fn default() -> Self {
         Self {
-            enabled: cfg!(feature = "internal"),
+            enabled: false,
             auto_configure: true,
             binary_path: String::new(),
         }
@@ -358,11 +356,8 @@ impl Default for McpServerConfig {
             auto_start: true,
             sse: SseConfig::default(),
             stdio: StdioConfig::default(),
-            tool_surface: if cfg!(feature = "internal") {
-                ToolSurface::Full
-            } else {
-                ToolSurface::DevpulseOnly
-            },
+            // Runtime tool permissions remain explicit; build mode grants nothing.
+            tool_surface: ToolSurface::DevpulseOnly,
         }
     }
 }
@@ -370,8 +365,8 @@ impl Default for McpServerConfig {
 impl Default for BrowserAutomationConfig {
     fn default() -> Self {
         Self {
-            chrome_agent_enabled: cfg!(feature = "internal"),
-            desktop_agent_enabled: cfg!(feature = "internal"),
+            chrome_agent_enabled: false,
+            desktop_agent_enabled: false,
             external_tools: vec![
                 ExternalToolConfig {
                     id: "lovable".into(),

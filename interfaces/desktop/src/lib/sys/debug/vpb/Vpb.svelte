@@ -3,12 +3,10 @@
 	@layer vpb
 	@package @devpulse/sys
 
-	Three-panel dev-only overlay: palette (left), canvas (center), properties (right).
-	Feature-gated via __DEV__ — stripped in production builds.
+	Three-panel advanced overlay: palette (left), canvas (center), properties (right).
 -->
 <script lang="ts">
 import { untrack } from "svelte";
-import { __DEV__ } from "$lib/sys/debug/DEBUG_FLAG.js";
 import VpbCanvas from "./panels/VpbCanvas.svelte";
 import VpbConnectionBadge from "./panels/VpbConnectionBadge.svelte";
 import VpbPalette from "./panels/VpbPalette.svelte";
@@ -24,7 +22,7 @@ let { open = $bindable(false) }: { open?: boolean } = $props();
 let viewMode = $state<"preview" | "graph">("preview");
 
 $effect(() => {
-	if (__DEV__ && open) {
+	if (open) {
 		vpbConnection.init();
 		// Untracked: the options landing must not re-run this and reload the autosave.
 		void untrack(() => vpbVisual.init());
@@ -40,7 +38,7 @@ $effect(() => {
 });
 </script>
 
-{#if __DEV__ && open}
+{#if open}
 	<div class="vpb-shell">
 		<VpbToolbar bind:open bind:viewMode />
 		<VpbConnectionBadge />

@@ -110,6 +110,7 @@
 			"!**/node_modules",
 			"!**/.svelte-kit",
 			"!**/dist",
+			"!**/storybook-static",
 			"!**/build",
 			"!**/*.generated.*",
 			"!recovered"

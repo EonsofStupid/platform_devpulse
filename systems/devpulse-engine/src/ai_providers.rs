@@ -20,7 +20,7 @@
 //! Breaking change. The wire id is in user config files, telemetry, and
 //! devtool URLs.
 
-// IP-NOTE: provider vocabulary only — ids, vendors, transports, billing,
+// Shared provider definitions — ids, vendors, transports, billing,
 // capabilities; layman names, no kernel internals.
 pub use devpulse_clyffy::providers::registry::{by_capability, by_classification, find, PROVIDERS};
 pub use devpulse_clyffy::providers::types::{
@@ -28,8 +28,7 @@ pub use devpulse_clyffy::providers::types::{
     SdkBackend, Transport, Vendor,
 };
 
-/// The entries this build shows: a release build (no `kernel` feature)
-/// hides every `dev_only` provider.
+/// The complete provider catalog in every build; readiness is verified separately.
 pub fn visible() -> impl Iterator<Item = &'static AiProvider> {
-    devpulse_clyffy::providers::registry::visible(cfg!(feature = "kernel"))
+    devpulse_clyffy::providers::registry::visible()
 }

@@ -155,11 +155,11 @@ jobs:
       - name: Build
         run: cargo build --workspace
 
-      - name: Check engine feature (IP protection gate)
-        run: cargo check -p devpulse-engine --no-default-features --features engine
+      - name: Check included kernel without default features
+        run: cargo check -p devpulse-engine --no-default-features
 
-      - name: Verify IP boundary (workspace deps)
-        run: cargo xtask verify-ip-boundary
+      - name: Verify service ownership and kernel inclusion
+        run: cargo xtask verify-architecture
 
       - name: Test
         run: cargo test --workspace
@@ -169,7 +169,7 @@ jobs:
         with:
           command: check advisories
 
-      - name: Dependency bans (IP boundary)
+      - name: Dependency policy
         uses: EmbarkStudios/cargo-deny-action@v2
         with:
           command: check bans
@@ -218,7 +218,7 @@ jobs:
       - name: Biome lint (ColdLight)
         run: pnpm --filter @devpulse/coldlight lint
 
-      - name: Architecture tests (IP boundary)
+      - name: Architecture and terminology tests
         run: pnpm test:arch
 
       - name: Svelte check

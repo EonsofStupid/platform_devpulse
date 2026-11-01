@@ -4,28 +4,10 @@
 //! the kernel (Clyffy). Tauri depends on this crate only — never on Clyffy
 //! directly.
 //!
-//! # Feature Gates
-//!
-//! - `kernel` (default) — full internal detail, dev builds
-//! - `engine` — IP-remapped, customer release builds
-//!
-//! These are mutually exclusive. Enabling both is a compile error.
+//! Kernel functionality and technical detail are included in every build.
+//! Simple and advanced labels are runtime presentation choices.
 
-// ═══════════════════════════════════════════════════════════════
-// Feature gate enforcement
-// ═══════════════════════════════════════════════════════════════
-
-#[cfg(all(feature = "kernel", feature = "engine"))]
-compile_error!("Cannot enable both 'kernel' and 'engine' features. Pick one.");
-
-#[cfg(not(any(feature = "kernel", feature = "engine")))]
-compile_error!("Must enable either 'kernel' or 'engine' feature.");
-
-// ═══════════════════════════════════════════════════════════════
-// Modules
-// ═══════════════════════════════════════════════════════════════
-
-/// IP protection vocabulary — `ip_term!()` macro and dictionary.
+/// Cached terminology and full trace records for every presentation mode.
 pub mod ip;
 
 /// Signal routing — broadcast channels and typed payloads.

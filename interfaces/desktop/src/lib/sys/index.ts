@@ -8,16 +8,15 @@
 export * from "./debug/index.js";
 // Terminology (generated from kernel_terms.toml)
 export {
-	DEV_MODE,
-	devLabel,
+	advancedLabel,
 	FEATURES,
-	isFeatureEnabled,
+	findTerm,
+	formatSimpleText,
 	minionStatus,
 	PERSONALITY,
-	prodLabel,
 	resolveLabel,
 	STORE_TERMS,
-	sanitizeForProd,
+	simpleLabel,
 	TERMS,
 } from "./generated/terminology.js";
 export { getIcon } from "./generated/terminology-icons.js";

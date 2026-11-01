@@ -10,12 +10,12 @@
 //!
 //! ## Tiers
 //!
-//! - `Internal` — Never crosses `EventBridge`. Minion deliberation,
+//! - `Internal` — Advanced diagnostics: minion deliberation,
 //!   raw scores, routing decisions.
 //! - `Narrated` — Crosses to webview after narration composer
-//!   transforms it into user-safe text.
+//!   transforms it into simple presentation text.
 //! - `Public` — Crosses directly. Rendered as-is by the UI.
-//! - `Debug` — Lab only. Raw signal dump to Cortex viewer.
+//! - `Debug` — Raw signal dump for advanced diagnostics in every build.
 
 use serde::{Deserialize, Serialize};
 
@@ -24,13 +24,13 @@ use super::events::InternalEvent;
 /// Visibility tier for an internal event.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Visibility {
-    /// Never leaves the Rust process.
+    /// Technical diagnostics, available through the raw event channel.
     Internal,
     /// Crosses `EventBridge` after narration rewrite.
     Narrated,
     /// Crosses `EventBridge` directly. Rendered as-is.
     Public,
-    /// Lab-only. Full raw event to Cortex viewer.
+    /// Full raw event for advanced diagnostics.
     Debug,
 }
 

@@ -114,8 +114,8 @@ enum Commands {
         #[arg(last = true)]
         args: Vec<String>,
     },
-    /// Verify IP boundary: desktop must not depend on clyffy.
-    VerifyIpBoundary,
+    /// Verify service ownership and unconditional kernel inclusion.
+    VerifyArchitecture,
     /// Download, verify, and extract a pinned `DevForge` REH release
     /// artifact into the per-platform resource dir. Reads the committed
     /// manifest at `interfaces/desktop/src-tauri/resources/devforge/
@@ -223,7 +223,7 @@ fn main() -> anyhow::Result<()> {
             selection,
             args,
         }),
-        Commands::VerifyIpBoundary => Box::new(commands::ip_boundary::IpBoundary),
+        Commands::VerifyArchitecture => Box::new(commands::architecture::Architecture),
         Commands::FetchDevforge {
             target,
             manifest,

@@ -154,13 +154,16 @@ engine/desktop compilation pass). The persona service remains executable but
 not yet bundled/attached to desktop sessions. AgentHub factory F1–F5 and the
 historical ColdLight capability reconciliation remain incomplete.
 
-### Shared baseline and deployment readiness (2026-11-01)
+### Shared Tauri baseline and endpoint activation (2026-11-01)
 
-The owner requests commit, merge and push, then continued baseline work before
-deploying the panel to servers. Commit `88b8a704` captures the verified
+The owner requests commit, merge and push, then continued baseline work.
+The owner explicitly confirms that DevPulse remains Tauri-based; references
+to servers do not request a separate browser-hosted application.
+Commit `88b8a704` captures the verified
 restoration; main fast-forwards without rewriting history. The regenerated
 Tauri bindings are unchanged and the production Svelte build succeeds.
-These results establish a source/build baseline, not a working hosted factory.
+These results establish a source/build baseline; factory integration remains
+incomplete.
 
 Add restoration regression tests and the full provenance audit to CI, using
 a full-history checkout because the manifest names historical Git blobs.
@@ -169,14 +172,111 @@ and source-revision reachability so the audit does not depend on local-only
 files or history. All 168 referenced source revisions were found reachable
 from published refs or the branch being pushed.
 
-The only active interface in this checkout is the desktop Svelte application;
-its command/event transport is Tauri. AgentHub uses a private supervised
-process boundary, not a public server API. A static build is therefore only
-the UI assets. The hosted mode still needs an explicitly selected server
-boundary, authentication/authorization, persistence and event transport, and
-end-to-end factory acceptance under F1–F5. Preserve the same kernel owners,
-prefixed ticket tables, ColdLight components and chat/Council product boundary.
-Do not expose private subprocess messages as an unauthenticated web API.
+The application remains the bundled Tauri desktop with its Svelte UI and
+supervised AgentHub subprocess. Restore platform services to the engine,
+AI configuration/execution to the kernel, and UI to its owning domains and
+ColdLight components. Recovery is staging, never the permanent source owner.
+Preserve prefixed ticket tables and the chat/Council product boundary.
+
+The owner's activation requirement applies equally to local and remote
+services: even a local runtime is reached through an endpoint. Group each
+service with its UI around the same configured connection identity and
+verified capability state. Configuration selects the endpoint, protocol and
+credential reference; the owning adapter confirms the connection and the
+capabilities needed by each feature before its operations become available.
+Keep configuration and connection errors accessible in the UI. Installed
+binaries, saved URLs and a successful process spawn do not establish readiness.
+An empty models list does not establish inference readiness, and a models
+list does not prove support for every operation. Failed authentication,
+disconnects and configuration changes must invalidate affected readiness;
+late probe results must not activate a different or superseded connection.
+
+Audit evidence: `kernel/devpulse-clyffy/src/providers/adapters/identify` has
+no production caller. The desktop provider client in
+`interfaces/desktop/src-tauri/src/commands/providers/client.rs` still resolves
+model-listing URLs from fixed registry transports, including localhost
+defaults. This is incomplete R5/B1 work in plan 0001, not a completed endpoint
+activation flow. Replace that path through the existing kernel provider owner,
+persist configured connections, resolve credentials through their existing
+owner, and make service/UI readiness consume the same verified connection.
+Provider defaults may seed editable configuration; they must not override it.
+Subscription providers retain their vendor sign-in and supported transport.
+Verify local and remote connections, required authentication, unavailable or
+unsupported capabilities, endpoint changes during probes, and reconnects.
+
+### Owner correction: included kernel and visible advanced UI (2026-11-01)
+
+The owner reverses the old IP-hiding rule: the kernel is included, nothing
+about the product's implementation is hidden to protect IP, and the advanced
+UI must expose the available technical detail and controls. Layman-friendly
+UI means efficient label translation and progressive disclosure, not a
+separate reduced product or a developer-only build. This supersedes older
+vocabulary bans and prompt-recipe secrecy requirements. Kernel remains the
+AI code owner; engine remains the platform owner. These locations and typed
+service boundaries organize code, not conceal it.
+
+Update the root instructions, active boundary rule, terminology dictionary
+documentation and architecture SSOT directly. Retain the generated dictionary
+and signal contracts as useful presentation infrastructure. Generate labels
+at build time and use cheap lookups; preserve raw identities and payloads so
+changing UI detail does not require a restart or destroy information.
+Advanced detail must be available in the shipped Tauri application. Credentials
+and access authorization remain separate from product terminology visibility.
+
+Audit and implementation completed: engine trace detail and dictionaries are
+included in every build; facade IP substitutions and provider build-mode hiding
+are removed. The desktop generator emits deterministic simple/advanced labels
+with retained technical identities. Runtime presentation replaces development
+build detection. Architecture tests, hooks and CI now check complete labels and
+included kernel dependencies instead of vocabulary bans or secrecy features.
+
+Execution, authorized by the owner's "get it planned out and finished":
+
+1. Remove the engine/kernel secrecy build split; keep full trace records and
+   cached label dictionaries in every build. Check the engine with and without
+   default features and test retained trace data.
+2. Remove facade IP substitutions while retaining explicit privacy controls,
+   raw diagnostics and presentation presets. Test raw technical content survives.
+3. Replace vocabulary-ban tooling with checks for dictionary completeness and
+   included kernel dependencies. Update CI to check the real shipped contract.
+4. Generate deterministic labels with explicit simple/advanced mode and raw
+   identifiers. Add one persisted reactive presentation preference, consumed by
+   the existing status, boot and Clyffy surfaces, with a ColdLight control in
+   Settings. Keep the state/types and UI colocated under their existing owners.
+5. Test switching, persistence, raw-name fallback and production-mode rendering;
+   run architecture checks, Svelte checks, Rust tests/Clippy and production build.
+   Record actual results and remaining unrelated restoration/factory work.
+
+Implement and inspect bounded groups of at most five authored files, then
+verify each coherent group. Generated outputs follow their generator. This
+slice completes the visibility correction, not the separate endpoint-activation
+or AgentHub factory implementation.
+
+Completed behavior and validation (2026-11-01):
+
+- Settings > Display detail switches Simple/Advanced immediately and persists
+  across reloads and windows. Status, boot, subsystem and Clyffy views consume
+  the same preference without changing service identity or readiness.
+- Advanced exposes the existing visual builder through Ctrl+Shift+B using a
+  lazy production chunk. Clyffy panels without live telemetry explicitly say
+  Unavailable; this change does not claim those integrations are complete.
+- Removed obsolete compile-time secrecy policy only, with direct replacements:
+  DEBUG_FLAG becomes the runtime preference; vocabulary tests/hooks become
+  terminology validation; the xtask boundary command becomes verify-architecture.
+  The model-loader build-mode policy had no external consumers; model loading
+  and inference implementations remain. Original sources remain in Git and
+  replacement provenance is recorded in recovered/repo/SOURCES.tsv.
+- Engine: 181 tests passed, one existing ignored. Provider registry: 10 passed.
+  Model-loader: 170 passed; five obsolete build-mode policy tests were replaced
+  by runtime presentation coverage. Architecture: 19 passed. Browser: three
+  passed, including the real settings control and subsystem badge, persistence,
+  cross-window updates, unknown names and storage failures.
+- Workspace Clippy with warnings denied, rustfmt, Svelte checks (zero errors or
+  warnings), production Vite build and deterministic generator checks passed.
+  Repository Biome checks 768 files successfully after excluding generated
+  Storybook bundles, consistent with existing build-output exclusions.
+- This verifies the shipped UI bundle and native compilation. A packaged Tauri
+  installer and live endpoint activation were not exercised by this slice.
 
 ## AgentHub factory and human supervision — governing plan, 2026-10-31
 

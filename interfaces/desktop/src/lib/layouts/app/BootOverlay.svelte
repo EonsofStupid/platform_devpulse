@@ -26,8 +26,8 @@ import { DynamicBackground } from "@devpulse/coldlight/components/dynamic-backgr
 import { Progress } from "@devpulse/coldlight/components/progress";
 import { Text } from "@devpulse/coldlight/components/text";
 import { box, cn, hstack, stack } from "@devpulse/coldlight/utils";
+import { presentationState } from "$lib/domains/app/devpulse/index.js";
 import { LoadingContentCard } from "$lib/domains/clyffy/index.js";
-import { DEV_MODE, devLabel, resolveLabel } from "$lib/sys/generated/terminology.js";
 import { getIcon } from "$lib/sys/generated/terminology-icons.js";
 import { logError, logInfo } from "$lib/sys/logger.js";
 import type { SubsystemState } from "$lib/sys/runes/platformState.svelte.js";
@@ -205,7 +205,7 @@ $effect(() => {
 								<IconComponent size={14} class="shrink-0 text-text-muted" />
 							{/if}
 							<Text size="sm" color={sub.state === "skipped" ? "muted" : "secondary"} class="flex-1">
-								{DEV_MODE ? devLabel(sub.name) : resolveLabel(sub.name)}
+								{presentationState.label(sub.name)}
 							</Text>
 							{#if label}
 								<Text size="xs" color="muted">{label}</Text>
@@ -256,7 +256,7 @@ $effect(() => {
 						{#each subsystems.filter((s) => s.state === "failed") as sub (sub.name)}
 							<li>
 								<Text size="xs" color="secondary">
-									{DEV_MODE ? devLabel(sub.name) : resolveLabel(sub.name)}
+									{presentationState.label(sub.name)}
 									{#if sub.message}
 										— {sub.message}
 									{/if}

@@ -330,7 +330,4 @@ pub struct AiProvider {
     pub docs_url: &'static str,
     /// Devtool tab grouping (a provider can carry several).
     pub classifications: &'static [Classification],
-    /// `true` when the entry is hidden from release builds. Set on
-    /// providers whose only path is subscription-as-compute.
-    pub dev_only: bool,
 }

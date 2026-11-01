@@ -4,10 +4,7 @@ version = "1.0.1"
 edition = "2021"
 
 [features]
-default = ["kernel"]
-kernel = []
-engine = []
-internal = []  # Jesse's dev build — sidecar, Claude Code, full MCP. Compiled OUT of release.
+default = []
 rro = ["devpulse-clyffy/rro"]
 candle = ["devpulse-clyffy/candle"]
 inference = ["devpulse-clyffy/model-loader"]

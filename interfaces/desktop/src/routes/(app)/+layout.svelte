@@ -2,6 +2,7 @@
 import { goto } from "$app/navigation";
 import { resolve } from "$app/paths";
 import { page } from "$app/state";
+import { presentationState } from "$lib/domains/app/devpulse/index.js";
 import { onboardingState } from "$lib/domains/app/onboarding/index.js";
 import Frame from "$lib/layouts/app/Frame.svelte";
 
@@ -17,18 +18,20 @@ $effect(() => {
 	}
 });
 
-// The Visual Page Builder is a dev tool (Ctrl+Shift+B). Its import sits
-// behind `import.meta.env.DEV`, which Vite replaces with `false` in a
-// production build, so the build drops it.
-const vpb = import.meta.env.DEV ? import("$lib/sys/debug/vpb/index.js") : null;
+// Load the advanced builder only when requested, in development and release.
+let vpb = $state<Promise<typeof import("$lib/sys/debug/vpb/index.js")> | null>(null);
 let vpbOpen = $state(false);
 
 function onKeydown(e: KeyboardEvent) {
-	if (vpb && e.ctrlKey && e.shiftKey && e.key === "B") {
+	if (presentationState.advanced && e.ctrlKey && e.shiftKey && e.key === "B") {
+		vpb ??= import("$lib/sys/debug/vpb/index.js");
 		e.preventDefault();
 		vpbOpen = !vpbOpen;
 	}
 }
+$effect(() => {
+	if (!presentationState.advanced) vpbOpen = false;
+});
 </script>
 
 <svelte:window onkeydown={onKeydown} />

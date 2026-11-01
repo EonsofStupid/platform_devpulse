@@ -6,8 +6,8 @@
   Status bar with progressive boot display.
   During boot: shows per-subsystem status with latencies and icons.
   After boot: shows connection status, uptime, version.
-  DEV_MODE: raw tech labels (Turso, SurrealDB, DuckDB, Moka).
-  PROD: friendly labels (Data Store, Cortex, Analytics Engine, Memory Cache).
+  Advanced: raw tech labels (Turso, SurrealDB, DuckDB, Moka).
+  Simple: friendly labels (Data Store, Cortex, Analytics Engine, Memory Cache).
 
   Per-subsystem details — tech name, category, Clyffy narration — live
   inside <SubsystemBadge /> (tooltip on hover).
@@ -30,13 +30,13 @@
 import { Badge } from "@devpulse/coldlight/components/badge";
 import { Text } from "@devpulse/coldlight/components/text";
 import { hstack } from "@devpulse/coldlight/utils";
+import { presentationState } from "$lib/domains/app/devpulse/index.js";
 import {
 	formatMb,
 	hardwareState,
 	isInferenceReady,
 	modelsState,
 } from "$lib/domains/app/models/index.js";
-import { DEV_MODE } from "$lib/sys/generated/terminology.js";
 import { platformState } from "$lib/sys/runes/platformState.svelte.js";
 import { groupSubsystems } from "./StatusBar.types.js";
 import SubsystemBadge from "./SubsystemBadge.svelte";
@@ -58,7 +58,7 @@ $effect(() => hardwareState.subscribe("statusbar"));
 	{#if platformState.isBooting}
 		<!-- Boot progress mode — grouped subsystems with per-badge tooltips -->
 		<div class={hstack({ gap: "2", align: "center" })}>
-			{#if DEV_MODE}
+			{#if presentationState.advanced}
 				{#if subsystems.length === 0}
 					<Text size="xs" color="muted">Initializing...</Text>
 				{:else}
@@ -129,7 +129,7 @@ $effect(() => hardwareState.subscribe("statusbar"));
 				</Badge>
 			{/if}
 
-			{#if DEV_MODE}
+			{#if presentationState.advanced}
 				{#each subsystemGroups as group (group.label)}
 					<span class="group-separator" aria-hidden="true"></span>
 					<Text size="xs" color="muted" class="group-label">{group.label}</Text>

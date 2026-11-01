@@ -3,6 +3,7 @@
 //! Every subcommand implements [`Task`] — receives the shared [`Workspace`]
 //! context, reports progress via [`Stage`], returns `Result<()>`.
 
+pub mod architecture;
 pub mod build_agenthub;
 pub mod build_deps;
 pub mod build_release;
@@ -11,7 +12,6 @@ pub mod deps;
 pub mod dev;
 pub mod fetch_devforge;
 pub mod fetch_surreal;
-pub mod ip_boundary;
 pub mod launch;
 pub mod model_manifest_backfill;
 pub mod package_portable;

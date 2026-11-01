@@ -5,9 +5,9 @@
 
 	Single dashboard for everything Clyffy. Layman-safe view on top
 	(presence orb, activity text, capability browser). Below it, the
-	DEV-gated orchestration panels — Orchestrator, Minion Fleet,
+	Advanced orchestration panels — Orchestrator, Minion Fleet,
 	Knowledge Base, Inference Cache, Context Window — render only when
-	`DEV_MODE` is on. No separate `/maestro` route: Clyffy is the one
+	advanced display is selected. No separate `/maestro` route: Clyffy is the one
 	persona, the one dashboard.
 -->
 <script lang="ts">
@@ -16,9 +16,9 @@ import { Badge } from "@devpulse/coldlight/components/badge";
 import { Text } from "@devpulse/coldlight/components/text";
 import { cn, hstack, stack } from "@devpulse/coldlight/utils";
 import { BookOpenCheck, Brain, Database, Layers, Users } from "lucide-svelte";
+import { presentationState } from "$lib/domains/app/devpulse/index.js";
 import { MinionGrid } from "$lib/domains/app/minions/index.js";
 import { ClyffyStatusOrb, clyffyStatus, ToolsBrowser } from "$lib/domains/clyffy/index.js";
-import { DEV_MODE } from "$lib/sys/generated/terminology.js";
 
 const activity = $derived(clyffyStatus.activity);
 </script>
@@ -57,8 +57,9 @@ const activity = $derived(clyffyStatus.activity);
 		</Widget>
 	</div>
 
-	{#if DEV_MODE}
-		<!-- ── DEV: Orchestrator + Minion Fleet ───────────────────── -->
+	{#if presentationState.advanced}
+		<div class="col-span-12"><Text size="sm" color="muted">Orchestrator, cache and context measurements are not connected to live telemetry yet.</Text></div>
+		<!-- ── Advanced: Orchestrator + Minion Fleet ───────────────────── -->
 		<div class="col-span-4">
 			<Widget
 				title="Orchestrator"
@@ -73,15 +74,15 @@ const activity = $derived(clyffyStatus.activity);
 				<div class={stack({ gap: "2" })}>
 					<div class={hstack({ justify: "between" })}>
 						<Text color="secondary">Status</Text>
-						<Badge variant="neutral" size="sm">Standby</Badge>
+						<Badge variant="neutral" size="sm">Unavailable</Badge>
 					</div>
 					<div class={hstack({ justify: "between" })}>
 						<Text color="secondary">Active Tasks</Text>
-						<Text>0</Text>
+						<Text color="muted">Unavailable</Text>
 					</div>
 					<div class={hstack({ justify: "between" })}>
 						<Text color="secondary">Queue Depth</Text>
-						<Text>0</Text>
+						<Text color="muted">Unavailable</Text>
 					</div>
 					<div class={hstack({ justify: "between" })}>
 						<Text size="xs" color="muted">Engine</Text>
@@ -182,11 +183,11 @@ const activity = $derived(clyffyStatus.activity);
 				<div class={stack({ gap: "2" })}>
 					<div class={hstack({ justify: "between" })}>
 						<Text color="secondary">KV Cache</Text>
-						<Badge variant="neutral" size="sm">Empty</Badge>
+						<Badge variant="neutral" size="sm">Unavailable</Badge>
 					</div>
 					<div class={hstack({ justify: "between" })}>
 						<Text color="secondary">Entries</Text>
-						<Text>0</Text>
+						<Text color="muted">Unavailable</Text>
 					</div>
 					<div class={hstack({ justify: "between" })}>
 						<Text color="secondary">Hit Rate</Text>
@@ -217,7 +218,7 @@ const activity = $derived(clyffyStatus.activity);
 					</div>
 					<div class={hstack({ justify: "between" })}>
 						<Text color="secondary">Tokens Used</Text>
-						<Text>0</Text>
+						<Text color="muted">Unavailable</Text>
 					</div>
 					<div class={hstack({ justify: "between" })}>
 						<Text color="secondary">Compression</Text>

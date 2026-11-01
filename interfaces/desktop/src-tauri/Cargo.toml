@@ -92,9 +92,7 @@ inference = []
 # With it off, the vector commands stay registered and return
 # "unavailable" so the frontend bindings do not change.
 rro = ["devpulse-engine/rro"]
-# Jesse's dev build — sidecar, Claude Code, full MCP surface.
-# Compiled OUT of release binary. Passthrough to engine.
-internal = ["devpulse-engine/internal"]
+# Runtime configuration owns provider activation; there is no separate internal build.
 # ── GPU proxy — selected by xtask when it finds CUDA + an NVIDIA GPU ──
 # Accelerates what is compiled in (candle, the Burn encoder); GGUF chat runs
 # in llama-server, a separate process (plan 0007).

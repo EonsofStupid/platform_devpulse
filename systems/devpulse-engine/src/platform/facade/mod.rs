@@ -5,10 +5,10 @@
 //!
 //! 1. **`TranslationRegistry`** — maps `InternalEvent` → `SurfaceEvent`
 //! 2. **`WhitelistConfig`** — filters by category + detail level
-//! 3. **`RedactionFilter`** — strips IP-sensitive internals
+//! 3. **`RedactionFilter`** — applies explicit privacy preferences
 //!
 //! Two output channels:
-//! - `dev_rx`: raw `InternalEvent` for Connectome / Lab (no translation)
+//! - `dev_rx`: raw `InternalEvent` for advanced UI in every build (no translation)
 //! - `surface_rx`: translated `SurfaceEvent` for main UI (layman-friendly)
 //!
 //! # Ownership

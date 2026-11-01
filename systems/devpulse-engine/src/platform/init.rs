@@ -10,7 +10,7 @@ use std::time::Duration;
 /// Event emitted during platform initialization.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct InitEvent {
-    /// Step name (public-safe, `ip_term!()` already applied).
+    /// Stable step identity; the UI selects a simple or advanced label.
     pub step: String,
     /// Current status of this step.
     pub status: InitStatus,

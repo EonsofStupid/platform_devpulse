@@ -1,25 +1,25 @@
-//! `IpBoundary` — verify the facade pattern via cargo-metadata.
+//! `Architecture` — verify the facade pattern via cargo-metadata.
 //!
 //! Invariants:
 //!   1. Desktop does NOT depend on clyffy directly
 //!   2. Engine DOES depend on clyffy (facade)
-//!   3. Engine has `kernel` + `engine` feature gates
+//!   3. Kernel is included without a secrecy feature switch
 
 use crate::commands::Task;
 use crate::stage::{self, Stage};
 use crate::workspace::Workspace;
 use anyhow::Context;
 
-/// Verify IP boundary invariants.
-pub struct IpBoundary;
+/// Verify architecture invariants.
+pub struct Architecture;
 
-impl Task for IpBoundary {
+impl Task for Architecture {
     fn name(&self) -> &'static str {
-        "ip-boundary"
+        "architecture"
     }
 
     fn run(&self, _ws: &Workspace) -> anyhow::Result<()> {
-        stage::section("IP Boundary");
+        stage::section("Architecture");
 
         let metadata = cargo_metadata::MetadataCommand::new()
             .exec()
@@ -40,7 +40,7 @@ impl Task for IpBoundary {
 
         anyhow::ensure!(
             !has_clyffy,
-            "IP BOUNDARY VIOLATION: desktop depends on clyffy directly. \
+            "DEPENDENCY OWNERSHIP VIOLATION: desktop depends on clyffy directly. \
              All kernel access must go through devpulse-engine."
         );
         s1.ok();
@@ -56,31 +56,24 @@ impl Task for IpBoundary {
         let engine_has_clyffy = engine
             .dependencies
             .iter()
-            .any(|d| d.name == "devpulse-clyffy");
+            .any(|d| d.name == "devpulse-clyffy" && !d.optional && d.target.is_none());
 
         anyhow::ensure!(
             engine_has_clyffy,
-            "IP BOUNDARY BROKEN: engine does not depend on clyffy. \
+            "KERNEL INCLUSION FAILED: engine does not depend on clyffy. \
              The facade pattern requires this dependency."
         );
         s2.ok();
 
-        // 3. Feature gates
-        let s3 = Stage::start("feature gates");
-        let features: Vec<&str> = engine.features.keys().map(String::as_str).collect();
-
+        let s3 = Stage::start("single included kernel");
         anyhow::ensure!(
-            features.contains(&"kernel"),
-            "engine missing 'kernel' feature"
-        );
-        anyhow::ensure!(
-            features.contains(&"engine"),
-            "engine missing 'engine' feature"
+            !engine.features.contains_key("kernel") && !engine.features.contains_key("engine"),
+            "Secrecy build features must not replace runtime presentation preferences"
         );
         s3.ok();
 
         println!();
-        println!("  IP boundary verified.");
+        println!("  architecture verified.");
         Ok(())
     }
 }

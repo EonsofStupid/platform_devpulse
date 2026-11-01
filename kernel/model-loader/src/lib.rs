@@ -10,7 +10,6 @@
 
 pub mod assistant;
 pub mod backends;
-pub mod build_mode;
 pub mod hardware;
 pub mod loading;
 pub mod models;
@@ -27,7 +26,6 @@ pub use assistant::{
     AssistantAction, AssistantConfig, IdentityConfig, KeywordActionEntry, OffloadConfig, TtsConfig,
     VoiceBrainConfig, VoiceCloneEntry, WakeConfig, WindowConfig,
 };
-pub use build_mode::BuildMode;
 pub use service::ModelLoaderService;
 
 // Inference bridge types

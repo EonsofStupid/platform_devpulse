@@ -28,12 +28,11 @@ pub enum DetailLevel {
 /// What to strip from events before they cross the facade.
 ///
 /// Layered: each level includes all protections of the one above.
-/// None ⊂ Pii ⊂ Ip ⊂ Full
+/// None, Pii and Full are explicit privacy choices, not IP filters.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 pub enum RedactionLevel {
     None,
     Pii,
-    Ip,
     Full,
 }
 
@@ -73,7 +72,7 @@ impl WhitelistConfig {
         Self {
             level: DetailLevel::Surface,
             allowed_categories: allowed,
-            redaction: RedactionLevel::Ip,
+            redaction: RedactionLevel::Pii,
             show_timing: false,
             show_scores: false,
             show_model_names: false,
@@ -105,7 +104,7 @@ impl WhitelistConfig {
         }
     }
 
-    /// Preset for dev tools (Connectome, Lab).
+    /// Advanced presentation preset, available in every shipped build.
     pub fn internal() -> Self {
         let allowed: HashSet<EventCategory> = [
             EventCategory::ModelLifecycle,

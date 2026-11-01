@@ -2,13 +2,11 @@
 //!
 //! Three stages between translation and emission:
 //! 1. **Whitelist** — category allowed? (applied in bridge, not here)
-//! 2. **Redaction** — strip IP-sensitive fields based on redaction level
+//! 2. **Redaction** — apply explicitly selected privacy filtering
 //! 3. **Throttle** — rate-limit events to avoid UI flooding
 
 use std::collections::HashMap;
 use std::time::Instant;
-
-use devpulse_clyffy::cortex::llguidance::config::DEFAULT_GRAMMAR_KIND;
 
 use super::config::{RedactionLevel, WhitelistConfig};
 use super::surface::{SurfaceCategory, SurfaceEvent};
@@ -95,12 +93,6 @@ impl FilterPipeline {
                     *detail = redact_pii(detail);
                 }
             }
-            RedactionLevel::Ip => {
-                if let Some(ref mut detail) = event.detail {
-                    *detail = redact_ip(detail);
-                }
-                event.headline = redact_ip(&event.headline);
-            }
             RedactionLevel::Full => {
                 if let Some(ref mut detail) = event.detail {
                     *detail = "[redacted]".to_string();
@@ -136,80 +128,37 @@ fn redact_pii(text: &str) -> String {
     result
 }
 
-/// Strip IP-sensitive method names and internal architecture terms.
-///
-/// This is the key function that protects kernel internals
-/// from leaking to the user-facing UI.
-fn redact_ip(text: &str) -> String {
-    // Terms that must NEVER appear in Surface-level output.
-    const IP_TERMS: &[(&str, &str)] = &[
-        ("RuminationLayer", "thinking step"),
-        ("rumination", "thinking"),
-        ("COSTAR", "request preparation"),
-        ("CostarAssembly", "request preparation"),
-        ("CostarGate", "quality check"),
-        ("MinionSignal", "observation"),
-        ("GUARDIAN", "project watcher"),
-        ("ENFORCER", "quality checker"),
-        ("PSYCH", "mood system"),
-        ("DIARY", "memory system"),
-        ("SCRIBE", "translation system"),
-        ("TEACHER", "learning system"),
-        ("RESEARCHER", "research system"),
-        ("VISION", "visual system"),
-        ("tokio::broadcast", "notification"),
-        ("flume", "message"),
-        ("rkyv", "data"),
-        ("Qdrant", "knowledge base"),
-        ("Turso", "database"),
-        ("DuckDB", "analytics"),
-        ("SurrealDB", "graph"),
-        ("Candle", "AI engine"),
-        ("llama.cpp", "AI engine"),
-        (DEFAULT_GRAMMAR_KIND, "format system"),
-        ("Qwen3", "AI model"),
-        ("SigLIP2", "vision model"),
-        ("Whisper", "voice model"),
-        ("Kokoro", "voice model"),
-        ("LoRA", "specialization"),
-        ("KV cache", "memory"),
-        ("VRAM", "GPU memory"),
-        ("n_gpu_layers", "GPU allocation"),
-        ("ResourceArbiter", "resource manager"),
-        ("AllocationMode", "performance mode"),
-        ("embedder", "search system"),
-        ("reranker", "ranking system"),
-        ("cross-encoder", "ranking"),
-        ("forward pass", "processing"),
-        ("autoregressive", "step-by-step"),
-        ("inference", "thinking"),
-    ];
-
-    let mut result = text.to_string();
-    for (internal, friendly) in IP_TERMS {
-        let lower = result.to_lowercase();
-        let pattern_lower = internal.to_lowercase();
-        if let Some(idx) = lower.find(&pattern_lower) {
-            result.replace_range(idx..idx + internal.len(), friendly);
-        }
-    }
-    result
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn redact_ip_replaces_internal_terms() {
-        let input = "RuminationLayer::Send fired, COSTAR assembled with Qdrant retrieval";
-        let output = redact_ip(input);
-        assert!(!output.contains("RuminationLayer"));
-        assert!(!output.contains("COSTAR"));
-        assert!(!output.contains("Qdrant"));
-        assert!(output.contains("thinking step"));
-        assert!(output.contains("request preparation"));
-        assert!(output.contains("knowledge base"));
+    fn technical_detail_survives_all_presentation_presets() {
+        for mut config in [
+            WhitelistConfig::surface(),
+            WhitelistConfig::intermediate(),
+            WhitelistConfig::internal(),
+        ] {
+            config.max_events_per_sec = 0;
+            let event = SurfaceEvent {
+                id: uuid::Uuid::new_v4(),
+                timestamp_ms: 0,
+                category: SurfaceCategory::Thinking,
+                headline: "GUARDIAN running RRF with Qdrant".into(),
+                detail: Some("COSTAR recipe; KV cache; n_gpu_layers=32".into()),
+                progress: None,
+                severity: super::super::surface::Severity::Info,
+                minion: None,
+                dismissible: true,
+                action: None,
+            };
+            let output = FilterPipeline::new(0).apply(event.clone(), &config);
+            assert!(output.is_some());
+            if let Some(output) = output {
+                assert_eq!(output.headline, event.headline);
+                assert_eq!(output.detail, event.detail);
+            }
+        }
     }
 
     #[test]

@@ -49,7 +49,7 @@
 			}
 		},
 		{
-			"includes": ["**/UIDemoPage.svelte", "**/DEBUG_FLAG.ts", "**/VPB.svelte"],
+			"includes": ["**/UIDemoPage.svelte", "**/VPB.svelte"],
 			"linter": {
 				"rules": {
 					"style": {

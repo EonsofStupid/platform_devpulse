@@ -1,29 +1,16 @@
-# CLYFFY DOMAIN (The AI Interface)
-> **Protocol**: IP_PROTECTION.md (Strict Enforcement)
+# Clyffy domain
 
-## 1. Structure & Constraints
+Kernel functionality is included in the shipped Tauri application. Simple and
+advanced presentation use the same underlying service state. The owner reversed
+the old IP-hiding policy on 2026-11-01; see `.claude/rules/ip-protection.md`.
 
-### 🟢 `cortex/` (Layman Safe)
-*   **Audience**: The End User.
-*   **Content**: Visualizations of State (Thinking, Listening, Sleeping).
-*   **Rule**: **NEVER** show raw prompts, thought chains, or algorithms.
-*   **Goal**: Transparency of *Activity*, not *Mechanism*.
+- Simple presentation uses generated, layman-friendly labels.
+- Advanced presentation exposes available technical names, prompt/configuration
+  detail and diagnostics. It is selected in DevPulse Settings, not by build mode.
+- Preserve original identities and data. Labels are presentation copies.
+- State and endpoint capability checks control whether operations are ready.
+- Keep reusable components in ColdLight and domain UI colocated with its types.
 
-### 🔴 `debug/` (Builder Only)
-*   **Audience**: You (The Developer).
-*   **Content**: Thought Graphs, Prompt Inspectors, Context Visualizers.
-*   **Rule**: **MUST** be gated by `flags.DEV_MODE` or `flags.ENABLE_CONTEXT_DEBUGGER`.
-*   **Safety**: If the flag is false, this component renders NOTHING.
-
-### 🔵 `minions/` (The Face)
-*   **Audience**: The User.
-*   **Content**: The Persona (Gus, Architect) and Voice/Chat interfaces.
-*   **Rule**: Clean, polished, and strictly typed input/output.
-
-### 🟡 `status/` (The Pulse)
-*   **Audience**: Mixed (some Layman, some Builder).
-*   **Content**: Latency, Memory Usage, System Health.
-
-## 2. Integration
-*   This domain is driven by **Runes** in `src/lib/sys/runes/clyffy.svelte.ts`.
-*   It is configured by `src/lib/cfg/clyffy/`.
+The dashboard consumes `status/clyffy.state.svelte.ts` and the existing tool
+browser. Unconnected panels must show unavailable status rather than invented
+measurements. Presentation visibility does not complete their service wiring.

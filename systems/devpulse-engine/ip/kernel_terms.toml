@@ -2,31 +2,30 @@
 # KERNEL TERMS DICTIONARY — UNIVERSAL SSOT
 # ═══════════════════════════════════════════════════════════════
 #
-# Every internal term that must NEVER appear in the engine build.
-# This file drives BOTH Rust compile-time filtering (ip_term! macro)
-# AND frontend UI label generation (TOML→TS codegen).
+# Owner 2026-11-01: the kernel is included and its terminology is visible.
+# This dictionary supplies layman-friendly and advanced presentation labels.
+# Existing Rust and frontend codegen consume it; it is not an IP ban list.
+# Advanced presentation must be available in the shipped application.
 #
 # Fields:
-#   kernel    = internal term (what we use in development)
-#   engine    = public equivalent (what crosses IPC boundary to frontend)
-#   prod      = user-friendly label (what customers see in production UI)
-#   dev       = raw tech label (what devs see in dev mode UI)
+#   kernel    = original technical term (available in advanced UI)
+#   engine    = existing lookup key used by dictionary consumers
+#   prod      = layman-friendly label
+#   dev       = advanced label (not restricted to developer builds)
 #   category  = grouping for dev tool UI
 #   context   = where this term appears (logs, traces, ui-text, errors, metrics)
-#   severity  = "hard" (compile error if found) or "soft" (warning, may be contextual)
+#   severity  = historical scanner metadata; vocabulary enforcement is off
 #
 # Adding a new term:
 #   1. Add entry here with ALL fields (kernel, engine, prod, dev)
-#   2. Use ip_term!("TERM") in Rust code (not raw string)
-#   3. cargo build regenerates vocabulary HashMap
+#   2. Preserve the original technical identity; translate presentation labels
+#   3. cargo build regenerates the Rust vocabulary HashMap
 #   4. pnpm generate:terminology regenerates frontend TS
-#   5. CI scanner auto-catches raw string usage
+#   5. Verify both layman and advanced labels; raw terminology is allowed
 #   NO other code changes needed.
 
-# Enforcement switch (owner 2026-10-19: "keep the configuration so it can be
-# used but for now I want everything public"). "off": every term below stays
-# configured with its severity and labels, and the pre-commit hook
-# (scripts/hooks/ip-boundary-check.sh) blocks none of them. "on" restores it.
+# Existing scanners read this switch. It remains off under the owner's
+# 2026-11-01 reversal of IP hiding. Do not re-enable vocabulary suppression.
 enforcement = "off"
 
 # ─────────────────────────────────────────────────────────────
@@ -704,15 +703,13 @@ category = "rrd-lifecycle"
 context = ["logs", "traces", "errors"]
 severity = "hard"
 
-# ── Kernel-internal primitives (no customer-facing form) ───────
-# These names appear ONLY in dev-mode logs and never reach
-# the customer UI. They exist in the registry so dev-mode
-# log surfaces still translate via the same lookup.
+# ── Kernel-internal primitives (simple and advanced labels) ───────
+# Both presentation modes retain these technical operations.
 
 [[terms]]
 kernel = "ARCSWAP_ATOMIC_REPLACE"
 engine = "Atomic replace"
-prod = ""
+prod = "Replace without interruption"
 dev = "arc_swap::swap()"
 category = "rrd-lifecycle"
 context = ["logs", "traces"]
@@ -721,7 +718,7 @@ severity = "soft"
 [[terms]]
 kernel = "TASKTRACKER_DRAIN"
 engine = "Drain in-flight"
-prod = ""
+prod = "Finish active work"
 dev = "TaskTracker::wait()"
 category = "rrd-lifecycle"
 context = ["logs", "traces"]
@@ -730,7 +727,7 @@ severity = "soft"
 [[terms]]
 kernel = "CANCELLATION_TOKEN_PAUSE"
 engine = "Pause signal"
-prod = ""
+prod = "Pause requested"
 dev = "CancellationToken::cancel()"
 category = "rrd-lifecycle"
 context = ["logs", "traces"]
@@ -739,7 +736,7 @@ severity = "soft"
 [[terms]]
 kernel = "WATCH_STATE_CHANNEL"
 engine = "State broadcast"
-prod = ""
+prod = "Share current state"
 dev = "watch::Sender (RRDState)"
 category = "rrd-lifecycle"
 context = ["logs", "traces"]
@@ -748,7 +745,7 @@ severity = "soft"
 [[terms]]
 kernel = "HOT_UPDATEABLE_TRAIT"
 engine = "Hot-update component"
-prod = ""
+prod = "Component that updates while running"
 dev = "HotUpdateable trait"
 category = "rrd-lifecycle"
 context = ["logs", "traces"]
@@ -757,47 +754,41 @@ severity = "soft"
 [[terms]]
 kernel = "PAUSE_HANDLE"
 engine = "Maintenance window token"
-prod = ""
+prod = "Maintenance access"
 dev = "PauseHandle"
 category = "rrd-lifecycle"
 context = ["logs", "traces"]
 severity = "soft"
 
 # ═══════════════════════════════════════════════════════════════
-# FEATURES — replaces flags.ts
+# FEATURE LABELS — presentation catalog
 # ═══════════════════════════════════════════════════════════════
 #
-# Feature flags driven from the same SSOT.
-# Frontend codegen produces isFeatureEnabled(name) function.
-# Disabled features are tree-shaken in production builds.
+# Feature labels driven from the same SSOT.
+# Runtime services own readiness; this dictionary never gates functionality.
+# This metadata does not authorize hiding technical detail or imply endpoint readiness.
 
 [features.viper_memory]
-enabled = false
 prod = "Long-Term Memory"
 dev = "Viper Memory"
 
 [features.clyffy_thoughts]
-enabled = false
 prod = "Thought Process"
 dev = "Clyffy Thoughts"
 
 [features.journey_analytics]
-enabled = false
 prod = "Journey Insights"
 dev = "Journey Analytics"
 
 [features.overmind]
-enabled = true
 prod = "Playground"
 dev = "OverMind"
 
 [features.wiredfront]
-enabled = true
 prod = "Studio"
 dev = "WiredFront"
 
 [features.context_debugger]
-enabled = false
 prod = "Context Inspector"
 dev = "Context Debugger"
 

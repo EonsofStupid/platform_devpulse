@@ -44,11 +44,13 @@ Pre-release — aggressive reauthoring, no shims.
 - `kernel/devpulse-clyffy/`, `kernel/model-loader/`, `kernel/devpulse-persona-mcp/`
   — the kernel: AI only
   (AI config and anything that drives an AI connection); the engine is
-  everything else. Vocabulary is public (owner 2026-10-19: "everything is
-  public"): `systems/devpulse-engine/ip/kernel_terms.toml` maps layman ↔
-  advanced labels and its enforcement is `off`. The prompt recipes stay the
-  kernel's (owner: "COSTAR+ will be allowed, the actual prompt recipe system
-  will not be").
+  everything else. Owner 2026-11-01: the kernel is included and nothing is
+  hidden for IP protection, including prompt recipes. Layman-friendly UI is
+  efficient presentation translation; advanced UI exposes the full available
+  terminology, configuration and diagnostics in the shipped application.
+  `systems/devpulse-engine/ip/kernel_terms.toml` is the generated label map,
+  not a vocabulary ban. Its enforcement remains `off`. Code ownership and
+  typed service boundaries organize the product; they do not conceal it.
 - `systems/devpulse-engine/` — platform engine (services, boot, config, signals)
 - `systems/devpulse-media/` — audio/media crate
 - `systems/infra/{devpulse-telemetry, devpulse-telemetry-macros}/` — peer
