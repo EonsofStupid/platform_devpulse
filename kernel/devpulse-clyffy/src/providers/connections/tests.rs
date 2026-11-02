@@ -1,0 +1,330 @@
+//! Actual Turso persistence and loopback endpoint checks; no operator credentials.
+#![allow(clippy::unwrap_used, clippy::expect_used, reason = "test assertions")]
+use super::*;
+use crate::{
+    cortex::persistence::{TursoAdapter, TursoOptions},
+    providers::ProviderId,
+};
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
+
+const SCHEMA: &str =
+    include_str!("../../../../../systems/devpulse-engine/migrations/user/0004_ai_connections.sql");
+
+#[derive(Default)]
+struct Vault {
+    keys: Mutex<BTreeMap<String, String>>,
+    fail_write: std::sync::atomic::AtomicBool,
+}
+#[async_trait::async_trait]
+impl CredentialStore for Vault {
+    async fn read(&self, reference: &str) -> Result<Option<String>> {
+        Ok(self.keys.lock().await.get(reference).cloned())
+    }
+    async fn write(&self, reference: &str, secret: String) -> Result<()> {
+        ensure!(
+            !self.fail_write.load(std::sync::atomic::Ordering::SeqCst),
+            "fixture vault failure"
+        );
+        self.keys.lock().await.insert(reference.to_owned(), secret);
+        Ok(())
+    }
+    async fn remove(&self, reference: &str) -> Result<()> {
+        self.keys.lock().await.remove(reference);
+        Ok(())
+    }
+}
+
+async fn database(tree: &tempfile::TempDir) -> Arc<TursoAdapter> {
+    Arc::new(
+        TursoAdapter::open_with_schema(
+            &tree.path().join("user.db"),
+            SCHEMA,
+            TursoOptions::default(),
+        )
+        .await
+        .unwrap(),
+    )
+}
+fn request(
+    id: Option<String>,
+    label: &str,
+    endpoint: &str,
+    credential: ConnectionCredential,
+) -> SaveConnection {
+    SaveConnection {
+        id,
+        label: label.into(),
+        provider: ProviderId::Ollama,
+        endpoint: endpoint.into(),
+        credential,
+    }
+}
+
+#[tokio::test]
+async fn independent_connections_survive_restart_without_keys_or_readiness_in_public_state() {
+    let tree = tempfile::tempdir().unwrap();
+    let db = database(&tree).await;
+    let vault = Arc::new(Vault::default());
+    let connections = Connections::new(db.clone(), vault.clone());
+    let first = connections
+        .save(request(
+            None,
+            "First",
+            "http://localhost:12401/v1",
+            ConnectionCredential::Replace("first-secret".into()),
+        ))
+        .await
+        .unwrap()
+        .items
+        .remove(0);
+    let state = connections
+        .save(request(
+            None,
+            "Second",
+            "http://localhost:12402/v1",
+            ConnectionCredential::Replace("second-secret".into()),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(state.items.len(), 2);
+    assert_eq!(vault.keys.lock().await.len(), 2);
+    let rendered = serde_json::to_string(&state).unwrap();
+    assert!(!rendered.contains("secret"));
+    assert!(!rendered.contains("ai_connection_"));
+    let rows = db.query("SELECT * FROM ai_connections", &[]).await.unwrap();
+    assert!(!format!("{rows:?}").contains("secret"));
+    connections.checks.lock().await.insert(
+        first.id.clone(),
+        ConnectionCheck {
+            checked_at_ms: 42,
+            models: vec![],
+            error: None,
+        },
+    );
+    drop(connections);
+    db.close().await;
+    drop(db);
+    let db = Arc::new(
+        TursoAdapter::open_with_schema(&tree.path().join("user.db"), "", TursoOptions::default())
+            .await
+            .unwrap(),
+    );
+    let restarted = Connections::new(db.clone(), vault.clone());
+    let restored = restarted.state().await.unwrap();
+    assert_eq!(restored.items.len(), 2);
+    assert!(restored.items.iter().all(|c| c.check.is_none()));
+    restarted.remove(&first.id).await.unwrap();
+    assert_eq!(vault.keys.lock().await.len(), 1);
+    assert_eq!(restarted.state().await.unwrap().items[0].label, "Second");
+    db.close().await;
+}
+
+#[tokio::test]
+async fn failed_vault_or_sql_write_keeps_old_configuration_and_key() {
+    let tree = tempfile::tempdir().unwrap();
+    let db = database(&tree).await;
+    let vault = Arc::new(Vault::default());
+    let connections = Connections::new(db.clone(), vault.clone());
+    let saved = connections
+        .save(request(
+            None,
+            "Original",
+            "http://localhost:12403/v1",
+            ConnectionCredential::Replace("original-secret".into()),
+        ))
+        .await
+        .unwrap()
+        .items
+        .remove(0);
+    vault
+        .fail_write
+        .store(true, std::sync::atomic::Ordering::SeqCst);
+    assert!(
+        connections
+            .save(request(
+                Some(saved.id.clone()),
+                "Changed",
+                &saved.endpoint,
+                ConnectionCredential::Replace("new-secret".into())
+            ))
+            .await
+            .is_err()
+    );
+    vault
+        .fail_write
+        .store(false, std::sync::atomic::Ordering::SeqCst);
+    // Make the actual SQL mutation fail after writing the replacement key.
+    db.execute_batch("ALTER TABLE ai_connections RENAME TO saved_connections; CREATE VIEW ai_connections AS SELECT * FROM saved_connections;").await.unwrap();
+    assert!(
+        connections
+            .save(request(
+                Some(saved.id.clone()),
+                "Changed",
+                &saved.endpoint,
+                ConnectionCredential::Replace("new-secret".into())
+            ))
+            .await
+            .is_err()
+    );
+    assert_eq!(
+        connections.state().await.unwrap().items[0].label,
+        "Original"
+    );
+    let keys = vault.keys.lock().await;
+    assert_eq!(keys.len(), 1);
+    assert_eq!(keys.values().next().unwrap(), "original-secret");
+    db.close().await;
+}
+
+#[tokio::test]
+async fn checking_uses_saved_url_and_key_and_edits_clear_evidence() {
+    let tree = tempfile::tempdir().unwrap();
+    let db = database(&tree).await;
+    let vault = Arc::new(Vault::default());
+    let connections = Connections::new(db.clone(), vault.clone());
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let endpoint = format!("http://{}/custom/v9", listener.local_addr().unwrap());
+    let server = devpulse_telemetry::spawn(async move {
+        let (mut socket, _) = listener.accept().await.unwrap();
+        let mut request = vec![];
+        let mut buffer = [0; 2048];
+        while !request.windows(4).any(|w| w == b"\r\n\r\n") {
+            let count = socket.read(&mut buffer).await.unwrap();
+            assert!(count > 0);
+            request.extend_from_slice(&buffer[..count]);
+        }
+        let request = String::from_utf8(request).unwrap().to_ascii_lowercase();
+        assert!(request.starts_with("get /custom/v9/models "));
+        assert!(request.contains("authorization: bearer independent-secret"));
+        let body = r#"{"data":[{"id":"my-model"}]}"#;
+        socket
+            .write_all(
+                format!(
+                    "HTTP/1.1 200 OK\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}",
+                    body.len()
+                )
+                .as_bytes(),
+            )
+            .await
+            .unwrap();
+    });
+    let saved = connections
+        .save(request(
+            None,
+            "Local or remote",
+            &endpoint,
+            ConnectionCredential::Replace("independent-secret".into()),
+        ))
+        .await
+        .unwrap()
+        .items
+        .remove(0);
+    let checked = connections
+        .check(&saved.id)
+        .await
+        .unwrap()
+        .items
+        .remove(0)
+        .check
+        .unwrap();
+    assert!(checked.error.is_none());
+    assert_eq!(checked.models[0].id, "my-model");
+    server.await.unwrap();
+    let edited = connections
+        .save(request(
+            Some(saved.id.clone()),
+            "Renamed",
+            "http://localhost:12404/v1",
+            ConnectionCredential::Keep,
+        ))
+        .await
+        .unwrap();
+    assert!(edited.items[0].check.is_none());
+    connections
+        .save(request(
+            Some(saved.id),
+            "Renamed",
+            &endpoint,
+            ConnectionCredential::Clear,
+        ))
+        .await
+        .unwrap();
+    assert!(vault.keys.lock().await.is_empty());
+    db.close().await;
+}
+
+#[tokio::test]
+async fn replacement_discards_only_the_old_key_and_missing_key_fails_closed() {
+    let tree = tempfile::tempdir().unwrap();
+    let db = database(&tree).await;
+    let vault = Arc::new(Vault::default());
+    let connections = Connections::new(db.clone(), vault.clone());
+    let saved = connections
+        .save(request(
+            None,
+            "Server",
+            "http://localhost:12401/v1",
+            ConnectionCredential::Replace("old-secret".into()),
+        ))
+        .await
+        .unwrap()
+        .items
+        .remove(0);
+    connections
+        .save(request(
+            Some(saved.id.clone()),
+            "Server",
+            &saved.endpoint,
+            ConnectionCredential::Replace("replacement-secret".into()),
+        ))
+        .await
+        .unwrap();
+    {
+        let mut keys = vault.keys.lock().await;
+        assert_eq!(keys.len(), 1);
+        assert_eq!(keys.values().next().unwrap(), "replacement-secret");
+        keys.clear();
+    }
+    let check = connections
+        .check(&saved.id)
+        .await
+        .unwrap()
+        .items
+        .remove(0)
+        .check
+        .unwrap();
+    assert_eq!(
+        check.error.as_deref(),
+        Some("The saved key is missing; enter it again")
+    );
+    assert!(check.models.is_empty());
+    db.close().await;
+}
+
+#[tokio::test]
+async fn invalid_configuration_is_rejected_before_any_key_is_written() {
+    let tree = tempfile::tempdir().unwrap();
+    let db = database(&tree).await;
+    let vault = Arc::new(Vault::default());
+    let connections = Connections::new(db.clone(), vault.clone());
+    for (label, endpoint) in [
+        ("", "http://localhost/v1"),
+        ("X", "https://user:secret@server/v1"),
+        ("X", "file:///secret"),
+    ] {
+        assert!(
+            connections
+                .save(request(
+                    None,
+                    label,
+                    endpoint,
+                    ConnectionCredential::Replace("secret".into())
+                ))
+                .await
+                .is_err()
+        );
+    }
+    assert!(vault.keys.lock().await.is_empty());
+    assert!(connections.state().await.unwrap().items.is_empty());
+    db.close().await;
+}

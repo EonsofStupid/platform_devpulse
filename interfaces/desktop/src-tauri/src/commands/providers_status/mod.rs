@@ -4,8 +4,61 @@
 //! publishes the `providers` state. No logic here.
 
 use crate::state::PlatformState;
+use devpulse_engine::platform::providers::{ConnectionOption, SaveConnection, connection_options};
 use devpulse_engine::platform::providers::{ProviderAction, ProviderId, ProvidersState};
 use tauri::State;
+
+/// The existing kernel registry's HTTP adapter options and editable URL suggestions.
+#[tauri::command]
+#[specta::specta]
+pub fn provider_connection_options() -> Vec<ConnectionOption> {
+    connection_options()
+}
+
+/// Save a connection; the credential stays backend-only and is never logged.
+#[tauri::command]
+#[specta::specta]
+#[allow(clippy::missing_errors_doc)]
+pub async fn provider_connection_save(
+    request: SaveConnection,
+    state: State<'_, PlatformState>,
+) -> Result<ProvidersState, String> {
+    platform(&state)?
+        .providers()
+        .save_connection(request)
+        .await
+        .map_err(|e| format!("{e:#}"))
+}
+
+/// Check the saved endpoint's model list using its own credential.
+#[tauri::command]
+#[specta::specta]
+#[allow(clippy::missing_errors_doc)]
+pub async fn provider_connection_check(
+    id: String,
+    state: State<'_, PlatformState>,
+) -> Result<ProvidersState, String> {
+    platform(&state)?
+        .providers()
+        .check_connection(&id)
+        .await
+        .map_err(|e| format!("{e:#}"))
+}
+
+/// Forget the selected saved connection and its private credential.
+#[tauri::command]
+#[specta::specta]
+#[allow(clippy::missing_errors_doc)]
+pub async fn provider_connection_remove(
+    id: String,
+    state: State<'_, PlatformState>,
+) -> Result<ProvidersState, String> {
+    platform(&state)?
+        .providers()
+        .remove_connection(&id)
+        .await
+        .map_err(|e| format!("{e:#}"))
+}
 
 fn platform(
     state: &PlatformState,

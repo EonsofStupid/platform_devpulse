@@ -1,9 +1,9 @@
 //! Model-discovery contracts owned by the kernel, independent of desktop IPC.
 
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 /// One model advertised by an endpoint. Listing is not an inference check.
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 #[serde(rename_all = "camelCase")]
 pub struct ProviderModelInfo {

@@ -219,6 +219,8 @@ pub struct ContainersCopy {
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 #[serde(deny_unknown_fields)]
 pub struct YourAiCopy {
+    /// Saved endpoint management, alongside subscriptions.
+    pub endpoints: EndpointCopy,
     /// Heading.
     pub title: String,
     /// What the stage does.
@@ -327,6 +329,58 @@ pub struct YourAiCopy {
     pub in_devpulse_folder: String,
     /// Button: close the steps.
     pub close: String,
+}
+
+/// Human-facing labels for saved AI server connections.
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+#[serde(deny_unknown_fields)]
+pub struct EndpointCopy {
+    /// Section heading.
+    pub title: String,
+    /// Scope of connection checks.
+    pub description: String,
+    /// Database unavailable.
+    pub unavailable: String,
+    /// Empty state.
+    pub empty: String,
+    /// Add action.
+    pub add: String,
+    /// Edit action.
+    pub edit: String,
+    /// Connection label.
+    pub name: String,
+    /// Adapter selection label.
+    pub provider: String,
+    /// API base field.
+    pub endpoint: String,
+    /// Credential intent selector.
+    pub credential: String,
+    /// Retain current key intent.
+    pub keep_key: String,
+    /// Replace key intent.
+    pub replace_key: String,
+    /// No key intent.
+    pub clear_key: String,
+    /// Password field label.
+    pub key: String,
+    /// Secure storage explanation.
+    pub key_hint: String,
+    /// Saved key indicator.
+    pub key_saved: String,
+    /// Save action.
+    pub save: String,
+    /// Cancel action.
+    pub cancel: String,
+    /// Check action.
+    pub check: String,
+    /// No evidence in this process.
+    pub unchecked: String,
+    /// Successful model list, with {count} and {time}.
+    pub checked: String,
+    /// Remove action.
+    pub remove: String,
+    /// Inline removal confirmation, with {name}.
+    pub remove_confirm: String,
 }
 
 /// First run.

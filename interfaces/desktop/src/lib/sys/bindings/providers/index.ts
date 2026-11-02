@@ -12,6 +12,10 @@ export const providersState = commands.providersState;
 export const providersCheck = commands.providersCheck;
 export const providersCheckSignedIn = commands.providersCheckSignedIn;
 export const providersRunAction = commands.providersRunAction;
+export const providerConnectionOptions = commands.providerConnectionOptions;
+export const providerConnectionSave = commands.providerConnectionSave;
+export const providerConnectionCheck = commands.providerConnectionCheck;
+export const providerConnectionRemove = commands.providerConnectionRemove;
 
 // ── Validation (API-key vendors) ─────────────────────────────────
 export const listProviderStatus = commands.listProviderStatus;

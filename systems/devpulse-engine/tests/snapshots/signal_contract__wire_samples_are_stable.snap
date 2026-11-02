@@ -1,6 +1,6 @@
 ---
 source: systems/devpulse-engine/tests/signal_contract.rs
-assertion_line: 282
+assertion_line: 304
 expression: "serde_json::to_string_pretty(&samples).expect(\"samples render\")"
 ---
 [
@@ -180,6 +180,28 @@ expression: "serde_json::to_string_pretty(&samples).expect(\"samples render\")"
   {
     "data": {
       "checking": false,
+      "connections": {
+        "items": [
+          {
+            "check": {
+              "checkedAtMs": 1760000000000,
+              "error": null,
+              "models": [
+                {
+                  "id": "my-model",
+                  "ownedBy": null
+                }
+              ]
+            },
+            "endpoint": "http://localhost:11434/v1",
+            "hasCredential": true,
+            "id": "local-ai",
+            "label": "My server",
+            "provider": "ollama"
+          }
+        ],
+        "problem": null
+      },
       "lastAction": {
         "action": "test",
         "agent": "Codex 2.2.2",

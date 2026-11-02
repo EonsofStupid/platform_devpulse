@@ -11,9 +11,13 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 use anyhow::{Result, bail};
+pub use devpulse_clyffy::providers::connections::{
+    ConnectionOption, ConnectionsState, SaveConnection, options as connection_options,
+};
+use devpulse_clyffy::providers::{connections::Connections, credentials::NativeCredentials};
 use serde::{Deserialize, Serialize};
 use specta::Type;
-use tokio::sync::Mutex;
+use tokio::sync::{Mutex, OnceCell};
 
 // Kernel-owned facts cross intact; the window translates their presentation.
 pub use devpulse_clyffy::providers::supervisor::{ConnectionReadiness, ProviderAvailability};
@@ -40,6 +44,8 @@ pub struct ProviderActionRef {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Type)]
 #[serde(rename_all = "camelCase")]
 pub struct ProvidersState {
+    /// Saved HTTP endpoints, once the user store is available.
+    pub connections: Option<ConnectionsState>,
     /// A check of this machine is running.
     pub checking: bool,
     /// What the last check found; `None` before the first check finishes.
@@ -59,6 +65,7 @@ pub struct Providers {
     state: Mutex<ProvidersState>,
     /// One action or check at a time.
     serial: Mutex<()>,
+    connections: OnceCell<Connections>,
 }
 
 impl Providers {
@@ -69,6 +76,7 @@ impl Providers {
             data_dir,
             signals,
             state: Mutex::new(ProvidersState {
+                connections: None,
                 checking: false,
                 report: None,
                 running: None,
@@ -76,6 +84,7 @@ impl Providers {
                 problem: None,
             }),
             serial: Mutex::new(()),
+            connections: OnceCell::new(),
         });
         let me = Arc::clone(&providers);
         devpulse_telemetry::spawn(async move {
@@ -90,6 +99,62 @@ impl Providers {
     /// The current state.
     pub async fn state(&self) -> ProvidersState {
         self.state.lock().await.clone()
+    }
+
+    /// Attach the migrated user database after boot, without probing endpoints.
+    /// # Errors
+    /// Returns storage or duplicate attachment errors.
+    pub async fn attach_connections(
+        &self,
+        db: Arc<devpulse_clyffy::cortex::persistence::TursoAdapter>,
+    ) -> Result<()> {
+        // Do not hold up database boot behind subscription/network discovery.
+        let connections = Connections::new(db, Arc::new(NativeCredentials));
+        let state = connections.state().await?;
+        let mut current = self.state.lock().await;
+        self.connections
+            .set(connections)
+            .map_err(|_| anyhow::anyhow!("AI connections already attached"))?;
+        current.connections = Some(state);
+        drop(current);
+        self.publish().await;
+        Ok(())
+    }
+
+    fn connection_service(&self) -> Result<&Connections> {
+        self.connections
+            .get()
+            .ok_or_else(|| anyhow::anyhow!("AI connections need the user database to be available"))
+    }
+
+    /// Save explicit endpoint configuration and publish it to all windows.
+    /// # Errors
+    /// Propagates kernel validation, vault and storage errors.
+    pub async fn save_connection(&self, request: SaveConnection) -> Result<ProvidersState> {
+        let _serial = self.serial.lock().await;
+        let state = self.connection_service()?.save(request).await?;
+        self.state.lock().await.connections = Some(state);
+        Ok(self.publish().await)
+    }
+
+    /// Check only the selected endpoint's model-list operation.
+    /// # Errors
+    /// Returns storage errors; network outcomes are published as evidence.
+    pub async fn check_connection(&self, id: &str) -> Result<ProvidersState> {
+        let _serial = self.serial.lock().await;
+        let state = self.connection_service()?.check(id).await?;
+        self.state.lock().await.connections = Some(state);
+        Ok(self.publish().await)
+    }
+
+    /// Remove one connection after the user's explicit action.
+    /// # Errors
+    /// Returns storage errors or an unavailable user database.
+    pub async fn remove_connection(&self, id: &str) -> Result<ProvidersState> {
+        let _serial = self.serial.lock().await;
+        let state = self.connection_service()?.remove(id).await?;
+        self.state.lock().await.connections = Some(state);
+        Ok(self.publish().await)
     }
 
     /// Where an installed provider's program is, from the last check;
@@ -188,12 +253,13 @@ impl Providers {
     }
 
     async fn publish(&self) -> ProvidersState {
-        let state = self.state().await;
+        // Keep publication ordered with mutations across the boot and action tasks.
+        let state = self.state.lock().await;
         self.signals.emit(Signal::new(
             SignalSource::System,
             SignalVariant::Providers(Box::new(state.clone())),
         ));
-        state
+        state.clone()
     }
 
     /// Look at every provider again.

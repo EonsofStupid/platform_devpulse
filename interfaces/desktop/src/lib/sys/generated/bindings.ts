@@ -2469,6 +2469,45 @@ async providersState() : Promise<Result<ProvidersState, string>> {
 }
 },
 /**
+ * The existing kernel registry's HTTP adapter options and editable URL suggestions.
+ */
+async providerConnectionOptions() : Promise<ConnectionOption[]> {
+    return await TAURI_INVOKE("provider_connection_options");
+},
+/**
+ * Save a connection; the credential stays backend-only and is never logged.
+ */
+async providerConnectionSave(request: SaveConnection) : Promise<Result<ProvidersState, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("provider_connection_save", { request }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Check the saved endpoint's model list using its own credential.
+ */
+async providerConnectionCheck(id: string) : Promise<Result<ProvidersState, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("provider_connection_check", { id }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Forget the selected saved connection and its private credential.
+ */
+async providerConnectionRemove(id: string) : Promise<Result<ProvidersState, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("provider_connection_remove", { id }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Look at every provider again.
  */
 async providersCheck() : Promise<Result<ProvidersState, string>> {
@@ -6514,6 +6553,54 @@ launch_label: string;
  */
 hint: string }
 /**
+ * A completed model-list operation, never proof of chat or inference readiness.
+ */
+export type ConnectionCheck = { 
+/**
+ * Completion time, Unix milliseconds.
+ */
+checkedAtMs: number; 
+/**
+ * Models actually advertised by this endpoint.
+ */
+models: ProviderModelInfo[]; 
+/**
+ * Redacted reason for failure; None means the model-list request succeeded.
+ */
+error: string | null }
+/**
+ * Explicit credential intent. Intentionally does not implement Debug.
+ */
+export type ConnectionCredential = 
+/**
+ * Retain this connection's existing key, if any.
+ */
+{ action: "keep" } | 
+/**
+ * Save a replacement under a new private reference.
+ */
+{ action: "replace"; value: string } | 
+/**
+ * Stop using a credential for this connection.
+ */
+{ action: "clear" }
+/**
+ * An adapter the existing registry makes available for HTTP connections.
+ */
+export type ConnectionOption = { 
+/**
+ * Registry identity.
+ */
+provider: ProviderId; 
+/**
+ * Presentation name.
+ */
+name: string; 
+/**
+ * Editable suggestion only; never a request-time fallback.
+ */
+suggestedEndpoint: string }
+/**
  * Why an operation can or cannot be attempted.
  */
 export type ConnectionReadiness = 
@@ -6541,6 +6628,18 @@ export type ConnectionReadiness =
  * The definition does not support this operation.
  */
 "unsupported"
+/**
+ * Configured endpoints and any actionable credential-cleanup warning.
+ */
+export type ConnectionsState = { 
+/**
+ * Saved connections in label/identity order.
+ */
+items: SavedConnection[]; 
+/**
+ * A completed mutation may have failed to remove a superseded vault entry.
+ */
+problem: string | null }
 /**
  * A provider's connector, as found.
  */
@@ -7584,6 +7683,102 @@ export type Effort =
  * Its most careful answer.
  */
 "high"
+/**
+ * Human-facing labels for saved AI server connections.
+ */
+export type EndpointCopy = { 
+/**
+ * Section heading.
+ */
+title: string; 
+/**
+ * Scope of connection checks.
+ */
+description: string; 
+/**
+ * Database unavailable.
+ */
+unavailable: string; 
+/**
+ * Empty state.
+ */
+empty: string; 
+/**
+ * Add action.
+ */
+add: string; 
+/**
+ * Edit action.
+ */
+edit: string; 
+/**
+ * Connection label.
+ */
+name: string; 
+/**
+ * Adapter selection label.
+ */
+provider: string; 
+/**
+ * API base field.
+ */
+endpoint: string; 
+/**
+ * Credential intent selector.
+ */
+credential: string; 
+/**
+ * Retain current key intent.
+ */
+keep_key: string; 
+/**
+ * Replace key intent.
+ */
+replace_key: string; 
+/**
+ * No key intent.
+ */
+clear_key: string; 
+/**
+ * Password field label.
+ */
+key: string; 
+/**
+ * Secure storage explanation.
+ */
+key_hint: string; 
+/**
+ * Saved key indicator.
+ */
+key_saved: string; 
+/**
+ * Save action.
+ */
+save: string; 
+/**
+ * Cancel action.
+ */
+cancel: string; 
+/**
+ * Check action.
+ */
+check: string; 
+/**
+ * No evidence in this process.
+ */
+unchecked: string; 
+/**
+ * Successful model list, with {count} and {time}.
+ */
+checked: string; 
+/**
+ * Remove action.
+ */
+remove: string; 
+/**
+ * Inline removal confirmation, with {name}.
+ */
+remove_confirm: string }
 /**
  * One engine, as it answered.
  */
@@ -11711,6 +11906,10 @@ checkedAt: number }
  */
 export type ProvidersState = { 
 /**
+ * Saved HTTP endpoints, once the user store is available.
+ */
+connections: ConnectionsState | null; 
+/**
  * A check of this machine is running.
  */
 checking: boolean; 
@@ -12696,6 +12895,58 @@ export type RuntimeUpdateStatus =
  * `message` carries the error detail.
  */
 "check_failed"
+/**
+ * Save intent. A missing identity creates a new connection; an existing one edits it.
+ */
+export type SaveConnection = { 
+/**
+ * Identity to edit, or None for a new connection.
+ */
+id: string | null; 
+/**
+ * User-chosen name.
+ */
+label: string; 
+/**
+ * Request/response adapter.
+ */
+provider: ProviderId; 
+/**
+ * Explicit API base URL.
+ */
+endpoint: string; 
+/**
+ * Backend-only credential intent; never returned or logged.
+ */
+credential: ConnectionCredential }
+/**
+ * Public configuration. No credential or vault reference crosses this boundary.
+ */
+export type SavedConnection = { 
+/**
+ * Stable connection identity, independent of provider or label.
+ */
+id: string; 
+/**
+ * User-chosen name.
+ */
+label: string; 
+/**
+ * Request/response adapter to use.
+ */
+provider: ProviderId; 
+/**
+ * Explicit API base, including its version/path prefix.
+ */
+endpoint: string; 
+/**
+ * A private vault reference is saved; a check still must resolve it.
+ */
+hasCredential: boolean; 
+/**
+ * Evidence for this configuration during this process lifetime only.
+ */
+check: ConnectionCheck | null }
 /**
  * Scanning state — shown during hardware detection.
  */
@@ -15405,6 +15656,10 @@ repo_added: string }
  * The "Your AI" stage (subscriptions and desktop apps).
  */
 export type YourAiCopy = { 
+/**
+ * Saved endpoint management, alongside subscriptions.
+ */
+endpoints: EndpointCopy; 
 /**
  * Heading.
  */

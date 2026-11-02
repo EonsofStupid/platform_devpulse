@@ -18,6 +18,7 @@ pub mod actions;
 pub mod adapters;
 pub mod catalog;
 pub mod connect;
+pub mod connections;
 pub mod credentials;
 pub mod definition;
 pub mod discovery;

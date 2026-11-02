@@ -407,10 +407,10 @@ struct UserWorkflows {
     rooms: Option<Arc<rooms::Rooms>>,
 }
 
-/// Start what lives in the user database: first run, your projects, and
-/// containers for them. Without the user database there is nothing to start;
-/// any one failing is logged with its reason and leaves that one
-/// unavailable, never the app.
+/// Start the user-database workflows: first run, projects, containers,
+/// AI connections and conversations. Without the user database there is
+/// nothing to start; any one failing is logged with its reason and leaves
+/// that one unavailable, never the app.
 async fn start_user_workflows(
     user: Option<&Arc<RelationalService>>,
     user_graph: Option<Arc<GraphService>>,
@@ -422,6 +422,12 @@ async fn start_user_workflows(
     let Some(user) = user else {
         return UserWorkflows::default();
     };
+    if let Err(error) = providers
+        .attach_connections(Arc::clone(user.adapter()))
+        .await
+    {
+        tracing::error!(error = %error, "saved AI connections could not start");
+    }
     let onboarding = match onboarding::Onboarding::start(
         Arc::clone(user.adapter()),
         data_dir,
@@ -522,7 +528,7 @@ impl Platform {
         let (internal_tx, _) = broadcast_channel::<InternalEvent>(INTERNAL_EVENT_CAPACITY);
 
         let user_signals = signals.clone();
-        // Your AI providers need no database: they are checked from boot.
+        // Subscription discovery starts immediately; saved endpoints attach after DB boot.
         let providers = providers::Providers::start(data_dir.clone(), signals.clone());
         // AgentHub reads each agent's own history; it needs no database either.
         let agenthub = Arc::new(agenthub::AgentHub::new(data_dir.clone()));

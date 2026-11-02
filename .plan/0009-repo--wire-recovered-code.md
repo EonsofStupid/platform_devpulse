@@ -28,6 +28,64 @@ introduce compatibility layers or parallel replacement implementations.
 
 ## Restoration correction — governing direction, 2026-11-01
 
+### Persistent endpoint connections — 2026-11-02
+
+Wire the recovered configurable-endpoint intent through existing owners:
+kernel `providers/connections` owns validation, storage operations and discovery;
+the engine applies a prefixed `ai_connections` user-store migration, serializes
+mutations and publishes connection state on its existing providers signal;
+Tauri remains a typed bridge; Your AI renders colocated ColdLight UI.
+Named connections persist across restarts and multiple connections may share a
+provider. Credentials use independent OS-vault references, never database or
+signal payloads. Replacement credentials are written under a fresh reference
+before committing the database change; failed writes compensate without
+overwriting another connection's secret. Endpoint edits invalidate evidence.
+
+Reuse the current vendor model-discovery adapter with an explicit URL and the
+connection's own credential. A model-list response proves only that operation;
+startup restores saved configuration with no carried-over readiness claim.
+Subscription login continues through the vendor's program. This slice does
+not claim remote Clyffy inference, slot routing or AgentHub completion.
+Verify restart persistence, independent credentials, failed writes, stale
+evidence invalidation, explicit endpoint use, migration replay, typed UI and
+normal build/hooks. Preserve the existing ad-hoc diagnostic commands; their
+behavior is not equivalent to the new persistent connection workflow.
+
+Implemented across kernel, the engine's migrated user store, typed Tauri
+commands and Settings / first-run **Your AI**. The UI supports named local or
+remote API bases, multiple connections per provider, explicit key retention /
+replacement / removal, model-list checks, editing and confirmed removal. It
+uses existing ColdLight components and generated styles, with props colocated
+under the providers domain's `ui/endpoint-connections/` folder. No historical
+source was removed or claimed fully restored by this integration.
+
+Verification: five kernel tests cover actual Turso restart persistence,
+independent keys, replacement / clearing / missing-key behavior, failed vault
+and SQL writes, and a loopback HTTP request at the saved path with its own key.
+Four migration tests pass, retaining existing chat data on upgrade and reopen;
+five copy tests and five signal-contract tests pass. The reviewed wire snapshot
+contains public configuration and operation evidence, with no credential or
+vault reference. Five Chromium component tests pass, including explicit
+endpoint intent, stable edit identity, removal confirmation and clearing the
+typed secret after a rejected save. Two provider-store tests prove that a late
+command reply cannot replace a newer window's signal, and a refused save keeps
+published state intact. The revision-checked signal stream now exclusively
+owns displayed provider state. Workspace Clippy and rustfmt are clean, and
+Tauri bindings are regenerated. Desktop typecheck reports zero errors and
+zero warnings. All twenty architecture assertions pass; the ColdLight scan
+needed an isolated rerun after its initial 30-second timeout under native-build
+disk contention (no rule or timeout was relaxed). The fourteen-document source
+and retained-revision audit still passes. No live account, native vault or
+remote inference service was exercised; the desktop app was not started.
+
+Remaining after this slice: route actual model operations through the saved
+connection identity, verify each operation before advertising it as usable,
+connect model-slot selection, and reconcile the remote Clyffy protocol and
+bundled process lifecycle. Those require inspecting the preserved execution
+paths, not treating a successful model list as inference activation. AgentHub
+ticket identity / assignment / shared state / human decisions and Council's
+Chat UI remain separate work in this plan.
+
 ### Snapshot documentation and activation restoration — 2026-11-02
 
 Resume the inventory's next batch. Restore all twelve missing authored Markdown
@@ -66,11 +124,13 @@ transport. The existing supervisor propagates the result into Chat/Council
 gates. Provider suite: 131 passed, 3 ignored; inventory tests: 9 passed.
 Live account sign-in and remote endpoint execution were not exercised.
 
-Next connected gap remains persistent endpoint instances and credential
-references, confirmed per-operation readiness, and their usable DevPulse UI;
-the HTTP discovery command still uses a process-local cache and provider-wide
-credential identity. The anonymous endpoint probe alone is not an activation
-flow. R3b and the rest of the capability map remain incomplete.
+At that checkpoint, the next connected gap was persistent endpoint instances
+and credential references, confirmed per-operation readiness, and their usable
+DevPulse UI. The persistent-connection subsection above records the follow-up.
+The existing ad-hoc HTTP diagnostic command still uses a process-local cache
+and provider-wide credential identity; the new saved-connection workflow owns
+independent credentials. The anonymous endpoint probe alone is not an
+activation flow. R3b and the rest of the capability map remain incomplete.
 
 ### AI-first inventory — 2026-11-02
 

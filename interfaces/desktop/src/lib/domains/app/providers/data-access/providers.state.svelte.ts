@@ -23,7 +23,16 @@ import type {
 	ProvidersState,
 } from "$lib/sys/bindings/providers/index.js";
 import { signalFabric } from "$lib/sys/events/signal-fabric.js";
-import { check, checkSignedIn, runAction } from "./providers.service.js";
+import type { ConnectionOption, SaveConnection } from "$lib/sys/generated/bindings.js";
+import {
+	check,
+	checkConnection,
+	checkSignedIn,
+	connectionOptions,
+	removeConnection,
+	runAction,
+	saveConnection,
+} from "./providers.service.js";
 
 export type { ProviderAction, ProvidersState };
 
@@ -37,6 +46,7 @@ const SIGN_IN_WATCH_MS = 10 * 60_000;
 const message = (e: unknown): string => (e instanceof Error ? e.message : String(e));
 
 class ProvidersStore {
+	connectionOptions = $state<ConnectionOption[]>([]);
 	current = $state<ProvidersState | null>(null);
 	/** An intent is on its way to Rust. */
 	busy = $state(false);
@@ -54,6 +64,15 @@ class ProvidersStore {
 
 	/** Follow the `providers` signal and the window's focus. Returns the teardown. */
 	start(): () => void {
+		if (this.connectionOptions.length === 0) {
+			void connectionOptions()
+				.then((options) => {
+					this.connectionOptions = options;
+				})
+				.catch((error: unknown) => {
+					this.error = message(error);
+				});
+		}
 		this.followers += 1;
 		if (!this.stop) {
 			const off = signalFabric.on("providers", (state) => {
@@ -104,14 +123,14 @@ class ProvidersStore {
 			return;
 		}
 		try {
-			this.current = await checkSignedIn(id);
+			const observed = await checkSignedIn(id);
+			const provider = observed.report?.providers.find((p) => p.id === id);
+			if (provider?.signedIn === "yes") this.stopWatchingSignIn();
 		} catch (e) {
 			this.error = message(e);
 			this.stopWatchingSignIn();
 			return;
 		}
-		const provider = this.current.report?.providers.find((p) => p.id === id);
-		if (provider?.signedIn === "yes") this.stopWatchingSignIn();
 	}
 
 	/** Back in the window: look again, unless something is already running. */
@@ -126,7 +145,9 @@ class ProvidersStore {
 		this.busy = true;
 		this.error = null;
 		try {
-			this.current = await intent();
+			// Only the revision-checked signal stream owns displayed state. An IPC
+			// reply can arrive after a newer update from another window.
+			await intent();
 		} catch (e) {
 			this.error = message(e);
 		} finally {
@@ -141,6 +162,18 @@ class ProvidersStore {
 
 	act = (providerId: ProviderId, action: ProviderAction): Promise<void> =>
 		this.run(() => runAction(providerId, action));
+
+	saveConnection = async (request: SaveConnection): Promise<boolean> => {
+		let saved = false;
+		await this.run(async () => {
+			const state = await saveConnection(request);
+			saved = true;
+			return state;
+		});
+		return saved;
+	};
+	checkConnection = (id: string): Promise<void> => this.run(() => checkConnection(id));
+	removeConnection = (id: string): Promise<void> => this.run(() => removeConnection(id));
 }
 
 export const providersState = new ProvidersStore();

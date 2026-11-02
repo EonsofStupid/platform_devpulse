@@ -4136,6 +4136,7 @@ dependencies = [
  "specta",
  "static_assertions",
  "streaming-iterator",
+ "tempfile",
  "thiserror 2.0.21",
  "tokenizers 0.21.4",
  "tokio",

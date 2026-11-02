@@ -71,7 +71,10 @@ async fn upgrade_keeps_threads_tokens_seating_and_chat_records_across_reopen() {
         assert_eq!(rows(db, "agenthub_room_threads").await, rooms);
         assert_eq!(rows(db, "turns").await, turns);
         assert_eq!(rows(db, "sessions").await, sessions);
-        assert_eq!(crate::platform::db::history(db).await.unwrap().len(), 3);
+        assert_eq!(
+            crate::platform::db::history(db).await.unwrap().len(),
+            USER_STORE.migrations.len()
+        );
         // FK clauses survive the actual rename, as do the referenced IDs.
         for table in ["agenthub_threads", "agenthub_room_threads"] {
             let keys = db
@@ -102,6 +105,40 @@ async fn fresh_install_and_reopen_have_only_prefixed_thread_tables() {
         );
         store.adapter().close().await;
     }
+}
+
+#[tokio::test]
+async fn ai_connections_migrate_once_and_survive_reopen_with_existing_user_data() {
+    let tree = tempfile::tempdir().unwrap();
+    let path = tree.path().join("connections.db");
+    let old = old_database(&path).await;
+    migrate(&old, &USER_STORE.migrations[..3]).await.unwrap();
+    let sessions = rows(&old, "sessions").await;
+    old.close().await;
+    drop(old);
+    let store = RelationalService::boot(&path, USER_STORE, "test", TursoOptions::default())
+        .await
+        .unwrap();
+    store.adapter().execute("INSERT INTO ai_connections (id, label, provider_id, endpoint, credential_ref) VALUES (?, ?, ?, ?, ?)",
+        &["saved".into(), "My server".into(), "ollama".into(), "https://server.example/custom/v1".into(), "opaque-ref".into()]).await.unwrap();
+    let connections = rows(store.adapter(), "ai_connections").await;
+    store.adapter().close().await;
+    drop(store);
+    let reopened = RelationalService::boot(&path, USER_STORE, "test", TursoOptions::default())
+        .await
+        .unwrap();
+    assert_eq!(
+        rows(reopened.adapter(), "ai_connections").await,
+        connections
+    );
+    assert_eq!(rows(reopened.adapter(), "sessions").await, sessions);
+    assert_eq!(
+        migrate(reopened.adapter(), USER_STORE.migrations)
+            .await
+            .unwrap(),
+        0
+    );
+    reopened.adapter().close().await;
 }
 
 #[tokio::test]

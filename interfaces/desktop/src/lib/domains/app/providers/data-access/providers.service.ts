@@ -11,10 +11,15 @@ import {
 	type ProviderAction,
 	type ProviderId,
 	type ProvidersState,
+	providerConnectionCheck,
+	providerConnectionOptions,
+	providerConnectionRemove,
+	providerConnectionSave,
 	providersCheck,
 	providersCheckSignedIn,
 	providersRunAction,
 } from "$lib/sys/bindings/providers/index.js";
+import type { ConnectionOption, SaveConnection } from "$lib/sys/generated/bindings.js";
 import { logError } from "$lib/sys/logger.js";
 
 async function unwrap<T>(name: string, call: Promise<Result<T, string>>): Promise<T> {
@@ -38,3 +43,11 @@ export const runAction = (
 	providerId: ProviderId,
 	action: ProviderAction,
 ): Promise<ProvidersState> => unwrap("providersRunAction", providersRunAction(providerId, action));
+
+export const connectionOptions = (): Promise<ConnectionOption[]> => providerConnectionOptions();
+export const saveConnection = (request: SaveConnection): Promise<ProvidersState> =>
+	unwrap("providerConnectionSave", providerConnectionSave(request));
+export const checkConnection = (id: string): Promise<ProvidersState> =>
+	unwrap("providerConnectionCheck", providerConnectionCheck(id));
+export const removeConnection = (id: string): Promise<ProvidersState> =>
+	unwrap("providerConnectionRemove", providerConnectionRemove(id));

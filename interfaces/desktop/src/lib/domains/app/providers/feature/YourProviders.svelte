@@ -34,6 +34,7 @@ import type {
 	ProviderReport,
 } from "$lib/sys/generated/bindings.js";
 import { providersState } from "../data-access/providers.state.svelte.js";
+import EndpointConnections from "../ui/endpoint-connections/EndpointConnections.svelte";
 import SignInSteps from "../ui/sign-in-steps/SignInSteps.svelte";
 
 let { copy }: { copy: YourAiCopy } = $props();
@@ -262,6 +263,9 @@ function signIn(p: ProviderReport): void {
 		{/if}
 	</section>
 
+    <EndpointConnections copy={copy.endpoints} state={current?.connections ?? null}
+        options={providersState.connectionOptions} busy={!idle}
+        onSave={providersState.saveConnection} onCheck={providersState.checkConnection} onRemove={providersState.removeConnection} />
 	{#if apps.length}
 		<section class="flex flex-col gap-3" aria-label={copy.apps_heading}>
 			<Heading level={2} size="lg">{copy.apps_heading}</Heading>

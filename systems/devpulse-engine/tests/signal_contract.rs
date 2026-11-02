@@ -10,6 +10,10 @@
     reason = "test assertions — a failed expect is the test failure"
 )]
 
+use devpulse_clyffy::providers::{
+    adapters::models::ProviderModelInfo,
+    connections::{ConnectionCheck, ConnectionsState, SavedConnection},
+};
 use devpulse_engine::platform::containers::{Answers, ContainersState, Usage};
 use devpulse_engine::platform::onboarding::{
     Detected, DetectedFolder, OnboardingState, OnboardingStatus, Requirement, Stage,
@@ -145,6 +149,24 @@ fn sample_projects() -> ProjectsState {
 
 fn sample_providers() -> ProvidersState {
     ProvidersState {
+        connections: Some(ConnectionsState {
+            items: vec![SavedConnection {
+                id: "local-ai".into(),
+                label: "My server".into(),
+                provider: ProviderId::Ollama,
+                endpoint: "http://localhost:11434/v1".into(),
+                has_credential: true,
+                check: Some(ConnectionCheck {
+                    checked_at_ms: 1_760_000_000_000,
+                    models: vec![ProviderModelInfo {
+                        id: "my-model".into(),
+                        owned_by: None,
+                    }],
+                    error: None,
+                }),
+            }],
+            problem: None,
+        }),
         checking: false,
         report: Some(ProvidersReport {
             providers: vec![ProviderReport {
