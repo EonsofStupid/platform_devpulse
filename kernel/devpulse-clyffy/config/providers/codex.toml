@@ -22,6 +22,7 @@ npm = "@openai/codex"
 [signed_in]
 # "exit with 0 when logged in"; prints "Not logged in" otherwise.
 args = ["login", "status"]
+output_signed_in = "Logged in"
 output_signed_out = "Not logged in"
 
 [sign_in]

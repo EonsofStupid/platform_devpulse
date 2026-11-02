@@ -48,6 +48,30 @@ the existing shared supervisor gate; no parallel activation implementation.
 Verify restored source bytes and current document bytes, provider regression
 tests, crate checks and normal commit/push hooks.
 
+Restoration committed as `f4807aef`: twelve absent documents restored, two
+documents reconciled with both complete bodies preserved. The original RRO
+capture has 2,596 lines versus the rebuilt copy's 571; the source includes the
+missing later chunks. `docs/restoration/snapshot-documents.json` records hashes
+and retained ranges, and `scripts/recovery/verify_snapshot_docs.py --index`
+verifies the actual Git contents without the local ZIP. All fourteen source
+bodies and both prior revisions match; Git-manifest audit still verifies all
+6,066 records (812 destinations, 5,254 staged). No archived hooks were enabled.
+
+Kernel activation now keeps unrecognized output or abnormal/failed status
+checks unverified, and a failed command cannot fall back to a stale login
+file. A positive output rule requires a successful command; Codex's recognized
+output is configured in its existing definition. This restores the imported
+activation parser's unknown-status distinction, not the entire devpulselabs
+transport. The existing supervisor propagates the result into Chat/Council
+gates. Provider suite: 131 passed, 3 ignored; inventory tests: 9 passed.
+Live account sign-in and remote endpoint execution were not exercised.
+
+Next connected gap remains persistent endpoint instances and credential
+references, confirmed per-operation readiness, and their usable DevPulse UI;
+the HTTP discovery command still uses a process-local cache and provider-wide
+credential identity. The anonymous endpoint probe alone is not an activation
+flow. R3b and the rest of the capability map remain incomplete.
+
 ### AI-first inventory — 2026-11-02
 
 Owner asks to identify the historical AI code before the next restoration

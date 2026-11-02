@@ -114,16 +114,18 @@ pub struct Latest {
 #[serde(deny_unknown_fields)]
 pub struct SignedInSpec {
     /// The vendor's own status command. With no output rules, exit code 0
-    /// means signed in and any other means signed out.
+    /// means signed in, 1 means signed out, and other/abnormal exits are unknown.
     #[serde(default)]
     pub args: Option<Vec<String>>,
-    /// The status output contains this when signed in.
+    /// A successful status output contains this when signed in. Unrecognized
+    /// output stays unknown, rather than being treated as signed out.
     #[serde(default)]
     pub output_signed_in: Option<String>,
     /// The status output contains this when signed out.
     #[serde(default)]
     pub output_signed_out: Option<String>,
-    /// Login files the vendor writes: one present means signed in. Only
+    /// Login files for definitions without a status command: one regular file
+    /// present is a login hint. Never used after a status command fails; only
     /// their presence is checked, never their contents.
     #[serde(default)]
     pub files: PerOs,
