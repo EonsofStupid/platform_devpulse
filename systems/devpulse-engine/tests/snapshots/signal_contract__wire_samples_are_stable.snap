@@ -1,6 +1,6 @@
 ---
 source: systems/devpulse-engine/tests/signal_contract.rs
-assertion_line: 304
+assertion_line: 305
 expression: "serde_json::to_string_pretty(&samples).expect(\"samples render\")"
 ---
 [
@@ -197,7 +197,8 @@ expression: "serde_json::to_string_pretty(&samples).expect(\"samples render\")"
             "hasCredential": true,
             "id": "local-ai",
             "label": "My server",
-            "provider": "ollama"
+            "provider": "ollama",
+            "textTest": null
           }
         ],
         "problem": null

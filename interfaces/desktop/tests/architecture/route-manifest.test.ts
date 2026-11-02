@@ -6,7 +6,8 @@
  * own `import.meta.glob`.
  */
 
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { readdirSync, statSync } from "node:fs";
+import { readFile } from "node:fs/promises";
 import { join, relative, sep } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
@@ -77,10 +78,11 @@ describe("route manifest", () => {
 });
 
 function sourceFiles(dir: string, out: string[] = []): string[] {
-	for (const entry of readdirSync(dir)) {
-		const full = join(dir, entry);
-		if (statSync(full).isDirectory()) sourceFiles(full, out);
-		else if (/\.(ts|svelte)$/.test(entry)) out.push(full);
+	for (const entry of readdirSync(dir, { withFileTypes: true })) {
+		const full = join(dir, entry.name);
+		if (entry.isDirectory() || (entry.isSymbolicLink() && statSync(full).isDirectory()))
+			sourceFiles(full, out);
+		else if (/\.(ts|svelte)$/.test(entry.name)) out.push(full);
 	}
 	return out;
 }
@@ -89,12 +91,24 @@ describe("route modules", () => {
 	// Vite's `import: "_nav"` option is a named import. In the browser a named
 	// import of a name the file does not export fails to link and every page
 	// fails; vitest's transform tolerates it, so this suite would stay green.
-	it("are read whole, never through a glob that picks one export", () => {
+	it("are read whole, never through a glob that picks one export", async () => {
 		const SRC = join(__dirname, "../../src");
 		const picksOne = /import\.meta\.glob[^;]*["'`]\/src\/routes[^;]*\bimport\s*:/s;
-		const offenders = sourceFiles(SRC)
-			.filter((file) => picksOne.test(readFileSync(file, "utf8")))
-			.map((file) => relative(SRC, file).split(sep).join("/"));
+		const files = sourceFiles(SRC);
+		const offenders: string[] = [];
+		// Read every source without serial disk waits or unbounded open handles.
+		for (let offset = 0; offset < files.length; offset += 32) {
+			const results = await Promise.all(
+				files
+					.slice(offset, offset + 32)
+					.map(async (file) =>
+						picksOne.test(await readFile(file, "utf8"))
+							? relative(SRC, file).split(sep).join("/")
+							: null,
+					),
+			);
+			offenders.push(...results.filter((file): file is string => file !== null));
+		}
 		expect(offenders).toEqual([]);
 	});
 });

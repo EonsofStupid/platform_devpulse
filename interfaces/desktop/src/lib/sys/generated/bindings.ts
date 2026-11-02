@@ -2508,6 +2508,17 @@ async providerConnectionRemove(id: string) : Promise<Result<ProvidersState, stri
 }
 },
 /**
+ * Ask the selected model the visible test question, using this connection's key.
+ */
+async providerConnectionTest(id: string, model: string) : Promise<Result<ProvidersState, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("provider_connection_test", { id, model }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Look at every provider again.
  */
 async providersCheck() : Promise<Result<ProvidersState, string>> {
@@ -3393,8 +3404,7 @@ async getTierDisplay() : Promise<Result<TierDisplay, string>> {
  * - `SafeTensors` models loaded via Candle → kernel `BackendPool`
  * - Cloud provider → `cloud_chat` (if configured)
  * 
- * Streams tokens via Tauri events (`inference-token` for Candle,
- * `llama:token` for sidecar — frontend listens to both).
+ * Both model routes stream through the canonical `inference-token` event.
  * Hard fails if no model is loaded — no silent fallback.
  */
 async inferenceGenerate(slotId: string, prompt: string, maxTokens: number, temperature: number) : Promise<Result<string, string>> {
@@ -3992,7 +4002,7 @@ async llamaServerHealth() : Promise<Result<LlamaHealthStatus, string>> {
  * 
  * Streams tokens back via Tauri events (`llama:token`).
  */
-async llamaChat(messages: LlamaChatMessage[], maxTokens: number | null, temperature: number | null) : Promise<Result<string, string>> {
+async llamaChat(messages: EndpointChatMessage[], maxTokens: number | null, temperature: number | null) : Promise<Result<string, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("llama_chat", { messages, maxTokens, temperature }) };
 } catch (e) {
@@ -6599,7 +6609,11 @@ name: string;
 /**
  * Editable suggestion only; never a request-time fallback.
  */
-suggestedEndpoint: string }
+suggestedEndpoint: string; 
+/**
+ * Whether the kernel implements a text-test transport for this adapter.
+ */
+supportsTextTest: boolean }
 /**
  * Why an operation can or cannot be attempted.
  */
@@ -6628,6 +6642,30 @@ export type ConnectionReadiness =
  * The definition does not support this operation.
  */
 "unsupported"
+/**
+ * Evidence from an actual text request. Never persisted as live readiness.
+ */
+export type ConnectionTextTest = { 
+/**
+ * Requested model.
+ */
+model: string; 
+/**
+ * Actual test question.
+ */
+prompt: string; 
+/**
+ * Completion time, Unix milliseconds.
+ */
+checkedAtMs: number; 
+/**
+ * Actual completed answer, if successful.
+ */
+answer: EndpointChatResult | null; 
+/**
+ * Failure without credential or response-body disclosure.
+ */
+error: string | null }
 /**
  * Configured endpoints and any actionable credential-cleanup warning.
  */
@@ -7684,6 +7722,42 @@ export type Effort =
  */
 "high"
 /**
+ * A text message; transport decisions and wire roles belong in the kernel.
+ */
+export type EndpointChatMessage = { 
+/**
+ * Author of this message.
+ */
+role: EndpointRole; 
+/**
+ * Text sent only to the explicitly selected endpoint.
+ */
+content: string }
+/**
+ * A completed text operation, not a general service-readiness claim.
+ */
+export type EndpointChatResult = { 
+/**
+ * Actual generated answer.
+ */
+text: string; 
+/**
+ * Model identity reported by the endpoint, if present.
+ */
+model: string | null; 
+/**
+ * Actual usage when supplied.
+ */
+usage: EndpointUsage | null; 
+/**
+ * Stop or output-limit termination.
+ */
+finishReason: string; 
+/**
+ * Time to the complete response, including stream consumption.
+ */
+elapsedMs: number }
+/**
  * Human-facing labels for saved AI server connections.
  */
 export type EndpointCopy = { 
@@ -7778,7 +7852,59 @@ remove: string;
 /**
  * Inline removal confirmation, with {name}.
  */
-remove_confirm: string }
+remove_confirm: string; 
+/**
+ * Text operation controls and scope.
+ */
+try_description: string; 
+/**
+ * Exact question sent by the engine when the person clicks Try model.
+ */
+try_prompt: string; 
+/**
+ * Model selector label.
+ */
+try_model: string; 
+/**
+ * Explicit generation action.
+ */
+try_action: string; 
+/**
+ * Completed operation label with {model} and {time}.
+ */
+try_answered: string }
+/**
+ * Roles supported by the text-only endpoint transport.
+ */
+export type EndpointRole = 
+/**
+ * Instructions for the model.
+ */
+"system" | 
+/**
+ * Application instructions.
+ */
+"developer" | 
+/**
+ * A person's input.
+ */
+"user" | 
+/**
+ * A previous model answer.
+ */
+"assistant"
+/**
+ * Provider-reported token usage. Missing usage remains unknown, never zero.
+ */
+export type EndpointUsage = { 
+/**
+ * Input tokens reported by the endpoint.
+ */
+prompt_tokens: number; 
+/**
+ * Output tokens reported by the endpoint.
+ */
+completion_tokens: number }
 /**
  * One engine, as it answered.
  */
@@ -9899,18 +10025,6 @@ id: string;
  * Provider's description.
  */
 title: string }
-/**
- * A single chat message (`OpenAI` format).
- */
-export type LlamaChatMessage = { 
-/**
- * Role: "system", "user", or "assistant".
- */
-role: string; 
-/**
- * Message content.
- */
-content: string }
 /**
  * Health status of the llama-server sidecar.
  */
@@ -12946,7 +13060,11 @@ hasCredential: boolean;
 /**
  * Evidence for this configuration during this process lifetime only.
  */
-check: ConnectionCheck | null }
+check: ConnectionCheck | null; 
+/**
+ * Most recent explicit text test, scoped to the selected model.
+ */
+textTest: ConnectionTextTest | null }
 /**
  * Scanning state — shown during hardware detection.
  */

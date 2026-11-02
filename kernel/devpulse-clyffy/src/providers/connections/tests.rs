@@ -95,10 +95,13 @@ async fn independent_connections_survive_restart_without_keys_or_readiness_in_pu
     assert!(!format!("{rows:?}").contains("secret"));
     connections.checks.lock().await.insert(
         first.id.clone(),
-        ConnectionCheck {
-            checked_at_ms: 42,
-            models: vec![],
-            error: None,
+        Evidence {
+            discovery: Some(ConnectionCheck {
+                checked_at_ms: 42,
+                models: vec![],
+                error: None,
+            }),
+            text_test: None,
         },
     );
     drop(connections);
@@ -326,5 +329,144 @@ async fn invalid_configuration_is_rejected_before_any_key_is_written() {
     }
     assert!(vault.keys.lock().await.is_empty());
     assert!(connections.state().await.unwrap().items.is_empty());
+    db.close().await;
+}
+
+#[tokio::test]
+async fn saved_text_test_uses_its_key_records_failure_and_edits_clear_the_answer() {
+    let tree = tempfile::tempdir().unwrap();
+    let db = database(&tree).await;
+    let vault = Arc::new(Vault::default());
+    let connections = Connections::new(db.clone(), vault.clone());
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let endpoint = format!("http://{}/custom/v1", listener.local_addr().unwrap());
+    let server = devpulse_telemetry::spawn(async move {
+        let (mut socket, _) = listener.accept().await.unwrap();
+        let mut bytes = Vec::new();
+        let mut buffer = [0; 4096];
+        let headers = loop {
+            let n = socket.read(&mut buffer).await.unwrap();
+            assert!(n > 0);
+            bytes.extend_from_slice(&buffer[..n]);
+            if let Some(end) = bytes.windows(4).position(|w| w == b"\r\n\r\n") {
+                let headers = String::from_utf8(bytes[..end].to_vec()).unwrap();
+                let length: usize = headers
+                    .lines()
+                    .find_map(|line| {
+                        line.to_ascii_lowercase()
+                            .strip_prefix("content-length:")
+                            .map(|n| n.trim().parse().unwrap())
+                    })
+                    .unwrap();
+                if bytes.len() >= end + 4 + length {
+                    let body: serde_json::Value =
+                        serde_json::from_slice(&bytes[end + 4..]).unwrap();
+                    assert_eq!(body["model"], "selected-model");
+                    assert_eq!(body["messages"][0]["content"], "Visible question");
+                    break headers.to_ascii_lowercase();
+                }
+            }
+        };
+        assert!(headers.starts_with("post /custom/v1/chat/completions "));
+        assert!(headers.contains("authorization: bearer this-connection-key"));
+        let body = r#"{"choices":[{"index":0,"message":{"content":"Actual answer"},"finish_reason":"stop"}]}"#;
+        socket
+            .write_all(
+                format!(
+                    "HTTP/1.1 200 OK\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}",
+                    body.len()
+                )
+                .as_bytes(),
+            )
+            .await
+            .unwrap();
+    });
+    let saved = connections
+        .save(request(
+            None,
+            "Target",
+            &endpoint,
+            ConnectionCredential::Replace("this-connection-key".into()),
+        ))
+        .await
+        .unwrap()
+        .items
+        .remove(0);
+    let state = connections
+        .test_text(&saved.id, "selected-model", "Visible question")
+        .await
+        .unwrap();
+    server.await.unwrap();
+    assert!(state.items[0].check.is_none());
+    assert_eq!(
+        state.items[0]
+            .text_test
+            .as_ref()
+            .unwrap()
+            .answer
+            .as_ref()
+            .unwrap()
+            .text,
+        "Actual answer"
+    );
+    assert!(
+        !serde_json::to_string(&state)
+            .unwrap()
+            .contains("this-connection-key")
+    );
+    vault.keys.lock().await.clear();
+    let failed = connections
+        .test_text(&saved.id, "selected-model", "Visible question")
+        .await
+        .unwrap();
+    assert!(failed.items[0].text_test.as_ref().unwrap().answer.is_none());
+    assert!(
+        failed.items[0]
+            .text_test
+            .as_ref()
+            .unwrap()
+            .error
+            .as_ref()
+            .unwrap()
+            .contains("saved key is missing")
+    );
+    let edited = connections
+        .save(request(
+            Some(saved.id),
+            "Renamed",
+            &endpoint,
+            ConnectionCredential::Clear,
+        ))
+        .await
+        .unwrap();
+    assert!(edited.items[0].text_test.is_none());
+    db.close().await;
+}
+
+#[tokio::test]
+async fn unsupported_protocol_is_not_guessed_from_its_model_list() {
+    let tree = tempfile::tempdir().unwrap();
+    let db = database(&tree).await;
+    let connections = Connections::new(db.clone(), Arc::new(Vault::default()));
+    let mut save = request(
+        None,
+        "Native API",
+        "http://localhost:12400/v1",
+        ConnectionCredential::Keep,
+    );
+    save.provider = ProviderId::AnthropicApi;
+    let saved = connections.save(save).await.unwrap().items.remove(0);
+    let error = connections
+        .test_text(&saved.id, "model", "Question")
+        .await
+        .unwrap_err();
+    assert!(error.to_string().contains("not implemented"));
+    assert!(
+        !options()
+            .iter()
+            .find(|o| o.provider == ProviderId::AnthropicApi)
+            .unwrap()
+            .supports_text_test
+    );
     db.close().await;
 }

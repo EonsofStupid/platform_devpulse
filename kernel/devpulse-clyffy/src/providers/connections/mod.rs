@@ -6,7 +6,7 @@ mod tests;
 mod types;
 
 use super::{
-    adapters::models,
+    adapters::{models, openai_compatible},
     credentials::{CredentialStore, connection_reference},
     registry,
     types::{AiProvider, Transport},
@@ -17,6 +17,20 @@ use std::{collections::BTreeMap, sync::Arc};
 use tokio::sync::Mutex;
 pub use types::*;
 
+#[derive(Default)]
+struct Evidence {
+    discovery: Option<ConnectionCheck>,
+    text_test: Option<ConnectionTextTest>,
+}
+
+fn supports_text_test(provider: &AiProvider) -> bool {
+    provider.capabilities.chat
+        && provider
+            .transports
+            .iter()
+            .any(|t| matches!(t, Transport::OpenAiCompatible { .. }))
+}
+
 /// Options from the existing registry; URLs are editable suggestions only.
 #[must_use]
 pub fn options() -> Vec<ConnectionOption> {
@@ -25,6 +39,7 @@ pub fn options() -> Vec<ConnectionOption> {
         .map(|entry| ConnectionOption {
             provider: entry.id,
             name: entry.display_name.to_owned(),
+            supports_text_test: supports_text_test(entry),
             suggested_endpoint: entry
                 .transports
                 .iter()
@@ -44,7 +59,7 @@ pub fn options() -> Vec<ConnectionOption> {
 pub struct Connections {
     db: Arc<dyn SqlAdapter>,
     credentials: Arc<dyn CredentialStore>,
-    checks: Mutex<BTreeMap<String, ConnectionCheck>>,
+    checks: Mutex<BTreeMap<String, Evidence>>,
 }
 
 impl Connections {
@@ -59,14 +74,15 @@ impl Connections {
 
     async fn view(
         &self,
-        checks: &BTreeMap<String, ConnectionCheck>,
+        checks: &BTreeMap<String, Evidence>,
         problem: Option<String>,
     ) -> Result<ConnectionsState> {
         let items = store::list(self.db.as_ref())
             .await?
             .into_iter()
             .map(|record| SavedConnection {
-                check: checks.get(&record.id).cloned(),
+                check: checks.get(&record.id).and_then(|e| e.discovery.clone()),
+                text_test: checks.get(&record.id).and_then(|e| e.text_test.clone()),
                 id: record.id,
                 label: record.label,
                 provider: record.provider,
@@ -177,16 +193,7 @@ impl Connections {
         let mut checks = self.checks.lock().await;
         let record = store::get(self.db.as_ref(), id).await?;
         let result: Result<_> = async {
-            let key = match record.credential_ref.as_deref() {
-                Some(reference) => Some(
-                    self.credentials
-                        .read(reference)
-                        .await
-                        .map_err(|_| anyhow::anyhow!("Could not read secure storage"))?
-                        .context("The saved key is missing; enter it again")?,
-                ),
-                None => None,
-            };
+            let key = self.key(&record).await?;
             Ok(models::fetch_models(record.provider, &record.endpoint, key.as_deref()).await?)
         }
         .await;
@@ -203,7 +210,66 @@ impl Connections {
                 error: Some(error.to_string()),
             },
         };
-        checks.insert(id.to_owned(), check);
+        checks.entry(id.to_owned()).or_default().discovery = Some(check);
+        self.view(&checks, None).await
+    }
+
+    async fn key(&self, record: &store::Record) -> Result<Option<String>> {
+        match record.credential_ref.as_deref() {
+            Some(reference) => Ok(Some(
+                self.credentials
+                    .read(reference)
+                    .await
+                    .map_err(|_| anyhow::anyhow!("Could not read secure storage"))?
+                    .context("The saved key is missing; enter it again")?,
+            )),
+            None => Ok(None),
+        }
+    }
+
+    /// Execute the explicit test question at this connection with its own key.
+    /// # Errors
+    /// Storage/unsupported protocol errors abort; request outcomes become evidence.
+    pub async fn test_text(&self, id: &str, model: &str, prompt: &str) -> Result<ConnectionsState> {
+        let mut checks = self.checks.lock().await;
+        let record = store::get(self.db.as_ref(), id).await?;
+        ensure!(
+            registry::find(record.provider).is_some_and(supports_text_test),
+            "Text testing is not implemented for this endpoint protocol"
+        );
+        ensure!(
+            !model.trim().is_empty() && !prompt.trim().is_empty(),
+            "Choose a model and provide a test question"
+        );
+        let result: Result<_> = async {
+            let key = self.key(&record).await?;
+            let hosted_openai = record.provider == super::ProviderId::OpenAi;
+            let request = openai_compatible::EndpointChatRequest {
+                model: Some(model.to_owned()),
+                messages: vec![openai_compatible::EndpointChatMessage {
+                    role: openai_compatible::EndpointRole::User,
+                    content: prompt.to_owned(),
+                }],
+                max_tokens: (!hosted_openai).then_some(128),
+                max_completion_tokens: hosted_openai.then_some(1024),
+                temperature: None,
+                top_p: None,
+                stop: Vec::new(),
+            };
+            openai_compatible::complete(&record.endpoint, key.as_deref(), &request).await
+        }
+        .await;
+        let (answer, error) = match result {
+            Ok(answer) => (Some(answer), None),
+            Err(error) => (None, Some(error.to_string())),
+        };
+        checks.entry(id.to_owned()).or_default().text_test = Some(ConnectionTextTest {
+            model: model.to_owned(),
+            prompt: prompt.to_owned(),
+            checked_at_ms: chrono::Utc::now().timestamp_millis(),
+            answer,
+            error,
+        });
         self.view(&checks, None).await
     }
 }

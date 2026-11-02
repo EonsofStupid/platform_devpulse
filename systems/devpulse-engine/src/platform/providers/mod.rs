@@ -147,6 +147,25 @@ impl Providers {
         Ok(self.publish().await)
     }
 
+    /// Ask the selected saved model the exact test question shown in Your AI.
+    /// # Errors
+    /// Returns unavailable storage, catalog or unsupported protocol errors.
+    pub async fn test_connection(&self, id: &str, model: &str) -> Result<ProvidersState> {
+        let _serial = self.serial.lock().await;
+        let prompt = crate::platform::copy::load(&self.data_dir)?
+            .copy
+            .onboarding
+            .your_ai
+            .endpoints
+            .try_prompt;
+        let state = self
+            .connection_service()?
+            .test_text(id, model, &prompt)
+            .await?;
+        self.state.lock().await.connections = Some(state);
+        Ok(self.publish().await)
+    }
+
     /// Remove one connection after the user's explicit action.
     /// # Errors
     /// Returns storage errors or an unavailable user database.

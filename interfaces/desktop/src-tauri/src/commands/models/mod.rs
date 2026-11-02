@@ -1817,8 +1817,7 @@ pub async fn pick_audio_file(title: String) -> Result<Option<String>, String> {
 ///   - `SafeTensors` models loaded via Candle → kernel `BackendPool`
 ///   - Cloud provider → `cloud_chat` (if configured)
 ///
-/// Streams tokens via Tauri events (`inference-token` for Candle,
-/// `llama:token` for sidecar — frontend listens to both).
+/// Both model routes stream through the canonical `inference-token` event.
 /// Hard fails if no model is loaded — no silent fallback.
 #[tauri::command]
 #[specta::specta]
@@ -1855,20 +1854,26 @@ pub async fn inference_generate(
         );
 
         // Build chat messages — single user turn with the prompt
-        let messages = vec![crate::commands::llama::LlamaChatMessage {
-            role: "user".to_string(),
-            content: prompt,
-        }];
+        let messages = vec![
+            devpulse_engine::ai_providers::openai_compatible::EndpointChatMessage {
+                role: devpulse_engine::ai_providers::openai_compatible::EndpointRole::User,
+                content: prompt,
+            },
+        ];
 
-        // Call the sidecar — this streams tokens via `llama:token` events
-        // AND returns the full text. The frontend also gets `inference-token`
-        // events re-emitted below for compatibility.
-        let result = crate::commands::llama::llama_chat(
-            app.clone(),
-            llama_state,
+        // Deliver the canonical model-inference event to this route's consumer.
+        let result = crate::commands::llama::chat_at(
+            port,
             messages,
             Some(max_tokens),
             Some(temperature),
+            |text| {
+                crate::events::InferenceTokenStreamed {
+                    text: text.to_owned(),
+                }
+                .emit(&app)
+                .map_err(|error| error.to_string())
+            },
         )
         .await?;
 

@@ -156,6 +156,7 @@ fn sample_providers() -> ProvidersState {
                 provider: ProviderId::Ollama,
                 endpoint: "http://localhost:11434/v1".into(),
                 has_credential: true,
+                text_test: None,
                 check: Some(ConnectionCheck {
                     checked_at_ms: 1_760_000_000_000,
                     models: vec![ProviderModelInfo {

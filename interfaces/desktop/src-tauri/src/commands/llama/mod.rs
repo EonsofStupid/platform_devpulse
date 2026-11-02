@@ -18,6 +18,9 @@
     reason = "Tauri command module — every Result-returning fn is a thin wrapper over the llama-server sidecar lifecycle (spawn / kill / HTTP proxy). Error context flows through the formatted String at the IPC boundary; per-fn doc summaries describe the failure modes."
 )]
 
+use devpulse_engine::ai_providers::openai_compatible::{
+    self, EndpointChatMessage, EndpointChatRequest,
+};
 use tauri::Emitter;
 use tauri_plugin_shell::ShellExt;
 use tauri_plugin_shell::process::CommandChild;
@@ -281,88 +284,50 @@ pub async fn llama_server_health(
 pub async fn llama_chat(
     app: tauri::AppHandle,
     state: tauri::State<'_, LlamaServerState>,
-    messages: Vec<LlamaChatMessage>,
+    messages: Vec<EndpointChatMessage>,
     max_tokens: Option<u32>,
     temperature: Option<f32>,
 ) -> Result<String, String> {
-    use futures::StreamExt;
-
     let port = *state.port.lock().await;
+    chat_at(port, messages, max_tokens, temperature, |text| {
+        crate::events::LlamaTokenStreamed {
+            content: text.to_owned(),
+        }
+        .emit(&app)
+        .map_err(|error| error.to_string())
+    })
+    .await
+}
+
+/// Adapt the supervised endpoint and caller's event sink to the kernel transport.
+pub(crate) async fn chat_at(
+    port: u16,
+    messages: Vec<EndpointChatMessage>,
+    max_tokens: Option<u32>,
+    temperature: Option<f32>,
+    mut on_delta: impl FnMut(&str) -> Result<(), String>,
+) -> Result<String, String> {
     if port == 0 {
         return Err("llama-server not running".into());
     }
-
-    let url = format!("http://127.0.0.1:{port}/v1/chat/completions");
-    let max_tokens = max_tokens.unwrap_or(512);
-    let temperature = temperature.unwrap_or(0.7);
-
-    tracing::info!(
-        messages = messages.len(),
-        max_tokens,
-        temperature,
-        "llama_chat: sending request"
-    );
-
-    let body = serde_json::json!({
-        "messages": messages,
-        "max_tokens": max_tokens,
-        "temperature": temperature,
-        "stream": true,
-    });
-
-    let client = reqwest::Client::new();
-    let resp = client
-        .post(&url)
-        .json(&body)
-        .send()
-        .await
-        .map_err(|e| format!("llama-server request failed: {e}"))?;
-
-    if !resp.status().is_success() {
-        let status = resp.status();
-        let body = resp.text().await.unwrap_or_default();
-        return Err(format!("llama-server returned {status}: {body}"));
-    }
-
-    // Stream SSE response
-    let mut full_response = String::new();
-    let mut stream = resp.bytes_stream();
-    let mut buffer = String::new();
-
-    while let Some(chunk) = stream.next().await {
-        let chunk = chunk.map_err(|e| format!("Stream error: {e}"))?;
-        buffer.push_str(&String::from_utf8_lossy(&chunk));
-
-        // Process complete SSE lines
-        while let Some(line_end) = buffer.find('\n') {
-            let line = buffer[..line_end].trim().to_string();
-            buffer = buffer[line_end + 1..].to_string();
-
-            if line.is_empty() || line == "data: [DONE]" {
-                continue;
-            }
-
-            if let Some(json_str) = line.strip_prefix("data: ")
-                && let Ok(parsed) = serde_json::from_str::<serde_json::Value>(json_str)
-                && let Some(content) = parsed
-                    .get("choices")
-                    .and_then(|c| c.get(0))
-                    .and_then(|c| c.get("delta"))
-                    .and_then(|d| d.get("content"))
-                    .and_then(|c| c.as_str())
-            {
-                full_response.push_str(content);
-                let _ = crate::events::LlamaTokenStreamed {
-                    content: content.to_string(),
-                }
-                .emit(&app);
-            }
-        }
-    }
-
-    tracing::info!(response_len = full_response.len(), "llama_chat: complete");
-
-    Ok(full_response)
+    let request = EndpointChatRequest {
+        model: None,
+        messages,
+        max_tokens: Some(max_tokens.unwrap_or(512)),
+        max_completion_tokens: None,
+        temperature: Some(temperature.unwrap_or(0.7)),
+        top_p: None,
+        stop: Vec::new(),
+    };
+    openai_compatible::stream(
+        &format!("http://127.0.0.1:{port}/v1"),
+        None,
+        &request,
+        |text| on_delta(text).map_err(anyhow::Error::msg),
+    )
+    .await
+    .map(|answer| answer.text)
+    .map_err(|error| error.to_string())
 }
 
 /// Send an embedding request to the running llama-server.
@@ -376,46 +341,15 @@ pub async fn llama_embed(
     if port == 0 {
         return Err("llama-server not running".into());
     }
-
-    let url = format!("http://127.0.0.1:{port}/v1/embeddings");
-    let body = serde_json::json!({
-        "input": input,
-        "model": "default",
-    });
-
-    tracing::info!(input_len = input.len(), "llama_embed: request");
-
-    let client = reqwest::Client::new();
-    let resp = client
-        .post(&url)
-        .json(&body)
-        .send()
-        .await
-        .map_err(|e| format!("Embedding request failed: {e}"))?;
-
-    let result: serde_json::Value = resp
-        .json()
-        .await
-        .map_err(|e| format!("Failed to parse embedding response: {e}"))?;
-
-    let embedding = result
-        .get("data")
-        .and_then(|d| d.get(0))
-        .and_then(|d| d.get("embedding"))
-        .and_then(|e| e.as_array())
-        .map(|arr| {
-            arr.iter()
-                .filter_map(|v| v.as_f64().map(|f| f as f32))
-                .collect::<Vec<f32>>()
-        })
-        .ok_or_else(|| "Invalid embedding response format".to_string())?;
-
-    tracing::info!(dims = embedding.len(), "llama_embed: complete");
-
-    Ok(embedding)
+    openai_compatible::embed(
+        &format!("http://127.0.0.1:{port}/v1"),
+        None,
+        "default",
+        &input,
+    )
+    .await
+    .map_err(|error| error.to_string())
 }
-
-// ── Types ────────────────────────────────────────────────────
 
 /// Info returned when llama-server starts successfully.
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, specta::Type)]
@@ -437,13 +371,4 @@ pub struct LlamaHealthStatus {
     pub status: String,
     /// Port the server is bound to (0 if not started).
     pub port: u16,
-}
-
-/// A single chat message (`OpenAI` format).
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, specta::Type)]
-pub struct LlamaChatMessage {
-    /// Role: "system", "user", or "assistant".
-    pub role: String,
-    /// Message content.
-    pub content: String,
 }

@@ -320,6 +320,7 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             commands::providers_status::provider_connection_save,
             commands::providers_status::provider_connection_check,
             commands::providers_status::provider_connection_remove,
+            commands::providers_status::provider_connection_test,
             commands::providers_status::providers_check,
             commands::providers_status::providers_check_signed_in,
             commands::providers_status::providers_run_action,

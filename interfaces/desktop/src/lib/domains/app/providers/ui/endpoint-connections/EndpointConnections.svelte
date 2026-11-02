@@ -25,6 +25,7 @@ import type {
 	ProviderId,
 	SavedConnection,
 } from "$lib/sys/generated/bindings.js";
+import EndpointTextTest from "./EndpointTextTest.svelte";
 import type { EndpointConnectionsProps } from "./endpoint-connections.types.js";
 
 let {
@@ -35,6 +36,7 @@ let {
 	onSave,
 	onCheck,
 	onRemove,
+	onTest,
 }: EndpointConnectionsProps = $props();
 let editing = $state(false);
 let id = $state<string | null>(null);
@@ -117,6 +119,9 @@ async function save(event: SubmitEvent): Promise<void> {
                             <Text size="sm">{fill(copy.checked, { count: String(connection.check.models.length), time: new Date(connection.check.checkedAtMs).toLocaleString() })}</Text>
                             <Text size="xs" color="muted">{connection.check.models.map((model) => model.id).join(", ")}</Text>
                         {:else}<Text size="sm" color="muted">{copy.unchecked}</Text>{/if}
+                        {#if options.find((option) => option.provider === connection.provider)?.supportsTextTest}
+                            <EndpointTextTest {copy} {connection} {busy} {onTest} />
+                        {/if}
                         <div class="flex flex-wrap gap-2">
                             <Button size="sm" variant="secondary" disabled={busy} onclick={() => onCheck(connection.id)}>{copy.check}</Button>
                             <Button size="sm" variant="secondary" disabled={busy} onclick={() => edit(connection)}>{copy.edit}</Button>

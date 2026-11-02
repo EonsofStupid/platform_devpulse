@@ -18,4 +18,12 @@ export interface EndpointConnectionsProps {
 	onSave: (request: SaveConnection) => Promise<boolean>;
 	onCheck: (id: string) => Promise<void>;
 	onRemove: (id: string) => Promise<void>;
+	onTest: (id: string, model: string) => Promise<void>;
+}
+
+export interface EndpointTextTestProps {
+	copy: EndpointCopy;
+	connection: import("$lib/sys/generated/bindings.js").SavedConnection;
+	busy: boolean;
+	onTest: (id: string, model: string) => Promise<void>;
 }

@@ -140,6 +140,11 @@ unchecked = "Saved · not checked in this app session"
 checked = "Model list received · {count} models · {time}"
 remove = "Remove"
 remove_confirm = "Remove {name} and its saved API key?"
+try_description = "Try model sends the question below to this saved address. Your provider may charge for the request. The answer verifies this text request only."
+try_prompt = "Say hello in one short sentence."
+try_model = "Model to try"
+try_action = "Try model"
+try_answered = "{model} answered · {time}"
 
 [onboarding.containers]
 title = "Your dev environment"

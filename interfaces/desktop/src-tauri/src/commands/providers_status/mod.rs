@@ -60,6 +60,22 @@ pub async fn provider_connection_remove(
         .map_err(|e| format!("{e:#}"))
 }
 
+/// Ask the selected model the visible test question, using this connection's key.
+#[tauri::command]
+#[specta::specta]
+#[allow(clippy::missing_errors_doc)]
+pub async fn provider_connection_test(
+    id: String,
+    model: String,
+    state: State<'_, PlatformState>,
+) -> Result<ProvidersState, String> {
+    platform(&state)?
+        .providers()
+        .test_connection(&id, &model)
+        .await
+        .map_err(|e| format!("{e:#}"))
+}
+
 fn platform(
     state: &PlatformState,
 ) -> Result<std::sync::Arc<devpulse_engine::platform::Platform>, String> {

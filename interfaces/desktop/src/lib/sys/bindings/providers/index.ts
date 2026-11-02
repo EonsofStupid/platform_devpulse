@@ -16,6 +16,7 @@ export const providerConnectionOptions = commands.providerConnectionOptions;
 export const providerConnectionSave = commands.providerConnectionSave;
 export const providerConnectionCheck = commands.providerConnectionCheck;
 export const providerConnectionRemove = commands.providerConnectionRemove;
+export const providerConnectionTest = commands.providerConnectionTest;
 
 // ── Validation (API-key vendors) ─────────────────────────────────
 export const listProviderStatus = commands.listProviderStatus;

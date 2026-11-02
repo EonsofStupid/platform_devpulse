@@ -381,6 +381,16 @@ pub struct EndpointCopy {
     pub remove: String,
     /// Inline removal confirmation, with {name}.
     pub remove_confirm: String,
+    /// Text operation controls and scope.
+    pub try_description: String,
+    /// Exact question sent by the engine when the person clicks Try model.
+    pub try_prompt: String,
+    /// Model selector label.
+    pub try_model: String,
+    /// Explicit generation action.
+    pub try_action: String,
+    /// Completed operation label with {model} and {time}.
+    pub try_answered: String,
 }
 
 /// First run.

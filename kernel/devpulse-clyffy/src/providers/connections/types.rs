@@ -19,6 +19,25 @@ pub struct SavedConnection {
     pub has_credential: bool,
     /// Evidence for this configuration during this process lifetime only.
     pub check: Option<ConnectionCheck>,
+    /// Most recent explicit text test, scoped to the selected model.
+    pub text_test: Option<ConnectionTextTest>,
+}
+
+/// Evidence from an actual text request. Never persisted as live readiness.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
+#[serde(rename_all = "camelCase")]
+pub struct ConnectionTextTest {
+    /// Requested model.
+    pub model: String,
+    /// Actual test question.
+    pub prompt: String,
+    /// Completion time, Unix milliseconds.
+    pub checked_at_ms: i64,
+    /// Actual completed answer, if successful.
+    pub answer: Option<crate::providers::adapters::openai_compatible::EndpointChatResult>,
+    /// Failure without credential or response-body disclosure.
+    pub error: Option<String>,
 }
 
 /// A completed model-list operation, never proof of chat or inference readiness.
@@ -56,6 +75,8 @@ pub struct ConnectionOption {
     pub name: String,
     /// Editable suggestion only; never a request-time fallback.
     pub suggested_endpoint: String,
+    /// Whether the kernel implements a text-test transport for this adapter.
+    pub supports_text_test: bool,
 }
 
 /// Explicit credential intent. Intentionally does not implement Debug.

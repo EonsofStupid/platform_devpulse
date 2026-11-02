@@ -15,6 +15,7 @@ import {
 	providerConnectionOptions,
 	providerConnectionRemove,
 	providerConnectionSave,
+	providerConnectionTest,
 	providersCheck,
 	providersCheckSignedIn,
 	providersRunAction,
@@ -51,3 +52,5 @@ export const checkConnection = (id: string): Promise<ProvidersState> =>
 	unwrap("providerConnectionCheck", providerConnectionCheck(id));
 export const removeConnection = (id: string): Promise<ProvidersState> =>
 	unwrap("providerConnectionRemove", providerConnectionRemove(id));
+export const testConnection = (id: string, model: string): Promise<ProvidersState> =>
+	unwrap("providerConnectionTest", providerConnectionTest(id, model));

@@ -28,6 +28,76 @@ introduce compatibility layers or parallel replacement implementations.
 
 ## Restoration correction — governing direction, 2026-11-01
 
+### Endpoint execution restoration — 2026-11-02
+
+Restore the preserved `alpha/orchestrator/src/adapters/web/openai.rs` request,
+system-message, generation-parameter and usage behavior into the existing
+kernel OpenAI-compatible protocol owner. Compare it with the current Tauri
+`llama_chat` and `llama_embed` implementations before moving their AI HTTP and
+parsing decisions into that same owner. Keep process lifecycle and event
+delivery at their existing platform boundaries. Preserve the historical source
+and record reconciled destinations and behavior differences; no archive copy
+is removed and no untouched provider is counted as restored.
+
+Implement explicit configured API bases, private optional credentials, bounded
+responses, timeouts, no redirects, strict response parsing and real SSE framing
+that preserves split UTF-8. Malformed streams, premature EOF and rejected HTTP
+responses fail visibly. Reuse this transport for an explicit saved-connection
+model test in Your AI, displaying its actual answer separately from model-list
+evidence. Limit the action to protocol implementations actually supported;
+subscription login and other vendor protocols must not be guessed or rerouted.
+Editing/removing a connection clears its operation evidence.
+
+Verify actual loopback HTTP requests, streaming fragmentation / truncation,
+authentication isolation, response validation, connection edits, typed IPC and
+ColdLight presentation. Consult the official OpenAI chat-stream and embedding
+references alongside the retained source. Full Chat/Council session routing,
+remote Clyffy control-plane activation and AgentHub ticket execution remain
+separate unfinished work; a one-shot test does not establish those workflows.
+
+Implemented in the existing kernel protocol module, with contracts, HTTP,
+SSE framing and tests colocated under `adapters/openai_compatible/`. Tauri's
+existing llama text/embedding commands now delegate to it through the engine.
+The model sidecar route now emits the `inference-token` event its actual UI
+consumes; the prior code incorrectly claimed a re-emission that did not exist.
+Saved endpoint connections expose an explicit model test in Your AI using
+their own credentials and configured API base. The question is visible before
+the click, and actual answer/error evidence is separate from model discovery.
+The UI uses existing ColdLight components, colocated props and generated styles.
+
+`docs/restoration/endpoint-execution.md` records the original Git source,
+hash, function-by-function reconciliation, active consumers, protocol research,
+deliberate corrections and remaining boundaries. The original adapter is still
+preserved byte for byte. Only its manifest row is promoted to a reconciled
+kernel destination; supporting parent modules are not counted as restored.
+The full manifest audit verifies 6,066 source records with zero uncovered
+deletions in its checked scope: 813 destinations and 5,253 still staged.
+The separate fourteen-document audit still verifies original and retained bodies.
+
+Verification: 145 provider tests pass (three live-account cases ignored),
+including real loopback HTTP, fragmented Unicode/SSE, strict embedding parsing,
+saved credential isolation, failed retries and evidence invalidation. Nine
+Chromium UI/store tests pass. Desktop typecheck has zero errors and warnings.
+All five signal-contract tests pass after reviewing the added `textTest: null`
+field in the wire fixture, and all five copy/configuration tests pass. Workspace
+Clippy is clean and the final desktop bindings are regenerated. No native app
+or live provider account was exercised.
+
+Verification follow-up: the existing route-module source guard repeatedly
+exceeded its five-second timeout, including an isolated run. A direct Node
+scan of the same 737 files and predicate completed in 0.1-0.2 seconds; the
+route test also loads all route metadata and Svelte icon dependencies.
+Optimize its filesystem work with directory-entry metadata and bounded
+concurrent content reads. Preserve its complete file set, symlink traversal,
+import predicate, error propagation and existing timeout; do not skip the
+guard or weaken its assertion.
+
+The guard fix passes: all seven route tests complete in 121 ms under the same
+five-second timeout (the dependency-loading phase remains separate and slow).
+Together with the other architecture suites, all twenty assertions pass.
+The directory-entry traversal selects the same 737 files as the prior walker;
+concurrent reads retain the same import predicate and propagate read failures.
+
 ### Persistent endpoint connections — 2026-11-02
 
 Wire the recovered configurable-endpoint intent through existing owners:

@@ -22,6 +22,7 @@
 
 // Kernel-owned provider definitions and HTTP operations exposed through the engine.
 pub use devpulse_clyffy::providers::adapters::models;
+pub use devpulse_clyffy::providers::adapters::openai_compatible;
 pub use devpulse_clyffy::providers::credentials;
 pub use devpulse_clyffy::providers::registry::{PROVIDERS, by_capability, by_classification, find};
 pub use devpulse_clyffy::providers::types::{

@@ -32,6 +32,7 @@ import {
 	removeConnection,
 	runAction,
 	saveConnection,
+	testConnection,
 } from "./providers.service.js";
 
 export type { ProviderAction, ProvidersState };
@@ -174,6 +175,8 @@ class ProvidersStore {
 	};
 	checkConnection = (id: string): Promise<void> => this.run(() => checkConnection(id));
 	removeConnection = (id: string): Promise<void> => this.run(() => removeConnection(id));
+	testConnection = (id: string, model: string): Promise<void> =>
+		this.run(() => testConnection(id, model));
 }
 
 export const providersState = new ProvidersStore();

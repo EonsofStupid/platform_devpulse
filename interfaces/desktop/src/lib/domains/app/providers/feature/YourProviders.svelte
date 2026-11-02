@@ -265,7 +265,7 @@ function signIn(p: ProviderReport): void {
 
     <EndpointConnections copy={copy.endpoints} state={current?.connections ?? null}
         options={providersState.connectionOptions} busy={!idle}
-        onSave={providersState.saveConnection} onCheck={providersState.checkConnection} onRemove={providersState.removeConnection} />
+        onSave={providersState.saveConnection} onCheck={providersState.checkConnection} onRemove={providersState.removeConnection} onTest={providersState.testConnection} />
 	{#if apps.length}
 		<section class="flex flex-col gap-3" aria-label={copy.apps_heading}>
 			<Heading level={2} size="lg">{copy.apps_heading}</Heading>

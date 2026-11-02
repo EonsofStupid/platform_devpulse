@@ -35,6 +35,11 @@ function props(): EndpointConnectionsProps {
 			checked: "Model list received: {count} at {time}",
 			remove: "Remove",
 			remove_confirm: "Remove {name}?",
+			try_description: "Sends the visible question to this endpoint.",
+			try_prompt: "Say hello.",
+			try_model: "Model to try",
+			try_action: "Try model",
+			try_answered: "{model} answered at {time}",
 		},
 		state: { items: [], problem: null },
 		options: [
@@ -42,12 +47,14 @@ function props(): EndpointConnectionsProps {
 				provider: "ollama",
 				name: "Compatible server",
 				suggestedEndpoint: "http://localhost:11434/v1",
+				supportsTextTest: true,
 			},
 		],
 		busy: false,
 		onSave: vi.fn().mockResolvedValue(true),
 		onCheck: vi.fn().mockResolvedValue(undefined),
 		onRemove: vi.fn().mockResolvedValue(undefined),
+		onTest: vi.fn().mockResolvedValue(undefined),
 	};
 }
 
@@ -86,6 +93,7 @@ test("editing keeps the stable identity and a rejected save keeps the form open"
 				endpoint: "http://localhost:12400/v1",
 				hasCredential: true,
 				check: null,
+				textTest: null,
 			},
 		],
 	};
@@ -114,6 +122,7 @@ test("checking and removing address only the selected connection; removal needs 
 				endpoint: "http://localhost:12400/v1",
 				hasCredential: false,
 				check: null,
+				textTest: null,
 			},
 		],
 	};
@@ -155,4 +164,77 @@ test("a failed save clears the typed secret and keeps the connection draft", asy
 	await expect
 		.element(screen.getByRole("textbox", { name: "Connection name" }))
 		.toHaveValue("Keyed server");
+});
+
+test("text testing requires a click and uses the selected connection and model", async () => {
+	const p = props();
+	p.state = {
+		problem: null,
+		items: [
+			{
+				id: "server-one",
+				label: "My server",
+				provider: "ollama",
+				endpoint: "http://localhost:12400/v1",
+				hasCredential: true,
+				textTest: null,
+				check: {
+					checkedAtMs: 42,
+					error: null,
+					models: [
+						{ id: "first", ownedBy: null },
+						{ id: "second", ownedBy: null },
+					],
+				},
+			},
+		],
+	};
+	const screen = render(EndpointConnections, { props: p });
+	expect(p.onTest).not.toHaveBeenCalled();
+	await screen.getByRole("combobox", { name: "Model to try: My server" }).click();
+	await screen.getByRole("option", { name: "second", exact: true }).click();
+	await screen.getByRole("button", { name: "Try model", exact: true }).click();
+	expect(p.onTest).toHaveBeenCalledExactlyOnceWith("server-one", "second");
+});
+
+test("an answer is shown as text, and unsupported protocols have no test action", async () => {
+	const p = props();
+	p.state = {
+		problem: null,
+		items: [
+			{
+				id: "server",
+				label: "My server",
+				provider: "ollama",
+				endpoint: "http://localhost:12400/v1",
+				hasCredential: false,
+				check: null,
+				textTest: {
+					model: "tested",
+					prompt: "Say hello.",
+					checkedAtMs: 42,
+					error: null,
+					answer: {
+						text: "<script>fixture</script>",
+						model: "tested",
+						usage: null,
+						finishReason: "stop",
+						elapsedMs: 5,
+					},
+				},
+			},
+		],
+	};
+	const screen = render(EndpointConnections, { props: p });
+	await expect.element(screen.getByText("<script>fixture</script>", { exact: true })).toBeVisible();
+	await expect
+		.element(screen.getByRole("button", { name: "Try model", exact: true }))
+		.toBeDisabled();
+	await screen.rerender({
+		...p,
+		options: p.options.map((option) => ({ ...option, supportsTextTest: false })),
+	});
+	await expect
+		.element(screen.getByRole("button", { name: "Try model", exact: true }))
+		.not.toBeInTheDocument();
 });

@@ -4,7 +4,7 @@
 //! one entry in [`registry`].
 
 pub mod models;
-mod openai_compatible;
+pub mod openai_compatible;
 
 pub use openai_compatible::OpenAiCompatibleProbe;
 

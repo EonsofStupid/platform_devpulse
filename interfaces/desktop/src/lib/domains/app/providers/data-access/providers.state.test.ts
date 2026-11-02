@@ -25,6 +25,7 @@ vi.mock("./providers.service.js", () => ({
 	checkConnection: vi.fn(),
 	checkSignedIn: vi.fn(),
 	removeConnection: vi.fn(),
+	testConnection: vi.fn(),
 	runAction: vi.fn(),
 }));
 
@@ -47,6 +48,7 @@ function state(label: string): ProvidersState {
 					endpoint: "http://localhost:12400/v1",
 					hasCredential: false,
 					check: null,
+					textTest: null,
 				},
 			],
 		},
