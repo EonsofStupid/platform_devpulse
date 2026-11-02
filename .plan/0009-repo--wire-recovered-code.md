@@ -127,6 +127,18 @@ and rustfmt pass. The preservation audit still verifies all 6,066 records with
 zero uncovered sources. These third-party
 dependency patches do not count as restoration of additional authored features.
 
+Remote follow-up after pushing `f5c68e82` and `8e2101e8`: the prior CI run
+41394039214 passed Linux compile, tests, desktop checks and preservation but
+its Docker cargo-deny action failed before auditing because the container
+could not execute the host-configured `sccache`. Run pinned cargo-deny 0.20.2
+on the already configured host so it shares the Rust toolchain, cache wrapper
+and private Git credentials. Keep both all-feature advisory and dependency
+policy checks, with the lockfile enforced; run them before expensive compilation.
+The Release run 41470323477 separately fails creating releases with
+`Resource not accessible by integration`; the workflow already requests
+contents/pull-request write access, so no credentials or access policy were
+changed as part of source restoration. Remote CI success remains unconfirmed.
+
 The owner explicitly rejected leaving years of work in a recovery folder.
 This instruction governs the restoration sequence ahead of additional factory
 UI work. Preserve the earlier plans below as decision history; do not erase

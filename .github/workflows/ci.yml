@@ -60,8 +60,7 @@ jobs:
           sudo rm -rf /usr/local/lib/android
           sudo rm -rf /opt/ghc
           sudo rm -rf /opt/hostedtoolcache/CodeQL
-          # GitHub builds Docker actions before steps run. Keep tagged images,
-          # including cargo-deny-action, available for the later audit step.
+          # Remove only dangling images; other runner tools may own tagged ones.
           sudo docker image prune -f || true
           df -h
 
@@ -159,6 +158,20 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: ${{ runner.os }}-cargo-
 
+      # Run on the configured host: cargo metadata needs its Rust toolchain,
+      # sccache and private Git credentials. A separate Docker action lacks them.
+      - name: Install dependency checker
+        run: |
+          if ! cargo deny --version 2>/dev/null | grep -Fxq 'cargo-deny 0.20.2'; then
+            cargo install cargo-deny --version 0.20.2 --locked
+          fi
+
+      - name: Security audit
+        run: cargo deny --all-features --locked check advisories
+
+      - name: Dependency policy
+        run: cargo deny --all-features --locked check bans
+
       - name: Check formatting
         run: cargo fmt --all -- --check
 
@@ -176,16 +189,6 @@ jobs:
 
       - name: Test
         run: cargo test --workspace --features devpulse-clyffy/guardian,model-loader/nvml
-
-      - name: Security audit
-        uses: EmbarkStudios/cargo-deny-action@v2
-        with:
-          command: check advisories
-
-      - name: Dependency policy
-        uses: EmbarkStudios/cargo-deny-action@v2
-        with:
-          command: check bans
 
   desktop:
     name: Desktop Checks
