@@ -39,3 +39,19 @@ recovered/** -text linguist-vendored
 recovered/repo/SOURCES.tsv whitespace=-blank-at-eol
 # Published dependency source retained byte for byte (plan 0009).
 deps/tantivy-sstable/** -text linguist-vendored
+# Snapshot-authored documents restored with original bytes (plan 0009).
+# Keep original whitespace and both complete revisions in reconciled documents.
+docs/PLATFORM_SPEC_LAYMAN.v1.bak.md -text whitespace=-blank-at-eol
+scripts/docs/consolidation/LOCKED_DECISIONS.md -text whitespace=-blank-at-eol
+scripts/docs/consolidation/RESEARCH_FORCED_MEMORY_SYSTEM.md -text whitespace=-blank-at-eol
+scripts/docs/consolidation/RRO_CORTEX_RAW_DUMP.md -text whitespace=-blank-at-eol
+scripts/docs/consolidation/TOOL_TEST.md -text whitespace=-blank-at-eol
+scripts/docs/consolidation/WANTS_FROM_CLYFFY_RUMINATE_SPEC.md -text whitespace=-blank-at-eol
+scripts/docs/consolidation/tmp/correction.md -text whitespace=-blank-at-eol
+scripts/docs/poam/POAM_MASTER_MCP_BRIDGE_BACKEND.md -text whitespace=-blank-at-eol,-blank-at-eof
+scripts/docs/poam/POAM_SHAPE_A_BRIDGE.md -text whitespace=-blank-at-eol,-blank-at-eof
+scripts/docs/poam/POAM_SHAPE_B_BACKEND.md -text whitespace=-blank-at-eol
+scripts/docs/specs/cortex/memory/BLOCK_SCHEMA_SPEC.md -text whitespace=-blank-at-eol
+scripts/docs/specs/persistence/PERSISTENCE_LAYER_SPEC.md -text whitespace=-blank-at-eol
+scripts/docs/sprints/SPRINT-DEV-RELIABILITY.md -text whitespace=-blank-at-eol
+scripts/docs/sprints/SPRINT-DEV-RELIABILITY.research.md -text whitespace=-blank-at-eol

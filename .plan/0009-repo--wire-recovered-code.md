@@ -28,6 +28,26 @@ introduce compatibility layers or parallel replacement implementations.
 
 ## Restoration correction — governing direction, 2026-11-01
 
+### Snapshot documentation and activation restoration — 2026-11-02
+
+Resume the inventory's next batch. Restore all twelve missing authored Markdown
+documents from the October 6 snapshot at their original paths (including the
+two non-AI documents). Reconcile the two colliding documents in place: keep
+both complete bodies, restore the full RRO capture as the primary historical
+source, and retain the newer decision ledger ahead of its historical source.
+Add an explicit current-direction preface and provenance with source hashes,
+destination hashes and retained byte ranges. This restores source material;
+it does not approve old draft architecture or claim those systems implemented.
+No archived agent instructions, configuration, caches or hooks are activated.
+
+Compare imported Codex activation with the current kernel status adapter.
+Restore its distinction between recognized login evidence and an inconclusive
+status response: unexpected output, abnormal process exit or a failed status
+probe must not activate Chat/Council. Preserve configured provider rules and
+the existing shared supervisor gate; no parallel activation implementation.
+Verify restored source bytes and current document bytes, provider regression
+tests, crate checks and normal commit/push hooks.
+
 ### AI-first inventory — 2026-11-02
 
 Owner asks to identify the historical AI code before the next restoration

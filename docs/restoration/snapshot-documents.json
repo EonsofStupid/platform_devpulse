@@ -1,0 +1,127 @@
+{
+  "snapshot": "recovery-test-20261006-195113/untracked.zip",
+  "snapshot_sha256": "6d87110b0629c8056f10d9695eac7b18cf735debe443dea38fd1aaffd8e2bb04",
+  "restored_on": "2026-11-02",
+  "records": [
+    {
+      "path": "docs/PLATFORM_SPEC_LAYMAN.v1.bak.md",
+      "source_sha256": "d13fb8fd454358e4f1edf6f211056102380ad59709af79a72b8d9434d8f84456",
+      "source_bytes": 25588,
+      "method": "restored_verbatim",
+      "source_offset": 0,
+      "destination_sha256": "d13fb8fd454358e4f1edf6f211056102380ad59709af79a72b8d9434d8f84456"
+    },
+    {
+      "path": "scripts/docs/consolidation/LOCKED_DECISIONS.md",
+      "source_sha256": "7a94d48286b2e699604325ee23962994a67a76f4b88195401e3def35feb21898",
+      "source_bytes": 23499,
+      "method": "reconciled_complete_bodies",
+      "previous_sha256": "364a298e4a64a1377fea2ce7efb360173c95d7e5ef19caf228a6065f5b03cff4",
+      "previous_bytes": 11895,
+      "previous_offset": 629,
+      "previous_git_blob": "95e862f3ece2939ea49d9c0a5ef529ee658ce6c6",
+      "source_offset": 12586,
+      "destination_sha256": "ce758ad83f41335b1980a34f892ef38a51c1817a1eb1f6775a1215913a0e9b77"
+    },
+    {
+      "path": "scripts/docs/consolidation/RESEARCH_FORCED_MEMORY_SYSTEM.md",
+      "source_sha256": "68d960a16532f107d0a19a4a1c9b0bf1905dc615ddb26df50f290da637f08e19",
+      "source_bytes": 10940,
+      "method": "restored_verbatim",
+      "source_offset": 0,
+      "destination_sha256": "68d960a16532f107d0a19a4a1c9b0bf1905dc615ddb26df50f290da637f08e19"
+    },
+    {
+      "path": "scripts/docs/consolidation/RRO_CORTEX_RAW_DUMP.md",
+      "source_sha256": "9728b7e0f2d63570fd7c5f41fc5bd17fdf872ed3369eefa6ef051d9a9a307977",
+      "source_bytes": 113893,
+      "method": "reconciled_complete_bodies",
+      "previous_sha256": "f7d37026a7034a2be5ff4ca57c7f720cd2307916de477186a000f0bbd9d6784e",
+      "previous_bytes": 28660,
+      "previous_offset": 114583,
+      "previous_git_blob": "5e25b67f71f43f6d813508302fe25188d1214e99",
+      "source_offset": 629,
+      "destination_sha256": "7c3f2e5ffe9c87f382ededd629015b6fc22b3494109bb96edc764d603c2ee882"
+    },
+    {
+      "path": "scripts/docs/consolidation/TOOL_TEST.md",
+      "source_sha256": "8cf6d5e87f13f865d6a2a342338864f6f9fbd25316597922a11f8833751da330",
+      "source_bytes": 64,
+      "method": "restored_verbatim",
+      "source_offset": 0,
+      "destination_sha256": "8cf6d5e87f13f865d6a2a342338864f6f9fbd25316597922a11f8833751da330"
+    },
+    {
+      "path": "scripts/docs/consolidation/WANTS_FROM_CLYFFY_RUMINATE_SPEC.md",
+      "source_sha256": "af6d1e258a4b6cea31aa7ae5ac6775a48b88b390c2a48d038ce285a64f6d7aad",
+      "source_bytes": 10580,
+      "method": "restored_verbatim",
+      "source_offset": 0,
+      "destination_sha256": "af6d1e258a4b6cea31aa7ae5ac6775a48b88b390c2a48d038ce285a64f6d7aad"
+    },
+    {
+      "path": "scripts/docs/consolidation/tmp/correction.md",
+      "source_sha256": "47093f22308dde15f753a6436bfe07424fad081d6ba71f519f1236ee1ffbbd96",
+      "source_bytes": 3588,
+      "method": "restored_verbatim",
+      "source_offset": 0,
+      "destination_sha256": "47093f22308dde15f753a6436bfe07424fad081d6ba71f519f1236ee1ffbbd96"
+    },
+    {
+      "path": "scripts/docs/poam/POAM_MASTER_MCP_BRIDGE_BACKEND.md",
+      "source_sha256": "658865e6c00c4b48a0349d6a7d773234d2acb85f6159592500ca1c67b2befcad",
+      "source_bytes": 9330,
+      "method": "restored_verbatim",
+      "source_offset": 0,
+      "destination_sha256": "658865e6c00c4b48a0349d6a7d773234d2acb85f6159592500ca1c67b2befcad"
+    },
+    {
+      "path": "scripts/docs/poam/POAM_SHAPE_A_BRIDGE.md",
+      "source_sha256": "d9b99eb95a0986069ef90c66b8ec78eba3860a34ef8a1e0cc3b80542f6f6f0a0",
+      "source_bytes": 7911,
+      "method": "restored_verbatim",
+      "source_offset": 0,
+      "destination_sha256": "d9b99eb95a0986069ef90c66b8ec78eba3860a34ef8a1e0cc3b80542f6f6f0a0"
+    },
+    {
+      "path": "scripts/docs/poam/POAM_SHAPE_B_BACKEND.md",
+      "source_sha256": "a13ed7287644a3a55ae4ef157e72df80c7f813e0adda1c520d357e7321e19425",
+      "source_bytes": 52,
+      "method": "restored_verbatim",
+      "source_offset": 0,
+      "destination_sha256": "a13ed7287644a3a55ae4ef157e72df80c7f813e0adda1c520d357e7321e19425"
+    },
+    {
+      "path": "scripts/docs/specs/cortex/memory/BLOCK_SCHEMA_SPEC.md",
+      "source_sha256": "59ffdd7d7a66c825221dff681c30f9c39a4838fdcbb8ba42a0f1a8fe6468cf2c",
+      "source_bytes": 13741,
+      "method": "restored_verbatim",
+      "source_offset": 0,
+      "destination_sha256": "59ffdd7d7a66c825221dff681c30f9c39a4838fdcbb8ba42a0f1a8fe6468cf2c"
+    },
+    {
+      "path": "scripts/docs/specs/persistence/PERSISTENCE_LAYER_SPEC.md",
+      "source_sha256": "58346173e19f9bd9de4f45032503576195de32ed51b7295bcf177bd52e811c48",
+      "source_bytes": 11539,
+      "method": "restored_verbatim",
+      "source_offset": 0,
+      "destination_sha256": "58346173e19f9bd9de4f45032503576195de32ed51b7295bcf177bd52e811c48"
+    },
+    {
+      "path": "scripts/docs/sprints/SPRINT-DEV-RELIABILITY.md",
+      "source_sha256": "d38579035cbb0abf22f09ba820024d4d9e748621972a7cc0aae3dfdfb981417a",
+      "source_bytes": 9455,
+      "method": "restored_verbatim",
+      "source_offset": 0,
+      "destination_sha256": "d38579035cbb0abf22f09ba820024d4d9e748621972a7cc0aae3dfdfb981417a"
+    },
+    {
+      "path": "scripts/docs/sprints/SPRINT-DEV-RELIABILITY.research.md",
+      "source_sha256": "158f352dba101663333b2e8a2095b23c4f530faf3409c13c195f0a406b0956f5",
+      "source_bytes": 11512,
+      "method": "restored_verbatim",
+      "source_offset": 0,
+      "destination_sha256": "158f352dba101663333b2e8a2095b23c4f530faf3409c13c195f0a406b0956f5"
+    }
+  ]
+}

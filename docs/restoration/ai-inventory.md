@@ -2,6 +2,14 @@
 
 Inventory date: 2026-11-02. Execution owner: [plan 0009](../../.plan/0009-repo--wire-recovered-code.md).
 
+**Restoration follow-up:** the twelve missing snapshot documents are now back
+at their original paths. The two colliding documents retain both complete
+bodies, with current-direction notes separating historical material from
+current requirements. [The restoration ledger](snapshot-documents.json)
+records all fourteen source hashes, destination hashes and retained ranges.
+The TSV and counts below remain the **initial discovery baseline from
+`1d623407`**, before this restoration; use the ledger for snapshot completion.
+
 The historical AI work is spread across the old orchestrator, engine, kernel,
 desktop, devpulselabs import and a local recovery snapshot. It is not all
 functionally restored. This inventory identifies review candidates and their
@@ -91,7 +99,7 @@ Do not revive old React/GPUI/Svelte-store frameworks as parallel applications.
 
 These are selected comparisons, not a full semantic audit of all candidates.
 
-## Newly identified snapshot gap
+## Snapshot gap identified in the initial scan
 
 `recovery-test-20261006-195113/untracked.zip` is outside the Git-only recovery
 manifest. Its 40 non-IDE entries include authored planning and old agent tooling.
@@ -99,7 +107,8 @@ The scanner reads entries without extracting or activating them; 24 IDE-cache
 entries are excluded. Five saved patch fragments are inventoried separately and
 must not be mistaken for complete files.
 
-The following AI-related documents are **absent at their original locations**:
+The following AI-related documents were **absent at their original locations**
+in the initial scan and have now been restored:
 
 - `docs/PLATFORM_SPEC_LAYMAN.v1.bak.md`
 - `scripts/docs/consolidation/RESEARCH_FORCED_MEMORY_SYSTEM.md`
@@ -112,9 +121,12 @@ The following AI-related documents are **absent at their original locations**:
 - `scripts/docs/specs/persistence/PERSISTENCE_LAYER_SPEC.md`
 - `scripts/docs/sprints/SPRINT-DEV-RELIABILITY.research.md`
 
-`LOCKED_DECISIONS.md` and `RRO_CORTEX_RAW_DUMP.md` exist but differ from the
-snapshot; they require reconciliation, not overwrite. Two additional snapshot
-documents without an AI signal remain listed in the TSV. Old `.agents`,
+`LOCKED_DECISIONS.md` and `RRO_CORTEX_RAW_DUMP.md` differed from the snapshot;
+both revisions now survive in each owning document. The full RRO capture has
+2,596 lines, compared with 571 in the rebuilt copy, which stopped at chunk 5.
+The complete capture restores chunks 6–8 and their source details. Two additional
+snapshot documents without an AI signal (`TOOL_TEST.md` and
+`SPRINT-DEV-RELIABILITY.md`) are also restored. Old `.agents`,
 `.codex` and `AGENTS.md` entries are development tooling, not product features
 or current instructions.
 
@@ -126,10 +138,19 @@ claims and deployment proposals have not been revalidated. Preserve the
 authored material and reconcile it with current owner direction before using
 it as implementation authority. Some are explicitly drafts.
 
-Restore and reconcile these documents at the start of the next batch so the
-implementation is guided by the recovered requirements. The archive itself
-remains local; this report publishes paths/hashes rather than its private
-configuration or IDE cache contents.
+Source preservation is complete for these fourteen documents. Detailed
+requirements-to-implementation reconciliation remains open. The archive itself
+remains local; its private configuration, agent hooks and IDE caches have not
+been restored or published. Scoped Git attributes preserve the restored text's
+original line endings and whitespace.
+
+The activation comparison also restored one behavior from the imported Codex
+adapter into the current kernel: unrecognized status output remains unknown.
+A failed status command no longer falls back to an existing login file, and
+positive output from an unsuccessful or abnormal process cannot activate
+Chat/Council. Both subscription and API-key login remain supported through the
+configured Codex definition. This does not complete endpoint persistence,
+remote Clyffy routing, the Chat capability comparison or AgentHub R3b.
 
 ## Reproduce and interpret
 
@@ -138,6 +159,9 @@ python -B scripts/recovery/test_inventory_ai.py
 python -B scripts/recovery/inventory_ai.py
 python -B scripts/recovery/test_restore_history.py
 python -I scripts/recovery/restore_history.py --check
+python -B scripts/recovery/verify_snapshot_docs.py
+# After staging, verify the exact bytes Git will commit:
+python -B scripts/recovery/verify_snapshot_docs.py --index
 ```
 
 Coverage includes the latest deleted revision per eligible path across local
