@@ -28,6 +28,48 @@ introduce compatibility layers or parallel replacement implementations.
 
 ## Restoration correction — governing direction, 2026-11-01
 
+### AI-first inventory — 2026-11-02
+
+Owner asks to identify the historical AI code before the next restoration
+batch. Produce a reproducible per-source inventory and a capability/owner map,
+covering the Git recovery manifest, latest deleted sources that survive under
+other paths, the separate devpulselabs import, historical documentation roots,
+and the local October 6 recovery snapshot. That snapshot contains an untracked
+ZIP and patches and is outside the existing Git-only recovery audit; its
+documents must not be assumed restored merely because the Git audit passes.
+
+Record provenance, content hashes, classification evidence, candidate current
+owners and unresolved integration work. Filename/keyword or symbol matches are
+discovery evidence, never proof of functional equivalence. Separate AI runtime
+logic from engine supervision, Chat/Council UI, the AgentHub ticket factory,
+shared ColdLight presentation, agent-development tooling and reference material.
+Group restoration by connected capability, preserving endpoint configuration
+and human approval boundaries. Do not change the restoration manifest or move
+sources based solely on this inventory. Outputs belong in `docs/restoration/`;
+the owning execution plan remains this plan.
+
+First inventory pass recorded in
+[`docs/restoration/ai-inventory.md`](../docs/restoration/ai-inventory.md), with
+per-source provenance in `ai-inventory.tsv` and reproducible summary counts.
+6,957 records scanned; 1,209 AI/reference/tooling candidates (1,153 distinct
+contents). Of the manifest's 728 candidates, 588 remain staged and 140 have
+recorded destinations. No restoration status was advanced by this scan.
+
+The October 6 ZIP adds a gap outside the Git audit: ten AI-related documents
+are absent at their original locations, including memory-block and persistence
+specs, rumination requirements and MCP plans; two existing documents differ
+and need reconciliation. Restore/reconcile that planning before the next
+connected implementation batch. Archived agent hooks/instructions are source
+material and are not to be activated implicitly.
+
+Next execution order: endpoint/subscription activation and service readiness;
+memory/context/persistence; Chat/Council roles and history; AgentHub's prefixed
+ticket model and Overmind UI; model/voice/vision endpoints; supervised feedback.
+Carry the relevant typed ColdLight/generated-CSS UI through each batch. The
+inventory maps existing owners and comparison targets, not proof of equivalent
+behavior. R3b remains incomplete. The overall manifest remains 812 recorded
+destinations and 5,254 staged records; preservation is not working restoration.
+
 ### Working-owner restoration batch — 2026-11-02
 
 Owner requests restored code, with larger connected changes authorized in the

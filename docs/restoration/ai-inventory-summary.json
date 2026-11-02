@@ -1,0 +1,101 @@
+{
+  "scanned_records": 6957,
+  "candidate_records": 1209,
+  "unique_candidate_contents": 1153,
+  "source_sets": {
+    "devpulselabs": 103,
+    "git_deleted_discovery": 392,
+    "historical_tree": 351,
+    "recovery_manifest": 6066,
+    "snapshot_patch": 5,
+    "snapshot_zip": 40
+  },
+  "candidate_source_sets": {
+    "devpulselabs": 95,
+    "git_deleted_discovery": 76,
+    "historical_tree": 271,
+    "recovery_manifest": 728,
+    "snapshot_patch": 1,
+    "snapshot_zip": 38
+  },
+  "relations": {
+    "ai_candidate": 747,
+    "reference_candidate": 428,
+    "no_ai_signal": 5748,
+    "agent_development_tooling": 28,
+    "ai_boundary_support_candidate": 6
+  },
+  "candidate_layers": {
+    "configuration": 65,
+    "logic": 333,
+    "reference": 428,
+    "presentation": 316,
+    "agent_development_tooling": 28,
+    "desktop_bridge": 35,
+    "schema_data": 4
+  },
+  "candidate_families": {
+    "chat_sessions": 291,
+    "agents_roles": 186,
+    "providers_endpoints": 165,
+    "factory_tickets": 11,
+    "voice_vision": 184,
+    "memory_knowledge": 207,
+    "models_inference": 150,
+    "ai_boundary_support": 7,
+    "unclassified": 8
+  },
+  "candidate_preservation": {
+    "import_staged": 95,
+    "verbatim_reference_or_support_only": 19,
+    "verbatim_working_owner": 57,
+    "historical_tree": 271,
+    "staged": 588,
+    "recorded_destination": 140,
+    "patch_fragment": 1,
+    "snapshot_only": 38
+  },
+  "overlapping_families": {
+    "chat_sessions": 567,
+    "models_inference": 390,
+    "providers_endpoints": 299,
+    "voice_vision": 406,
+    "agents_roles": 461,
+    "memory_knowledge": 472,
+    "training_feedback": 11,
+    "factory_tickets": 48
+  },
+  "excluded_snapshot_entries": [
+    "recovery-test-20261006-195113/untracked.zip::.vs/ProjectSettings.json",
+    "recovery-test-20261006-195113/untracked.zip::.vs/platform_devpulse.slnx/FileContentIndex/13beacb8-0206-4c9e-ac83-f2c91878eae4.vsidx",
+    "recovery-test-20261006-195113/untracked.zip::.vs/platform_devpulse.slnx/FileContentIndex/14059b7f-046b-43f2-bd34-c3036d9efa17.vsidx",
+    "recovery-test-20261006-195113/untracked.zip::.vs/platform_devpulse.slnx/FileContentIndex/192da7bd-3108-4ebc-ade0-ffdd10454eb8.vsidx",
+    "recovery-test-20261006-195113/untracked.zip::.vs/platform_devpulse.slnx/FileContentIndex/1f59d67c-aa62-4b6a-8056-290c3d9b843d.vsidx",
+    "recovery-test-20261006-195113/untracked.zip::.vs/platform_devpulse.slnx/FileContentIndex/363f9fe7-3aa4-4d6f-b0c2-aa3a7ea369f6.vsidx",
+    "recovery-test-20261006-195113/untracked.zip::.vs/platform_devpulse.slnx/FileContentIndex/5b013000-be92-4301-875c-6ba08ba6ac21.vsidx",
+    "recovery-test-20261006-195113/untracked.zip::.vs/platform_devpulse.slnx/FileContentIndex/94abdd7a-d518-463c-898f-71dae093b8b3.vsidx",
+    "recovery-test-20261006-195113/untracked.zip::.vs/platform_devpulse.slnx/FileContentIndex/b7357172-0483-447a-a3a6-825e47c49a01.vsidx",
+    "recovery-test-20261006-195113/untracked.zip::.vs/platform_devpulse.slnx/FileContentIndex/c932d020-1f0f-41b1-bc4c-1911ed916c89.vsidx",
+    "recovery-test-20261006-195113/untracked.zip::.vs/platform_devpulse.slnx/FileContentIndex/cf8e01d8-466b-41e3-a34c-0d5ae73a0ee5.vsidx",
+    "recovery-test-20261006-195113/untracked.zip::.vs/platform_devpulse.slnx/FileContentIndex/d72acd41-d088-4ae7-b9ee-1c8456d886c3.vsidx",
+    "recovery-test-20261006-195113/untracked.zip::.vs/platform_devpulse.slnx/FileContentIndex/da94bd32-8d7b-4a80-b969-f381c4b2ccae.vsidx",
+    "recovery-test-20261006-195113/untracked.zip::.vs/platform_devpulse.slnx/FileContentIndex/de21bd59-a50e-4c14-95ba-729d827d6f6d.vsidx",
+    "recovery-test-20261006-195113/untracked.zip::.vs/platform_devpulse.slnx/FileContentIndex/dfe8640d-41be-47fe-9b78-31169a4e0530.vsidx",
+    "recovery-test-20261006-195113/untracked.zip::.vs/platform_devpulse.slnx/FileContentIndex/e20945eb-55d1-40cf-8232-e3f28d6ffe0f.vsidx",
+    "recovery-test-20261006-195113/untracked.zip::.vs/platform_devpulse.slnx/FileContentIndex/ee264904-d7ec-4cdc-aea0-82da3a80cad2.vsidx",
+    "recovery-test-20261006-195113/untracked.zip::.vs/platform_devpulse.slnx/FileContentIndex/f353543c-9d08-4fc7-b84f-0a6d740f0e09.vsidx",
+    "recovery-test-20261006-195113/untracked.zip::.vs/platform_devpulse.slnx/v18/.wsuo",
+    "recovery-test-20261006-195113/untracked.zip::.vs/platform_devpulse.slnx/v18/Browse.VC.db",
+    "recovery-test-20261006-195113/untracked.zip::.vs/platform_devpulse.slnx/v18/Browse.VC.db-shm",
+    "recovery-test-20261006-195113/untracked.zip::.vs/platform_devpulse.slnx/v18/Browse.VC.db-wal",
+    "recovery-test-20261006-195113/untracked.zip::.vs/platform_devpulse.slnx/v18/DocumentLayout.json",
+    "recovery-test-20261006-195113/untracked.zip::.vs/slnx.sqlite"
+  ],
+  "limits": [
+    "Latest deleted revisions across local Git refs, not every historical revision.",
+    "Keyword/path/symbol discovery is not a complete semantic audit or proof of functional equivalence.",
+    "Snapshot patches are incomplete fragments; ignored IDE caches are not product sources.",
+    "Historical roots include tracked files only; untracked content is limited to the named recovery snapshots.",
+    "External repositories and machine-wide backups are not scanned; devpulselabs uses the preserved import."
+  ]
+}
