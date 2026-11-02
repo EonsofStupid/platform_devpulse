@@ -6,8 +6,8 @@ pub mod sessions;
 pub mod suggest;
 
 use crate::state::PlatformState;
-use devpulse_engine::platform::agents::{save_turn, TurnRow};
 use devpulse_engine::platform::SqlAdapter;
+use devpulse_engine::platform::agents::{TurnRow, save_turn};
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use tauri::State;
@@ -174,13 +174,13 @@ pub async fn send_message(
     .map_err(|e| format!("Failed to save user turn: {e:#}"))?;
 
     let created_rows = adapter
-		.query(
-			"SELECT id, session_id, role, content, created_at, token_count, model_used, latency_ms \
+        .query(
+            "SELECT id, session_id, role, content, created_at, token_count, model_used, latency_ms \
 			 FROM turns WHERE id = ? LIMIT 1",
-			&[turn_id.as_str().into()],
-		)
-		.await
-		.map_err(|e| format!("Failed to read turn: {e}"))?;
+            &[turn_id.as_str().into()],
+        )
+        .await
+        .map_err(|e| format!("Failed to read turn: {e}"))?;
 
     let row = created_rows.first().ok_or("Turn not found after insert")?;
 
@@ -285,13 +285,13 @@ pub async fn store_assistant_turn(
     .map_err(|e| format!("Failed to save assistant turn: {e:#}"))?;
 
     let created_rows = adapter
-		.query(
-			"SELECT id, session_id, role, content, created_at, token_count, model_used, latency_ms \
+        .query(
+            "SELECT id, session_id, role, content, created_at, token_count, model_used, latency_ms \
 			 FROM turns WHERE id = ? LIMIT 1",
-			&[turn_id.as_str().into()],
-		)
-		.await
-		.map_err(|e| format!("Failed to read turn: {e}"))?;
+            &[turn_id.as_str().into()],
+        )
+        .await
+        .map_err(|e| format!("Failed to read turn: {e}"))?;
 
     let row = created_rows.first().ok_or("Turn not found after insert")?;
 

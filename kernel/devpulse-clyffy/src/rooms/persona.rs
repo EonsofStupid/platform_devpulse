@@ -12,7 +12,7 @@ use serde::{Deserialize, Serialize};
 
 pub use crate::cortex::minions::types::VoiceTone;
 
-use super::{is_kebab, semver, Issue};
+use super::{Issue, is_kebab, semver};
 
 /// The `schema` value of every persona file.
 pub const PERSONA_SCHEMA: &str = "dpl.persona/1";

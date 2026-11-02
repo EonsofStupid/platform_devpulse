@@ -10,10 +10,10 @@ pub mod tools;
 
 use std::sync::Arc;
 
+use rmcp::ServerHandler;
 use rmcp::handler::server::wrapper::Parameters;
 use rmcp::model::{CallToolResult, Implementation, ServerCapabilities, ServerInfo};
 use rmcp::tool;
-use rmcp::ServerHandler;
 use serde::Deserialize;
 
 use crate::platform::Platform;
@@ -35,6 +35,10 @@ impl DevPulseMcpServer {
     }
 }
 
+#[expect(
+    clippy::unused_async_trait_impl,
+    reason = "rmcp tool_handler generates async trait methods without await points"
+)]
 #[rmcp::tool_handler]
 impl ServerHandler for DevPulseMcpServer {
     fn get_info(&self) -> ServerInfo {
@@ -200,8 +204,8 @@ impl DevPulseMcpServer {
 /// Returns an error if the stdio transport cannot be attached, the MCP server
 /// fails to start, or the active MCP session terminates with an error.
 pub async fn start_stdio(platform: Arc<Platform>) -> anyhow::Result<()> {
-    use rmcp::transport::io::stdio;
     use rmcp::ServiceExt;
+    use rmcp::transport::io::stdio;
 
     tracing::info!("MCP stdio server starting — tools registered");
     let server = DevPulseMcpServer::new(platform);

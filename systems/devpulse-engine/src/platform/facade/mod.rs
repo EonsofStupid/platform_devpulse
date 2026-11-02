@@ -32,9 +32,9 @@ pub use events::{EventCategory, InternalEvent};
 pub use filter::FilterPipeline;
 pub use surface::{Severity, SurfaceCategory, SurfaceEvent};
 pub use translator::{EventTranslator, TranslationRegistry};
-pub use visibility::{classify, narration_hint, Visibility};
+pub use visibility::{Visibility, classify, narration_hint};
 
-use devpulse_telemetry::prelude::{broadcast_channel, BroadcastReceiver, BroadcastSender};
+use devpulse_telemetry::prelude::{BroadcastReceiver, BroadcastSender, broadcast_channel};
 use devpulse_telemetry::spawn;
 use std::sync::Arc;
 use tokio::sync::RwLock;

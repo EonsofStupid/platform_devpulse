@@ -1,6 +1,6 @@
 //! Build and stage the bundled runtime before Tauri reads its package config.
 
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 
 use crate::commands::Task;
 use crate::workspace::Workspace;

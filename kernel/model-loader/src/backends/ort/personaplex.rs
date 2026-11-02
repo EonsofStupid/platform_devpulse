@@ -263,7 +263,7 @@ fn find_session_file(model_dir: &Path, candidates: &[&str]) -> Result<PathBuf> {
 }
 
 fn file_size(path: &Path) -> u64 {
-    std::fs::metadata(path).map(|m| m.len()).unwrap_or(0)
+    std::fs::metadata(path).map_or(0, |m| m.len())
 }
 
 #[cfg(test)]

@@ -11,7 +11,7 @@
 //! `list_backend_matrix` returns this to the frontend on boot so the
 //! compatibility card can render immediately without additional IPC.
 
-use super::architectures::{ArchId, ArchitectureSpec, SupportStatus, ALL as ARCHITECTURES};
+use super::architectures::{ALL as ARCHITECTURES, ArchId, ArchitectureSpec, SupportStatus};
 use serde::{Deserialize, Serialize};
 
 /// Stable identifier for an inference backend. Each variant maps to

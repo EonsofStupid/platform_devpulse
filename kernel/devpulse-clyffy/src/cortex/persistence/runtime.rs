@@ -24,7 +24,7 @@ use std::path::PathBuf;
 use std::sync::{Arc, Mutex, PoisonError};
 use std::time::{Duration, Instant, SystemTime};
 
-use anyhow::{anyhow, bail, Context, Result};
+use anyhow::{Context, Result, anyhow, bail};
 use devpulse_process::{ChildSpec, LineSink, StopPolicy, Stopped, Stream, SupervisedChild};
 
 use super::port_alloc::{self, PortAllocation};

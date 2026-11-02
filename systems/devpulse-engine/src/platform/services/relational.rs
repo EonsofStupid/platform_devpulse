@@ -10,7 +10,7 @@
 //!   codebase patterns, conventions, anti-drift log
 
 use super::{Service, ServiceRole, ServiceState};
-use crate::platform::db::{migrate, Migration};
+use crate::platform::db::{Migration, migrate};
 use anyhow::{Context, Result};
 use devpulse_clyffy::cortex::persistence::{TursoAdapter, TursoOptions};
 use std::path::{Path, PathBuf};

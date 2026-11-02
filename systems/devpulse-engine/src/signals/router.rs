@@ -15,7 +15,7 @@
 use std::collections::{HashMap, HashSet};
 use std::sync::{Mutex, PoisonError};
 
-use devpulse_telemetry::prelude::{broadcast_channel, BroadcastReceiver, BroadcastSender};
+use devpulse_telemetry::prelude::{BroadcastReceiver, BroadcastSender, broadcast_channel};
 use tokio::sync::watch;
 
 use super::signal::Signal;

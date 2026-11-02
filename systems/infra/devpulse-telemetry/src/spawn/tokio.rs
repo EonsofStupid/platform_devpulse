@@ -143,6 +143,7 @@ fn extract_panic_message(payload: &Box<dyn Any + Send>) -> String {
 
 #[cfg(test)]
 mod tests {
+    #![allow(clippy::unwrap_used, clippy::expect_used, reason = "test assertions")]
     use super::*;
 
     #[tokio::test]

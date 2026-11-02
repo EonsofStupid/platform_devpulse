@@ -13,8 +13,8 @@ use std::collections::HashMap;
 #[cfg(feature = "candle-backend")]
 use std::path::Path;
 use std::path::PathBuf;
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 
 /// Handle to a running download, used for cancellation.
 #[derive(Debug, Clone)]
@@ -1201,11 +1201,13 @@ mod sha256_tests {
         }
         let expected = "a948904f2f0f479b8f8197694b30184b0d2ed1c1cd2a1ec0fb85d299a192a447";
         assert!(verify_sha256(&path, expected).unwrap());
-        assert!(!verify_sha256(
-            &path,
-            "0000000000000000000000000000000000000000000000000000000000000000"
-        )
-        .unwrap());
+        assert!(
+            !verify_sha256(
+                &path,
+                "0000000000000000000000000000000000000000000000000000000000000000"
+            )
+            .unwrap()
+        );
         assert!(verify_sha256(&path, &expected.to_uppercase()).unwrap());
         let _ = std::fs::remove_file(&path);
     }

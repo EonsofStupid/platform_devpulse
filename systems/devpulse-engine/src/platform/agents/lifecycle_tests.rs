@@ -64,10 +64,11 @@ async fn cancellation_before_start_never_polls_the_provider_and_next_turn_can_st
     let conversation = Arc::new(Conversation::default());
     let turn = conversation.begin().unwrap();
     conversation.cancel();
-    assert!(turn
-        .session(async { panic!("cancelled startup was polled") })
-        .await
-        .is_err());
+    assert!(
+        turn.session(async { panic!("cancelled startup was polled") })
+            .await
+            .is_err()
+    );
     drop(turn);
     assert!(!conversation.begin().unwrap().is_cancelled());
 }
@@ -156,11 +157,10 @@ async fn a_failed_prompt_save_does_not_start_the_provider() {
     })
     .await;
     assert!(result.is_err());
-    assert!(db
-        .query("SELECT content FROM turns", &[])
-        .await
-        .unwrap()
-        .is_empty());
+    assert_eq!(
+        db.query("SELECT content FROM turns", &[]).await.unwrap(),
+        [] as [std::vec::Vec<devpulse_clyffy::cortex::persistence::SqlValue>; 0]
+    );
     drop(turn);
     assert!(conversation.begin().is_ok());
     db.close().await;
@@ -243,17 +243,19 @@ async fn losing_the_ipc_waiter_keeps_the_admitted_turn_and_its_completion() {
     let turn = conversation.begin().unwrap();
     let (finish, release) = oneshot::channel();
     let (completed, saved) = oneshot::channel();
-    assert!(tokio::time::timeout(
-        Duration::from_millis(20),
-        lifecycle::owned(async move {
-            release.await.unwrap();
-            drop(turn);
-            completed.send(()).unwrap();
-            Ok(())
-        })
-    )
-    .await
-    .is_err());
+    assert!(
+        tokio::time::timeout(
+            Duration::from_millis(20),
+            lifecycle::owned(async move {
+                release.await.unwrap();
+                drop(turn);
+                completed.send(()).unwrap();
+                Ok(())
+            })
+        )
+        .await
+        .is_err()
+    );
     assert!(conversation.begin().is_err());
     finish.send(()).unwrap();
     tokio::time::timeout(Duration::from_secs(5), saved)

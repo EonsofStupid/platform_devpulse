@@ -9,59 +9,22 @@ all-features = true
 version = 2
 db-path = "~/.cargo/advisory-db"
 db-urls = ["https://github.com/rustsec/advisory-db"]
-# Ignore unmaintained transitive dependencies - can't fix upstream
+# Reviewed exceptions for advisories still present in the resolved graph
 ignore = [
-    # Tauri/GTK deps
+    # Tauri and build-time dependencies
     "RUSTSEC-2024-0370", # proc-macro-error
-    "RUSTSEC-2024-0411", # gdkwayland-sys
-    "RUSTSEC-2024-0412", # gdk
-    "RUSTSEC-2024-0413", # atk
-    "RUSTSEC-2024-0414", # gdkx11-sys
-    "RUSTSEC-2024-0415", # gtk
-    "RUSTSEC-2024-0416", # atk-sys
-    "RUSTSEC-2024-0417", # gdkx11
-    "RUSTSEC-2024-0418", # gdk-sys
-    "RUSTSEC-2024-0419", # gtk3-macros
-    "RUSTSEC-2024-0420", # gtk-sys
     "RUSTSEC-2025-0057", # fxhash
-    "RUSTSEC-2025-0075", # unic-char-range
-    "RUSTSEC-2025-0080", # unic-common
-    "RUSTSEC-2025-0081", # unic-char-property
-    "RUSTSEC-2025-0098", # unic-ucd-version
-    "RUSTSEC-2025-0100", # unic-ucd-ident
-    # surrealdb deps
-    "RUSTSEC-2025-0141", # bincode (surrealdb)
+    "RUSTSEC-2025-0141", # bincode (Burn's record format)
     # Transitive deps — upstream must fix
-    "RUSTSEC-2021-0127", # serde_cbor (unmaintained, transitive)
-    "RUSTSEC-2023-0071", # marvin attack (rsa, transitive via surrealdb)
     "RUSTSEC-2024-0436", # paste (unmaintained, transitive)
-    "RUSTSEC-2024-0437", # number_prefix (unmaintained, transitive)
     "RUSTSEC-2025-0119", # protobuf recursion (transitive via ort/surrealdb)
-    "RUSTSEC-2026-0049", # aws-lc CRL matching (transitive via surrealdb)
-    "RUSTSEC-2026-0104", # aws-lc CRL parse panic (transitive via surrealdb — supersedes 0044/0048)
-    "RUSTSEC-2026-0105", # core2 unmaintained + yanked (transitive via jieba-rs → rro)
-    # No compatible fixed release; none parses untrusted input here (2026-10-15)
-    "RUSTSEC-2026-0194", # quick-xml quadratic attr check: 0.30 (xcb build script, Linux),
-                         # 0.38 (plist via tauri), 0.39 (wayland-scanner proc-macro); fix is 0.41
-    "RUSTSEC-2026-0195", # quick-xml NsReader allocation: same three dependents as 0194
     "RUSTSEC-2020-0163", # term_size unmaintained, via tokei 15 (latest release; repo scan)
-    "RUSTSEC-2026-0173", # proc-macro-error2 unmaintained, build-time proc-macro only
-    # zip < 9 extraction flaws (2026-10-17). Our own zip (xtask) and duckdb's are
-    # on 9; these two dependents have no release on zip >= 9:
-    # - candle-core 0.10 (zip 7; 0.11 is on zip 8): reads .npy/.npz entries in
-    #   memory, never calls `extract`;
-    # - tauri-plugin-updater 2.x (zip 4, up to 2.14): `extract` runs only on an
-    #   update bundle that passed minisign verification against our release key.
+    # zip < 9 extraction flaws (reviewed 2026-11-01). Candle 0.9/0.10 uses
+    # zip 7 to read .npy/.npz entries in memory, never `extract`. The updater,
+    # xtask and patched Sherpa build dependency now resolve zip 9.
     "RUSTSEC-2026-0367", # SUID/SGID bits preserved on extract
     "RUSTSEC-2026-0368", # extract creates symlinks outside the destination
     "RUSTSEC-2026-0369", # extract applies permissions through symlinks
-    # Distrusted emSign roots (2026-10-20). rustls-webpki, webpki-roots 1 and
-    # webpki-root-certs are updated to the fixed releases (0.103.16, 1.0.10,
-    # 1.0.10). webpki-roots 0.26.11 — via ureq 2 ← hf-hub 0.4 — is the
-    # compatibility shim whose only dependency is webpki-roots 1.0.10, which it
-    # re-exports: the fixed root list, flagged by version only. No 0.26 release
-    # follows; plan 0001 Part L (L2: hf-hub 1, ureq 3) removes it.
-    "RUSTSEC-2026-0381", # webpki-roots 0.26.11 shim over the fixed 1.0.10
     # zbus's own crates marked unmaintained with no successor release
     # (2026-10-17). Pulled in via zbus 5.14 by rfd (ashpd), tauri-plugin-
     # single-instance and xcap — the Linux D-Bus backends of those crates.
@@ -91,9 +54,9 @@ multiple-versions = "warn"
 wildcards = "allow"
 # Deny known bad crates
 deny = [
-    # Desktop must NEVER depend on clyffy directly.
-    # All kernel access goes through the engine facade.
-    { name = "devpulse-clyffy", wrappers = ["devpulse-engine"] },
+    # Desktop accesses the included kernel through the engine facade.
+    # AgentHub and persona MCP are the other existing runtime owners.
+    { name = "devpulse-clyffy", wrappers = ["devpulse-engine", "devpulse-agenthub", "devpulse-persona-mcp"] },
 ]
 
 [sources]
@@ -105,4 +68,5 @@ allow-git = [
     "https://github.com/EonsofStupid/rro",
     "https://github.com/EonsofStupid/tar-rs",
     "https://github.com/EonsofStupid/Kokoros",
+    "https://github.com/k2-fsa/sherpa-onnx",
 ]

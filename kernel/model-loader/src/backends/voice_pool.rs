@@ -271,10 +271,7 @@ impl VoicePool {
     /// Check if a slot has a loaded voice session.
     #[must_use]
     pub fn is_loaded(&self, slot_id: &str) -> bool {
-        self.sessions
-            .lock()
-            .map(|s| s.contains_key(slot_id))
-            .unwrap_or(false)
+        self.sessions.lock().is_ok_and(|s| s.contains_key(slot_id))
     }
 
     /// Push a fresh voice-clone snapshot into the TTS backend at `slot_id`.

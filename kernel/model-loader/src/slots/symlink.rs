@@ -139,11 +139,7 @@ pub fn unassign(userdata_dir: &Path, slot_id: &str) -> Result<(), LoaderError> {
     // If the slot dir is now empty, remove it as well to keep the tree
     // honest (an empty slot dir would falsely imply "slot exists" to a
     // listing walker).
-    if dir
-        .read_dir()
-        .map(|mut it| it.next().is_none())
-        .unwrap_or(false)
-    {
+    if dir.read_dir().is_ok_and(|mut it| it.next().is_none()) {
         std::fs::remove_dir(&dir).map_err(|e| LoaderError::Io {
             path: dir.clone(),
             reason: format!("remove empty slot dir: {e}"),
@@ -283,11 +279,11 @@ mod tests {
         // On Windows this test only passes when Developer Mode is on or
         // the process is elevated — same constraint the runtime hits.
         let result = assign(userdata.path(), "chat.brain", ModelFormat::Gguf, &target);
-        if let Err(LoaderError::Io { reason, .. }) = &result {
-            if reason.contains("ERROR_PRIVILEGE_NOT_HELD") {
-                eprintln!("skipping: needs Developer Mode on Windows");
-                return Ok(());
-            }
+        if let Err(LoaderError::Io { reason, .. }) = &result
+            && reason.contains("ERROR_PRIVILEGE_NOT_HELD")
+        {
+            eprintln!("skipping: needs Developer Mode on Windows");
+            return Ok(());
         }
         let link = result?;
         assert!(link.exists(), "link should be visible to Path::exists");

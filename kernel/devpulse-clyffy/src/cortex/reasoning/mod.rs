@@ -15,5 +15,5 @@ pub mod state;
 pub mod transition_matrix;
 
 pub use state::{
-    RroDepth, RroState, RroStateHandle, RroStateSnapshot, RroStateTransition, DEFAULT_PROXIMITY,
+    DEFAULT_PROXIMITY, RroDepth, RroState, RroStateHandle, RroStateSnapshot, RroStateTransition,
 };

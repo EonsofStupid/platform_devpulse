@@ -29,7 +29,6 @@ use sha2::{Digest, Sha256};
 use std::fs::File;
 use std::io::{BufReader, Read, Write};
 use std::path::{Path, PathBuf};
-use std::process::Command;
 use std::time::SystemTime;
 
 /// JSON schema version for `build.manifest.json`. Bump on breaking shape changes.
@@ -209,13 +208,12 @@ impl BuildManifest {
         // sane case here; a negative value would indicate clock skew
         // between start and finish and we'd rather elide `duration_s`
         // than record a nonsense number.
-        if let Ok(started) = DateTime::parse_from_rfc3339(&self.build.started_utc) {
-            if let Ok(std_dur) = finished_utc
+        if let Ok(started) = DateTime::parse_from_rfc3339(&self.build.started_utc)
+            && let Ok(std_dur) = finished_utc
                 .signed_duration_since(started.with_timezone(&Utc))
                 .to_std()
-            {
-                self.build.duration_s = Some(std_dur.as_secs_f64());
-            }
+        {
+            self.build.duration_s = Some(std_dur.as_secs_f64());
         }
 
         if let Some(parent) = output_path.parent() {
@@ -262,21 +260,16 @@ fn gather_product(workspace_root: &Path) -> Result<ProductInfo> {
 
 fn gather_vcs(workspace_root: &Path) -> VcsInfo {
     let sha = git(workspace_root, &["rev-parse", "HEAD"]);
-    let branch = git(workspace_root, &["rev-parse", "--abbrev-ref", "HEAD"]).and_then(|b| {
-        // Detached HEAD returns "HEAD" literally — normalize to None.
-        if b == "HEAD" {
-            None
-        } else {
-            Some(b)
-        }
-    });
+    // Detached HEAD returns "HEAD" literally; normalize to None.
+    let branch =
+        git(workspace_root, &["rev-parse", "--abbrev-ref", "HEAD"]).filter(|b| b != "HEAD");
     let dirty =
         git(workspace_root, &["status", "--porcelain"]).is_some_and(|s| !s.trim().is_empty());
     VcsInfo { sha, branch, dirty }
 }
 
 fn git(workspace_root: &Path, args: &[&str]) -> Option<String> {
-    let output = Command::new("git")
+    let output = crate::child_env::command("git")
         .args(args)
         .current_dir(workspace_root)
         .output()
@@ -285,24 +278,19 @@ fn git(workspace_root: &Path, args: &[&str]) -> Option<String> {
         return None;
     }
     let s = String::from_utf8_lossy(&output.stdout).trim().to_string();
-    if s.is_empty() {
-        None
-    } else {
-        Some(s)
-    }
+    if s.is_empty() { None } else { Some(s) }
 }
 
 fn tool_version(tool: &str) -> Option<String> {
-    let output = Command::new(tool).arg("--version").output().ok()?;
+    let output = crate::child_env::command(tool)
+        .arg("--version")
+        .output()
+        .ok()?;
     if !output.status.success() {
         return None;
     }
     let s = String::from_utf8_lossy(&output.stdout).trim().to_string();
-    if s.is_empty() {
-        None
-    } else {
-        Some(s)
-    }
+    if s.is_empty() { None } else { Some(s) }
 }
 
 fn gather_host() -> Option<String> {
@@ -313,7 +301,7 @@ fn gather_host() -> Option<String> {
         std::env::var("COMPUTERNAME").ok()
     } else {
         std::env::var("HOSTNAME").ok().or_else(|| {
-            Command::new("hostname")
+            crate::child_env::command("hostname")
                 .output()
                 .ok()
                 .and_then(|o| {

@@ -6,13 +6,13 @@
 
 use std::path::{Path, PathBuf};
 use std::process::Stdio;
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 
-use anyhow::{anyhow, Result};
+use anyhow::{Result, anyhow};
 use serde_json::Value;
 use tokio::io::{AsyncBufReadExt, AsyncReadExt, BufReader};
-use tokio::sync::{mpsc, oneshot, Mutex};
+use tokio::sync::{Mutex, mpsc, oneshot};
 use tokio_util::task::AbortOnDropHandle;
 
 use super::{AgentEvent, TurnEvents};
@@ -90,10 +90,10 @@ impl HeadlessSession {
         // A dispatch already holding the task slot may have installed a new
         // stop sender while Close was waiting for it.
         self.cancel().await;
-        if let Some(task) = previous.take() {
-            if let Err(error) = finish_process(task, std::time::Duration::from_secs(5)).await {
-                tracing::warn!(target: "providers", %error, "headless conversation forced closed");
-            }
+        if let Some(task) = previous.take()
+            && let Err(error) = finish_process(task, std::time::Duration::from_secs(5)).await
+        {
+            tracing::warn!(target: "providers", %error, "headless conversation forced closed");
         }
     }
 
@@ -193,7 +193,9 @@ async fn finish_process(
     } else {
         task.abort();
         let _ = task.await;
-        Err(anyhow!("the previous agent process did not exit in time and was stopped; no new prompt was dispatched"))
+        Err(anyhow!(
+            "the previous agent process did not exit in time and was stopped; no new prompt was dispatched"
+        ))
     }
 }
 
@@ -475,10 +477,12 @@ mod tests {
                 release.send(()).unwrap();
             });
         });
-        assert!(result
-            .unwrap_err()
-            .to_string()
-            .contains("conversation has ended"));
+        assert!(
+            result
+                .unwrap_err()
+                .to_string()
+                .contains("conversation has ended")
+        );
     }
 
     #[cfg(windows)]
@@ -491,9 +495,14 @@ mod tests {
             session.program = "powershell".into();
             session.cwd = std::env::current_dir().unwrap();
             session.conversation.output = StreamFormat::Text;
-            session.conversation.args = vec!["-NoProfile".into(), "-NonInteractive".into(), "-Command".into(), format!(
-                "$client = New-Object Net.Sockets.TcpClient('127.0.0.1', {port}); while ($true) {{ [Threading.Thread]::Sleep(100) }}"
-            )];
+            session.conversation.args = vec![
+                "-NoProfile".into(),
+                "-NonInteractive".into(),
+                "-Command".into(),
+                format!(
+                    "$client = New-Object Net.Sockets.TcpClient('127.0.0.1', {port}); while ($true) {{ [Threading.Thread]::Sleep(100) }}"
+                ),
+            ];
             let _events = session.prompt("fixture").await.unwrap();
             let (mut child, _) =
                 tokio::time::timeout(std::time::Duration::from_secs(10), listener.accept())

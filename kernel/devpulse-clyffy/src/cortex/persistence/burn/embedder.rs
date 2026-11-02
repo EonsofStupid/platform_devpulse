@@ -12,6 +12,11 @@
 //! Phase A delivers steps 2-4. Steps 1 and 5 are gated to their own
 //! plans (`~/.claude/plans/boring-burn-foundation.md` §8 Phase B/C/D).
 
+#![expect(
+    clippy::redundant_field_names,
+    reason = "Burn Config derive generates field: field initializers outside our implementation"
+)]
+
 use burn::{
     config::Config,
     module::Module,

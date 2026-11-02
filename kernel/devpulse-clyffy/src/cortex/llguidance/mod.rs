@@ -19,4 +19,4 @@ pub mod system_turso;
 
 pub use config::GrammarConfig;
 pub use handle::{GrammarFailure, GrammarHandle, GrammarKind, GrammarSnapshot, GrammarStatus};
-pub use system_turso::{sync_grammar_service_from_config, GRAMMAR_SERVICE_PRIMARY_ID};
+pub use system_turso::{GRAMMAR_SERVICE_PRIMARY_ID, sync_grammar_service_from_config};

@@ -9,9 +9,9 @@
 //! Does NOT capture microphone — that's a separate cpal service (future).
 
 use anyhow::Result;
-use devpulse_telemetry::prelude::{unbounded, TracedReceiver, TracedSender};
-use std::sync::atomic::{AtomicBool, Ordering};
+use devpulse_telemetry::prelude::{TracedReceiver, TracedSender, unbounded};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 
 /// PCM audio data for playback.
 #[derive(Debug, Clone)]

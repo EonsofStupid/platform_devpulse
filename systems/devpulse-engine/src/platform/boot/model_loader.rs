@@ -179,12 +179,12 @@ pub async fn boot(
 /// `BackendType::Burn` surfaces an explicit "adapter not wired"
 /// error rather than silently falling back to Candle.
 #[cfg(feature = "inference")]
-fn build_burn_encoder_adapter(
-) -> Option<devpulse_clyffy::model_loader::backends::burn_adapter::BurnEncoderAdapterArc> {
+fn build_burn_encoder_adapter()
+-> Option<devpulse_clyffy::model_loader::backends::burn_adapter::BurnEncoderAdapterArc> {
     #[cfg(feature = "burn")]
     {
         use burn::backend::flex::FlexDevice;
-        use burn::tensor::{set_default_dtypes, FloatDType, IntDType};
+        use burn::tensor::{FloatDType, IntDType, set_default_dtypes};
         use devpulse_clyffy::cortex::persistence::burn::{CortexBurnAdapter, EmbedderCpuBackend};
 
         // Flex is Burn 0.21's default CPU backend (PR #4761). Its `E`/`I`

@@ -20,6 +20,6 @@ pub mod buffering_processor;
 pub mod lifecycle;
 
 pub use lifecycle::{
-    install_exporter, prepare, TelemetryGuard, TelemetryHandle, TelemetryInfo, TelemetryLayer,
-    TelemetrySetup,
+    TelemetryGuard, TelemetryHandle, TelemetryInfo, TelemetryLayer, TelemetrySetup,
+    install_exporter, prepare,
 };

@@ -446,6 +446,16 @@ the native-store assertion only constructs and inspects the backend type.
 The Tauri application has not been launched for this checkpoint. Part L in plan
 0001 owns the requested Rust 2024/latest-stable baseline before further wiring.
 
+Preservation checkpoint during that upgrade (2026-11-01): the audit now checks
+pending tracked edits and deletions, not just the previous HEAD. An untracked
+replacement cannot conceal a staged deletion. Eighteen regression tests pass.
+The reviewed Rust 2024 changes retain their original Git provenance; six more
+existing kernel owners are recorded instead of copying them back into staging.
+The current audit verifies 6,061 records, zero uncovered sources within its
+coverage, and 397 verbatim survivors in the active working tree. No source file
+was deleted by this upgrade. This is preservation evidence, not proof that all
+historical features are integrated or that R3b is complete.
+
 ### Owner correction: included kernel and visible advanced UI (2026-11-01)
 
 The owner reverses the old IP-hiding rule: the kernel is included, nothing

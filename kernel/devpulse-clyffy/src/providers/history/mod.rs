@@ -27,18 +27,18 @@ use self::events::{
     BoundedNativePayload, ChatEvent, ChatEventContent, ChatEventId, ChatSessionId,
     ProviderSessionId, SessionGroup, SessionState, SessionSummary, TokenUsage, TurnId,
 };
-use crate::providers::definition::{expand, HistoryFormat, HistorySpec, ProviderDefinition};
 use crate::providers::ProviderId;
+use crate::providers::definition::{HistoryFormat, HistorySpec, ProviderDefinition, expand};
 
 /// Where a definition's history is on this machine: under the vendor's moved
 /// home when its variable is set (`CLAUDE_CONFIG_DIR`, `CODEX_HOME`), else
 /// its root, `~` expanded.
 #[must_use]
 pub fn root_of(spec: &HistorySpec, home: Option<&Path>) -> Option<PathBuf> {
-    if let (Some(var), Some(subdir)) = (&spec.home_env, &spec.subdir) {
-        if let Some(moved) = std::env::var_os(var).filter(|v| !v.is_empty()) {
-            return Some(PathBuf::from(moved).join(subdir));
-        }
+    if let (Some(var), Some(subdir)) = (&spec.home_env, &spec.subdir)
+        && let Some(moved) = std::env::var_os(var).filter(|v| !v.is_empty())
+    {
+        return Some(PathBuf::from(moved).join(subdir));
     }
     expand(&spec.root, home)
 }
@@ -1503,9 +1503,11 @@ mod tests {
             "no folder, no source"
         );
         assert!(found.iter().all(|f| f.problem.is_none()), "{found:?}");
-        assert!(found
-            .iter()
-            .any(|f| f.provider_id == ProviderId::Codex && !f.present));
+        assert!(
+            found
+                .iter()
+                .any(|f| f.provider_id == ProviderId::Codex && !f.present)
+        );
         let index = catalog.list(ProviderId::ClaudeCode, None).unwrap();
         assert_eq!(index.sessions.len(), 1);
         assert_eq!(index.sessions[0].summary.title, "Ship it");
@@ -1602,7 +1604,7 @@ mod tests {
         assert_eq!(unchanged.sessions, first.sessions);
         assert_eq!((unchanged.prefix_reads, unchanged.prefix_bytes), (0, 0));
         let filtered = source.list(Some("different-folder")).unwrap();
-        assert!(filtered.sessions.is_empty());
+        assert_eq!(filtered.sessions.len(), 0);
         assert_eq!(filtered.prefix_reads, 0);
         assert_eq!(source.list(Some("FIXTURE")).unwrap().sessions.len(), 2);
 
@@ -1706,9 +1708,11 @@ mod tests {
                 .sum::<usize>(),
             12
         );
-        assert!(indexes
-            .iter()
-            .all(|index| index.sessions == indexes[0].sessions));
+        assert!(
+            indexes
+                .iter()
+                .all(|index| index.sessions == indexes[0].sessions)
+        );
     }
 
     #[test]

@@ -31,12 +31,11 @@
 use crate::commands::Task;
 use crate::stage::Stage;
 use crate::workspace::Workspace;
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 use sha2::{Digest, Sha256};
 use std::fs;
 use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
-use std::process::Command;
 
 /// `(xtask-target, upstream-os, upstream-arch, asset-suffix, binary-name-in-archive)`.
 const SUPPORTED_TARGETS: &[(&str, &str, &str, &str, &str)] = &[
@@ -283,7 +282,7 @@ fn set_aside_path(dest: &Path) -> PathBuf {
 
 /// Download with `curl` — available on every dev machine that can git clone.
 fn curl_to(url: &str, dst: &Path) -> Result<()> {
-    let status = Command::new("curl")
+    let status = crate::child_env::command("curl")
         .arg("-fsSL")
         .arg("--retry")
         .arg("3")
@@ -308,7 +307,7 @@ fn extract_tgz_entry(tgz: &Path, entry_name: &str, dst: &Path) -> Result<()> {
     let _ = fs::remove_dir_all(&work_dir);
     fs::create_dir_all(&work_dir)?;
 
-    let status = Command::new("tar")
+    let status = crate::child_env::command("tar")
         .current_dir(&work_dir)
         .arg("-xzf")
         .arg(tgz)

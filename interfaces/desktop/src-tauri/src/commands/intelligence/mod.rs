@@ -29,7 +29,7 @@ use tauri::State;
 // always enables — see this crate's `Cargo.toml`'s
 // `devpulse-engine = { features = [..., "candle", ...] }` line).
 use devpulse_engine::platform::{
-    infer_download_folder, IntelligenceStore, MemoryKind, MemoryRecord, EMBEDDING_DIM,
+    EMBEDDING_DIM, IntelligenceStore, MemoryKind, MemoryRecord, infer_download_folder,
 };
 
 macro_rules! get_platform {
@@ -241,8 +241,7 @@ pub async fn intel_save_memory(
 
     let now = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
-        .map(|d| i64::try_from(d.as_secs()).unwrap_or(i64::MAX))
-        .unwrap_or(0);
+        .map_or(0, |d| i64::try_from(d.as_secs()).unwrap_or(i64::MAX));
     let record = MemoryRecord {
         id: format!("mem-{}", uuid::Uuid::new_v4()),
         text: request.text,

@@ -1,4 +1,4 @@
-//! Test 11 — End-to-end log replay (HOT_UPDATE_PATTERN.md §12 verification 11)
+//! Test 11 — End-to-end log replay (`HOT_UPDATE_PATTERN.md` §12 verification 11)
 //!
 //! "`query_scoped_log("rrd.lifecycle", 100)` returns the expected
 //!  phase sequence after a real pause→swap→resume cycle in a
@@ -13,18 +13,20 @@
 //! phase sequence matches the expected one.
 //!
 //! The engine-side test 10 (in `systems/devpulse-engine`) covers
-//! the InternalEvent translation half of the contract.
+//! the `InternalEvent` translation half of the contract.
+
+#![allow(clippy::unwrap_used, clippy::expect_used, reason = "test assertions")]
 
 mod common;
 
 use std::sync::{Arc, Mutex};
 
-use rrd::{lifecycle_phase, HotSwap, HotUpdateable, RRD, RRD_LIFECYCLE_TARGET};
-use tracing::field::{Field, Visit};
+use rrd::{HotSwap, HotUpdateable, RRD, RRD_LIFECYCLE_TARGET, lifecycle_phase};
 use tracing::Subscriber;
+use tracing::field::{Field, Visit};
+use tracing_subscriber::Layer;
 use tracing_subscriber::layer::{Context, SubscriberExt};
 use tracing_subscriber::registry::Registry;
-use tracing_subscriber::Layer;
 
 use common::{TestComponent, TestSource};
 
@@ -41,12 +43,9 @@ impl CapturedPhases {
 
 impl<S: Subscriber> Layer<S> for CapturedPhases {
     fn on_event(&self, event: &tracing::Event<'_>, _ctx: Context<'_, S>) {
-        if event.metadata().target() != RRD_LIFECYCLE_TARGET {
-            return;
-        }
         // Visit the event's fields and capture the `phase` string.
         struct PhaseVisitor<'a>(&'a mut Option<String>);
-        impl<'a> Visit for PhaseVisitor<'a> {
+        impl Visit for PhaseVisitor<'_> {
             fn record_str(&mut self, field: &Field, value: &str) {
                 if field.name() == "phase" {
                     *self.0 = Some(value.to_string());
@@ -60,6 +59,9 @@ impl<S: Subscriber> Layer<S> for CapturedPhases {
                     *self.0 = Some(trimmed);
                 }
             }
+        }
+        if event.metadata().target() != RRD_LIFECYCLE_TARGET {
+            return;
         }
         let mut phase: Option<String> = None;
         event.record(&mut PhaseVisitor(&mut phase));

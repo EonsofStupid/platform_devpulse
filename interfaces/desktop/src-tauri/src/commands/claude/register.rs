@@ -21,7 +21,7 @@ use serde::Deserialize;
 use serde_json::{Map, Value};
 use specta::Type;
 
-use super::detect::{detect_all, ClaudeInstalls};
+use super::detect::{ClaudeInstalls, detect_all};
 use super::paths;
 use crate::commands::_util::CommandError;
 

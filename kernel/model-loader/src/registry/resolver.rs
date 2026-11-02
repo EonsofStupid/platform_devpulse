@@ -8,8 +8,8 @@
 //! via the Tauri command layer and from the kernel inline during the
 //! actual load pass.
 
-use super::architectures::{get as get_arch, ArchId, SupportTier};
-use super::backends::{installed_backends, BackendId, ModelFormat};
+use super::architectures::{ArchId, SupportTier, get as get_arch};
+use super::backends::{BackendId, ModelFormat, installed_backends};
 use super::load_error::{Alternative, AlternativeKind, UnsupportedReason};
 use serde::Serialize;
 
@@ -125,7 +125,7 @@ pub fn resolve_compatibility(arch: ArchId, format: ModelFormat) -> Resolution {
         }
     } else {
         UnsupportedReason::FormatNotWired {
-            detail: format!("No backend declares support for {arch:?} in {format:?} format",),
+            detail: format!("No backend declares support for {arch:?} in {format:?} format"),
         }
     };
 
@@ -281,10 +281,10 @@ mod tests {
     #[test]
     fn qwen3_gguf_resolves_to_quantized_qwen3() {
         let result = resolve_compatibility(ArchId::Qwen3, ModelFormat::Gguf);
-        if let Resolution::Ok { backend, .. } = result {
-            if cfg!(feature = "candle-backend") {
-                assert_eq!(backend, BackendId::CandleQuantizedQwen3);
-            }
+        if let Resolution::Ok { backend, .. } = result
+            && cfg!(feature = "candle-backend")
+        {
+            assert_eq!(backend, BackendId::CandleQuantizedQwen3);
         }
     }
 
@@ -313,13 +313,13 @@ mod tests {
     #[test]
     fn qwen2_legacy_resolves_with_deprecation_note() {
         let result = resolve_compatibility(ArchId::Qwen2, ModelFormat::Safetensors);
-        if let Resolution::Ok { notes, .. } = result {
-            if cfg!(feature = "candle-backend") {
-                assert!(
-                    notes.iter().any(|n| n.contains("deprecated")),
-                    "Qwen2 must surface a deprecation note"
-                );
-            }
+        if let Resolution::Ok { notes, .. } = result
+            && cfg!(feature = "candle-backend")
+        {
+            assert!(
+                notes.iter().any(|n| n.contains("deprecated")),
+                "Qwen2 must surface a deprecation note"
+            );
         }
     }
 
@@ -347,15 +347,15 @@ mod tests {
         // alternatives should include SwitchFormat pointing at
         // Safetensors and/or GGUF.
         let result = resolve_compatibility(ArchId::Qwen3, ModelFormat::Pytorch);
-        if let Resolution::Unsupported { alternatives, .. } = result {
-            if cfg!(feature = "candle-backend") {
-                assert!(
-                    alternatives
-                        .iter()
-                        .any(|a| matches!(a.kind, AlternativeKind::SwitchFormat)),
-                    "Unsupported format must suggest switching to a wired format"
-                );
-            }
+        if let Resolution::Unsupported { alternatives, .. } = result
+            && cfg!(feature = "candle-backend")
+        {
+            assert!(
+                alternatives
+                    .iter()
+                    .any(|a| matches!(a.kind, AlternativeKind::SwitchFormat)),
+                "Unsupported format must suggest switching to a wired format"
+            );
         }
     }
 
@@ -368,18 +368,18 @@ mod tests {
         // Because Qwen2 HAS safetensors support, use Pytorch as the
         // unwired format.
         let result = resolve_compatibility(ArchId::Qwen2, ModelFormat::Pytorch);
-        if let Resolution::Unsupported { alternatives, .. } = result {
-            if cfg!(feature = "candle-backend") {
-                // The family walk visits Qwen3 first (primary) so a
-                // SwitchModel alternative should be present.
-                let has_family_upgrade = alternatives
-                    .iter()
-                    .any(|a| matches!(a.kind, AlternativeKind::SwitchModel));
-                assert!(
-                    has_family_upgrade,
-                    "Legacy arch in unwired format should suggest a same-family upgrade"
-                );
-            }
+        if let Resolution::Unsupported { alternatives, .. } = result
+            && cfg!(feature = "candle-backend")
+        {
+            // The family walk visits Qwen3 first (primary) so a
+            // SwitchModel alternative should be present.
+            let has_family_upgrade = alternatives
+                .iter()
+                .any(|a| matches!(a.kind, AlternativeKind::SwitchModel));
+            assert!(
+                has_family_upgrade,
+                "Legacy arch in unwired format should suggest a same-family upgrade"
+            );
         }
     }
 }

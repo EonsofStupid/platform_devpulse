@@ -36,14 +36,14 @@
 use crate::commands::Task;
 use crate::workspace::Workspace;
 use crate::xinfo;
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Context, Result, anyhow};
 use std::collections::HashSet;
 use std::fs::File;
 use std::io::{BufRead, BufReader, Seek, SeekFrom};
 use std::path::{Path, PathBuf};
-use std::process::{Child, Command, Stdio};
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::process::{Child, Stdio};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::thread;
 use std::time::{Duration, SystemTime};
 
@@ -236,7 +236,7 @@ fn spawn_child(exe: &Path) -> Result<Child> {
     let exe_dir = exe
         .parent()
         .ok_or_else(|| anyhow!("exe has no parent directory: {}", exe.display()))?;
-    Command::new(exe)
+    crate::child_env::command(exe)
         .current_dir(exe_dir)
         .stdin(Stdio::null())
         .stdout(Stdio::inherit())

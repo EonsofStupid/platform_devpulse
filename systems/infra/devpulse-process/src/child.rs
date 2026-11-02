@@ -370,8 +370,12 @@ mod tests {
         #[cfg(windows)]
         let (program, args) = (
             "powershell",
-            vec!["-NoProfile", "-NonInteractive", "-Command",
-                "[Console]::Error.WriteLine('log'); while ($null -ne ($line = [Console]::ReadLine())) { [Console]::WriteLine($line) }"],
+            vec![
+                "-NoProfile",
+                "-NonInteractive",
+                "-Command",
+                "[Console]::Error.WriteLine('log'); while ($null -ne ($line = [Console]::ReadLine())) { [Console]::WriteLine($line) }",
+            ],
         );
         #[cfg(unix)]
         let (program, args) = (
@@ -401,11 +405,13 @@ mod tests {
             Some("private payload".into())
         );
         drop(input);
-        assert!(tokio::time::timeout(Duration::from_secs(10), child.wait())
-            .await
-            .expect("EOF ends peer")
-            .expect("exit")
-            .success());
+        assert!(
+            tokio::time::timeout(Duration::from_secs(10), child.wait())
+                .await
+                .expect("EOF ends peer")
+                .expect("exit")
+                .success()
+        );
         for _ in 0..40 {
             if !seen.lock().unwrap().is_empty() {
                 break;

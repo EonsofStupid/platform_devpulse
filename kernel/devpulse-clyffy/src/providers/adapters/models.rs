@@ -16,7 +16,7 @@ use std::time::Duration;
 
 use crate::providers::registry;
 use crate::providers::types::{AiProvider, BillingModel, ProviderId};
-use reqwest::{header::HeaderValue, Client, RequestBuilder, Response, StatusCode};
+use reqwest::{Client, RequestBuilder, Response, StatusCode, header::HeaderValue};
 use serde::Deserialize;
 
 mod types;
@@ -179,8 +179,10 @@ fn secret_header(value: &str) -> Result<HeaderValue, ModelDiscoveryError> {
 /// Rejects non-HTTP(S) URLs, missing hosts, and credentials/query/fragment data.
 pub fn normalize_endpoint(endpoint: &str) -> Result<String, ModelDiscoveryError> {
     let invalid = || {
-        ModelDiscoveryError::new(ModelDiscoveryErrorKind::NotConfigured,
-        "Provide an HTTP(S) API base URL without embedded credentials, query parameters or a fragment")
+        ModelDiscoveryError::new(
+            ModelDiscoveryErrorKind::NotConfigured,
+            "Provide an HTTP(S) API base URL without embedded credentials, query parameters or a fragment",
+        )
     };
     let url = reqwest::Url::parse(endpoint.trim()).map_err(|_| invalid())?;
     if !matches!(url.scheme(), "http" | "https")

@@ -27,7 +27,7 @@
 
 use std::sync::Arc;
 
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 use devpulse_clyffy::cortex::persistence::{SqlAdapter, SqlValue, TursoAdapter};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
@@ -1105,7 +1105,7 @@ mod tests {
         let only = ok_id(&results[0]);
         assert!(p.remove(&only).await.expect("remove"));
         let state = published(&engine);
-        assert!(state.projects.is_empty());
+        assert_eq!(state.projects.len(), 0);
         assert_eq!(state.active_id, None);
         assert!(p.restore(&only).await.expect("restore"));
         assert_eq!(

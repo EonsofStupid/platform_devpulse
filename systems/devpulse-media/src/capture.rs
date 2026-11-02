@@ -18,11 +18,11 @@ use tracing::debug;
 
 #[cfg(feature = "capture")]
 use nokhwa::{
+    Camera, NokhwaError,
     pixel_format::RgbAFormat,
     utils::{
         CameraFormat, CameraIndex, FrameFormat, RequestedFormat, RequestedFormatType, Resolution,
     },
-    Camera, NokhwaError,
 };
 
 /// Information about an available camera

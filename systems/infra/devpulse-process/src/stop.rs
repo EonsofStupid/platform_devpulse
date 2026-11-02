@@ -146,8 +146,8 @@ pub(crate) mod console {
 
     use anyhow::Result;
     use windows_sys::Win32::System::Console::{
-        AttachConsole, FreeConsole, GenerateConsoleCtrlEvent, GetConsoleProcessList,
-        CTRL_BREAK_EVENT,
+        AttachConsole, CTRL_BREAK_EVENT, FreeConsole, GenerateConsoleCtrlEvent,
+        GetConsoleProcessList,
     };
 
     /// One console attachment at a time, process-wide.

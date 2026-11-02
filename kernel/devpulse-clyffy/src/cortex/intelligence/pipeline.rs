@@ -35,7 +35,7 @@ use std::time::Instant;
 use anyhow::{Context, Result};
 use uuid::Uuid;
 
-use crate::cortex::intelligence::{IntelligenceStore, MemoryKind, MemoryRecord, EMBEDDING_DIM};
+use crate::cortex::intelligence::{EMBEDDING_DIM, IntelligenceStore, MemoryKind, MemoryRecord};
 
 /// Trait wrapper for whatever produces a sentence embedding. Kept
 /// abstract so the pipeline can run against any embedder the engine
@@ -173,8 +173,7 @@ pub async fn process_chat_message(
     // happily ship a different version of the cortex by then.
     let now = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
-        .map(|d| d.as_secs().cast_signed())
-        .unwrap_or(0);
+        .map_or(0, |d| d.as_secs().cast_signed());
     let record = MemoryRecord {
         id: format!("mem-{}", Uuid::new_v4()),
         text: text.to_string(),

@@ -29,57 +29,54 @@ use std::path::Path;
 /// Returns error if any directory cannot be created.
 pub fn ensure_scoped_dirs(data_dir: &Path, config: &PlatformBootConfig) -> Result<()> {
     // System scope
-    if config.services.system.relational.enabled {
-        if let Some(parent) = config
+    if config.services.system.relational.enabled
+        && let Some(parent) = config
             .services
             .system
             .relational
             .resolve_path(data_dir)
             .parent()
-        {
-            std::fs::create_dir_all(parent)?;
-        }
+    {
+        std::fs::create_dir_all(parent)?;
     }
-    if config.services.system.analytics.enabled {
-        if let Some(parent) = config
+    if config.services.system.analytics.enabled
+        && let Some(parent) = config
             .services
             .system
             .analytics
             .resolve_path(data_dir)
             .parent()
-        {
-            std::fs::create_dir_all(parent)?;
-        }
+    {
+        std::fs::create_dir_all(parent)?;
     }
-    if config.services.system.graph.enabled {
-        if let Some(parent) = config.services.system.graph.resolve_path(data_dir).parent() {
-            std::fs::create_dir_all(parent)?;
-        }
+    if config.services.system.graph.enabled
+        && let Some(parent) = config.services.system.graph.resolve_path(data_dir).parent()
+    {
+        std::fs::create_dir_all(parent)?;
     }
 
     // User scope
-    if config.services.user.relational.enabled {
-        if let Some(parent) = config
+    if config.services.user.relational.enabled
+        && let Some(parent) = config
             .services
             .user
             .relational
             .resolve_path(data_dir)
             .parent()
-        {
-            std::fs::create_dir_all(parent)?;
-        }
+    {
+        std::fs::create_dir_all(parent)?;
     }
-    if config.services.user.graph.enabled {
-        if let Some(parent) = config.services.user.graph.resolve_path(data_dir).parent() {
-            std::fs::create_dir_all(parent)?;
-        }
+    if config.services.user.graph.enabled
+        && let Some(parent) = config.services.user.graph.resolve_path(data_dir).parent()
+    {
+        std::fs::create_dir_all(parent)?;
     }
 
     // Global scope
-    if config.services.global.graph.enabled {
-        if let Some(parent) = config.services.global.graph.resolve_path(data_dir).parent() {
-            std::fs::create_dir_all(parent)?;
-        }
+    if config.services.global.graph.enabled
+        && let Some(parent) = config.services.global.graph.resolve_path(data_dir).parent()
+    {
+        std::fs::create_dir_all(parent)?;
     }
 
     // Vector store (RRO)

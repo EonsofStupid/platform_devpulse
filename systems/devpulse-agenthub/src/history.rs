@@ -14,14 +14,14 @@ use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 use std::time::Instant;
 
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Context, Result, anyhow};
+use devpulse_clyffy::providers::ProviderId;
 use devpulse_clyffy::providers::catalog;
 use devpulse_clyffy::providers::history::events::{ChatEventContent, EventPresentation};
 use devpulse_clyffy::providers::history::{
     self, FoundSource, HistoryCatalog, HistoryCursor, HistoryLimits, HistoryLocator,
     HistorySessionKind, IndexedSession,
 };
-use devpulse_clyffy::providers::ProviderId;
 use serde::{Deserialize, Serialize};
 use specta::Type;
 
@@ -566,14 +566,15 @@ mod tests {
         assert_eq!(moved.sessions.len(), 1);
         assert_eq!(moved.sessions[0].title, "Other request");
         assert_ne!(moved.sessions[0].locator, first.sessions[0].locator);
-        assert!(hub
-            .page(
+        assert!(
+            hub.page(
                 ProviderId::ClaudeCode,
                 first.sessions[0].locator.clone(),
                 None
             )
             .await
-            .is_err());
+            .is_err()
+        );
         let other_page = hub
             .page(
                 ProviderId::ClaudeCode,

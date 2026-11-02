@@ -449,8 +449,7 @@ fn parse_gguf_entry(path: &Path) -> anyhow::Result<ModelRegistryEntry> {
         source: ModelSource::Local,
         discovered_at: std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
-            .map(|d| d.as_millis() as i64)
-            .unwrap_or(0),
+            .map_or(0, |d| d.as_millis() as i64),
     })
 }
 
@@ -797,29 +796,26 @@ fn parse_onnx_entry(path: &Path) -> anyhow::Result<ModelRegistryEntry> {
 
 /// Recursively compute directory size in bytes.
 fn dir_size_bytes(path: &Path) -> u64 {
-    std::fs::read_dir(path)
-        .map(|entries| {
-            entries
-                .filter_map(Result::ok)
-                .map(|e| {
-                    let p = e.path();
-                    if p.is_dir() {
-                        dir_size_bytes(&p)
-                    } else {
-                        std::fs::metadata(&p).map(|m| m.len()).unwrap_or(0)
-                    }
-                })
-                .sum()
-        })
-        .unwrap_or(0)
+    std::fs::read_dir(path).map_or(0, |entries| {
+        entries
+            .filter_map(Result::ok)
+            .map(|e| {
+                let p = e.path();
+                if p.is_dir() {
+                    dir_size_bytes(&p)
+                } else {
+                    std::fs::metadata(&p).map_or(0, |m| m.len())
+                }
+            })
+            .sum()
+    })
 }
 
 /// Current epoch milliseconds.
 fn now_epoch_ms() -> i64 {
     std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
-        .map(|d| d.as_millis() as i64)
-        .unwrap_or(0)
+        .map_or(0, |d| d.as_millis() as i64)
 }
 
 /// Apply filename-based capability hints to discovered entries that
@@ -969,15 +965,15 @@ fn filter_safetensor_shards(entries: &mut Vec<ModelRegistryEntry>) {
             let prefix = &filename[..dash_of];
             if let Some(last_dash) = prefix.rfind('-') {
                 let shard_str = &prefix[last_dash + 1..];
-                if let Ok(shard_num) = shard_str.parse::<u32>() {
-                    if shard_num > 1 {
-                        tracing::debug!(
-                            file = %filename,
-                            shard = shard_num,
-                            "Filtering out safetensor shard (keeping only shard 1)"
-                        );
-                        return false;
-                    }
+                if let Ok(shard_num) = shard_str.parse::<u32>()
+                    && shard_num > 1
+                {
+                    tracing::debug!(
+                        file = %filename,
+                        shard = shard_num,
+                        "Filtering out safetensor shard (keeping only shard 1)"
+                    );
+                    return false;
                 }
             }
         }

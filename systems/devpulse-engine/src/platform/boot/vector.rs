@@ -11,9 +11,9 @@ use crate::platform::config::VectorServiceEntry;
 #[cfg(feature = "rro")]
 use crate::platform::init::InitEvent;
 #[cfg(feature = "rro")]
-use crate::platform::services::vector::VectorService;
-#[cfg(feature = "rro")]
 use crate::platform::services::Service;
+#[cfg(feature = "rro")]
+use crate::platform::services::vector::VectorService;
 
 #[cfg(feature = "rro")]
 use std::path::Path;
@@ -45,10 +45,8 @@ pub async fn boot(
 
     let storage_path = entry.resolve_path(data_dir);
 
-    // RRO reads QDRANT__STORAGE__STORAGE_PATH env var at boot.
-    // TODO: Replace with boot parameter once RRO fork API supports it.
-    #[allow(deprecated)]
-    std::env::set_var("QDRANT__STORAGE__STORAGE_PATH", &storage_path);
+    // VectorService passes this path through RroAdapter to RroInstance::start.
+    // Do not mutate process-wide settings from this asynchronous boot task.
 
     let retrieval = entry.retrieval.to_retrieval_config();
     tracing::info!(

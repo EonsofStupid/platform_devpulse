@@ -8,7 +8,7 @@
 
 use std::path::{Path, PathBuf};
 
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 use serde::{Deserialize, Serialize};
 use specta::Type;
 
@@ -128,7 +128,7 @@ impl Flow {
                     return Ok(LoadedFlow {
                         flow,
                         override_error: None,
-                    })
+                    });
                 }
                 Err(e) => Some(format!("{} was not used: {e:#}", path.display())),
             },
@@ -206,19 +206,20 @@ mod tests {
         assert!(Flow::parse("stages = []").is_err());
         let twice = Flow::parse(r#"stages = ["you", "you"]"#).unwrap_err();
         assert!(format!("{twice:#}").contains("twice"));
-        assert!(Flow::parse(
-            r#"stages = ["you"]
+        assert!(
+            Flow::parse(
+                r#"stages = ["you"]
 extra = 1"#
-        )
-        .is_err());
+            )
+            .is_err()
+        );
     }
 
     #[test]
     fn your_flow_wins_and_a_broken_one_is_reported_not_ignored() {
         let nanos = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
-            .map(|d| d.as_nanos())
-            .unwrap_or(0);
+            .map_or(0, |d| d.as_nanos());
         let dir = std::env::temp_dir().join(format!("devpulse-flow-{nanos}"));
         let path = Flow::override_path(&dir);
         std::fs::create_dir_all(path.parent().unwrap()).unwrap();
@@ -235,11 +236,13 @@ extra = 1"#
         std::fs::write(&path, r#"stages = ["nope"]"#).unwrap();
         let broken = Flow::load(&dir).expect("load");
         assert_eq!(broken.flow, Flow::bundled().unwrap());
-        assert!(broken
-            .override_error
-            .as_deref()
-            .unwrap_or_default()
-            .contains("nope"));
+        assert!(
+            broken
+                .override_error
+                .as_deref()
+                .unwrap_or_default()
+                .contains("nope")
+        );
 
         let _ = std::fs::remove_dir_all(dir);
     }

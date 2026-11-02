@@ -673,7 +673,7 @@ pub fn load(data_dir: &Path) -> Result<LoadedCopy> {
                 return Ok(LoadedCopy {
                     copy,
                     override_problem: None,
-                })
+                });
             }
             Err(e) => Some(format!("{} was not used: {e:#}", path.display())),
         },
@@ -698,7 +698,7 @@ mod tests {
     #[test]
     fn bundled_catalog_is_complete() {
         let copy = bundled().expect("bundled");
-        assert!(!copy.onboarding.welcome.title.is_empty());
+        assert_ne!(copy.onboarding.welcome.title, "");
         assert!(copy.onboarding.common.progress.contains("{current}"));
     }
 

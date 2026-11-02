@@ -56,8 +56,9 @@
 use crate::loading::states::{LoadParams, MemoryFootprint};
 use crate::models::registry::ModelMetadata;
 use crate::registry::{
-    classify_arch_from_gguf, classify_arch_from_hf_config, resolve_compatibility, Alternative,
-    AlternativeKind, ArchId, BackendId, LoadError, ModelFormat, Resolution, UnsupportedReason,
+    Alternative, AlternativeKind, ArchId, BackendId, LoadError, ModelFormat, Resolution,
+    UnsupportedReason, classify_arch_from_gguf, classify_arch_from_hf_config,
+    resolve_compatibility,
 };
 use crate::traits::backend::InferenceBackend;
 use candle_core::quantized::gguf_file::Content;
@@ -449,7 +450,7 @@ fn try_build_tokenizer_from_gguf_metadata(
 ) -> anyhow::Result<Option<tokenizers::Tokenizer>> {
     use candle_core::quantized::gguf_file::Value;
     use tokenizers::decoders::byte_level::ByteLevel as ByteLevelDecoder;
-    use tokenizers::models::bpe::{Vocab, BPE};
+    use tokenizers::models::bpe::{BPE, Vocab};
     use tokenizers::pre_tokenizers::byte_level::ByteLevel;
     use tokenizers::processors::byte_level::ByteLevel as ByteLevelProcessor;
     use tokenizers::{AddedToken, Tokenizer};
@@ -548,15 +549,14 @@ fn try_build_tokenizer_from_gguf_metadata(
     ];
     let mut added = Vec::new();
     for key in &special_ids {
-        if let Some(Value::U32(id)) = content.metadata.get(*key) {
-            if let Some((token_str, _)) = tokenizer
+        if let Some(Value::U32(id)) = content.metadata.get(*key)
+            && let Some((token_str, _)) = tokenizer
                 .get_vocab(true)
                 .iter()
                 .find(|(_, i)| **i == *id)
                 .map(|(s, i)| (s.clone(), *i))
-            {
-                added.push(AddedToken::from(token_str, true));
-            }
+        {
+            added.push(AddedToken::from(token_str, true));
         }
     }
     if !added.is_empty() {
@@ -878,22 +878,21 @@ fn synthesize_missing_llama_fields(
     };
 
     // rope.dimension_count = embedding_length / head_count
-    if !metadata.contains_key("llama.rope.dimension_count") {
-        if let (Some(embed), Some(heads)) = (
+    if !metadata.contains_key("llama.rope.dimension_count")
+        && let (Some(embed), Some(heads)) = (
             get_u32(metadata, "llama.embedding_length"),
             get_u32(metadata, "llama.attention.head_count"),
-        ) {
-            if heads > 0 {
-                let dim = embed / heads;
-                metadata.insert("llama.rope.dimension_count".to_string(), Value::U32(dim));
-                tracing::info!(
-                    embedding_length = embed,
-                    head_count = heads,
-                    rope_dim = dim,
-                    "Synthesised missing llama.rope.dimension_count"
-                );
-            }
-        }
+        )
+        && heads > 0
+    {
+        let dim = embed / heads;
+        metadata.insert("llama.rope.dimension_count".to_string(), Value::U32(dim));
+        tracing::info!(
+            embedding_length = embed,
+            head_count = heads,
+            rope_dim = dim,
+            "Synthesised missing llama.rope.dimension_count"
+        );
     }
 
     // RMS norm epsilon — Qwen3 / Llama-3 default is 1e-6. Candle's

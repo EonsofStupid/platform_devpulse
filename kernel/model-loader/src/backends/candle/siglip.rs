@@ -405,16 +405,16 @@ fn find_safetensor_files(dir: &Path) -> anyhow::Result<Vec<PathBuf>> {
 /// Recursively compute total size of files in a directory.
 fn dir_size(path: &Path) -> u64 {
     if path.is_file() {
-        return std::fs::metadata(path).map(|m| m.len()).unwrap_or(0);
+        return std::fs::metadata(path).map_or(0, |m| m.len());
     }
     let mut total = 0u64;
     if let Ok(entries) = std::fs::read_dir(path) {
         for entry in entries.flatten() {
             let p = entry.path();
-            if p.is_file() {
-                if let Ok(meta) = std::fs::metadata(&p) {
-                    total += meta.len();
-                }
+            if p.is_file()
+                && let Ok(meta) = std::fs::metadata(&p)
+            {
+                total += meta.len();
             }
         }
     }

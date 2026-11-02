@@ -55,9 +55,9 @@ pub mod qwen3;
 pub mod tokenizer;
 
 pub use adapter::CortexBurnAdapter;
-pub use embedder::{l2_normalize, pool_last_token, BurnEmbedder, EmbedderConfig};
+pub use embedder::{BurnEmbedder, EmbedderConfig, l2_normalize, pool_last_token};
 pub use hot_update::{BurnEmbedderSnapshot, BurnEmbedderSource};
-pub use loader::{load_qwen3_from_safetensors, LoaderError};
+pub use loader::{LoaderError, load_qwen3_from_safetensors};
 pub use qwen3::{Qwen3Config, Qwen3Model};
 
 // ═══════════════════════════════════════════════════════════════════════

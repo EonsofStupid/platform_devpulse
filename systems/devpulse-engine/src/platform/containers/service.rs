@@ -4,15 +4,15 @@
 use std::path::PathBuf;
 use std::sync::Arc;
 
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 use devpulse_clyffy::cortex::persistence::{SqlAdapter, SqlValue, TursoAdapter};
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use tokio::sync::Mutex;
 
-use super::actions::{run_step, StepRun};
-use super::advice::{advise, Advice, AdviceConfig, Answers, Step};
-use super::detect::{detect, load_engines, ContainersReport};
+use super::actions::{StepRun, run_step};
+use super::advice::{Advice, AdviceConfig, Answers, Step, advise};
+use super::detect::{ContainersReport, detect, load_engines};
 use crate::signals::{Signal, SignalSource, SignalVariant};
 
 /// Your answers, in the user `kv_store`.

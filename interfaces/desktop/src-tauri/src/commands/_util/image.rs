@@ -4,8 +4,8 @@
 //! / webcam. One impl, one error mapping (via `CommandError`), one
 //! buffer pre-sizing convention.
 
-use base64::engine::general_purpose::STANDARD as B64;
 use base64::Engine as _;
+use base64::engine::general_purpose::STANDARD as B64;
 use image::ImageFormat;
 
 use super::error::CommandError;
@@ -97,8 +97,8 @@ mod tests {
         let large = encode_jpeg(&red_pixel(), 95).unwrap();
         // Higher quality should produce equal-or-larger output (allowing
         // for compressor quirks at 2x2 pixels — at least both must encode).
-        assert!(!small.is_empty());
-        assert!(!large.is_empty());
+        assert_ne!(small, [] as [u8; 0]);
+        assert_ne!(large, [] as [u8; 0]);
     }
 
     #[test]

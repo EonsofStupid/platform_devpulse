@@ -20,7 +20,7 @@
 //! happened to bind our default port (e.g. a user's own `SurrealDB`
 //! binary running outside `DevPulse`).
 
-use anyhow::{anyhow, Result};
+use anyhow::{Result, anyhow};
 use std::future::Future;
 use tokio::net::TcpListener;
 
@@ -184,9 +184,10 @@ mod tests {
 
     #[tokio::test]
     async fn allocate_clean_when_port_free() {
-        // Use a high ephemeral port that's almost certainly free.
-        // If this test is flaky, another process grabbed 59999 — rerun.
-        let port = 59999;
+        // Let the OS choose an available port outside its reserved ranges.
+        let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let port = listener.local_addr().unwrap().port();
+        drop(listener);
         let result = allocate("127.0.0.1", port, 5, |_| async { Ok(()) })
             .await
             .expect("free port should allocate");

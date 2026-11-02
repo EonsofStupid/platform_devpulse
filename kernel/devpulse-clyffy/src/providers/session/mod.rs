@@ -22,7 +22,7 @@ pub mod headless;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use serde::{Deserialize, Serialize};
 use tokio::sync::mpsc;
 
@@ -31,7 +31,7 @@ use super::definition::ProviderDefinition;
 use super::types::AgentProtocol;
 
 /// How long a permission request waits for your answer before it is refused.
-pub const PERMISSION_WAIT: Duration = Duration::from_secs(10 * 60);
+pub const PERMISSION_WAIT: Duration = Duration::from_mins(10);
 
 /// One choice of a permission request, as the agent worded it.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -266,7 +266,7 @@ mod tests {
     use std::path::PathBuf;
 
     use super::*;
-    use crate::providers::{catalog, discovery::installed, ProviderId};
+    use crate::providers::{ProviderId, catalog, discovery::installed};
 
     #[tokio::test]
     async fn a_live_session_rechecks_login_and_cancellation_before_dispatch() {

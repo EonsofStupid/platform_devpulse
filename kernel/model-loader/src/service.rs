@@ -21,10 +21,10 @@
 //! to wire into their own persistence and event systems.
 
 use crate::assistant::{AssistantConfig, KeywordActionEntry, VoiceCloneEntry};
+use crate::backends::BackendPool;
 use crate::backends::bridge::InferenceHandle;
 use crate::backends::router::select_backend;
 use crate::backends::voice_pool::VoicePool;
-use crate::backends::BackendPool;
 use crate::hardware::auto_config::{self, AutoConfig};
 use crate::hardware::metrics::{HardwareMetrics, HardwareMonitor};
 use crate::hardware::vram;
@@ -1041,20 +1041,20 @@ impl ModelLoaderService {
                                 slot_id,
                                 entry.format,
                             );
-                            if !symlink_target.exists() {
-                                if let Err(e) = crate::slots::symlink::assign(
+                            if !symlink_target.exists()
+                                && let Err(e) = crate::slots::symlink::assign(
                                     userdata_dir,
                                     slot_id,
                                     entry.format,
                                     &entry.path,
-                                ) {
-                                    tracing::warn!(
-                                        slot = %slot_id,
-                                        error = %e,
-                                        "Symlink reconcile failed — slot will report \
-                                         ModelFileMissing until customer re-Saves"
-                                    );
-                                }
+                                )
+                            {
+                                tracing::warn!(
+                                    slot = %slot_id,
+                                    error = %e,
+                                    "Symlink reconcile failed — slot will report \
+                                     ModelFileMissing until customer re-Saves"
+                                );
                             }
                             slot.assigned_model = Some(model_id);
                             tracing::info!(slot = %slot_id, model = %entry.filename, "Restored assignment");
@@ -2426,14 +2426,14 @@ impl ModelLoaderService {
         });
         tracing::info!(slot = %slot_id, to = %new_model_id, "Swap started");
 
-        if self.is_slot_loaded(slot_id).await {
-            if let Err(e) = self.unload_slot(slot_id).await {
-                let mut inf = self.inference.write().await;
-                inf.swap_guard.end(slot_id);
-                return Err(LoaderError::Internal {
-                    message: format!("Swap unload failed: {e}"),
-                });
-            }
+        if self.is_slot_loaded(slot_id).await
+            && let Err(e) = self.unload_slot(slot_id).await
+        {
+            let mut inf = self.inference.write().await;
+            inf.swap_guard.end(slot_id);
+            return Err(LoaderError::Internal {
+                message: format!("Swap unload failed: {e}"),
+            });
         }
 
         if let Err(e) = self.assign_model(slot_id, new_model_id).await {

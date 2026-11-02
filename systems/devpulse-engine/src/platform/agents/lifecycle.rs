@@ -3,9 +3,9 @@
 use std::future::Future;
 use std::sync::Arc;
 
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 use devpulse_clyffy::providers::{AgentEvent, AgentSession};
-use tokio::sync::{mpsc, oneshot, watch, Mutex, OwnedMutexGuard};
+use tokio::sync::{Mutex, OwnedMutexGuard, mpsc, oneshot, watch};
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum Stop {

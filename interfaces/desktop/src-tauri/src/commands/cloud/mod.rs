@@ -19,12 +19,12 @@
 pub mod license;
 pub mod secrets;
 pub use license::{
-    get_license_summary, validate_license, LicenseSource, LicenseStatus, LicenseSummary,
-    LicenseTier,
+    LicenseSource, LicenseStatus, LicenseSummary, LicenseTier, get_license_summary,
+    validate_license,
 };
 pub use secrets::{
-    clear_supabase_anon_key, get_supabase_credentials, get_supabase_credentials_status,
-    set_supabase_anon_key, SupabaseCredentials, SupabaseCredentialsStatus,
+    SupabaseCredentials, SupabaseCredentialsStatus, clear_supabase_anon_key,
+    get_supabase_credentials, get_supabase_credentials_status, set_supabase_anon_key,
 };
 
 use crate::commands::credentials::get_api_key;
@@ -114,10 +114,10 @@ async fn inner_set_inference_provider(
 #[specta::specta]
 pub async fn cloud_ready() -> Result<bool, String> {
     // Env var first — piggybacks off Claude Code session
-    if let Ok(key) = std::env::var("ANTHROPIC_API_KEY") {
-        if !key.is_empty() {
-            return Ok(true);
-        }
+    if let Ok(key) = std::env::var("ANTHROPIC_API_KEY")
+        && !key.is_empty()
+    {
+        return Ok(true);
     }
     // Fall back to keyring
     match get_api_key(ProviderId::AnthropicApi).await {

@@ -37,22 +37,17 @@ impl PauseHandle {
     }
 }
 
-// `PauseHandle: !Clone` is enforced by the absence of
-// `#[derive(Clone)]` on the type. Stable Rust has no negative trait
-// bounds (`T: !Clone`) — that requires nightly's `negative_impls` —
-// so we cannot encode "not Clone" as a static assertion. The
-// guarantee instead comes from code review: any future PR that
-// adds `Clone` here breaks the H7 lock and gets rejected.
+// The tests enforce the ownership contract at compile time: this token
+// cannot be copied or cloned into a second authorization to resume.
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
+    static_assertions::assert_not_impl_any!(PauseHandle: Clone, Copy);
+
     #[test]
     fn pause_handle_construction_works_inside_crate() {
-        let h = PauseHandle::new();
-        // Move-consume — the daemon's resume() takes ownership.
-        let consumed = h;
-        drop(consumed);
+        let _handle = PauseHandle::new();
     }
 }

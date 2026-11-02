@@ -18,7 +18,7 @@
 
 use std::sync::Arc;
 
-use anyhow::{anyhow, bail, Context, Result};
+use anyhow::{Context, Result, anyhow, bail};
 use ciborium::value::Value as Cbor;
 use serde::Serialize;
 
@@ -389,11 +389,7 @@ fn record_id(inner: &Cbor) -> Option<String> {
             let plain = !s.is_empty()
                 && s.chars().all(|c| c.is_ascii_alphanumeric() || c == '_')
                 && !s.chars().all(|c| c.is_ascii_digit());
-            if plain {
-                s.clone()
-            } else {
-                format!("`{s}`")
-            }
+            if plain { s.clone() } else { format!("`{s}`") }
         }
         Cbor::Tag(9 | 37, _) => format!("u'{}'", message(&to_json(parts.get(1)?))),
         other => to_json(other).to_string(),
@@ -507,7 +503,7 @@ mod tests {
 
     async fn start_real_server() -> Arc<crate::cortex::persistence::runtime::Runtime> {
         use crate::cortex::persistence::runtime::{
-            RestartPolicy, Runtime, RuntimeEvents, RuntimeSpec, PORT,
+            PORT, RestartPolicy, Runtime, RuntimeEvents, RuntimeSpec,
         };
         let exe = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
             .join("../../.userdata/global/runtimes/surreal/3.0.5")

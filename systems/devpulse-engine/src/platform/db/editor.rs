@@ -15,7 +15,7 @@
 //! - Table and column names are only used after they are found in the
 //!   catalog, and always quoted; values are always bound, never spliced.
 
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 use devpulse_clyffy::cortex::persistence::{SqlAdapter, SqlValue};
 use serde::{Deserialize, Serialize};
 use specta::Type;
@@ -415,7 +415,14 @@ async fn columns_of(adapter: &dyn SqlAdapter, table: &str) -> Result<Vec<Column>
     rows.into_iter()
         .map(|row| match row.as_slice() {
             // cid, name, type, notnull, dflt_value, pk
-            [_, SqlValue::Text(name), declared, SqlValue::Integer(notnull), default, SqlValue::Integer(pk)] => {
+            [
+                _,
+                SqlValue::Text(name),
+                declared,
+                SqlValue::Integer(notnull),
+                default,
+                SqlValue::Integer(pk),
+            ] => {
                 let declared_type = declared.as_text().unwrap_or_default().to_owned();
                 Ok(Column {
                     name: name.clone(),
@@ -538,8 +545,7 @@ mod tests {
     async fn open(tag: &str) -> (TursoAdapter, std::path::PathBuf) {
         let nanos = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
-            .map(|d| d.as_nanos())
-            .unwrap_or(0);
+            .map_or(0, |d| d.as_nanos());
         let dir = std::env::temp_dir().join(format!("devpulse-editor-{tag}-{nanos}"));
         let adapter =
             TursoAdapter::open_with_schema(&dir.join("t.db"), SCHEMA, TursoOptions::default())
@@ -608,9 +614,11 @@ mod tests {
         );
 
         assert!(columns(&adapter, "schema_migrations").await.is_err());
-        assert!(columns(&adapter, "nope\"; DROP TABLE items; --")
-            .await
-            .is_err());
+        assert!(
+            columns(&adapter, "nope\"; DROP TABLE items; --")
+                .await
+                .is_err()
+        );
         done(adapter, dir).await;
     }
 

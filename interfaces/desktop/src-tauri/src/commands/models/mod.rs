@@ -656,12 +656,11 @@ async fn load_via_sidecar(
         },
         |cfg| cfg.server_args(),
     );
-    if let Some(layers) = slot_gpu_layers {
-        if let Some(i) = flags.iter().position(|f| f == "-ngl") {
-            if let Some(value) = flags.get_mut(i + 1) {
-                *value = layers.to_string();
-            }
-        }
+    if let Some(layers) = slot_gpu_layers
+        && let Some(i) = flags.iter().position(|f| f == "-ngl")
+        && let Some(value) = flags.get_mut(i + 1)
+    {
+        *value = layers.to_string();
     }
 
     tracing::info!(

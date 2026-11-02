@@ -404,12 +404,12 @@ fn extract_table_names(info: &serde_json::Value) -> Vec<String> {
 
 /// Extract count from `SELECT count() FROM table GROUP ALL` result.
 fn extract_count(result: &serde_json::Value) -> u64 {
-    if let Some(arr) = result.as_array() {
-        if let Some(row) = arr.first() {
-            // SurrealDB returns { "count": N }
-            if let Some(count) = row.get("count") {
-                return count.as_u64().unwrap_or(0);
-            }
+    if let Some(arr) = result.as_array()
+        && let Some(row) = arr.first()
+    {
+        // SurrealDB returns { "count": N }
+        if let Some(count) = row.get("count") {
+            return count.as_u64().unwrap_or(0);
         }
     }
     0

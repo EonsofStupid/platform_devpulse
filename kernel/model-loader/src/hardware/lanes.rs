@@ -388,7 +388,7 @@ mod tests {
         let un = LaneBudget::unavailable(LaneKind::Vram);
         assert_eq!(un.kind, LaneKind::Vram);
         assert_eq!(un.status, LaneStatus::Unavailable);
-        assert!(un.allocations.is_empty());
+        assert_eq!(un.allocations.len(), 0);
 
         let sc = LaneBudget::scaffolded(LaneKind::Ssd);
         assert_eq!(sc.kind, LaneKind::Ssd);

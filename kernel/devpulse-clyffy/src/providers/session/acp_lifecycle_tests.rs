@@ -47,21 +47,25 @@ async fn fixture(opened: bool, graceful: bool) -> Fixture {
 
 async fn disposed(receiver: oneshot::Receiver<()>) {
     // The sender is held by the connection future until that future is dropped.
-    assert!(tokio::time::timeout(Duration::from_secs(5), receiver)
-        .await
-        .unwrap()
-        .is_err());
+    assert!(
+        tokio::time::timeout(Duration::from_secs(5), receiver)
+            .await
+            .unwrap()
+            .is_err()
+    );
 }
 
 #[tokio::test]
 async fn dropped_startup_disposes_its_connection() {
     let fixture = fixture(false, false).await;
-    assert!(tokio::time::timeout(
-        Duration::from_millis(10),
-        fixture.session.await_ready(fixture.ready, START_TIMEOUT),
-    )
-    .await
-    .is_err());
+    assert!(
+        tokio::time::timeout(
+            Duration::from_millis(10),
+            fixture.session.await_ready(fixture.ready, START_TIMEOUT),
+        )
+        .await
+        .is_err()
+    );
     disposed(fixture.disposed).await;
 }
 
@@ -79,9 +83,11 @@ async fn startup_failure_and_timeout_confirm_cleanup_before_returning() {
         let Err(error) = outcome else {
             panic!("startup should fail")
         };
-        assert!(error
-            .to_string()
-            .contains(if fail { "auth refused" } else { "no session" }));
+        assert!(
+            error
+                .to_string()
+                .contains(if fail { "auth refused" } else { "no session" })
+        );
         // Cleanup is already confirmed, with no extra scheduling required.
         assert!(fixture.disposed.now_or_never().unwrap().is_err());
     }
@@ -160,9 +166,14 @@ async fn cancelling_real_acp_startup_terminates_the_sdk_child() {
     let launch = Launch {
         adapter: crate::providers::definition::AdapterKind::AcpAgent,
         program: "powershell".into(),
-        args: vec!["-NoProfile".into(), "-NonInteractive".into(), "-Command".into(), format!(
-            "$client = New-Object Net.Sockets.TcpClient('127.0.0.1', {port}); while ($true) {{ [Threading.Thread]::Sleep(100) }}"
-        )],
+        args: vec![
+            "-NoProfile".into(),
+            "-NonInteractive".into(),
+            "-Command".into(),
+            format!(
+                "$client = New-Object Net.Sockets.TcpClient('127.0.0.1', {port}); while ($true) {{ [Threading.Thread]::Sleep(100) }}"
+            ),
+        ],
         env: vec![],
     };
     let caller = devpulse_telemetry::spawn(async move {

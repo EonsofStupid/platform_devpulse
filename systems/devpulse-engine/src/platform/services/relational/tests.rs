@@ -78,9 +78,10 @@ async fn upgrade_keeps_threads_tokens_seating_and_chat_records_across_reopen() {
                 .query(&format!("PRAGMA foreign_key_list({table})"), &[])
                 .await
                 .unwrap();
-            assert!(keys
-                .iter()
-                .any(|row| row.get(2).and_then(SqlValue::as_text) == Some("sessions")));
+            assert!(
+                keys.iter()
+                    .any(|row| row.get(2).and_then(SqlValue::as_text) == Some("sessions"))
+            );
         }
         db.close().await;
     }
@@ -95,7 +96,10 @@ async fn fresh_install_and_reopen_have_only_prefixed_thread_tables() {
             .await
             .unwrap();
         assert_names(store.adapter()).await;
-        assert!(rows(store.adapter(), "agenthub_threads").await.is_empty());
+        assert_eq!(
+            rows(store.adapter(), "agenthub_threads").await,
+            [] as [std::vec::Vec<devpulse_clyffy::cortex::persistence::SqlValue>; 0]
+        );
         store.adapter().close().await;
     }
 }
@@ -119,14 +123,15 @@ async fn second_rename_failure_rolls_back_first_rename_and_migration_record() {
         rows(&db, "agenthub_room_threads").await,
         vec![vec!["keep conflict visible".into()]]
     );
-    assert!(db
-        .query(
+    assert_eq!(
+        db.query(
             "SELECT 1 FROM sqlite_master WHERE name = 'agenthub_threads'",
             &[]
         )
         .await
-        .unwrap()
-        .is_empty());
+        .unwrap(),
+        [] as [std::vec::Vec<devpulse_clyffy::cortex::persistence::SqlValue>; 0]
+    );
     assert_eq!(crate::platform::db::history(&db).await.unwrap().len(), 2);
     db.close().await;
 }

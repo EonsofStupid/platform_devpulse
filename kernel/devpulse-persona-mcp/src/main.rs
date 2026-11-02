@@ -18,7 +18,7 @@ use devpulse_persona_mcp::auth::AuthGate;
 use devpulse_persona_mcp::{server::Server, store::PersonaStore};
 use std::env;
 use std::path::PathBuf;
-use tracing_subscriber::{fmt, EnvFilter};
+use tracing_subscriber::{EnvFilter, fmt};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {

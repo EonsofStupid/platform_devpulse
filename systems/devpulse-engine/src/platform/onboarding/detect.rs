@@ -224,8 +224,7 @@ mod tests {
     fn temp(tag: &str) -> PathBuf {
         let nanos = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
-            .map(|d| d.as_nanos())
-            .unwrap_or(0);
+            .map_or(0, |d| d.as_nanos());
         std::env::temp_dir().join(format!("devpulse-detect-{tag}-{nanos}"))
     }
 
@@ -242,10 +241,12 @@ mod tests {
         let home = PathBuf::from("/home/ada");
         let list = candidates(&temp("none"), Some(&home)).expect("bundled");
         assert!(list.contains(&home.join("Documents/GitHub")));
-        assert!(candidates(&temp("none"), None)
-            .expect("no home")
-            .iter()
-            .all(|p| !p.starts_with("~")));
+        assert!(
+            candidates(&temp("none"), None)
+                .expect("no home")
+                .iter()
+                .all(|p| !p.starts_with("~"))
+        );
     }
 
     #[test]

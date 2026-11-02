@@ -31,7 +31,7 @@ pub struct Workspace {
     /// Monorepo root (contains root `Cargo.toml` + `interfaces/`).
     root: PathBuf,
     /// `PATH` with `node_modules/.bin` prepended for Node tool resolution.
-    path: std::ffi::OsString,
+    node_bin: PathBuf,
 }
 
 impl Workspace {
@@ -48,12 +48,7 @@ impl Workspace {
             .join("node_modules")
             .join(".bin");
 
-        let system_path = env::var_os("PATH").unwrap_or_default();
-        let mut dirs: Vec<PathBuf> = vec![node_bin];
-        dirs.extend(env::split_paths(&system_path));
-        let path = env::join_paths(&dirs).unwrap_or(system_path);
-
-        Ok(Self { root, path })
+        Ok(Self { root, node_bin })
     }
 
     // ── Paths ──────────────────────────────────────────────────────
@@ -85,17 +80,24 @@ impl Workspace {
 
     // ── Tool Resolution ────────────────────────────────────────────
 
+    /// Compose the current build PATH after native toolchain activation.
+    fn path(&self) -> std::ffi::OsString {
+        let inherited = crate::child_env::var_os("PATH").unwrap_or_default();
+        let dirs = std::iter::once(self.node_bin.clone()).chain(env::split_paths(&inherited));
+        env::join_paths(dirs).unwrap_or(inherited)
+    }
+
     /// Resolve a binary name to its full path (cross-platform via `which`).
     pub fn resolve(&self, program: &str) -> Result<PathBuf> {
-        which::which_in(program, Some(&self.path), &self.root)
+        which::which_in(program, Some(self.path()), &self.root)
             .with_context(|| format!("`{program}` not found in PATH"))
     }
 
     /// Build a `Command` with augmented PATH, rooted in workspace.
     fn cmd(&self, program: &str) -> Result<Command> {
         let bin = self.resolve(program)?;
-        let mut cmd = Command::new(bin);
-        cmd.env("PATH", &self.path);
+        let mut cmd = crate::child_env::command(bin);
+        cmd.env("PATH", self.path());
         cmd.current_dir(&self.root);
         Ok(cmd)
     }
@@ -640,7 +642,7 @@ mod merge_tests {
 
 #[cfg(test)]
 mod resource_parse_tests {
-    use super::{parse_resources, ResourceEntry};
+    use super::{ResourceEntry, parse_resources};
     use serde_json::json;
 
     #[test]
@@ -687,7 +689,7 @@ mod resource_parse_tests {
 
     #[test]
     fn missing_resources_key_is_empty() {
-        assert!(parse_resources(None).is_empty());
+        assert_eq!(parse_resources(None).len(), 0);
     }
 
     #[test]
@@ -1049,7 +1051,7 @@ impl BuildConfig {
                     Some(resolved) => {
                         let resolved_str = resolved.to_string_lossy();
                         for env_key in &dep.env {
-                            std::env::set_var(env_key, &*resolved_str);
+                            crate::child_env::set(env_key, &*resolved_str);
                             println!(
                                 "  [env] {env_key} = {resolved_str} (from [build.deps.{name}])"
                             );
@@ -1065,7 +1067,7 @@ impl BuildConfig {
                 }
 
                 for (key, value) in &dep.extras {
-                    std::env::set_var(key, value);
+                    crate::child_env::set(key, value);
                     println!("  [env] {key} = {value} (from [build.deps.{name}].extras)");
                 }
 
@@ -1122,7 +1124,7 @@ impl BuildConfig {
             return Some(candidate);
         }
         let tool = Path::new(configured).file_stem()?;
-        which::which(tool).ok()
+        crate::child_env::which(tool).ok()
     }
 
     /// Detect installed acceleration SDKs and return the cargo `--features`
@@ -1163,7 +1165,7 @@ impl BuildConfig {
 /// present (the toolkit alone does not mean a usable GPU). On success
 /// `CUDA_PATH` is re-exported so child build scripts see it.
 fn detect_and_export_cuda() -> bool {
-    let cuda_toolkit = std::env::var("CUDA_PATH")
+    let cuda_toolkit = crate::child_env::var("CUDA_PATH")
         .ok()
         .filter(|p| {
             std::path::Path::new(p)
@@ -1184,13 +1186,11 @@ fn detect_and_export_cuda() -> bool {
                 .max()
                 .map(|p| p.to_string_lossy().to_string())
         });
-    let nvidia_gpu_present = which::which("nvidia-smi").is_ok();
+    let nvidia_gpu_present = crate::child_env::which("nvidia-smi").is_ok();
     let cuda_active = cuda_toolkit.is_some() && nvidia_gpu_present;
-    if cuda_active {
-        if let Some(ref path) = cuda_toolkit {
-            std::env::set_var("CUDA_PATH", path);
-            println!("  [env] CUDA_PATH = {path} (auto-export for child build scripts)");
-        }
+    if cuda_active && let Some(ref path) = cuda_toolkit {
+        crate::child_env::set("CUDA_PATH", path);
+        println!("  [env] CUDA_PATH = {path} (auto-export for child build scripts)");
     }
     cuda_active
 }
@@ -1199,7 +1199,7 @@ fn detect_and_export_cuda() -> bool {
 /// highest versioned subdir of the default `oneAPI/mkl` root. Returns
 /// `true` and re-exports `MKLROOT` on success.
 fn detect_and_export_mkl() -> bool {
-    let mkl_root = std::env::var("MKLROOT")
+    let mkl_root = crate::child_env::var("MKLROOT")
         .ok()
         .filter(|p| std::path::Path::new(p).is_dir())
         .or_else(|| {
@@ -1221,7 +1221,7 @@ fn detect_and_export_mkl() -> bool {
                 .map(|p| p.to_string_lossy().to_string())
         });
     if let Some(ref path) = mkl_root {
-        std::env::set_var("MKLROOT", path);
+        crate::child_env::set("MKLROOT", path);
         println!("  [env] MKLROOT = {path} (auto-export for child build scripts)");
         true
     } else {
@@ -1237,7 +1237,10 @@ impl BuildConfig {
         // rust-lld ships in the `llvm-tools-preview` rustup component at
         // `{sysroot}/lib/rustlib/{target}/bin/rust-lld[.exe]`; rustc finds
         // it there by bare name, so the config needs no machine path.
-        match Command::new("rustc").args(["--print", "sysroot"]).output() {
+        match crate::child_env::command("rustc")
+            .args(["--print", "sysroot"])
+            .output()
+        {
             Ok(out) if out.status.success() => {
                 let sysroot = String::from_utf8_lossy(&out.stdout).trim().to_string();
                 let lld_name = if cfg!(windows) {
@@ -1270,9 +1273,9 @@ impl BuildConfig {
         // switches. Bootstrap with `cargo install sccache --locked` once;
         // afterwards it lives at `~/.cargo/bin/sccache(.exe)` which is on
         // every rustup user's PATH.
-        match which::which("sccache") {
+        match crate::child_env::which("sccache") {
             Ok(path) => {
-                std::env::set_var("RUSTC_WRAPPER", &path);
+                crate::child_env::set("RUSTC_WRAPPER", &path);
                 println!(
                     "  [env] RUSTC_WRAPPER = {} (sccache compile cache)",
                     path.display()
@@ -1295,7 +1298,7 @@ impl BuildConfig {
         }
     }
 
-    /// Activate the MSVC build environment in the current process so child
+    /// Configure the MSVC build environment for child commands so nested
     /// cmake + ninja invocations find the full toolchain without needing a
     /// manual `vcvars64.bat` run. Returns whether activation succeeded.
     ///
@@ -1438,16 +1441,16 @@ impl BuildConfig {
         };
 
         if chosen.is_empty() {
-            std::env::remove_var("CMAKE_GENERATOR");
+            crate::child_env::remove("CMAKE_GENERATOR");
             println!("  [env] CMAKE_GENERATOR unset (cmake will auto-detect)");
         } else {
-            std::env::set_var("CMAKE_GENERATOR", &chosen);
+            crate::child_env::set("CMAKE_GENERATOR", &chosen);
             println!("  [env] CMAKE_GENERATOR = {chosen}");
         }
 
         if chosen == "Ninja" {
             if let Some(path) = ninja_path {
-                std::env::set_var("CMAKE_MAKE_PROGRAM", &path);
+                crate::child_env::set("CMAKE_MAKE_PROGRAM", &path);
                 println!(
                     "  [env] CMAKE_MAKE_PROGRAM = {} (ninja for cmake)",
                     path.display()
@@ -1463,11 +1466,11 @@ impl BuildConfig {
                 // ExternalProject 2026-05-12).
                 if let Some(parent) = path.parent() {
                     let parent_str = parent.to_string_lossy().into_owned();
-                    let existing = std::env::var_os("PATH").unwrap_or_default();
+                    let existing = crate::child_env::var_os("PATH").unwrap_or_default();
                     let mut prepended = std::ffi::OsString::from(parent_str.clone());
                     prepended.push(if cfg!(windows) { ";" } else { ":" });
                     prepended.push(&existing);
-                    std::env::set_var("PATH", &prepended);
+                    crate::child_env::set("PATH", &prepended);
                     println!("  [env] PATH prepended with ninja directory: {parent_str}");
                 }
             }
@@ -1476,7 +1479,7 @@ impl BuildConfig {
             // CMAKE_MAKE_PROGRAM=ninja.exe via -D, and cmake would try to use
             // ninja AS MSBuild's build tool — fails. Strip it explicitly so
             // a stale env from a prior process can't poison the build.
-            std::env::remove_var("CMAKE_MAKE_PROGRAM");
+            crate::child_env::remove("CMAKE_MAKE_PROGRAM");
         }
 
         let _ = GENERATOR_SELECTED.set(chosen);
@@ -1611,14 +1614,14 @@ impl BuildConfig {
                 // skip" — link errors follow because the static lib is now
                 // missing. Nuke the fingerprint too.
                 let fingerprint_dir = profile_path.join(".fingerprint").join(&dir_name);
-                if fingerprint_dir.is_dir() {
-                    if let Err(e) = std::fs::remove_dir_all(&fingerprint_dir) {
-                        println!(
-                            "  [warn] remove {} failed: {}",
-                            fingerprint_dir.display(),
-                            e
-                        );
-                    }
+                if fingerprint_dir.is_dir()
+                    && let Err(e) = std::fs::remove_dir_all(&fingerprint_dir)
+                {
+                    println!(
+                        "  [warn] remove {} failed: {}",
+                        fingerprint_dir.display(),
+                        e
+                    );
                 }
 
                 purged.push(dir_name);
@@ -1643,7 +1646,7 @@ impl BuildConfig {
     /// Resolve ninja.exe from layered sources:
     ///   1. `[build.deps.ninja].path` SSOT (if the file exists)
     ///   2. Common VS 2022 install roots (`BuildTools` / Community / Pro / Enterprise)
-    ///   3. `which::which("ninja")` — falls back to system PATH
+    ///   3. `crate::child_env::which("ninja")` — falls back to system PATH
     ///
     /// Returns `None` if every layer misses. The caller decides whether to
     /// downgrade the generator or hard-fail.
@@ -1687,7 +1690,7 @@ impl BuildConfig {
         }
 
         // 3. System PATH
-        which::which("ninja").ok()
+        crate::child_env::which("ninja").ok()
     }
 }
 
@@ -1790,7 +1793,7 @@ fn find_vcvars64(_target: &str) -> Option<PathBuf> {
 /// canonical way to activate a "Visual Studio Developer Command Prompt"
 /// from a script. Running `cmd /c "<vcvars64> && set"` lets us capture
 /// every var the batch sets; we parse the stdout lines and forward each
-/// pair to `std::env::set_var`.
+/// pair to the child environment.
 ///
 /// Pitfalls handled:
 ///   * The batch writes a banner to stdout before `set` runs — we filter
@@ -1804,7 +1807,6 @@ fn find_vcvars64(_target: &str) -> Option<PathBuf> {
 #[cfg(windows)]
 fn apply_vcvars_env(vcvars: &Path) -> bool {
     use std::os::windows::process::CommandExt;
-    use std::process::Command;
     // Two-layer quoting problem solved with `raw_arg`:
     //
     //   1. `cmd /c <arg>` strips the outer pair of quotes from `<arg>` per
@@ -1826,7 +1828,7 @@ fn apply_vcvars_env(vcvars: &Path) -> bool {
     // both work in cmd, but backslash matches the canonical Windows form.
     let vcvars_str = vcvars.to_string_lossy().replace('/', "\\");
     let raw = format!(r#"/c ""{vcvars_str}" >nul && set""#);
-    let output = match Command::new("cmd").raw_arg(&raw).output() {
+    let output = match crate::child_env::command("cmd").raw_arg(&raw).output() {
         Ok(o) => o,
         Err(e) => {
             println!("  [warn] vcvars64.bat spawn failed: {e}");
@@ -1865,7 +1867,7 @@ fn apply_vcvars_env(vcvars: &Path) -> bool {
             continue;
         }
         let value = &line[eq_idx + 1..];
-        std::env::set_var(key, value);
+        crate::child_env::set(key, value);
         applied += 1;
     }
     if applied == 0 {
@@ -1882,7 +1884,7 @@ fn apply_vcvars_env(vcvars: &Path) -> bool {
     // failure mode (e.g. SDK install partially broken) shows here rather
     // than buried 20 minutes into a llama.cpp configure.
     for tool in ["cl", "link", "ninja", "rc", "mt"] {
-        match which::which(tool) {
+        match crate::child_env::which(tool) {
             Ok(p) => println!("  [tool] {tool} = {}", p.display()),
             Err(_) => {
                 println!(
@@ -1946,14 +1948,14 @@ fn apply_vcvars_env(_vcvars: &Path) -> bool {
 /// `CMakeTestCCompiler.cmake:67`.
 #[cfg(windows)]
 fn finalize_vcvars_success() {
-    if let Ok(cl) = which::which("cl") {
+    if let Ok(cl) = crate::child_env::which("cl") {
         let cl_str = cl.to_string_lossy().into_owned();
-        std::env::set_var("CC", &cl_str);
-        std::env::set_var("CXX", &cl_str);
+        crate::child_env::set("CC", &cl_str);
+        crate::child_env::set("CXX", &cl_str);
         println!("  [env] CC = {cl_str} (post-vcvars belt)");
         println!("  [env] CXX = {cl_str} (post-vcvars belt)");
     }
-    std::env::set_var("LDFLAGS", "/MANIFEST:NO");
+    crate::child_env::set("LDFLAGS", "/MANIFEST:NO");
     println!(
         "  [env] LDFLAGS = /MANIFEST:NO (skip manifest — sidesteps cmake-rs PATH-replace stripping SDK bin)"
     );
@@ -2004,25 +2006,25 @@ fn apply_cc_rs_fallback(target: &str) -> bool {
         } else {
             println!("  [env] {key_str} set (from MSVC toolchain)");
         }
-        std::env::set_var(key, value);
+        crate::child_env::set(key, value);
     }
 
     // CC / CXX hand-off for `ExternalProject_Add` sub-builds — see the
     // rationale in the original 2026-05-12 verification note.
     let cl_path_str = cl_path.to_string_lossy().into_owned();
-    std::env::set_var("CC", &cl_path_str);
-    std::env::set_var("CXX", &cl_path_str);
+    crate::child_env::set("CC", &cl_path_str);
+    crate::child_env::set("CXX", &cl_path_str);
     println!("  [env] CC = {cl_path_str} (for nested ExternalProject configures)");
     println!("  [env] CXX = {cl_path_str} (for nested ExternalProject configures)");
 
     // Windows SDK bin (rc.exe + mt.exe).
     if let Some(sdk_bin) = derive_windows_sdk_bin() {
         let sdk_str = sdk_bin.to_string_lossy().into_owned();
-        let existing = std::env::var_os("PATH").unwrap_or_default();
+        let existing = crate::child_env::var_os("PATH").unwrap_or_default();
         let mut prepended = std::ffi::OsString::from(&sdk_str);
         prepended.push(";");
         prepended.push(&existing);
-        std::env::set_var("PATH", &prepended);
+        crate::child_env::set("PATH", &prepended);
         println!("  [env] PATH prepended with Windows SDK bin (rc.exe / mt.exe): {sdk_str}");
     } else {
         println!(
@@ -2032,7 +2034,7 @@ fn apply_cc_rs_fallback(target: &str) -> bool {
         );
     }
 
-    std::env::set_var("LDFLAGS", "/MANIFEST:NO");
+    crate::child_env::set("LDFLAGS", "/MANIFEST:NO");
     println!("  [env] LDFLAGS = /MANIFEST:NO (skip manifest generation)");
 
     true
@@ -2047,9 +2049,11 @@ fn apply_cc_rs_fallback(target: &str) -> bool {
 /// sub-cmakes need the toolchain file.
 #[cfg(windows)]
 fn write_msvc_toolchain_file() {
-    let Ok(cl) = which::which("cl") else { return };
+    let Ok(cl) = crate::child_env::which("cl") else {
+        return;
+    };
     let cl_path = cl.to_string_lossy().into_owned();
-    let ninja_path = which::which("ninja").map_or_else(
+    let ninja_path = crate::child_env::which("ninja").map_or_else(
         |_| {
             "D:/localdev/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe"
                 .to_string()
@@ -2068,7 +2072,7 @@ fn write_msvc_toolchain_file() {
     match std::fs::write(&toolchain, &contents) {
         Ok(()) => {
             let toolchain_str = toolchain.to_string_lossy().into_owned();
-            std::env::set_var("CMAKE_TOOLCHAIN_FILE", &toolchain_str);
+            crate::child_env::set("CMAKE_TOOLCHAIN_FILE", &toolchain_str);
             println!(
                 "  [env] CMAKE_TOOLCHAIN_FILE = {toolchain_str} \
                  (compiler + make_program + /MANIFEST:NO for every nested cmake)"
@@ -2118,7 +2122,7 @@ fn build_toolchain_file_contents(cl_path: &str, ninja_path: &str) -> String {
 /// or the derived bin path is missing.
 #[cfg(windows)]
 fn derive_windows_sdk_bin() -> Option<PathBuf> {
-    let include = std::env::var_os("INCLUDE")?;
+    let include = crate::child_env::var_os("INCLUDE")?;
     for entry in std::env::split_paths(&include) {
         // Need three pops to walk: <kits-root>\include\<ver>\<subdir>
         //                                                    ^ entry

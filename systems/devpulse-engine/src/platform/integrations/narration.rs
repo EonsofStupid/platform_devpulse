@@ -101,7 +101,7 @@ pub fn narrate(event: &LoaderEvent, level: CompetencyLevel) -> Option<String> {
             registry_entry.architecture,
         )),
 
-        (LoaderEvent::DownloadFailed { error: _, .. }, CompetencyLevel::Layman) => {
+        (LoaderEvent::DownloadFailed { .. }, CompetencyLevel::Layman) => {
             Some("Download got interrupted. I can try again if you want.".to_string())
         }
         (LoaderEvent::DownloadFailed { error, .. }, CompetencyLevel::Advanced) => {

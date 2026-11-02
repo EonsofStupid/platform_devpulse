@@ -22,11 +22,11 @@ use std::sync::Mutex;
 use std::time::Instant;
 
 use tokio::sync::mpsc;
-use tracing::span;
 use tracing::Subscriber;
+use tracing::span;
+use tracing_subscriber::Layer;
 use tracing_subscriber::layer::Context;
 use tracing_subscriber::registry::LookupSpan;
-use tracing_subscriber::Layer;
 
 use super::span_writer::SpanRecord;
 
@@ -79,13 +79,12 @@ where
     }
 
     fn on_record(&self, id: &span::Id, values: &span::Record<'_>, ctx: Context<'_, S>) {
-        if let Some(span) = ctx.span(id) {
-            if let Some(span_fields) = span.extensions().get::<SpanFields>() {
-                if let Ok(mut fields) = span_fields.fields.lock() {
-                    let mut visitor = FieldVisitor(&mut fields);
-                    values.record(&mut visitor);
-                }
-            }
+        if let Some(span) = ctx.span(id)
+            && let Some(span_fields) = span.extensions().get::<SpanFields>()
+            && let Ok(mut fields) = span_fields.fields.lock()
+        {
+            let mut visitor = FieldVisitor(&mut fields);
+            values.record(&mut visitor);
         }
     }
 
@@ -148,14 +147,12 @@ where
 {
     let mut current = span.parent();
     while let Some(parent) = current {
-        if let Some(sf) = parent.extensions().get::<SpanFields>() {
-            if let Ok(fields) = sf.fields.lock() {
-                if let Some(tid) = fields.get("trace_id") {
-                    if !tid.is_empty() {
-                        return tid.clone();
-                    }
-                }
-            }
+        if let Some(sf) = parent.extensions().get::<SpanFields>()
+            && let Ok(fields) = sf.fields.lock()
+            && let Some(tid) = fields.get("trace_id")
+            && !tid.is_empty()
+        {
+            return tid.clone();
         }
         current = parent.parent();
     }

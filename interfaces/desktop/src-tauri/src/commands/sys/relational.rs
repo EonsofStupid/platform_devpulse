@@ -14,12 +14,12 @@
 use std::sync::Arc;
 
 use crate::state::PlatformState;
+use devpulse_engine::platform::Platform;
 use devpulse_engine::platform::db::editor::{
     self, CellChange, Row, RowPage, SqlOutcome, TableSummary,
 };
 use devpulse_engine::platform::db::{self, MigrationStatus};
 use devpulse_engine::platform::services::relational::RelationalService;
-use devpulse_engine::platform::Platform;
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use tauri::State;

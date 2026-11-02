@@ -153,8 +153,14 @@ pub async fn update(
                 patch.context_mode.unwrap_or(prefs.context_mode).into(),
                 patch.show_thinking.unwrap_or(prefs.show_thinking).into(),
                 patch.verbosity.unwrap_or(prefs.verbosity).into(),
-                patch.default_temperature.unwrap_or(prefs.default_temperature).into(),
-                patch.allow_telemetry.unwrap_or(prefs.allow_telemetry).into(),
+                patch
+                    .default_temperature
+                    .unwrap_or(prefs.default_temperature)
+                    .into(),
+                patch
+                    .allow_telemetry
+                    .unwrap_or(prefs.allow_telemetry)
+                    .into(),
                 patch
                     .screen_capture_enabled
                     .unwrap_or(prefs.screen_capture_enabled)

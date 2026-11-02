@@ -13,8 +13,8 @@ use std::collections::BTreeMap;
 use anyhow::{Context, Result};
 use jsonschema::error::ValidationErrorKind;
 use schemars::JsonSchema;
-use serde::de::DeserializeOwned;
 use serde::Serialize;
+use serde::de::DeserializeOwned;
 use specta::Type;
 
 /// Why a field was refused.
@@ -302,8 +302,10 @@ mod tests {
                 limit: Some(5),
             }]
         );
-        assert!(validate::<Floored>(&json!({ "keep": 5 }))
-            .expect("machinery")
-            .is_ok());
+        assert!(
+            validate::<Floored>(&json!({ "keep": 5 }))
+                .expect("machinery")
+                .is_ok()
+        );
     }
 }

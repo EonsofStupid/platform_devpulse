@@ -2,8 +2,8 @@
 //! load/validate calls and lets each test inject success or failure
 //! deterministically.
 
-use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicU32, Ordering};
 use thiserror::Error;
 
 use rrd::HotUpdateable;
@@ -47,21 +47,25 @@ impl HotUpdateable for TestComponent {
     type Snapshot = TestSnapshot;
     type LoadError = TestLoadError;
 
-    async fn load(source: &Self::Source) -> Result<Self::Snapshot, Self::LoadError> {
+    fn load(
+        source: &Self::Source,
+    ) -> impl std::future::Future<Output = Result<Self::Snapshot, Self::LoadError>> {
         LOAD_CALLS.fetch_add(1, Ordering::Relaxed);
-        Ok(TestSnapshot {
+        std::future::ready(Ok(TestSnapshot {
             generation: source.generation,
             pass_validate: source.pass_validate,
-        })
+        }))
     }
 
-    async fn validate(snap: &Self::Snapshot) -> Result<(), Self::LoadError> {
+    fn validate(
+        snap: &Self::Snapshot,
+    ) -> impl std::future::Future<Output = Result<(), Self::LoadError>> {
         VALIDATE_CALLS.fetch_add(1, Ordering::Relaxed);
-        if snap.pass_validate {
+        std::future::ready(if snap.pass_validate {
             Ok(())
         } else {
             Err(TestLoadError::ValidationRejected(snap.generation))
-        }
+        })
     }
 
     fn into_live(snap: Self::Snapshot) -> Arc<Self> {

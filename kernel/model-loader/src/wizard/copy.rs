@@ -833,10 +833,10 @@ mod tests {
     #[test]
     fn embedded_default_parses() {
         let copy = WizardCopy::load_default().expect("default TOML must parse");
-        assert!(!copy.greeting.title.is_empty());
-        assert!(!copy.greeting.cta_label.is_empty());
-        assert!(!copy.hardware.title.is_empty());
-        assert!(!copy.models.title.is_empty());
+        assert_ne!(copy.greeting.title, "");
+        assert_ne!(copy.greeting.cta_label, "");
+        assert_ne!(copy.hardware.title, "");
+        assert_ne!(copy.models.title, "");
     }
 
     #[test]

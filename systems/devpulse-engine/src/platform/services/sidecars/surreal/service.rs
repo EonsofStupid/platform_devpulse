@@ -13,8 +13,8 @@
 
 use crate::platform::services::{Service, ServiceRole, ServiceState};
 use anyhow::{Context, Result};
-use devpulse_clyffy::cortex::persistence::surreal::{SurrealConfig, SurrealLifecycle};
 use devpulse_clyffy::cortex::persistence::RuntimeState;
+use devpulse_clyffy::cortex::persistence::surreal::{SurrealConfig, SurrealLifecycle};
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use std::path::{Path, PathBuf};

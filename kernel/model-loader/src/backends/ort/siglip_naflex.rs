@@ -120,7 +120,7 @@ impl VisionEmbeddingBackend for SigLip2OrtFixRes {
             self.model_path = Some(model_file.clone());
             self.loaded = true;
 
-            let file_size = std::fs::metadata(&model_file).map(|m| m.len()).unwrap_or(0);
+            let file_size = std::fs::metadata(&model_file).map_or(0, |m| m.len());
 
             tracing::info!(
                 component = "SigLIP2 ONNX",
@@ -273,7 +273,7 @@ impl VisionEmbeddingBackend for SigLip2OrtFixRes {
 
     fn memory_usage(&self) -> MemoryFootprint {
         if let Some(ref p) = self.model_path {
-            let bytes = std::fs::metadata(p).map(|m| m.len()).unwrap_or(0);
+            let bytes = std::fs::metadata(p).map_or(0, |m| m.len());
             MemoryFootprint {
                 ram_bytes: bytes,
                 vram_bytes: 0,

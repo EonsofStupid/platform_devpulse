@@ -5,7 +5,9 @@ Tauri desktop with managed models, voice pipeline, and visual builder.
 Pre-release — aggressive reauthoring, no shims.
 
 ## Stack
-- **Rust workspace** — kernel, engine, Tauri backend, xtask
+- **Rust 2024 workspace** — kernel, engine, Tauri backend, xtask. Toolchain
+  version and minimal install profile live in `rust-toolchain.toml`; owned
+  crates inherit the edition and minimum Rust version from root `Cargo.toml`.
 - **Svelte 5 runes** — `$state`, `$derived`, `$effect`. No legacy stores.
 - **Tauri 2.0** — multi-window cockpit via WebviewWindow
 - **AI = providers over endpoints** — local runtimes are prebuilt, supervised

@@ -120,8 +120,7 @@ mod tests {
     fn finds_repos_with_their_languages() {
         let nanos = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
-            .map(|d| d.as_nanos())
-            .unwrap_or(0);
+            .map_or(0, |d| d.as_nanos());
         let root = std::env::temp_dir().join(format!("devpulse-scan-{nanos}"));
         let rust = root.join("beta-rust");
         std::fs::create_dir_all(rust.join(".git")).unwrap();

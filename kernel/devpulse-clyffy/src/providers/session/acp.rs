@@ -12,25 +12,25 @@ use std::path::Path;
 use std::sync::Arc;
 use std::time::Duration;
 
+use agent_client_protocol::schema::ProtocolVersion;
 use agent_client_protocol::schema::v1::{
     CancelNotification, ContentBlock, ContentChunk, Implementation, InitializeRequest,
     PermissionOptionKind, RequestPermissionOutcome, RequestPermissionRequest,
     RequestPermissionResponse, SelectedPermissionOutcome, SessionId, SessionNotification,
     SessionUpdate, StopReason, ToolCallStatus,
 };
-use agent_client_protocol::schema::ProtocolVersion;
 use agent_client_protocol::util::MatchDispatch;
 use agent_client_protocol::{
     AcpAgent, AcpAgentConfig, ActiveSession, Agent, Client, ConnectionTo, Dispatch, ErrorCode,
     SessionMessage,
 };
-use anyhow::{anyhow, bail, Result};
+use anyhow::{Result, anyhow, bail};
 use futures::FutureExt;
-use tokio::sync::{mpsc, oneshot, Mutex};
+use tokio::sync::{Mutex, mpsc, oneshot};
 
-use super::{AgentEvent, PermissionChoice, TurnEvents, PERMISSION_WAIT};
-use crate::providers::connect::acp::refuse;
+use super::{AgentEvent, PERMISSION_WAIT, PermissionChoice, TurnEvents};
 use crate::providers::connect::Launch;
+use crate::providers::connect::acp::refuse;
 
 mod lifecycle;
 

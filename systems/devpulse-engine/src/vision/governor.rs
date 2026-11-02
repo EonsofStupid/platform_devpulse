@@ -24,7 +24,7 @@
 
 use std::sync::Arc;
 
-use devpulse_telemetry::prelude::{broadcast_channel, BroadcastReceiver, BroadcastSender};
+use devpulse_telemetry::prelude::{BroadcastReceiver, BroadcastSender, broadcast_channel};
 use tokio::sync::RwLock;
 
 use super::dto::{GovernorPolicy, GovernorSample, GovernorState, GovernorThrottleReason};

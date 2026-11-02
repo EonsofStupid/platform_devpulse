@@ -1,4 +1,4 @@
-//! Test 4 — Drain test (HOT_UPDATE_PATTERN.md §12 verification 4)
+//! Test 4 — Drain test (`HOT_UPDATE_PATTERN.md` §12 verification 4)
 //!
 //! "10 mock query tasks each holding a Guard for 100ms; trigger
 //!  pause; assert pause completes only after the last task resolves."
@@ -7,6 +7,8 @@
 //! `pause()` waits for tracked tasks to settle BEFORE returning,
 //! not just signals them. Without this, mid-swap reads would see
 //! state torn between old and new.
+
+#![allow(clippy::unwrap_used, clippy::expect_used, reason = "test assertions")]
 
 mod common;
 
@@ -57,8 +59,7 @@ async fn pause_waits_for_all_in_flight_tasks_to_complete() {
     let elapsed = pause_returned.duration_since(pause_start);
     assert!(
         elapsed >= Duration::from_millis(80),
-        "pause returned in {:?} — expected ≥80ms (tasks sleep 100ms each)",
-        elapsed
+        "pause returned in {elapsed:?} — expected ≥80ms (tasks sleep 100ms each)"
     );
 
     // Critical assertion: every task completion timestamp is
@@ -116,13 +117,11 @@ async fn pause_force_proceeds_after_drain_timeout() {
     // Should complete in ~200ms (drain timeout), not 10s (task duration).
     assert!(
         elapsed < Duration::from_secs(1),
-        "pause hung waiting for stuck task — drain timeout didn't fire (elapsed {:?})",
-        elapsed
+        "pause hung waiting for stuck task — drain timeout didn't fire (elapsed {elapsed:?})"
     );
     assert!(
         elapsed >= Duration::from_millis(150),
-        "pause returned suspiciously fast ({:?}) — drain wasn't actually attempted",
-        elapsed
+        "pause returned suspiciously fast ({elapsed:?}) — drain wasn't actually attempted"
     );
 
     daemon

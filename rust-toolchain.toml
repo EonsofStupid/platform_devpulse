@@ -1,11 +1,8 @@
 [toolchain]
-# Pinned at 1.92.0 — Burn 0.21 (May 2026) transitively requires it via
-# cubecl-zspace 0.10. 1.92 was released 2025-12-08 (stable channel, six
-# months old at this pin) — six-month soak is enough that crates we touch
-# (candle, mistralrs, ort, tch) all support it as their MSRV. The
-# components list matches the prior pin so existing IDE / lint flows
-# continue to work without per-developer install steps.
-channel = "1.92.0"
+# Latest stable baseline, checked 2026-11-01 (plan 0001 Part L).
+# Install only the compiler and the explicitly required development tools.
+channel = "1.99.1"
+profile = "minimal"
 # llvm-tools-preview provides rust-lld.exe — wired as the Windows-MSVC linker
 # in .cargo/config.toml. Without it, cargo will fail to find the linker on a
 # fresh checkout. Cheap component (~80 MB), keeps the fast-link path

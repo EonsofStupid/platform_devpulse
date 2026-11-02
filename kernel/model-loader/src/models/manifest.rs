@@ -193,39 +193,37 @@ pub fn load_manifest(model_dir: &Path) -> Result<Option<ModelManifest>, String> 
 pub fn infer_from_sentence_transformers(model_dir: &Path) -> Option<Vec<ModelCapability>> {
     // Check for CrossEncoder (reranker) in config_sentence_transformers.json
     let st_config_path = model_dir.join("config_sentence_transformers.json");
-    if st_config_path.exists() {
-        if let Ok(content) = std::fs::read_to_string(&st_config_path) {
-            if let Ok(json) = serde_json::from_str::<serde_json::Value>(&content) {
-                // CrossEncoder = reranker
-                if json.get("model_type").and_then(|v| v.as_str()) == Some("CrossEncoder") {
-                    tracing::debug!(
-                        dir = %model_dir.display(),
-                        "sentence-transformers CrossEncoder detected → Reranking"
-                    );
-                    return Some(vec![ModelCapability::Reranking]);
-                }
-            }
+    if st_config_path.exists()
+        && let Ok(content) = std::fs::read_to_string(&st_config_path)
+        && let Ok(json) = serde_json::from_str::<serde_json::Value>(&content)
+    {
+        // CrossEncoder = reranker
+        if json.get("model_type").and_then(|v| v.as_str()) == Some("CrossEncoder") {
+            tracing::debug!(
+                dir = %model_dir.display(),
+                "sentence-transformers CrossEncoder detected → Reranking"
+            );
+            return Some(vec![ModelCapability::Reranking]);
         }
     }
 
     // Check for Pooling + Normalize in modules.json (= embedding model)
     let modules_path = model_dir.join("modules.json");
-    if modules_path.exists() {
-        if let Ok(content) = std::fs::read_to_string(&modules_path) {
-            if let Ok(modules) = serde_json::from_str::<Vec<serde_json::Value>>(&content) {
-                let has_pooling = modules.iter().any(|m| {
-                    m.get("type")
-                        .and_then(|t| t.as_str())
-                        .is_some_and(|t| t.contains("Pooling"))
-                });
-                if has_pooling {
-                    tracing::debug!(
-                        dir = %model_dir.display(),
-                        "sentence-transformers Pooling detected → Embedding"
-                    );
-                    return Some(vec![ModelCapability::Embedding]);
-                }
-            }
+    if modules_path.exists()
+        && let Ok(content) = std::fs::read_to_string(&modules_path)
+        && let Ok(modules) = serde_json::from_str::<Vec<serde_json::Value>>(&content)
+    {
+        let has_pooling = modules.iter().any(|m| {
+            m.get("type")
+                .and_then(|t| t.as_str())
+                .is_some_and(|t| t.contains("Pooling"))
+        });
+        if has_pooling {
+            tracing::debug!(
+                dir = %model_dir.display(),
+                "sentence-transformers Pooling detected → Embedding"
+            );
+            return Some(vec![ModelCapability::Embedding]);
         }
     }
 

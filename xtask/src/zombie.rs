@@ -40,9 +40,9 @@ mod job {
     use std::os::windows::io::AsRawHandle;
     use windows_sys::Win32::Foundation::{CloseHandle, HANDLE};
     use windows_sys::Win32::System::JobObjects::{
-        AssignProcessToJobObject, CreateJobObjectW, JobObjectExtendedLimitInformation,
-        SetInformationJobObject, JOBOBJECT_EXTENDED_LIMIT_INFORMATION,
-        JOB_OBJECT_LIMIT_BREAKAWAY_OK, JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE,
+        AssignProcessToJobObject, CreateJobObjectW, JOB_OBJECT_LIMIT_BREAKAWAY_OK,
+        JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE, JOBOBJECT_EXTENDED_LIMIT_INFORMATION,
+        JobObjectExtendedLimitInformation, SetInformationJobObject,
     };
 
     /// A Windows Job Object that kills all assigned processes on drop.
@@ -148,10 +148,10 @@ fn run_with_timeout(
     args: &[&str],
     timeout_secs: u64,
 ) -> Result<std::process::Output, String> {
-    use std::process::{Command, Stdio};
+    use std::process::Stdio;
     use std::time::{Duration, Instant};
 
-    let mut child = Command::new(cmd)
+    let mut child = crate::child_env::command(cmd)
         .args(args)
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
@@ -540,7 +540,7 @@ fn parse_csv_pid(line: &str) -> Option<u32> {
 #[cfg(all(test, windows))]
 #[allow(clippy::unwrap_used, reason = "test assertions")]
 mod tests {
-    use std::process::{Child, Command, Stdio};
+    use std::process::{Child, Stdio};
 
     struct Compiler(Child);
 
@@ -554,7 +554,7 @@ mod tests {
 
     #[test]
     fn build_inspection_leaves_an_unrelated_compiler_running() {
-        let compiler = Command::new("rustup")
+        let compiler = crate::child_env::command("rustup")
             .args(["which", "rustc"])
             .output()
             .unwrap();
@@ -563,7 +563,7 @@ mod tests {
         // An actual compiler waiting for source on stdin stays alive throughout
         // the scan. Its name cannot establish that it belongs to this launcher.
         let mut child = Compiler(
-            Command::new(path.trim())
+            crate::child_env::command(path.trim())
                 .args([
                     "--crate-name",
                     "devpulse_lock_probe",

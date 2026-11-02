@@ -145,18 +145,18 @@ fn hash_directory(dir: &Path) -> Result<String> {
     ];
 
     visit_dir(dir, &skip_dirs, &mut |entry| {
-        if let Ok(meta) = entry.metadata() {
-            if meta.is_file() {
-                file_count += 1;
-                total_size += meta.len();
-                if let Ok(mtime) = meta.modified() {
-                    let secs = mtime
-                        .duration_since(std::time::UNIX_EPOCH)
-                        .unwrap_or_default()
-                        .as_secs();
-                    if secs > newest_mtime {
-                        newest_mtime = secs;
-                    }
+        if let Ok(meta) = entry.metadata()
+            && meta.is_file()
+        {
+            file_count += 1;
+            total_size += meta.len();
+            if let Ok(mtime) = meta.modified() {
+                let secs = mtime
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .unwrap_or_default()
+                    .as_secs();
+                if secs > newest_mtime {
+                    newest_mtime = secs;
                 }
             }
         }

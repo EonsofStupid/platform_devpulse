@@ -8,7 +8,7 @@ use std::time::Duration;
 use devpulse_process::{self as process, Answer, Ran};
 use serde::{Deserialize, Serialize};
 
-use crate::providers::definition::{expand, SignedInSpec};
+use crate::providers::definition::{SignedInSpec, expand};
 
 const STATUS_TIMEOUT: Duration = Duration::from_secs(20);
 
@@ -29,10 +29,10 @@ pub enum SignedIn {
 #[must_use]
 pub fn judge(spec: &SignedInSpec, answer: &Answer) -> SignedIn {
     let output = format!("{}\n{}", answer.stdout, answer.stderr).to_lowercase();
-    if let Some(out) = &spec.output_signed_out {
-        if output.contains(&out.to_lowercase()) {
-            return SignedIn::No;
-        }
+    if let Some(out) = &spec.output_signed_out
+        && output.contains(&out.to_lowercase())
+    {
+        return SignedIn::No;
     }
     if let Some(inside) = &spec.output_signed_in {
         return if output.contains(&inside.to_lowercase()) {

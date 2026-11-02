@@ -5,7 +5,7 @@ use super::*;
 use agent_client_protocol::schema::v1::RequestId;
 use agent_client_protocol::{Channel, RawJsonRpcMessage, TransportBatch, TransportFrame};
 use futures::StreamExt;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 async fn request(peer: &mut Channel, method: &str) -> (RequestId, Value) {
     let Some(TransportFrame::Single(RawJsonRpcMessage::Request(request))) = peer.rx.next().await

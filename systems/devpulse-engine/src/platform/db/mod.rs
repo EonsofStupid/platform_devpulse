@@ -14,7 +14,7 @@
 
 pub mod editor;
 
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 use devpulse_clyffy::cortex::persistence::{SqlAdapter, SqlValue, TursoAdapter};
 use serde::Serialize;
 use specta::Type;
@@ -179,13 +179,15 @@ pub async fn history(adapter: &TursoAdapter) -> Result<Vec<AppliedMigration>> {
         .context("read schema_migrations")?;
     rows.into_iter()
         .map(|row| match row.as_slice() {
-            [SqlValue::Integer(version), SqlValue::Text(name), SqlValue::Integer(applied_at)] => {
-                Ok(AppliedMigration {
-                    version: u32::try_from(*version).context("migration version out of range")?,
-                    name: name.clone(),
-                    applied_at: *applied_at,
-                })
-            }
+            [
+                SqlValue::Integer(version),
+                SqlValue::Text(name),
+                SqlValue::Integer(applied_at),
+            ] => Ok(AppliedMigration {
+                version: u32::try_from(*version).context("migration version out of range")?,
+                name: name.clone(),
+                applied_at: *applied_at,
+            }),
             other => bail!("unexpected schema_migrations row: {other:?}"),
         })
         .collect()
@@ -203,8 +205,7 @@ mod tests {
     async fn open(tag: &str) -> (TursoAdapter, std::path::PathBuf) {
         let nanos = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
-            .map(|d| d.as_nanos())
-            .unwrap_or(0);
+            .map_or(0, |d| d.as_nanos());
         let dir = std::env::temp_dir().join(format!("devpulse-migrate-{tag}-{nanos}"));
         let adapter =
             TursoAdapter::open_with_schema(&dir.join("t.db"), BASE, TursoOptions::default())
@@ -305,8 +306,10 @@ mod tests {
         sorted.sort_unstable();
         sorted.dedup();
         assert_eq!(versions, sorted);
-        assert!(migrations::USER
-            .iter()
-            .any(|m| m.name == "clear_seeded_profile_values"));
+        assert!(
+            migrations::USER
+                .iter()
+                .any(|m| m.name == "clear_seeded_profile_values")
+        );
     }
 }

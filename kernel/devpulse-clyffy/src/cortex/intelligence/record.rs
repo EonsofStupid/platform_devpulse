@@ -14,7 +14,7 @@
 //!   as a sidecar blob; READ is mmap + `rkyv::access` → no
 //!   deserialization, no graph re-traversal, near-instant.
 
-use anyhow::{anyhow, Result};
+use anyhow::{Result, anyhow};
 use rkyv::{Archive, Deserialize as RkyvDeserialize, Serialize as RkyvSerialize};
 use serde::{Deserialize, Serialize};
 

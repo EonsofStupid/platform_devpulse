@@ -1,7 +1,8 @@
 [package]
 name = "devpulse-engine"
 version = "1.0.1"
-edition = "2021"
+edition.workspace = true
+rust-version.workspace = true
 
 [features]
 default = []

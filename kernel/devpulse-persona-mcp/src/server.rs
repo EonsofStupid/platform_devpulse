@@ -26,9 +26,9 @@ use crate::error::{ErrorEnvelope, ErrorKind, PersonaError};
 use crate::store::PersonaStore;
 use crate::verbs::{self, PersonaListArgs, PersonaLoadArgs, PersonaRecallArgs, PersonaSaveArgs};
 use serde::{Deserialize, Serialize};
-use serde_json::{json, Value};
-use std::sync::atomic::{AtomicU8, Ordering};
+use serde_json::{Value, json};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicU8, Ordering};
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 
 /// MCP protocol version this server speaks.
@@ -130,7 +130,7 @@ impl Server {
                 return Some(serialise_error(
                     Value::Null,
                     protocol_error(-32_700, format!("parse error: {error}")),
-                ))
+                ));
             }
         };
         let request: JsonRpcRequest = match serde_json::from_value(envelope.clone()) {
@@ -139,7 +139,7 @@ impl Server {
                 return Some(serialise_error(
                     Value::Null,
                     protocol_error(-32_600, format!("invalid request: {error}")),
-                ))
+                ));
             }
         };
         if request.jsonrpc != "2.0"
@@ -568,10 +568,12 @@ mod tests {
         let response = s.dispatch(raw).await.expect("response");
         let parsed: Value = serde_json::from_str(&response).expect("JSON");
         assert_eq!(parsed["error"]["data"]["kind"], "invalid_arg");
-        assert!(parsed["error"]["message"]
-            .as_str()
-            .unwrap_or_default()
-            .contains("unknown tool"));
+        assert!(
+            parsed["error"]["message"]
+                .as_str()
+                .unwrap_or_default()
+                .contains("unknown tool")
+        );
     }
 
     #[tokio::test]

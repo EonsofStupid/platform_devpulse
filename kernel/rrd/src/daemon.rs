@@ -26,7 +26,7 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use arc_swap::ArcSwap;
-use tokio::sync::{watch, Mutex};
+use tokio::sync::{Mutex, watch};
 use tokio_util::sync::CancellationToken;
 use tokio_util::task::TaskTracker;
 

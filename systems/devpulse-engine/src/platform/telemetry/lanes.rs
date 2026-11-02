@@ -28,7 +28,7 @@ use std::sync::Arc;
 use std::time::Instant;
 
 use serde_json::json;
-use tokio::sync::{mpsc, RwLock};
+use tokio::sync::{RwLock, mpsc};
 
 use devpulse_telemetry::spawn;
 

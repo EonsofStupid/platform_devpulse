@@ -19,8 +19,8 @@
 )]
 
 use tauri::Emitter;
-use tauri_plugin_shell::process::CommandChild;
 use tauri_plugin_shell::ShellExt;
+use tauri_plugin_shell::process::CommandChild;
 use tauri_specta::Event;
 use tokio::sync::Mutex;
 
@@ -342,22 +342,20 @@ pub async fn llama_chat(
                 continue;
             }
 
-            if let Some(json_str) = line.strip_prefix("data: ") {
-                if let Ok(parsed) = serde_json::from_str::<serde_json::Value>(json_str) {
-                    if let Some(content) = parsed
-                        .get("choices")
-                        .and_then(|c| c.get(0))
-                        .and_then(|c| c.get("delta"))
-                        .and_then(|d| d.get("content"))
-                        .and_then(|c| c.as_str())
-                    {
-                        full_response.push_str(content);
-                        let _ = crate::events::LlamaTokenStreamed {
-                            content: content.to_string(),
-                        }
-                        .emit(&app);
-                    }
+            if let Some(json_str) = line.strip_prefix("data: ")
+                && let Ok(parsed) = serde_json::from_str::<serde_json::Value>(json_str)
+                && let Some(content) = parsed
+                    .get("choices")
+                    .and_then(|c| c.get(0))
+                    .and_then(|c| c.get("delta"))
+                    .and_then(|d| d.get("content"))
+                    .and_then(|c| c.as_str())
+            {
+                full_response.push_str(content);
+                let _ = crate::events::LlamaTokenStreamed {
+                    content: content.to_string(),
                 }
+                .emit(&app);
             }
         }
     }

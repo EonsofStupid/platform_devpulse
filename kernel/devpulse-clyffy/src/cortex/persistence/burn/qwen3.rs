@@ -52,7 +52,7 @@ use burn::{
     config::Config,
     module::Module,
     prelude::Backend,
-    tensor::{activation, Distribution, Int, Tensor},
+    tensor::{Distribution, Int, Tensor, activation},
 };
 
 // ─────────────────────────────────────────────────────────────────────────

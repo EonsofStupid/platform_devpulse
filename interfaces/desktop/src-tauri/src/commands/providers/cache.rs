@@ -96,13 +96,12 @@ impl ValidationCache {
         entry: CacheEntry,
     ) -> Result<(), CommandError> {
         let mut entries = self.lock();
-        if let Some(observation) = entries.get_mut(&ticket.provider) {
-            if observation.mutations == 0
-                && Arc::ptr_eq(&observation.generation, &ticket.generation)
-            {
-                observation.entry = Some(entry);
-                return Ok(());
-            }
+        if let Some(observation) = entries.get_mut(&ticket.provider)
+            && observation.mutations == 0
+            && Arc::ptr_eq(&observation.generation, &ticket.generation)
+        {
+            observation.entry = Some(entry);
+            return Ok(());
         }
         Err(CommandError::not_configured(
             "Credentials changed or a newer check superseded this result; check the provider again",

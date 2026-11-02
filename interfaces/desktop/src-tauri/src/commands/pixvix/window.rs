@@ -20,7 +20,7 @@ use std::time::Instant;
 use devpulse_telemetry::spawn_blocking;
 
 use super::dto::{CaptureWindowInfo, CapturedFrame, WindowCapability, WindowListing};
-use crate::commands::_util::{data_url, encode_png, now_ms, CommandError, ErrorKind};
+use crate::commands::_util::{CommandError, ErrorKind, data_url, encode_png, now_ms};
 
 /// Enumerate capturable windows.
 ///

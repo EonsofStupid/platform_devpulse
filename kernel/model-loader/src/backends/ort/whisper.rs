@@ -519,21 +519,19 @@ fn resample(audio: &[f32], from_rate: u32, to_rate: u32) -> Vec<f32> {
 /// Recursively compute directory size in bytes.
 fn dir_size(path: &Path) -> u64 {
     if path.is_file() {
-        return std::fs::metadata(path).map(|m| m.len()).unwrap_or(0);
+        return std::fs::metadata(path).map_or(0, |m| m.len());
     }
-    std::fs::read_dir(path)
-        .map(|entries| {
-            entries
-                .filter_map(std::result::Result::ok)
-                .map(|e| {
-                    let p = e.path();
-                    if p.is_dir() {
-                        dir_size(&p)
-                    } else {
-                        std::fs::metadata(&p).map(|m| m.len()).unwrap_or(0)
-                    }
-                })
-                .sum()
-        })
-        .unwrap_or(0)
+    std::fs::read_dir(path).map_or(0, |entries| {
+        entries
+            .filter_map(std::result::Result::ok)
+            .map(|e| {
+                let p = e.path();
+                if p.is_dir() {
+                    dir_size(&p)
+                } else {
+                    std::fs::metadata(&p).map_or(0, |m| m.len())
+                }
+            })
+            .sum()
+    })
 }

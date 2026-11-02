@@ -4,7 +4,7 @@
 //! Combination of signal-based routing + async get/set/delete.
 
 use anyhow::Result;
-use serde::{de::DeserializeOwned, Serialize};
+use serde::{Serialize, de::DeserializeOwned};
 use std::fmt;
 
 /// Typed SQL value — no lazy string dumps.

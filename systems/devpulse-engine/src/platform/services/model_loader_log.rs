@@ -57,11 +57,11 @@ impl FileEventSink {
         let timestamp = chrono::Local::now().format("%Y-%m-%d %H:%M:%S%.3f");
         let line = format!("[{timestamp}] [{level}] {message}\n");
 
-        if let Ok(mut guard) = self.writer.lock() {
-            if let Some(ref mut file) = *guard {
-                let _ = file.write_all(line.as_bytes());
-                let _ = file.flush();
-            }
+        if let Ok(mut guard) = self.writer.lock()
+            && let Some(ref mut file) = *guard
+        {
+            let _ = file.write_all(line.as_bytes());
+            let _ = file.flush();
         }
     }
 
@@ -351,7 +351,7 @@ impl LoaderEventSink for FileEventSink {
             } => {
                 self.write_line(
                     "INFO",
-                    &format!("Install COMPLETE: id={install_id} slot={slot_id} model={model_id}",),
+                    &format!("Install COMPLETE: id={install_id} slot={slot_id} model={model_id}"),
                 );
                 tracing::info!(
                     install_id = %install_id,
@@ -367,7 +367,7 @@ impl LoaderEventSink for FileEventSink {
             } => {
                 self.write_line(
                     "ERROR",
-                    &format!("Install FAILED: id={install_id} slot={slot_id} error={error}",),
+                    &format!("Install FAILED: id={install_id} slot={slot_id} error={error}"),
                 );
                 tracing::error!(
                     install_id = %install_id,

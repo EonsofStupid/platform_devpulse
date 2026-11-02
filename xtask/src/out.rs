@@ -46,8 +46,8 @@ use std::fmt;
 use std::fs::{File, OpenOptions};
 use std::io::{self, Write};
 use std::path::{Path, PathBuf};
-use std::sync::atomic::{AtomicU8, Ordering};
 use std::sync::Mutex;
+use std::sync::atomic::{AtomicU8, Ordering};
 
 /// Atomic verbosity level — set once from CLI flags in `main`.
 /// Numeric ordering matches visibility: higher level → more output.

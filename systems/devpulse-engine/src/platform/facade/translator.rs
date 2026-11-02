@@ -336,7 +336,9 @@ impl EventTranslator for PromptAssemblyTranslator {
                 assembled_tokens,
             } => {
                 let headline = if *user_words <= 6 {
-                    format!("You said {user_words} words — Clyffy expanded that into a detailed request")
+                    format!(
+                        "You said {user_words} words — Clyffy expanded that into a detailed request"
+                    )
                 } else {
                     "Preparing your request...".to_string()
                 };

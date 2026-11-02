@@ -68,10 +68,12 @@ async fn concurrent_windows_share_a_real_peer_and_operation_errors_do_not_break_
     assert_eq!(first, second.unwrap());
     assert_eq!(first.sessions.len(), 1);
     assert_eq!(first.sessions[0].title, "Fixture request");
-    assert!(client
-        .page(ProviderId::ClaudeCode, "not-a-locator".into(), None)
-        .await
-        .is_err());
+    assert!(
+        client
+            .page(ProviderId::ClaudeCode, "not-a-locator".into(), None)
+            .await
+            .is_err()
+    );
     let page = client
         .page(
             ProviderId::ClaudeCode,
@@ -97,27 +99,33 @@ async fn eof_closes_the_actual_child_and_crash_closes_its_reply_pipe() {
     let reply: Reply = protocol::read(&mut output).await.unwrap().unwrap();
     assert!(matches!(reply, Reply::Sessions(_)));
     drop(input);
-    assert!(tokio::time::timeout(Duration::from_secs(10), child.wait())
-        .await
-        .unwrap()
-        .unwrap()
-        .success());
-    assert!(protocol::read::<_, Reply>(&mut output)
-        .await
-        .unwrap()
-        .is_none());
+    assert!(
+        tokio::time::timeout(Duration::from_secs(10), child.wait())
+            .await
+            .unwrap()
+            .unwrap()
+            .success()
+    );
+    assert!(
+        protocol::read::<_, Reply>(&mut output)
+            .await
+            .unwrap()
+            .is_none()
+    );
 
     let (mut child, mut input, mut output) = start(dir.path());
     connect(&mut input, &mut output).await;
     child.kill().await.unwrap();
-    assert!(tokio::time::timeout(
-        Duration::from_secs(10),
-        protocol::read::<_, Reply>(&mut output)
-    )
-    .await
-    .unwrap()
-    .unwrap()
-    .is_none());
+    assert!(
+        tokio::time::timeout(
+            Duration::from_secs(10),
+            protocol::read::<_, Reply>(&mut output)
+        )
+        .await
+        .unwrap()
+        .unwrap()
+        .is_none()
+    );
 }
 
 #[tokio::test]
@@ -127,14 +135,16 @@ async fn a_stale_binary_contract_is_refused_before_any_request() {
     let mut stale = serde_json::to_value(Hello::default()).unwrap();
     stale["build"] = "stale".into();
     protocol::write(&mut input, &stale).await.unwrap();
-    assert!(tokio::time::timeout(
-        Duration::from_secs(10),
-        protocol::read::<_, Hello>(&mut output)
-    )
-    .await
-    .unwrap()
-    .unwrap()
-    .is_none());
+    assert!(
+        tokio::time::timeout(
+            Duration::from_secs(10),
+            protocol::read::<_, Hello>(&mut output)
+        )
+        .await
+        .unwrap()
+        .unwrap()
+        .is_none()
+    );
     assert!(!child.wait().await.unwrap().success());
 }
 

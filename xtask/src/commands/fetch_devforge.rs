@@ -46,7 +46,7 @@
 use crate::commands::Task;
 use crate::stage::{self, Stage};
 use crate::workspace::Workspace;
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
@@ -128,17 +128,17 @@ impl Task for FetchDevForge {
 
         // ── Cache check ────────────────────────────────────────────
         let marker = dst_root.join(".devforge-version");
-        if let Ok(existing) = fs::read_to_string(&marker) {
-            if existing.trim() == manifest.version {
-                let cache = Stage::start("cache check");
-                cache.ok_with("target already pinned — skipping fetch");
-                println!(
-                    "  DevForge {} ready at {}",
-                    manifest.version,
-                    dst_root.display()
-                );
-                return Ok(());
-            }
+        if let Ok(existing) = fs::read_to_string(&marker)
+            && existing.trim() == manifest.version
+        {
+            let cache = Stage::start("cache check");
+            cache.ok_with("target already pinned — skipping fetch");
+            println!(
+                "  DevForge {} ready at {}",
+                manifest.version,
+                dst_root.display()
+            );
+            return Ok(());
         }
 
         // ── Download (with local cache in .userdata/tmp) ───────────
@@ -161,7 +161,7 @@ impl Task for FetchDevForge {
             let resolve = Stage::start("resolve asset");
             let asset_api_url =
                 resolve_asset_api_url(&agent, &owner, &repo, &manifest.tag, &artifact.file_name)?;
-            resolve.ok_with(format!("{owner}/{repo} {}", &manifest.tag));
+            resolve.ok_with(format!("{owner}/{repo} {}", manifest.tag));
 
             let dl = Stage::start("download");
             download_artifact(&agent, &asset_api_url, &tmp_file)

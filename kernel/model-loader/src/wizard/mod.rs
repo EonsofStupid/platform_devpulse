@@ -22,7 +22,7 @@ pub mod copy;
 pub mod tier_display;
 pub mod tooltips;
 
-pub use analytics::{emit_event, AnalyticsEvent};
+pub use analytics::{AnalyticsEvent, emit_event};
 pub use copy::{
     ActivateCopy, BrowseCopy, CompletionCopy, CustomizeCopy, GreetingCopy, HardwareCopy,
     ModelsCopy, ProfileCopy, RuntimePickerCopy, ScanningCopy, WizardCopy,

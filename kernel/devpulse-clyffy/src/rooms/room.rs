@@ -12,7 +12,7 @@ use std::collections::BTreeMap;
 use serde::{Deserialize, Serialize};
 
 use super::role::{RoleCard, Stance};
-use super::{is_kebab, semver, Issue, Provenance, Visibility};
+use super::{Issue, Provenance, Visibility, is_kebab, semver};
 
 /// The `schema` value of every room file.
 pub const ROOM_SCHEMA: &str = "dpl.room/1";
@@ -379,10 +379,11 @@ mod tests {
         if let Some(selection) = room.selection.as_mut() {
             selection.seat = "answerer".to_owned();
         }
-        assert!(room
-            .validate(&library.roles)
-            .iter()
-            .any(|issue| issue.problem.contains("must be a selecting role")));
+        assert!(
+            room.validate(&library.roles)
+                .iter()
+                .any(|issue| issue.problem.contains("must be a selecting role"))
+        );
     }
 
     #[test]

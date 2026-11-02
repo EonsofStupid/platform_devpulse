@@ -100,10 +100,10 @@ impl TelemetryGuard {
     /// This is the ONLY correct way to tear down telemetry. Do NOT rely on
     /// `Drop` — it cannot run async flush logic.
     pub fn shutdown(mut self) {
-        if let Some(provider) = self.provider.take() {
-            if let Err(e) = provider.shutdown() {
-                tracing::error!("Telemetry shutdown error: {e:?}");
-            }
+        if let Some(provider) = self.provider.take()
+            && let Err(e) = provider.shutdown()
+        {
+            tracing::error!("Telemetry shutdown error: {e:?}");
         }
         // provider is None now — Drop won't warn.
     }

@@ -9,7 +9,7 @@ use std::time::Duration;
 use futures::FutureExt;
 use tokio::sync::watch;
 
-use super::{tell_ready, Shared};
+use super::{Shared, tell_ready};
 
 pub(super) struct Connection {
     closing: watch::Sender<bool>,

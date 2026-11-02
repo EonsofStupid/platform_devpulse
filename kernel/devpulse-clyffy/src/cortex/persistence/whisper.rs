@@ -60,7 +60,9 @@ impl WhisperAdapter {
             )
         })?;
         let mel_filters: Vec<f32> = mel_bytes
-            .chunks_exact(4)
+            .as_chunks::<4>()
+            .0
+            .iter()
             .map(|chunk| f32::from_le_bytes([chunk[0], chunk[1], chunk[2], chunk[3]]))
             .collect();
         let expected_len = config.num_mel_bins * 201; // n_mels * (n_fft/2 + 1)

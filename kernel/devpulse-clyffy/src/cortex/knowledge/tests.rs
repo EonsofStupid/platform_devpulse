@@ -102,7 +102,7 @@ mod knowledge_smoke {
         let mut seen = HashSet::new();
 
         for entry in &entries {
-            assert!(seen.insert(&entry.id), "duplicate id found: {}", entry.id,);
+            assert!(seen.insert(&entry.id), "duplicate id found: {}", entry.id);
         }
     }
 

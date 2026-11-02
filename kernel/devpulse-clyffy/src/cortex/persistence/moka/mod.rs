@@ -56,27 +56,25 @@ impl MokaAdapter {
 
     /// Health check — write, read, verify, delete a sentinel value.
     ///
-    /// Proves the cache can actually store and retrieve data.
-    /// If any step fails, the cache is broken.
+    /// Check that the in-memory cache has usable configured capacity.
     ///
     /// # Errors
-    /// Returns error if the cache cannot complete a write/read/delete cycle.
+    /// Returns an error if the configured capacity is zero.
     ///
-    /// Stays `async` to match the shared `CacheAdapter`-style health-check
-    /// surface used by every other persistence adapter in this module.
-    /// A uniform surface lets platform orchestration call every adapter
-    /// with `.ping().await?` regardless of in-memory vs on-disk backing.
-    #[allow(clippy::unused_async)]
-    pub async fn ping(&self) -> Result<()> {
+    /// Returns a ready future: the same `.ping().await?` surface as every
+    /// other persistence adapter in this module, with no I/O to wait on.
+    pub fn ping(&self) -> impl std::future::Future<Output = Result<()>> {
         // Moka is an in-memory cache — if the struct exists, it works.
         // The previous sentinel write/read/verify approach failed because
         // time_to_idle evicts the sentinel before the readback when the
         // health poll interval exceeds TTI. A capacity check is sufficient
         // to prove the cache is alive and configured.
-        if self.max_capacity == 0 {
-            anyhow::bail!("Cache health check: max_capacity is 0");
-        }
-        Ok(())
+        let health = if self.max_capacity == 0 {
+            Err(anyhow::anyhow!("Cache health check: max_capacity is 0"))
+        } else {
+            Ok(())
+        };
+        std::future::ready(health)
     }
 }
 
@@ -102,11 +100,11 @@ impl PersistenceAdapter for MokaAdapter {
 }
 
 impl CacheAdapter for MokaAdapter {
-    async fn invalidate_prefix(&self, prefix: &str) -> Result<u64> {
+    fn invalidate_prefix(&self, prefix: &str) -> impl std::future::Future<Output = Result<u64>> {
         // Moka doesn't support prefix scanning natively.
         // A future iteration can maintain a secondary index if needed.
         let _ = prefix;
-        Ok(0)
+        std::future::ready(Ok(0))
     }
 
     fn stats(&self) -> (u64, u64) {

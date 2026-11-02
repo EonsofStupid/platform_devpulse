@@ -8,7 +8,7 @@ pub mod registry;
 pub mod symlink;
 pub mod types;
 
-pub use defaults::{load_default_slots, SlotDefaultsError, BASELINE_SLOT_IDS};
+pub use defaults::{BASELINE_SLOT_IDS, SlotDefaultsError, load_default_slots};
 pub use kv_cache::{KvCacheConfig, KvCacheQuant, RopeScalingMode, YarnConfig};
 pub use persistence_class::PersistenceClass;
 pub use registry::SlotRegistry;

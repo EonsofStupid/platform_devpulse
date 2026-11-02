@@ -30,7 +30,6 @@ use anyhow::{Context, Result};
 use chrono::Utc;
 use serde::Serialize;
 use std::path::{Path, PathBuf};
-use std::process::Command;
 
 const SPEC_VERSION: &str = "1.4";
 
@@ -173,7 +172,7 @@ fn collect_npm_components(desktop_dir: &Path) -> Result<Vec<Component>> {
     // `pnpm list --json --depth=Infinity --prod` emits an array of
     // workspace entries, each with a `dependencies` tree. We walk the
     // tree and flatten into a unique (name, version) set.
-    let output = Command::new("pnpm")
+    let output = crate::child_env::command("pnpm")
         .args(["list", "--json", "--depth=Infinity", "--prod"])
         .current_dir(desktop_dir)
         .output()

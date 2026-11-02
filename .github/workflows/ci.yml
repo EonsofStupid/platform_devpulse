@@ -86,11 +86,22 @@ jobs:
             libudev-dev \
             patchelf
 
+      - name: Read workspace Rust toolchain
+        id: rust-toolchain
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import tomllib
+          with open("rust-toolchain.toml", "rb") as source:
+              toolchain = tomllib.load(source)["toolchain"]
+          print(f"channel={toolchain['channel']}")
+          print(f"components={','.join(toolchain['components'])}")
+          PY
+
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: "1.89.0"
-          components: rustfmt, clippy
+          toolchain: ${{ steps.rust-toolchain.outputs.channel }}
+          components: ${{ steps.rust-toolchain.outputs.components }}
 
       # protoc is required by `tonic-build` pulled in by the rro v2
       # alpha (crates/storage-api/build.rs runs tonic_build::configure

@@ -273,11 +273,7 @@ fn label_after_prefix(head_upper: &str, head: &str, prefix: &str) -> Option<Stri
         .chars()
         .take_while(|c| !c.is_whitespace() && *c != '(')
         .collect();
-    if name.is_empty() {
-        None
-    } else {
-        Some(name)
-    }
+    if name.is_empty() { None } else { Some(name) }
 }
 
 // ════════════════════════════════════════════════════════════════════
@@ -300,8 +296,7 @@ impl DuckDbFixture {
         static COUNTER: AtomicU64 = AtomicU64::new(0);
         let nanos = SystemTime::now()
             .duration_since(UNIX_EPOCH)
-            .map(|d| d.as_nanos())
-            .unwrap_or(0);
+            .map_or(0, |d| d.as_nanos());
         let seq = COUNTER.fetch_add(1, Ordering::Relaxed);
         let safe_label: String = label
             .chars()

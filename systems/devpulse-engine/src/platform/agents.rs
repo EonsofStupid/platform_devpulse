@@ -12,15 +12,15 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::Instant;
 
-use anyhow::{anyhow, bail, Context, Result};
+use anyhow::{Context, Result, anyhow, bail};
 use devpulse_clyffy::cortex::persistence::{SqlAdapter, SqlValue, TursoAdapter};
 // IP-NOTE: conversation vocabulary only — thread, turn, agent, event; public
 // names, no kernel internals.
-use devpulse_clyffy::providers::{catalog, AgentSession};
 pub use devpulse_clyffy::providers::{AgentEvent, PermissionChoice, ProviderId};
+use devpulse_clyffy::providers::{AgentSession, catalog};
 use serde::{Deserialize, Serialize};
 use specta::Type;
-use tokio::sync::{mpsc, Mutex};
+use tokio::sync::{Mutex, mpsc};
 use uuid::Uuid;
 
 use super::agenthub::live::LiveState;
@@ -536,29 +536,32 @@ pub(super) async fn save_turn_with_continuation(
 ) -> Result<String> {
     let id = format!("turn-{}", Uuid::new_v4());
     let optional_text = |v: Option<&str>| v.map_or(SqlValue::Null, SqlValue::from);
-    let mut writes = vec![(
-        "INSERT INTO turns (id, session_id, project_id, role, content, sequence_num, model_used, \
+    let mut writes = vec![
+        (
+            "INSERT INTO turns (id, session_id, project_id, role, content, sequence_num, model_used, \
          finish_reason, latency_ms, metadata, token_count) \
          SELECT ?, s.id, s.project_id, ?, ?, \
          (SELECT COALESCE(MAX(sequence_num), 0) + 1 FROM turns WHERE session_id = s.id), \
          ?, ?, ?, ?, ? FROM sessions s WHERE s.id = ? AND s.project_id = ?",
-        vec![
-            id.as_str().into(),
-            turn.role.into(),
-            turn.content.into(),
-            optional_text(turn.model_used),
-            optional_text(turn.finish_reason),
-            turn.latency_ms.map_or(SqlValue::Null, SqlValue::from),
-            optional_text(turn.metadata),
-            turn.token_count.map_or(SqlValue::Null, SqlValue::from),
-            session_id.into(),
-            project_id.into(),
-        ],
-    ), (
-        "UPDATE sessions SET updated_at = unixepoch(), interaction_count = interaction_count + 1 \
+            vec![
+                id.as_str().into(),
+                turn.role.into(),
+                turn.content.into(),
+                optional_text(turn.model_used),
+                optional_text(turn.finish_reason),
+                turn.latency_ms.map_or(SqlValue::Null, SqlValue::from),
+                optional_text(turn.metadata),
+                turn.token_count.map_or(SqlValue::Null, SqlValue::from),
+                session_id.into(),
+                project_id.into(),
+            ],
+        ),
+        (
+            "UPDATE sessions SET updated_at = unixepoch(), interaction_count = interaction_count + 1 \
          WHERE id = ?",
-        vec![session_id.into()],
-    )];
+            vec![session_id.into()],
+        ),
+    ];
     if let Some(continuation) = continuation {
         let (query, value) = match continuation {
             ResumeUpdate::Agent(token) => (
@@ -651,7 +654,7 @@ mod tests {
         assert_eq!(stop, "failed");
         assert!(matches!(ending, AgentEvent::Failed { .. }));
         let current = live.snapshot();
-        assert!(current.conversations[0].permissions.is_empty());
+        assert_eq!(current.conversations[0].permissions.len(), 0);
         assert_eq!(
             current.conversations[0].activity,
             super::super::agenthub::live::Activity::Working
@@ -735,20 +738,15 @@ mod tests {
                 } else {
                     ResumeUpdate::Agent(Some(token))
                 };
-                assert!(save_turn_with_continuation(
-                    &db,
-                    "s",
-                    "p",
-                    &user_turn(content),
-                    Some(&update)
-                )
-                .await
-                .is_err());
-                assert!(db
-                    .query("SELECT id FROM turns", &[])
-                    .await
-                    .unwrap()
-                    .is_empty());
+                assert!(
+                    save_turn_with_continuation(&db, "s", "p", &user_turn(content), Some(&update))
+                        .await
+                        .is_err()
+                );
+                assert_eq!(
+                    db.query("SELECT id FROM turns", &[]).await.unwrap(),
+                    [] as [std::vec::Vec<devpulse_clyffy::cortex::persistence::SqlValue>; 0]
+                );
                 assert_eq!(
                     db.query("SELECT interaction_count FROM sessions", &[])
                         .await
@@ -785,15 +783,11 @@ mod tests {
             db.execute(&format!("DELETE FROM {table}"), &[])
                 .await
                 .unwrap();
-            assert!(save_turn_with_continuation(
-                &db,
-                "s",
-                "p",
-                &user_turn("orphan"),
-                Some(&update)
-            )
-            .await
-            .is_err());
+            assert!(
+                save_turn_with_continuation(&db, "s", "p", &user_turn("orphan"), Some(&update))
+                    .await
+                    .is_err()
+            );
             assert_eq!(
                 db.query("SELECT COUNT(*) FROM turns", &[]).await.unwrap(),
                 vec![vec![1.into()]]
@@ -836,11 +830,10 @@ mod tests {
             serde_json::from_slice(&std::fs::read(path).unwrap()).unwrap();
         assert_eq!(document["turn"]["content"], "complete answer");
         assert_eq!(document["continuation"]["Agent"], "reject");
-        assert!(db
-            .query("SELECT id FROM turns", &[])
-            .await
-            .unwrap()
-            .is_empty());
+        assert_eq!(
+            db.query("SELECT id FROM turns", &[]).await.unwrap(),
+            [] as [std::vec::Vec<devpulse_clyffy::cortex::persistence::SqlValue>; 0]
+        );
         assert_eq!(
             complete_turn(
                 &db,
@@ -933,14 +926,15 @@ mod tests {
             ("missing", "p", "hello"),
             ("s", "wrong", "hello"),
         ] {
-            assert!(save_turn(&db, session, project, &user_turn(content))
-                .await
-                .is_err());
-            assert!(db
-                .query("SELECT id FROM turns", &[])
-                .await
-                .unwrap()
-                .is_empty());
+            assert!(
+                save_turn(&db, session, project, &user_turn(content))
+                    .await
+                    .is_err()
+            );
+            assert_eq!(
+                db.query("SELECT id FROM turns", &[]).await.unwrap(),
+                [] as [std::vec::Vec<devpulse_clyffy::cortex::persistence::SqlValue>; 0]
+            );
             assert_eq!(
                 db.query("SELECT interaction_count FROM sessions", &[])
                     .await

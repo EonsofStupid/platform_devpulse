@@ -13,7 +13,7 @@ pub mod traits;
 pub mod types;
 
 // Re-exports
-pub use pipeline::{deduplicate, jaccard_similarity, rrf_fuse, RetrievalPipeline};
+pub use pipeline::{RetrievalPipeline, deduplicate, jaccard_similarity, rrf_fuse};
 pub use traits::{ContextAssembler, Embedder, Hydrator, Reranker, SparseEncoder};
 pub use types::{
     ChunkPayload, ChunkType, ContextBlob, PipelineConfig, PipelineMetrics, RetrievedChunk,

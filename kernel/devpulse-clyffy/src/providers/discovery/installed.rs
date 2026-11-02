@@ -5,7 +5,7 @@ use std::time::Duration;
 
 use devpulse_process::{self as process, Ran};
 
-use crate::providers::definition::{expand, ProviderDefinition};
+use crate::providers::definition::{ProviderDefinition, expand};
 
 /// How long a `--version` may take (some CLIs start a runtime first).
 const VERSION_TIMEOUT: Duration = Duration::from_secs(20);

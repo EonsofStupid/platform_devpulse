@@ -6,8 +6,8 @@ use crate::capture::CameraManager;
 use crate::error::{MediaError, MediaResult};
 use crate::frame::Frame;
 use devpulse_telemetry::channel::flume::{self as traced_flume, TracedReceiver, TracedSender};
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
 use tokio::task::JoinHandle;
 use tracing::{debug, error, info, warn};
@@ -135,14 +135,14 @@ impl MediaPipeline {
         info!("Stopping media pipeline...");
         self.running.store(false, Ordering::SeqCst);
 
-        if let Some(handle) = self.capture_handle.take() {
-            if let Err(e) = handle.await {
-                error!("Capture task panicked during shutdown: {}", e);
-                self.state = PipelineState::Stopped;
-                return Err(MediaError::CaptureFailed(format!(
-                    "Capture task panicked: {e}"
-                )));
-            }
+        if let Some(handle) = self.capture_handle.take()
+            && let Err(e) = handle.await
+        {
+            error!("Capture task panicked during shutdown: {}", e);
+            self.state = PipelineState::Stopped;
+            return Err(MediaError::CaptureFailed(format!(
+                "Capture task panicked: {e}"
+            )));
         }
 
         self.state = PipelineState::Stopped;

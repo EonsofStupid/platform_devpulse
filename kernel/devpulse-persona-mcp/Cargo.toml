@@ -1,7 +1,8 @@
 [package]
 name = "devpulse-persona-mcp"
 version = "0.1.0"
-edition = "2021"
+edition.workspace = true
+rust-version.workspace = true
 description = "Kernel-owned persona memory over MCP stdio, backed by Turso."
 
 [features]

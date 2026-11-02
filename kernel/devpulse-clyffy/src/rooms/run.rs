@@ -28,11 +28,11 @@ use anyhow::Result;
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 
-use super::brief::{brief, read_output, Marker};
+use super::Visibility;
+use super::brief::{Marker, brief, read_output};
 use super::role::Stance;
 use super::room::{CarryForward, Phase, PhaseMode, Selection};
 use super::seating::{Place, SeatedRoom};
-use super::Visibility;
 use crate::providers::types::ProviderId;
 
 /// What a room runs on: the host asks each place's agent and keeps the
@@ -613,8 +613,8 @@ mod tests {
     use std::sync::Mutex;
 
     use super::*;
-    use crate::rooms::seating::{seat, Assignment};
     use crate::rooms::Library;
+    use crate::rooms::seating::{Assignment, seat};
 
     /// How a scripted agent answers: `(place key, ask number)` → answer.
     type Answers = Box<dyn Fn(&str, usize) -> Result<String> + Send + Sync>;

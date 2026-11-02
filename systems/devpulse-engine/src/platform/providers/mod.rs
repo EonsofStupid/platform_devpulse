@@ -10,19 +10,19 @@
 use std::path::PathBuf;
 use std::sync::Arc;
 
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use tokio::sync::Mutex;
 
 // Kernel-owned facts cross intact; the window translates their presentation.
 pub use devpulse_clyffy::providers::supervisor::{ConnectionReadiness, ProviderAvailability};
-use devpulse_clyffy::providers::{actions, catalog, check, ActionContext};
-use devpulse_clyffy::providers::{discovery::installed, supervisor};
+use devpulse_clyffy::providers::{ActionContext, actions, catalog, check};
 pub use devpulse_clyffy::providers::{
     AdapterKind, ConnectorReport, ProviderAction, ProviderActionRun, ProviderId, ProviderKind,
     ProviderReport, ProvidersReport, SignedIn,
 };
+use devpulse_clyffy::providers::{discovery::installed, supervisor};
 
 use crate::signals::{Signal, SignalSource, SignalVariant};
 

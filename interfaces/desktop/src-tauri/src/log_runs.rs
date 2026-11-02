@@ -344,16 +344,14 @@ fn failed(dir: &Path) -> bool {
 
 /// A folder's size: the bytes of the files in it.
 fn bytes_in(dir: &Path) -> u64 {
-    std::fs::read_dir(dir)
-        .map(|entries| {
-            entries
-                .filter_map(Result::ok)
-                .filter_map(|e| e.metadata().ok())
-                .filter(std::fs::Metadata::is_file)
-                .map(|m| m.len())
-                .sum()
-        })
-        .unwrap_or(0)
+    std::fs::read_dir(dir).map_or(0, |entries| {
+        entries
+            .filter_map(Result::ok)
+            .filter_map(|e| e.metadata().ok())
+            .filter(std::fs::Metadata::is_file)
+            .map(|m| m.len())
+            .sum()
+    })
 }
 
 /// Judge every run against the policy at the start of `current`, remove
@@ -423,8 +421,7 @@ mod tests {
     fn temp(name: &str) -> PathBuf {
         let nanos = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
-            .map(|d| d.as_nanos())
-            .unwrap_or(0);
+            .map_or(0, |d| d.as_nanos());
         let dir = std::env::temp_dir().join(format!("devpulse-runs-{name}-{nanos}"));
         std::fs::create_dir_all(&dir).unwrap();
         dir

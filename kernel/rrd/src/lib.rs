@@ -54,6 +54,6 @@ pub mod traits;
 pub use daemon::RRD;
 pub use error::{FailureReason, RRDError};
 pub use handle::PauseHandle;
-pub use lifecycle::{lifecycle_phase, RRD_LIFECYCLE_TARGET};
+pub use lifecycle::{RRD_LIFECYCLE_TARGET, lifecycle_phase};
 pub use state::RRDState;
 pub use traits::{HotSwap, HotUpdateable};

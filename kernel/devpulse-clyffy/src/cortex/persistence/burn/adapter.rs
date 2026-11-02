@@ -41,7 +41,7 @@ use model_loader::backends::burn_adapter::{BurnEncoderAdapter, SwapStats};
 use model_loader::loading::states::MemoryFootprint;
 use rrd::{HotSwap, HotUpdateable, RRD};
 use tokenizers::Tokenizer;
-use tokio::sync::{watch, Mutex};
+use tokio::sync::{Mutex, watch};
 
 use super::embedder::{BurnEmbedder, EmbedderConfig};
 use super::hot_update::BurnEmbedderSource;

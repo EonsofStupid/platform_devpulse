@@ -7,6 +7,7 @@
 //! - [`net`] — cross-platform port management
 //! - [`zombie`] — stale process cleanup
 
+mod child_env;
 mod commands;
 mod events;
 mod manifest;
@@ -95,6 +96,13 @@ enum Commands {
     },
     /// Verify the setup: svelte-check + cargo check.
     Verify,
+    /// `cargo check` with the same native build settings as `run-dev`.
+    Check {
+        #[command(flatten)]
+        selection: commands::cargo_tool::Selection,
+        #[arg(last = true)]
+        args: Vec<String>,
+    },
     /// `cargo clippy` with `run-dev`'s build env and acceleration features,
     /// so linting does not invalidate the dev loop's build artifacts.
     /// Arguments after `--` go to cargo (default: `-- -D warnings`).
@@ -213,6 +221,11 @@ fn main() -> anyhow::Result<()> {
             Box::new(commands::package_portable::PackagePortable { dry_run })
         }
         Commands::Verify => Box::new(commands::verify::Verify),
+        Commands::Check { selection, args } => Box::new(commands::cargo_tool::CargoTool {
+            tool: commands::cargo_tool::Tool::Check,
+            selection,
+            args,
+        }),
         Commands::Clippy { selection, args } => Box::new(commands::cargo_tool::CargoTool {
             tool: commands::cargo_tool::Tool::Clippy,
             selection,

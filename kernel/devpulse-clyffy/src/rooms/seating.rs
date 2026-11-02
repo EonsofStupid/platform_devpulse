@@ -16,7 +16,7 @@ use std::collections::BTreeMap;
 use serde::{Deserialize, Serialize};
 
 use super::role::{RoleCard, Stance};
-use super::room::{resolve_role, RoomSpec, SelectionMethod, TurnPolicy};
+use super::room::{RoomSpec, SelectionMethod, TurnPolicy, resolve_role};
 use super::{Issue, Library, Persona};
 use crate::providers::registry;
 use crate::providers::types::{ProviderId, Vendor};
@@ -211,16 +211,16 @@ fn runnable(room: &RoomSpec) -> Vec<Issue> {
             "a room whose selector picks the next speaker does not run yet",
         ));
     }
-    if let Some(selection) = &room.selection {
-        if matches!(
+    if let Some(selection) = &room.selection
+        && matches!(
             selection.method,
             SelectionMethod::Vote | SelectionMethod::Human
-        ) {
-            issues.push(Issue::new(
-                at("selection"),
-                "selection by vote or by you does not run yet; a judge or a panel does",
-            ));
-        }
+        )
+    {
+        issues.push(Issue::new(
+            at("selection"),
+            "selection by vote or by you does not run yet; a judge or a panel does",
+        ));
     }
     issues
 }
@@ -416,8 +416,10 @@ mod tests {
     fn a_router_room_says_it_does_not_run_yet() {
         let library = Library::bundled();
         let problems = seat(&library, "router", &[]).expect_err("router");
-        assert!(problems
-            .iter()
-            .any(|i| i.problem.contains("router room does not run yet")));
+        assert!(
+            problems
+                .iter()
+                .any(|i| i.problem.contains("router room does not run yet"))
+        );
     }
 }

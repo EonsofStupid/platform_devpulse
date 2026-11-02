@@ -1,6 +1,6 @@
 //! AI credentials: native secure storage, opaque references, never frontend secrets.
 
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 use async_trait::async_trait;
 
 use super::ProviderId;
@@ -102,8 +102,10 @@ mod tests {
         let entry = keyring::Entry::new("devpulse-backend-type-test", "unused").unwrap();
         assert!(!entry.get_credential().is::<keyring::mock::MockCredential>());
         #[cfg(target_os = "windows")]
-        assert!(entry
-            .get_credential()
-            .is::<keyring::windows::WinCredential>());
+        assert!(
+            entry
+                .get_credential()
+                .is::<keyring::windows::WinCredential>()
+        );
     }
 }

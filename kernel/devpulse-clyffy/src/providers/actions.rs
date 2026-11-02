@@ -22,7 +22,7 @@ use super::discovery::installed;
 use super::install;
 use super::types::ProviderId;
 
-const UPDATE_TIMEOUT: Duration = Duration::from_secs(15 * 60);
+const UPDATE_TIMEOUT: Duration = Duration::from_mins(15);
 const OPEN_TIMEOUT: Duration = Duration::from_secs(20);
 const OUTPUT_CAP: usize = 8 * 1024;
 
@@ -349,7 +349,10 @@ async fn open_terminal(name: &str, program: &str, args: &[String], result: &mut 
         match process::run(&terminal, &refs, &[], OPEN_TIMEOUT).await {
             Ok(Ran::Answered(answer)) if answer.ok() => {
                 result.ok = true;
-                result.output = format!("A terminal window is open running {}. Finish signing in there, then check again.", result.command);
+                result.output = format!(
+                    "A terminal window is open running {}. Finish signing in there, then check again.",
+                    result.command
+                );
                 return;
             }
             Ok(Ran::Answered(answer)) => {

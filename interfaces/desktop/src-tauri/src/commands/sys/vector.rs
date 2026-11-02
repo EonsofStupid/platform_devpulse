@@ -12,7 +12,7 @@
 //! the generated TS bindings and frontend callers do not change.
 
 use crate::state::PlatformState;
-use devpulse_engine::platform::{retrieval_param_meta, RetrievalConfig, RetrievalParamMeta};
+use devpulse_engine::platform::{RetrievalConfig, RetrievalParamMeta, retrieval_param_meta};
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use tauri::State;

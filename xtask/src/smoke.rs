@@ -56,7 +56,7 @@
 
 use anyhow::Result;
 use std::path::{Path, PathBuf};
-use std::process::{Child, Command, Stdio};
+use std::process::{Child, Stdio};
 use std::thread;
 use std::time::{Duration, Instant, SystemTime};
 
@@ -179,7 +179,7 @@ fn spawn_detached(exe: &Path) -> Result<Child> {
     // CWD = exe dir so the launched binary resolves relative paths
     // (`.userdata/`, `models/`, `binaries/`) the same way a user would.
     let cwd: PathBuf = exe.parent().map(Path::to_path_buf).unwrap_or_default();
-    let child = Command::new(exe)
+    let child = crate::child_env::command(exe)
         .current_dir(&cwd)
         .stdin(Stdio::null())
         .stdout(Stdio::null())
@@ -259,13 +259,13 @@ fn read_boot_log(log_path: &Path, pre_mtime: Option<SystemTime>) -> BootLogState
     let Ok(cur_mtime) = meta.modified() else {
         return BootLogState::Stale;
     };
-    if let Some(pre) = pre_mtime {
-        if cur_mtime <= pre {
-            // File hasn't been touched since spawn; the new run hasn't
-            // reached the BootLog::open call yet (or it's the same file
-            // with same mtime — unlikely given mtime granularity).
-            return BootLogState::Stale;
-        }
+    if let Some(pre) = pre_mtime
+        && cur_mtime <= pre
+    {
+        // File hasn't been touched since spawn; the new run hasn't
+        // reached the BootLog::open call yet (or it's the same file
+        // with same mtime — unlikely given mtime granularity).
+        return BootLogState::Stale;
     }
 
     let Ok(content) = std::fs::read_to_string(log_path) else {

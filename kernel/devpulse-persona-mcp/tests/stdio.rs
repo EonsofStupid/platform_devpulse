@@ -2,7 +2,7 @@
 
 #![allow(clippy::expect_used, reason = "test assertions")]
 
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use std::path::Path;
 use std::process::Stdio;
 use std::time::Duration;
@@ -108,7 +108,7 @@ async fn missing_or_relative_database_configuration_fails_explicitly() {
     for configured in [None, Some(Path::new("relative.db"))] {
         let output = run(configured, &[]).await;
         assert!(!output.status.success());
-        assert!(output.stdout.is_empty());
+        assert_eq!(output.stdout, [] as [u8; 0]);
         assert!(String::from_utf8_lossy(&output.stderr).contains("DEVPULSE_PERSONA_DB"));
     }
 }

@@ -9,8 +9,8 @@
 
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
-use std::sync::atomic::{AtomicBool, Ordering as AtomicOrdering};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering as AtomicOrdering};
 
 use crate::cortex::cag::traits::Embedder;
 use crate::cortex::persistence::surreal::client::SurrealAdapter;
@@ -430,8 +430,7 @@ fn recency_weight(now_secs: i64, captured_at_secs: i64) -> f32 {
 fn unix_now_secs() -> i64 {
     std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
-        .map(|d| d.as_secs().cast_signed())
-        .unwrap_or(0)
+        .map_or(0, |d| d.as_secs().cast_signed())
 }
 
 /// Empty persona id falls back to [`DEFAULT_PERSONA_ID`]. Caller-supplied

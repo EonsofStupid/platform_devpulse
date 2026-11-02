@@ -12,9 +12,9 @@ use crate::commands::cloud::secrets::credentials_from;
 use crate::state::PlatformState;
 use anyhow::Context as _;
 use devpulse_engine::platform::{
-    knowledge_record_reaction, knowledge_select_entry, knowledge_sync_remote_entries,
     KnowledgeEntry, KnowledgeEntryType, KnowledgeManifest, KnowledgeReaction,
-    KnowledgeSelectionParams, KnowledgeTier, SqlAdapter,
+    KnowledgeSelectionParams, KnowledgeTier, SqlAdapter, knowledge_record_reaction,
+    knowledge_select_entry, knowledge_sync_remote_entries,
 };
 
 use serde::{Deserialize, Serialize};

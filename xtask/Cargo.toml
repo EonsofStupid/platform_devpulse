@@ -1,7 +1,8 @@
 [package]
 name = "xtask"
 version = "0.1.0"
-edition = "2021"
+edition.workspace = true
+rust-version.workspace = true
 
 [dependencies]
 clap = { workspace = true }
@@ -50,7 +51,7 @@ cc = "~1.4.7"
 # key from `devpulse:release-signing-key` and passes it to `tauri signer`
 # via the `TAURI_SIGNING_PRIVATE_KEY` env var; the operator never has to
 # touch the raw key material.
-keyring = "3"
+keyring = { workspace = true }
 
 [dev-dependencies]
 # Tempdir fixtures for smoke.rs boot-log parsing tests.

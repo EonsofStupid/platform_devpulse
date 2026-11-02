@@ -130,7 +130,7 @@ impl Guard {
         // logging changes. Use this when sccache itself is the cause of
         // a compile failure (transport errors, server panics) so the
         // build can complete uncached without uninstalling sccache.
-        if std::env::var_os("SCCACHE_DISABLE").is_some_and(|v| !v.is_empty() && v != "0") {
+        if crate::child_env::var_os("SCCACHE_DISABLE").is_some_and(|v| !v.is_empty() && v != "0") {
             s.skip("disabled via SCCACHE_DISABLE env var");
             return Self {
                 mode: Mode::Disabled,
@@ -157,14 +157,14 @@ impl Guard {
                 "  [!!] failed to create {}: {e} — falling back to sccache default dir",
                 cache_dir.display()
             );
-        } else if std::env::var_os("SCCACHE_BUCKET").is_none()
-            && std::env::var_os("SCCACHE_REDIS").is_none()
-            && std::env::var_os("SCCACHE_AZURE_CONNECTION_STRING").is_none()
-            && std::env::var_os("SCCACHE_GCS_BUCKET").is_none()
+        } else if crate::child_env::var_os("SCCACHE_BUCKET").is_none()
+            && crate::child_env::var_os("SCCACHE_REDIS").is_none()
+            && crate::child_env::var_os("SCCACHE_AZURE_CONNECTION_STRING").is_none()
+            && crate::child_env::var_os("SCCACHE_GCS_BUCKET").is_none()
         {
             // Only point at the local dir if the dev hasn't configured a
             // remote backend in their shell.
-            std::env::set_var("SCCACHE_DIR", &cache_dir);
+            crate::child_env::set("SCCACHE_DIR", &cache_dir);
         }
 
         // ── 2.5. Server error log (always — invisible failures are worse than verbose ones) ──
@@ -183,14 +183,14 @@ impl Guard {
         // it crashes, the dev needs to `sccache --stop-server` and let
         // xtask respawn it under these defaults.
         let log_path = ws.root().join(".userdata").join("sccache.log");
-        if std::env::var_os("SCCACHE_ERROR_LOG").is_none() {
-            std::env::set_var("SCCACHE_ERROR_LOG", &log_path);
+        if crate::child_env::var_os("SCCACHE_ERROR_LOG").is_none() {
+            crate::child_env::set("SCCACHE_ERROR_LOG", &log_path);
         }
-        if std::env::var_os("SCCACHE_LOG").is_none() {
+        if crate::child_env::var_os("SCCACHE_LOG").is_none() {
             // `info` for the framework, `debug` for sccache itself —
             // enough to see panics + cache-write errors without
             // gigabytes of trace.
-            std::env::set_var("SCCACHE_LOG", "info,sccache=debug");
+            crate::child_env::set("SCCACHE_LOG", "info,sccache=debug");
         }
 
         // ── 3. Ensure a server is reachable: health-check first, start only if down ──
@@ -254,7 +254,7 @@ impl Guard {
         // health-check because half-wired state is the root cause of the
         // "compile errors were actually sccache transport errors" bugs
         // the old retry scaffolding tried to paper over.
-        std::env::set_var("RUSTC_WRAPPER", &binary);
+        crate::child_env::set("RUSTC_WRAPPER", &binary);
 
         s.ok_with(format!("enabled → {}", cache_dir.display()));
 
@@ -347,7 +347,7 @@ impl Guard {
 /// The call is short (sub-second when server already running, ~1–2s on
 /// cold start). We time-bound it defensively regardless.
 fn start_server(binary: &std::path::Path) -> Result<()> {
-    let mut cmd = Command::new(binary);
+    let mut cmd = crate::child_env::command(binary);
     cmd.arg("--start-server");
 
     let output = run_with_timeout(cmd, Duration::from_secs(10))?;
@@ -368,7 +368,7 @@ fn start_server(binary: &std::path::Path) -> Result<()> {
 /// reliable than parsing server logs. Exit code 0 with no stats is
 /// also treated as healthy (server up, no activity yet).
 fn health_check(binary: &std::path::Path) -> Result<Stats> {
-    let mut cmd = Command::new(binary);
+    let mut cmd = crate::child_env::command(binary);
     cmd.arg("--show-stats");
 
     let output = run_with_timeout(cmd, Duration::from_secs(5))?;

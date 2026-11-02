@@ -21,13 +21,12 @@
 
 use crate::commands::Task;
 use crate::workspace::Workspace;
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 use serde::Serialize;
 use serde_json::Value;
 use std::collections::BTreeMap;
 use std::fs;
 use std::path::{Path, PathBuf};
-use std::process::Command;
 
 const KEYRING_SERVICE: &str = "devpulse";
 const KEYRING_KEY: &str = "release-signing-key";
@@ -182,11 +181,11 @@ impl Task for ReleasePublish {
 ///
 /// Returns a clear, actionable error when neither source supplies a key.
 fn resolve_private_key() -> Result<String> {
-    if let Ok(env) = std::env::var("TAURI_SIGNING_PRIVATE_KEY") {
-        if !env.is_empty() {
-            crate::xinfo!("  signing key     : $env:TAURI_SIGNING_PRIVATE_KEY");
-            return Ok(env);
-        }
+    if let Ok(env) = std::env::var("TAURI_SIGNING_PRIVATE_KEY")
+        && !env.is_empty()
+    {
+        crate::xinfo!("  signing key     : $env:TAURI_SIGNING_PRIVATE_KEY");
+        return Ok(env);
     }
     let entry = keyring::Entry::new(KEYRING_SERVICE, KEYRING_KEY).with_context(|| {
         format!(
@@ -211,7 +210,7 @@ fn resolve_private_key() -> Result<String> {
 /// command line (process args are world-readable on most platforms).
 fn sign_zip(ws: &Workspace, zip: &Path, private_key: &str) -> Result<PathBuf> {
     let desktop_dir = ws.desktop_dir();
-    let mut cmd = Command::new("pnpm");
+    let mut cmd = crate::child_env::command("pnpm");
     cmd.current_dir(&desktop_dir)
         .args(["tauri", "signer", "sign", "--password", ""])
         .arg("--file")
@@ -237,4 +236,15 @@ fn sign_zip(ws: &Workspace, zip: &Path, private_key: &str) -> Result<PathBuf> {
         );
     }
     Ok(sig_path)
+}
+
+#[cfg(test)]
+mod credential_tests {
+    #[test]
+    fn standalone_release_tool_has_a_native_credential_backend() -> anyhow::Result<()> {
+        // Construction only; never read or modify the signing key or OS vault.
+        let entry = keyring::Entry::new("devpulse-release-backend-test", "unused")?;
+        assert!(!entry.get_credential().is::<keyring::mock::MockCredential>());
+        Ok(())
+    }
 }

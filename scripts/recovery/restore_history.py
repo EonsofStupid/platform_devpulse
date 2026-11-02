@@ -3,15 +3,16 @@
 
 Each file is written, byte for byte, to `recovered/repo/<original path>` from
 the commit just before its latest deletion; `recovered/repo/SOURCES.tsv`
-records where each came from. Files whose exact content still exists at HEAD
+records where each came from. Files whose exact content still exists in the tracked working tree
 under another active path are not copied (they survive). The recovery archive
 never counts as active code. Existing provenance is retained on every rerun,
 and changed archived files are never overwritten. The explicit extension
 list defines coverage; known build, vendor and generated directories are
 excluded by SKIP. Archived documentation can itself include generated HTML.
 
-Read-only on history: `git log`, `git ls-files`, `git ls-tree`, `git
-cat-file`. Default recovery writes under `recovered/repo/`. `--restore-docs`
+Read-only on history: `git log`, `git ls-files`, `git ls-tree`, `git diff`,
+`git cat-file`, and `git hash-object` without writes. Default recovery writes
+under `recovered/repo/`. `--restore-docs`
 moves verified documentation to absent original paths and records `restored_to`
 before removing staging copies. Checks validate unreconciled content against
 the original Git blob. Explicitly reconciled destinations require a review note
@@ -145,6 +146,38 @@ def restore_documents(manifest, rows):
     print(f"documentation restored to original locations: {sum(p[3] for p in pending)}")
 
 
+def active_sources():
+    """Use pending tracked changes too: a HEAD copy can already be edited or gone."""
+    active = {}
+    for entry in git("ls-tree", "-r", "-z", "HEAD").split("\0"):
+        if not entry:
+            continue
+        metadata, path = entry.split("\t", 1)
+        if path.startswith("recovered/"):
+            continue
+        _mode, kind, oid = metadata.split()
+        active[path] = oid if kind == "blob" else None
+    tracked = set(git("ls-files", "-z").split("\0"))
+    for path in git("diff", "--name-only", "-z", "HEAD", "--").split("\0"):
+        if not path or path.startswith("recovered/"):
+            continue
+        if path not in tracked:
+            # A staged deletion can leave an untracked replacement on disk;
+            # that replacement will not accompany the pending commit.
+            active.pop(path, None)
+            continue
+        target = Path(path)
+        if target.is_symlink():
+            # Hash the link itself, never read a target outside the repository.
+            active[path] = git("hash-object", "--stdin", binary=True,
+                               input=os.fsencode(os.readlink(target))).decode().strip()
+        elif target.is_file():
+            active[path] = git("hash-object", "--", path).strip()
+        else:
+            active.pop(path, None)
+    return active
+
+
 def restore(check=False, documents=False):
     manifest = Path(OUT) / "SOURCES.tsv"
     rows = []
@@ -179,18 +212,9 @@ def restore(check=False, documents=False):
         taken.add(key)
         known.add((row["path"], oid))
 
-    head = set()
-    head_blobs = set()
-    for entry in git("ls-tree", "-r", "-z", "HEAD").split("\0"):
-        if not entry:
-            continue
-        metadata, path = entry.split("\t", 1)
-        if path.startswith("recovered/"):
-            continue
-        head.add(path)
-        mode, kind, oid = metadata.split()
-        if kind == "blob":
-            head_blobs.add(oid)
+    active = active_sources()
+    head = set(active)
+    head_blobs = {oid for oid in active.values() if oid is not None}
     head_names = collections.Counter(path.rsplit("/", 1)[-1] for path in head)
 
     # The latest deletion of each path, newest first across every branch.
@@ -262,7 +286,7 @@ def restore(check=False, documents=False):
     if documents:
         restore_documents(manifest, rows)
     print(f"verified preserved sources: {len(known)}; {'unrecovered' if check else 'added'}: {written}; "
-          f"survive verbatim in active HEAD: {survived}")
+          f"survive verbatim in active working tree: {survived}")
     return int(check and written > 0)
 
 

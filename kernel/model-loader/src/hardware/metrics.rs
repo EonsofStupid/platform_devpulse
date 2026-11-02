@@ -109,10 +109,10 @@ fn resolve_cpu_name(sys: &sysinfo::System) -> String {
 
     #[cfg(windows)]
     {
-        if let Ok(identifier) = std::env::var("PROCESSOR_IDENTIFIER") {
-            if let Some(name) = normalize_metric_text(&identifier) {
-                return name;
-            }
+        if let Ok(identifier) = std::env::var("PROCESSOR_IDENTIFIER")
+            && let Some(name) = normalize_metric_text(&identifier)
+        {
+            return name;
         }
     }
 
@@ -344,11 +344,10 @@ fn collect_gpu_metrics(metrics: &mut HardwareMetrics) {
         let our_pid = std::process::id();
         let mb = 1024 * 1024;
         for proc in procs {
-            if proc.pid == our_pid {
-                if let nvml_wrapper::enums::device::UsedGpuMemory::Used(mem) = proc.used_gpu_memory
-                {
-                    metrics.process_vram_mb = mem / mb;
-                }
+            if proc.pid == our_pid
+                && let nvml_wrapper::enums::device::UsedGpuMemory::Used(mem) = proc.used_gpu_memory
+            {
+                metrics.process_vram_mb = mem / mb;
             }
         }
     }

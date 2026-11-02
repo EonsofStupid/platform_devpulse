@@ -14,12 +14,12 @@
 
 use std::path::Path;
 
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Context, Result, anyhow};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
-use crate::platform::config::loader::DEFAULT_CONFIG;
 use crate::platform::config::PlatformBootConfig;
+use crate::platform::config::loader::DEFAULT_CONFIG;
 use crate::platform::forms::{self, ErrorCode, FieldError};
 
 /// How many runs' logs stay, and for how long.
@@ -104,7 +104,7 @@ impl LogsPolicy {
                 return Ok(LoadedPolicy {
                     policy: shipped,
                     refused: vec![format!("your platform.toml could not be read: {e:#}")],
-                })
+                });
             }
         };
         let Some(section) = section else {
@@ -217,18 +217,20 @@ mod tests {
     fn your_policy_is_used_unless_it_breaks_its_floors() {
         let nanos = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
-            .map(|d| d.as_nanos())
-            .unwrap_or(0);
+            .map_or(0, |d| d.as_nanos());
         let data = std::env::temp_dir().join(format!("devpulse-logs-policy-{nanos}"));
         std::fs::create_dir_all(&data).unwrap();
 
-        assert!(LogsPolicy::load(&data).unwrap().refused.is_empty());
+        assert_eq!(
+            LogsPolicy::load(&data).unwrap().refused,
+            [] as [std::string::String; 0]
+        );
 
         let mine = DEFAULT_CONFIG.replace("keep_runs = 10", "keep_runs = 12");
         std::fs::write(data.join("platform.toml"), &mine).unwrap();
         let loaded = LogsPolicy::load(&data).unwrap();
         assert_eq!(loaded.policy.keep_runs, 12);
-        assert!(loaded.refused.is_empty());
+        assert_eq!(loaded.refused, [] as [std::string::String; 0]);
 
         let too_few = DEFAULT_CONFIG.replace("keep_runs = 10", "keep_runs = 2");
         std::fs::write(data.join("platform.toml"), &too_few).unwrap();

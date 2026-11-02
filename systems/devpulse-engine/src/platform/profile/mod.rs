@@ -42,8 +42,7 @@ pub struct UserProfile {
     pub last_active_at: Option<i64>,
 }
 
-const PROFILE_SELECT: &str =
-    "SELECT id, display_name, email, hardware_profile, onboarding_complete, \
+const PROFILE_SELECT: &str = "SELECT id, display_name, email, hardware_profile, onboarding_complete, \
      expertise_level, projects_root, created_at, updated_at, last_active_at FROM profiles LIMIT 1";
 
 fn text(row: &[SqlValue], i: usize) -> Option<String> {
@@ -160,8 +159,7 @@ pub(crate) mod tests {
     pub(crate) async fn user_db(tag: &str) -> (TursoAdapter, std::path::PathBuf) {
         let nanos = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
-            .map(|d| d.as_nanos())
-            .unwrap_or(0);
+            .map_or(0, |d| d.as_nanos());
         let dir = std::env::temp_dir().join(format!("devpulse-profile-{tag}-{nanos}"));
         let adapter = TursoAdapter::open_with_schema(
             &dir.join("user.db"),

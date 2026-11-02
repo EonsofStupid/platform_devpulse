@@ -25,7 +25,7 @@ pub mod ping;
 pub mod register;
 
 pub use ping::{
-    anthropic_key_present, ping_claude, PingClaudeRequest, PingClaudeResponse, PingClaudeUsage,
+    PingClaudeRequest, PingClaudeResponse, PingClaudeUsage, anthropic_key_present, ping_claude,
 };
 
 use serde::Serialize;

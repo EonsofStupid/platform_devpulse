@@ -69,8 +69,8 @@ use std::fs::{self, File};
 use std::io::{BufReader, BufWriter, Read, Write};
 use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
-use zip::write::{FileOptions, ZipWriter};
 use zip::CompressionMethod;
+use zip::write::{FileOptions, ZipWriter};
 
 /// Convert a byte count to MB as `f64` for display-only formatting.
 ///
@@ -702,7 +702,7 @@ fn execute_dry_run(plan: &PackagePlan) {
     // flood the transcript.
     let mut per_category: BTreeMap<&'static str, CategoryTotals> = BTreeMap::new();
     for entry in &entries {
-        let size_bytes = fs::metadata(&entry.source).map(|m| m.len()).unwrap_or(0);
+        let size_bytes = fs::metadata(&entry.source).map_or(0, |m| m.len());
         let totals = per_category.entry(entry.category).or_default();
         totals.files += 1;
         totals.bytes += size_bytes;
@@ -902,8 +902,7 @@ fn rel_to_forward(path: &Path) -> String {
 fn write_manifest(ws: &Workspace, plan: &PackagePlan, report: &PortableReport) -> Result<()> {
     let built_at_unix_secs = SystemTime::now()
         .duration_since(UNIX_EPOCH)
-        .map(|d| d.as_secs())
-        .unwrap_or(0);
+        .map_or(0, |d| d.as_secs());
     let git_sha = detect_git_sha(ws);
 
     // Small, hand-written JSON — keeps xtask free of a serde serializer
@@ -987,11 +986,7 @@ fn detect_git_sha(ws: &Workspace) -> Option<String> {
         return None;
     }
     let sha = String::from_utf8(output.stdout).ok()?.trim().to_string();
-    if sha.is_empty() {
-        None
-    } else {
-        Some(sha)
-    }
+    if sha.is_empty() { None } else { Some(sha) }
 }
 
 /// Minimal JSON string escaper — handles backslash, double quote, and
@@ -1073,7 +1068,7 @@ fn build_zip(plan: &PackagePlan) -> Result<u64> {
             .with_context(|| format!("removing old zip {}", plan.zip_path.display()))?;
     }
     zip_dir_recursive(&plan.portable_dir, &plan.zip_path)?;
-    Ok(fs::metadata(&plan.zip_path).map(|m| m.len()).unwrap_or(0))
+    Ok(fs::metadata(&plan.zip_path).map_or(0, |m| m.len()))
 }
 
 /// Zip every FILE under `src_dir` into `zip_path`, preserving subdirectory
@@ -1572,10 +1567,12 @@ mod tests {
     fn agenthub_is_required_beside_the_portable_desktop() {
         let mut plan = fake_plan_with_declared_resources(0);
         plan.conf.external_bins = vec!["binaries/devpulse-agenthub".into()];
-        assert!(plan_copies(&plan)
-            .expect_err("missing runtime must fail")
-            .to_string()
-            .contains("devpulse-agenthub.exe"));
+        assert!(
+            plan_copies(&plan)
+                .expect_err("missing runtime must fail")
+                .to_string()
+                .contains("devpulse-agenthub.exe")
+        );
         write_file(
             &plan.target_release.join("devpulse-agenthub.exe"),
             b"runtime fixture",

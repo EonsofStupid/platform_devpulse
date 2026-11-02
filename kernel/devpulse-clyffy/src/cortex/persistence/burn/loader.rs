@@ -56,9 +56,9 @@ use std::path::Path;
 
 use burn::prelude::Backend;
 use burn::tensor::{Tensor, TensorData};
-use safetensors::tensor::Metadata;
 use safetensors::Dtype;
 use safetensors::SafeTensors;
+use safetensors::tensor::Metadata;
 use thiserror::Error;
 
 use super::qwen3::{Qwen3Config, Qwen3Model};
@@ -211,11 +211,15 @@ fn read_tensor_data(
 
     let f32_buf: Vec<f32> = match info.dtype {
         Dtype::F32 => raw
-            .chunks_exact(4)
+            .as_chunks::<4>()
+            .0
+            .iter()
             .map(|b| f32::from_le_bytes([b[0], b[1], b[2], b[3]]))
             .collect(),
         Dtype::BF16 => raw
-            .chunks_exact(2)
+            .as_chunks::<2>()
+            .0
+            .iter()
             .map(|b| {
                 // BF16 = top 16 bits of an F32. Reconstruct by zero-
                 // extending into the low bits.

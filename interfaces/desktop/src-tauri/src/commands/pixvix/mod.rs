@@ -39,6 +39,6 @@ pub use dto::{
 // either `commands::pixvix::pixvix_list_monitors` (preferred) or
 // `commands::pixvix::monitor::pixvix_list_monitors`.
 pub use monitor::*;
-pub use paths::{frames_dir, recordings_dir, FRAMES_SUBDIR, RECORDINGS_SUBDIR};
+pub use paths::{FRAMES_SUBDIR, RECORDINGS_SUBDIR, frames_dir, recordings_dir};
 pub use webcam::*;
 pub use window::*;

@@ -3,7 +3,8 @@ name = "devpulse_desktop_backend"
 version = "0.0.0"
 description = "DevPulse Desktop"
 authors = ["you"]
-edition = "2021"
+edition.workspace = true
+rust-version.workspace = true
 # Two `[[bin]]` entries — `devpulse-desktop-app` is the real Tauri
 # application; `export-bindings` is a tooling-only helper invoked by
 # `cargo xtask regen-bindings`. `default-run` tells Tauri (and bare
@@ -62,7 +63,7 @@ flume = "0.11"
 arc-swap = { workspace = true }
 rfd = "0.15"
 sysinfo = "0.38.4"
-keyring = "3"
+keyring = { workspace = true }
 rodio = "0.19"
 # DevForge sidecar — REH web server lifecycle
 portpicker = "0.1"

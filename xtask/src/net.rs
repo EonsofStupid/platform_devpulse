@@ -7,7 +7,6 @@
 
 use anyhow::{Context, Result};
 use std::net::TcpListener;
-use std::process::Command;
 
 use crate::stage::Stage;
 
@@ -66,7 +65,7 @@ fn kill_port(port: u16) -> Result<bool> {
 /// Windows: `netstat -ano` → parse PID from LISTENING line → `taskkill /F /PID`.
 #[cfg(windows)]
 fn kill_port_windows(port: u16) -> Result<bool> {
-    let output = Command::new("netstat")
+    let output = crate::child_env::command("netstat")
         .args(["-ano"])
         .output()
         .context("failed to run netstat")?;
@@ -98,7 +97,7 @@ fn kill_port_windows(port: u16) -> Result<bool> {
         }
 
         println!("  [>>] killing PID {pid} on :{port}");
-        let kill = Command::new("taskkill")
+        let kill = crate::child_env::command("taskkill")
             .args(["/F", "/PID", pid])
             .output()
             .context("failed to run taskkill")?;
@@ -117,7 +116,7 @@ fn kill_port_windows(port: u16) -> Result<bool> {
 /// Unix: `lsof -ti :{port}` → `kill -9 {pid}`.
 #[cfg(not(windows))]
 fn kill_port_unix(port: u16) -> Result<bool> {
-    let output = Command::new("lsof")
+    let output = crate::child_env::command("lsof")
         .args(["-ti", &format!(":{port}")])
         .output()
         .context("failed to run lsof")?;
@@ -132,7 +131,7 @@ fn kill_port_unix(port: u16) -> Result<bool> {
         }
 
         println!("  [>>] killing PID {pid} on :{port}");
-        let kill = Command::new("kill")
+        let kill = crate::child_env::command("kill")
             .args(["-9", pid])
             .output()
             .context("failed to run kill")?;

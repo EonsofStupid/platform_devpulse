@@ -29,12 +29,12 @@
 //! `InternalEvent::SidecarPhaseTransition` on the broadcast bus. See
 //! `feedback_dual_observability.md`.
 
-use super::{lifecycle_phase, PreflightCheck, Preflightable, Service, ServiceRole, ServiceState};
+use super::{PreflightCheck, Preflightable, Service, ServiceRole, ServiceState, lifecycle_phase};
 use crate::emit_lifecycle_debug;
 use crate::emit_lifecycle_dual;
 use crate::platform::config::DevForgeServiceEntry;
 use crate::platform::facade::events::InternalEvent;
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Context, Result, anyhow};
 use devpulse_telemetry::prelude::BroadcastSender;
 use rand::Rng;
 use std::path::{Path, PathBuf};
@@ -234,10 +234,10 @@ impl DevForgeService {
 
     /// Kill the child process without waiting.
     fn force_kill(&self) {
-        if let Ok(mut guard) = self.child.lock() {
-            if let Some(ref mut child) = *guard {
-                let _ = child.start_kill();
-            }
+        if let Ok(mut guard) = self.child.lock()
+            && let Some(ref mut child) = *guard
+        {
+            let _ = child.start_kill();
         }
     }
 }

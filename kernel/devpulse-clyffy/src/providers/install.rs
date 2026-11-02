@@ -16,7 +16,7 @@
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 use sha2::{Digest, Sha256};
 use tokio::io::AsyncWriteExt;
 
@@ -25,7 +25,7 @@ use super::discovery::installed;
 use super::npm::{self, Installed};
 
 /// The longest a release download may take.
-const DOWNLOAD_TIMEOUT: Duration = Duration::from_secs(30 * 60);
+const DOWNLOAD_TIMEOUT: Duration = Duration::from_mins(30);
 
 /// `DevPulse`'s own install of one provider.
 #[must_use]
@@ -315,8 +315,7 @@ mod tests {
     fn temp(name: &str) -> PathBuf {
         let nanos = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
-            .map(|d| d.as_nanos())
-            .unwrap_or(0);
+            .map_or(0, |d| d.as_nanos());
         std::env::temp_dir().join(format!("devpulse-install-{name}-{nanos}"))
     }
 

@@ -53,14 +53,14 @@ pub mod load_error;
 pub mod resolver;
 
 pub use architectures::{
-    classify_arch_from_gguf, classify_arch_from_hf_config, ArchFamily, ArchId, ArchitectureSpec,
-    SupportStatus, SupportTier,
+    ArchFamily, ArchId, ArchitectureSpec, SupportStatus, SupportTier, classify_arch_from_gguf,
+    classify_arch_from_hf_config,
 };
 // Migration alias — delete after consumer sweep.
 #[allow(deprecated)]
 pub use architectures::classify_safetensors_arch;
 pub use backends::{
-    installed_backends, BackendId, BackendInfo, BackendMatrix, FormatSupport, ModelFormat,
+    BackendId, BackendInfo, BackendMatrix, FormatSupport, ModelFormat, installed_backends,
 };
 pub use load_error::{Alternative, AlternativeKind, LoadError, UnsupportedReason};
-pub use resolver::{resolve_compatibility, Resolution};
+pub use resolver::{Resolution, resolve_compatibility};

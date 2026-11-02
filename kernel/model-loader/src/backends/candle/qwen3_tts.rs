@@ -31,7 +31,7 @@ use std::sync::Mutex;
 use std::sync::RwLock;
 
 #[cfg(feature = "qwen3-tts-backend")]
-use qwen3_tts::{auto_device, AudioBuffer, Language, Qwen3TTS, Speaker};
+use qwen3_tts::{AudioBuffer, Language, Qwen3TTS, Speaker, auto_device};
 
 /// Output sample rate for every Qwen3-TTS variant — the codec produces
 /// 24 kHz mono regardless of which speaker / clone path was used.
@@ -91,7 +91,7 @@ impl Qwen3TtsBackend {
     /// Returns 0 if the lock is poisoned — diagnostic accessor only.
     #[must_use]
     pub fn voice_clone_count(&self) -> usize {
-        self.voice_clones.read().map(|g| g.len()).unwrap_or(0)
+        self.voice_clones.read().map_or(0, |g| g.len())
     }
 }
 
@@ -281,7 +281,7 @@ impl TtsBackend for Qwen3TtsBackend {
 
     fn memory_usage(&self) -> MemoryFootprint {
         if let Some(ref path) = self.model_path {
-            let talker = std::fs::metadata(path).map(|m| m.len()).unwrap_or(0);
+            let talker = std::fs::metadata(path).map_or(0, |m| m.len());
             let codec = path
                 .parent()
                 .map(|d| d.join("speech_tokenizer").join("model.safetensors"))

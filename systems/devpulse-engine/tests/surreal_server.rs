@@ -184,11 +184,13 @@ async fn every_schema_and_query_path_works_on_the_server() {
         found.iter().any(|s| s.text.contains("person:tobie")),
         "a prompt recorded with an embedding is found by its words too: {found:?}"
     );
-    assert!(by_words
-        .query("zzzz", "words", 3)
-        .await
-        .expect("no match")
-        .is_empty());
+    assert!(
+        by_words
+            .query("zzzz", "words", 3)
+            .await
+            .expect("no match")
+            .is_empty()
+    );
 
     // kv, nodes and edges through a scoped handle.
     let system = adapter.scoped_handle("system", "engine");

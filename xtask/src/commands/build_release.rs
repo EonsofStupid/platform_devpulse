@@ -35,9 +35,9 @@
 //! of the previous hard-coded "fix the compile errors above" message
 //! that lied when the failure was in bundling.
 
+use crate::commands::Task;
 use crate::commands::preflight::Preflight;
 use crate::commands::sccache;
-use crate::commands::Task;
 use crate::events::{EventBuilder, EventSink, StageEvent, StageStatus, SummaryCounts};
 use crate::manifest::BuildManifest;
 use crate::stage;
@@ -597,10 +597,8 @@ fn run_inner(ws: &Workspace, sink: &EventSink, portable_only: bool) -> anyhow::R
 
     // Record the SBOM in the manifest so consumers have a single
     // attested entry point.
-    if sbom_written {
-        if let Some(mf) = manifest.as_mut() {
-            add_artifact_or_warn(mf, ws.root(), "sbom-cyclonedx", &sbom_path);
-        }
+    if sbom_written && let Some(mf) = manifest.as_mut() {
+        add_artifact_or_warn(mf, ws.root(), "sbom-cyclonedx", &sbom_path);
     }
 
     // ── Stage 10: Provenance — write build.manifest.json ──
@@ -689,18 +687,19 @@ fn run_inner(ws: &Workspace, sink: &EventSink, portable_only: bool) -> anyhow::R
         let quarantine_guard = sink.start("quarantine");
         let mut renamed = 0usize;
         renamed += quarantine_file(&standalone);
-        if !portable_only && bundle_dir.exists() {
-            if let Ok(entries) = std::fs::read_dir(&bundle_dir) {
-                for entry in entries.flatten() {
-                    let p = entry.path();
-                    if p.is_dir() {
-                        if let Ok(inner) = std::fs::read_dir(&p) {
-                            for sub in inner.flatten() {
-                                let sp = sub.path();
-                                if sp.is_file() {
-                                    renamed += quarantine_file(&sp);
-                                }
-                            }
+        if !portable_only
+            && bundle_dir.exists()
+            && let Ok(entries) = std::fs::read_dir(&bundle_dir)
+        {
+            for entry in entries.flatten() {
+                let p = entry.path();
+                if p.is_dir()
+                    && let Ok(inner) = std::fs::read_dir(&p)
+                {
+                    for sub in inner.flatten() {
+                        let sp = sub.path();
+                        if sp.is_file() {
+                            renamed += quarantine_file(&sp);
                         }
                     }
                 }
@@ -1150,7 +1149,7 @@ fn strip_log_prefix(line: &str) -> &str {
 mod tests {
     #![allow(clippy::expect_used, clippy::unwrap_used, reason = "test assertions")]
 
-    use super::{classify_from_transcript, strip_log_prefix, TauriStage};
+    use super::{TauriStage, classify_from_transcript, strip_log_prefix};
 
     #[test]
     fn compile_error_before_built_app_is_compile() {

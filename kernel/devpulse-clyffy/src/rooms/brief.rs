@@ -203,8 +203,8 @@ mod tests {
 
     use super::*;
     use crate::providers::types::ProviderId;
-    use crate::rooms::seating::{seat, Assignment};
     use crate::rooms::Library;
+    use crate::rooms::seating::{Assignment, seat};
 
     fn council_place() -> (RoomSpec, Place) {
         let library = Library::bundled();

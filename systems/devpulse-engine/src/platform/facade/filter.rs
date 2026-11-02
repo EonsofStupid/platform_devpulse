@@ -35,10 +35,10 @@ impl ThrottleState {
             return true;
         }
         let now = Instant::now();
-        if let Some(last) = self.last_emitted.get(&category) {
-            if now.duration_since(*last).as_millis() < u128::from(self.min_interval_ms) {
-                return false;
-            }
+        if let Some(last) = self.last_emitted.get(&category)
+            && now.duration_since(*last).as_millis() < u128::from(self.min_interval_ms)
+        {
+            return false;
         }
         self.last_emitted.insert(category, now);
         true

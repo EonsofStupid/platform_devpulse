@@ -34,11 +34,11 @@ use std::path::Path;
 
 use serde::{Deserialize, Serialize};
 
-pub use persona::{Persona, PERSONA_SCHEMA};
-pub use role::{RoleCard, Stance, ROLE_SCHEMA};
-pub use room::{resolve_role, RoomSpec, RoomType, ROOM_SCHEMA};
+pub use persona::{PERSONA_SCHEMA, Persona};
+pub use role::{ROLE_SCHEMA, RoleCard, Stance};
+pub use room::{ROOM_SCHEMA, RoomSpec, RoomType, resolve_role};
 pub use run::{Outcome, Pick, RoomHost, RoomRun, RoomTurn, Stopped};
-pub use seating::{seat, Assignment, Place, SeatedRoom};
+pub use seating::{Assignment, Place, SeatedRoom, seat};
 
 /// The bundled roles, by file name.
 const BUNDLED_ROLES: [(&str, &str); 11] = [
@@ -581,8 +581,7 @@ mod tests {
     fn load_reads_your_folders() {
         let nanos = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
-            .map(|d| d.as_nanos())
-            .unwrap_or(0);
+            .map_or(0, |d| d.as_nanos());
         let data = std::env::temp_dir().join(format!("devpulse-rooms-{nanos}"));
         let personas = data.join("config").join("personas");
         std::fs::create_dir_all(&personas).unwrap();

@@ -32,7 +32,7 @@ pub mod slug;
 pub mod store;
 
 pub use pipeline::{
-    process_chat_message, NullPipelineSink, PipelineEventSink, PipelineSignal, TextEmbedder,
+    NullPipelineSink, PipelineEventSink, PipelineSignal, TextEmbedder, process_chat_message,
 };
 pub use record::{
     ArchivedNeighborRef, ArchivedRroRecord, MemoryKind, MemoryRecord, NeighborRef, RroRecord,

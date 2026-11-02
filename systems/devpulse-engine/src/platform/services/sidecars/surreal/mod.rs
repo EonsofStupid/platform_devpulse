@@ -12,4 +12,4 @@ pub mod config;
 pub mod service;
 
 pub use config::SurrealUserConfig;
-pub use service::{root_password, SurrealConfigView, SurrealHealth, SurrealService, SurrealStatus};
+pub use service::{SurrealConfigView, SurrealHealth, SurrealService, SurrealStatus, root_password};

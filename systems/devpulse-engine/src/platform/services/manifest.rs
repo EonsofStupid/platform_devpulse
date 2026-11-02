@@ -405,7 +405,7 @@ mod tests {
 
     #[test]
     fn service_identities_are_unique_and_role_lookup_cannot_shift() {
-        use crate::platform::services::status::{snapshot_from, ServiceRuntimeState};
+        use crate::platform::services::status::{ServiceRuntimeState, snapshot_from};
         let mut identities = HashSet::new();
         for meta in SERVICE_MANIFEST {
             let snapshot = snapshot_from(meta, true, false, ServiceRuntimeState::Stopped);

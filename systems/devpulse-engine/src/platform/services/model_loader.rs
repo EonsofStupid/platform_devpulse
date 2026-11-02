@@ -21,11 +21,11 @@ use crate::platform::integrations::config::{MemoryConfig, TursoConfig};
 use crate::signals::{ModelsReadiness, Signal, SignalSource, SignalVariant};
 use anyhow::Result;
 use devpulse_clyffy::cortex::persistence::TursoAdapter;
-pub use devpulse_clyffy::model_loader::registry::LoadError;
-pub use devpulse_clyffy::model_loader::wizard::analytics::emit_event as emit_analytics_event;
 pub use devpulse_clyffy::model_loader::AudioSamples;
 pub use devpulse_clyffy::model_loader::DownloadScope as ModelDownloadScope;
 pub use devpulse_clyffy::model_loader::ModelStatus as SlotModelStatus;
+pub use devpulse_clyffy::model_loader::registry::LoadError;
+pub use devpulse_clyffy::model_loader::wizard::analytics::emit_event as emit_analytics_event;
 pub use devpulse_clyffy::model_loader::{
     ActivateCopy, AnalyticsEvent, BrowseCopy, CompletionCopy, CustomizeCopy, GreetingCopy,
     HardwareCopy, ModelsCopy, ProfileCopy, RuntimePickerCopy, ScanningCopy, StepTooltips,
@@ -298,22 +298,16 @@ impl ModelLoaderService {
 
     /// Return the cached hardware metrics snapshot.
     ///
-    /// Stays `async` because live-probe work (polling GPU counters, temperature
-    /// sensors, nvml queries) will be wired into the inner implementation
-    /// without changing this contract. Callers stay at `.await?` so the
-    /// command-layer surface doesn't churn when that lands.
-    #[allow(clippy::unused_async)]
-    pub async fn hardware_metrics(&self) -> HardwareMetrics {
-        self.inner.hardware_metrics()
+    /// The service exposes a future; this cached read completes immediately.
+    pub fn hardware_metrics(&self) -> impl std::future::Future<Output = HardwareMetrics> {
+        std::future::ready(self.inner.hardware_metrics())
     }
 
     /// Force a fresh hardware metrics refresh.
     ///
-    /// See [`hardware_metrics`](Self::hardware_metrics) — the `async`
-    /// signature is a forward-compat contract for real hardware probing.
-    #[allow(clippy::unused_async)]
-    pub async fn hardware_refresh(&self) -> HardwareMetrics {
-        self.inner.hardware_refresh()
+    /// Return the refresh result through the service's asynchronous interface.
+    pub fn hardware_refresh(&self) -> impl std::future::Future<Output = HardwareMetrics> {
+        std::future::ready(self.inner.hardware_refresh())
     }
 
     /// Start the kernel hardware sampler: one collection every `period`
@@ -816,16 +810,16 @@ impl Service for ModelLoaderService {
         ServiceRole::ModelLoader
     }
 
-    async fn ping(&self) -> Result<()> {
-        Ok(())
+    fn ping(&self) -> impl std::future::Future<Output = Result<()>> {
+        std::future::ready(Ok(()))
     }
 
     fn state(&self) -> ServiceState {
         ServiceState::Ready
     }
 
-    async fn shutdown(&self) -> Result<()> {
+    fn shutdown(&self) -> impl std::future::Future<Output = Result<()>> {
         tracing::info!("Model Loader shutting down");
-        Ok(())
+        std::future::ready(Ok(()))
     }
 }

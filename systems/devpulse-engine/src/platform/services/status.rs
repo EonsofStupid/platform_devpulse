@@ -22,8 +22,8 @@
 use serde::Serialize;
 use specta::Type;
 
-use super::manifest::{ServiceGroup, ServiceMeta, SERVICE_MANIFEST};
 use super::ServiceRole;
+use super::manifest::{SERVICE_MANIFEST, ServiceGroup, ServiceMeta};
 use crate::platform::config::DataScope;
 
 mod observation;

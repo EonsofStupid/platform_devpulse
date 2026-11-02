@@ -7,13 +7,13 @@
 
 use std::path::{Path, PathBuf};
 
+use agent_client_protocol::schema::ProtocolVersion;
 use agent_client_protocol::schema::v1::{
     Implementation, InitializeRequest, PermissionOptionKind, RequestPermissionOutcome,
     RequestPermissionRequest, RequestPermissionResponse, SelectedPermissionOutcome,
 };
-use agent_client_protocol::schema::ProtocolVersion;
 use agent_client_protocol::{AcpAgent, AcpAgentConfig, Agent, Client, ConnectionTo, ErrorCode};
-use anyhow::{anyhow, Result};
+use anyhow::{Result, anyhow};
 
 /// What the agent said.
 #[derive(Debug, Clone, PartialEq, Eq)]

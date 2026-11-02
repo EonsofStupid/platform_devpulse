@@ -372,7 +372,7 @@ mod tests {
         let tmpl = InteractionTemplate::setup(Path::new("/nonexistent"))
             .expect("setup template must load");
         assert_eq!(tmpl.id, "setup");
-        assert!(!tmpl.phases.is_empty());
+        assert_ne!(tmpl.phases.len(), 0);
     }
 
     #[test]
@@ -399,7 +399,7 @@ mod tests {
         let tmpl = InteractionTemplate::setup(Path::new("/nonexistent")).unwrap();
         let complete = tmpl.phases.iter().find(|p| p.id == "complete").unwrap();
         assert!(complete.terminal);
-        assert!(complete.next.is_empty());
+        assert_eq!(complete.next, [] as [std::string::String; 0]);
     }
 
     #[test]

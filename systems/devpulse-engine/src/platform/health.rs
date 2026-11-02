@@ -3,11 +3,11 @@
 //! These types are what Tauri and the frontend see.
 //! Technical subsystem identities remain available for advanced presentation.
 
+use crate::platform::services::ServiceState;
 use crate::platform::services::manifest::ServiceGroup;
 use crate::platform::services::status::{
     ServiceReadiness, ServiceRuntimeState, ServiceStatusSnapshot,
 };
-use crate::platform::services::ServiceState;
 use serde::Serialize;
 use specta::Type;
 
@@ -103,7 +103,7 @@ impl SystemHealth {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::platform::services::{manifest::meta_for_role, status::snapshot_from, ServiceRole};
+    use crate::platform::services::{ServiceRole, manifest::meta_for_role, status::snapshot_from};
 
     #[test]
     fn empty_or_unverified_inventory_cannot_report_healthy() {
@@ -128,9 +128,11 @@ mod tests {
             panic!("AgentHub must be registered")
         };
         let dormant = snapshot_from(meta, true, false, ServiceRuntimeState::Stopped);
-        assert!(SystemHealth::from_services(vec![dormant], 0)
-            .subsystems
-            .is_empty());
+        assert!(
+            SystemHealth::from_services(vec![dormant], 0)
+                .subsystems
+                .is_empty()
+        );
         let required = snapshot_from(meta, true, true, ServiceRuntimeState::Stopped);
         let health = SystemHealth::from_services(vec![required], 0);
         assert_eq!(health.status, HealthStatus::Degraded);

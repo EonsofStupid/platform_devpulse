@@ -7,7 +7,7 @@
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, PoisonError, RwLock};
 
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use devpulse_clyffy::cortex::persistence::TursoAdapter;
 use tokio::sync::Mutex;
 
@@ -271,7 +271,7 @@ mod tests {
         profile::update_identity(ob.db.as_ref(), Some("Ada".into()), None)
             .await
             .expect("name");
-        assert!(ob.publish().await.expect("publish").needs.is_empty());
+        assert_eq!(ob.publish().await.expect("publish").needs.len(), 0);
         let s = ob.next().await.expect("you → your AI");
         assert_eq!(s.stage, Stage::YourAi);
         assert!(s.needs.is_empty(), "your AI is optional");

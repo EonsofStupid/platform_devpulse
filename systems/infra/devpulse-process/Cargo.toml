@@ -1,7 +1,8 @@
 [package]
 name = "devpulse-process"
 version = "0.1.0"
-edition = "2021"
+edition.workspace = true
+rust-version.workspace = true
 description = "Running programs on this machine: asking a command-line tool and reading its answer (no console window, a deadline, kill on drop, missing vs refused), and supervising long-lived runtimes that never outlive DevPulse. Shared by the kernel and the engine."
 
 # Infra-layer tag — read by preflight check.infra-layer-deps.ts to enforce

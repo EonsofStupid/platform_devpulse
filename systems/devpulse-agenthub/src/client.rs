@@ -7,11 +7,11 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::Duration;
 
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 use devpulse_clyffy::providers::ProviderId;
 use devpulse_process::{ChildSpec, StopPolicy, SupervisedChild};
 use tokio::process::{ChildStdin, ChildStdout};
-use tokio::sync::{watch, Mutex};
+use tokio::sync::{Mutex, watch};
 
 use crate::history::{FoundPage, FoundSessions};
 use crate::protocol::{self, Hello, Reply, Request};

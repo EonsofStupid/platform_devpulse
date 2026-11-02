@@ -12,4 +12,4 @@ pub mod secrets;
 pub use registry::{
     BackendType, ModelFormat, ModelMetadata, ModelRegistry, ModelRegistryEntry, ModelSource,
 };
-pub use scope::{resolve_bundle_dir, DownloadScope, PER_PROJECT_ROOT, UNSCOPED_PLACEHOLDER};
+pub use scope::{DownloadScope, PER_PROJECT_ROOT, UNSCOPED_PLACEHOLDER, resolve_bundle_dir};

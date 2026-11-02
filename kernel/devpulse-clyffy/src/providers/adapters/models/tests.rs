@@ -269,9 +269,11 @@ async fn configured_authenticated_endpoint_returns_models_or_redacted_failure() 
             }
             let request = String::from_utf8(request).unwrap();
             assert!(request.starts_with("GET /custom/v9/models HTTP/1.1"));
-            assert!(request
-                .to_ascii_lowercase()
-                .contains("authorization: bearer local-test-key"));
+            assert!(
+                request
+                    .to_ascii_lowercase()
+                    .contains("authorization: bearer local-test-key")
+            );
             socket.write_all(format!("HTTP/1.1 {status}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}", body.len()).as_bytes()).await.unwrap();
         });
         let result = fetch_models(

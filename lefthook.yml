@@ -18,7 +18,7 @@ pre-commit:
       glob: ["*.rs", "**/*.rs"]
       # Your recovered code is kept as it was, never built or linted (plan 0009).
       exclude: ["recovered/**"]
-      run: cargo check --workspace --quiet
+      run: cargo xtask check --workspace -- --quiet
 
     # Svelte check
     svelte-check:

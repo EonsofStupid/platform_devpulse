@@ -17,9 +17,9 @@ use devpulse_process::{self as process, Answer, Ran};
 /// The most output kept per step (the end of it, where results and errors are).
 const OUTPUT_CAP: usize = 8 * 1024;
 
-const INSTALL_TIMEOUT: Duration = Duration::from_secs(30 * 60);
-const START_TIMEOUT: Duration = Duration::from_secs(10 * 60);
-const TEST_TIMEOUT: Duration = Duration::from_secs(10 * 60);
+const INSTALL_TIMEOUT: Duration = Duration::from_mins(30);
+const START_TIMEOUT: Duration = Duration::from_mins(10);
+const TEST_TIMEOUT: Duration = Duration::from_mins(10);
 
 /// What running a step did.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Type)]

@@ -73,11 +73,13 @@ function appImportsBypassingThePackage(): string[] {
 }
 
 describe("ColdLight boundary", () => {
+	// These assertions scan the source tree; native builds can contend for disk
+	// on Windows. Keep the import rules strict without imposing a latency test.
 	it("imports nothing from the app", () => {
 		expect(importsLeavingColdLight()).toEqual([]);
-	});
+	}, 30_000);
 
 	it("is reached by the app only through @devpulse/coldlight", () => {
 		expect(appImportsBypassingThePackage()).toEqual([]);
-	});
+	}, 30_000);
 });

@@ -18,7 +18,7 @@ pub mod connector;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
-use anyhow::{anyhow, bail, Context, Result};
+use anyhow::{Context, Result, anyhow, bail};
 use devpulse_process::{self as process, Ran};
 
 use super::definition::{AdapterKind, ProviderDefinition};
@@ -185,8 +185,7 @@ executables = ["example"]
         let d = ProviderDefinition::parse(&text).unwrap();
         let nanos = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
-            .map(|d| d.as_nanos())
-            .unwrap_or(0);
+            .map_or(0, |d| d.as_nanos());
         let data = std::env::temp_dir().join(format!("devpulse-launch-{nanos}"));
 
         let error = launch(&d, Path::new("/bin/example"), &data, "q").unwrap_err();

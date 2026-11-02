@@ -1,7 +1,7 @@
 //! Retained execution observations. Placement on a board is a separate concern.
 
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 
 use devpulse_clyffy::providers::{AgentEvent, PermissionChoice, ProviderId};
 use serde::{Deserialize, Serialize};
@@ -331,7 +331,7 @@ mod tests {
         });
         turn.observe(&permission("too late, while saving"));
         assert_eq!(live.snapshot().conversations[0].activity, Activity::Working);
-        assert!(live.snapshot().conversations[0].permissions.is_empty());
+        assert_eq!(live.snapshot().conversations[0].permissions.len(), 0);
         turn.finish(&AgentEvent::Failed {
             message: "save failed".into(),
         });
@@ -339,7 +339,7 @@ mod tests {
         let snapshot = live.snapshot();
         assert_eq!(snapshot.conversations[0].activity, Activity::Idle);
         assert_eq!(snapshot.conversations[0].text, "retain me");
-        assert!(snapshot.conversations[0].permissions.is_empty());
+        assert_eq!(snapshot.conversations[0].permissions.len(), 0);
     }
 
     #[test]
@@ -355,7 +355,7 @@ mod tests {
         current.finish(&AgentEvent::TurnEnded {
             stop: "end_turn".into(),
         });
-        assert!(live.snapshot().conversations[0].text.is_empty());
+        assert_eq!(live.snapshot().conversations[0].text, "");
         assert!(live.snapshot().conversations[0].error.is_none());
     }
 

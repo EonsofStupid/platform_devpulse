@@ -96,8 +96,52 @@ class RecoveryTests(unittest.TestCase):
         (self.root / "active.rs").write_bytes(b"pub fn recovered() {}\n")
         self.commit()
         result = self.run_script("--check")
-        self.assertIn("survive verbatim in active HEAD: 1", result.stdout)
+        self.assertIn("survive verbatim in active working tree: 1", result.stdout)
         self.assertFalse((self.root / "recovered").exists())
+
+    def test_pending_edits_do_not_count_as_verbatim_preservation(self):
+        self.deleted()
+        active = self.root / "active.rs"
+        active.write_bytes(b"pub fn recovered() {}\n")
+        self.commit()
+        active.write_bytes(b"pub fn changed() {}\n")
+        for staged in (False, True):
+            with self.subTest(staged=staged):
+                if staged:
+                    self.git("add", "active.rs")
+                result = self.run_script("--check", success=False)
+                self.assertIn("unrecovered source: lost.rs", result.stdout)
+                self.assertEqual(active.read_bytes(), b"pub fn changed() {}\n")
+                self.assertFalse((self.root / "recovered").exists())
+
+    def test_pending_removal_does_not_count_as_verbatim_preservation(self):
+        self.deleted()
+        active = self.root / "active.rs"
+        active.write_bytes(b"pub fn recovered() {}\n")
+        self.commit()
+        active.unlink()
+        result = self.run_script("--check", success=False)
+        self.assertIn("unrecovered source: lost.rs", result.stdout)
+
+    def test_staged_active_copy_counts_before_commit(self):
+        self.deleted()
+        (self.root / "active.rs").write_bytes(b"pub fn recovered() {}\n")
+        self.git("add", "active.rs")
+        result = self.run_script("--check")
+        self.assertIn("survive verbatim in active working tree: 1", result.stdout)
+        self.assertFalse((self.root / "recovered").exists())
+
+    def test_untracked_replacement_of_staged_deletion_does_not_count(self):
+        self.deleted()
+        active = self.root / "active.rs"
+        body = b"pub fn recovered() {}\n"
+        active.write_bytes(body)
+        self.commit()
+        self.git("rm", "active.rs")
+        active.write_bytes(body)
+        result = self.run_script("--check", success=False)
+        self.assertIn("unrecovered source: lost.rs", result.stdout)
+        self.assertEqual(active.read_bytes(), body)
 
     def test_later_deleted_revision_keeps_both_versions(self):
         self.deleted()

@@ -5,7 +5,7 @@
 //! never hand-author SQL against the table — keeping the column list in
 //! one place keeps schema bumps from rippling across the codebase.
 
-use super::types::{FeedItem, FeedKind, DEFAULT_FEED_LIMIT};
+use super::types::{DEFAULT_FEED_LIMIT, FeedItem, FeedKind};
 use crate::cortex::persistence::SqlAdapter;
 
 /// Insert or replace one feed item.

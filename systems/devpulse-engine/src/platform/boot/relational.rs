@@ -12,7 +12,7 @@
 
 use crate::platform::boot::log::BootLog;
 use crate::platform::boot::retry;
-use crate::platform::config::{sanitize_path, ServiceEntry, WindowsConfig};
+use crate::platform::config::{ServiceEntry, WindowsConfig, sanitize_path};
 use crate::platform::init::InitEvent;
 use crate::platform::services::relational::{RelationalService, StoreSchema};
 

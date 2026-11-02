@@ -22,7 +22,7 @@ pub fn dictionary_entries() -> Vec<(&'static str, &'static str)> {
 /// Format an explicit presentation copy; callers retain the original text.
 pub fn remap_text(text: &str) -> String {
     let mut entries = dictionary_entries();
-    entries.sort_by(|a, b| b.0.len().cmp(&a.0.len()));
+    entries.sort_by_key(|entry| std::cmp::Reverse(entry.0.len()));
     let mut result = text.to_string();
     for (technical, friendly) in entries {
         result = result.replace(technical, friendly);
@@ -38,6 +38,6 @@ mod tests {
             super::ENGINE_VOCABULARY.get("GUARDIAN"),
             Some(&"Quality Check")
         );
-        assert!(!super::dictionary_entries().is_empty());
+        assert_ne!(super::dictionary_entries(), [] as [(&str, &str); 0]);
     }
 }

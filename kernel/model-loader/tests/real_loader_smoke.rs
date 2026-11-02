@@ -80,8 +80,8 @@
 #![cfg(feature = "candle-backend")]
 
 use model_loader::{
-    load_default_presets, load_default_slots, HardwareTier, LoaderEventSink, MemoryConfig,
-    ModelFormat, ModelLoaderService, BASELINE_SLOT_IDS,
+    BASELINE_SLOT_IDS, HardwareTier, LoaderEventSink, MemoryConfig, ModelFormat,
+    ModelLoaderService, load_default_presets, load_default_slots,
 };
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
@@ -316,13 +316,13 @@ async fn steps_2_through_6_real_disk() {
     let post_hydrate_slots = service.list_slots().await;
     let post_hydrate_registry = service.get_registry().await;
     for slot in post_hydrate_slots {
-        if let Some(model_id) = &slot.assigned_model {
-            if let Some(entry) = post_hydrate_registry.iter().find(|e| &e.id == model_id) {
-                println!(
-                    "[real_loader_smoke]   • hydrated {} → {}",
-                    slot.id, entry.filename
-                );
-            }
+        if let Some(model_id) = &slot.assigned_model
+            && let Some(entry) = post_hydrate_registry.iter().find(|e| &e.id == model_id)
+        {
+            println!(
+                "[real_loader_smoke]   • hydrated {} → {}",
+                slot.id, entry.filename
+            );
         }
     }
     log_step(

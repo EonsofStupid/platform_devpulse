@@ -128,7 +128,7 @@ impl EmbeddingBackend for Qwen3Embedder {
             self.model_path = Some(model_file.clone());
             self.loaded = true;
 
-            let file_size = std::fs::metadata(&model_file).map(|m| m.len()).unwrap_or(0);
+            let file_size = std::fs::metadata(&model_file).map_or(0, |m| m.len());
 
             tracing::info!(
                 component = "Qwen3 Embedder",
@@ -192,15 +192,15 @@ impl EmbeddingBackend for Qwen3Embedder {
             results.push(encode_one(session, tokenizer, text)?);
         }
 
-        if let Some(first) = results.first() {
-            if first.len() != self.embedding_dim {
-                tracing::debug!(
-                    component = "Qwen3 Embedder",
-                    actual_dim = first.len(),
-                    expected_dim = self.embedding_dim,
-                    "Embedding dimension differs from expected"
-                );
-            }
+        if let Some(first) = results.first()
+            && first.len() != self.embedding_dim
+        {
+            tracing::debug!(
+                component = "Qwen3 Embedder",
+                actual_dim = first.len(),
+                expected_dim = self.embedding_dim,
+                "Embedding dimension differs from expected"
+            );
         }
 
         Ok(results)
@@ -217,7 +217,7 @@ impl EmbeddingBackend for Qwen3Embedder {
 
     fn memory_usage(&self) -> MemoryFootprint {
         if let Some(ref path) = self.model_path {
-            let size = std::fs::metadata(path).map(|m| m.len()).unwrap_or(0);
+            let size = std::fs::metadata(path).map_or(0, |m| m.len());
             MemoryFootprint {
                 ram_bytes: size,
                 vram_bytes: 0,

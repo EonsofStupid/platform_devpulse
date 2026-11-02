@@ -12,7 +12,7 @@ use std::collections::BTreeSet;
 
 use serde::{Deserialize, Serialize};
 
-use super::{is_kebab, semver, Issue, Provenance, Visibility};
+use super::{Issue, Provenance, Visibility, is_kebab, semver};
 
 /// The `schema` value of every role file.
 pub const ROLE_SCHEMA: &str = "dpl.role/1";
@@ -286,10 +286,11 @@ mod tests {
     fn a_selector_that_may_merge_is_refused() {
         let mut role = selector();
         role.must_not.retain(|rule| !rule.contains("merge"));
-        assert!(role
-            .validate()
-            .iter()
-            .any(|issue| issue.problem.contains("select, never blend")));
+        assert!(
+            role.validate()
+                .iter()
+                .any(|issue| issue.problem.contains("select, never blend"))
+        );
     }
 
     #[test]
@@ -297,10 +298,11 @@ mod tests {
         let mut role = selector();
         role.permissions.talk_only = true;
         role.permissions.tools_allowed = vec!["web".to_owned()];
-        assert!(role
-            .validate()
-            .iter()
-            .any(|issue| issue.problem.contains("talk-only")));
+        assert!(
+            role.validate()
+                .iter()
+                .any(|issue| issue.problem.contains("talk-only"))
+        );
     }
 
     #[test]
@@ -318,7 +320,7 @@ mod tests {
 
     #[test]
     fn the_output_fields_come_from_the_contract() {
-        assert!(!selector().output_fields().is_empty());
+        assert_ne!(selector().output_fields(), [] as [&str; 0]);
     }
 
     #[test]

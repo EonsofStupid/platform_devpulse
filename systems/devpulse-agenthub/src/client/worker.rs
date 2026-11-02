@@ -3,7 +3,7 @@
 use std::future::Future;
 use std::time::Duration;
 
-use anyhow::{anyhow, bail, Context, Result};
+use anyhow::{Context, Result, anyhow, bail};
 use tokio::sync::{mpsc, oneshot, watch};
 
 use super::{Peer, Reply, Request, RuntimeState, RuntimeStatus};

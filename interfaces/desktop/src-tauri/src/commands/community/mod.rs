@@ -27,12 +27,12 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use tauri::State;
 
 use devpulse_engine::platform::{
-    is_community_enabled, most_recent_sync_at, query_feed, set_community_enabled, upsert_feed_item,
-    FeedItem, FeedKind, SqlAdapter, DEFAULT_FEED_TTL_SECS,
+    DEFAULT_FEED_TTL_SECS, FeedItem, FeedKind, SqlAdapter, is_community_enabled,
+    most_recent_sync_at, query_feed, set_community_enabled, upsert_feed_item,
 };
 
-use crate::commands::cloud::secrets::credentials_from;
 use crate::commands::cloud::SupabaseCredentials;
+use crate::commands::cloud::secrets::credentials_from;
 use crate::state::PlatformState;
 
 // ── Types ───────────────────────────────────────────────────────────
@@ -87,8 +87,7 @@ fn now_epoch_secs() -> i64 {
     #[allow(clippy::cast_possible_wrap)]
     SystemTime::now()
         .duration_since(UNIX_EPOCH)
-        .map(|d| d.as_secs() as i64)
-        .unwrap_or(0)
+        .map_or(0, |d| d.as_secs() as i64)
 }
 
 // ── Commands ────────────────────────────────────────────────────────
@@ -222,8 +221,7 @@ pub async fn community_status(state: State<'_, PlatformState>) -> Result<Communi
     let cache_stale = (now_epoch_secs().saturating_sub(last_sync_at)) >= DEFAULT_FEED_TTL_SECS;
     let cached_items = query_feed(adapter, None, Some(500))
         .await
-        .map(|v| v.len())
-        .unwrap_or(0);
+        .map_or(0, |v| v.len());
     Ok(CommunityStatus {
         enabled,
         last_sync_at,

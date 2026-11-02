@@ -1,5 +1,5 @@
 [workspace]
-resolver = "2"
+resolver = "3"
 # Recovery staging is excluded; restored crates build from their owning paths (plan 0009).
 exclude = ["recovered", "deps/tantivy-sstable"]
 members = [
@@ -20,6 +20,10 @@ members = [
 # deps/moshi is a sub repo (plan 0007, decision 2): it builds moshi's server
 # in its own CI. Nothing here compiles it, so it is not a member or a patch.
 
+[workspace.package]
+edition = "2024"
+rust-version = "1.99.1"
+
 [workspace.dependencies]
 # Core
 serde = { version = "1.0", features = ["derive"] }
@@ -28,6 +32,9 @@ uuid = { version = "1.10", features = ["v7", "serde"] } # 2026 Stable
 chrono = { version = "0.4", features = ["serde"] }
 tokio = { version = "1.40", features = ["full"] }
 futures = "0.3"
+# Native credential backends for both the desktop and standalone release tools.
+# A bare keyring dependency uses the in-memory mock backend.
+keyring = { version = "3", features = ["windows-native", "apple-native", "sync-secret-service", "crypto-rust", "vendored"] }
 
 # Type Sync (D2) — specta generates typed TS invoke wrappers; replaces ts-rs
 specta = { version = "=2.0.0-rc.22", features = ["derive", "function", "uuid", "serde_json"] }
@@ -181,6 +188,9 @@ unsafe_code = "deny"
 missing_docs = "warn"
 
 [patch.crates-io]
+# Published sherpa-onnx-sys 1.13.8 still builds with vulnerable zip 2.
+# Pin upstream's merged zip 9 fix (PR #4059) until its next release.
+sherpa-onnx-sys = { git = "https://github.com/k2-fsa/sherpa-onnx", rev = "5821f230f309c084d17d871c8d62ad3218a66ccc" }
 # Turso 0.8.3 requires Tantivy 0.26.2. Use the official zstd update for its
 # SSTables (RUSTSEC-2026-0391/0398/0403/0410, plan 0009). The published
 # 0.7.0 source is unchanged; only its zstd dependency floor is updated.

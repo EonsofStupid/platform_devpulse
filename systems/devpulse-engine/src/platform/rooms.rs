@@ -16,10 +16,10 @@
 
 use std::collections::{BTreeMap, HashMap};
 use std::path::PathBuf;
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 
-use anyhow::{anyhow, bail, Context, Result};
+use anyhow::{Context, Result, anyhow, bail};
 use async_trait::async_trait;
 use devpulse_clyffy::cortex::persistence::{SqlAdapter, SqlValue, TursoAdapter};
 // IP-NOTE: room vocabulary only — room, seat, place, role, persona, turn;
@@ -29,12 +29,12 @@ use devpulse_clyffy::rooms::{self as library, Issue, Place, RoomHost, RoomRun};
 pub use devpulse_clyffy::rooms::{Assignment, Library, Outcome, RoomTurn};
 use serde::{Deserialize, Serialize};
 use specta::Type;
-use tokio::sync::{mpsc, Mutex};
+use tokio::sync::{Mutex, mpsc};
 use uuid::Uuid;
 
 use super::agenthub::live::Observation;
 use super::agents::{
-    recovery, save_turn, save_turn_with_continuation, AgentEvent, Agents, ResumeUpdate, TurnRow,
+    AgentEvent, Agents, ResumeUpdate, TurnRow, recovery, save_turn, save_turn_with_continuation,
 };
 
 /// A room of yours.
@@ -113,11 +113,13 @@ pub struct Rooms {
 
 /// Issues as one error, each on its own clause.
 fn refusal(issues: &[Issue]) -> anyhow::Error {
-    anyhow!(issues
-        .iter()
-        .map(ToString::to_string)
-        .collect::<Vec<_>>()
-        .join("; "))
+    anyhow!(
+        issues
+            .iter()
+            .map(ToString::to_string)
+            .collect::<Vec<_>>()
+            .join("; ")
+    )
 }
 
 impl Rooms {
@@ -507,12 +509,12 @@ impl RoomHost for Host {
         let key = place.key();
         let mut text = String::new();
         while let Some(event) = events.recv().await {
-            if let AgentEvent::PermissionAsked { request, title, .. } = &event {
-                if place.role.permissions.talk_only {
-                    tracing::info!(target: "rooms", place = %key, %title, "a talk-only place asked for a permission; refused");
-                    session.answer(request, None).await;
-                    continue;
-                }
+            if let AgentEvent::PermissionAsked { request, title, .. } = &event
+                && place.role.permissions.talk_only
+            {
+                tracing::info!(target: "rooms", place = %key, %title, "a talk-only place asked for a permission; refused");
+                session.answer(request, None).await;
+                continue;
             }
             if let Some(observation) = self.places.lock().await.get(&key) {
                 observation.observe(&event);
@@ -656,11 +658,10 @@ mod tests {
                     panic!("unsaved room outcome reported finished")
                 };
                 assert!(message.contains("Recovery copy:"));
-                assert!(db
-                    .query("SELECT id FROM turns", &[])
-                    .await
-                    .unwrap()
-                    .is_empty());
+                assert_eq!(
+                    db.query("SELECT id FROM turns", &[]).await.unwrap(),
+                    [] as [std::vec::Vec<devpulse_clyffy::cortex::persistence::SqlValue>; 0]
+                );
                 let path = std::fs::read_dir(tree.path().join("agenthub/recovery"))
                     .unwrap()
                     .next()

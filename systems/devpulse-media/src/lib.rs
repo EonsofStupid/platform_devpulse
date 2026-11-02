@@ -14,8 +14,8 @@ pub mod pipeline;
 
 // Re-exports for convenience
 pub use audio_decode::{
-    decode_audio_file_to_pcm, decode_to_qwen3_tts_reference, decode_to_whisper,
-    QWEN3_TTS_SAMPLE_RATE, WHISPER_SAMPLE_RATE,
+    QWEN3_TTS_SAMPLE_RATE, WHISPER_SAMPLE_RATE, decode_audio_file_to_pcm,
+    decode_to_qwen3_tts_reference, decode_to_whisper,
 };
 pub use capture::CameraManager;
 pub use error::{MediaError, MediaResult};

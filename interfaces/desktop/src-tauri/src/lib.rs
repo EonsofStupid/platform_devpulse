@@ -40,7 +40,7 @@ use state::{BootStateTracker, PlatformState};
 use std::path::PathBuf;
 use std::sync::Arc;
 use tauri::{Emitter, Manager};
-use tauri_specta::{collect_commands, collect_events, Builder};
+use tauri_specta::{Builder, collect_commands, collect_events};
 
 /// Boot a Platform without Tauri and serve MCP over stdio.
 ///
@@ -519,54 +519,34 @@ pub fn run() {
     // [#9525]: https://github.com/tauri-apps/tauri/issues/9525
     #[cfg(windows)]
     {
-        if let Ok(exe) = std::env::current_exe() {
-            if let Some(exe_dir) = exe.parent() {
-                let bin_dir = exe_dir.join("binaries");
-                if bin_dir.is_dir() {
-                    let existing = std::env::var_os("PATH").unwrap_or_default();
-                    let joined = std::env::join_paths(
-                        std::iter::once(bin_dir.clone()).chain(std::env::split_paths(&existing)),
-                    )
-                    .unwrap_or(existing);
-                    // SAFETY: `run()` executes single-threaded before
-                    // Tauri spins up any worker. Env mutation is safe
-                    // here and only here.
+        if let Ok(exe) = std::env::current_exe()
+            && let Some(exe_dir) = exe.parent()
+        {
+            let bin_dir = exe_dir.join("binaries");
+            if bin_dir.is_dir() {
+                let existing = std::env::var_os("PATH").unwrap_or_default();
+                let joined = std::env::join_paths(
+                    std::iter::once(bin_dir.clone()).chain(std::env::split_paths(&existing)),
+                )
+                .unwrap_or(existing);
+                // SAFETY: this block is Windows-only; Windows environment
+                // mutation is thread-safe. All child runtimes need the
+                // bundled DLL directory, including release launches.
+                #[allow(unsafe_code)]
+                unsafe {
                     std::env::set_var("PATH", joined);
-                    eprintln!(
-                        "devpulse: prepended {} to PATH for child DLL search",
-                        bin_dir.display()
-                    );
-                }
+                };
+                eprintln!(
+                    "devpulse: prepended {} to PATH for child DLL search",
+                    bin_dir.display()
+                );
             }
         }
     }
 
-    // ── Dev-build diagnostic env vars ────────────────────────────
-    // Set before Tauri constructs any thread so WebView2 + the Rust
-    // runtime pick these up at startup.
-    #[cfg(debug_assertions)]
-    {
-        // Chromium / WebView2 stderr logging: every JS exception,
-        // console.error, unhandled promise rejection, navigation
-        // failure, and renderer crash prints to the Tauri process's
-        // stderr. Visible in the terminal even when F12 is frozen.
-        if std::env::var_os("WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS").is_none() {
-            // SAFETY: single-threaded at this point in `run()`.
-            std::env::set_var(
-                "WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS",
-                "--enable-logging=stderr --v=1",
-            );
-        }
-        // Rust backtrace on panic. Our panic hook (see logging.rs) uses
-        // `Backtrace::force_capture()` anyway, but this also covers the
-        // case where a panic escapes to the default handler.
-        if std::env::var_os("RUST_BACKTRACE").is_none() {
-            std::env::set_var("RUST_BACKTRACE", "1");
-        }
-        if std::env::var_os("RUST_LIB_BACKTRACE").is_none() {
-            std::env::set_var("RUST_LIB_BACKTRACE", "1");
-        }
-    }
+    // The run-dev launcher supplies WebView diagnostics and backtrace settings
+    // on this process's Command. No global environment mutation is needed here;
+    // the panic hook also force-captures backtraces in standalone launches.
 
     // ── specta: typed IPC bindings ──────────────────────────────
     // Construction is shared with `bin/export-bindings.rs`, the
@@ -650,11 +630,10 @@ pub fn run() {
         .on_window_event(|window, event| {
             // A closed window stops watching every signal kind it watched,
             // so demand-driven producers can stop.
-            if let tauri::WindowEvent::Destroyed = event {
-                if let Some(engine) = window.try_state::<devpulse_engine::Engine>() {
+            if let tauri::WindowEvent::Destroyed = event
+                && let Some(engine) = window.try_state::<devpulse_engine::Engine>() {
                     engine.router().forget_subscriber(window.label());
                 }
-            }
         })
         .setup(move |app| {
             builder.mount_events(app);
@@ -1025,12 +1004,11 @@ pub fn run() {
 
                 // Flush OTel spans AFTER platform shutdown (captures shutdown spans).
                 let telemetry = app.state::<std::sync::Mutex<Option<TelemetryGuard>>>();
-                if let Ok(mut lock) = telemetry.lock() {
-                    if let Some(guard) = lock.take() {
+                if let Ok(mut lock) = telemetry.lock()
+                    && let Some(guard) = lock.take() {
                         guard.shutdown();
                         tracing::info!("OTel telemetry flushed");
                     }
-                }
 
                 tracing::info!("Platform shutdown complete — process exiting");
             }
@@ -1281,8 +1259,12 @@ async fn boot_task(
                             .interest(devpulse_engine::signals::SignalKind::Hardware);
                         loader.spawn_hardware_sampler(period, watching);
                     }
-                    (None, _) => tracing::warn!("hardware sampler: no model loader — hardware signals off"),
-                    (_, None) => tracing::warn!("hardware sampler: no [signals.sample_interval_ms].hardware — hardware signals off"),
+                    (None, _) => {
+                        tracing::warn!("hardware sampler: no model loader — hardware signals off");
+                    }
+                    (_, None) => tracing::warn!(
+                        "hardware sampler: no [signals.sample_interval_ms].hardware — hardware signals off"
+                    ),
                 }
             }
 

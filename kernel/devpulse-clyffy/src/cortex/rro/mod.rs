@@ -17,7 +17,7 @@
 
 // State machine — runtime handle + types from the reasoning module.
 pub use crate::cortex::reasoning::{
-    RroDepth, RroState, RroStateHandle, RroStateSnapshot, RroStateTransition, DEFAULT_PROXIMITY,
+    DEFAULT_PROXIMITY, RroDepth, RroState, RroStateHandle, RroStateSnapshot, RroStateTransition,
 };
 
 // Vector store adapter — feature-gated to mirror the dep gate at

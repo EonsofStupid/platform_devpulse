@@ -28,7 +28,7 @@
 //! hardcoded names so future model revisions drop in without a
 //! schema change.
 
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Context, Result, anyhow};
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use std::path::{Path, PathBuf};

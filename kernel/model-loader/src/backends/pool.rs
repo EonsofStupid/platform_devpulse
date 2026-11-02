@@ -140,12 +140,10 @@ impl BackendPool {
             false
         };
 
-        if should_remove {
-            if let Some(instance) = self.instances.remove(model_id) {
-                tracing::info!(model = %model_id, "All references released — unloading from pool");
-                instance.handle.shutdown().await;
-                return Some(instance.memory);
-            }
+        if should_remove && let Some(instance) = self.instances.remove(model_id) {
+            tracing::info!(model = %model_id, "All references released — unloading from pool");
+            instance.handle.shutdown().await;
+            return Some(instance.memory);
         }
 
         None

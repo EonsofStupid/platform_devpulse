@@ -1,7 +1,8 @@
 [package]
 name = "devpulse-agenthub"
 version = "1.0.1"
-edition = "2021"
+edition.workspace = true
+rust-version.workspace = true
 description = "DevPulse's supervised AgentHub runtime and typed private process client"
 
 [lints]

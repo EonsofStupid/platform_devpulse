@@ -1,4 +1,4 @@
-//! Test 6 — Validation rejection (HOT_UPDATE_PATTERN.md §12 verification 6)
+//! Test 6 — Validation rejection (`HOT_UPDATE_PATTERN.md` §12 verification 6)
 //!
 //! "A deliberately-corrupt snapshot fails `validate`; live encoder
 //!  unchanged after the failed swap attempt."
@@ -7,11 +7,13 @@
 //! correct. A snapshot that fails validation never becomes live;
 //! the previous live component is preserved.
 
+#![allow(clippy::unwrap_used, clippy::expect_used, reason = "test assertions")]
+
 mod common;
 
 use std::sync::Arc;
 
-use rrd::{HotSwap, HotUpdateable, RRDError, RRDState, RRD};
+use rrd::{HotSwap, HotUpdateable, RRD, RRDError, RRDState};
 
 use common::{TestComponent, TestSource};
 

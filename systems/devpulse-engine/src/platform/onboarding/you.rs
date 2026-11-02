@@ -106,10 +106,10 @@ fn check(payload: &serde_json::Value, refused: &[FieldError]) -> Vec<FieldError>
     if !already("displayName") && text("displayName").is_some_and(str::is_empty) {
         errors.push(FieldError::new("displayName", ErrorCode::Required));
     }
-    if let Some(root) = text("projectsRoot").filter(|r| !r.is_empty() && !already("projectsRoot")) {
-        if !Path::new(root).is_dir() {
-            errors.push(FieldError::new("projectsRoot", ErrorCode::NotAFolder));
-        }
+    if let Some(root) = text("projectsRoot").filter(|r| !r.is_empty() && !already("projectsRoot"))
+        && !Path::new(root).is_dir()
+    {
+        errors.push(FieldError::new("projectsRoot", ErrorCode::NotAFolder));
     }
     errors
 }

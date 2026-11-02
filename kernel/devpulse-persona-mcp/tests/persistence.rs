@@ -3,10 +3,10 @@
 #![allow(clippy::expect_used, reason = "test assertions")]
 
 use devpulse_persona_mcp::store::{PersonaScope, PersonaStore};
-use devpulse_persona_mcp::verbs::persona::{save, PersonaSaveArgs};
+use devpulse_persona_mcp::verbs::persona::{PersonaSaveArgs, save};
 use std::path::Path;
 use std::sync::Arc;
-use tempfile::{tempdir, TempDir};
+use tempfile::{TempDir, tempdir};
 
 struct Fixture {
     store: Arc<PersonaStore>,
@@ -128,15 +128,18 @@ async fn idempotency_failure_rolls_back_the_block_write() {
         )
         .await
         .expect("inject durable result failure");
-    assert!(save(&test.store, args("reject", "must roll back"))
-        .await
-        .is_err());
-    assert!(test
-        .store
-        .load_blocks(PersonaScope::User, None)
-        .await
-        .expect("read after rollback")
-        .is_empty());
+    assert!(
+        save(&test.store, args("reject", "must roll back"))
+            .await
+            .is_err()
+    );
+    assert!(
+        test.store
+            .load_blocks(PersonaScope::User, None)
+            .await
+            .expect("read after rollback")
+            .is_empty()
+    );
     save(&test.store, args("accept", "works after rollback"))
         .await
         .expect("next write succeeds");
@@ -195,12 +198,13 @@ async fn list_filters_do_not_cross_scopes_or_ignore_dates() {
     assert_eq!(selected[0].slug.as_deref(), Some("project-a"));
     assert_eq!(selected[0].label, "goals");
     let future = chrono::Utc::now() + chrono::Duration::days(1);
-    assert!(test
-        .store
-        .list_blocks(PersonaScope::User, None, Some("goals"), Some(future), 100)
-        .await
-        .expect("future filter")
-        .is_empty());
+    assert!(
+        test.store
+            .list_blocks(PersonaScope::User, None, Some("goals"), Some(future), 100)
+            .await
+            .expect("future filter")
+            .is_empty()
+    );
     assert_eq!(
         test.store
             .list_blocks(PersonaScope::Project, Some("project-a"), None, None, 1)
@@ -220,20 +224,22 @@ async fn warming_the_retry_cache_does_not_extend_its_durable_deadline() {
         "INSERT INTO persona_idempotency (key, response_json, inserted_at, expires_at) VALUES (?1, ?2, ?3, ?4)",
         turso::params!["near-expiry", "{}", now.to_rfc3339(), expiry.to_rfc3339()],
     ).await.expect("insert a result near expiry");
-    assert!(test
-        .store
-        .idempotency()
-        .get("near-expiry")
-        .await
-        .expect("hydrate cache")
-        .is_some());
+    assert!(
+        test.store
+            .idempotency()
+            .get("near-expiry")
+            .await
+            .expect("hydrate cache")
+            .is_some()
+    );
     let remaining = (expiry - chrono::Utc::now()).to_std().unwrap_or_default();
     tokio::time::sleep(remaining + std::time::Duration::from_millis(20)).await;
-    assert!(test
-        .store
-        .idempotency()
-        .get("near-expiry")
-        .await
-        .expect("expired lookup")
-        .is_none());
+    assert!(
+        test.store
+            .idempotency()
+            .get("near-expiry")
+            .await
+            .expect("expired lookup")
+            .is_none()
+    );
 }

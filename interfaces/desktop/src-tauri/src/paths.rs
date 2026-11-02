@@ -85,17 +85,17 @@ fn baked_project_userdata() -> Option<PathBuf> {
 /// (the MCP subprocess) print it to stderr and exit non-zero so Claude
 /// Code shows the failure to the user.
 pub fn resolve_data_dir_standalone() -> Result<PathBuf, String> {
-    if let Ok(exe) = std::env::current_exe() {
-        if let Some(exe_dir) = exe.parent() {
-            // Step 1 — portable bundle next to the exe.
-            let portable = exe_dir.join(".userdata");
-            if portable.is_dir() {
-                return Ok(portable);
-            }
-            // Step 2 — walk up from exe looking for project .userdata.
-            if let Some(found) = find_userdata_upwards(exe_dir) {
-                return Ok(found);
-            }
+    if let Ok(exe) = std::env::current_exe()
+        && let Some(exe_dir) = exe.parent()
+    {
+        // Step 1 — portable bundle next to the exe.
+        let portable = exe_dir.join(".userdata");
+        if portable.is_dir() {
+            return Ok(portable);
+        }
+        // Step 2 — walk up from exe looking for project .userdata.
+        if let Some(found) = find_userdata_upwards(exe_dir) {
+            return Ok(found);
         }
     }
 
@@ -125,17 +125,17 @@ pub fn resolve_data_dir_standalone() -> Result<PathBuf, String> {
 ///
 /// Returns a human-readable message on resolution failure.
 pub fn resolve_data_dir<R: tauri::Runtime>(app: &impl Manager<R>) -> Result<PathBuf, String> {
-    if let Ok(exe) = std::env::current_exe() {
-        if let Some(exe_dir) = exe.parent() {
-            // Step 1 — portable bundle: `<exe_dir>/.userdata`.
-            let portable = exe_dir.join(".userdata");
-            if portable.is_dir() {
-                return Ok(portable);
-            }
-            // Step 2 — walk up: any parent dir containing `.userdata`.
-            if let Some(found) = find_userdata_upwards(exe_dir) {
-                return Ok(found);
-            }
+    if let Ok(exe) = std::env::current_exe()
+        && let Some(exe_dir) = exe.parent()
+    {
+        // Step 1 — portable bundle: `<exe_dir>/.userdata`.
+        let portable = exe_dir.join(".userdata");
+        if portable.is_dir() {
+            return Ok(portable);
+        }
+        // Step 2 — walk up: any parent dir containing `.userdata`.
+        if let Some(found) = find_userdata_upwards(exe_dir) {
+            return Ok(found);
         }
     }
 

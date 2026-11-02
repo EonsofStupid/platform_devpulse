@@ -29,7 +29,7 @@ use std::collections::VecDeque;
 use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use devpulse_telemetry::prelude::{broadcast_channel, BroadcastReceiver, BroadcastSender};
+use devpulse_telemetry::prelude::{BroadcastReceiver, BroadcastSender, broadcast_channel};
 use serde::{Deserialize, Serialize};
 use tokio::sync::RwLock;
 
@@ -322,8 +322,7 @@ impl Default for GrammarHandle {
 fn now_ms() -> i64 {
     SystemTime::now()
         .duration_since(UNIX_EPOCH)
-        .map(|d| i64::try_from(d.as_millis()).unwrap_or(i64::MAX))
-        .unwrap_or(0)
+        .map_or(0, |d| i64::try_from(d.as_millis()).unwrap_or(i64::MAX))
 }
 
 // ═══════════════════════════════════════════════════════════════

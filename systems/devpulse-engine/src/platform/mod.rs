@@ -49,8 +49,8 @@ pub mod services;
 pub mod telemetry;
 
 pub use config::{
-    retrieval_param_meta, sanitize_path, DataScope, ExecutionLane, LaneToggle, LaneTraceConfig,
-    PlatformBootConfig, PlatformConfig, RetrievalConfig, RetrievalParamMeta, RetrievalPreset,
+    DataScope, ExecutionLane, LaneToggle, LaneTraceConfig, PlatformBootConfig, PlatformConfig,
+    RetrievalConfig, RetrievalParamMeta, RetrievalPreset, retrieval_param_meta, sanitize_path,
 };
 use devpulse_clyffy::model_loader::runtimes::llama_server::{self, LlamaServerConfig};
 use devpulse_clyffy::model_loader::runtimes::voice_stt::{self, VoiceSttConfig};
@@ -104,7 +104,7 @@ pub use devpulse_clyffy::cortex::persistence::{
 // `BroadcastSender` (ADR-002). Authored under the kernel cortex SSOT at
 // `kernel/devpulse-clyffy/src/cortex/reasoning/state.rs`.
 pub use devpulse_clyffy::cortex::reasoning::{
-    RroDepth, RroState, RroStateHandle, RroStateSnapshot, RroStateTransition, DEFAULT_PROXIMITY,
+    DEFAULT_PROXIMITY, RroDepth, RroState, RroStateHandle, RroStateSnapshot, RroStateTransition,
 };
 
 // IP-NOTE: LLM constrained-decoding runtime — `llguidance`-backed.
@@ -124,11 +124,11 @@ pub use devpulse_clyffy::cortex::llguidance::{
 // / `select_entry` are also re-prefixed. This IS the translation
 // pattern — vocabulary rename at the seam, not a struct wrapper.
 pub use devpulse_clyffy::cortex::knowledge::{
+    EntryType as KnowledgeEntryType, KnowledgeEntry, KnowledgeManifest,
+    Reaction as KnowledgeReaction, SelectedEntry as KnowledgeSelectedEntry,
+    SelectionParams as KnowledgeSelectionParams, Tier as KnowledgeTier,
     record_reaction as knowledge_record_reaction, select_entry as knowledge_select_entry,
-    sync_remote_entries as knowledge_sync_remote_entries, EntryType as KnowledgeEntryType,
-    KnowledgeEntry, KnowledgeManifest, Reaction as KnowledgeReaction,
-    SelectedEntry as KnowledgeSelectedEntry, SelectionParams as KnowledgeSelectionParams,
-    Tier as KnowledgeTier,
+    sync_remote_entries as knowledge_sync_remote_entries,
 };
 
 // IP-NOTE: community feed cache. `FeedItem` + `FeedKind` cross to TS via
@@ -137,8 +137,8 @@ pub use devpulse_clyffy::cortex::knowledge::{
 // without kernel-vocabulary translation. The actual HTTP fetch lives in
 // `commands/community/` (desktop tier); kernel owns only the cache shape.
 pub use devpulse_clyffy::cortex::community::{
-    is_community_enabled, most_recent_sync_at, query_feed, set_community_enabled, upsert_feed_item,
-    FeedItem, FeedKind, DEFAULT_FEED_LIMIT, DEFAULT_FEED_TTL_SECS,
+    DEFAULT_FEED_LIMIT, DEFAULT_FEED_TTL_SECS, FeedItem, FeedKind, is_community_enabled,
+    most_recent_sync_at, query_feed, set_community_enabled, upsert_feed_item,
 };
 
 // IP-NOTE: cortex governance graph (CORTEX.md §4) — operator-authored
@@ -147,7 +147,7 @@ pub use devpulse_clyffy::cortex::community::{
 // pass `graph.handle()` (the `&ScopedGraphHandle` returned by
 // `GraphService::handle()`) and convert their `RroState` via
 // `RroState::as_str()` at the seam.
-pub use devpulse_clyffy::cortex::governance::{thought_create, thought_load_branch, ThoughtRecord};
+pub use devpulse_clyffy::cortex::governance::{ThoughtRecord, thought_create, thought_load_branch};
 
 // IP-NOTE: RRD encoder hot-swap return shape. `SwapStats` carries dim
 // + elapsed_ms + phases_observed — generic enough to cross outward.
@@ -181,8 +181,8 @@ pub use devpulse_clyffy::cortex::suggest::{Suggestion, SuggestionService};
 // reaching into the kernel directly. Names describe industry-standard
 // concepts (memory, embedding, archive) — no kernel vocabulary leaks.
 pub use devpulse_clyffy::cortex::intelligence::{
-    slug_for_cwd, IntelligenceStore, MemoryKind, MemoryRecord, NeighborRef, RecallHit, RroRecord,
-    EMBEDDING_DIM, MEMORY_SCHEMA,
+    EMBEDDING_DIM, IntelligenceStore, MEMORY_SCHEMA, MemoryKind, MemoryRecord, NeighborRef,
+    RecallHit, RroRecord, slug_for_cwd,
 };
 
 // IP-NOTE: interaction templates — kernel-owned scripted exchanges
@@ -220,10 +220,10 @@ pub use devpulse_clyffy::model_loader::{
 pub use devpulse_clyffy::model_loader::registry::backends::ModelFormat;
 #[cfg(feature = "inference")]
 pub use devpulse_clyffy::model_loader::registry::{
-    classify_arch_from_gguf, classify_arch_from_hf_config, installed_backends,
-    resolve_compatibility, Alternative, AlternativeKind, ArchFamily, ArchId, ArchitectureSpec,
-    BackendId, BackendInfo, BackendMatrix, FormatSupport, LoadError, Resolution, SupportStatus,
-    SupportTier, UnsupportedReason,
+    Alternative, AlternativeKind, ArchFamily, ArchId, ArchitectureSpec, BackendId, BackendInfo,
+    BackendMatrix, FormatSupport, LoadError, Resolution, SupportStatus, SupportTier,
+    UnsupportedReason, classify_arch_from_gguf, classify_arch_from_hf_config, installed_backends,
+    resolve_compatibility,
 };
 
 use anyhow::Result;
@@ -234,7 +234,7 @@ use std::time::Instant;
 
 use services::analytics::AnalyticsService;
 use services::cache::CacheService;
-use services::devforge::{resolve_devforge_server_dir, DevForgePreflight, DevForgeService};
+use services::devforge::{DevForgePreflight, DevForgeService, resolve_devforge_server_dir};
 use services::graph::GraphService;
 // EmbedderService removed — slot-managed by model loader
 // WhisperService removed — slot-managed by model loader
@@ -249,11 +249,11 @@ use services::relational::RelationalService;
 use services::sidecars::ollama::OllamaService;
 #[cfg(feature = "rro")]
 use services::vector::VectorService;
-use services::{lifecycle_phase, PreflightRegistry};
+use services::{PreflightRegistry, lifecycle_phase};
 use telemetry::TelemetryHandle;
 
 use crate::platform::facade::events::InternalEvent;
-use devpulse_telemetry::prelude::{broadcast_channel, BroadcastSender};
+use devpulse_telemetry::prelude::{BroadcastSender, broadcast_channel};
 
 // ═══════════════════════════════════════════════════════════════
 // Service field enumeration for shutdown
@@ -659,7 +659,7 @@ impl Platform {
     /// Provider/model operation readiness remains owned by its kernel adapter.
     pub async fn services_status(&self) -> Vec<ServiceStatusSnapshot> {
         use services::status::{
-            feature_gate_compiled_in, manifest_entries, snapshot_from, ServiceObservation,
+            ServiceObservation, feature_gate_compiled_in, manifest_entries, snapshot_from,
         };
         futures::future::join_all(manifest_entries().map(|meta| async move {
             let (config_enabled, config_critical) = self
@@ -732,8 +732,12 @@ impl Platform {
             #[cfg(feature = "inference")]
             (ServiceRole::ModelLoader, DataScope::System) => {
                 if self.model_loader.is_some() {
-                    (ServiceRuntimeState::Running, ServiceObservation::unverified(
-                        "Model manager is present; model and endpoint readiness require their own operation checks."))
+                    (
+                        ServiceRuntimeState::Running,
+                        ServiceObservation::unverified(
+                            "Model manager is present; model and endpoint readiness require their own operation checks.",
+                        ),
+                    )
                 } else {
                     absent()
                 }
@@ -906,11 +910,17 @@ impl Platform {
     /// - `model_loader` is not booted (no embedder source).
     /// - `user_graph` is not booted (no storage target).
     #[cfg(feature = "inference")]
-    #[expect(
-        clippy::unused_async,
-        reason = "callers in interfaces/desktop/src-tauri/src/commands/chat/suggest.rs `.await?` this; keeping the signature async is forward-compatible with a future construction step that becomes async (e.g. graph adapter warm-up) without breaking every call site"
-    )]
-    pub async fn ensure_suggest_service(
+    pub fn ensure_suggest_service(
+        &self,
+    ) -> impl std::future::Future<
+        Output = Result<Arc<devpulse_clyffy::cortex::suggest::SuggestionService>, String>,
+    > {
+        // Callers `.await?` this; construction is synchronous today.
+        std::future::ready(self.suggest_service_now())
+    }
+
+    #[cfg(feature = "inference")]
+    fn suggest_service_now(
         &self,
     ) -> Result<Arc<devpulse_clyffy::cortex::suggest::SuggestionService>, String> {
         if let Some(svc) = self.suggest.load_full() {

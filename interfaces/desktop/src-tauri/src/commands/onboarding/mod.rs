@@ -11,11 +11,11 @@ use std::sync::Arc;
 
 use crate::commands::_util::CommandError;
 use crate::state::PlatformState;
+use devpulse_engine::platform::Platform;
 use devpulse_engine::platform::forms::{FormOutcome, FormView};
 use devpulse_engine::platform::onboarding::scan::{self, FoundRepo};
-use devpulse_engine::platform::onboarding::{you, Onboarding, OnboardingState};
+use devpulse_engine::platform::onboarding::{Onboarding, OnboardingState, you};
 use devpulse_engine::platform::projects::RegisterResult;
-use devpulse_engine::platform::Platform;
 use tauri::State;
 
 /// The platform, once boot has published it. Before that nothing was asked

@@ -30,8 +30,8 @@ use crate::state::PlatformState;
 use devpulse_media::decode_audio_file_to_pcm;
 use serde::{Deserialize, Serialize};
 use specta::Type;
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 use tauri::State;
 
 /// Shared playback state — tracks whether TTS audio is currently playing.

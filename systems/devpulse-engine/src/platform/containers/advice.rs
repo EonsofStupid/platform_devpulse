@@ -366,14 +366,15 @@ fn host_checks(
     if host.os != "windows" {
         return;
     }
-    if let Some(v) = &host.virtualization {
-        if v.firmware_enabled == Some(false) && v.hypervisor_present != Some(true) {
-            advice.blockers.push(point(
-                PointCode::VirtualizationOff,
-                config.source("virtualization"),
-                &[],
-            ));
-        }
+    if let Some(v) = &host.virtualization
+        && v.firmware_enabled == Some(false)
+        && v.hypervisor_present != Some(true)
+    {
+        advice.blockers.push(point(
+            PointCode::VirtualizationOff,
+            config.source("virtualization"),
+            &[],
+        ));
     }
     let target = product.map_or(DOCKER_DESKTOP, |p| p.id.as_str()).to_owned();
     match &host.wsl {
@@ -418,18 +419,18 @@ fn ram_check(host: &HostReport, product: &Product, config: &AdviceConfig, advice
         )),
         _ => None,
     };
-    if let Some((needed, source)) = needed {
-        if host.ram_total_mb < needed {
-            let (have, want) = (
-                (host.ram_total_mb / 1024).to_string(),
-                (needed / 1024).to_string(),
-            );
-            advice.warnings.push(point(
-                PointCode::RamLow,
-                config.source(source),
-                &[("have", &have), ("want", &want), ("name", &product.name)],
-            ));
-        }
+    if let Some((needed, source)) = needed
+        && host.ram_total_mb < needed
+    {
+        let (have, want) = (
+            (host.ram_total_mb / 1024).to_string(),
+            (needed / 1024).to_string(),
+        );
+        advice.warnings.push(point(
+            PointCode::RamLow,
+            config.source(source),
+            &[("have", &have), ("want", &want), ("name", &product.name)],
+        ));
     }
 }
 
@@ -486,10 +487,11 @@ pub fn advise(
             ));
             host_checks(host, config, product.as_ref(), &mut advice);
         }
-        if let (Some(p), Some(a)) = (&product, answers) {
-            if p.id == DOCKER_DESKTOP && !a.usage.docker_desktop_free() {
-                advice.warnings.push(licence_required(config));
-            }
+        if let (Some(p), Some(a)) = (&product, answers)
+            && p.id == DOCKER_DESKTOP
+            && !a.usage.docker_desktop_free()
+        {
+            advice.warnings.push(licence_required(config));
         }
         if let Some(p) = &product {
             if !engine.running {
@@ -765,7 +767,7 @@ mod tests {
         assert!(a.keep);
         assert_eq!(a.product.as_ref().unwrap().id, "docker-desktop");
         assert_eq!(codes(&a.reasons), [PointCode::KeepWorking]);
-        assert!(a.warnings.is_empty());
+        assert_eq!(a.warnings.len(), 0);
         assert_eq!(kinds(&a), [StepKind::Test]);
     }
 

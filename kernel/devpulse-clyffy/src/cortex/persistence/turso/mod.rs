@@ -17,7 +17,7 @@
 //! concurrency model.
 
 use crate::cortex::persistence::traits::{PersistenceAdapter, SqlAdapter, SqlRow, SqlValue};
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 use std::path::Path;
 use std::time::Duration;
 
@@ -339,8 +339,7 @@ CREATE TABLE IF NOT EXISTS platform_config (
     fn unique_test_path() -> std::path::PathBuf {
         let nanos = SystemTime::now()
             .duration_since(UNIX_EPOCH)
-            .map(|d| d.as_nanos())
-            .unwrap_or(0);
+            .map_or(0, |d| d.as_nanos());
         std::env::temp_dir()
             .join(format!("devpulse-turso-test-{nanos}"))
             .join("nested")
@@ -361,21 +360,25 @@ CREATE TABLE IF NOT EXISTS platform_config (
                 vec![format!("row-{i}").into()],
             )).collect();
             assert!(db.write_atomic(&statements).await.is_err());
-            assert!(db
-                .query("SELECT key FROM platform_config", &[])
-                .await
-                .unwrap()
-                .is_empty());
+            assert_eq!(
+                db.query("SELECT key FROM platform_config", &[])
+                    .await
+                    .unwrap()
+                    .len(),
+                0
+            );
         }
         assert!(db.write_atomic(&[
             ("INSERT INTO platform_config (key, value, category) VALUES ('first', 'v', 'test')", vec![]),
             ("UPDATE platform_config SET value = 'v2' WHERE key = 'missing'", vec![]),
         ]).await.is_err());
-        assert!(db
-            .query("SELECT key FROM platform_config", &[])
-            .await
-            .unwrap()
-            .is_empty());
+        assert_eq!(
+            db.query("SELECT key FROM platform_config", &[])
+                .await
+                .unwrap()
+                .len(),
+            0
+        );
         db.write_atomic(&[
             (
                 "INSERT INTO platform_config (key, value, category) VALUES ('first', 'v', 'test')",

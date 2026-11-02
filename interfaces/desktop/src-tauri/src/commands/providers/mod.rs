@@ -29,7 +29,7 @@ use specta::Type;
 
 use dto::{ProviderModelInfo, ProviderStatus, ValidationResult};
 
-use super::_util::{now_ms, CommandError};
+use super::_util::{CommandError, now_ms};
 use super::credentials;
 
 use cache::{CacheEntry, CredentialChange, ValidationCache};

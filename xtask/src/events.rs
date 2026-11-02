@@ -153,8 +153,7 @@ impl EventBuilder {
     fn into_event(self, stage_id: &str, status: StageStatus, start: Instant) -> StageEvent {
         let unix_ms = SystemTime::now()
             .duration_since(UNIX_EPOCH)
-            .map(|d| d.as_millis() as u64)
-            .unwrap_or(0);
+            .map_or(0, |d| d.as_millis() as u64);
         StageEvent {
             unix_ms,
             elapsed_ms: start.elapsed().as_millis() as u64,

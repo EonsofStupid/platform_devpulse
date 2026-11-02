@@ -21,8 +21,8 @@ use std::sync::Arc;
 use std::time::Instant;
 
 use devpulse_telemetry::prelude::{BroadcastReceiver, BroadcastSender};
-use tokio::sync::broadcast::error::RecvError;
 use tokio::sync::RwLock;
+use tokio::sync::broadcast::error::RecvError;
 use tracing::{debug, trace, warn};
 
 use super::config::WhitelistConfig;

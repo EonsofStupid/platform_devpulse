@@ -7,7 +7,7 @@
 
 use crate::state::PlatformState;
 use devpulse_engine::platform::{
-    thought_create, thought_load_branch, RroState, SwapStats, ThoughtRecord,
+    RroState, SwapStats, ThoughtRecord, thought_create, thought_load_branch,
 };
 use std::path::PathBuf;
 use tauri::State;

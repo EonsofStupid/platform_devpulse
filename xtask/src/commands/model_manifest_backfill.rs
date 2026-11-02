@@ -247,10 +247,9 @@ fn dir_has_model_files(dir: &Path) -> Result<bool> {
             .extension()
             .and_then(|e| e.to_str())
             .map(str::to_ascii_lowercase)
+            && WEIGHT_EXTENSIONS.contains(&ext.as_str())
         {
-            if WEIGHT_EXTENSIONS.contains(&ext.as_str()) {
-                return Ok(true);
-            }
+            return Ok(true);
         }
     }
     Ok(false)
@@ -443,14 +442,15 @@ impl VecOfFiles for [ManifestFile] {
 fn infer_canonical_id(segments: &[&str]) -> Option<String> {
     let last = segments.last()?;
     // Turn "qwen--qwen3-4b-base" into "qwen/qwen3-4b-base".
-    if let Some((org, rest)) = last.split_once("--") {
-        if !org.is_empty() && !rest.is_empty() {
-            return Some(format!(
-                "{}/{}",
-                org.to_ascii_lowercase(),
-                rest.to_ascii_lowercase()
-            ));
-        }
+    if let Some((org, rest)) = last.split_once("--")
+        && !org.is_empty()
+        && !rest.is_empty()
+    {
+        return Some(format!(
+            "{}/{}",
+            org.to_ascii_lowercase(),
+            rest.to_ascii_lowercase()
+        ));
     }
     // Single-segment fallback: use folder name itself.
     Some(last.to_ascii_lowercase())

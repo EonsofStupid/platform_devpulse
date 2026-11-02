@@ -284,8 +284,7 @@ pub struct TelemetryPipelineInfo {
 
 fn system_time_to_ms(t: std::time::SystemTime) -> i64 {
     t.duration_since(std::time::UNIX_EPOCH)
-        .map(|d| i64::try_from(d.as_millis()).unwrap_or(i64::MAX))
-        .unwrap_or(0)
+        .map_or(0, |d| i64::try_from(d.as_millis()).unwrap_or(i64::MAX))
 }
 
 /// Read the live telemetry pipeline snapshot.
@@ -400,7 +399,7 @@ pub async fn list_telemetry_sessions(
         .collect();
 
     // Most recent first.
-    files.sort_by(|a, b| b.modified_ms.cmp(&a.modified_ms));
+    files.sort_by_key(|file| std::cmp::Reverse(file.modified_ms));
     Ok(files)
 }
 

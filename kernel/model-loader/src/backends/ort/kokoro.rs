@@ -24,9 +24,9 @@
 
 #![allow(clippy::cast_precision_loss)]
 
+use crate::backends::phoneme::KokoroVocab;
 #[cfg(feature = "ort-backend")]
 use crate::backends::phoneme::text_to_kokoro_ids;
-use crate::backends::phoneme::KokoroVocab;
 use crate::backends::voice::{AudioSamples, TtsBackend};
 use crate::loading::states::{LoadParams, MemoryFootprint};
 use std::path::{Path, PathBuf};
@@ -272,7 +272,7 @@ impl TtsBackend for KokoroTts {
 
     fn memory_usage(&self) -> MemoryFootprint {
         if let Some(ref path) = self.model_path {
-            let size = std::fs::metadata(path).map(|m| m.len()).unwrap_or(0);
+            let size = std::fs::metadata(path).map_or(0, |m| m.len());
             MemoryFootprint {
                 ram_bytes: size,
                 vram_bytes: 0,

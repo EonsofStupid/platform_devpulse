@@ -59,13 +59,13 @@ pub use backends::ort::reranker::Qwen3Reranker;
 pub use backends::piper::PiperTts;
 
 // Phoneme helpers
-pub use backends::phoneme::{text_to_kokoro_ids, text_to_phonemes, KokoroVocab};
+pub use backends::phoneme::{KokoroVocab, text_to_kokoro_ids, text_to_phonemes};
 
 // Slot types
 pub use slots::{
-    load_default_slots, DevicePreference, KvCacheConfig, KvCacheQuant, LoadingStrategy,
+    BASELINE_SLOT_IDS, DevicePreference, KvCacheConfig, KvCacheQuant, LoadingStrategy,
     ModelCapability, ModelSourceTier, PersistenceClass, RopeScalingMode, Slot, SlotDefaultsError,
-    SlotRegistry, YarnConfig, BASELINE_SLOT_IDS,
+    SlotRegistry, YarnConfig, load_default_slots,
 };
 
 // Model types
@@ -79,9 +79,9 @@ pub use loading::{LoadParams, LoadingStage, MemoryFootprint, ModelStatus, SlotSt
 
 // Hardware types
 pub use hardware::{
-    load_default_presets, AutoConfig, BrainSwapPolicy, HardwareMetrics, HardwareMonitor,
-    HardwareTier, LaneAllocation, LaneBudget, LaneCapacity, LaneKind, LaneStatus, PresetBlueprint,
-    PresetsError, SlotRecommendation, VramBudget,
+    AutoConfig, BrainSwapPolicy, HardwareMetrics, HardwareMonitor, HardwareTier, LaneAllocation,
+    LaneBudget, LaneCapacity, LaneKind, LaneStatus, PresetBlueprint, PresetsError,
+    SlotRecommendation, VramBudget, load_default_presets,
 };
 
 // Wizard types — copy, tier display, tooltips
@@ -92,7 +92,7 @@ pub use wizard::{
 };
 
 // Search types + function
-pub use models::search::{search_huggingface, HfFileInfo, HfSearchResult};
+pub use models::search::{HfFileInfo, HfSearchResult, search_huggingface};
 
 // Trait re-exports
 pub use traits::{

@@ -28,7 +28,7 @@ use anyhow::{Context, Result};
 use super::rpc::{Query, SurrealRpc};
 use crate::cortex::persistence::port_alloc::PortAllocation;
 use crate::cortex::persistence::runtime::{
-    RestartPolicy, Runtime, RuntimeEvent, RuntimeEvents, RuntimeSpec, RuntimeState, PORT,
+    PORT, RestartPolicy, Runtime, RuntimeEvent, RuntimeEvents, RuntimeSpec, RuntimeState,
 };
 
 /// The storage engine the store is opened with.

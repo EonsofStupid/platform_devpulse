@@ -211,8 +211,9 @@ impl FrameSink for DiskFrameSink {
     fn health(&self) -> SinkHealth {
         self.health
             .read()
-            .map(|g| g.clone())
-            .unwrap_or(SinkHealth::Degraded("health rwlock poisoned".into()))
+            .map_or(SinkHealth::Degraded("health rwlock poisoned".into()), |g| {
+                g.clone()
+            })
     }
 }
 
@@ -321,8 +322,9 @@ impl FrameSink for TursoFrameSink {
     fn health(&self) -> SinkHealth {
         self.health
             .read()
-            .map(|g| g.clone())
-            .unwrap_or(SinkHealth::Degraded("health rwlock poisoned".into()))
+            .map_or(SinkHealth::Degraded("health rwlock poisoned".into()), |g| {
+                g.clone()
+            })
     }
 }
 
@@ -399,8 +401,9 @@ impl FrameSink for DuckDbEmbeddingSink {
     fn health(&self) -> SinkHealth {
         self.health
             .read()
-            .map(|g| g.clone())
-            .unwrap_or(SinkHealth::Degraded("health rwlock poisoned".into()))
+            .map_or(SinkHealth::Degraded("health rwlock poisoned".into()), |g| {
+                g.clone()
+            })
     }
 }
 

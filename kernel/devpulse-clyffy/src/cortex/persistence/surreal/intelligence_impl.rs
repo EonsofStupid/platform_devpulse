@@ -17,7 +17,7 @@ use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 
 use crate::cortex::intelligence::{
-    IntelligenceStore, MemoryKind, MemoryRecord, RecallHit, EMBEDDING_DIM, MEMORY_SCHEMA,
+    EMBEDDING_DIM, IntelligenceStore, MEMORY_SCHEMA, MemoryKind, MemoryRecord, RecallHit,
 };
 use crate::cortex::persistence::surreal::client::SurrealAdapter;
 use crate::cortex::persistence::surreal::rpc::Query;

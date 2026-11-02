@@ -2264,7 +2264,7 @@ fn default_lane_preset() -> String {
 #[cfg(test)]
 #[allow(clippy::unwrap_used, clippy::expect_used)]
 mod signals_config_tests {
-    use super::{PlatformBootConfig, SignalsConfig, DEFAULT_CONFIG};
+    use super::{DEFAULT_CONFIG, PlatformBootConfig, SignalsConfig};
     use crate::signals::SignalKind;
     use std::time::Duration;
 
@@ -2371,7 +2371,7 @@ mod models_dir_resolver_tests {
 #[cfg(test)]
 #[allow(clippy::unwrap_used)]
 mod surreal_paths_tests {
-    use super::{PlatformBootConfig, SurrealServiceEntry, DEFAULT_CONFIG};
+    use super::{DEFAULT_CONFIG, PlatformBootConfig, SurrealServiceEntry};
     use std::path::PathBuf;
 
     #[test]

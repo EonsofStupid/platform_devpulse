@@ -14,8 +14,8 @@
 //! ```
 
 pub use crate::channel::{
-    bounded, broadcast_channel, unbounded, BroadcastReceiver, BroadcastSender, Envelope,
-    LinkedTraced, Traced, TracedReceiver, TracedSender,
+    BroadcastReceiver, BroadcastSender, Envelope, LinkedTraced, Traced, TracedReceiver,
+    TracedSender, bounded, broadcast_channel, unbounded,
 };
 pub use crate::spawn::{spawn, spawn_blocking};
 

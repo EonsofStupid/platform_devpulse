@@ -743,10 +743,12 @@ mod tests {
         let mut reloaded4 = reloaded3.clone();
         reloaded4.remove_keyword_action(&tmp, "do thing").unwrap();
         let reloaded5 = AssistantConfig::load(&tmp).unwrap();
-        assert!(!reloaded5
-            .keyword_actions
-            .iter()
-            .any(|e| e.phrase == "do thing"));
+        assert!(
+            !reloaded5
+                .keyword_actions
+                .iter()
+                .any(|e| e.phrase == "do thing")
+        );
         assert_eq!(reloaded5.keyword_actions.len(), 3);
 
         // Missing override silently falls back to defaults.

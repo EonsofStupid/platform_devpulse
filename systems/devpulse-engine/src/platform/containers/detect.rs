@@ -273,10 +273,10 @@ async fn ask_engine(spec: &EngineSpec) -> EngineReport {
         Ok(Ran::Answered(a)) if a.ok() => parse_compose(&a.stdout),
         _ => None,
     };
-    if let Some(Ok(Ran::Answered(a))) = machines {
-        if a.ok() {
-            report.machines = parse_machines(&a.stdout);
-        }
+    if let Some(Ok(Ran::Answered(a))) = machines
+        && a.ok()
+    {
+        report.machines = parse_machines(&a.stdout);
     }
     report
 }
@@ -366,13 +366,7 @@ async fn ask_host() -> HostReport {
     let windows = os == "windows";
     let (nvidia_gpus, wsl, virtualization) = tokio::join!(
         ask_nvidia(),
-        async {
-            if windows {
-                Some(ask_wsl().await)
-            } else {
-                None
-            }
-        },
+        async { if windows { Some(ask_wsl().await) } else { None } },
         async {
             if windows {
                 Some(ask_virtualization().await)
@@ -445,10 +439,9 @@ async fn ask_wsl() -> WslReport {
         &WSL_ENV,
     )
     .await
+        && a.ok()
     {
-        if a.ok() {
-            report.distributions = count_lines(&a);
-        }
+        report.distributions = count_lines(&a);
     }
     report
 }
@@ -584,7 +577,7 @@ mod tests {
         assert_eq!(machines.len(), 2);
         assert!(machines[0].default && !machines[0].running);
         assert!(machines[1].running);
-        assert!(parse_machines("").is_empty());
+        assert_eq!(parse_machines("").len(), 0);
     }
 
     #[test]

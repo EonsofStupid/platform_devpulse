@@ -17,9 +17,9 @@ pub use actions::StepRun;
 pub use service::{Containers, ContainersState};
 
 pub use advice::{
-    advise, Advice, AdviceConfig, Answers, Point, PointCode, Product, Source, Step, StepKind, Usage,
+    Advice, AdviceConfig, Answers, Point, PointCode, Product, Source, Step, StepKind, Usage, advise,
 };
 pub use detect::{
-    detect, ContainersReport, EngineReport, HostReport, MachineReport, VirtualizationReport,
-    WslReport,
+    ContainersReport, EngineReport, HostReport, MachineReport, VirtualizationReport, WslReport,
+    detect,
 };

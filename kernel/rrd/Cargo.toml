@@ -1,7 +1,8 @@
 [package]
 name = "rrd"
 version = "0.1.0"
-edition = "2021"
+edition.workspace = true
+rust-version.workspace = true
 description = "Reason Ready Daemon — in-process orchestrator for the RRO cluster's hot-update lifecycle"
 
 [lints]
@@ -30,6 +31,7 @@ tracing = { workspace = true }
 thiserror = { workspace = true }
 
 [dev-dependencies]
+static_assertions = { workspace = true }
 # rt-multi-thread for tests that need concurrent task scheduling
 # (drain test spawns 10 mock query tasks).
 tokio = { workspace = true, features = ["test-util", "rt-multi-thread"] }

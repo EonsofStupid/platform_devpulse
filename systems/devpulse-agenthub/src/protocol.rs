@@ -1,8 +1,8 @@
 //! Private, bounded frames. Stdout is exclusively this protocol, never logs.
 
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 use devpulse_clyffy::providers::ProviderId;
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use tokio::io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt};
 
 use crate::history::{FoundPage, FoundSessions};
@@ -36,7 +36,9 @@ impl Hello {
     /// When either the protocol or runtime build differs.
     pub fn verify(&self) -> Result<()> {
         if self != &Self::default() {
-            bail!("AgentHub executable does not match this DevPulse build; rebuild or reinstall the complete bundle");
+            bail!(
+                "AgentHub executable does not match this DevPulse build; rebuild or reinstall the complete bundle"
+            );
         }
         Ok(())
     }

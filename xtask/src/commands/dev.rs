@@ -13,9 +13,9 @@
 //! or receives Ctrl+C, Windows kernel automatically kills cargo, pnpm, vite,
 //! rustc — everything. No zombie processes. Ever.
 
+use crate::commands::Task;
 use crate::commands::preflight::Preflight;
 use crate::commands::sccache;
-use crate::commands::Task;
 use crate::net;
 use crate::stage;
 #[cfg(windows)]
@@ -102,7 +102,9 @@ impl Task for Dev {
         println!("  > pnpm tauri dev");
         let dev_bind = &platform_config.services.network.dev_server.bind;
         println!("  > Vite        → http://{dev_bind}:{dev_port}");
-        println!("  > Platform    → Turso + DuckDB + SurrealDB + Moka + prepared context + Kokoros + Outlines");
+        println!(
+            "  > Platform    → Turso + DuckDB + SurrealDB + Moka + prepared context + Kokoros + Outlines"
+        );
         let graph_api = &platform_config.services.network.graph_api;
         println!(
             "  > SurrealDB   → http://{}:{} (HTTP server)",
@@ -114,7 +116,21 @@ impl Task for Dev {
         log.footer(run_start)?;
 
         // Set env var so Vite reads port from config SSOT
-        std::env::set_var("DEVPULSE_DEV_PORT", dev_port.to_string());
+        crate::child_env::set("DEVPULSE_DEV_PORT", dev_port.to_string());
+        // Configure the app before it starts, preserving explicit shell choices.
+        // This also works on Unix without mutating a multithreaded environment.
+        for (name, value) in [
+            (
+                "WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS",
+                "--enable-logging=stderr --v=1",
+            ),
+            ("RUST_BACKTRACE", "1"),
+            ("RUST_LIB_BACKTRACE", "1"),
+        ] {
+            if crate::child_env::var_os(name).is_none() {
+                crate::child_env::set(name, value);
+            }
+        }
 
         // ── Tauri dev with full stdio captured to disk ──────────────
         // Replaces the previous `spawn_in_verbose` (inherit stdio,
@@ -144,11 +160,11 @@ impl Task for Dev {
         // Assign pnpm (and its child tree) to the Job Object so Ctrl+C
         // kills everything — vite, node, cargo, the Tauri backend, all of it.
         #[cfg(windows)]
-        if let Some(ref guard) = job_guard {
-            if let Err(e) = guard.assign(tee.child()) {
-                eprintln!("  [!!] failed to assign tauri dev to job: {e}");
-                log.stage("launch", "WARN", &format!("job assign failed: {e}"))?;
-            }
+        if let Some(ref guard) = job_guard
+            && let Err(e) = guard.assign(tee.child())
+        {
+            eprintln!("  [!!] failed to assign tauri dev to job: {e}");
+            log.stage("launch", "WARN", &format!("job assign failed: {e}"))?;
         }
 
         let status = tee.wait().context("failed to wait on pnpm tauri dev")?;
@@ -215,10 +231,10 @@ fn run_backend_compile(
 
     // Assign cargo to Job Object so it dies if we die
     #[cfg(windows)]
-    if let Some(guard) = job_guard {
-        if let Err(e) = guard.assign(&cargo_child) {
-            eprintln!("  [!!] failed to assign cargo to job: {e}");
-        }
+    if let Some(guard) = job_guard
+        && let Err(e) = guard.assign(&cargo_child)
+    {
+        eprintln!("  [!!] failed to assign cargo to job: {e}");
     }
 
     let compile = stage::monitor_cargo_child("backend", cargo_child, estimated)?;

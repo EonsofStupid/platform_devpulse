@@ -13,9 +13,9 @@
 //!   impl, plumbing into boot + devtool, Tauri command glue.
 
 use crate::cortex::persistence::port_alloc::{
-    self, Disposition, PortAllocation, DEFAULT_MAX_BUMPS,
+    self, DEFAULT_MAX_BUMPS, Disposition, PortAllocation,
 };
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Context, Result, anyhow};
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 use std::sync::Mutex;
@@ -336,10 +336,10 @@ impl OllamaAdapter {
     }
 
     fn force_kill(&self) {
-        if let Ok(mut guard) = self.child.lock() {
-            if let Some(ref mut child) = *guard {
-                let _ = child.start_kill();
-            }
+        if let Ok(mut guard) = self.child.lock()
+            && let Some(ref mut child) = *guard
+        {
+            let _ = child.start_kill();
         }
     }
 }
@@ -357,17 +357,17 @@ async fn probe_version(http: &reqwest::Client, host: &str, port: u16) -> Result<
 /// the parallel `SurrealDB` version — same pattern, different install
 /// paths.
 fn resolve_binary(configured: Option<&Path>) -> Result<PathBuf> {
-    if let Some(p) = configured {
-        if !p.as_os_str().is_empty() {
-            return if p.exists() {
-                Ok(p.to_path_buf())
-            } else {
-                Err(anyhow!(
-                    "configured ollama binary_path does not exist: {}",
-                    p.display()
-                ))
-            };
-        }
+    if let Some(p) = configured
+        && !p.as_os_str().is_empty()
+    {
+        return if p.exists() {
+            Ok(p.to_path_buf())
+        } else {
+            Err(anyhow!(
+                "configured ollama binary_path does not exist: {}",
+                p.display()
+            ))
+        };
     }
     if let Some(found) = standard_ollama_paths().into_iter().find(|p| p.exists()) {
         tracing::info!(path = %found.display(), "resolved Ollama binary from standard path");

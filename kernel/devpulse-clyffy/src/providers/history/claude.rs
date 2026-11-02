@@ -61,10 +61,12 @@ impl HistoryDecoder for ClaudeHistoryDecoder {
                         parents.insert(id);
                     }
                 }
-                Some(false) if kind != HistorySessionKind::SubAgent => {
-                    if value.get("sessionId").and_then(Value::as_str) == Some(native_id.as_str()) {
-                        kind = HistorySessionKind::UserStarted;
-                    }
+                Some(false)
+                    if kind != HistorySessionKind::SubAgent
+                        && value.get("sessionId").and_then(Value::as_str)
+                            == Some(native_id.as_str()) =>
+                {
+                    kind = HistorySessionKind::UserStarted;
                 }
                 _ => {}
             }

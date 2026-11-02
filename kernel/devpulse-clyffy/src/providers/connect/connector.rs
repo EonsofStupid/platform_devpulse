@@ -73,8 +73,7 @@ mod tests {
     fn it_lives_in_the_devpulse_folder_and_reports_its_own_version() {
         let nanos = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
-            .map(|d| d.as_nanos())
-            .unwrap_or(0);
+            .map_or(0, |d| d.as_nanos());
         let data = std::env::temp_dir().join(format!("devpulse-connector-{nanos}"));
         let none = report(&data, "example", &spec());
         assert!(!none.installed);

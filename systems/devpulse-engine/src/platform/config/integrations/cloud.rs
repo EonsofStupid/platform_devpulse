@@ -51,8 +51,8 @@ fn non_empty(value: &str) -> Option<&str> {
 
 #[cfg(test)]
 mod tests {
-    use crate::platform::config::loader::DEFAULT_CONFIG;
     use crate::platform::config::PlatformBootConfig;
+    use crate::platform::config::loader::DEFAULT_CONFIG;
 
     #[test]
     fn the_shipped_config_names_the_auth_endpoint() {

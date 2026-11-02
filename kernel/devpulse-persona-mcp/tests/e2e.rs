@@ -10,7 +10,7 @@
 
 use devpulse_persona_mcp::store::{PersonaScope, PersonaStore};
 use devpulse_persona_mcp::verbs::persona::{
-    list, load, recall, save, PersonaListArgs, PersonaLoadArgs, PersonaRecallArgs, PersonaSaveArgs,
+    PersonaListArgs, PersonaLoadArgs, PersonaRecallArgs, PersonaSaveArgs, list, load, recall, save,
 };
 use std::sync::Arc;
 use tempfile::tempdir;

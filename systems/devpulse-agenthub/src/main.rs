@@ -3,7 +3,7 @@
 use std::path::PathBuf;
 use std::time::Duration;
 
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 use devpulse_agenthub::history::History;
 use devpulse_agenthub::protocol::{self, Hello, Reply, Request};
 

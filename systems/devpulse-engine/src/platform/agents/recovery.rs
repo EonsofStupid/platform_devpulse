@@ -21,8 +21,13 @@ pub(in crate::platform) async fn retain(
         "turn": turn, "continuation": continuation,
     });
     match write(data_dir, &document).await {
-        Ok(path) => format!("The answer was not saved to history: {error:#}. Recovery copy: {}. No tool work was retried.", path.display()),
-        Err(recovery_error) => format!("The answer was not saved to history: {error:#}. A recovery copy could not be written: {recovery_error:#}. Copy the visible answer before closing this window."),
+        Ok(path) => format!(
+            "The answer was not saved to history: {error:#}. Recovery copy: {}. No tool work was retried.",
+            path.display()
+        ),
+        Err(recovery_error) => format!(
+            "The answer was not saved to history: {error:#}. A recovery copy could not be written: {recovery_error:#}. Copy the visible answer before closing this window."
+        ),
     }
 }
 

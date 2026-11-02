@@ -197,10 +197,10 @@ impl DevforgePaths {
             return Some(installed);
         }
 
-        if let Some(bundled) = self.bundled_root.as_ref() {
-            if is_valid_reh_tree(bundled) {
-                return Some(bundled.clone());
-            }
+        if let Some(bundled) = self.bundled_root.as_ref()
+            && is_valid_reh_tree(bundled)
+        {
+            return Some(bundled.clone());
         }
 
         None

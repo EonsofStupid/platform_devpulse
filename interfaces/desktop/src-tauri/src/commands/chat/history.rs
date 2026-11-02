@@ -51,13 +51,13 @@ pub async fn load_recent(
     };
 
     let rows = adapter
-		.query(
-			"SELECT id, session_id, role, content, created_at, token_count, model_used, latency_ms \
+        .query(
+            "SELECT id, session_id, role, content, created_at, token_count, model_used, latency_ms \
 			 FROM turns WHERE session_id = ? ORDER BY sequence_num ASC, created_at ASC LIMIT 200",
-			&[sid.as_str().into()],
-		)
-		.await
-		.map_err(|e| format!("Failed to load turns: {e}"))?;
+            &[sid.as_str().into()],
+        )
+        .await
+        .map_err(|e| format!("Failed to load turns: {e}"))?;
 
     let messages: Vec<ChatMessage> = rows
         .into_iter()

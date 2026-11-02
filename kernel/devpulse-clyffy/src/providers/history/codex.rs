@@ -493,10 +493,10 @@ fn usage_summary(usage: &TokenUsage) -> String {
 /// they are a UUID), else the name itself.
 fn codex_id_from_path(path: &Path) -> Option<String> {
     let stem = path.file_stem()?.to_string_lossy();
-    if let Some(candidate) = stem.get(stem.len().saturating_sub(36)..) {
-        if looks_like_uuid(candidate) {
-            return Some(candidate.to_owned());
-        }
+    if let Some(candidate) = stem.get(stem.len().saturating_sub(36)..)
+        && looks_like_uuid(candidate)
+    {
+        return Some(candidate.to_owned());
     }
     Some(stem.into_owned())
 }
@@ -723,11 +723,15 @@ mod tests {
                 .title
         };
         assert_eq!(
-            title("{\"type\":\"response_item\",\"payload\":{\"type\":\"agent_message\",\"author\":\"root\",\"recipient\":\"Planck\",\"content\":[{\"type\":\"text\",\"text\":\"Audit the store\"}]}}\n"),
+            title(
+                "{\"type\":\"response_item\",\"payload\":{\"type\":\"agent_message\",\"author\":\"root\",\"recipient\":\"Planck\",\"content\":[{\"type\":\"text\",\"text\":\"Audit the store\"}]}}\n"
+            ),
             "Audit the store"
         );
         assert_eq!(
-            title("{\"type\":\"response_item\",\"payload\":{\"type\":\"agent_message\",\"content\":[{\"type\":\"encrypted\",\"encrypted_content\":\"…\"}]}}\n"),
+            title(
+                "{\"type\":\"response_item\",\"payload\":{\"type\":\"agent_message\",\"content\":[{\"type\":\"encrypted\",\"encrypted_content\":\"…\"}]}}\n"
+            ),
             "Codex sub-agent Planck · rrflow · 2026-10-25"
         );
     }

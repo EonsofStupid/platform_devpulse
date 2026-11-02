@@ -27,7 +27,7 @@ pub mod envelope;
 pub mod flume;
 
 pub use self::broadcast::{
-    channel as broadcast_channel, BroadcastReceiver, BroadcastSender, LinkedTraced,
+    BroadcastReceiver, BroadcastSender, LinkedTraced, channel as broadcast_channel,
 };
-pub use self::flume::{bounded, unbounded, TracedReceiver, TracedSender};
+pub use self::flume::{TracedReceiver, TracedSender, bounded, unbounded};
 pub use envelope::{Envelope, Traced};

@@ -11,7 +11,7 @@ use devpulse_process::{self as process, Ran};
 
 use super::discovery::installed;
 
-const INSTALL_TIMEOUT: Duration = Duration::from_secs(10 * 60);
+const INSTALL_TIMEOUT: Duration = Duration::from_mins(10);
 
 /// What installing did.
 #[derive(Debug, Clone, PartialEq, Eq)]

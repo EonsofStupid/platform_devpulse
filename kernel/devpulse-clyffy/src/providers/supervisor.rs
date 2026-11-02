@@ -6,12 +6,12 @@
 
 use std::path::Path;
 
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use serde::{Deserialize, Serialize};
 
 use super::connect::connector::{self, ConnectorReport};
 use super::definition::ProviderDefinition;
-use super::discovery::{signed_in_now, ProviderReport, SignedIn};
+use super::discovery::{ProviderReport, SignedIn, signed_in_now};
 use super::types::AgentProtocol;
 
 /// Why an operation can or cannot be attempted.
@@ -169,7 +169,7 @@ pub async fn inspect(
 mod tests {
     #![allow(clippy::unwrap_used, reason = "test fixtures")]
     use super::*;
-    use crate::providers::{catalog, ProviderId};
+    use crate::providers::{ProviderId, catalog};
 
     fn codex() -> ProviderDefinition {
         catalog::bundled()

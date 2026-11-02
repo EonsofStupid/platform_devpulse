@@ -528,7 +528,7 @@ CREATE TABLE IF NOT EXISTS teaching_moments (
 mod schema_baseline_tests {
     use super::{SYSTEM_ANALYTICS_SCHEMA, USER_ANALYTICS_SCHEMA};
     use devpulse_clyffy::cortex::persistence::duckdb::diagnostics::{
-        assert_schema_idempotent, bisect_columns, bisect_schema, ColumnSpec,
+        ColumnSpec, assert_schema_idempotent, bisect_columns, bisect_schema,
     };
 
     // Tests are prefixed with `aNN_` / `bNN_` so the libtest harness's

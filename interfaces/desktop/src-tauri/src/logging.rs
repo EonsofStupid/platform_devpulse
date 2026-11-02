@@ -34,15 +34,15 @@
 use std::path::{Path, PathBuf};
 use tokio::sync::mpsc;
 use tracing_appender::non_blocking::WorkerGuard;
+use tracing_subscriber::EnvFilter;
 use tracing_subscriber::fmt;
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
-use tracing_subscriber::EnvFilter;
 
 use devpulse_engine::platform::services::rrd_translator::RrdLifecycleTranslator;
 
 use crate::log_runs::{LogFile, Run};
-use devpulse_engine::platform::telemetry::{DuckDbLayer, SpanRecord, SPAN_CHANNEL_CAPACITY};
+use devpulse_engine::platform::telemetry::{DuckDbLayer, SPAN_CHANNEL_CAPACITY, SpanRecord};
 
 /// Libraries held at INFO in the session JSONL whatever its level. In a
 /// debug build their DEBUG/TRACE output was ~280 MB per boot: `surrealkv`'s
@@ -90,8 +90,8 @@ pub fn init(
     run: &Run,
     otel_layer: devpulse_telemetry::boot::TelemetryLayer,
 ) -> anyhow::Result<LoggingHandle> {
-    use tracing_subscriber::filter::LevelFilter;
     use tracing_subscriber::Layer as _;
+    use tracing_subscriber::filter::LevelFilter;
 
     let file = std::fs::File::create(run.file(LogFile::Session))?;
     let (file_writer, file_guard) = tracing_appender::non_blocking(file);
@@ -135,7 +135,9 @@ pub fn init(
     };
 
     if faithful {
-        eprintln!("[logging] DEVPULSE_LOG_FAITHFUL=1 — JSONL captures at TRACE level (every crate, every span)");
+        eprintln!(
+            "[logging] DEVPULSE_LOG_FAITHFUL=1 — JSONL captures at TRACE level (every crate, every span)"
+        );
     }
 
     // Per-layer filters so each sink gets what it needs:

@@ -181,8 +181,7 @@ mod tests {
     fn your_file_replaces_by_id_and_unknown_or_broken_files_are_reported() {
         let nanos = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
-            .map(|d| d.as_nanos())
-            .unwrap_or(0);
+            .map_or(0, |d| d.as_nanos());
         let data = std::env::temp_dir().join(format!("devpulse-providers-{nanos}"));
         let dir = data.join("config").join("providers");
         std::fs::create_dir_all(&dir).unwrap();

@@ -14,5 +14,5 @@ pub mod trace_context;
 
 pub use duckdb_layer::DuckDbLayer;
 pub use lanes::TelemetryHandle;
-pub use span_writer::{SpanRecord, SpanTraceWriter, SPAN_CHANNEL_CAPACITY};
+pub use span_writer::{SPAN_CHANNEL_CAPACITY, SpanRecord, SpanTraceWriter};
 pub use trace_context::TraceContext;

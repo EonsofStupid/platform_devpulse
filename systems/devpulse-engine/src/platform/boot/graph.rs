@@ -7,9 +7,9 @@ use crate::platform::boot::log::BootLog;
 use crate::platform::config::PlatformBootConfig;
 use crate::platform::init::InitEvent;
 use crate::platform::services::graph::{
-    GraphService, GLOBAL_GRAPH_SCHEMA, SYSTEM_GRAPH_SCHEMA, USER_GRAPH_SCHEMA,
+    GLOBAL_GRAPH_SCHEMA, GraphService, SYSTEM_GRAPH_SCHEMA, USER_GRAPH_SCHEMA,
 };
-use crate::platform::services::sidecars::surreal::{root_password, SurrealService};
+use crate::platform::services::sidecars::surreal::{SurrealService, root_password};
 use devpulse_clyffy::cortex::persistence::SurrealAdapter;
 use devpulse_clyffy::cortex::persistence::SurrealConfig;
 use std::path::Path;
@@ -136,28 +136,26 @@ pub async fn boot_consolidated(
 
     // ── Stage C: User + global namespaces on the same connection ─
     let usr_cfg = &boot_config.services.user.graph;
-    if usr_cfg.enabled {
-        if let Err(e) = adapter
+    if usr_cfg.enabled
+        && let Err(e) = adapter
             .init_namespace(&usr_cfg.namespace, &usr_cfg.database, USER_GRAPH_SCHEMA)
             .await
-        {
-            tracing::error!(error = ?e, namespace = %usr_cfg.namespace, "Failed to init user graph namespace");
-            on_event(InitEvent::error("User graph namespace", &format!("{e:#}")));
-        }
+    {
+        tracing::error!(error = ?e, namespace = %usr_cfg.namespace, "Failed to init user graph namespace");
+        on_event(InitEvent::error("User graph namespace", &format!("{e:#}")));
     }
 
     let glb_cfg = &boot_config.services.global.graph;
-    if glb_cfg.enabled {
-        if let Err(e) = adapter
+    if glb_cfg.enabled
+        && let Err(e) = adapter
             .init_namespace(&glb_cfg.namespace, &glb_cfg.database, GLOBAL_GRAPH_SCHEMA)
             .await
-        {
-            tracing::error!(error = ?e, namespace = %glb_cfg.namespace, "Failed to init global graph namespace");
-            on_event(InitEvent::error(
-                "Global graph namespace",
-                &format!("{e:#}"),
-            ));
-        }
+    {
+        tracing::error!(error = ?e, namespace = %glb_cfg.namespace, "Failed to init global graph namespace");
+        on_event(InitEvent::error(
+            "Global graph namespace",
+            &format!("{e:#}"),
+        ));
     }
 
     tracing::info!(

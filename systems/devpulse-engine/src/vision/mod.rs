@@ -46,8 +46,8 @@ pub use dto::{
     VISION_SCHEMA,
 };
 pub use governor::GovernorHandle;
-pub use metrics::{cosine_similarity, l2_norm, MetricsBuffer, DEFAULT_RECENT_CAPACITY};
-pub use pipeline::{process_frame, should_skip_tick, CapturedTickFrame, PipelineConfig};
+pub use metrics::{DEFAULT_RECENT_CAPACITY, MetricsBuffer, cosine_similarity, l2_norm};
+pub use pipeline::{CapturedTickFrame, PipelineConfig, process_frame, should_skip_tick};
 pub use sinks::{
     CompositeSink, DiscardSink, DiskFrameSink, DuckDbEmbeddingSink, FrameSink, FrameSinkRecord,
     SinkHealth, TursoFrameSink,

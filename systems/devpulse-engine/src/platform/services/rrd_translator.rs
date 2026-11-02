@@ -37,8 +37,8 @@
 //! emissions originate from `RrdLifecycleTranslator::on_event`."
 
 use std::sync::{Arc, OnceLock};
-use tracing::field::{Field, Visit};
 use tracing::Subscriber;
+use tracing::field::{Field, Visit};
 use tracing_subscriber::layer::{Context, Layer};
 
 use devpulse_telemetry::prelude::BroadcastSender;

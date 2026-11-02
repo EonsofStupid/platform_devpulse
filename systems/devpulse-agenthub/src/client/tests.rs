@@ -220,12 +220,14 @@ async fn shutdown_rejects_pending_and_backpressured_callers_and_survives_cancell
     fixture.release(0);
     shutdown(&client).await;
     shutdown(&client).await;
-    assert!(client
-        .sessions()
-        .await
-        .unwrap_err()
-        .to_string()
-        .contains("shutting down"));
+    assert!(
+        client
+            .sessions()
+            .await
+            .unwrap_err()
+            .to_string()
+            .contains("shutting down")
+    );
     assert!(!fixture.dir.path().join("seen-1").exists());
 }
 
@@ -303,12 +305,14 @@ async fn shutdown_before_first_request_does_not_start_a_child() {
     assert!(client.worker.lock().await.is_none());
     shutdown(&client).await;
     assert_eq!(client.status().await.state, RuntimeState::Stopped);
-    assert!(client
-        .sessions()
-        .await
-        .unwrap_err()
-        .to_string()
-        .contains("shutting down"));
+    assert!(
+        client
+            .sessions()
+            .await
+            .unwrap_err()
+            .to_string()
+            .contains("shutting down")
+    );
     assert!(client.worker.lock().await.is_none());
 }
 

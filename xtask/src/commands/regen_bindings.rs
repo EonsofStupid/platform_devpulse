@@ -29,9 +29,8 @@
 
 use crate::commands::Task;
 use crate::workspace::Workspace;
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 use std::path::Path;
-use std::process::Command;
 use std::time::SystemTime;
 
 /// Regenerate tauri-specta TypeScript bindings.
@@ -83,7 +82,7 @@ impl Task for RegenBindings {
             src_tauri.display()
         );
 
-        let status = Command::new(cargo)
+        let status = crate::child_env::command(cargo)
             .current_dir(&src_tauri)
             .args([
                 "run",

@@ -10,7 +10,7 @@
 
 use crate::commands::_util::CommandError;
 use devpulse_engine::platform::services::model_loader::{
-    emit_analytics_event as emit_to_tracing, AnalyticsEvent,
+    AnalyticsEvent, emit_analytics_event as emit_to_tracing,
 };
 
 /// Record a single analytics event.

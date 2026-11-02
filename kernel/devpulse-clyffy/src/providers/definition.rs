@@ -10,7 +10,7 @@
 //! the arguments that start it for a conversation. Your files override the
 //! bundled ones by id.
 
-use anyhow::{anyhow, bail, Context, Result};
+use anyhow::{Context, Result, anyhow, bail};
 use serde::{Deserialize, Serialize};
 
 use super::registry;
@@ -413,10 +413,10 @@ impl ProviderDefinition {
             if sources.iter().filter(|s| **s).count() != 1 {
                 bail!("{id}: latest names exactly one of npm, github or text_url");
             }
-            if let Some(repo) = &latest.github {
-                if repo.split('/').count() != 2 {
-                    bail!("{id}: latest.github must be owner/name, got {repo:?}");
-                }
+            if let Some(repo) = &latest.github
+                && repo.split('/').count() != 2
+            {
+                bail!("{id}: latest.github must be owner/name, got {repo:?}");
             }
             if latest
                 .text_url
@@ -536,7 +536,8 @@ impl ProviderDefinition {
             AdapterKind::AcpAgent => {
                 if connect.args.iter().any(|a| a.contains("{prompt}")) {
                     bail!(
-                        "{id}: connect.args for acp_agent start a server; the question goes over ACP, not {{prompt}}");
+                        "{id}: connect.args for acp_agent start a server; the question goes over ACP, not {{prompt}}"
+                    );
                 }
                 if connect.conversation.is_some() {
                     bail!(
@@ -574,6 +575,14 @@ fn check_package(field: &str, npm: &str, bin: &str) -> Result<()> {
 /// `~`, `%VAR%` and `$VAR` expanded; `None` when a variable is not set.
 #[must_use]
 pub fn expand(path: &str, home: Option<&std::path::Path>) -> Option<std::path::PathBuf> {
+    expand_with(path, home, |name| std::env::var(name).ok())
+}
+
+fn expand_with(
+    path: &str,
+    home: Option<&std::path::Path>,
+    variable: impl Fn(&str) -> Option<String>,
+) -> Option<std::path::PathBuf> {
     let mut out = String::new();
     let mut rest = path;
     if let Some(tail) = rest.strip_prefix('~') {
@@ -583,13 +592,13 @@ pub fn expand(path: &str, home: Option<&std::path::Path>) -> Option<std::path::P
     while !rest.is_empty() {
         if let Some(tail) = rest.strip_prefix('%') {
             let end = tail.find('%')?;
-            out.push_str(&std::env::var(&tail[..end]).ok()?);
+            out.push_str(&variable(&tail[..end])?);
             rest = &tail[end + 1..];
         } else if let Some(tail) = rest.strip_prefix('$') {
             let end = tail
                 .find(|c: char| !(c.is_ascii_alphanumeric() || c == '_'))
                 .unwrap_or(tail.len());
-            out.push_str(&std::env::var(&tail[..end]).ok()?);
+            out.push_str(&variable(&tail[..end])?);
             rest = &tail[end..];
         } else {
             let next = rest.find(['%', '$']).unwrap_or(rest.len());
@@ -778,16 +787,16 @@ args = [\"acp\"]
             expand("~/.local/bin/claude", Some(home)).unwrap(),
             std::path::PathBuf::from("/home/ada/.local/bin/claude")
         );
-        std::env::set_var("DEVPULSE_TEST_DIR", "/opt/x");
+        let variable = |name: &str| (name == "DEVPULSE_TEST_DIR").then(|| "/opt/x".to_owned());
         assert_eq!(
-            expand("%DEVPULSE_TEST_DIR%/a", None).unwrap(),
+            expand_with("%DEVPULSE_TEST_DIR%/a", None, variable).unwrap(),
             std::path::PathBuf::from("/opt/x/a")
         );
         assert_eq!(
-            expand("$DEVPULSE_TEST_DIR/b", None).unwrap(),
+            expand_with("$DEVPULSE_TEST_DIR/b", None, variable).unwrap(),
             std::path::PathBuf::from("/opt/x/b")
         );
-        assert!(expand("%DEVPULSE_NOT_SET_9F%/a", None).is_none());
+        assert!(expand_with("%DEVPULSE_NOT_SET_9F%/a", None, variable).is_none());
         assert!(expand("~/x", None).is_none(), "no home, no path");
     }
 }

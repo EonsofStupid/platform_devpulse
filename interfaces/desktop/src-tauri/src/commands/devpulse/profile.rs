@@ -6,12 +6,11 @@ use std::sync::Arc;
 
 use crate::state::PlatformState;
 use anyhow::{Context, Result};
-use devpulse_engine::platform::profile::{
-    self,
-    preferences::{self, UpdateUserPreferencesInput, UserPreferences},
-    UserProfile,
-};
 use devpulse_engine::platform::TursoAdapter;
+use devpulse_engine::platform::profile::{
+    self, UserProfile,
+    preferences::{self, UpdateUserPreferencesInput, UserPreferences},
+};
 use tauri::State;
 
 /// The user database adapter.

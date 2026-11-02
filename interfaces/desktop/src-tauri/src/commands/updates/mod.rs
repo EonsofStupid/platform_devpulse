@@ -22,9 +22,9 @@
 
 use serde::{Deserialize, Serialize};
 use specta::Type;
-use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
 use std::sync::Mutex;
+use std::sync::atomic::{AtomicU64, Ordering};
 use tauri::AppHandle;
 use tauri_plugin_updater::UpdaterExt;
 use tauri_specta::Event;
@@ -194,10 +194,10 @@ pub async fn install_update(app: AppHandle) -> Result<(), String> {
     update
         .download_and_install(
             move |chunk_len, content_len| {
-                if let Some(t) = content_len {
-                    if let Ok(mut g) = total_for_progress.lock() {
-                        *g = Some(t);
-                    }
+                if let Some(t) = content_len
+                    && let Ok(mut g) = total_for_progress.lock()
+                {
+                    *g = Some(t);
                 }
                 #[allow(clippy::cast_possible_truncation)]
                 let n = chunk_len as u64;

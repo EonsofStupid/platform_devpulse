@@ -535,15 +535,19 @@ mod tests {
     #[test]
     fn module_health_is_usable() {
         assert!(ModuleHealth::Up.is_usable());
-        assert!(ModuleHealth::Degraded {
-            reason: "slow".into()
-        }
-        .is_usable());
+        assert!(
+            ModuleHealth::Degraded {
+                reason: "slow".into()
+            }
+            .is_usable()
+        );
         assert!(!ModuleHealth::Starting.is_usable());
-        assert!(!ModuleHealth::Down {
-            reason: "crashed".into()
-        }
-        .is_usable());
+        assert!(
+            !ModuleHealth::Down {
+                reason: "crashed".into()
+            }
+            .is_usable()
+        );
         assert!(!ModuleHealth::Stopped.is_usable());
     }
 

@@ -23,7 +23,7 @@ use burn::prelude::Backend;
 use burn::tensor::{Int, Tensor};
 
 use super::embedder::{BurnEmbedder, EmbedderConfig};
-use super::loader::{load_qwen3_from_safetensors, LoaderError};
+use super::loader::{LoaderError, load_qwen3_from_safetensors};
 use super::qwen3::Qwen3Model;
 
 /// Where to load the embedder from. The runtime path picks one

@@ -1,4 +1,4 @@
-//! `clippy` / `test` — cargo lint and test under the dev loop's build env.
+//! `check` / `clippy` / `test` under the dev loop's build environment.
 //!
 //! A plain `cargo clippy` / `cargo test` from a shell runs without the
 //! `[build.deps.*]` env (CC/CXX, cmake, the CUDA/Vulkan/MKL exports) and
@@ -18,7 +18,7 @@
 //! cargo xtask test -p devpulse-engine -- --test signal_contract
 //! ```
 
-use crate::commands::{sccache, Task};
+use crate::commands::{Task, sccache};
 use crate::stage;
 use crate::workspace::{BuildConfig, Workspace};
 use anyhow::{Context, Result};
@@ -38,6 +38,7 @@ pub struct Selection {
 /// The cargo subcommand a [`CargoTool`] runs.
 #[derive(Clone, Copy)]
 pub enum Tool {
+    Check,
     Clippy,
     Test,
 }
@@ -45,6 +46,7 @@ pub enum Tool {
 impl Tool {
     const fn subcommand(self) -> &'static str {
         match self {
+            Self::Check => "check",
             Self::Clippy => "clippy",
             Self::Test => "test",
         }
@@ -55,12 +57,12 @@ impl Tool {
     fn default_args(self) -> Vec<String> {
         match self {
             Self::Clippy => ["--", "-D", "warnings"].map(String::from).to_vec(),
-            Self::Test => Vec::new(),
+            Self::Check | Self::Test => Vec::new(),
         }
     }
 }
 
-/// Run `cargo clippy` / `cargo test` with `run-dev`'s build env.
+/// Run a cargo check, lint, or test with `run-dev`'s build environment.
 pub struct CargoTool {
     pub tool: Tool,
     pub selection: Selection,
