@@ -59,9 +59,13 @@ pub struct StatusUpdate<T: Serialize> {
 /// This is THE function. Every domain. Every mutation. Every boot.
 /// The frontend listens and sets `$state` directly from `data`.
 ///
-/// ```rust
+/// ```no_run
+/// use devpulse_desktop_backend::commands::{emit_status, StatusKind};
+/// # fn publish(app: tauri::AppHandle) {
+/// let models_payload = serde_json::json!({ "loaded": true });
 /// emit_status(&app, "models", StatusKind::Data, &models_payload);
 /// emit_status(&app, "voice",  StatusKind::Error, &"TTS engine crashed");
+/// # }
 /// ```
 pub fn emit_status<T: Serialize>(app: &tauri::AppHandle, domain: &str, kind: StatusKind, data: &T) {
     let event_name = format!("platform:{domain}-status");

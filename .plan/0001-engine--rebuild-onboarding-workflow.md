@@ -778,6 +778,19 @@ uncovered sources within its coverage, and 397 verbatim active survivors.
 Optional live model-loading, vendor/account flows and packaged/native UI
 acceptance are not implied by these checks.
 
+Publication/CI follow-up: `f35b70b6` and `8f8970b8` were pushed to main with
+normal commit/push hooks passing, including zero Svelte errors or warnings.
+Review of the preceding CI run found a pre-existing failing desktop doctest:
+the status-event example omitted its imports, app handle and payload. The
+example is now self-contained and compile-checked with `no_run` because it
+requires a running Tauri app to execute. Workspace doctests pass (4 passed,
+11 existing ignores); all-target checking and preservation pass again.
+Remote CI must still confirm the latest revision. Release automation remains
+blocked separately: [run 41373859961](https://github.com/EonsofStupid/platform_devpulse/actions/runs/41373859961)
+fails creating a GitHub release with "Resource not accessible by integration".
+The workflow already declares Contents and Pull requests write permissions;
+its selected integration/token access needs correction, not a compiler change.
+
 Recorded sequence (L0/L1 locally verified; major upgrades remain):
 - L0, complete: central workspace edition 2024 / minimum supported Rust, resolver 3,
   and the current stable toolchain. Migrate crates in dependency order, fixing
