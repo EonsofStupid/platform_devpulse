@@ -84,11 +84,48 @@ documentation also pass (one existing TypeDoc configuration warning).
 Inventory after reconciliation: 6,066 provenance records, 812 restored or
 reconciled and 5,254 still staged. Forty-two records reconcile implementations
 already present; four Tree sources map to the restored component and repaired
-behavior/contract. This is not 46 newly implemented features. Original Git references remain recorded;
+behavior/contract. This is not 46 newly implemented features. Original Git
+references remain recorded;
 only staging duplicates verified against those originals were removed, after
 writing their owner paths and digests. Remaining work includes reviewing the
 other kernel/runtime and Maestro sources, restoring missing UI consumers in
 their owning domains, and the separate devpulselabs import. R3b remains open.
+
+Push follow-up: `f5c68e82` passed all commit hooks, but cargo-deny reports
+RUSTSEC-2026-0429 in zip 7.4.0, resolved only through Candle core 0.9.2/0.10.2
+in the all-feature, all-target graph. The published fix is zip >=9; current
+upstream Candle also uses zip 9. Preserve both resolved Candle crate sources
+under `deps/`, with registry archive checksums and licenses. Change the zip
+requirement and apply upstream's fallible filename handling in NPZ/PyTorch
+readers. Patch both existing package versions directly;
+retain all model-loading APIs and test fixtures. Do not add an advisory ignore.
+Verify NPZ and PyTorch tensor archive loading for both patched versions, the
+workspace build/lints and the all-feature advisory graph before pushing.
+Sources: https://rustsec.org/advisories/RUSTSEC-2026-0429 and
+https://github.com/huggingface/candle/blob/main/Cargo.toml.
+
+The patched graph removes zip 7.4.0 and its typed-path dependency; unrelated
+lockfile resolutions are retained. Removed the three former zip extraction
+exceptions (0367/0368/0369); cargo-deny advisories passes with no new exception.
+Both original crate archives match their recorded registry checksums. Of 207
+published files, 199 are byte-identical; the eight reviewed changes are each
+crate's manifest, NPZ reader, PyTorch reader and obsolete `std::f64` import.
+The last change makes the existing infinity constants use primitive associated
+constants without changing arithmetic. Licenses and all original tests remain.
+
+Both versions pass all nine archive tests each (18 total): six upstream NPY,
+NPZ, SafeTensors and PyTorch tests plus three added round-trip, legacy CP437
+filename and truncated-archive tests. The initial malformed-name test assumed
+invalid UTF-8 was rejected; zip 9 intentionally decodes CP437 instead. Corrected
+the test to verify that preserved behavior and added a separate malformed
+archive error test. No production behavior was changed to satisfy that test.
+Run each standalone package through the owned build environment:
+`cargo xtask test --workspace -- --manifest-path deps/candle-core-<version>/Cargo.toml --target-dir target --test serialization_tests --test pth_tests --test devpulse_archive_tests`.
+Standalone test lockfiles are ignored; the platform lockfile owns the product
+graph. Workspace all-target checking, strict all-target Clippy (guardian/NVML)
+and rustfmt pass. The preservation audit still verifies all 6,066 records with
+zero uncovered sources. These third-party
+dependency patches do not count as restoration of additional authored features.
 
 The owner explicitly rejected leaving years of work in a recovery folder.
 This instruction governs the restoration sequence ahead of additional factory

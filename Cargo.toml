@@ -1,7 +1,7 @@
 [workspace]
 resolver = "3"
 # Recovery staging is excluded; restored crates build from their owning paths (plan 0009).
-exclude = ["recovered", "deps/tantivy-sstable"]
+exclude = ["recovered", "deps/tantivy-sstable", "deps/candle-core-0.9.2", "deps/candle-core-0.10.2"]
 members = [
     "kernel/devpulse-clyffy",
     "kernel/devpulse-persona-mcp",
@@ -198,6 +198,10 @@ unsafe_code = "deny"
 missing_docs = "warn"
 
 [patch.crates-io]
+# Keep the model libraries' resolved Candle APIs and apply zip 9 directly.
+# Direct zip 9 name/error handling; provenance lives beside each manifest.
+candle-core-09 = { package = "candle-core", path = "deps/candle-core-0.9.2" }
+candle-core-010 = { package = "candle-core", path = "deps/candle-core-0.10.2" }
 # Published sherpa-onnx-sys 1.13.8 still builds with vulnerable zip 2.
 # Pin upstream's merged zip 9 fix (PR #4059) until its next release.
 sherpa-onnx-sys = { git = "https://github.com/k2-fsa/sherpa-onnx", rev = "5821f230f309c084d17d871c8d62ad3218a66ccc" }

@@ -61,6 +61,11 @@ deps/*
 !deps/rro/
 # Minimal compression dependency source patch (plan 0009).
 !deps/tantivy-sstable/
+# Published Candle sources with the fixed archive dependency (plan 0009).
+!deps/candle-core-0.9.2/
+!deps/candle-core-0.10.2/
+# Standalone upstream test runs resolve their own temporary lockfiles.
+/deps/candle-core-*/Cargo.lock
 
 # llama-cpp-prebuilt — extracted static libs are fetched via
 # `cargo xtask fetch-llama-cpp` from github.com/EonsofStupid/llama-cpp-prebuilt

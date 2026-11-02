@@ -19,12 +19,6 @@ ignore = [
     "RUSTSEC-2024-0436", # paste (unmaintained, transitive)
     "RUSTSEC-2025-0119", # protobuf recursion (transitive via ort/surrealdb)
     "RUSTSEC-2020-0163", # term_size unmaintained, via tokei 15 (latest release; repo scan)
-    # zip < 9 extraction flaws (reviewed 2026-11-01). Candle 0.9/0.10 uses
-    # zip 7 to read .npy/.npz entries in memory, never `extract`. The updater,
-    # xtask and patched Sherpa build dependency now resolve zip 9.
-    "RUSTSEC-2026-0367", # SUID/SGID bits preserved on extract
-    "RUSTSEC-2026-0368", # extract creates symlinks outside the destination
-    "RUSTSEC-2026-0369", # extract applies permissions through symlinks
     # zbus's own crates marked unmaintained with no successor release
     # (2026-10-17). Pulled in via zbus 5.14 by rfd (ashpd), tauri-plugin-
     # single-instance and xcap — the Linux D-Bus backends of those crates.
