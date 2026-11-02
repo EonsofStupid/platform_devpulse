@@ -1,12 +1,19 @@
 import type { HTMLAttributes } from "svelte/elements";
+import type { TreeSelectionMode } from "./primitive-props.js";
 
 export interface UseTreeProps {
+	id?: string;
 	expandedKeys?: Set<string>;
+	defaultExpandedKeys?: Set<string>;
 	onExpandedChange?: (keys: Set<string>) => void;
 	selectedKeys?: Set<string>;
+	defaultSelectedKeys?: Set<string>;
 	onSelectionChange?: (keys: Set<string>) => void;
+	selectionMode?: TreeSelectionMode;
+	onAction?: (key: string) => void;
 	disabled?: boolean;
 	"aria-label"?: string;
+	"aria-labelledby"?: string;
 }
 
 export type TreeRootAttrs = HTMLAttributes<HTMLDivElement> & {

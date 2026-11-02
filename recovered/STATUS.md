@@ -1,8 +1,38 @@
-# Recovery status — 2026-11-01
+# Recovery status — 2026-11-02
 
 `recovered/` is temporary staging. The owner requires restoration to proper
 owning locations, including documentation and planning. Staged source is
 excluded from the workspace build and does not restore a working feature.
+
+## Working-owner restoration — 2026-11-02
+
+- Current inventory: 6,066 provenance records; 812 restored or reconciled;
+  **5,254 still staged**. The dated checkpoints below are historical counts.
+- Restored the missing ColdLight Tree renderer in
+  `packages/coldlight/components/tree/`, with TreeItem, colocated types,
+  existing owned behavior, generated styling and a review story. Eight browser
+  tests cover navigation, selection, controlled state and disabled/nested items.
+  Both historical Tree shells now reference that owner in `repo/SOURCES.tsv`.
+- Verified 36 historical anatomy modules against their current ColdLight
+  behavior owners. Only relative schema imports differ. These are existing
+  implementations reconciled with provenance, not newly restored features.
+- Reviewed six additional kernel sources against their cortex owners:
+  community cache, knowledge selector/sync/tests, persona types and guidance
+  persistence. Each manifest note records actual storage/API differences.
+  The comparison exposed a lost version-only knowledge checkpoint; the current
+  owner is fixed and its database regression test passes (10 knowledge tests).
+- Those 46 records retain original Git references and reviewed destination
+  hashes. Staging copies were removed only after checking original bytes,
+  recording destinations and rechecking destination hashes. Unreviewed sources
+  remain preserved. This does not complete restoration or AgentHub R3b.
+- The final preservation audit verifies all 6,066 records with zero uncovered
+  sources within its documented extension/history coverage; 18 recovery tests
+  pass. Two historical Tree sources (behavior and primitive contract) previously
+  survived verbatim; they now have explicit provenance for their repaired owners.
+- ColdLight, desktop and story typechecks, 31 token tests, generated-output
+  freshness, workspace all-target checking and strict Clippy pass. Architecture
+  tests pass 20/20 on retry after a source-scan timeout during concurrent builds.
+  The Tauri app has not been launched for visual acceptance of this batch.
 
 ## Restoration to original locations — 2026-11-01
 

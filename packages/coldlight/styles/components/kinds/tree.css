@@ -1,0 +1,146 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+[data-kind="tree"][data-slot="item"] {
+	--tree-border-radius: var(--radius-md);
+	--tree-border-width: 0;
+	--tree-cursor: pointer;
+	--tree-font-size: 0.875rem;
+	--tree-line-height: 1.5;
+	border-radius: var(--tree-border-radius);
+	border-width: var(--tree-border-width);
+	cursor: var(--tree-cursor);
+	font-size: var(--tree-font-size);
+	line-height: var(--tree-line-height);
+	background-color: var(--tree-background-color);
+	box-shadow: var(--tree-box-shadow);
+	color: var(--tree-color);
+	border-color: var(--tree-border-color);
+	opacity: var(--tree-opacity);
+	animation: var(--tree-animation);
+	transition-duration: var(--tree-transition-duration);
+	transition-timing-function: var(--tree-transition-timing-function);
+	background-image: var(--tree-gradient);
+	font-family: var(--tree-font-family);
+	font-weight: var(--tree-font-weight);
+	letter-spacing: var(--tree-letter-spacing);
+}
+
+[data-kind="tree"][data-slot="item"][data-variant="minimal"] {
+	--tree-background-color: var(--surface-role-minimal-background-color);
+	--tree-box-shadow: var(--surface-role-minimal-box-shadow);
+	--tree-color: var(--surface-role-minimal-color);
+	--tree-border-color: var(--surface-role-minimal-border-color);
+	--tree-opacity: var(--surface-role-minimal-opacity);
+	--tree-animation: var(--surface-role-minimal-animation);
+	--tree-transition-duration: var(--surface-role-minimal-transition-duration);
+	--tree-transition-timing-function: var(--surface-role-minimal-transition-timing-function);
+	--tree-gradient: var(--surface-role-minimal-gradient);
+	--tree-font-family: var(--surface-role-minimal-font-family);
+	--tree-font-weight: var(--surface-role-minimal-font-weight);
+	--tree-letter-spacing: var(--surface-role-minimal-letter-spacing);
+}
+
+[data-kind="tree"][data-slot="item"][data-variant="elevated"] {
+	--tree-background-color: var(--surface-role-elevated-background-color);
+	--tree-box-shadow: var(--surface-role-elevated-box-shadow);
+	--tree-color: var(--surface-role-elevated-color);
+	--tree-border-color: var(--surface-role-elevated-border-color);
+	--tree-opacity: var(--surface-role-elevated-opacity);
+	--tree-animation: var(--surface-role-elevated-animation);
+	--tree-transition-duration: var(--surface-role-elevated-transition-duration);
+	--tree-transition-timing-function: var(--surface-role-elevated-transition-timing-function);
+	--tree-gradient: var(--surface-role-elevated-gradient);
+	--tree-font-family: var(--surface-role-elevated-font-family);
+	--tree-font-weight: var(--surface-role-elevated-font-weight);
+	--tree-letter-spacing: var(--surface-role-elevated-letter-spacing);
+}
+
+[data-kind="tree"][data-slot="item"][data-variant="deep"] {
+	--tree-background-color: var(--surface-role-deep-background-color);
+	--tree-box-shadow: var(--surface-role-deep-box-shadow);
+	--tree-color: var(--surface-role-deep-color);
+	--tree-border-color: var(--surface-role-deep-border-color);
+	--tree-opacity: var(--surface-role-deep-opacity);
+	--tree-animation: var(--surface-role-deep-animation);
+	--tree-transition-duration: var(--surface-role-deep-transition-duration);
+	--tree-transition-timing-function: var(--surface-role-deep-transition-timing-function);
+	--tree-gradient: var(--surface-role-deep-gradient);
+	--tree-font-family: var(--surface-role-deep-font-family);
+	--tree-font-weight: var(--surface-role-deep-font-weight);
+	--tree-letter-spacing: var(--surface-role-deep-letter-spacing);
+}
+
+[data-kind="tree"][data-slot="item"][data-variant="solid"] {
+	--tree-background-color: var(--surface-role-solid-background-color);
+	--tree-box-shadow: var(--surface-role-solid-box-shadow);
+	--tree-color: var(--surface-role-solid-color);
+	--tree-border-color: var(--surface-role-solid-border-color);
+	--tree-opacity: var(--surface-role-solid-opacity);
+	--tree-animation: var(--surface-role-solid-animation);
+	--tree-transition-duration: var(--surface-role-solid-transition-duration);
+	--tree-transition-timing-function: var(--surface-role-solid-transition-timing-function);
+	--tree-gradient: var(--surface-role-solid-gradient);
+	--tree-font-family: var(--surface-role-solid-font-family);
+	--tree-font-weight: var(--surface-role-solid-font-weight);
+	--tree-letter-spacing: var(--surface-role-solid-letter-spacing);
+}
+
+[data-kind="tree"][data-slot="item"][data-variant="glow"] {
+	--tree-background-color: var(--surface-role-glow-background-color);
+	--tree-box-shadow: var(--surface-role-glow-box-shadow);
+	--tree-color: var(--surface-role-glow-color);
+	--tree-border-color: var(--surface-role-glow-border-color);
+	--tree-opacity: var(--surface-role-glow-opacity);
+	--tree-animation: var(--surface-role-glow-animation);
+	--tree-transition-duration: var(--surface-role-glow-transition-duration);
+	--tree-transition-timing-function: var(--surface-role-glow-transition-timing-function);
+	--tree-gradient: var(--surface-role-glow-gradient);
+	--tree-font-family: var(--surface-role-glow-font-family);
+	--tree-font-weight: var(--surface-role-glow-font-weight);
+	--tree-letter-spacing: var(--surface-role-glow-letter-spacing);
+}
+
+[data-kind="tree"][data-slot="item"][data-variant="muted"] {
+	--tree-background-color: var(--surface-role-muted-background-color);
+	--tree-box-shadow: var(--surface-role-muted-box-shadow);
+	--tree-color: var(--surface-role-muted-color);
+	--tree-border-color: var(--surface-role-muted-border-color);
+	--tree-opacity: var(--surface-role-muted-opacity);
+	--tree-animation: var(--surface-role-muted-animation);
+	--tree-transition-duration: var(--surface-role-muted-transition-duration);
+	--tree-transition-timing-function: var(--surface-role-muted-transition-timing-function);
+	--tree-gradient: var(--surface-role-muted-gradient);
+	--tree-font-family: var(--surface-role-muted-font-family);
+	--tree-font-weight: var(--surface-role-muted-font-weight);
+	--tree-letter-spacing: var(--surface-role-muted-letter-spacing);
+}
+
+[data-kind="tree"][data-slot="item"]:focus-visible {
+	--tree-outline-style: solid;
+	--tree-outline-width: 0.125rem;
+	--tree-outline-offset: 0.125rem;
+	outline-style: var(--tree-outline-style);
+	outline-width: var(--tree-outline-width);
+	outline-offset: var(--tree-outline-offset);
+}
+
+[data-kind="tree"][data-slot="item"][data-selected] {
+	--tree-font-weight: 700;
+}
+
+[data-kind="tree"][data-slot="item"]:is(:disabled, [data-disabled], [aria-disabled="true"]) {
+	--tree-opacity: 0.5;
+	--tree-cursor: not-allowed;
+}
+
+[data-kind="tree"][data-slot="row"] {
+	--tree-row-padding: 0.375rem 0.5rem;
+	padding: var(--tree-row-padding);
+}
+
+[data-kind="tree"][data-slot="group"] {
+	--tree-group-margin-inline-start: 1rem;
+	margin-inline-start: var(--tree-group-margin-inline-start);
+}

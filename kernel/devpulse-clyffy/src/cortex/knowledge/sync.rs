@@ -81,7 +81,6 @@ async fn sync_entries(
 
     if changed.is_empty() {
         tracing::info!(version = %content_version, "Knowledge content up to date — every entry matches");
-        return Ok(0);
     }
 
     tracing::info!(
@@ -95,12 +94,15 @@ async fn sync_entries(
         upsert_entry(adapter, entry).await?;
     }
 
+    // Keep the manifest checkpoint even if only its version changed. An
+    // identical checkpoint must remain a no-op in the database.
     let config_json = serde_json::json!({ "version": content_version }).to_string();
     adapter
         .execute(
             "INSERT INTO knowledge_config (user_id, config_json, updated_at) \
              VALUES ('system', ?, unixepoch()) \
-             ON CONFLICT(user_id) DO UPDATE SET config_json = excluded.config_json, updated_at = excluded.updated_at",
+             ON CONFLICT(user_id) DO UPDATE SET config_json = excluded.config_json, updated_at = excluded.updated_at \
+             WHERE knowledge_config.config_json != excluded.config_json",
             &[config_json.into()],
         )
         .await
@@ -234,6 +236,18 @@ mod tests {
             "same version, changed text"
         );
         assert_eq!(body_of(&db, "a").await, "Turso stores rows.");
+
+        assert_eq!(sync_entries(&db, &v2, "0.2.1").await.unwrap(), 0);
+        let config = db
+            .query(
+                "SELECT config_json FROM knowledge_config WHERE user_id = 'system'",
+                &[],
+            )
+            .await
+            .unwrap();
+        let checkpoint: serde_json::Value =
+            serde_json::from_str(config[0][0].as_text().unwrap()).unwrap();
+        assert_eq!(checkpoint["version"], "0.2.1");
 
         db.close().await;
         drop(db);

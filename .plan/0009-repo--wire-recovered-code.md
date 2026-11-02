@@ -8,7 +8,7 @@ touches: [kernel-clyffy, engine, desktop, desktop-coldlight]
 status: in-progress
 owner: Jesse Hades Hall
 created: 2026-10-24
-updated: 2026-11-01
+updated: 2026-11-02
 supersedes: []
 specs:
   - CLAUDE.md
@@ -27,6 +27,68 @@ with configurable endpoints. Restore functioning consumers directly; do not
 introduce compatibility layers or parallel replacement implementations.
 
 ## Restoration correction — governing direction, 2026-11-01
+
+### Working-owner restoration batch — 2026-11-02
+
+Owner requests restored code, with larger connected changes authorized in the
+preceding turn. Starting inventory: 6,064 provenance records, 766 recorded
+destinations and 5,298 still staged. Preservation is not functional restoration.
+Of the staged records, 4,479 are historical desktop sources; 39 are kernel
+sources and 39 are systems sources. Do not count a documentation-site copy of
+TypeScript as its working component owner.
+
+Compare source bodies against the current owners before editing. Thirty-six
+historical anatomy modules match their current ColdLight behavior modules
+exactly apart from the relative schema import; reconcile those with explicit
+destination hashes and retained original Git references. Other differences
+remain pending review, never approved by a filename match.
+
+Restore the missing Tree rendering into `packages/coldlight/components/tree/`:
+the preserved Tree shells, authored anatomy and keyboard contract supply the
+existing intent. The current package has types and a behavior hook, but no
+rendered component. Use that owned behavior and repair its exposed navigation,
+selection and focus failures. Keep public types colocated, style through
+generated kind tokens, and provide browser coverage and a review story. Do not
+reintroduce the historical third-party adapter runtime. Verify package/app
+types, keyboard behavior, generated output and preservation before removing
+verified staging copies. This batch does not declare Maestro, runtime backends,
+the remaining UI history or the separate devpulselabs import restored.
+
+Completed in this batch: 46 source records now have verified working-owner
+destinations and SHA-256 digests: 36 anatomy modules, six kernel modules and
+the two historical Tree shells plus its behavior and primitive contract.
+The kernel review covers community cache,
+knowledge selection/sync/tests, persona types and guidance persistence; the
+manifest records typed SQL, Turso and serialization differences individually.
+It caught a lost version-only knowledge checkpoint: unchanged entries now
+still record a new manifest version, while identical checkpoints remain a
+database no-op. Ten knowledge tests pass, including that regression.
+
+Tree now has an exported component and TreeItem, colocated types/context,
+generated kind CSS and a review story. Eight browser tests cover hierarchy,
+keyboard navigation, controlled state, selection, nested clicks and disabled
+items. ColdLight, desktop and story typechecks pass with no errors/warnings;
+token freshness (116 outputs), 31 token tests, workspace all-target checking
+and strict Clippy pass. Architecture tests pass 20/20 on retry; the first run
+hit a 5-second source-scan timeout during concurrent builds. No timeout was
+relaxed and no assertion was removed. Visual acceptance in the Tauri app is
+still pending; these tests do not establish completion of the factory UI.
+
+The final preservation audit passes all 6,066 provenance records with zero
+unrecovered sources within its documented extension/history coverage; its 18
+regression tests pass. The audit added explicit provenance for the historical
+Tree behavior and primitive contract, which had previously survived verbatim
+and now have repaired owners. ColdLight architecture verification and generated
+documentation also pass (one existing TypeDoc configuration warning).
+
+Inventory after reconciliation: 6,066 provenance records, 812 restored or
+reconciled and 5,254 still staged. Forty-two records reconcile implementations
+already present; four Tree sources map to the restored component and repaired
+behavior/contract. This is not 46 newly implemented features. Original Git references remain recorded;
+only staging duplicates verified against those originals were removed, after
+writing their owner paths and digests. Remaining work includes reviewing the
+other kernel/runtime and Maestro sources, restoring missing UI consumers in
+their owning domains, and the separate devpulselabs import. R3b remains open.
 
 The owner explicitly rejected leaving years of work in a recovery folder.
 This instruction governs the restoration sequence ahead of additional factory

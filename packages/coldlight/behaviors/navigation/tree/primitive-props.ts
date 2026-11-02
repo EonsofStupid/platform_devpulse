@@ -31,14 +31,20 @@ export interface TreePrimitiveProps extends Omit<HTMLAttributes<HTMLDivElement>,
 	class?: string;
 	/** Currently expanded item keys */
 	expandedKeys?: Set<string>;
+	/** Initial expanded keys when the tree owns its state. */
+	defaultExpandedKeys?: Set<string>;
 	/** Callback when expanded keys change */
 	onExpandedChange?: (keys: Set<string>) => void;
 	/** Currently selected item keys */
 	selectedKeys?: Set<string>;
+	/** Initial selected keys when the tree owns its state. */
+	defaultSelectedKeys?: Set<string>;
 	/** Callback when selected keys change */
 	onSelectionChange?: (keys: Set<string>) => void;
 	/** Selection mode. Default: "none" */
 	selectionMode?: TreeSelectionMode;
+	/** Activate an item with Enter or a click. */
+	onAction?: (key: string) => void;
 	/** Disabled state */
 	disabled?: boolean;
 }

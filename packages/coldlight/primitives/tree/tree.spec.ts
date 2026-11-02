@@ -37,6 +37,8 @@ export const treeSpec = definePrimitive({
 			{ key: "Home", action: "Move to first visible tree item" },
 			{ key: "End", action: "Move to last visible tree item" },
 			{ key: "Space", action: "Toggle selection of focused item" },
+			{ key: "Enter", action: "Activate the focused item" },
+			{ key: "Printable character", action: "Focus the next matching visible item" },
 		],
 		focusStrategy: "roving",
 		apgPattern: "https://www.w3.org/WAI/ARIA/apg/patterns/treeview/",
