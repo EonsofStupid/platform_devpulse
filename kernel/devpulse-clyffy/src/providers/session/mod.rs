@@ -19,7 +19,7 @@
 pub mod acp;
 pub mod headless;
 
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::time::Duration;
 
 use anyhow::{bail, Result};
@@ -111,6 +111,9 @@ pub type TurnEvents = mpsc::UnboundedReceiver<AgentEvent>;
 /// A live conversation with one agent.
 pub struct AgentSession {
     kind: Kind,
+    definition: ProviderDefinition,
+    program: PathBuf,
+    data_dir: PathBuf,
 }
 
 enum Kind {
@@ -138,6 +141,11 @@ impl AgentSession {
         resume: Option<String>,
         talk_only: bool,
     ) -> Result<Self> {
+        super::supervisor::inspect(definition, program, data_dir)
+            .await
+            .availability
+            .chat
+            .require(definition.name())?;
         let Some(connect_spec) = &definition.connect else {
             bail!(
                 "{} can't hold a conversation yet: its definition has no connect section",
@@ -170,7 +178,12 @@ impl AgentSession {
                 definition.name()
             ),
         };
-        Ok(Self { kind })
+        Ok(Self {
+            kind,
+            definition: definition.clone(),
+            program: program.to_path_buf(),
+            data_dir: data_dir.to_path_buf(),
+        })
     }
 
     /// Send one prompt; the turn's events arrive on the returned receiver.
@@ -178,6 +191,31 @@ impl AgentSession {
     /// # Errors
     /// When the session has ended.
     pub async fn prompt(&self, text: &str) -> Result<TurnEvents> {
+        self.prompt_cancellable(text, std::future::pending()).await
+    }
+
+    /// Validate before dispatch while allowing the caller to cancel a slow
+    /// login check. Once dispatch starts, the caller retains the turn and
+    /// cancels the accepted operation through [`Self::cancel`].
+    ///
+    /// # Errors
+    /// Returns a missing prerequisite or an ended session.
+    pub async fn prompt_cancellable(
+        &self,
+        text: &str,
+        cancelled: impl std::future::Future<Output = ()>,
+    ) -> Result<TurnEvents> {
+        tokio::select! {
+            biased;
+            () = cancelled => {
+                let (out, events) = mpsc::unbounded_channel();
+                let _ = out.send(AgentEvent::TurnEnded { stop: "cancelled".into() });
+                return Ok(events);
+            }
+            observed = super::supervisor::inspect(&self.definition, &self.program, &self.data_dir) => {
+                observed.availability.chat.require(self.definition.name())?;
+            }
+        }
         match &self.kind {
             Kind::Acp(session) => session.prompt(text),
             Kind::Headless(session) => session.prompt(text).await,
@@ -229,6 +267,59 @@ mod tests {
 
     use super::*;
     use crate::providers::{catalog, discovery::installed, ProviderId};
+
+    #[tokio::test]
+    async fn a_live_session_rechecks_login_and_cancellation_before_dispatch() {
+        use crate::providers::definition::{PerOs, SignedInSpec};
+        let dir =
+            std::env::temp_dir().join(format!("devpulse-session-gate-{}", uuid::Uuid::new_v4()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let program = dir.join("must-not-run");
+        let login = dir.join("login-present");
+        std::fs::write(&program, "not executable").unwrap();
+        std::fs::write(&login, "presence only; no token").unwrap();
+        let mut definition = catalog::bundled()
+            .unwrap()
+            .into_iter()
+            .find(|d| d.id == ProviderId::ClaudeCode)
+            .unwrap();
+        let files = vec![login.display().to_string()];
+        definition.signed_in = Some(SignedInSpec {
+            args: None,
+            files: PerOs {
+                windows: files.clone(),
+                macos: files.clone(),
+                linux: files,
+            },
+            output_signed_in: None,
+            output_signed_out: None,
+            absent_means_signed_out: true,
+        });
+        let session = AgentSession::start(&definition, &program, &dir, &dir, None, false)
+            .await
+            .unwrap();
+        std::fs::remove_file(&login).unwrap();
+        let error = session.prompt("must not dispatch").await.unwrap_err();
+        assert!(error.to_string().contains("Sign in to"), "{error:#}");
+        // Cancellation wins even over failed prerequisites and never dispatches.
+        let mut events = session
+            .prompt_cancellable("must not dispatch", std::future::ready(()))
+            .await
+            .unwrap();
+        assert_eq!(
+            events.recv().await,
+            Some(AgentEvent::TurnEnded {
+                stop: "cancelled".into()
+            })
+        );
+        assert!(events.recv().await.is_none());
+        std::fs::write(&login, "presence only").unwrap();
+        std::fs::remove_file(&program).unwrap();
+        let error = session.prompt("must not dispatch").await.unwrap_err();
+        assert!(error.to_string().contains("not installed"), "{error:#}");
+        session.close().await;
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
 
     /// The answer of one turn, or what went wrong.
     async fn answer(mut events: TurnEvents) -> Result<String, String> {

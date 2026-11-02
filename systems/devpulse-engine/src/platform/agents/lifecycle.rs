@@ -150,7 +150,7 @@ impl Turn {
         }
         // Dispatch may already have spawned work before its future resolves.
         // Retain ownership; cancel the accepted turn once its receiver exists.
-        let events = session.prompt(text).await?;
+        let events = session.prompt_cancellable(text, self.cancelled()).await?;
         if self.is_cancelled() {
             session.cancel().await;
         }

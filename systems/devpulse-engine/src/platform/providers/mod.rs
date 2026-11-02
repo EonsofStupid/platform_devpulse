@@ -15,10 +15,10 @@ use serde::{Deserialize, Serialize};
 use specta::Type;
 use tokio::sync::Mutex;
 
-// IP-NOTE: provider catalog types — vendor-neutral, layman names (provider,
-// signed in, update, sign in, try it, connector); no kernel vocabulary
-// crosses.
-use devpulse_clyffy::providers::{actions, catalog, check, signed_in_now, ActionContext};
+// Kernel-owned facts cross intact; the window translates their presentation.
+pub use devpulse_clyffy::providers::supervisor::{ConnectionReadiness, ProviderAvailability};
+use devpulse_clyffy::providers::{actions, catalog, check, ActionContext};
+use devpulse_clyffy::providers::{discovery::installed, supervisor};
 pub use devpulse_clyffy::providers::{
     AdapterKind, ConnectorReport, ProviderAction, ProviderActionRun, ProviderId, ProviderKind,
     ProviderReport, ProvidersReport, SignedIn,
@@ -127,6 +127,7 @@ impl Providers {
     /// # Errors
     /// Returns an error if the provider is unknown or not installed.
     pub async fn recheck_signed_in(&self, id: ProviderId) -> Result<ProvidersState> {
+        let _serial = self.serial.lock().await;
         let catalog = catalog::load(&self.data_dir)?;
         let Some(definition) = catalog.definitions.iter().find(|d| d.id == id) else {
             bail!("{} is not a provider in the catalog", id.key());
@@ -134,7 +135,8 @@ impl Providers {
         let Some(location) = self.location(id).await else {
             bail!("{} is not installed", definition.name());
         };
-        let now = signed_in_now(definition, std::path::Path::new(&location)).await;
+        let program = std::path::Path::new(&location);
+        let observed = supervisor::inspect(definition, program, &self.data_dir).await;
         let changed = {
             let mut state = self.state.lock().await;
             match state
@@ -142,19 +144,47 @@ impl Providers {
                 .as_mut()
                 .and_then(|r| r.providers.iter_mut().find(|p| p.id == id))
             {
-                Some(provider) if provider.signed_in != now => {
-                    provider.signed_in = now;
-                    true
-                }
+                Some(provider) => observed.update_report(provider, program),
                 _ => false,
             }
         };
         if changed {
-            tracing::info!(target: "providers", provider_id = id.key(), signed_in = ?now, "sign-in changed");
+            tracing::info!(target: "providers", provider_id = id.key(), signed_in = ?observed.signed_in, "activation prerequisites changed");
             Ok(self.publish().await)
         } else {
             Ok(self.state().await)
         }
+    }
+
+    /// Validate a new Chat or Council thread against current prerequisites.
+    /// The session also rechecks before starting and before every prompt.
+    ///
+    /// # Errors
+    /// Returns the missing installation, login, connector or protocol.
+    pub async fn require_chat(&self, id: ProviderId) -> Result<()> {
+        let _serial = self.serial.lock().await;
+        let catalog = catalog::load(&self.data_dir)?;
+        let definition = catalog
+            .definitions
+            .iter()
+            .find(|d| d.id == id)
+            .ok_or_else(|| anyhow::anyhow!("{} is not a provider in the catalog", id.key()))?;
+        let program =
+            installed::locate(definition, std::env::home_dir().as_deref(), &self.data_dir)
+                .ok_or_else(|| anyhow::anyhow!("{} is not installed", definition.name()))?;
+        let observed = supervisor::inspect(definition, &program, &self.data_dir).await;
+        {
+            let mut state = self.state.lock().await;
+            if let Some(provider) = state
+                .report
+                .as_mut()
+                .and_then(|r| r.providers.iter_mut().find(|p| p.id == id))
+            {
+                observed.update_report(provider, &program);
+            }
+        }
+        self.publish().await;
+        observed.availability.chat.require(definition.name())
     }
 
     async fn publish(&self) -> ProvidersState {

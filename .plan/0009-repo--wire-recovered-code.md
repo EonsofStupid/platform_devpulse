@@ -358,6 +358,94 @@ coverage, 403 verbatim active survivors. Totals are 757 restored/reconciled and
 move; it does not represent another archived feature restored. No staged
 historical source was removed. Full restoration and R3b remain incomplete.
 
+### One DevSpace activation path (owner correction, 2026-11-01)
+
+The existing design is plan 0001's **Structure** and R2/R7/R11: kernel
+`providers/store.rs` and `providers/supervisor.rs`, the current engine provider
+facade, shared provider UI. This section tracks reconciliation with those
+owners; it is not a replacement design. Required DevPulse account work remains
+in plan 0001's **Wiring the login**, A5–A15, including the 2026-11-01 owner
+reaffirmation and preserved `.pulse` source. AI activation and the DevPulse
+account are separate checks, both rendered through the existing DevSpace.
+
+Compare and absorb the existing boundaries before authoring: kernel provider
+registry/definitions/discovery/actions/session; engine `platform/providers` and
+its replayed state; service manifest/observations; Your AI and Chat; Turso's
+existing migrations and conversation persistence. Historical connection types
+and aggregator (`alpha/bad_desktop/src/lib/{types,stores}/connections*`) retain
+grouping and friendly presentation intent, but assume loaded means connected.
+Keep those sources preserved; use measured operation evidence in the live owner.
+The separate local-first/Claude routing path and unwired generic endpoint probe
+must not become another parallel provider registry.
+
+The code audit found a concrete missing boundary: `keyring = "3"` has no native
+features enabled (`cargo tree -e features -i keyring`), so the active build selects
+its mock backend. Prior policy/masking tests did not establish persistence.
+Fix the feature selection and test the concrete backend without accessing user
+keys. References: https://docs.rs/keyring/3.6.3/keyring/ and the installed crate's
+source. HTTP conversation contracts: OpenAI Chat Completions and Anthropic
+Messages primary API references; retain the vendor-owned subscription programs.
+
+Execute coherent groups of at most five authored files, then verify:
+
+1. Kernel-owned native credential access and a shared availability contract.
+   Installation, sign-in, connector presence, eligibility to connect and a
+   successful operation are distinct facts; the UI must not invent readiness.
+2. Persist independent endpoint instances in prefixed `ai_connections` rows,
+   with stable identity, revision, explicit API base, provider/model selection,
+   enabled intent and per-connection vault reference. Reuse the existing Turso
+   lifecycle; editing/disabling/credential changes invalidate in-flight evidence.
+3. Extend the existing provider engine/state with endpoint connection actions
+   and subscription availability. Consumers use that same contract; refreshes
+   never install software, sign in, or silently send paid test prompts.
+4. Wire configured HTTP conversations into the existing kernel session and
+   engine chat persistence/streaming boundary. Keep vendor subscriptions in
+   their existing transports. Recheck configuration at execution, propagate
+   disconnect/authentication errors, and retain durable history and cancellation.
+5. Extend Your AI and its colocated UI/types, using existing ColdLight controls,
+   with endpoint setup, clear prerequisite actions and technical detail. Chat
+   uses the same available connections; no separate readiness arithmetic.
+6. Exercise discovery, install/sign-in transitions, endpoint persistence and
+   revision races, authenticated HTTP conversations, failures and UI selection.
+   Regenerate bindings, run relevant tests and inspect the actual Tauri surface.
+
+This is the activation path for the existing AI services. Factory ticket
+execution, additional operation adapters and remaining historical restoration
+retain their separate acceptance criteria; do not count metadata as inference.
+
+Credential/subscription checkpoint (2026-11-01): native keyring stores are now
+selected explicitly; AI credential access lives in the kernel. A vault mutation
+retains its invalidation guard until the OS worker finishes, even if the IPC
+waiter disappears. `providers/supervisor.rs` owns operation prerequisites:
+installation, login evidence, connector and conversation support. Discovery,
+new Chat/Council threads, connection tests and live session dispatch use that
+policy. A slow pre-dispatch check is cancellable without starting the prompt.
+Sign-in refresh is serialized with provider actions and publishes its facts and
+availability together. Your AI and Chat consume those typed facts; “Ready to
+connect” does not claim a successful AI answer. Unknown required login stays
+unavailable rather than being interpreted as success.
+
+Verification: workspace `cargo check` and Svelte check pass (zero Svelte errors
+or warnings); all-target Clippy passes for kernel, engine and desktop; rustfmt
+passes. Tests: 128 kernel provider, 153 engine platform, 60 desktop, 4 signal
+contracts and 5 Chromium tests pass. Three kernel live-provider tests and one
+engine live test remain ignored. All 20 architecture assertions pass across the
+suite and a targeted retry: the ColdLight scan initially exceeded its 5-second
+timeout under concurrent build load, then passed unchanged in 1.3 seconds.
+The production frontend build passes; 114 generated style outputs are unchanged.
+Strict all-target lint exposed existing test assertions/task-spawn conventions
+and Burn test casts/device defaults; these were corrected without removing the
+tests or production code. The Burn reconciliation digest records the reviewed
+test-only edits. Preservation check: 6,055 verified records, zero uncovered
+deletions within its coverage, 403 verbatim active survivors.
+
+This does not complete endpoint-instance persistence/HTTP Chat, the required
+DevPulse Account stage, the factory board, or historical restoration. No real
+vendor prompt, account signup or user-vault read/write was used for these tests;
+the native-store assertion only constructs and inspects the backend type.
+The Tauri application has not been launched for this checkpoint. Part L in plan
+0001 owns the requested Rust 2024/latest-stable baseline before further wiring.
+
 ### Owner correction: included kernel and visible advanced UI (2026-11-01)
 
 The owner reverses the old IP-hiding rule: the kernel is included, nothing

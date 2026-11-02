@@ -53,7 +53,7 @@ const idle = $derived(
 const dot = (p: ProviderReport) =>
 	!p.installed
 		? ("offline" as const)
-		: p.signedIn === "yes"
+		: p.availability.test === "readyToConnect"
 			? ("ready" as const)
 			: ("pending" as const);
 
@@ -113,6 +113,11 @@ function signIn(p: ProviderReport): void {
 				{/if}
 				{#if p.kind === "subscription_agent"}
 					<Text size="sm">{signedInText(p)}</Text>
+					{#if p.availability.chat === "readyToConnect"}
+						<Text size="xs" color="muted">{copy.ready_to_connect}</Text>
+					{:else if p.availability.chat === "unsupported"}
+						<Text size="xs" color="muted">{copy.conversation_unsupported}</Text>
+					{/if}
 				{/if}
 				{#if p.connector}
 					<Text size="xs" color="muted">
@@ -161,7 +166,7 @@ function signIn(p: ProviderReport): void {
 						{#if running(p, "installConnector")}<Spinner size="xs" />{copy.installing}{:else}{copy.install_connector}{/if}
 					</Button>
 				{/if}
-				{#if p.installed && p.actions.includes("test") && connectorReady(p)}
+				{#if p.availability.test === "readyToConnect"}
 					<Button variant="secondary" size="sm" onclick={() => providersState.act(p.id, "test")} disabled={!idle}>
 						{#if running(p, "test")}<Spinner size="xs" />{copy.testing}{:else}{copy.test}{/if}
 					</Button>

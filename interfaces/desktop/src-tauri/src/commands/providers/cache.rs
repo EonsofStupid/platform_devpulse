@@ -34,11 +34,27 @@ pub(super) struct ValidationTicket {
     generation: Arc<()>,
 }
 
-/// The entire vault mutation, including its hint update, invalidates evidence.
-/// Dropping the guard also covers errors and cancelled callers.
+/// The entire vault mutation invalidates evidence. Asynchronous mutations run
+/// through `run`, retaining this guard until the OS worker actually finishes.
 pub(crate) struct CredentialChange<'a> {
     cache: &'a ValidationCache,
     provider: ProviderId,
+}
+
+impl CredentialChange<'static> {
+    /// A vault worker cannot be aborted once it starts. Keep ownership even if
+    /// its IPC waiter disappears, just as an admitted Chat turn keeps ownership.
+    pub async fn run(
+        self,
+        operation: impl std::future::Future<Output = Result<(), CommandError>> + Send + 'static,
+    ) -> Result<(), CommandError> {
+        devpulse_telemetry::spawn(async move {
+            let _change = self;
+            operation.await
+        })
+        .await
+        .map_err(|error| CommandError::internal(format!("Credential operation stopped: {error}")))?
+    }
 }
 
 impl ValidationCache {

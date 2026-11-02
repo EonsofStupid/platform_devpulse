@@ -1,3 +1,5 @@
+#![allow(clippy::unwrap_used, clippy::expect_used, reason = "test assertions")]
+
 use super::*;
 
 #[test]
@@ -190,7 +192,7 @@ async fn model_client_does_not_forward_credentials_to_redirects() {
     use tokio::io::{AsyncReadExt, AsyncWriteExt};
     let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
     let address = listener.local_addr().unwrap();
-    let server = tokio::spawn(async move {
+    let server = devpulse_telemetry::spawn(async move {
         let (mut socket, _) = listener.accept().await.unwrap();
         let mut bytes = [0_u8; 4096];
         let mut request = Vec::new();
@@ -256,7 +258,7 @@ async fn configured_authenticated_endpoint_returns_models_or_redacted_failure() 
     ] {
         let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
         let address = listener.local_addr().unwrap();
-        let server = tokio::spawn(async move {
+        let server = devpulse_telemetry::spawn(async move {
             let (mut socket, _) = listener.accept().await.unwrap();
             let mut bytes = [0_u8; 4096];
             let mut request = Vec::new();

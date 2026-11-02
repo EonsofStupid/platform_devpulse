@@ -6511,6 +6511,34 @@ launch_label: string;
  */
 hint: string }
 /**
+ * Why an operation can or cannot be attempted.
+ */
+export type ConnectionReadiness = 
+/**
+ * Prerequisites are present. Only a real operation can establish success.
+ */
+"readyToConnect" | 
+/**
+ * The vendor's program is absent.
+ */
+"notInstalled" | 
+/**
+ * The vendor reports no login.
+ */
+"signInRequired" | 
+/**
+ * A required login could not be established.
+ */
+"signInUnverified" | 
+/**
+ * The configured protocol connector is absent.
+ */
+"connectorRequired" | 
+/**
+ * The definition does not support this operation.
+ */
+"unsupported"
+/**
  * A provider's connector, as found.
  */
 export type ConnectorReport = { 
@@ -11376,6 +11404,18 @@ elapsedMs: number;
  */
 finishedAt: number }
 /**
+ * Availability for each supported operation, independent of UI presentation.
+ */
+export type ProviderAvailability = { 
+/**
+ * A one-question connection test, only on explicit request.
+ */
+test: ConnectionReadiness; 
+/**
+ * A continuing Chat or Council conversation.
+ */
+chat: ConnectionReadiness }
+/**
  * Stable wire identifier for a provider.
  * 
  * Used in config files, telemetry, devtool URLs, lane router selection.
@@ -11556,6 +11596,10 @@ updateAvailable: boolean;
  * Signed in, as far as can be told.
  */
 signedIn: SignedIn; 
+/**
+ * Kernel-evaluated prerequisites; this is not proof of a live operation.
+ */
+availability: ProviderAvailability; 
 /**
  * The vendor's own sign-in command as you would type it in a terminal
  * (`claude auth login`); `None` when it has none or is not installed.
@@ -15405,6 +15449,14 @@ signed_out: string;
  * Sign-in state can't be told.
  */
 signed_in_unknown: string; 
+/**
+ * Prerequisites are checked; a real operation still has to connect.
+ */
+ready_to_connect: string; 
+/**
+ * This provider definition cannot hold a conversation.
+ */
+conversation_unsupported: string; 
 /**
  * Button: update.
  */

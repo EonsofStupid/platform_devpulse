@@ -1,4 +1,36 @@
+#![allow(clippy::unwrap_used, reason = "test assertions")]
+
 use super::*;
+
+#[tokio::test]
+async fn a_cancelled_ipc_waiter_cannot_release_an_unfinished_vault_mutation() {
+    static CACHE: std::sync::OnceLock<ValidationCache> = std::sync::OnceLock::new();
+    let cache = CACHE.get_or_init(ValidationCache::default);
+    let provider = ProviderId::Ollama;
+    let (entered, started) = tokio::sync::oneshot::channel();
+    let (finish, released) = tokio::sync::oneshot::channel();
+    let task = devpulse_telemetry::spawn(cache.credential_change(provider).run(async move {
+        entered.send(()).unwrap();
+        released.await.unwrap();
+        Ok(())
+    }));
+    started.await.unwrap();
+    task.abort();
+    assert!(task.await.unwrap_err().is_cancelled());
+    assert!(
+        cache.begin(provider).is_err(),
+        "the OS mutation is still running"
+    );
+    finish.send(()).unwrap();
+    tokio::time::timeout(std::time::Duration::from_secs(2), async {
+        while cache.begin(provider).is_err() {
+            tokio::task::yield_now().await;
+        }
+    })
+    .await
+    .unwrap();
+    assert!(cache.snapshot(provider).is_none());
+}
 
 fn observed(model: &str) -> CacheEntry {
     CacheEntry {
@@ -78,7 +110,7 @@ async fn cancelling_a_credential_change_releases_its_gate_but_not_old_evidence()
     let ticket = cache.begin(ProviderId::Ollama).unwrap();
     let worker = Arc::clone(&cache);
     let (started, started_rx) = tokio::sync::oneshot::channel();
-    let task = tokio::spawn(async move {
+    let task = devpulse_telemetry::spawn(async move {
         let _change = worker.credential_change(ProviderId::Ollama);
         started.send(()).unwrap();
         std::future::pending::<()>().await;

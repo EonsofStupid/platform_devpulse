@@ -25,7 +25,7 @@ use uuid::Uuid;
 
 use super::agenthub::live::LiveState;
 use super::projects::Projects;
-use super::providers::{Providers, SignedIn};
+use super::providers::Providers;
 
 mod lifecycle;
 #[cfg(test)]
@@ -140,18 +140,7 @@ impl Agents {
             .iter()
             .find(|d| d.id == provider_id)
             .ok_or_else(|| anyhow!("{} is not an agent DevPulse knows", provider_id.key()))?;
-        if definition.connect.is_none() || definition.protocol().is_none() {
-            bail!("{} can't hold a conversation", definition.name());
-        }
-        if self.providers.location(provider_id).await.is_none() {
-            bail!("{} is not installed", definition.name());
-        }
-        if self.signed_out(provider_id).await {
-            bail!(
-                "{} is not signed in — sign in from Settings → Your AI",
-                definition.name()
-            );
-        }
+        self.require_chat(provider_id).await?;
         let session_id = format!("sess-{}", Uuid::new_v4());
         let title = definition.name().to_owned();
         self.db
@@ -227,16 +216,9 @@ impl Agents {
         }).await
     }
 
-    /// The agent is installed on this machine.
-    pub(super) async fn installed(&self, provider_id: ProviderId) -> bool {
-        self.providers.location(provider_id).await.is_some()
-    }
-
-    /// The last check found you signed out of the agent. An agent whose
-    /// sign-in could not be told is not refused (some vendors only leave a
-    /// login file).
-    pub(super) async fn signed_out(&self, provider_id: ProviderId) -> bool {
-        self.providers.signed_in(provider_id).await == SignedIn::No
+    /// The same prerequisite policy used by discovery and live sessions.
+    pub(super) async fn require_chat(&self, provider_id: ProviderId) -> Result<()> {
+        self.providers.require_chat(provider_id).await
     }
 
     /// Start a conversation in its existing workspace. Only `talk_only`

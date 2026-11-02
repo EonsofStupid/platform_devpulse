@@ -208,6 +208,15 @@ async fn test(
     context: ActionContext<'_>,
     result: &mut ProviderActionRun,
 ) {
+    if let Err(error) = super::supervisor::inspect(definition, location, context.data_dir)
+        .await
+        .availability
+        .test
+        .require(definition.name())
+    {
+        result.output = format!("{error:#}");
+        return;
+    }
     let launch = match connect::launch(definition, location, context.data_dir, context.prompt) {
         Ok(launch) => launch,
         Err(e) => {

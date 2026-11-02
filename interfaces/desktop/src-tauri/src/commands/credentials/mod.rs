@@ -20,16 +20,12 @@
 
 use crate::commands::_util::CommandError;
 use crate::state::PlatformState;
+use devpulse_engine::ai_providers::credentials::{CredentialStore, NativeCredentials};
 use devpulse_engine::ai_providers::{self, ProviderId};
 use devpulse_engine::platform::SqlAdapter;
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use tauri::State;
-
-/// Service name used for every keyring entry — namespaces our keys
-/// inside the OS credential store so they don't collide with other
-/// apps that might use a generic key name like `api_key_openai`.
-const SERVICE_NAME: &str = "devpulse";
 
 /// Stored-key status for a single provider — what the devtool renders.
 ///
@@ -72,17 +68,16 @@ pub async fn store_api_key(
     if key.trim().is_empty() {
         return Err(CommandError::not_configured("API key cannot be empty"));
     }
-    let _change = super::providers::credential_change(provider);
-
     let keyring_key = keyring_key_for(provider);
-    let keyring_entry = keyring::Entry::new(SERVICE_NAME, &keyring_key)
-        .map_err(|e| CommandError::internal(format!("Keyring entry construction failed: {e}")))?;
-    keyring_entry.set_password(&key).map_err(|e| {
-        CommandError::permission_denied(format!(
-            "Failed to store key for {}: {e}",
-            entry.display_name
-        ))
-    })?;
+    let secret = key.clone();
+    super::providers::credential_change(provider)
+        .run(async move {
+            NativeCredentials
+                .write(&keyring_key, secret)
+                .await
+                .map_err(|e| CommandError::permission_denied(format!("{e:#}")))
+        })
+        .await?;
     tracing::info!(
         provider = ?provider,
         display = %entry.display_name,
@@ -106,15 +101,10 @@ pub async fn store_api_key(
 pub(super) async fn get_api_key(provider: ProviderId) -> Result<Option<String>, CommandError> {
     let _entry = registry_entry(provider)?;
     let keyring_key = keyring_key_for(provider);
-    let keyring_entry = keyring::Entry::new(SERVICE_NAME, &keyring_key)
-        .map_err(|e| CommandError::internal(format!("Keyring entry construction failed: {e}")))?;
-    match keyring_entry.get_password() {
-        Ok(key) => Ok(Some(key)),
-        Err(keyring::Error::NoEntry) => Ok(None),
-        Err(e) => Err(CommandError::permission_denied(format!(
-            "Keyring read failed: {e}"
-        ))),
-    }
+    NativeCredentials
+        .read(&keyring_key)
+        .await
+        .map_err(|e| CommandError::permission_denied(format!("{e:#}")))
 }
 
 /// Delete an API key from the OS keychain and the Turso mirror.
@@ -129,25 +119,17 @@ pub async fn delete_api_key(
     state: State<'_, PlatformState>,
     provider: ProviderId,
 ) -> Result<(), CommandError> {
-    let entry = registry_entry(provider)?;
-    let _change = super::providers::credential_change(provider);
+    registry_entry(provider)?;
     let keyring_key = keyring_key_for(provider);
-    let keyring_entry = keyring::Entry::new(SERVICE_NAME, &keyring_key)
-        .map_err(|e| CommandError::internal(format!("Keyring entry construction failed: {e}")))?;
-    match keyring_entry.delete_credential() {
-        Ok(()) => tracing::info!(
-            provider = ?provider,
-            display = %entry.display_name,
-            "API key deleted from OS keychain"
-        ),
-        Err(keyring::Error::NoEntry) => {}
-        Err(e) => {
-            return Err(CommandError::permission_denied(format!(
-                "Failed to delete key for {}: {e}",
-                entry.display_name
-            )));
-        }
-    }
+    super::providers::credential_change(provider)
+        .run(async move {
+            NativeCredentials
+                .remove(&keyring_key)
+                .await
+                .map_err(|e| CommandError::permission_denied(format!("{e:#}")))
+        })
+        .await?;
+    tracing::info!(provider = ?provider, "API key deleted from OS keychain");
 
     delete_hint_from_database(state, provider).await;
     Ok(())
@@ -170,18 +152,13 @@ pub async fn get_api_key_status() -> Result<Vec<ApiKeyStatus>, CommandError> {
             continue;
         }
         let keyring_key = keyring_key_for(provider.id);
-        let keyring_entry = keyring::Entry::new(SERVICE_NAME, &keyring_key).map_err(|e| {
-            CommandError::internal(format!("Keyring entry construction failed: {e}"))
-        })?;
-        let (stored, masked_preview) = match keyring_entry.get_password() {
-            Ok(key) => (true, Some(mask_preview(&key))),
-            Err(keyring::Error::NoEntry) => (false, None),
-            Err(e) => {
-                return Err(CommandError::permission_denied(format!(
-                    "Keyring read failed for {:?}: {e}",
-                    provider.id
-                )));
-            }
+        let (stored, masked_preview) = match NativeCredentials
+            .read(&keyring_key)
+            .await
+            .map_err(|e| CommandError::permission_denied(format!("{e:#}")))?
+        {
+            Some(key) if !key.trim().is_empty() => (true, Some(mask_preview(&key))),
+            _ => (false, None),
         };
         out.push(ApiKeyStatus {
             provider: provider.id,
@@ -219,11 +196,7 @@ fn require_api_key_transport(entry: &ai_providers::AiProvider) -> Result<(), Com
 /// `<id>` is the provider's `serde(rename_all = "kebab-case")` form.
 /// Stable across releases since `ProviderId` is the wire identifier.
 fn keyring_key_for(id: ProviderId) -> String {
-    let id_kebab = serde_json::to_string(&id)
-        .ok()
-        .and_then(|s| s.trim_matches('"').to_string().into())
-        .unwrap_or_else(|| format!("{id:?}").to_lowercase());
-    format!("api_key_{id_kebab}")
+    ai_providers::credentials::provider_reference(id)
 }
 
 /// First-8-chars-then-mask preview, never revealing entropy.
@@ -312,6 +285,7 @@ fn adapter_name_for(id: ProviderId) -> String {
 
 #[cfg(test)]
 mod tests {
+    #![allow(clippy::unwrap_used, reason = "test assertions")]
     use super::*;
 
     #[test]

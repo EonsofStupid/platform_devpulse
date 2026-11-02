@@ -724,6 +724,38 @@ sign it off (R-H7, R-H8).
 
 ## Part L — Everything on its latest stable release (owner 2026-10-18)
 
+2026-11-01: owner requests “latest 2024 minimal”. Working interpretation is
+Rust edition 2024 as the minimum source edition, alongside the existing latest
+stable policy (clarification requested). Main still has 12 edition-2021 crates
+and Rust 1.92.0. Official release index checked today lists 1.99.1, already
+installed locally. Preserve and absorb prior work: `87f51732` is the L1 commit
+on `feat/deps-latest`; its worktree also has 780 uncommitted changes based on
+the older layout. Do not reset it, copy its old lockfile over today's graph,
+or merge obsolete paths wholesale. Reconcile its fixes with the current owners.
+
+Resume sequence after the in-progress activation contract is verified:
+- L0: central workspace edition 2024 / minimum supported Rust, resolver 3,
+  and the current stable toolchain. Migrate crates in dependency order, fixing
+  real diagnostics. Review environment mutation and unsafe operations manually;
+  `cargo fix --edition` cannot establish their safety. Keep vendor subrepos and
+  preserved historical snapshots under their own manifests.
+- L1: update the current compatible dependency graph and reconcile the earlier
+  lint/API fixes, retaining current restoration work. Verify all workspace
+  targets and relevant tests before recording this as complete.
+- L2–L6 remain the recorded major dependency/frontend/tooling work below; their
+  earlier survey is evidence to recheck, not proof the changes landed on main.
+
+Primary references: https://blog.rust-lang.org/releases/;
+https://doc.rust-lang.org/edition-guide/rust-2024/cargo-resolver.html;
+https://doc.rust-lang.org/edition-guide/rust-2024/newly-unsafe-functions.html.
+
+Preservation correction: the survey's “deleted instead” proposal below is
+historical, not current authorization to remove AI code or dependencies. The
+included kernel and include-before-delete rulings take precedence. Preserve
+existing implementations, reconcile their active consumers and update the
+dependencies they need. Runtime migrations retain their own reviewed coverage
+and provenance; an upgrade is not permission for bulk feature deletion.
+
 > "why not update everything to the latest and let errors surface and properly
 > read the plans and notes … only you fix your … hardcoded … instead of just
 > clean endpoints and ability to just sign in"
@@ -1535,6 +1567,29 @@ mounted once, in the root layout (`9a170b88`), and removed by `cecd61b5`.
   signed in on the next start.
 
 #### Wiring the login — grounded 2026-10-23
+
+2026-11-01 owner reaffirmation: `DEVPULSE.APP` supplies cloud authentication;
+an account is required even on Free, for account-linked statistics and important
+patches. This continues the 2026-10-15 decision below; it does not replace the
+vendor's own subscription login or imply that a saved credential activates AI.
+The `.pulse` update intent is preserved in
+`docs/chat-modes/_raw/all-prompts.txt:49369` (app/web, community, UI, skills,
+features and model updates). The second format recalled as “pulsix” has not yet
+been identified in the searched notes; do not invent its schema or delivery
+protocol. Find the original specification before implementing that format.
+
+Code recheck: A5–A15 below remain unfinished. The Supabase session still uses
+webview storage, the Account stage is absent, and licensing still returns the
+Pro stub. `config/platform/integrations/cloud.toml` has the existing project URL
+but an empty public anon key; live authentication needs that configured value
+(D2). A URL being configured is not evidence of a verified account. Keep the
+existing auth domain and implement the recorded engine verification/session
+boundary. Migration `0003` now owns AgentHub thread names; A5 must use the next
+available migration number, not overwrite it. Native keyring feature selection
+is being corrected in the provider activation work; the old A7 parenthetical
+that only Tauri depends on keyring is no longer the architecture. DevPulse
+account verification remains platform code in the engine; AI credentials are
+owned by the included kernel.
 
 Owner 2026-10-23: "plan the loginshell wiring". The rulings above stand:
 - required, right after Welcome;

@@ -15,6 +15,9 @@ async fn fixture_session(dir: &Path, running: bool) -> AgentSession {
         .into_iter()
         .find(|definition| definition.id == ProviderId::ClaudeCode)
         .unwrap();
+    // The fixture is a local shell, not a vendor account.
+    definition.signed_in = None;
+    definition.sign_in = None;
     let conversation = definition
         .connect
         .as_mut()
@@ -38,9 +41,11 @@ async fn fixture_session(dir: &Path, running: bool) -> AgentSession {
     let (program, args) = ("sh", vec!["-c", "printf 'ready\\n'; exec sleep 60"]);
     conversation.args = args.into_iter().map(str::to_owned).collect();
     let program = if running {
-        PathBuf::from(program)
+        devpulse_clyffy::providers::discovery::installed::on_path(program).unwrap()
     } else {
-        dir.join("must-not-launch")
+        let path = dir.join("must-not-launch");
+        std::fs::write(&path, "not an executable").unwrap();
+        path
     };
     AgentSession::start(
         &definition,

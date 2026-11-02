@@ -156,6 +156,10 @@ fn sample_providers() -> ProvidersState {
                 latest: Some("0.163.0".into()),
                 update_available: false,
                 signed_in: SignedIn::Yes,
+                availability: devpulse_engine::platform::providers::ProviderAvailability {
+                    test: devpulse_engine::platform::providers::ConnectionReadiness::ReadyToConnect,
+                    chat: devpulse_engine::platform::providers::ConnectionReadiness::ReadyToConnect,
+                },
                 sign_in_command: Some("codex login".into()),
                 install_source: Some("npm @openai/codex".into()),
                 installed_by_devpulse: false,

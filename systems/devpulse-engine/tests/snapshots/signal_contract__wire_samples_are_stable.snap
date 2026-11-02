@@ -200,6 +200,10 @@ expression: "serde_json::to_string_pretty(&samples).expect(\"samples render\")"
               "installConnector"
             ],
             "adapter": "acp_agent",
+            "availability": {
+              "chat": "readyToConnect",
+              "test": "readyToConnect"
+            },
             "connector": {
               "installed": true,
               "package": "@agentclientprotocol/codex-acp",

@@ -22,6 +22,7 @@
 
 // Kernel-owned provider definitions and HTTP operations exposed through the engine.
 pub use devpulse_clyffy::providers::adapters::models;
+pub use devpulse_clyffy::providers::credentials;
 pub use devpulse_clyffy::providers::registry::{by_capability, by_classification, find, PROVIDERS};
 pub use devpulse_clyffy::providers::types::{
     AgentProtocol, AiProvider, BillingModel, Capabilities, Classification, McpClient, ProviderId,

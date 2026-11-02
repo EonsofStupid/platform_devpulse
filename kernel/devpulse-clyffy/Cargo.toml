@@ -75,6 +75,8 @@ tokio-util = { workspace = true }
 anyhow = { workspace = true }
 thiserror = { workspace = true }
 futures = { workspace = true }
+# Explicit native stores: keyring 3 otherwise selects its nonpersistent mock.
+keyring = { version = "3", features = ["windows-native", "apple-native", "sync-secret-service", "crypto-rust", "vendored"] }
 
 # Persistence Layer
 base64 = "0.22"

@@ -249,6 +249,10 @@ pub struct YourAiCopy {
     pub signed_out: String,
     /// Sign-in state can't be told.
     pub signed_in_unknown: String,
+    /// Prerequisites are checked; a real operation still has to connect.
+    pub ready_to_connect: String,
+    /// This provider definition cannot hold a conversation.
+    pub conversation_unsupported: String,
     /// Button: update.
     pub update: String,
     /// While updating.

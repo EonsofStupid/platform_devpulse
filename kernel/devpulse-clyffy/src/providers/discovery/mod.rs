@@ -18,6 +18,7 @@ use super::catalog::Catalog;
 use super::connect::connector::{self, ConnectorReport};
 use super::definition::{AdapterKind, ProviderDefinition, ProviderKind};
 use super::install;
+use super::supervisor::{self, ProviderAvailability};
 use super::types::ProviderId;
 pub use signed_in::SignedIn;
 
@@ -50,6 +51,8 @@ pub struct ProviderReport {
     pub update_available: bool,
     /// Signed in, as far as can be told.
     pub signed_in: SignedIn,
+    /// Kernel-evaluated prerequisites; this is not proof of a live operation.
+    pub availability: ProviderAvailability,
     /// The vendor's own sign-in command as you would type it in a terminal
     /// (`claude auth login`); `None` when it has none or is not installed.
     pub sign_in_command: Option<String>,
@@ -134,6 +137,14 @@ async fn report_one(
         .connect
         .as_ref()
         .and_then(|c| c.connector.as_ref());
+    let connector =
+        connector_spec.map(|spec| connector::report(data_dir, definition.id.key(), spec));
+    let availability = supervisor::assess(
+        definition,
+        location.is_some(),
+        signed_in,
+        connector.as_ref().is_none_or(|c| c.installed),
+    );
 
     ProviderReport {
         id: definition.id,
@@ -148,6 +159,7 @@ async fn report_one(
         latest,
         update_available,
         signed_in,
+        availability,
         sign_in_command,
         install_source: install::source(definition),
         installed_by_devpulse,
@@ -161,8 +173,7 @@ async fn report_one(
         .into_iter()
         .filter_map(|(offered, action)| offered.then_some(action))
         .collect(),
-        connector: connector_spec
-            .map(|spec| connector::report(data_dir, definition.id.key(), spec)),
+        connector,
         problems,
     }
 }

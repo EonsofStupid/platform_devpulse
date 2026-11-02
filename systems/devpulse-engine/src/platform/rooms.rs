@@ -190,16 +190,10 @@ impl Rooms {
         let library = self.library();
         let seated = library::seat(&library, room_id, &seating).map_err(|i| refusal(&i))?;
         for place in &seated.places {
-            if !self.agents.installed(place.provider).await {
-                bail!("{}: {} is not installed", place.key(), place.agent_name());
-            }
-            if self.agents.signed_out(place.provider).await {
-                bail!(
-                    "{}: {} is not signed in — sign in from Settings → Your AI",
-                    place.key(),
-                    place.agent_name()
-                );
-            }
+            self.agents
+                .require_chat(place.provider)
+                .await
+                .with_context(|| format!("{}: {}", place.key(), place.agent_name()))?;
         }
         let session_id = format!("sess-{}", Uuid::new_v4());
         let title = seated.room.name.clone();

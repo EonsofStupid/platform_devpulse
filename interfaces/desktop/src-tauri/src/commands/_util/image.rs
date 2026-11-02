@@ -67,6 +67,7 @@ pub fn data_url(mime: &str, bytes: &[u8]) -> String {
 
 #[cfg(test)]
 mod tests {
+    #![allow(clippy::unwrap_used, reason = "test assertions")]
     use super::*;
 
     fn red_pixel() -> image::RgbaImage {

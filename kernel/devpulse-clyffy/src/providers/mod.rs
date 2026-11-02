@@ -18,6 +18,7 @@ pub mod actions;
 pub mod adapters;
 pub mod catalog;
 pub mod connect;
+pub mod credentials;
 pub mod definition;
 pub mod discovery;
 pub mod history;
@@ -25,6 +26,7 @@ pub mod install;
 pub mod npm;
 pub mod registry;
 pub mod session;
+pub mod supervisor;
 pub mod types;
 
 pub use actions::{ActionContext, ProviderAction, ProviderActionRun};

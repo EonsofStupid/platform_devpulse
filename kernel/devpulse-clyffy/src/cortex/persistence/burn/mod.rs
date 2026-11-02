@@ -146,6 +146,7 @@ static_assertions::assert_impl_all!(BurnEmbedder<EmbedderCudaBackend>: rrd::HotU
 #[allow(clippy::unwrap_used, clippy::expect_used)]
 mod tests {
     use super::*;
+    use burn::prelude::Device;
     use burn::tensor::{Int, Tensor, TensorData};
 
     // Tests pin the same backend as production boot: `NdArray<bf16>` via
@@ -171,7 +172,7 @@ mod tests {
 
     #[test]
     fn qwen3_forward_pass_shape_and_finiteness() {
-        let device = Default::default();
+        let device = Device::<B>::default();
         let cfg = tiny_config();
         let model = Qwen3Model::<B>::new(&cfg, &device);
 
@@ -179,7 +180,7 @@ mod tests {
         let seq = 8;
         // Token ids in [0, vocab_size); attention mask all-ones.
         let token_data: Vec<i64> = (0..(batch * seq))
-            .map(|i| (i % cfg.vocab_size) as i64)
+            .map(|i| i64::try_from(i % cfg.vocab_size).unwrap())
             .collect();
         let token_ids: Tensor<B, 2, Int> =
             Tensor::from_data(TensorData::new(token_data, [batch, seq]), &device);
@@ -198,7 +199,7 @@ mod tests {
 
     #[test]
     fn embedder_pooled_output_is_unit_normalized() {
-        let device = Default::default();
+        let device = Device::<B>::default();
         let mut emb_cfg = EmbedderConfig::new(tiny_config());
         emb_cfg.normalize = true;
         let model = BurnEmbedder::<B>::new(&emb_cfg, &device);
@@ -206,7 +207,7 @@ mod tests {
         let batch = 2;
         let seq = 5;
         let token_data: Vec<i64> = (0..(batch * seq))
-            .map(|i| (i % emb_cfg.model.vocab_size) as i64)
+            .map(|i| i64::try_from(i % emb_cfg.model.vocab_size).unwrap())
             .collect();
         let token_ids: Tensor<B, 2, Int> =
             Tensor::from_data(TensorData::new(token_data, [batch, seq]), &device);
@@ -237,7 +238,7 @@ mod tests {
     /// a future change to `forward_pooled` that breaks the pool dim).
     #[test]
     fn hot_updateable_validate_accepts_random_init() {
-        let device = Default::default();
+        let device = Device::<B>::default();
         let cfg = EmbedderConfig::new(tiny_config());
         let emb = BurnEmbedder::<B>::new(&cfg, &device);
         let snap = hot_update::BurnEmbedderSnapshot::wrap_for_test(emb);
@@ -265,16 +266,16 @@ mod tests {
     /// 2. `load_full()` after a swap returns the new `Arc` identity
     ///    (atomicity — no torn read where load returns half-old state).
     /// 3. The whole sequence compiles, which implicitly proves
-    ///    `BurnEmbedder<NdArray>: Send + Sync + 'static` (ArcSwap's
+    ///    `BurnEmbedder<NdArray>: Send + Sync + 'static` (`ArcSwap`'s
     ///    bounds on the inner type would reject otherwise).
     ///
-    /// HOT_UPDATE_PATTERN.md §12 verification target 3.
+    /// `HOT_UPDATE_PATTERN.md` §12 verification target 3.
     #[test]
     fn arcswap_round_trip_preserves_identity_through_swap() {
         use arc_swap::ArcSwap;
         use std::sync::Arc;
 
-        let device = Default::default();
+        let device = Device::<B>::default();
         let cfg = EmbedderConfig::new(tiny_config());
         let a = Arc::new(BurnEmbedder::<B>::new(&cfg, &device));
         let b = Arc::new(BurnEmbedder::<B>::new(&cfg, &device));
@@ -307,7 +308,7 @@ mod tests {
     /// state at the last unmasked position.
     #[test]
     fn last_token_pool_picks_correct_unmasked_position() {
-        let device = Default::default();
+        let device = Device::<B>::default();
 
         // Hidden: [batch=1, seq=4, hidden=3]. Each position has a
         // distinct signature so the pool's choice is unambiguous.

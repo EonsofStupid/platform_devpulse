@@ -21,7 +21,7 @@ fn burn_adapter_implements_cag_embedder_trait_and_reports_harrier_dimension() {
     // alias for `<B as Backend>::Device` in Burn 0.21+, picked because it
     // keeps the test agnostic to the concrete backend the cortex
     // abstraction selects (`Flex` today, `Cuda` / `Wgpu` tomorrow).
-    let device: Device<EmbedderCpuBackend> = Default::default();
+    let device = Device::<EmbedderCpuBackend>::default();
     let adapter: Arc<CortexBurnAdapter<EmbedderCpuBackend>> = Arc::new(CortexBurnAdapter::<
         EmbedderCpuBackend,
     >::harrier_0_6b(device));
