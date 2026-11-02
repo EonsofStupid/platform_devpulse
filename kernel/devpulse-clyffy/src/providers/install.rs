@@ -286,14 +286,24 @@ async fn download(client: &reqwest::Client, url: &str, path: &Path) -> Result<(S
     out.flush()
         .await
         .with_context(|| format!("write {}", path.display()))?;
-    Ok((format!("{:x}", hasher.finalize()), bytes))
+    Ok((hex::encode(hasher.finalize()), bytes))
 }
 
 fn sha256_file(path: &Path) -> Result<String> {
+    use std::io::Read;
     let mut file = std::fs::File::open(path).with_context(|| format!("read {}", path.display()))?;
     let mut hasher = Sha256::new();
-    std::io::copy(&mut file, &mut hasher).with_context(|| format!("read {}", path.display()))?;
-    Ok(format!("{:x}", hasher.finalize()))
+    let mut chunk = vec![0; 64 * 1024];
+    loop {
+        let read = file
+            .read(&mut chunk)
+            .with_context(|| format!("read {}", path.display()))?;
+        if read == 0 {
+            break;
+        }
+        hasher.update(&chunk[..read]);
+    }
+    Ok(hex::encode(hasher.finalize()))
 }
 
 /// A downloaded program needs its run permission on Unix (Windows runs an
@@ -434,7 +444,7 @@ mod tests {
         const BODY: &[u8] = b"the vendor's own build";
         let file = format!("claude{}", std::env::consts::EXE_SUFFIX);
 
-        let good = format!("{:x}", Sha256::digest(BODY));
+        let good = hex::encode(Sha256::digest(BODY));
         let (base, server) = release_server(BODY, &good);
         let data = temp("release-ok");
         let fetched = fetch_release(&dir(&data, "claude-code"), &spec(&base), &file)

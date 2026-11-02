@@ -283,7 +283,10 @@ async fn get_loader_typed(
 #[specta::specta]
 pub async fn get_hardware_metrics(state: State<'_, PlatformState>) -> Result<HardwareInfo, String> {
     let loader = get_loader(&state).await?;
-    let m = loader.hardware_metrics().await;
+    let m = loader
+        .hardware_metrics()
+        .await
+        .map_err(|error| error.to_string())?;
 
     // Derive model_dir from platform data_dir — P0: lock-free atomic load.
     let model_dir = state
@@ -456,7 +459,10 @@ pub struct SlotBudgetEntryInfo {
 #[specta::specta]
 pub async fn get_vram_budget(state: State<'_, PlatformState>) -> Result<VramBudgetInfo, String> {
     let loader = get_loader(&state).await?;
-    let budget = loader.vram_budget_plan().await;
+    let budget = loader
+        .vram_budget_plan()
+        .await
+        .map_err(|error| error.to_string())?;
     Ok(VramBudgetInfo {
         total_vram_mb: budget.total_vram_mb,
         currently_used_mb: budget.currently_used_mb,
@@ -1563,7 +1569,10 @@ pub async fn search_huggingface(
 #[specta::specta]
 pub async fn auto_configure(state: State<'_, PlatformState>) -> Result<String, String> {
     let loader = get_loader(&state).await?;
-    let config = loader.auto_configure().await;
+    let config = loader
+        .auto_configure()
+        .await
+        .map_err(|error| error.to_string())?;
     serde_json::to_string(&config).map_err(|e| e.to_string())
 }
 
@@ -1645,7 +1654,10 @@ pub async fn get_tier_display(
     state: State<'_, PlatformState>,
 ) -> Result<devpulse_engine::platform::services::model_loader::TierDisplay, String> {
     let loader = get_loader(&state).await?;
-    let config = loader.auto_configure().await;
+    let config = loader
+        .auto_configure()
+        .await
+        .map_err(|error| error.to_string())?;
     Ok(config.tier.display())
 }
 

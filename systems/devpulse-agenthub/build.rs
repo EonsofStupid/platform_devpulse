@@ -19,7 +19,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     ] {
         hash(Path::new(source), &mut digest)?;
     }
-    println!("cargo:rustc-env=AGENTHUB_BUILD={:x}", digest.finalize());
+    println!(
+        "cargo:rustc-env=AGENTHUB_BUILD={}",
+        hex::encode(digest.finalize())
+    );
     Ok(())
 }
 

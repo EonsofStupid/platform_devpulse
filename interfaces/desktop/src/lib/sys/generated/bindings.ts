@@ -1832,7 +1832,7 @@ async sherpaModelsDir() : Promise<Result<string, string>> {
 }
 },
 /**
- * Get current MCP integration status.
+ * Get current MCP integration status and the SDK-advertised protocol version.
  * 
  * Always succeeds — installs that fail to detect surface their error
  * in `installs.<target>.read_error` rather than failing the call. The
@@ -6264,11 +6264,10 @@ configExists: boolean;
  */
 devpulseRegistered: boolean; 
 /**
- * `true` when a long-lived process for this target is detected on the
- * system right now. Claude Code is a CLI, so this is always `false`
- * for the `code` target — the devtool should hide it accordingly.
+ * Whether a matching process is detected right now. `None` means the
+ * process probe failed; this must not be presented as "not running".
  */
-processRunning: boolean; 
+processRunning: boolean | null; 
 /**
  * Read error surfaced verbatim (corrupt JSON, IO failure). `None` on
  * success or when the file simply doesn't exist yet.
@@ -6278,6 +6277,10 @@ readError: string | null }
  * Both Claude install slots — what the devtool renders side-by-side.
  */
 export type ClaudeInstalls = { 
+/**
+ * Why process status is unavailable. Config detection remains independent.
+ */
+processError: string | null; 
 /**
  * Claude Code CLI — `~/.claude/settings.json`.
  */
@@ -8732,6 +8735,19 @@ process_ram_mb: number;
  * VRAM consumed by this process in MB.
  */
 process_vram_mb: number }
+/**
+ * Latest collection outcome. A failed sample replaces old values so clients
+ * cannot mistake a stale measurement for current hardware availability.
+ */
+export type HardwareSnapshot = 
+/**
+ * The operating system supplied a fresh measurement.
+ */
+{ status: "available"; metrics: HardwareMetrics } | 
+/**
+ * Collection failed; no measurement is current.
+ */
+{ status: "unavailable"; error: string }
 /**
  * Health status enum.
  */
@@ -13330,7 +13346,7 @@ export type SignalVariant =
 /**
  * Hardware snapshot (CPU / RAM / GPU / VRAM).
  */
-{ type: "hardware"; data: HardwareMetrics } | 
+{ type: "hardware"; data: HardwareSnapshot } | 
 /**
  * Models readiness (decides whether setup opens).
  */

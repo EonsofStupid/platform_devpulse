@@ -74,7 +74,7 @@ rrd = { path = "../../kernel/rrd" }
 
 # HTTP server (SurrealDB endpoint on :8822, MCP SSE on :9315)
 axum = "0.8"
-base64 = "0.22"
+base64 = { workspace = true }
 async-stream = "0.3"
 futures-core = "0.3"
 futures = { workspace = true }
@@ -83,13 +83,13 @@ futures = { workspace = true }
 # Figment owns the new per-module config loader (platform/config/loader.rs).
 # Bare `toml` stays until the legacy monolith (platform/config.rs) retires.
 figment = { version = "0.10", features = ["toml", "env"] }
-toml = "0.8"
+toml = { workspace = true }
 
 # Process metrics (real RSS, CPU — no faking)
-sysinfo = "0.33"
+sysinfo = { workspace = true }
 
 # Sync→async channel bridge (audio command queue)
-flume = "0.11"
+flume = { workspace = true }
 
 # Infra — telemetry primitives (Envelope<T>, spawn, channels, OTel SDK)
 devpulse-telemetry = { workspace = true }
@@ -97,23 +97,23 @@ devpulse-telemetry = { workspace = true }
 devpulse-process = { workspace = true }
 
 # MCP Server — official Rust SDK for Model Context Protocol
-rmcp = { version = "1.5", features = ["server", "macros", "transport-io"] }
+rmcp = { version = "3.8.0", features = ["server", "macros", "transport-io"] }
 # One schemars for the whole engine — the version rmcp's tool schemas use.
 # Forms derive `JsonSchema` from the same types they validate (plan 0001 A2).
 schemars = "1.2"
 # Validates form submissions against the schema schemars generates. No
 # default features: schemas are local, never fetched over the network.
-jsonschema = { version = "0.58", default-features = false }
+jsonschema = { workspace = true }
 # Lines of code per language for the repositories first run finds.
 tokei = "15"
 
 # DevForge (VS Code REH) — port allocation + token generation
 portpicker = "0.1"
-rand = "0.8"
+rand = { workspace = true }
 
 # Ollama sidecar HTTP client — matches kernel/model-loader's reqwest config
-# (rustls-tls avoids a system OpenSSL dep on Windows/Linux release builds).
-reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+# (rustls avoids a system OpenSSL dep on Windows/Linux release builds).
+reqwest = { workspace = true }
 
 # Sherpa streaming ASR (next-gen Kaldi / onnxruntime). Optional — the
 # crate's build script downloads ~100 MB of prebuilt native binaries,
@@ -134,7 +134,7 @@ rodio = "0.19"
 burn = { workspace = true, optional = true }
 
 [build-dependencies]
-toml = "0.8"
+toml = { workspace = true }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 

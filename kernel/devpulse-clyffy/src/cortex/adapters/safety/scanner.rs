@@ -10,6 +10,8 @@ use streaming_iterator::StreamingIterator;
 use tree_sitter::{Parser, Query, QueryCursor};
 
 use super::language::LangId;
+#[cfg(feature = "guardian")]
+use super::patterns::patterns_for_lang;
 
 /// A single finding from an AST scan.
 #[derive(Debug, Clone)]
@@ -79,8 +81,8 @@ pub fn scan_source(lang: LangId, source: &str) -> anyhow::Result<ScanResult> {
                 while let Some(qmatch) = matches.next() {
                     // Use the @match capture if present, otherwise the first capture.
                     let capture = match match_idx {
-                        Some(idx) => qmatch.captures.iter().find(|c| c.index as usize == idx),
-                        None => qmatch.captures.first(),
+                        Some(idx) => qmatch.captures().iter().find(|c| c.index as usize == idx),
+                        None => qmatch.captures().first(),
                     };
 
                     if let Some(cap) = capture {
@@ -128,9 +130,8 @@ pub fn scan_source(lang: LangId, source: &str) -> anyhow::Result<ScanResult> {
 pub fn scan_file(path: &std::path::Path) -> anyhow::Result<Option<ScanResult>> {
     let ext = path.extension().and_then(|e| e.to_str()).unwrap_or("");
 
-    let lang = match super::language::lang_from_extension(ext) {
-        Some(l) => l,
-        None => return Ok(None),
+    let Some(lang) = super::language::lang_from_extension(ext) else {
+        return Ok(None);
     };
 
     let source = std::fs::read_to_string(path)?;
@@ -155,4 +156,39 @@ pub fn scan_files(
         }
     }
     results
+}
+
+#[cfg(all(test, feature = "guardian"))]
+#[allow(
+    clippy::expect_used,
+    reason = "invalid bundled queries must fail the test"
+)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn every_bundled_query_compiles_with_its_current_grammar() {
+        for lang in LangId::ALL {
+            for pattern in patterns_for_lang(*lang) {
+                Query::new(&lang.grammar(), pattern.query)
+                    .unwrap_or_else(|error| panic!("{} / {}: {error}", lang.name(), pattern.id));
+            }
+        }
+    }
+
+    #[test]
+    fn rust_scan_preserves_captured_source_locations() {
+        let source = "fn main() { let value = Some(1).unwrap(); }";
+        let result = scan_source(LangId::Rust, source).expect("scan");
+        let finding = result
+            .findings
+            .iter()
+            .find(|f| f.pattern_id == "G018-RUST-001")
+            .expect("unwrap finding");
+        assert_eq!(
+            &source[finding.start_byte..finding.end_byte],
+            "Some(1).unwrap()"
+        );
+        assert_eq!(finding.matched_text, "Some(1).unwrap()");
+    }
 }

@@ -22,7 +22,7 @@ devpulse-telemetry = { workspace = true }
 
 [target.'cfg(windows)'.dependencies]
 # The kill-on-close Job Object (job.rs), the same version xtask uses.
-windows-sys = { version = "0.59", features = [
+windows-sys = { workspace = true, features = [
     "Win32_System_JobObjects",
     "Win32_Foundation",
     "Win32_Security",

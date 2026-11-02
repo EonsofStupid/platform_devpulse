@@ -11,7 +11,7 @@ pub use auto_config::{
     detect_tier, list_all_presets,
 };
 pub use lanes::{LaneAllocation, LaneBudget, LaneCapacity, LaneKind, LaneStatus};
-pub use metrics::{HardwareMetrics, HardwareMonitor, collect_hardware};
+pub use metrics::{HardwareMetrics, HardwareMonitor, HardwareSnapshot, collect_hardware};
 pub use presets::{
     PresetBlueprint, PresetsError, ResolvedRec, config_for_tier as config_for_tier_from_toml,
     load_default_presets,

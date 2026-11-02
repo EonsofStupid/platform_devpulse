@@ -241,7 +241,8 @@ fn reh_child_rss_bytes(pid: u32) -> Option<u64> {
     let target = Pid::from_u32(pid);
     let mut sys = System::new_with_specifics(
         RefreshKind::nothing().with_processes(ProcessRefreshKind::nothing().with_memory()),
-    );
+    )
+    .ok()?;
     sys.refresh_processes_specifics(
         ProcessesToUpdate::Some(&[target]),
         true,

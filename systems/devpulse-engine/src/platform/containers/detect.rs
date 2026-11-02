@@ -206,14 +206,14 @@ pub struct ContainersReport {
 /// Ask every engine and the host, concurrently.
 ///
 /// # Errors
-/// Only if the bundled engine list is broken.
+/// If the bundled engine list is broken or the host cannot report its hardware.
 pub async fn detect(data_dir: &Path) -> Result<ContainersReport> {
     let (engines, list_problem) = load_engines(data_dir)?;
     let engine_reports = futures::future::join_all(engines.iter().map(ask_engine));
     let (engines, host) = tokio::join!(engine_reports, ask_host());
     Ok(ContainersReport {
         engines,
-        host,
+        host: host?,
         list_problem,
         checked_at: std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
@@ -355,9 +355,9 @@ pub fn parse_machines(stdout: &str) -> Vec<MachineReport> {
         .collect()
 }
 
-async fn ask_host() -> HostReport {
+async fn ask_host() -> Result<HostReport> {
     let os = std::env::consts::OS.to_owned();
-    let mut system = sysinfo::System::new();
+    let mut system = sysinfo::System::new().context("Could not read host memory")?;
     system.refresh_memory();
     let ram_total_mb = system.total_memory() / (1024 * 1024);
     let cpu_cores = std::thread::available_parallelism()
@@ -375,19 +375,20 @@ async fn ask_host() -> HostReport {
             }
         }
     );
-    HostReport {
+    Ok(HostReport {
         os,
         arch: std::env::consts::ARCH.to_owned(),
-        os_version: sysinfo::System::long_os_version(),
+        os_version: sysinfo::System::long_os_version().ok(),
         // Windows' kernel version is its build number ("26200").
         os_build: sysinfo::System::kernel_version()
+            .ok()
             .and_then(|v| v.split('.').next().and_then(|n| n.parse().ok())),
         ram_total_mb,
         cpu_cores,
         nvidia_gpus,
         wsl,
         virtualization,
-    }
+    })
 }
 
 async fn ask_nvidia() -> Vec<String> {

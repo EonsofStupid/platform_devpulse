@@ -4,7 +4,7 @@
 //! loading, VRAM, hardware, and slot assignment. Consumers wire these into
 //! their own persistence, UI, or logging systems.
 
-use crate::hardware::metrics::HardwareMetrics;
+use crate::hardware::metrics::HardwareSnapshot;
 use crate::loading::states::{LoadingStage, MemoryFootprint};
 use crate::models::registry::ModelRegistryEntry;
 use serde::{Deserialize, Serialize};
@@ -210,7 +210,7 @@ pub enum LoaderEvent {
 
     // ── Hardware ───────────────────────────────────────────
     /// Hardware metrics updated (emitted on poll).
-    HardwareMetricsUpdated(HardwareMetrics),
+    HardwareMetricsUpdated(HardwareSnapshot),
 
     // ── Slot ───────────────────────────────────────────────
     /// A model was assigned to a slot.

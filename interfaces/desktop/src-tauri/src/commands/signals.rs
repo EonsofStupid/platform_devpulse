@@ -180,7 +180,7 @@ pub fn set_signal_interest(
 
 #[cfg(test)]
 mod tests {
-    use devpulse_engine::platform::HardwareMetrics;
+    use devpulse_engine::platform::{HardwareMetrics, HardwareSnapshot};
     use devpulse_engine::signals::{SystemPayload, SystemStatus};
 
     use super::*;
@@ -188,16 +188,20 @@ mod tests {
     fn hardware(cores: usize) -> Signal {
         Signal::new(
             SignalSource::System,
-            SignalVariant::Hardware(HardwareMetrics {
-                cpu_cores: cores,
-                ..HardwareMetrics::default()
+            SignalVariant::Hardware(HardwareSnapshot::Available {
+                metrics: HardwareMetrics {
+                    cpu_cores: cores,
+                    ..HardwareMetrics::default()
+                },
             }),
         )
     }
 
     fn cores(signal: &Signal) -> Option<usize> {
         match signal.payload.as_ref() {
-            SignalVariant::Hardware(metrics) => Some(metrics.cpu_cores),
+            SignalVariant::Hardware(HardwareSnapshot::Available { metrics }) => {
+                Some(metrics.cpu_cores)
+            }
             _ => None,
         }
     }

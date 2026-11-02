@@ -1,5 +1,6 @@
 ---
 source: systems/devpulse-engine/tests/signal_contract.rs
+assertion_line: 291
 expression: ts
 ---
 /**
@@ -33,7 +34,7 @@ export type SignalVariant =
 /**
  * Hardware snapshot (CPU / RAM / GPU / VRAM).
  */
-{ type: "hardware"; data: HardwareMetrics } | 
+{ type: "hardware"; data: HardwareSnapshot } | 
 /**
  * Models readiness (decides whether setup opens).
  */

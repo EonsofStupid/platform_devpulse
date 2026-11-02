@@ -79,8 +79,8 @@ pub use loading::{LoadParams, LoadingStage, MemoryFootprint, ModelStatus, SlotSt
 
 // Hardware types
 pub use hardware::{
-    AutoConfig, BrainSwapPolicy, HardwareMetrics, HardwareMonitor, HardwareTier, LaneAllocation,
-    LaneBudget, LaneCapacity, LaneKind, LaneStatus, PresetBlueprint, PresetsError,
+    AutoConfig, BrainSwapPolicy, HardwareMetrics, HardwareMonitor, HardwareSnapshot, HardwareTier,
+    LaneAllocation, LaneBudget, LaneCapacity, LaneKind, LaneStatus, PresetBlueprint, PresetsError,
     SlotRecommendation, VramBudget, load_default_presets,
 };
 

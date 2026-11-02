@@ -36,7 +36,6 @@ use crate::platform::config::DevForgeServiceEntry;
 use crate::platform::facade::events::InternalEvent;
 use anyhow::{Context, Result, anyhow};
 use devpulse_telemetry::prelude::BroadcastSender;
-use rand::Rng;
 use std::path::{Path, PathBuf};
 use std::sync::Mutex;
 use std::time::Duration;
@@ -354,7 +353,7 @@ fn resolve_node(server_dir: &Path) -> Result<PathBuf> {
 /// Generate a 32-character hex token from 16 random bytes.
 fn generate_token() -> String {
     let mut bytes = [0u8; 16];
-    rand::thread_rng().fill(&mut bytes);
+    rand::fill(&mut bytes);
     let mut s = String::with_capacity(32);
     for b in bytes {
         use std::fmt::Write as _;

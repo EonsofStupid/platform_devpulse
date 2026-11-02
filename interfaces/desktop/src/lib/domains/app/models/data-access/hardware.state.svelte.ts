@@ -59,6 +59,8 @@ class HardwareState {
 	private off: (() => void) | null = null;
 	private offBoot: (() => void) | null = null;
 	private refreshing: Promise<void> | null = null;
+	private sampleRevision = 0;
+	private ready = false;
 
 	/**
 	 * Subscribe to live hardware metrics. Returns a teardown fn that
@@ -68,14 +70,22 @@ class HardwareState {
 	subscribe(reason: string): () => void {
 		this.refCount += 1;
 		if (this.refCount === 1) {
-			this.off = signalFabric.on("hardware", (metrics) => {
-				this.apply(metrics);
+			this.off = signalFabric.on("hardware", (snapshot) => {
+				this.sampleRevision += 1;
+				if (snapshot.status === "available") {
+					this.apply(snapshot.metrics);
+					this.error = null;
+					if (this.ready && !this.metrics) void this.refresh("measurements recovered");
+				} else {
+					this.unavailable(snapshot.error);
+				}
 			});
 			logDebug("hardwareState", `attached (reason: ${reason})`);
 			// The full snapshot needs the platform: read it once boot is ready
 			// (the fabric replays boot's current phase to a late subscriber).
 			this.offBoot = signalFabric.on("boot", (status) => {
-				if (status.phase === "ready" && !this.metrics) void this.refresh(`subscribe:${reason}`);
+				this.ready = status.phase === "ready";
+				if (this.ready && !this.metrics) void this.refresh(`subscribe:${reason}`);
 			});
 		}
 		return () => {
@@ -85,6 +95,7 @@ class HardwareState {
 				this.off = null;
 				this.offBoot?.();
 				this.offBoot = null;
+				this.ready = false;
 				logDebug("hardwareState", "detached (refs: 0)");
 			}
 		};
@@ -97,12 +108,16 @@ class HardwareState {
 	async refresh(reason = "manual"): Promise<void> {
 		if (this.refreshing) return this.refreshing;
 		this.loading = true;
+		const revision = this.sampleRevision;
 		this.refreshing = (async () => {
 			try {
 				const metrics = await fetchHardwareMetrics();
+				if (revision !== this.sampleRevision) return;
 				this.metrics = metrics;
 				this.apply(metrics);
 				const config = await commands.autoConfigure();
+				if (revision !== this.sampleRevision) return;
+				if (config.status === "error") throw new Error(config.error);
 				if (config.status === "ok") {
 					const parsed: { tier?: HardwareTier } = JSON.parse(config.data);
 					this.tier = parsed.tier ?? null;
@@ -110,7 +125,8 @@ class HardwareState {
 				this.error = null;
 				logInfo("hardwareState", `refreshed (reason: ${reason}) — tier=${this.tier ?? "unknown"}`);
 			} catch (e) {
-				this.error = e instanceof Error ? e.message : String(e);
+				if (revision !== this.sampleRevision) return;
+				this.unavailable(e instanceof Error ? e.message : String(e));
 				logError("hardwareState", `refresh failed (reason: ${reason}): ${this.error}`);
 			} finally {
 				this.loading = false;
@@ -152,7 +168,24 @@ class HardwareState {
 		);
 	}
 
+	private unavailable(error: string): void {
+		this.error = error;
+		this.metrics = null;
+		this.tier = null;
+		this.cpuUsagePercent = null;
+		this.ramUsedMb = null;
+		this.ramTotalMb = null;
+		this.gpuName = null;
+		this.gpuUtilPercent = null;
+		this.gpuTempC = null;
+		this.vramUsedMb = null;
+		this.vramTotalMb = null;
+		this.hasGpu = false;
+		this.gpuError = null;
+	}
+
 	private apply(m: HardwareMetrics): void {
+		if (this.metrics) this.metrics = { ...this.metrics, ...m };
 		this.cpuUsagePercent = m.cpu_usage_percent;
 		this.ramUsedMb = m.ram_used_mb;
 		this.ramTotalMb = m.ram_total_mb;

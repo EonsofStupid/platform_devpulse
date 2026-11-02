@@ -83,7 +83,7 @@ pub fn find_references(lang: LangId, source: &str, symbol: &str) -> anyhow::Resu
         let mut cursor = QueryCursor::new();
         let mut matches = cursor.matches(&query, root, source.as_bytes());
         while let Some(qmatch) = matches.next() {
-            for capture in qmatch.captures {
+            for capture in qmatch.captures() {
                 let node = capture.node;
                 let text = source
                     .get(node.start_byte()..node.end_byte())
@@ -104,26 +104,24 @@ pub fn find_references(lang: LangId, source: &str, symbol: &str) -> anyhow::Resu
 
     // Also search string literals for the symbol name (dynamic refs).
     let string_query_src = string_literal_query(lang, symbol);
-    if let Some(sq) = string_query_src {
-        if let Ok(query) = Query::new(&grammar, &sq) {
-            let mut cursor = QueryCursor::new();
-            let mut matches = cursor.matches(&query, root, source.as_bytes());
-            while let Some(qmatch) = matches.next() {
-                for capture in qmatch.captures {
-                    let node = capture.node;
-                    let text = source
-                        .get(node.start_byte()..node.end_byte())
-                        .unwrap_or("")
-                        .to_string();
-                    let start = node.start_position();
+    if let Ok(query) = Query::new(&grammar, &string_query_src) {
+        let mut cursor = QueryCursor::new();
+        let mut matches = cursor.matches(&query, root, source.as_bytes());
+        while let Some(qmatch) = matches.next() {
+            for capture in qmatch.captures() {
+                let node = capture.node;
+                let text = source
+                    .get(node.start_byte()..node.end_byte())
+                    .unwrap_or("")
+                    .to_string();
+                let start = node.start_position();
 
-                    refs.push(SymbolRef {
-                        kind: RefKind::StringLiteral,
-                        line: start.row,
-                        column: start.column,
-                        text,
-                    });
-                }
+                refs.push(SymbolRef {
+                    kind: RefKind::StringLiteral,
+                    line: start.row,
+                    column: start.column,
+                    text,
+                });
             }
         }
     }
@@ -134,7 +132,7 @@ pub fn find_references(lang: LangId, source: &str, symbol: &str) -> anyhow::Resu
 /// Classify a node's reference kind based on its parent in the AST.
 #[cfg(feature = "guardian")]
 fn classify_ref(node: tree_sitter::Node<'_>) -> RefKind {
-    let parent_kind = node.parent().map(|p| p.kind()).unwrap_or("");
+    let parent_kind = node.parent().map_or("", |p| p.kind());
 
     match parent_kind {
         "call_expression" | "macro_invocation" | "method_invocation" => RefKind::Call,
@@ -221,22 +219,18 @@ fn c_identifier_query(symbol: &str) -> String {
 }
 
 /// Build a query for string literals containing the symbol name.
-/// Returns `None` if the language's string node type isn't handled.
 #[cfg(feature = "guardian")]
-fn string_literal_query(lang: LangId, symbol: &str) -> Option<String> {
+fn string_literal_query(lang: LangId, symbol: &str) -> String {
     let node_type = match lang {
-        LangId::Rust => "string_literal",
-        LangId::TypeScript | LangId::JavaScript => "string",
-        LangId::Python => "string",
+        LangId::Rust | LangId::Java | LangId::C => "string_literal",
+        LangId::TypeScript | LangId::JavaScript | LangId::Python => "string",
         LangId::Go => "interpreted_string_literal",
-        LangId::Java => "string_literal",
-        LangId::C => "string_literal",
     };
 
-    Some(format!(
+    format!(
         r#"
             ({node_type}) @str
             (#match? @str "{symbol}")
         "#
-    ))
+    )
 }

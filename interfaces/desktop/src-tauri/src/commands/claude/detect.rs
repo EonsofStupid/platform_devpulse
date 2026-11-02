@@ -29,10 +29,9 @@ pub struct ClaudeInstall {
     pub config_exists: bool,
     /// `true` when `mcpServers.devpulse` is present in the config.
     pub devpulse_registered: bool,
-    /// `true` when a long-lived process for this target is detected on the
-    /// system right now. Claude Code is a CLI, so this is always `false`
-    /// for the `code` target — the devtool should hide it accordingly.
-    pub process_running: bool,
+    /// Whether a matching process is detected right now. `None` means the
+    /// process probe failed; this must not be presented as "not running".
+    pub process_running: Option<bool>,
     /// Read error surfaced verbatim (corrupt JSON, IO failure). `None` on
     /// success or when the file simply doesn't exist yet.
     pub read_error: Option<String>,
@@ -42,6 +41,8 @@ pub struct ClaudeInstall {
 #[derive(Debug, Clone, Serialize, Type, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct ClaudeInstalls {
+    /// Why process status is unavailable. Config detection remains independent.
+    pub process_error: Option<String>,
     /// Claude Code CLI — `~/.claude/settings.json`.
     pub code: ClaudeInstall,
     /// Claude Desktop native app — platform-specific config dir.
@@ -57,10 +58,11 @@ pub fn detect_all() -> ClaudeInstalls {
     ClaudeInstalls {
         code: detect_code(&processes),
         desktop: detect_desktop(&processes),
+        process_error: processes.err(),
     }
 }
 
-fn detect_code(processes: &RunningProcesses) -> ClaudeInstall {
+fn detect_code(processes: &Result<RunningProcesses, String>) -> ClaudeInstall {
     let Some(path) = paths::claude_code_settings() else {
         return ClaudeInstall {
             config_path: String::new(),
@@ -81,12 +83,12 @@ fn detect_code(processes: &RunningProcesses) -> ClaudeInstall {
         config_path,
         config_exists,
         devpulse_registered,
-        process_running: processes.claude_code,
+        process_running: processes.as_ref().ok().map(|p| p.claude_code),
         read_error,
     }
 }
 
-fn detect_desktop(processes: &RunningProcesses) -> ClaudeInstall {
+fn detect_desktop(processes: &Result<RunningProcesses, String>) -> ClaudeInstall {
     let Some(path) = paths::claude_desktop_config() else {
         return ClaudeInstall {
             config_path: String::new(),
@@ -107,7 +109,7 @@ fn detect_desktop(processes: &RunningProcesses) -> ClaudeInstall {
         config_path,
         config_exists,
         devpulse_registered,
-        process_running: processes.claude_desktop,
+        process_running: processes.as_ref().ok().map(|p| p.claude_desktop),
         read_error,
     }
 }
@@ -152,8 +154,9 @@ struct RunningProcesses {
 ///   often spawned via Node — too noisy to detect reliably)
 /// - macOS: `Claude` (Desktop)
 /// - Linux: `claude-desktop` (Desktop, `AppImage` / Flatpak)
-fn running_processes() -> RunningProcesses {
-    let mut sys = System::new();
+fn running_processes() -> Result<RunningProcesses, String> {
+    let mut sys =
+        System::new().map_err(|error| format!("Could not read running processes: {error}"))?;
     sys.refresh_processes(ProcessesToUpdate::All, true);
 
     let mut found = RunningProcesses::default();
@@ -173,7 +176,7 @@ fn running_processes() -> RunningProcesses {
             break;
         }
     }
-    found
+    Ok(found)
 }
 
 fn is_claude_desktop_proc(name: &str) -> bool {

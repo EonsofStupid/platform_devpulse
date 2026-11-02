@@ -1,5 +1,24 @@
 //! Hardware metrics — CPU, RAM, GPU, VRAM detection and polling.
 
+use crate::traits::errors::LoaderError;
+
+/// Latest collection outcome. A failed sample replaces old values so clients
+/// cannot mistake a stale measurement for current hardware availability.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
+#[serde(tag = "status", rename_all = "snake_case")]
+pub enum HardwareSnapshot {
+    /// The operating system supplied a fresh measurement.
+    Available {
+        /// Current OS and GPU measurements.
+        metrics: HardwareMetrics,
+    },
+    /// Collection failed; no measurement is current.
+    Unavailable {
+        /// Collection failure suitable for diagnostics.
+        error: String,
+    },
+}
 use serde::{Deserialize, Serialize};
 #[cfg(windows)]
 use std::process::Command;
@@ -236,15 +255,21 @@ fn apply_windows_gpu_fallback(_metrics: &mut HardwareMetrics) {}
 /// Collects hardware metrics using `sysinfo` (CPU/RAM) and optionally NVML (GPU).
 ///
 /// This is a sync operation — call from `spawn_blocking` if in async context.
+///
+/// # Errors
+/// Returns an error when the OS cannot initialize measurements or find this process.
 #[allow(clippy::cast_possible_truncation)]
-pub fn collect_hardware() -> HardwareMetrics {
+pub fn collect_hardware() -> Result<HardwareMetrics, LoaderError> {
     use sysinfo::{CpuRefreshKind, MemoryRefreshKind, Pid, RefreshKind, System};
 
     let mut sys = System::new_with_specifics(
         RefreshKind::nothing()
             .with_cpu(CpuRefreshKind::everything())
             .with_memory(MemoryRefreshKind::everything()),
-    );
+    )
+    .map_err(|error| LoaderError::Internal {
+        message: format!("Hardware measurements unavailable: {error}"),
+    })?;
 
     sys.refresh_memory();
     sys.refresh_cpu_all();
@@ -267,7 +292,13 @@ pub fn collect_hardware() -> HardwareMetrics {
     let filter = sysinfo::ProcessesToUpdate::Some(&[pid]);
     sys.refresh_processes(filter, true);
 
-    let process_ram_mb = sys.process(pid).map_or(0, |p| p.memory() / (1024 * 1024));
+    let process_ram_mb = sys
+        .process(pid)
+        .ok_or_else(|| LoaderError::Internal {
+            message: "The operating system did not report this process's memory".into(),
+        })?
+        .memory()
+        / (1024 * 1024);
 
     #[allow(unused_mut)]
     let mut metrics = HardwareMetrics {
@@ -289,7 +320,7 @@ pub fn collect_hardware() -> HardwareMetrics {
 
     apply_windows_gpu_fallback(&mut metrics);
 
-    metrics
+    Ok(metrics)
 }
 
 #[cfg(feature = "nvml")]
@@ -360,7 +391,7 @@ fn collect_gpu_metrics(metrics: &mut HardwareMetrics) {
 /// (which sleeps 200ms for CPU accuracy) on every UI frame.
 pub struct HardwareMonitor {
     /// Last collected metrics.
-    last_metrics: HardwareMetrics,
+    last_metrics: Result<HardwareMetrics, String>,
     /// When the last collection happened.
     last_collected: std::time::Instant,
     /// Minimum interval between collections (prevents thrashing).
@@ -372,7 +403,7 @@ impl HardwareMonitor {
     #[must_use]
     pub fn new() -> Self {
         Self {
-            last_metrics: collect_hardware(),
+            last_metrics: collect_hardware().map_err(|error| error.to_string()),
             last_collected: std::time::Instant::now(),
             min_interval: std::time::Duration::from_secs(2),
         }
@@ -382,32 +413,56 @@ impl HardwareMonitor {
     #[must_use]
     pub fn with_interval(interval: std::time::Duration) -> Self {
         Self {
-            last_metrics: collect_hardware(),
+            last_metrics: collect_hardware().map_err(|error| error.to_string()),
             last_collected: std::time::Instant::now(),
             min_interval: interval,
         }
     }
 
     /// Get the latest metrics. Refreshes if the minimum interval has elapsed.
-    pub fn metrics(&mut self) -> &HardwareMetrics {
+    ///
+    /// # Errors
+    /// Returns the latest collection failure; never substitutes empty metrics.
+    pub fn metrics(&mut self) -> Result<&HardwareMetrics, LoaderError> {
         if self.last_collected.elapsed() >= self.min_interval {
-            self.refresh();
+            self.refresh()?;
         }
-        &self.last_metrics
+        self.cached()
     }
 
     /// Force a refresh regardless of interval.
-    pub fn refresh(&mut self) -> &HardwareMetrics {
-        self.last_metrics = collect_hardware();
+    ///
+    /// # Errors
+    /// Returns the OS collection failure and caches it for other consumers.
+    pub fn refresh(&mut self) -> Result<&HardwareMetrics, LoaderError> {
+        self.record(collect_hardware())
+    }
+
+    /// Publish a completed collection. Shared monitors collect outside their
+    /// write lock so cached reads never wait for the CPU sampling interval.
+    ///
+    /// # Errors
+    /// Returns and caches a failed collection, replacing the previous sample.
+    pub fn record(
+        &mut self,
+        sample: Result<HardwareMetrics, LoaderError>,
+    ) -> Result<&HardwareMetrics, LoaderError> {
+        self.last_metrics = sample.map_err(|error| error.to_string());
         self.last_collected = std::time::Instant::now();
-        &self.last_metrics
+        self.cached()
     }
 
     /// Get the cached metrics without checking the interval.
-    /// Use when you need the last known values without blocking.
-    #[must_use]
-    pub fn cached(&self) -> &HardwareMetrics {
-        &self.last_metrics
+    /// Use when you need the latest outcome without collecting again.
+    ///
+    /// # Errors
+    /// Returns the latest collection failure, including a failed initial sample.
+    pub fn cached(&self) -> Result<&HardwareMetrics, LoaderError> {
+        self.last_metrics
+            .as_ref()
+            .map_err(|message| LoaderError::Internal {
+                message: message.clone(),
+            })
     }
 
     /// Set the minimum polling interval.
@@ -440,5 +495,35 @@ impl HardwareMonitor {
 impl Default for HardwareMonitor {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn failed_sample_remains_an_error_for_cached_and_throttled_readers() {
+        let mut monitor = HardwareMonitor {
+            last_metrics: Ok(HardwareMetrics {
+                cpu_cores: 8,
+                ..HardwareMetrics::default()
+            }),
+            last_collected: std::time::Instant::now(),
+            min_interval: std::time::Duration::from_secs(60),
+        };
+        assert!(
+            monitor
+                .record(Err(LoaderError::Internal {
+                    message: "OS counters unavailable".into()
+                }))
+                .is_err()
+        );
+        assert!(
+            matches!(monitor.cached(), Err(LoaderError::Internal { message }) if message == "OS counters unavailable")
+        );
+        assert!(
+            matches!(monitor.metrics(), Err(LoaderError::Internal { message }) if message == "OS counters unavailable")
+        );
     }
 }

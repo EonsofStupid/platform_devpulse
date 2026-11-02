@@ -52,7 +52,7 @@ jobs:
       # default Ubuntu runner's ~14 GB free disk is not enough and the
       # final `ar` invocation that archives libduckdb fails with
       # "No space left on device". Free up ~30 GB by removing the
-      # Android SDK / dotnet / GHC / CodeQL / pre-installed images that
+      # Android SDK / dotnet / GHC / CodeQL / dangling images that
       # this workflow never uses.
       - name: Free disk space
         run: |
@@ -60,7 +60,9 @@ jobs:
           sudo rm -rf /usr/local/lib/android
           sudo rm -rf /opt/ghc
           sudo rm -rf /opt/hostedtoolcache/CodeQL
-          sudo docker image prune -a -f || true
+          # GitHub builds Docker actions before steps run. Keep tagged images,
+          # including cargo-deny-action, available for the later audit step.
+          sudo docker image prune -f || true
           df -h
 
       # No submodules: nothing in the build compiles deps/moshi (plan 0007,
@@ -161,7 +163,7 @@ jobs:
         run: cargo fmt --all -- --check
 
       - name: Clippy
-        run: cargo clippy --workspace -- -D warnings
+        run: cargo clippy --workspace --all-targets --features devpulse-clyffy/guardian,model-loader/nvml -- -D warnings
 
       - name: Build
         run: cargo build --workspace
@@ -173,7 +175,7 @@ jobs:
         run: cargo xtask verify-architecture
 
       - name: Test
-        run: cargo test --workspace
+        run: cargo test --workspace --features devpulse-clyffy/guardian,model-loader/nvml
 
       - name: Security audit
         uses: EmbarkStudios/cargo-deny-action@v2

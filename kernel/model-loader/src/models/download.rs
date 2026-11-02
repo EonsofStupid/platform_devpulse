@@ -1095,7 +1095,7 @@ fn verify_sha256(path: &Path, expected_hex: &str) -> anyhow::Result<bool> {
         }
         hasher.update(&buf[..n]);
     }
-    let actual = format!("{:x}", hasher.finalize());
+    let actual = hex::encode(hasher.finalize());
     Ok(actual.eq_ignore_ascii_case(expected_hex))
 }
 

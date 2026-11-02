@@ -803,6 +803,71 @@ Recorded sequence (L0/L1 locally verified; major upgrades remain):
 - L2–L6 remain the recorded major dependency/frontend/tooling work below; their
   earlier survey is evidence to recheck, not proof the changes landed on main.
 
+L2 coordinated execution (owner 2026-11-01: do more code at once): the owner
+authorizes larger connected batches, superseding the old five-file refactor
+limit and per-phase permission pauses. The next batch updates the network,
+telemetry, configuration, MCP, system discovery, parser and build-tool
+dependencies together, then repairs all affected callers before validation.
+Shared versions/features belong in workspace dependencies. Retain TLS trust,
+redirect credential isolation, download streaming, span flushing, canonical
+config parsing and the existing kernel/engine boundaries. No feature removal
+or compatibility layer substitutes for adapting the callers.
+
+The crates.io release metadata is rechecked for current stable, non-yanked
+releases, including versions with build metadata. Reference the current APIs:
+https://docs.rs/reqwest/0.13.5/reqwest/;
+https://docs.rs/ureq/3.5.0/ureq/;
+https://docs.rs/rmcp/3.8.0/rmcp/;
+https://docs.rs/opentelemetry_sdk/0.33.1/opentelemetry_sdk/.
+Native credential-store migration, ML/media runtime APIs and frontend majors
+retain their own integration work; do not hide their owners or silently drop
+their functionality to make this batch compile. The older upgrade worktree
+remains untouched. Run compiler checks as errors surface, then one coordinated
+lint/test/binding/preservation pass on the completed batch.
+
+L2 shared-platform batch (2026-11-02, locally verified; L2 remains open):
+- Updated 29 dependency families together across the workspace: transport,
+  hashing/encoding, config/schema parsing, MCP, telemetry, OS discovery,
+  tree-sitter grammars, dialogs and build tooling. Native credential stores,
+  ML/media runtime APIs and frontend majors remain open.
+- Reauthored MCP callers against `ServerConfig` and `ContentBlock`; the
+  desktop's protocol display now comes from the server SDK, not a stale copy.
+- Propagated sysinfo collection failures through kernel model decisions,
+  engine services and Tauri commands. Hardware state signals carry either a
+  measurement or an unavailable reason (contract v2); the UI clears stale
+  values, rejects an older IPC reply after a newer signal and reloads full
+  hardware details after measurements recover. Failed collection tasks also
+  replace the kernel cache, so model decisions cannot use stale success.
+  Sampling runs outside the shared cache lock, and process gauges run on the
+  blocking pool.
+- Retained native TLS/platform roots, explicitly strip redirect authorization
+  and stream large DevForge assets. Keep standard lowercase SHA-256 digests.
+  Telemetry shutdown now reports failed flushing instead of claiming success.
+- Restored Guardian's missing pattern import, migrated query capture access
+  and added grammar/query regression coverage. Original sources remain in Git
+  with reviewed active-owner records; no recovered implementation was deleted.
+- Prior CI run 41374584838 passed Rust tests/doctests, desktop and restoration;
+  its audit action failed because `docker image prune -a` deleted the tagged
+  action image prepared before workflow steps. Cleanup now preserves tagged
+  images. The local dependency advisory/boundary audit passes.
+- Validation: all-target workspace check and strict Clippy with Guardian/NVML;
+  835 unit/bin tests passed (8 existing ignored), 36 selected integration
+  tests passed, 4 doctests passed (11 existing ignored), 9 browser tests
+  passed, 20 architecture tests passed, Svelte reported zero errors/warnings,
+  Biome and rustfmt passed, and Tauri bindings were regenerated. Both default and
+  all-feature dependency advisory/boundary audits passed. Preservation checked
+  6,064 source records, with zero uncovered files and 394 verbatim active
+  survivors; reviewed migrations retain their original Git sources.
+- Build-tool follow-up: the first builds of two feature configurations failed
+  to find a Windows or DuckDB rlib; identical retries linked and passed without
+  source changes or cleaning. Local sccache is 0.18.0; CI selects 0.19.0.
+  The root cause is not isolated. The upstream 0.19 release includes Rust
+  dep-info/cache and metadata-pipelining changes, but this is not proof of the
+  cause: https://github.com/mozilla/sccache/releases/tag/v0.19.0.
+- Remaining release gate: the earlier release workflow reported insufficient
+  integration permissions. Do not substitute credentials or report a release
+  as published on the strength of passing local code checks.
+
 Primary references: https://blog.rust-lang.org/releases/;
 https://doc.rust-lang.org/edition-guide/rust-2024/cargo-resolver.html;
 https://doc.rust-lang.org/edition-guide/rust-2024/newly-unsafe-functions.html.

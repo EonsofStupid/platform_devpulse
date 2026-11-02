@@ -137,7 +137,7 @@ impl CargoTool {
                 .map(|name| {
                     members
                         .iter()
-                        .find(|p| &p.name == name)
+                        .find(|p| p.name == name)
                         .copied()
                         .with_context(|| format!("no workspace package named `{name}`"))
                 })

@@ -299,15 +299,24 @@ impl ModelLoaderService {
     /// Return the cached hardware metrics snapshot.
     ///
     /// The service exposes a future; this cached read completes immediately.
-    pub fn hardware_metrics(&self) -> impl std::future::Future<Output = HardwareMetrics> {
-        std::future::ready(self.inner.hardware_metrics())
+    pub fn hardware_metrics(
+        &self,
+    ) -> impl std::future::Future<Output = Result<HardwareMetrics, LoadError>> {
+        std::future::ready(self.inner.hardware_metrics().map_err(LoadError::from))
     }
 
     /// Force a fresh hardware metrics refresh.
     ///
     /// Return the refresh result through the service's asynchronous interface.
-    pub fn hardware_refresh(&self) -> impl std::future::Future<Output = HardwareMetrics> {
-        std::future::ready(self.inner.hardware_refresh())
+    pub async fn hardware_refresh(&self) -> Result<HardwareMetrics, LoadError> {
+        let inner = Arc::clone(&self.inner);
+        devpulse_telemetry::spawn_blocking(move || {
+            inner.hardware_refresh().map_err(LoadError::from)
+        })
+        .await
+        .map_err(|error| LoadError::Other {
+            message: format!("Hardware collection task failed: {error}"),
+        })?
     }
 
     /// Start the kernel hardware sampler: one collection every `period`
@@ -395,8 +404,8 @@ impl ModelLoaderService {
     }
 
     /// Build the recommended configuration for the detected hardware.
-    pub async fn auto_configure(&self) -> AutoConfig {
-        self.inner.auto_configure().await
+    pub async fn auto_configure(&self) -> Result<AutoConfig, LoadError> {
+        self.inner.auto_configure().await.map_err(LoadError::from)
     }
 
     /// List every known hardware preset with download metadata.
@@ -678,8 +687,8 @@ impl ModelLoaderService {
     }
 
     /// Compute the current VRAM budget plan across registered slots.
-    pub async fn vram_budget_plan(&self) -> VramBudget {
-        self.inner.vram_budget_plan().await
+    pub async fn vram_budget_plan(&self) -> Result<VramBudget, LoadError> {
+        self.inner.vram_budget_plan().await.map_err(LoadError::from)
     }
 
     // ── Heavy inference calls (voice_pool reads) ──────────────

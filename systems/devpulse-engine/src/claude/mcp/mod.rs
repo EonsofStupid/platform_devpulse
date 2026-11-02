@@ -3,7 +3,7 @@
 //! Exposes platform tools to Claude Code (stdio) and Claude Desktop (future HTTP).
 //! Tools access Platform services via `Arc<Platform>`.
 //!
-//! Protocol version: 2025-06-18 (rmcp handles wire protocol).
+//! The rmcp SDK owns protocol advertisement and negotiation.
 //! Transport: stdio (primary for Claude Code CLI).
 
 pub mod tools;
@@ -12,11 +12,17 @@ use std::sync::Arc;
 
 use rmcp::ServerHandler;
 use rmcp::handler::server::wrapper::Parameters;
-use rmcp::model::{CallToolResult, Implementation, ServerCapabilities, ServerInfo};
+use rmcp::model::{CallToolResult, Implementation, ServerCapabilities, ServerConfig};
 use rmcp::tool;
 use serde::Deserialize;
 
 use crate::platform::Platform;
+
+/// Protocol version advertised by the same SDK defaults used by the server.
+#[must_use]
+pub fn protocol_version() -> String {
+    ServerConfig::default().protocol_version.to_string()
+}
 
 /// `DevPulse` MCP Server — tool-bearing server struct.
 ///
@@ -41,8 +47,8 @@ impl DevPulseMcpServer {
 )]
 #[rmcp::tool_handler]
 impl ServerHandler for DevPulseMcpServer {
-    fn get_info(&self) -> ServerInfo {
-        let mut info = ServerInfo::default();
+    fn get_info(&self) -> ServerConfig {
+        let mut info = ServerConfig::default();
         info.capabilities = ServerCapabilities::builder().enable_tools().build();
         info.server_info = Implementation::new("devpulse-mcp", env!("CARGO_PKG_VERSION"));
         info.instructions = Some(
@@ -105,9 +111,9 @@ impl DevPulseMcpServer {
     #[tool(description = "Get platform health status — all subsystems with uptime")]
     async fn get_health(&self) -> Result<CallToolResult, rmcp::ErrorData> {
         let result = tools::get_health::execute(&self.platform).await;
-        Ok(CallToolResult::success(vec![rmcp::model::Content::text(
-            result,
-        )]))
+        Ok(CallToolResult::success(vec![
+            rmcp::model::ContentBlock::text(result),
+        ]))
     }
 
     /// Query Turso database (read-only). Returns JSON rows.
@@ -120,13 +126,13 @@ impl DevPulseMcpServer {
         let result = tools::query_database::execute(&self.platform, &params.sql, scope).await;
         let is_error = result.starts_with("ERROR:");
         if is_error {
-            Ok(CallToolResult::error(vec![rmcp::model::Content::text(
-                result,
-            )]))
+            Ok(CallToolResult::error(vec![
+                rmcp::model::ContentBlock::text(result),
+            ]))
         } else {
-            Ok(CallToolResult::success(vec![rmcp::model::Content::text(
-                result,
-            )]))
+            Ok(CallToolResult::success(vec![
+                rmcp::model::ContentBlock::text(result),
+            ]))
         }
     }
 
@@ -139,13 +145,13 @@ impl DevPulseMcpServer {
         let result = tools::repo_get_file::execute(&self.platform, &params.path).await;
         let is_error = result.starts_with("ERROR:");
         if is_error {
-            Ok(CallToolResult::error(vec![rmcp::model::Content::text(
-                result,
-            )]))
+            Ok(CallToolResult::error(vec![
+                rmcp::model::ContentBlock::text(result),
+            ]))
         } else {
-            Ok(CallToolResult::success(vec![rmcp::model::Content::text(
-                result,
-            )]))
+            Ok(CallToolResult::success(vec![
+                rmcp::model::ContentBlock::text(result),
+            ]))
         }
     }
 
@@ -159,13 +165,13 @@ impl DevPulseMcpServer {
         let result = tools::repo_list_files::execute(&self.platform, &params.path, recursive).await;
         let is_error = result.starts_with("ERROR:");
         if is_error {
-            Ok(CallToolResult::error(vec![rmcp::model::Content::text(
-                result,
-            )]))
+            Ok(CallToolResult::error(vec![
+                rmcp::model::ContentBlock::text(result),
+            ]))
         } else {
-            Ok(CallToolResult::success(vec![rmcp::model::Content::text(
-                result,
-            )]))
+            Ok(CallToolResult::success(vec![
+                rmcp::model::ContentBlock::text(result),
+            ]))
         }
     }
 
@@ -184,13 +190,13 @@ impl DevPulseMcpServer {
         .await;
         let is_error = result.starts_with("ERROR:");
         if is_error {
-            Ok(CallToolResult::error(vec![rmcp::model::Content::text(
-                result,
-            )]))
+            Ok(CallToolResult::error(vec![
+                rmcp::model::ContentBlock::text(result),
+            ]))
         } else {
-            Ok(CallToolResult::success(vec![rmcp::model::Content::text(
-                result,
-            )]))
+            Ok(CallToolResult::success(vec![
+                rmcp::model::ContentBlock::text(result),
+            ]))
         }
     }
 }

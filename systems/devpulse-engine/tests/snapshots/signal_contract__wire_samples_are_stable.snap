@@ -1,5 +1,6 @@
 ---
 source: systems/devpulse-engine/tests/signal_contract.rs
+assertion_line: 282
 expression: "serde_json::to_string_pretty(&samples).expect(\"samples render\")"
 ---
 [
@@ -67,21 +68,24 @@ expression: "serde_json::to_string_pretty(&samples).expect(\"samples render\")"
   },
   {
     "data": {
-      "cpu_cores": 8,
-      "cpu_name": "test cpu",
-      "cpu_usage_percent": 0.0,
-      "gpu_error": null,
-      "gpu_name": null,
-      "gpu_temperature_c": null,
-      "gpu_utilization_percent": null,
-      "gpu_vram_free_mb": null,
-      "gpu_vram_total_mb": null,
-      "gpu_vram_used_mb": null,
-      "process_ram_mb": 0,
-      "process_vram_mb": 0,
-      "ram_available_mb": 0,
-      "ram_total_mb": 0,
-      "ram_used_mb": 0
+      "metrics": {
+        "cpu_cores": 8,
+        "cpu_name": "test cpu",
+        "cpu_usage_percent": 0.0,
+        "gpu_error": null,
+        "gpu_name": null,
+        "gpu_temperature_c": null,
+        "gpu_utilization_percent": null,
+        "gpu_vram_free_mb": null,
+        "gpu_vram_total_mb": null,
+        "gpu_vram_used_mb": null,
+        "process_ram_mb": 0,
+        "process_vram_mb": 0,
+        "ram_available_mb": 0,
+        "ram_total_mb": 0,
+        "ram_used_mb": 0
+      },
+      "status": "available"
     },
     "type": "hardware"
   },

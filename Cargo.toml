@@ -35,6 +35,16 @@ futures = "0.3"
 # Native credential backends for both the desktop and standalone release tools.
 # A bare keyring dependency uses the in-memory mock backend.
 keyring = { version = "3", features = ["windows-native", "apple-native", "sync-secret-service", "crypto-rust", "vendored"] }
+# Shared platform transport, configuration and identity primitives.
+reqwest = { version = "0.13.5", default-features = false, features = ["json", "rustls"] }
+toml = "1.1.8"
+sysinfo = "0.40.1"
+base64 = "0.23.1"
+sha2 = "0.11.1"
+hex = "0.4.3"
+rand = "0.10.3"
+jsonschema = { version = "0.60.2", default-features = false }
+windows-sys = "0.61.2"
 
 # Type Sync (D2) — specta generates typed TS invoke wrappers; replaces ts-rs
 specta = { version = "=2.0.0-rc.22", features = ["derive", "function", "uuid", "serde_json"] }
@@ -60,22 +70,22 @@ rro = { path = "deps/rro" }
 # Constrained decoding (kernel — optional feature on `devpulse-clyffy`)
 llguidance = "1.7"
 
-# Observability — OTel 0.31 pin set (SPRINT-TELEMETRY-FOUNDATION, ADR-002)
-# Pinned 2026-04-15 after Q1/Q2 2026 research. Do not bump independently.
+# Observability — one coordinated OTel 0.33 family (plan 0001 L2).
+# Upgrade the API, SDK, exporter and tracing bridge together.
 # opentelemetry 0.28+ removed `global::shutdown_tracer_provider()` — use
 # devpulse_telemetry::TelemetryGuard::shutdown().await.
-# opentelemetry-otlp 0.31 ships gRPC-tonic ONLY; HTTP/reqwest exporter dead.
+# Exporter transports are selected by their owning service.
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["json", "env-filter"] }
 tracing-appender = "0.2"
-opentelemetry = "0.31"
-opentelemetry_sdk = "0.31"
-opentelemetry-otlp = "0.31"
-tracing-opentelemetry = "0.32"
-opentelemetry-semantic-conventions = "0.31"
+opentelemetry = "0.33.1"
+opentelemetry_sdk = "0.33.1"
+opentelemetry-otlp = "0.33.1"
+tracing-opentelemetry = "0.34.0"
+opentelemetry-semantic-conventions = "0.33.1"
 
 # Sync→async channel bridge (MPMC) — wrapped by devpulse-telemetry::channel::flume
-flume = "0.11"
+flume = "0.12.0"
 
 # Lock-free shared state (Phase P0: Boot Never Freezes)
 # ArcSwap<T> / ArcSwapOption<T> — atomic load/store of Arc<T>, zero lock contention.
@@ -141,20 +151,20 @@ ort = { version = "=2.0.0-rc.12", default-features = false, features = ["std", "
 burn = { version = "0.21", default-features = false, features = ["std", "flex"] }
 
 # AST Analysis (GUARDIAN — tree-sitter powered security + refactoring safety)
-tree-sitter = "0.24"
-tree-sitter-rust = "0.23"
-tree-sitter-typescript = "0.23"
-tree-sitter-javascript = "0.23"
-tree-sitter-python = "0.23"
-tree-sitter-go = "0.23"
-tree-sitter-java = "0.23"
-tree-sitter-c = "0.23"
+tree-sitter = "0.27.1"
+tree-sitter-rust = "0.24.2"
+tree-sitter-typescript = "0.23.2"
+tree-sitter-javascript = "0.25.0"
+tree-sitter-python = "0.25.0"
+tree-sitter-go = "0.25.0"
+tree-sitter-java = "0.23.5"
+tree-sitter-c = "0.24.2"
 
 # Ops (xtask Support)
 xshell = "0.2" # Shell scripting in Rust
 clap = { version = "4.5", features = ["derive"] } # CLI parsing
-cargo_metadata = "0.18" # Project introspection
-which = "7.0" # Cross-platform tool resolution (PATHEXT, symlinks)
+cargo_metadata = "0.23.1" # Project introspection
+which = "8.0.6" # Cross-platform tool resolution (PATHEXT, symlinks)
 fs_extra = "1.3" # File manipulation
 
 [workspace.lints.clippy]

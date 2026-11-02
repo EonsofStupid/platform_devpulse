@@ -60,7 +60,7 @@ impl McpStatus {
             available: true,
             tool_count: TOOL_NAMES.len() as u32,
             tool_names: TOOL_NAMES.iter().map(|s| (*s).to_string()).collect(),
-            protocol_version: PROTOCOL_VERSION.into(),
+            protocol_version: devpulse_engine::claude::mcp::protocol_version(),
             installs: detect::detect_all(),
         }
     }
@@ -79,11 +79,7 @@ const TOOL_NAMES: &[&str] = &[
     "shell_execute",
 ];
 
-/// MCP protocol version advertised by `start_stdio` — keep in sync with
-/// the rmcp `ServerInfo::default()` we use in `claude/mcp/mod.rs`.
-const PROTOCOL_VERSION: &str = "2025-06-18";
-
-/// Get current MCP integration status.
+/// Get current MCP integration status and the SDK-advertised protocol version.
 ///
 /// Always succeeds — installs that fail to detect surface their error
 /// in `installs.<target>.read_error` rather than failing the call. The

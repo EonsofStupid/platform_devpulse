@@ -95,7 +95,7 @@ impl Task for FetchDevForge {
         let manifest_path = self.resolve_manifest_path(ws);
         let mut manifest = load_manifest_at(&manifest_path)?;
 
-        let agent = build_http_agent()?;
+        let agent = build_http_agent();
         let (owner, repo) = parse_github_repo(&manifest.repository)?;
 
         if !self.pin {
@@ -351,16 +351,19 @@ struct Artifact {
 /// via `GET /repos/.../releases/latest`. Honors `GITHUB_TOKEN`.
 fn query_latest_release_tag(agent: &ureq::Agent, owner: &str, repo: &str) -> Result<String> {
     let url = format!("https://api.github.com/repos/{owner}/{repo}/releases/latest");
-    let req = with_github_auth(agent.get(&url)).set("Accept", "application/vnd.github+json");
-    let resp = req.call().with_context(|| format!("GET {url}"))?;
+    let req = with_github_auth(agent.get(&url)).header("Accept", "application/vnd.github+json");
+    let mut resp = req.call().with_context(|| format!("GET {url}"))?;
     if resp.status() != 200 {
         bail!(
             "latest-release lookup failed: HTTP {} {} for {url}",
             resp.status(),
-            resp.status_text()
+            resp.status().canonical_reason().unwrap_or("unknown status")
         );
     }
-    let body = resp.into_string().context("read release JSON body")?;
+    let body = resp
+        .body_mut()
+        .read_to_string()
+        .context("read release JSON body")?;
     let json: serde_json::Value = serde_json::from_str(&body).context("parse release JSON")?;
     let tag = json
         .get("tag_name")
@@ -379,17 +382,19 @@ fn fetch_sha256sums(
     tag: &str,
 ) -> Result<HashMap<String, String>> {
     let asset_api_url = resolve_asset_api_url(agent, owner, repo, tag, "SHA256SUMS")?;
-    let req = with_github_auth(agent.get(&asset_api_url)).set("Accept", "application/octet-stream");
-    let resp = req.call().context("GET SHA256SUMS asset")?;
+    let req =
+        with_github_auth(agent.get(&asset_api_url)).header("Accept", "application/octet-stream");
+    let mut resp = req.call().context("GET SHA256SUMS asset")?;
     if resp.status() != 200 {
         bail!(
             "SHA256SUMS download failed: HTTP {} {}",
             resp.status(),
-            resp.status_text()
+            resp.status().canonical_reason().unwrap_or("unknown status")
         );
     }
     let body = resp
-        .into_string()
+        .body_mut()
+        .read_to_string()
         .context("read SHA256SUMS body as UTF-8")?;
 
     let mut shas = HashMap::new();
@@ -499,24 +504,30 @@ fn is_cached(path: &Path, expected_hex: &str) -> Result<bool> {
 
 /// Build a ureq agent with native-tls (Windows Schannel) wired in.
 ///
-/// ureq 2.12 with `default-features = false` ships no TLS backend; we
-/// have to pass one explicitly. `redirects(10)` follows GitHub's API →
-/// signed-S3 redirect chain for asset downloads.
-fn build_http_agent() -> Result<ureq::Agent> {
-    let tls_connector = native_tls::TlsConnector::new()
-        .context("failed to build native-tls connector (Schannel)")?;
-    Ok(ureq::AgentBuilder::new()
-        .tls_connector(std::sync::Arc::new(tls_connector))
-        .redirects(10)
+/// Use native TLS and the operating system's trust store. Follow GitHub's
+/// signed-asset redirects without forwarding the authorization header.
+fn build_http_agent() -> ureq::Agent {
+    ureq::Agent::config_builder()
+        .tls_config(
+            ureq::tls::TlsConfig::builder()
+                .provider(ureq::tls::TlsProvider::NativeTls)
+                .root_certs(ureq::tls::RootCerts::PlatformVerifier)
+                .build(),
+        )
+        .max_redirects(10)
+        .redirect_auth_headers(ureq::config::RedirectAuthHeaders::Never)
         .user_agent("devpulse-xtask fetch-devforge/1.0")
-        .build())
+        .build()
+        .into()
 }
 
 /// Apply `Authorization: Bearer $GITHUB_TOKEN` to a request if the env
 /// var is set and non-empty. No-op otherwise (public repos work unauth).
-fn with_github_auth(req: ureq::Request) -> ureq::Request {
+fn with_github_auth(
+    req: ureq::RequestBuilder<ureq::typestate::WithoutBody>,
+) -> ureq::RequestBuilder<ureq::typestate::WithoutBody> {
     match std::env::var("GITHUB_TOKEN") {
-        Ok(token) if !token.is_empty() => req.set("Authorization", &format!("Bearer {token}")),
+        Ok(token) if !token.is_empty() => req.header("Authorization", format!("Bearer {token}")),
         _ => req,
     }
 }
@@ -553,19 +564,22 @@ fn resolve_asset_api_url(
 ) -> Result<String> {
     let release_url = format!("https://api.github.com/repos/{owner}/{repo}/releases/tags/{tag}");
     let req =
-        with_github_auth(agent.get(&release_url)).set("Accept", "application/vnd.github+json");
+        with_github_auth(agent.get(&release_url)).header("Accept", "application/vnd.github+json");
 
-    let resp = req.call().with_context(|| format!("GET {release_url}"))?;
+    let mut resp = req.call().with_context(|| format!("GET {release_url}"))?;
     if resp.status() != 200 {
         bail!(
             "release lookup failed: HTTP {} {} for {}",
             resp.status(),
-            resp.status_text(),
+            resp.status().canonical_reason().unwrap_or("unknown status"),
             release_url
         );
     }
 
-    let body = resp.into_string().context("read release JSON body")?;
+    let body = resp
+        .body_mut()
+        .read_to_string()
+        .context("read release JSON body")?;
     let json: serde_json::Value = serde_json::from_str(&body).context("parse release JSON")?;
     let assets = json
         .get("assets")
@@ -599,22 +613,29 @@ fn resolve_asset_api_url(
 /// S3; `ureq`'s default redirect policy strips the Authorization header
 /// on cross-host redirects, which is exactly what S3 wants.
 fn download_artifact(agent: &ureq::Agent, asset_api_url: &str, dst: &Path) -> Result<()> {
+    let req =
+        with_github_auth(agent.get(asset_api_url)).header("Accept", "application/octet-stream");
+    stream_artifact(req, dst)
+}
+
+/// Keep assets streaming: release archives can be much larger than the
+/// HTTP client's default buffered-body limit.
+fn stream_artifact(
+    req: ureq::RequestBuilder<ureq::typestate::WithoutBody>,
+    dst: &Path,
+) -> Result<()> {
     use std::io::Write;
-
-    let req = with_github_auth(agent.get(asset_api_url)).set("Accept", "application/octet-stream");
-
     let resp = req.call().context("HTTP request failed")?;
 
     if resp.status() != 200 {
         bail!(
-            "GitHub returned HTTP {} {} for {}",
+            "Artifact download returned HTTP {} {}",
             resp.status(),
-            resp.status_text(),
-            asset_api_url
+            resp.status().canonical_reason().unwrap_or("unknown status")
         );
     }
 
-    let mut reader = resp.into_reader();
+    let mut reader = resp.into_body().into_reader();
     let mut file = fs::File::create(dst).with_context(|| format!("create {}", dst.display()))?;
     let mut buf = vec![0u8; IO_BUF_SIZE];
     loop {
@@ -627,6 +648,10 @@ fn download_artifact(agent: &ureq::Agent, asset_api_url: &str, dst: &Path) -> Re
     }
     Ok(())
 }
+
+#[cfg(test)]
+#[path = "fetch_devforge/tests.rs"]
+mod tests;
 
 /// Compute the SHA256 of a file as lowercase hex.
 fn sha256_file(path: &Path) -> Result<String> {

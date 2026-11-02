@@ -13,7 +13,7 @@
 //! | `RegistryState` | `tokio::sync::RwLock` | scan |
 //! | `ConfigState` | `tokio::sync::RwLock` | assign/config changes |
 //! | `BootState` | none (`Arc`) | never (immutable after boot) |
-//! | `HardwareMonitor` | `parking_lot::RwLock` | refresh (sub-ms) |
+//! | `HardwareMonitor` | `parking_lot::RwLock` | collection (blocking pool) |
 //!
 //! Lock ordering (deadlock prevention): config → registry → inference → hardware.
 //!
@@ -26,7 +26,9 @@ use crate::backends::bridge::InferenceHandle;
 use crate::backends::router::select_backend;
 use crate::backends::voice_pool::VoicePool;
 use crate::hardware::auto_config::{self, AutoConfig};
-use crate::hardware::metrics::{HardwareMetrics, HardwareMonitor};
+use crate::hardware::metrics::{
+    HardwareMetrics, HardwareMonitor, HardwareSnapshot, collect_hardware,
+};
 use crate::hardware::vram;
 use crate::loading::states::{LoadParams, LoadingStage, MemoryFootprint, ModelStatus, SlotStatus};
 use crate::loading::swap::SwapGuard;
@@ -425,13 +427,20 @@ impl ModelLoaderService {
     }
 
     /// Get hardware metrics — cached, sub-microsecond.
-    pub fn hardware_metrics(&self) -> HardwareMetrics {
-        self.hardware.read().cached().clone()
+    ///
+    /// # Errors
+    /// Returns the latest hardware collection failure.
+    pub fn hardware_metrics(&self) -> Result<HardwareMetrics, LoaderError> {
+        self.hardware.read().cached().cloned()
     }
 
     /// Force a fresh hardware metrics collection.
-    pub fn hardware_refresh(&self) -> HardwareMetrics {
-        self.hardware.write().refresh().clone()
+    ///
+    /// # Errors
+    /// Returns an error if the OS cannot supply measurements.
+    pub fn hardware_refresh(&self) -> Result<HardwareMetrics, LoaderError> {
+        let sample = collect_hardware();
+        self.hardware.write().record(sample).cloned()
     }
 
     /// Run the hardware sampler: while `active` is `true`, collect fresh
@@ -461,14 +470,25 @@ impl ModelLoaderService {
                     if !*active.borrow() {
                         break;
                     }
-                    let monitor = Arc::clone(&monitor);
-                    match devpulse_telemetry::spawn_blocking(move || {
-                        monitor.write().refresh().clone()
-                    })
-                    .await
-                    {
-                        Ok(metrics) => events.emit(LoaderEvent::HardwareMetricsUpdated(metrics)),
-                        Err(err) => tracing::warn!(%err, "hardware sampler: collection failed"),
+                    let sample = devpulse_telemetry::spawn_blocking(collect_hardware)
+                        .await
+                        .unwrap_or_else(|error| {
+                            Err(LoaderError::Internal {
+                                message: format!("Hardware collection task failed: {error}"),
+                            })
+                        });
+                    match monitor.write().record(sample).cloned() {
+                        Ok(metrics) => events.emit(LoaderEvent::HardwareMetricsUpdated(
+                            HardwareSnapshot::Available { metrics },
+                        )),
+                        Err(err) => {
+                            tracing::warn!(%err, "hardware sampler: measurements unavailable");
+                            events.emit(LoaderEvent::HardwareMetricsUpdated(
+                                HardwareSnapshot::Unavailable {
+                                    error: err.to_string(),
+                                },
+                            ));
+                        }
                     }
                 }
             }
@@ -476,7 +496,10 @@ impl ModelLoaderService {
     }
 
     /// Compute VRAM budget plan across all slots.
-    pub async fn vram_budget_plan(&self) -> vram::VramBudget {
+    ///
+    /// # Errors
+    /// Returns an error when hardware measurements are unavailable.
+    pub async fn vram_budget_plan(&self) -> Result<vram::VramBudget, LoaderError> {
         let cfg = self.config.read().await;
         let reg = self.registry.read().await;
         let inf = self.inference.read().await;
@@ -501,11 +524,11 @@ impl ModelLoaderService {
             })
             .collect();
 
-        vram::compute_budget(
+        Ok(vram::compute_budget(
             &slot_data,
-            hw.cached().total_vram_mb(),
-            hw.cached().gpu_vram_used_mb.unwrap_or(0),
-        )
+            hw.cached()?.total_vram_mb(),
+            hw.cached()?.gpu_vram_used_mb.unwrap_or(0),
+        ))
     }
 
     /// Auto-configure based on detected hardware.
@@ -515,13 +538,20 @@ impl ModelLoaderService {
     /// parking-lot guard is `!Send`; if it lived across the registry
     /// `.await` the resulting future would be `!Send` and Tauri command
     /// futures (which require `Send`) would refuse to spawn it.
-    pub async fn auto_configure(&self) -> AutoConfig {
+    ///
+    /// # Errors
+    /// Returns an error instead of selecting a tier from unavailable hardware.
+    pub async fn auto_configure(&self) -> Result<AutoConfig, LoaderError> {
         let downloaded = {
             let reg = self.registry.read().await;
             reg.registry.filenames()
         };
         let hw = self.hardware.read();
-        auto_config::auto_configure(hw.cached(), &downloaded, &self.boot.presets)
+        Ok(auto_config::auto_configure(
+            hw.cached()?,
+            &downloaded,
+            &self.boot.presets,
+        ))
     }
 
     /// Return every known hardware preset.
@@ -925,7 +955,7 @@ impl ModelLoaderService {
     ) -> Result<(), LoaderError> {
         let total_vram = {
             let hw = self.hardware.read();
-            hw.cached().gpu_vram_total_mb.unwrap_or(0)
+            hw.cached()?.gpu_vram_total_mb.unwrap_or(0)
         };
         if total_vram == 0 {
             return Ok(());
@@ -1559,7 +1589,7 @@ impl ModelLoaderService {
         };
         let tier = {
             let hw = self.hardware.read();
-            crate::hardware::auto_config::detect_tier(hw.cached())
+            crate::hardware::auto_config::detect_tier(hw.cached()?)
         };
 
         // Sibling list — the only step that touches the network.
@@ -1857,7 +1887,7 @@ impl ModelLoaderService {
             .runtime
             .unwrap_or_else(|| select_backend(entry, None, Some(capability)));
 
-        let params = self.derive_load_params(slot, slot_id, &cfg, entry.context_length);
+        let params = self.derive_load_params(slot, slot_id, &cfg, entry.context_length)?;
 
         let voice_clones = cfg.assistant.voice_clones.clone();
 
@@ -1882,13 +1912,13 @@ impl ModelLoaderService {
         slot_id: &str,
         cfg: &ConfigState,
         context_length: usize,
-    ) -> LoadParams {
+    ) -> Result<LoadParams, LoaderError> {
         let hw = self.hardware.read();
         let device_str = match slot.preferred_device {
             crate::slots::types::DevicePreference::Gpu => "cuda:0".to_string(),
             crate::slots::types::DevicePreference::Cpu => "cpu".to_string(),
             _ => {
-                if hw.cached().has_gpu() {
+                if hw.cached()?.has_gpu() {
                     "cuda:0".to_string()
                 } else {
                     "cpu".to_string()
@@ -1920,13 +1950,13 @@ impl ModelLoaderService {
             }
         };
 
-        LoadParams {
+        Ok(LoadParams {
             device: device_str,
             context_length,
             gpu_layers,
             auto_prime: false,
             backend_variant: None,
-        }
+        })
     }
 
     /// Gather the warm-load context. Returns `Ok(None)` if the slot is

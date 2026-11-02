@@ -151,12 +151,58 @@ impl SpanExporter for FileSpanExporter {
     }
 
     fn shutdown_with_timeout(
-        &mut self,
+        &self,
         _timeout: std::time::Duration,
     ) -> opentelemetry_sdk::error::OTelSdkResult {
-        if let Ok(mut writer) = self.writer.lock() {
-            let _ = writer.flush();
-        }
-        Ok(())
+        let mut writer = self.writer.lock().map_err(|_| {
+            opentelemetry_sdk::error::OTelSdkError::InternalFailure(
+                "FileSpanExporter lock poisoned during shutdown".into(),
+            )
+        })?;
+        writer.flush().map_err(|error| {
+            opentelemetry_sdk::error::OTelSdkError::InternalFailure(format!(
+                "FileSpanExporter shutdown flush failed: {error}"
+            ))
+        })
+    }
+}
+
+#[cfg(test)]
+#[allow(clippy::expect_used, reason = "fixture failures are test failures")]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn shutdown_flushes_buffered_spans() {
+        let temp = tempfile::tempdir().expect("tempdir");
+        let exporter = FileSpanExporter::new(temp.path()).expect("exporter");
+        exporter
+            .writer
+            .lock()
+            .expect("writer")
+            .write_all(b"{\"name\":\"last span\"}\n")
+            .expect("write");
+        exporter
+            .shutdown_with_timeout(std::time::Duration::from_secs(1))
+            .expect("flush");
+        assert_eq!(
+            fs::read_to_string(exporter.current_path()).expect("read"),
+            "{\"name\":\"last span\"}\n"
+        );
+    }
+
+    #[test]
+    fn shutdown_reports_a_poisoned_writer() {
+        let temp = tempfile::tempdir().expect("tempdir");
+        let exporter = FileSpanExporter::new(temp.path()).expect("exporter");
+        let _ = std::panic::catch_unwind(|| {
+            let _writer = exporter.writer.lock().expect("writer");
+            panic!("simulate interrupted writer");
+        });
+        assert!(
+            exporter
+                .shutdown_with_timeout(std::time::Duration::from_secs(1))
+                .is_err()
+        );
     }
 }

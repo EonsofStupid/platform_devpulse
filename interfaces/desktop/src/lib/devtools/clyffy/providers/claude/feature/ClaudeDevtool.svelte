@@ -85,6 +85,7 @@ const toolNames = $derived<string[]>(mcpPoll.data?.toolNames ?? []);
 const protocolVersion = $derived(mcpPoll.data?.protocolVersion ?? "—");
 const code = $derived<ClaudeInstall | null>(mcpPoll.data?.installs?.code ?? null);
 const desktop = $derived<ClaudeInstall | null>(mcpPoll.data?.installs?.desktop ?? null);
+const processError = $derived(mcpPoll.data?.installs?.processError ?? null);
 const registeredCount = $derived(
 	(code?.devpulseRegistered ? 1 : 0) + (desktop?.devpulseRegistered ? 1 : 0),
 );
@@ -259,7 +260,10 @@ onMount(() => {
 			</DevtoolBentoGrid>
 
 			<!-- Install grid: empty state when nothing detected, else two glass tiles -->
-			{#if !code?.configExists && !desktop?.configExists && !code?.processRunning && !desktop?.processRunning}
+			{#if processError}
+				<Text size="xs" style="color: var(--signal-error);">{processError}</Text>
+			{/if}
+			{#if !processError && !code?.configExists && !desktop?.configExists && !code?.processRunning && !desktop?.processRunning}
 				<EmptyState>
 					<div class="flex flex-col items-center gap-[var(--space-2)]">
 						<Unplug size={28} style="color: var(--text-muted);" />
@@ -292,7 +296,9 @@ onMount(() => {
 								{code?.configPath || "—"}
 							</Text>
 							<div class="flex items-center gap-[var(--space-2)]">
-								{#if code?.processRunning}
+								{#if code?.processRunning == null}
+									<Text size="xs" color="muted">CLI process status unavailable</Text>
+								{:else if code.processRunning}
 									<CheckCircle2 size={12} style="color: var(--signal-success);" />
 									<Text size="xs">CLI process running</Text>
 								{:else}
@@ -326,7 +332,9 @@ onMount(() => {
 								{desktop?.configPath || "—"}
 							</Text>
 							<div class="flex items-center gap-[var(--space-2)]">
-								{#if desktop?.processRunning}
+								{#if desktop?.processRunning == null}
+									<Text size="xs" color="muted">Desktop process status unavailable</Text>
+								{:else if desktop.processRunning}
 									<CheckCircle2 size={12} style="color: var(--signal-success);" />
 									<Text size="xs">Desktop app running</Text>
 								{:else}

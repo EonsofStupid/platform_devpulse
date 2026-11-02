@@ -41,7 +41,7 @@ moka = { workspace = true }
 devpulse-telemetry = { workspace = true }
 
 # Base64 — error envelopes carry raw bytes occasionally.
-base64 = "0.22"
+base64 = { workspace = true }
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["test-util", "macros"] }

@@ -21,7 +21,7 @@
  *
  * ```ts
  * const off = signalFabric.on("hardware", (metrics, signal) => {
- *   // metrics: HardwareMetrics; signal.header: provenance
+ *   // metrics: HardwareSnapshot (available or unavailable); signal.header: provenance
  * });
  * ```
  */

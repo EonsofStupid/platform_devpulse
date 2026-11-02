@@ -208,7 +208,7 @@ pub use devpulse_clyffy::model_loader::infer_download_folder;
 // All names describe industry-standard concepts, no rename needed.
 // Plain types — linked through `model-loader-core`, no inference backend.
 pub use devpulse_clyffy::model_loader::{
-    HardwareMetrics, ModelRegistryEntry, ModelSourceTier, Slot,
+    HardwareMetrics, HardwareSnapshot, ModelRegistryEntry, ModelSourceTier, Slot,
 };
 
 // IP-NOTE: architecture + backend compatibility registry. Public face

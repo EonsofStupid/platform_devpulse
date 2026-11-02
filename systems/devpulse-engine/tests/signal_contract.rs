@@ -68,11 +68,15 @@ fn sample(kind: SignalKind) -> SignalVariant {
             provider: Some("local".into()),
             detail: "fastest ready endpoint".into(),
         }),
-        SignalKind::Hardware => SignalVariant::Hardware(HardwareMetrics {
-            cpu_name: "test cpu".into(),
-            cpu_cores: 8,
-            ..HardwareMetrics::default()
-        }),
+        SignalKind::Hardware => {
+            SignalVariant::Hardware(devpulse_engine::platform::HardwareSnapshot::Available {
+                metrics: HardwareMetrics {
+                    cpu_name: "test cpu".into(),
+                    cpu_cores: 8,
+                    ..HardwareMetrics::default()
+                },
+            })
+        }
         SignalKind::Models => SignalVariant::Models(ModelsReadiness {
             ready: false,
             setup_complete: false,
@@ -224,6 +228,32 @@ fn every_kind_round_trips_through_json() {
         assert_eq!(SignalKind::from(&back), kind);
         assert_eq!(serde_json::to_string(&back).expect("re-serializes"), json);
     }
+}
+
+#[test]
+fn failed_hardware_sample_replaces_last_success_for_late_subscribers() {
+    use devpulse_engine::platform::HardwareSnapshot;
+    use devpulse_engine::signals::{Signal, SignalSource, StateStore};
+
+    let state = StateStore::new();
+    let good = state.record(Signal::new(
+        SignalSource::System,
+        sample(SignalKind::Hardware),
+    ));
+    let failed = state.record(Signal::new(
+        SignalSource::System,
+        SignalVariant::Hardware(HardwareSnapshot::Unavailable {
+            error: "OS counters unavailable".into(),
+        }),
+    ));
+    assert!(failed.header.revision > good.header.revision);
+    let snapshot = state.snapshot();
+    assert_eq!(snapshot.signals.len(), 1);
+    let value = serde_json::to_value(snapshot.signals[0].payload.as_ref()).expect("wire");
+    assert_eq!(value["data"]["status"], "unavailable");
+    assert_eq!(value["data"]["error"], "OS counters unavailable");
+    assert!(value["data"].get("metrics").is_none());
+    assert_eq!(SignalKind::Hardware.spec().version, 2);
 }
 
 /// The same JSON with every object's keys in sorted order. Key order carries

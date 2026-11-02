@@ -17,5 +17,8 @@ pub async fn get_process_metrics(
     // P0: lock-free atomic load.
     let uptime = state.platform.load_full().map_or(0, |p| p.uptime_secs());
 
-    Ok(devpulse_engine::platform::metrics::collect(uptime))
+    devpulse_telemetry::spawn_blocking(move || devpulse_engine::platform::metrics::collect(uptime))
+        .await
+        .map_err(|error| format!("Process measurement task failed: {error}"))?
+        .map_err(|error| error.to_string())
 }

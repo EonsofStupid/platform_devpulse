@@ -11,16 +11,15 @@ cargo_metadata = { workspace = true }
 which = { workspace = true }
 serde_json = { workspace = true }
 serde = { workspace = true }
-toml = "0.8"
+toml = { workspace = true }
 # Fetch pipeline for DevForge release artifacts (commands::fetch_devforge).
 # Sync HTTP + SHA256 + zip extraction. Native-tls keeps us off aws-lc-sys
 # in xtask — the workspace already has NASM wired for the main build but
 # xtask should stay light and use Windows Schannel.
-ureq = { version = "2.10", default-features = false, features = ["native-tls", "gzip"] }
-native-tls = "0.2"
+ureq = { version = "3.5.0", default-features = false, features = ["native-tls", "gzip"] }
 zip = { version = "9", default-features = false, features = ["deflate"] }
-sha2 = "0.10"
-hex = "0.4"
+sha2 = { workspace = true }
+hex = { workspace = true }
 # ISO8601 timestamps for build.manifest.json. Already workspace-pinned.
 chrono = { workspace = true }
 # CycloneDX 1.4 requires `serialNumber: "urn:uuid:<uuid>"` — v4 is deterministic
@@ -58,7 +57,7 @@ keyring = { workspace = true }
 tempfile = "3"
 
 [target.'cfg(windows)'.dependencies]
-windows-sys = { version = "0.59", features = [
+windows-sys = { workspace = true, features = [
     "Win32_System_JobObjects",
     "Win32_Foundation",
     "Win32_Security",

@@ -49,7 +49,7 @@ pub enum SignalVariant {
     /// Governance event (lane routing, rate limits, council)
     Governance(GovernancePayload),
     /// Hardware snapshot (CPU / RAM / GPU / VRAM).
-    Hardware(crate::platform::HardwareMetrics),
+    Hardware(crate::platform::HardwareSnapshot),
     /// Models readiness (decides whether setup opens).
     Models(ModelsReadiness),
     /// Platform boot progress (phase + per-step status).

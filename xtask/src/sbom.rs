@@ -152,7 +152,7 @@ fn collect_rust_components(workspace_root: &Path) -> Result<Vec<Component>> {
         if metadata.workspace_members.iter().any(|m| m == &pkg.id) {
             continue;
         }
-        let name = pkg.name.clone();
+        let name = pkg.name.to_string();
         let version = pkg.version.to_string();
         let purl = format!("pkg:cargo/{name}@{version}");
         components.push(Component {

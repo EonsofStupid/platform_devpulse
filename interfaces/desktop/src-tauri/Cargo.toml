@@ -59,16 +59,16 @@ model-loader = { path = "../../../kernel/model-loader", default-features = false
 # below with a different backend; we only need audio decode here.
 devpulse-media = { path = "../../../systems/devpulse-media", default-features = false }
 devpulse-telemetry = { workspace = true }
-flume = "0.11"
+flume = { workspace = true }
 arc-swap = { workspace = true }
-rfd = "0.15"
-sysinfo = "0.38.4"
+rfd = "0.17.2"
+sysinfo = { workspace = true }
 keyring = { workspace = true }
 rodio = "0.19"
 # DevForge sidecar — REH web server lifecycle
 portpicker = "0.1"
-rand = "0.8"
-reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "stream"] }
+rand = { workspace = true }
+reqwest = { workspace = true, features = ["stream"] }
 futures = { workspace = true }
 
 # Vision / PixVix capture stack
@@ -79,7 +79,7 @@ xcap = "0.9"
 nokhwa = { version = "0.10", features = ["input-native"] }
 # base64: encoding captured frames as data: URLs for one-shot ergonomics.
 # 0.22 chosen to match the most-recent transitive in our lock file.
-base64 = "0.22"
+base64 = { workspace = true }
 # image: already pulled transitively via xcap; declared explicitly for the
 # PNG encoder we call directly.
 image = "0.25"

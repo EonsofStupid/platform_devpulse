@@ -28,10 +28,13 @@ pub struct ProcessMetrics {
 /// sysinfo requires TWO refreshes to compute CPU usage — the first call
 /// always returns 0%. We refresh twice with a small sleep between.
 /// Memory (RSS) is accurate on the first refresh.
+///
+/// # Errors
+/// Returns an error if OS measurements or this process's counters are unavailable.
 #[allow(clippy::cast_possible_truncation)]
-pub fn collect(uptime_secs: u64) -> ProcessMetrics {
+pub fn collect(uptime_secs: u64) -> anyhow::Result<ProcessMetrics> {
     let pid = Pid::from_u32(std::process::id());
-    let mut sys = System::new();
+    let mut sys = System::new()?;
     let filter = sysinfo::ProcessesToUpdate::Some(&[pid]);
 
     // First refresh — baseline for CPU delta calculation. RSS is valid here.
@@ -39,19 +42,23 @@ pub fn collect(uptime_secs: u64) -> ProcessMetrics {
 
     let (rss, virt) = sys
         .process(pid)
-        .map_or((0, 0), |p| (p.memory(), p.virtual_memory()));
+        .map(|p| (p.memory(), p.virtual_memory()))
+        .ok_or_else(|| anyhow::anyhow!("Process memory measurements unavailable"))?;
 
     // Brief pause then second refresh — CPU usage needs a delta between two samples.
     std::thread::sleep(std::time::Duration::from_millis(200));
     sys.refresh_processes(filter, true);
 
-    let cpu = sys.process(pid).map_or(0.0, sysinfo::Process::cpu_usage);
+    let cpu = sys
+        .process(pid)
+        .ok_or_else(|| anyhow::anyhow!("Process CPU measurements unavailable"))?
+        .cpu_usage();
 
-    ProcessMetrics {
+    Ok(ProcessMetrics {
         memory_rss_bytes: rss,
         memory_virtual_bytes: virt,
         cpu_usage_percent: cpu,
         uptime_secs,
         pid: std::process::id(),
-    }
+    })
 }

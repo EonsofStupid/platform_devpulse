@@ -81,9 +81,8 @@ impl VerificationBuffer {
         for edit in self.pending.values() {
             let ext = edit.path.extension().and_then(|e| e.to_str()).unwrap_or("");
 
-            let lang = match super::language::lang_from_extension(ext) {
-                Some(l) => l,
-                None => continue,
+            let Some(lang) = super::language::lang_from_extension(ext) else {
+                continue;
             };
 
             // Scan the new source for vulnerabilities.
@@ -100,8 +99,7 @@ impl VerificationBuffer {
                 .old_source
                 .as_ref()
                 .and_then(|old| super::scanner::scan_source(lang, old).ok())
-                .map(|r| r.findings.len())
-                .unwrap_or(0);
+                .map_or(0, |r| r.findings.len());
 
             let introduced = new_findings.len().saturating_sub(baseline_count);
             let safe = introduced == 0;
