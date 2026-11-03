@@ -2950,9 +2950,16 @@ queries proving what was written.
         room with memory has run.
       - Saving a note is last-write-wins: if an agent changes a project note
         while you have it open, your save replaces its change.
-      - The Linux and macOS socket has never run. The relay's release size is
-        not measured (77 MB in debug).
+      - The socket branch ran on Linux in CI (`a725320c`, the relay suite with
+        real children); macOS has never run it. The relay's release size is not
+        measured (77 MB in debug).
       - Agents are offered memory but not told to use it: nothing puts your
         notes in front of them unprompted. "Your context in every session"
         (B6's goal) needs that next step.
+    - CI on `a725320c` is green, its first since `97d735f8`. On the way: six
+      restored files needed their manifest digests and review notes (`39f04919`:
+      this work's own miss, since the local hooks do not run that check), and
+      five clippy lints in other tests had kept every Rust job red (`5dd9b920`).
+      Release still fails on a repository permission (release-please: "Resource
+      not accessible by integration"), which code cannot fix.
 
