@@ -183,11 +183,13 @@ tree-sitter-go = { workspace = true, optional = true }
 tree-sitter-java = { workspace = true, optional = true }
 tree-sitter-c = { workspace = true, optional = true }
 
+# A room's answers are checked against their role's contract, and the bundled
+# roles, rooms and personas against their JSON Schemas (`config/schemas/`). Same
+# version as the engine's.
+jsonschema = { workspace = true }
+
 [dev-dependencies]
 tempfile = "3"
-# The bundled roles, rooms and personas are checked against their JSON
-# Schemas (`config/schemas/`). Same version as the engine's.
-jsonschema = { workspace = true }
 
 [lints]
 workspace = true

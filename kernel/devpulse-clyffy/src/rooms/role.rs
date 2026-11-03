@@ -6,7 +6,9 @@
 //! - a talk-only role allows no tools;
 //! - a selecting role forbids merging (select, never blend);
 //! - every `{placeholder}` its text uses is a declared parameter, and every
-//!   declared parameter is used.
+//!   declared parameter is used;
+//! - its output contract compiles as a JSON Schema, since every answer is
+//!   checked against it.
 
 use std::collections::BTreeSet;
 
@@ -209,6 +211,12 @@ impl RoleCard {
         if self.method.steps.is_empty() {
             issues.push(Issue::new(at("method"), "needs at least one step"));
         }
+        if let Err(error) = jsonschema::validator_for(&self.output_contract) {
+            issues.push(Issue::new(
+                at("output_contract"),
+                format!("is not a JSON Schema that compiles: {error}"),
+            ));
+        }
         if self.rubric.is_empty() {
             issues.push(Issue::new(at("rubric"), "needs at least one criterion"));
         }
@@ -291,6 +299,19 @@ mod tests {
                 .iter()
                 .any(|issue| issue.problem.contains("select, never blend"))
         );
+    }
+
+    #[test]
+    fn a_contract_that_does_not_compile_rejects_its_role_by_name() {
+        let mut role = selector();
+        role.output_contract = serde_json::json!({ "type": 3 });
+        let issues = role.validate();
+        let issue = issues
+            .iter()
+            .find(|issue| issue.at.contains("output_contract"))
+            .expect("the contract is refused");
+        assert!(issue.at.contains(&role.id), "named: {issue:?}");
+        assert!(issue.problem.contains("JSON Schema"), "{issue:?}");
     }
 
     #[test]

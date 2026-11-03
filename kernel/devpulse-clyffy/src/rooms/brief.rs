@@ -12,6 +12,8 @@
 
 use std::fmt::Write as _;
 
+use jsonschema::error::ValidationErrorKind;
+
 use super::persona::VoiceTone;
 use super::role::RoleCard;
 use super::room::RoomSpec;
@@ -154,12 +156,13 @@ const fn tone(tone: VoiceTone) -> &'static str {
     }
 }
 
-/// The JSON object an answer ends with, checked against the role's output
+/// The JSON object an answer ends with, checked against the role's whole output
 /// contract: the last fenced `json` block (or the last fenced block, or the
-/// whole answer) must be an object holding every required field.
+/// whole answer) must be an object the contract accepts.
 ///
 /// # Errors
-/// What is wrong with the answer's form, in plain words.
+/// What is wrong with the answer's form, in plain words: each field it lacks,
+/// and each other violation at its path.
 pub fn read_output(role: &RoleCard, answer: &str) -> Result<serde_json::Value, String> {
     let candidates = [
         last_fenced(answer, "```json"),
@@ -171,18 +174,35 @@ pub fn read_output(role: &RoleCard, answer: &str) -> Result<serde_json::Value, S
         .flatten()
         .find_map(|text| serde_json::from_str::<serde_json::Value>(text).ok())
         .ok_or_else(|| "it does not end with a JSON block".to_owned())?;
-    let Some(object) = value.as_object() else {
+    if !value.is_object() {
         return Err("its JSON block is not an object".to_owned());
-    };
-    let missing: Vec<&str> = role
-        .output_fields()
-        .into_iter()
-        .filter(|field| !object.contains_key(*field))
-        .collect();
-    if missing.is_empty() {
+    }
+    // A role is checked when its library loads, so this names a card built
+    // some other way rather than an answer's fault.
+    let contract = jsonschema::validator_for(&role.output_contract)
+        .map_err(|error| format!("its role's contract does not compile: {error}"))?;
+    let mut missing = Vec::new();
+    let mut wrong = Vec::new();
+    for error in contract.iter_errors(&value) {
+        if let ValidationErrorKind::Required { property } = error.kind() {
+            missing.push(
+                property
+                    .as_str()
+                    .map_or_else(|| property.to_string(), str::to_owned),
+            );
+        } else {
+            wrong.push(format!("{}: {error}", error.instance_path().as_str()));
+        }
+    }
+    let mut problems = Vec::new();
+    if !missing.is_empty() {
+        problems.push(format!("its JSON block lacks {}", missing.join(", ")));
+    }
+    problems.extend(wrong);
+    if problems.is_empty() {
         Ok(value)
     } else {
-        Err(format!("its JSON block lacks {}", missing.join(", ")))
+        Err(problems.join("; "))
     }
 }
 
@@ -250,7 +270,7 @@ mod tests {
     #[test]
     fn an_answer_is_read_against_its_contract() {
         let (_, place) = council_place();
-        let good = "Paris.\n```json\n{\"answer\":\"Paris\",\"confidence\":0.9,\"out_of_domain\":false}\n```";
+        let good = "Paris.\n```json\n{\"answer\":\"Paris\",\"confidence\":\"high\",\"out_of_domain\":[]}\n```";
         assert_eq!(read_output(&place.role, good).unwrap()["answer"], "Paris");
         let missing = "```json\n{\"answer\":\"Paris\"}\n```";
         assert_eq!(
@@ -261,5 +281,33 @@ mod tests {
             read_output(&place.role, "just words").unwrap_err(),
             "it does not end with a JSON block"
         );
+    }
+
+    #[test]
+    fn each_violation_is_reported_at_its_path() {
+        let (_, place) = council_place();
+        let wrong =
+            "```json\n{\"answer\":\"Paris\",\"confidence\":0.9,\"out_of_domain\":false}\n```";
+        let problem = read_output(&place.role, wrong).unwrap_err();
+        assert!(problem.contains("/confidence: "), "a wrong enum: {problem}");
+        assert!(
+            problem.contains("/out_of_domain: "),
+            "a wrong type: {problem}"
+        );
+        assert!(!problem.contains("lacks"), "nothing is missing: {problem}");
+
+        let both = "```json\n{\"answer\":\"Paris\",\"confidence\":0.9}\n```";
+        let problem = read_output(&place.role, both).unwrap_err();
+        assert!(problem.contains("lacks out_of_domain"), "{problem}");
+        assert!(problem.contains("/confidence: "), "{problem}");
+    }
+
+    #[test]
+    fn an_answer_is_not_trusted_because_it_has_the_fields() {
+        let (_, place) = council_place();
+        let nested =
+            "```json\n{\"answer\":\"Paris\",\"confidence\":\"high\",\"out_of_domain\":[3]}\n```";
+        let problem = read_output(&place.role, nested).unwrap_err();
+        assert!(problem.contains("/out_of_domain/0: "), "{problem}");
     }
 }
