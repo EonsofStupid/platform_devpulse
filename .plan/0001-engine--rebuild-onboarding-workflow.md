@@ -3055,8 +3055,9 @@ queries proving what was written.
       and its own note says the feature stays off until the real crate lands. The
       B6.2e limit that called this a compile failure was wrong. Nothing to fix.
     - macOS: `.github/workflows/macos-memory-relay.yml` runs the relay suite with real
-      children when the relay or the lockfile changes. It does not gate `CI Pass`
-      until it has passed once.
+      children when the relay or the lockfile changes, and passed on its first run
+      (`d4412e16`), so the socket branch has now run on Linux and macOS. It stays
+      outside `CI Pass`, since it runs only on those paths.
     - Closed by B6.3a to d: agents not told about memory, and last-write-wins saves.
   - 2026-11-03 — **B4.2c c1 and c2 done; c5 was already done.**
     - c1: an answer is checked against its role's whole contract, each violation at
