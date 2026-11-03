@@ -26,6 +26,7 @@
  * ```
  */
 
+import { untrack } from "svelte";
 import {
 	commands,
 	events,
@@ -116,8 +117,12 @@ class SignalFabric {
 			void this.attach();
 		}
 
+		// Callers subscribe from `$effect`, so this runs inside it. What a handler
+		// reads must not become that effect's dependency: a store that reads and
+		// writes its own state here would re-run the effect, re-subscribe and be
+		// replayed to, until Svelte stops the page.
 		const current = this.ledger.latestOf(type);
-		if (current) entry(payloadData(current), current);
+		if (current) untrack(() => entry(payloadData(current), current));
 
 		return () => {
 			set.delete(entry);
