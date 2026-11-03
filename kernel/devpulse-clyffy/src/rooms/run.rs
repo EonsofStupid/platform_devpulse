@@ -302,7 +302,7 @@ impl RoomRun {
             .as_ref()
             .filter(|selection| selection.seat == place.seat);
         let visibility = match selection {
-            Some(selection) if selection.blind => Visibility::Anonymized,
+            Some(selection) if selection.blind.0 => Visibility::Anonymized,
             _ => phase.visibility,
         };
         let shown: Vec<String> = log.turns[from..]
@@ -365,13 +365,13 @@ fn selector_ask(selection: &Selection) -> String {
          Put exactly one letter in \"winner\", the next best in \"runner_up\", your reasons in \
          \"reasons\" and any disagreement in \"dissent\".",
     );
-    if selection.swap_order {
+    if selection.swap_order.0 {
         out.push_str(
             " Judge them in the order given, then again in the opposite order; if your two \
              picks differ, put \"tie\" in \"winner\".",
         );
     }
-    if selection.allow_none {
+    if selection.allow_none.0 {
         out.push_str(" If none passes the rubric, put \"none\" in \"winner\".");
     }
     out
@@ -569,7 +569,7 @@ fn pick(turns: &[RoomTurn], selector_turns: &[RoomTurn], selection: &Selection) 
     match leaders.as_slice() {
         [winner] if winner.as_str() == "tie" => result.tie = true,
         [winner] if winner.as_str() == "none" => {
-            if !selection.allow_none {
+            if !selection.allow_none.0 {
                 result.problem =
                     Some("the selector picked none, which this room does not allow".to_owned());
             }

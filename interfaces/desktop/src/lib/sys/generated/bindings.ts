@@ -4914,6 +4914,10 @@ turnCount: number;
  */
 updatedAt: number }
 /**
+ * "None passes" is a valid outcome.
+ */
+export type AllowNone = boolean
+/**
  * A suggested alternative path the user could take. The frontend
  * renders each as a one-click action.
  */
@@ -5813,6 +5817,10 @@ backends: BackendInfo[];
  * Every architecture the registry knows about.
  */
 architectures: ArchitectureSpec[] }
+/**
+ * The selector does not see who wrote what.
+ */
+export type Blind = boolean
 /**
  * Platform boot phase.
  */
@@ -8271,6 +8279,10 @@ export type Evidence =
  * A long-used method with little controlled evidence.
  */
 "practice"
+/**
+ * The selector's vendor wrote none of the answers.
+ */
+export type ExcludeAuthorVendors = boolean
 /**
  * Hardware execution lane in the inference pipeline.
  * 
@@ -13513,21 +13525,21 @@ method: SelectionMethod;
  */
 seat: string; 
 /**
- * The selector does not see who wrote what.
+ * See [`Blind`].
  */
-blind: boolean; 
+blind: Blind; 
 /**
- * Judge in both orders; a disagreement is a tie or a rerun.
+ * See [`SwapOrder`].
  */
-swap_order: boolean; 
+swap_order: SwapOrder; 
 /**
- * The selector's vendor wrote none of the answers.
+ * See [`ExcludeAuthorVendors`].
  */
-exclude_author_vendors: boolean; 
+exclude_author_vendors: ExcludeAuthorVendors; 
 /**
- * "None passes" is a valid outcome.
+ * See [`AllowNone`].
  */
-allow_none: boolean }
+allow_none: AllowNone }
 /**
  * How one answer is chosen.
  */
@@ -14717,6 +14729,10 @@ readySince: string | null }
  * port / binary / auth fields a user would override.
  */
 export type SurrealUserConfig = Record<string, never>
+/**
+ * Judge in both orders; a disagreement is a tie or a rerun.
+ */
+export type SwapOrder = boolean
 /**
  * Result of a single [`BurnEncoderAdapter::swap_blocking`] cycle.
  * 

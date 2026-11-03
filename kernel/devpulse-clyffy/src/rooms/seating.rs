@@ -252,7 +252,7 @@ fn vendor_rules(seated: &SeatedRoom) -> Vec<Issue> {
         .room
         .selection
         .as_ref()
-        .filter(|s| s.exclude_author_vendors)
+        .filter(|s| s.exclude_author_vendors.0)
     {
         for selector in seated.places_of(&selection.seat) {
             if let Some(author) = seated

@@ -62,7 +62,10 @@ env = { DISABLE_AUTOUPDATER = "1" }
 # resume the session the first one reported. Checked 2026-10-21 against
 # `claude --help` and a real turn (system/init → stream_event deltas →
 # result) with Claude Code 2.1.296.
-args = ["-p", "{prompt}", "--output-format", "stream-json", "--verbose", "--include-partial-messages"]
+args = ["-p", "--output-format", "stream-json", "--verbose", "--include-partial-messages"]
+# The prompt goes on stdin: a room's prompt can pass the 32,767 characters a
+# Windows command line holds. Checked 2026-11-03 against a real turn (2.1.316).
+prompt_via = "stdin"
 resume = ["--resume", "{session}"]
 # A room seat that only talks: `--tools ""` turns every built-in tool off,
 # and `--strict-mcp-config` with no `--mcp-config` loads no MCP servers.
@@ -71,8 +74,7 @@ talk_only = ["--tools", "", "--strict-mcp-config"]
 # A session with MCP servers (plan 0001 B6.2): `--mcp-config` reads the file
 # DevPulse writes, and print mode refuses a tool it may not use, so
 # `--allowedTools` names each server (`mcp__<server>` covers all its tools).
-# Both take several values, so they stay after the prompt. Checked 2026-11-02
-# against `claude --help` (2.1.316).
+# Checked 2026-11-02 against `claude --help` (2.1.316).
 tool_servers = ["--mcp-config", "{mcp_config}", "--allowedTools", "mcp__{tool_server}"]
 # Your notes for a session (plan 0001 B6.3): a file, for the same reason as the
 # MCP config, added to Claude Code's system prompt on every turn, so compaction

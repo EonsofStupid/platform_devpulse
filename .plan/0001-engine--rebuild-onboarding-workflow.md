@@ -3074,4 +3074,15 @@ queries proving what was written.
     - Limit: Gemini CLI, Cursor and Grok have no switch recorded and are not checked.
       On those, a talk-only seat is only as safe as what the agent asks about.
     - c5: `Rooms::start` already goes through `require_chat` (`f35b70b6`).
+  - 2026-11-03 — **B4.2c c3 done: long prompts, evidence, flags.**
+    - Claude Code's conversation prompt goes on stdin (`prompt_via`), so a room's
+      prompt is no longer limited by a Windows command line and is out of what other
+      users can list on Linux. Live: 38,455 characters reached a real Claude Code,
+      and two-turn context still holds. The agent's process is fed from its own task,
+      so a prompt larger than a pipe's buffer cannot stall the turn (200,000
+      characters in the test). A prompt no longer has to come before `--mcp-config`.
+    - Claude Code's `system/init` tools and MCP servers are logged on every turn.
+      Live: a talk-only seat reports `tools []`, `mcp_servers []`.
+    - `Selection`'s flags are newtypes (Q48), so the lint exception is gone; the JSON
+      is unchanged and the TypeScript stays boolean, as named aliases.
 

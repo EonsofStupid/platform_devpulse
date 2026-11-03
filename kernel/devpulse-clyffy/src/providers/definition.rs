@@ -261,12 +261,27 @@ pub struct ConnectSpec {
     pub talk_only_env: std::collections::BTreeMap<String, String>,
 }
 
+/// How a conversation's prompt reaches a headless agent.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum PromptVia {
+    /// In `args`, as `{prompt}`.
+    #[default]
+    Argument,
+    /// On standard input, which avoids the 32,767-character limit of a Windows
+    /// command line and keeps it out of what other users can list on Linux.
+    Stdin,
+}
+
 /// One conversation turn in an agent's headless mode.
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ConversationSpec {
-    /// Arguments for a turn; must carry `{prompt}`.
+    /// Arguments for a turn; carries `{prompt}` unless `prompt_via` is `stdin`.
     pub args: Vec<String>,
+    /// How the prompt reaches it.
+    #[serde(default)]
+    pub prompt_via: PromptVia,
     /// Added on later turns to continue the same conversation; must carry
     /// `{session}` (the id the agent reported on its first turn). Without
     /// it, every turn starts fresh.
@@ -553,8 +568,17 @@ impl ProviderDefinition {
                     bail!("{id}: connect.connector is for acp_agent only");
                 }
                 if let Some(conversation) = &connect.conversation {
-                    if !conversation.args.iter().any(|a| a.contains("{prompt}")) {
-                        bail!("{id}: connect.conversation.args must carry {{prompt}}");
+                    let carries_prompt = conversation.args.iter().any(|a| a.contains("{prompt}"));
+                    match conversation.prompt_via {
+                        PromptVia::Argument if !carries_prompt => {
+                            bail!("{id}: connect.conversation.args must carry {{prompt}}");
+                        }
+                        PromptVia::Stdin if carries_prompt => {
+                            bail!(
+                                "{id}: connect.conversation.args must not carry {{prompt}} when it goes on stdin"
+                            );
+                        }
+                        _ => {}
                     }
                     if !conversation.resume.is_empty()
                         && !conversation.resume.iter().any(|a| a.contains("{session}"))

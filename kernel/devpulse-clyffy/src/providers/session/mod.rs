@@ -599,6 +599,7 @@ mod tests {
             .conversation
             .as_mut()
             .unwrap();
+        conversation.prompt_via = crate::providers::definition::PromptVia::Argument;
         conversation.resume.clear();
         conversation.tool_servers.clear();
         conversation.talk_only.clear();
@@ -725,6 +726,42 @@ mod tests {
             }
         }
         Ok(text)
+    }
+
+    /// A prompt longer than a Windows command line holds reaches a real Claude
+    /// Code. Run as `two_turns_keep_their_context` is.
+    #[tokio::test]
+    #[ignore = "talks to this machine's Claude Code on your own subscription"]
+    async fn a_prompt_past_the_command_line_limit_reaches_a_real_agent() {
+        let data_dir =
+            PathBuf::from(std::env::var("DEVPULSE_DATA_DIR").expect("DEVPULSE_DATA_DIR"));
+        let home = std::env::home_dir();
+        let cwd = tempfile::tempdir().unwrap();
+        let definition = catalog::bundled()
+            .unwrap()
+            .into_iter()
+            .find(|d| d.id == ProviderId::ClaudeCode)
+            .unwrap();
+        let program =
+            installed::locate(&definition, home.as_deref(), &data_dir).expect("installed");
+        let session = AgentSession::start(
+            &definition,
+            &program,
+            &data_dir,
+            cwd.path(),
+            SessionSetup::default(),
+        )
+        .await
+        .unwrap();
+        let filler = "This line is only here to make the prompt long.\n".repeat(800);
+        assert!(filler.len() > 32_767);
+        let prompt = format!("{filler}\nIgnore the lines above and reply with exactly: LONG-OK");
+        let reply = answer(session.prompt(&prompt).await.unwrap())
+            .await
+            .unwrap();
+        println!("claude code, {} characters in: {reply:?}", prompt.len());
+        assert!(reply.contains("LONG-OK"), "{reply:?}");
+        session.close().await;
     }
 
     /// A seat that only talks changes nothing, whatever it is asked: its

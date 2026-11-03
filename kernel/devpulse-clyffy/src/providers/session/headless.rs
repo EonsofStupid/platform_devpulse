@@ -13,13 +13,13 @@ use std::sync::atomic::{AtomicBool, Ordering};
 
 use anyhow::{Context, Result, anyhow};
 use serde_json::{Value, json};
-use tokio::io::{AsyncBufReadExt, AsyncReadExt, BufReader};
+use tokio::io::{AsyncBufReadExt, AsyncReadExt, AsyncWriteExt, BufReader};
 use tokio::sync::{Mutex, mpsc, oneshot};
 use tokio_util::task::AbortOnDropHandle;
 
 use super::{AgentEvent, ToolServer, TurnEvents};
 use crate::providers::connect::Launch;
-use crate::providers::definition::{ConversationSpec, StreamFormat};
+use crate::providers::definition::{ConversationSpec, PromptVia, StreamFormat};
 
 /// How much of the agent's error output a failed turn keeps.
 const STDERR_TAIL: usize = 4 * 1024;
@@ -298,12 +298,17 @@ impl HeadlessSession {
         }
         let session = self.session.lock().await.clone();
         let args = self.turn_args(text, session.as_deref());
+        let on_stdin = self.conversation.prompt_via == PromptVia::Stdin;
         let mut command = tokio::process::Command::new(&self.program);
         command
             .args(&args)
             .envs(self.env.iter().map(|(k, v)| (k.as_str(), v.as_str())))
             .current_dir(&self.cwd)
-            .stdin(Stdio::null())
+            .stdin(if on_stdin {
+                Stdio::piped()
+            } else {
+                Stdio::null()
+            })
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())
             .kill_on_drop(true);
@@ -316,6 +321,17 @@ impl HeadlessSession {
         let mut child = command
             .spawn()
             .map_err(|e| anyhow!("{} could not start: {e}", self.program.display()))?;
+        if let Some(mut stdin) = child.stdin.take() {
+            // On its own task: a long prompt can fill the pipe, and the agent may
+            // not read it all until something reads what it prints. Dropping the
+            // pipe ends the agent's input.
+            let prompt = text.to_owned();
+            devpulse_telemetry::spawn(async move {
+                if let Err(error) = stdin.write_all(prompt.as_bytes()).await {
+                    tracing::warn!(target: "providers", %error, "the prompt could not be written");
+                }
+            });
+        }
         let stdout = child
             .stdout
             .take()
@@ -339,6 +355,29 @@ impl HeadlessSession {
         *previous = Some(task);
         Ok(receiver)
     }
+}
+
+/// What Claude Code says it started with, which is the evidence that a seat told
+/// to only talk has no tools and no MCP servers.
+fn log_what_it_has(init: &Value) {
+    let names = |field: &str, key: Option<&str>| -> Vec<String> {
+        init.get(field)
+            .and_then(Value::as_array)
+            .map(|items| {
+                items
+                    .iter()
+                    .filter_map(|item| key.map_or(item.as_str(), |key| item.get(key)?.as_str()))
+                    .map(str::to_owned)
+                    .collect()
+            })
+            .unwrap_or_default()
+    };
+    tracing::info!(
+        target: "providers",
+        tools = ?names("tools", None),
+        mcp_servers = ?names("mcp_servers", Some("name")),
+        "claude code started with"
+    );
 }
 
 async fn finish_process(
@@ -490,11 +529,13 @@ fn claude_line(line: &str) -> Vec<Line> {
             .to_owned()
     };
     match json.get("type").and_then(Value::as_str) {
-        Some("system") if json.get("subtype").and_then(Value::as_str) == Some("init") => json
-            .get("session_id")
-            .and_then(Value::as_str)
-            .map(|id| vec![Line::Session(id.to_owned())])
-            .unwrap_or_default(),
+        Some("system") if json.get("subtype").and_then(Value::as_str) == Some("init") => {
+            log_what_it_has(&json);
+            json.get("session_id")
+                .and_then(Value::as_str)
+                .map(|id| vec![Line::Session(id.to_owned())])
+                .unwrap_or_default()
+        }
         Some("stream_event") => {
             let Some(delta) = json.pointer("/event/delta") else {
                 return Vec::new();
@@ -765,6 +806,7 @@ mod tests {
             Path::new("/bin/claude"),
             ConversationSpec {
                 args: vec!["-p".into(), "{prompt}".into()],
+                prompt_via: PromptVia::Argument,
                 resume: vec!["--resume".into(), "{session}".into()],
                 talk_only: vec!["--tools".into(), String::new()],
                 tool_servers: vec![
@@ -937,6 +979,90 @@ mod tests {
         clear_leftover_files(data.path());
         assert!(!path.exists());
         assert!(beside.exists());
+    }
+
+    #[tokio::test]
+    async fn a_prompt_too_long_for_any_command_line_arrives_whole_on_stdin() {
+        #[cfg(windows)]
+        let (program, args) = (
+            "powershell",
+            vec![
+                "-NoProfile",
+                "-NonInteractive",
+                "-Command",
+                "[Console]::WriteLine([Console]::In.ReadToEnd().Length)",
+            ],
+        );
+        #[cfg(unix)]
+        let (program, args) = ("sh", vec!["-c", "wc -c"]);
+        let program = crate::providers::discovery::installed::on_path(program).unwrap();
+        let session = HeadlessSession::new(
+            &Launch {
+                adapter: crate::providers::definition::AdapterKind::Headless,
+                program: program.clone(),
+                args: Vec::new(),
+                env: Vec::new(),
+            },
+            &program,
+            ConversationSpec {
+                args: args.into_iter().map(str::to_owned).collect(),
+                prompt_via: PromptVia::Stdin,
+                resume: Vec::new(),
+                talk_only: Vec::new(),
+                tool_servers: Vec::new(),
+                context: Vec::new(),
+                output: StreamFormat::Text,
+            },
+            Path::new("."),
+            None,
+            false,
+            TurnFiles::default(),
+        );
+        // Over a pipe's buffer as well as the Windows limit, so writing it must
+        // not wait for the agent to finish.
+        let length = 200_000;
+        let mut events = session.prompt(&"x".repeat(length)).await.unwrap();
+        let mut printed = String::new();
+        while let Some(event) = events.recv().await {
+            match event {
+                AgentEvent::Text { text } => printed.push_str(&text),
+                AgentEvent::Failed { message } => panic!("{message}"),
+                AgentEvent::TurnEnded { .. } => break,
+                _ => {}
+            }
+        }
+        assert_eq!(printed.trim(), length.to_string());
+        session.close().await;
+    }
+
+    #[test]
+    fn claude_code_takes_its_prompt_on_stdin_so_it_is_not_in_its_arguments() {
+        let bundled = crate::providers::catalog::bundled().unwrap();
+        let claude = bundled
+            .iter()
+            .find(|d| d.id == crate::providers::ProviderId::ClaudeCode)
+            .unwrap();
+        let conversation = claude
+            .connect
+            .as_ref()
+            .and_then(|connect| connect.conversation.as_ref())
+            .unwrap();
+        assert_eq!(conversation.prompt_via, PromptVia::Stdin);
+        assert!(!conversation.args.iter().any(|a| a.contains("{prompt}")));
+
+        let real = include_str!("../../../config/providers/claude-code.toml");
+        let broken = real.replace(
+            "args = [\"-p\", \"--output-format\", \"stream-json\"",
+            "args = [\"-p\", \"{prompt}\", \"--output-format\", \"stream-json\"",
+        );
+        assert_ne!(real, broken);
+        let error = crate::providers::ProviderDefinition::parse(&broken).expect_err("both");
+        assert!(format!("{error:#}").contains("stdin"), "{error:#}");
+
+        let broken = real.replace("prompt_via = \"stdin\"\n", "");
+        assert_ne!(real, broken);
+        let error = crate::providers::ProviderDefinition::parse(&broken).expect_err("neither");
+        assert!(format!("{error:#}").contains("{prompt}"), "{error:#}");
     }
 
     #[test]

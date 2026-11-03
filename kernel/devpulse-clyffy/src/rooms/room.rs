@@ -135,24 +135,48 @@ pub enum SelectionMethod {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "specta", derive(specta::Type))]
 #[serde(deny_unknown_fields)]
-#[expect(
-    clippy::struct_excessive_bools,
-    reason = "mirrors the dpl.room/1 selection object field for field"
-)]
 pub struct Selection {
     /// Who picks.
     pub method: SelectionMethod,
     /// The selector's seat.
     pub seat: String,
-    /// The selector does not see who wrote what.
-    pub blind: bool,
-    /// Judge in both orders; a disagreement is a tie or a rerun.
-    pub swap_order: bool,
-    /// The selector's vendor wrote none of the answers.
-    pub exclude_author_vendors: bool,
-    /// "None passes" is a valid outcome.
-    pub allow_none: bool,
+    /// See [`Blind`].
+    pub blind: Blind,
+    /// See [`SwapOrder`].
+    pub swap_order: SwapOrder,
+    /// See [`ExcludeAuthorVendors`].
+    pub exclude_author_vendors: ExcludeAuthorVendors,
+    /// See [`AllowNone`].
+    pub allow_none: AllowNone,
 }
+
+/// The selector does not see who wrote what.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
+#[cfg_attr(feature = "specta", specta(transparent))]
+#[serde(transparent)]
+pub struct Blind(pub bool);
+
+/// Judge in both orders; a disagreement is a tie or a rerun.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
+#[cfg_attr(feature = "specta", specta(transparent))]
+#[serde(transparent)]
+pub struct SwapOrder(pub bool);
+
+/// The selector's vendor wrote none of the answers.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
+#[cfg_attr(feature = "specta", specta(transparent))]
+#[serde(transparent)]
+pub struct ExcludeAuthorVendors(pub bool);
+
+/// "None passes" is a valid outcome.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
+#[cfg_attr(feature = "specta", specta(transparent))]
+#[serde(transparent)]
+pub struct AllowNone(pub bool);
 
 /// What passes from one phase to the next.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
