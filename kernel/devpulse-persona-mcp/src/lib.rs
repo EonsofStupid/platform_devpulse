@@ -14,6 +14,7 @@
 //! cache API with durable expiry; [`verbs`] owns the memory tool arguments.
 
 pub mod auth;
+pub mod binding;
 pub mod error;
 pub mod idempotency;
 pub mod schema;
@@ -21,6 +22,7 @@ pub mod server;
 pub mod store;
 pub mod verbs;
 
+pub use binding::Binding;
 pub use error::{ErrorEnvelope, ErrorKind, PersonaError};
 pub use server::Server;
 pub use store::{PersonaBlock, PersonaScope, PersonaStore, RecallHit, RecallMode};

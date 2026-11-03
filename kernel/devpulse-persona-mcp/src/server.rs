@@ -8,20 +8,23 @@
 //! - `tools/call` — invokes a verb by name with JSON arguments.
 //! - `ping` — health check.
 //!
-//! Framing is newline-delimited JSON on stdin and stdout. Stderr is
-//! reserved for tracing — writing to stdout outside the JSON-RPC
-//! protocol breaks clients.
+//! Framing is newline-delimited JSON on any stream: stdin and stdout in
+//! direct mode, a pipe connection when `DevPulse` owns the store. In direct
+//! mode stderr is reserved for tracing — writing to stdout outside the
+//! JSON-RPC protocol breaks clients.
 //!
 //! # Concurrency
 //!
-//! This implementation processes stdio requests in order and writes one complete
-//! response frame at a time. Logs are kept off the protocol stream.
+//! One [`Server`] is one connection: it processes requests in order and writes
+//! one complete response frame at a time. Connections share the store, and
+//! each carries its own [`Binding`]. Logs are kept off the protocol stream.
 //!
 //! Background work (idempotency sweep, telemetry flush) belongs to
 //! `main.rs` — keep the dispatch loop free of side tasks per
 //! `feedback_no_process_flooding.md`.
 
 use crate::auth::AuthGate;
+use crate::binding::Binding;
 use crate::error::{ErrorEnvelope, ErrorKind, PersonaError};
 use crate::store::PersonaStore;
 use crate::verbs::{self, PersonaListArgs, PersonaLoadArgs, PersonaRecallArgs, PersonaSaveArgs};
@@ -29,7 +32,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use std::sync::Arc;
 use std::sync::atomic::{AtomicU8, Ordering};
-use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
+use tokio::io::{AsyncBufReadExt, AsyncRead, AsyncWrite, AsyncWriteExt, BufReader};
 
 /// MCP protocol version this server speaks.
 pub const MCP_PROTOCOL_VERSION: &str = "2025-06-18";
@@ -65,44 +68,62 @@ struct JsonRpcError {
     error: ErrorEnvelope,
 }
 
-/// The MCP server runtime.
+/// One MCP connection to the memory.
 pub struct Server {
     store: Arc<PersonaStore>,
     auth: AuthGate,
+    binding: Binding,
     initialization: AtomicU8,
 }
 
 impl Server {
-    /// Construct over an open [`PersonaStore`] and auth gate.
+    /// Construct over an open [`PersonaStore`] and auth gate, unbound.
     #[must_use]
     pub fn new(store: Arc<PersonaStore>, auth: AuthGate) -> Self {
         Self {
             store,
             auth,
+            binding: Binding::Unbound,
             initialization: AtomicU8::new(0),
         }
     }
 
-    /// Run the dispatch loop on stdin/stdout. Returns when stdin
-    /// reaches EOF (parent process closed the pipe — Claude Desktop
-    /// teardown).
+    /// Narrow this connection to what `binding` allows.
+    #[must_use]
+    pub fn bound(mut self, binding: Binding) -> Self {
+        self.binding = binding;
+        self
+    }
+
+    /// Serve on stdin/stdout. Returns when stdin reaches EOF (the parent
+    /// process closed the pipe — Claude Desktop teardown).
     ///
     /// # Errors
-    /// Returns `Err` only on irrecoverable I/O failure on stdin or
-    /// stdout. Per-request errors are reported in-band via JSON-RPC
-    /// error envelopes and do not abort the loop.
+    /// Returns `Err` only on irrecoverable I/O failure.
     pub async fn run(self) -> anyhow::Result<()> {
-        let stdin = tokio::io::stdin();
-        let mut reader = BufReader::new(stdin);
-        let mut stdout = tokio::io::stdout();
+        self.serve(tokio::io::stdin(), tokio::io::stdout()).await
+    }
+
+    /// Serve one connection until its input reaches EOF.
+    ///
+    /// # Errors
+    /// Returns `Err` only on irrecoverable I/O failure on the streams.
+    /// Per-request errors are reported in-band via JSON-RPC error envelopes
+    /// and do not abort the loop.
+    pub async fn serve<R, W>(&self, input: R, mut output: W) -> anyhow::Result<()>
+    where
+        R: AsyncRead + Unpin,
+        W: AsyncWrite + Unpin,
+    {
+        let mut reader = BufReader::new(input);
         let mut line = String::new();
 
         loop {
             line.clear();
             let read = reader.read_line(&mut line).await?;
             if read == 0 {
-                // EOF — parent closed the pipe.
-                tracing::info!(target = "persona_mcp", "stdin EOF, dispatch loop exiting");
+                // EOF — the other side closed its end.
+                tracing::info!(target = "persona_mcp", "input EOF, dispatch loop exiting");
                 break;
             }
             let trimmed = line.trim();
@@ -112,9 +133,9 @@ impl Server {
 
             let response_text = self.dispatch(trimmed).await;
             if let Some(text) = response_text {
-                stdout.write_all(text.as_bytes()).await?;
-                stdout.write_all(b"\n").await?;
-                stdout.flush().await?;
+                output.write_all(text.as_bytes()).await?;
+                output.write_all(b"\n").await?;
+                output.flush().await?;
             }
         }
 
@@ -332,28 +353,36 @@ impl Server {
 
         let result = match parsed.name.as_str() {
             "persona.load" => {
-                let args: PersonaLoadArgs = decode_args(parsed.arguments)?;
-                verbs::persona::load(&self.store, args)
-                    .await
-                    .and_then(encode_result)
+                let mut args: PersonaLoadArgs = decode_args(parsed.arguments)?;
+                async {
+                    self.binding.read(&args.scope, &mut args.slug)?;
+                    encode_result(verbs::persona::load(&self.store, args).await?)
+                }
+                .await
             }
             "persona.save" => {
-                let args: PersonaSaveArgs = decode_args(parsed.arguments)?;
-                verbs::persona::save(&self.store, args)
-                    .await
-                    .and_then(encode_result)
+                let mut args: PersonaSaveArgs = decode_args(parsed.arguments)?;
+                async {
+                    self.binding.write(&args.scope, &mut args.slug)?;
+                    encode_result(verbs::persona::save(&self.store, args).await?)
+                }
+                .await
             }
             "persona.recall" => {
-                let args: PersonaRecallArgs = decode_args(parsed.arguments)?;
-                verbs::persona::recall(&self.store, args)
-                    .await
-                    .and_then(encode_result)
+                let mut args: PersonaRecallArgs = decode_args(parsed.arguments)?;
+                async {
+                    self.binding.read(&args.scope, &mut args.slug)?;
+                    encode_result(verbs::persona::recall(&self.store, args).await?)
+                }
+                .await
             }
             "persona.list" => {
-                let args: PersonaListArgs = decode_args(parsed.arguments)?;
-                verbs::persona::list(&self.store, args)
-                    .await
-                    .and_then(encode_result)
+                let mut args: PersonaListArgs = decode_args(parsed.arguments)?;
+                async {
+                    self.binding.read(&args.scope, &mut args.slug)?;
+                    encode_result(verbs::persona::list(&self.store, args).await?)
+                }
+                .await
             }
             other => {
                 return Err(ErrorEnvelope::new(

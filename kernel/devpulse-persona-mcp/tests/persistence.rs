@@ -2,6 +2,7 @@
 
 #![allow(clippy::expect_used, reason = "test assertions")]
 
+use devpulse_persona_mcp::PersonaError;
 use devpulse_persona_mcp::store::{PersonaScope, PersonaStore};
 use devpulse_persona_mcp::verbs::persona::{PersonaSaveArgs, save};
 use std::path::Path;
@@ -42,8 +43,8 @@ async fn simultaneous_retries_write_once() {
     let test = fixture().await;
     let (a, b, c) = tokio::join!(
         save(&test.store, args("same", "first")),
-        save(&test.store, args("same", "second")),
-        save(&test.store, args("same", "third")),
+        save(&test.store, args("same", "first")),
+        save(&test.store, args("same", "first")),
     );
     let a = a.expect("first retry");
     for result in [b, c] {
@@ -58,6 +59,33 @@ async fn simultaneous_retries_write_once() {
         .expect("load");
     assert_eq!(blocks.len(), 1);
     assert_eq!(blocks[0].version, 1);
+}
+
+#[tokio::test]
+async fn simultaneous_different_writes_under_one_key_save_exactly_one() {
+    let test = fixture().await;
+    let bodies = ["first", "second", "third"];
+    let (a, b, c) = tokio::join!(
+        save(&test.store, args("same", bodies[0])),
+        save(&test.store, args("same", bodies[1])),
+        save(&test.store, args("same", bodies[2])),
+    );
+    let outcomes = [a, b, c];
+    let saved: Vec<usize> = (0..3).filter(|&i| outcomes[i].is_ok()).collect();
+    assert_eq!(saved.len(), 1, "exactly one write wins: {outcomes:?}");
+    for outcome in &outcomes {
+        if let Err(error) = outcome {
+            assert!(matches!(error, PersonaError::Conflict(_)), "{error}");
+        }
+    }
+    let blocks = test
+        .store
+        .load_blocks(PersonaScope::User, None)
+        .await
+        .expect("load");
+    assert_eq!(blocks.len(), 1);
+    assert_eq!(blocks[0].version, 1);
+    assert_eq!(blocks[0].body, bodies[saved[0]], "the winner's own body");
 }
 
 #[tokio::test]
@@ -153,11 +181,18 @@ async fn retries_survive_reopening_the_database() {
         .expect("save");
     drop(store);
     let reopened = open(&directory.path().join("memory.db")).await;
-    let retry = save(&reopened, args("persistent", "replacement"))
+    let retry = save(&reopened, args("persistent", "original"))
         .await
         .expect("retry");
     assert_eq!(retry.id, original.id);
     assert_eq!(retry.version, original.version);
+    let different = save(&reopened, args("persistent", "replacement"))
+        .await
+        .expect_err("a used key still refuses a different write after reopening");
+    assert!(
+        matches!(different, PersonaError::Conflict(_)),
+        "{different}"
+    );
     assert_eq!(
         reopened
             .get_block(PersonaScope::User, None, "persona")

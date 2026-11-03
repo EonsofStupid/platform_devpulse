@@ -8,6 +8,7 @@
 
 #![allow(clippy::expect_used, reason = "test assertions")]
 
+use devpulse_persona_mcp::PersonaError;
 use devpulse_persona_mcp::store::{PersonaScope, PersonaStore};
 use devpulse_persona_mcp::verbs::persona::{
     PersonaListArgs, PersonaLoadArgs, PersonaRecallArgs, PersonaSaveArgs, list, load, recall, save,
@@ -95,20 +96,46 @@ async fn persona_save_idempotency_returns_cached_response() {
             scope: "user".to_string(),
             slug: None,
             label: "persona".to_string(),
-            // Different body — spec: idempotency returns the *original*
-            // cached response regardless. Caller's bug if keys collide.
-            body: "second body".to_string(),
+            // A true retry: the same write under the same key.
+            body: "first body".to_string(),
             idempotency_key: key,
         },
     )
     .await
-    .expect("second save");
+    .expect("retry");
 
     assert_eq!(first.id, second.id);
-    assert_eq!(first.version, second.version);
+    assert_eq!(first.version, second.version, "a retry writes nothing");
+}
 
-    // The block on disk must still be the FIRST body because save was
-    // short-circuited by idempotency. (No row update happened on call #2.)
+/// Agents choose their own keys, so a reused one is expected. Its write must
+/// not vanish while reporting success.
+#[tokio::test]
+async fn persona_save_refuses_a_different_write_under_a_used_key() {
+    let store = fresh_store().await;
+    let key = "01HPQ-A-REUSED".to_string();
+    let attempt = |scope: &str, slug: Option<&str>, label: &str, body: &str| PersonaSaveArgs {
+        scope: scope.to_string(),
+        slug: slug.map(str::to_string),
+        label: label.to_string(),
+        body: body.to_string(),
+        idempotency_key: key.clone(),
+    };
+
+    let first = save(&store, attempt("user", None, "persona", "first body"))
+        .await
+        .expect("first save");
+
+    for different in [
+        attempt("user", None, "persona", "second body"),
+        attempt("user", None, "human", "first body"),
+        attempt("project", Some("alpha"), "persona", "first body"),
+    ] {
+        let error = save(&store, different).await.expect_err("refused");
+        assert!(matches!(error, PersonaError::Conflict(_)), "{error}");
+        assert!(error.to_string().contains("nothing was saved"), "{error}");
+    }
+
     let loaded = load(
         &store,
         PersonaLoadArgs {
@@ -118,7 +145,20 @@ async fn persona_save_idempotency_returns_cached_response() {
     )
     .await
     .expect("load");
+    assert_eq!(loaded.blocks.len(), 1);
     assert_eq!(loaded.blocks[0].body, "first body");
+    assert_eq!(loaded.blocks[0].version, first.version);
+
+    // A new key saves it.
+    save(
+        &store,
+        PersonaSaveArgs {
+            idempotency_key: "01HPQ-A-NEW".to_string(),
+            ..attempt("user", None, "persona", "second body")
+        },
+    )
+    .await
+    .expect("a new key");
 }
 
 #[tokio::test]

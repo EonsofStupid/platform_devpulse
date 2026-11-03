@@ -72,7 +72,7 @@ OAuth bearer from Authentik. The token's `sub` claim is the Clyffy user ID. Loca
 
 ### Idempotency
 
-Every write verb accepts an `idempotency_key: string` (UUIDv7 recommended). The server stores `(key, response)` for 24 hours; duplicate keys return the cached response. Read verbs ignore the key.
+Every write verb accepts an `idempotency_key: string` (UUIDv7 recommended). The server stores `(key, response)` for 24 hours; a retry of the same write returns the cached response. A different write under a used key returns a `conflict` error and saves nothing (corrected 2026-11-02: agents choose their own keys, and returning the cached response lost the write while reporting success). Read verbs ignore the key.
 
 ### Error envelope
 

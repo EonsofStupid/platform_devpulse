@@ -180,7 +180,42 @@ impl PersonaStore {
                 .await
                 .map_err(PersonaError::Backend)?;
 
-        let database = Arc::new(database);
+        Ok(Self::assemble(
+            Arc::new(database),
+            #[cfg(feature = "rro")]
+            rro,
+        )
+        .await)
+    }
+
+    /// A persona store inside a database someone else owns: `DevPulse`'s user
+    /// database, which allows one process at a time (plan 0001 B6.2). Applies
+    /// `PERSONA_SCHEMA`, which is idempotent, and shares the owner's adapter.
+    ///
+    /// # Errors
+    /// Returns [`PersonaError::Backend`] if the schema cannot be applied.
+    pub async fn over(
+        database: Arc<TursoAdapter>,
+        #[cfg(feature = "rro")] rro: Option<Arc<RroAdapter>>,
+    ) -> PersonaResult<Arc<Self>> {
+        database
+            .connect()
+            .map_err(PersonaError::Backend)?
+            .execute_batch(PERSONA_SCHEMA)
+            .await
+            .map_err(|e| PersonaError::Backend(e.into()))?;
+        Ok(Self::assemble(
+            database,
+            #[cfg(feature = "rro")]
+            rro,
+        )
+        .await)
+    }
+
+    async fn assemble(
+        database: Arc<TursoAdapter>,
+        #[cfg(feature = "rro")] rro: Option<Arc<RroAdapter>>,
+    ) -> Arc<Self> {
         let idempotency = IdempotencyCache::new(Arc::clone(&database));
 
         // Opportunistic sweep at boot — keeps the table from growing
@@ -190,12 +225,12 @@ impl PersonaStore {
             tracing::warn!(error = %e, "idempotency sweep at open failed (non-fatal)");
         }
 
-        Ok(Arc::new(Self {
+        Arc::new(Self {
             database,
             idempotency,
             #[cfg(feature = "rro")]
             rro,
-        }))
+        })
     }
 
     /// Open a connection for one operation; retain it until rows are consumed.
@@ -361,7 +396,19 @@ impl PersonaStore {
                 ).await.map_err(|e| PersonaError::Backend(e.into()))?;
                 if let Some(row) = rows.next().await.map_err(|e| PersonaError::Backend(e.into()))? {
                     let cached: String = row.get(0).map_err(|e| PersonaError::Backend(e.into()))?;
-                    return serde_json::from_str(&cached).map_err(|e| PersonaError::Backend(e.into()));
+                    let cached: PersonaBlock = serde_json::from_str(&cached).map_err(|e| PersonaError::Backend(e.into()))?;
+                    // A retry gets its first answer. A different write under
+                    // the same key must not vanish while reporting success.
+                    if cached.scope == scope
+                        && cached.slug.as_deref() == slug
+                        && cached.label == label
+                        && cached.body == body
+                    {
+                        return Ok(cached);
+                    }
+                    return Err(PersonaError::Conflict(
+                        "this idempotency_key was already used for a different write, so nothing was saved; use a new key".to_owned(),
+                    ));
                 }
             }
             let existing = read_block(&transaction, scope, slug, label).await?;

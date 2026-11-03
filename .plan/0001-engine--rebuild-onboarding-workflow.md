@@ -1632,12 +1632,50 @@ or used), every visual in the B4.3 order.
   including subprocess and restart checks; all-target Clippy and rustfmt pass.
   Original provenance is retained under plan 0009. Vector/graph recall is still
   unconfigured and returns an explicit error; session attachment remains B6.2.
-- **B6.2 Served.** The kernel MCP SSE server (configured, never started:
-  `engine/src/claude/mod.rs:349`, port 9315) starts with the app. ACP
-  `session/new` passes it in `mcpServers`, and Claude Code gets an
-  `--mcp-config` for non-talk-only seats.
-- **Live:** an agent answers with a fact that only DevPulse's memory blocks
-  hold.
+- **B6.2 Served.** *Rewritten 2026-11-02 after a real two-process test.* The
+  earlier text had an SSE server on port 9315 (`engine/src/claude/mod.rs:347`,
+  configured, never started; it stays where it is). Stdio is the one transport
+  every ACP agent must support, so sessions use it, but a stdio child per
+  session cannot own the database: a second
+  `devpulse-persona-mcp` on one file exits with "Locking error: Failed locking
+  file. File is locked by another process", so any two concurrent sessions (a
+  Council's seats) would break. The engine also holds the user database, and
+  a separate persona file would be the parallel database the Turso ruling
+  forbids. So memory has one owner and sessions relay to it:
+  - **One store.** `persona_blocks` and `persona_idempotency` live in the user
+    database, used through the engine's existing adapter. No second file for
+    the app. The `DEVPULSE_PERSONA_DB` direct mode stays for an MCP client
+    outside DevPulse.
+  - **A relay child.** Each vendor CLI starts `devpulse-persona-mcp`, which
+    relays its stdio to the owner over a private local pipe (a named pipe on
+    Windows, a mode-0600 socket on Linux and macOS). No port.
+  - **Bound by the owner, not the caller.** Each session gets a token the
+    owner maps to its project, revoked when the session ends. Today a caller
+    can read any project by naming its slug. A bound connection reads your
+    own blocks and its own project's, and refuses any other project. It writes
+    only its own project: your own blocks apply everywhere, so an agent, or
+    text an agent read, must not be able to change them. You change those in
+    DevPulse. Binding guards context; it is not a sandbox against a tool-enabled
+    agent that can already read your files.
+  - **Who gets it.** ACP sessions get it in `mcpServers` on `session/new`,
+    `session/resume` and `session/load`. A headless agent gets it from its
+    definition (`connect.conversation.tool_servers`: Claude Code's
+    `--mcp-config` file and `--allowedTools`, since print mode refuses a tool
+    it may not use). Talk-only seats get nothing, which keeps Council's blind
+    answers blind. A definition without the section gets no memory.
+
+  | Phase | Outcome | Check |
+  | --- | --- | --- |
+  | a | The store over a shared adapter; `Server` serves any stream; binding rules enforced in `tools/call`. | Isolation tests: another project refused on all four verbs, user-scope writes refused, unbound behaviour unchanged |
+  | b | The owner's pipe listener with tokens, and relay mode in the binary. | Two real concurrent children on one store; a wrong or revoked token refused; a child's exit leaves the owner serving |
+  | c | Sessions carry tool servers: ACP on all three calls, headless from its definition. | The fake ACP agent sees `mcpServers` on new, resume and load; talk-only sends none; argument tests for Claude Code |
+  | d | The engine owns the bridge; agents and rooms attach memory; the binary is built and bundled like `devpulse-agenthub`. | Engine tests; dev and portable packaging find the binary; a missing binary starts the session without memory and says so |
+  | e | Seeing and editing your memory in DevPulse: a ColdLight page, typed commands, copy. | Your own and project blocks edited in the running app |
+
+- **Live:** Claude Code and Codex each answer with a fact only DevPulse's memory
+  blocks hold; a second project's session cannot read it; a talk-only seat has
+  no memory tools; two sessions run at once; the fact survives a restart. This
+  uses your subscriptions for a few short turns.
 
 ### B7 — the Social tab (master plan H9)
 
@@ -2804,4 +2842,22 @@ queries proving what was written.
     and its readers — 173 transcripts live (60 sessions you started, 113
     of their sub-agents), each named by your first request (a sub-agent by
     its task); details in plan 0009's log, B5.2 detailed there as R3b.
+  - 2026-11-02 — **B6.2a done: one store, bound connections.**
+    - A real test decided the design: a second `devpulse-persona-mcp` on one
+      Turso file exits with "File is locked by another process", so memory
+      gets one owner (B6.2 rewritten). This also answers
+      `LIBSQL_TO_TURSO_MIGRATION.md` OQ-3: `persona_blocks` lives in `user.db`.
+    - `PersonaStore::over` puts the store inside a database another owner holds;
+      `Server::serve` runs on any stream; `Binding` is enforced on all four
+      tools (`persona/binding.rs`).
+    - Fixed: idempotency looked at the key alone, so a reused key dropped the
+      new write and reported success, even across projects. Agents choose their
+      own keys, so that was certain to happen. A retry of the same write still
+      gets its first answer; a different write now gets `conflict` and saves
+      nothing. `CLYFFY-COGNITIVE-FOUNDATION.md` corrected. Three tests that
+      called a different body a "retry" now use real retries and also check the
+      conflict, including under concurrency and after reopening.
+    - Verified: 37 persona tests, including 5 through the protocol path over one
+      store inside a host database; all-target Clippy; rustfmt. No session uses
+      this yet: phases b–e and the live check remain.
 
