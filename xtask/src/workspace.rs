@@ -629,7 +629,13 @@ mod merge_tests {
     fn shipped_runtime_overlay_is_visible_to_portable_packaging() {
         let ws = super::Workspace::discover().expect("workspace");
         let config = ws.tauri_config().expect("bundle declarations");
-        assert_eq!(config.external_bins, ["binaries/devpulse-agenthub"]);
+        assert_eq!(
+            config.external_bins,
+            [
+                "binaries/devpulse-agenthub",
+                "binaries/devpulse-persona-mcp"
+            ]
+        );
         let overlay = ws
             .desktop_dir()
             .join(crate::commands::build_agenthub::BUNDLE_CONFIG);

@@ -46,6 +46,8 @@ cpu-mkl = [
 
 [dependencies]
 devpulse-agenthub = { path = "../devpulse-agenthub" }
+# Your memory: this process owns it, and each agent session's relay reaches it.
+devpulse-persona-mcp = { path = "../../kernel/devpulse-persona-mcp" }
 # Core
 serde = { workspace = true }
 serde_json = { workspace = true }

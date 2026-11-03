@@ -24,6 +24,7 @@ use tokio::sync::{Mutex, mpsc};
 use uuid::Uuid;
 
 use super::agenthub::live::LiveState;
+use super::memory::Memory;
 use super::projects::Projects;
 use super::providers::Providers;
 
@@ -63,6 +64,8 @@ pub struct Agents {
     data_dir: PathBuf,
     providers: Arc<Providers>,
     projects: Option<Arc<Projects>>,
+    /// Your memory, offered to every session that may use tools.
+    memory: Option<Arc<Memory>>,
     /// The live conversation of each thread that has one, by session id.
     live: Mutex<HashMap<String, Arc<lifecycle::Conversation>>>,
     pub(super) observations: Arc<LiveState>,
@@ -76,6 +79,7 @@ impl Agents {
         data_dir: PathBuf,
         providers: Arc<Providers>,
         projects: Option<Arc<Projects>>,
+        memory: Option<Arc<Memory>>,
         observations: Arc<LiveState>,
     ) -> Self {
         Self {
@@ -83,6 +87,7 @@ impl Agents {
             data_dir,
             providers,
             projects,
+            memory,
             live: Mutex::new(HashMap::new()),
             observations,
         }
@@ -210,7 +215,7 @@ impl Agents {
     ) -> Result<Arc<AgentSession>> {
         turn.session(async {
             let cwd = self.folder(&record.project_id).await?;
-            let session = self.conversation(record.provider_id, &cwd, record.resume_token.clone(), false).await?;
+            let session = self.conversation(record.provider_id, &record.project_id, &cwd, record.resume_token.clone(), false).await?;
             tracing::info!(target: "agents", %session_id, provider = record.provider_id.key(), cwd = %cwd.display(), "conversation started");
             Ok(session)
         }).await
@@ -224,12 +229,14 @@ impl Agents {
     /// Start a conversation in its existing workspace. Only `talk_only`
     /// places may create an isolated folder. `resume` continues a previous
     /// conversation; `talk_only` turns tools off where the agent supports it.
+    /// Any other session gets your memory, bound to `project_id`.
     ///
     /// # Errors
     /// When the workspace is unavailable or the agent cannot start.
     pub(super) async fn conversation(
         &self,
         provider_id: ProviderId,
+        project_id: &str,
         cwd: &Path,
         resume: Option<String>,
         talk_only: bool,
@@ -246,16 +253,29 @@ impl Agents {
             .location(provider_id)
             .await
             .ok_or_else(|| anyhow!("{} is not installed", definition.name()))?;
-        AgentSession::start(
+        let memory = self
+            .memory
+            .as_ref()
+            .filter(|_| !talk_only)
+            .and_then(|memory| memory.for_session(project_id));
+        let tools = memory
+            .as_ref()
+            .map(|memory| vec![memory.server.clone()])
+            .unwrap_or_default();
+        let mut session = AgentSession::start(
             definition,
             Path::new(&location),
             &self.data_dir,
             cwd,
             resume,
             talk_only,
-            Vec::new(),
+            tools,
         )
-        .await
+        .await?;
+        if let Some(memory) = memory {
+            session.retain(memory.grant);
+        }
+        Ok(session)
     }
 
     /// Resolve the intended project workspace without substituting one.

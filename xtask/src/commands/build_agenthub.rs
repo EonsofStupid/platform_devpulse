@@ -1,4 +1,6 @@
-//! Build and stage the bundled runtime before Tauri reads its package config.
+//! Build and stage the bundled programs before Tauri reads its package config:
+//! the `AgentHub` runtime, and the relay each agent session uses to reach your
+//! memory (plan 0001 B6.2).
 
 use anyhow::{Context, Result, bail};
 
@@ -8,7 +10,10 @@ use crate::workspace::Workspace;
 /// This same overlay is consumed by Tauri and the portable package planner.
 pub const BUNDLE_CONFIG: &str = "src-tauri/tauri.agenthub.conf.json";
 
-/// Compile and stage the private runtime without starting the application.
+/// Each is both a package and its binary, shipped beside the desktop.
+const BUNDLED: [&str; 2] = ["devpulse-agenthub", "devpulse-persona-mcp"];
+
+/// Compile and stage the bundled programs without starting the application.
 pub struct BuildAgentHub {
     /// Use the release executable for installer/portable packaging.
     pub release: bool,
@@ -31,21 +36,18 @@ impl Task for BuildAgentHub {
 
 /// Both dev and release call this after applying the canonical build env.
 pub fn build(ws: &Workspace, release: bool) -> Result<()> {
-    crate::stage::section("AgentHub Runtime");
-    let mut args = vec![
-        "build",
-        "-p",
-        "devpulse-agenthub",
-        "--bin",
-        "devpulse-agenthub",
-    ];
+    crate::stage::section("Bundled Programs");
+    let mut args = vec!["build"];
+    for program in BUNDLED {
+        args.extend(["-p", program, "--bin", program]);
+    }
     if release {
         args.push("--release");
     }
     ws.exec("cargo", &args)?;
     let output = ws.output("rustc", &["--print", "host-tuple"])?;
     if !output.status.success() {
-        bail!("rustc could not report the AgentHub target triple");
+        bail!("rustc could not report the target triple");
     }
     let target = String::from_utf8(output.stdout).context("read the Rust host triple")?;
     let target = target.trim();
@@ -57,24 +59,26 @@ pub fn build(ws: &Workspace, release: bool) -> Result<()> {
         bail!("rustc returned an invalid host triple");
     }
     let extension = std::env::consts::EXE_SUFFIX;
-    let source = ws
-        .root()
-        .join("target")
-        .join(if release { "release" } else { "debug" })
-        .join(format!("devpulse-agenthub{extension}"));
-    let destination = ws
-        .desktop_dir()
-        .join("src-tauri/binaries")
-        .join(format!("devpulse-agenthub-{target}{extension}"));
-    std::fs::create_dir_all(destination.parent().context("runtime staging folder")?)?;
-    // Tauri's build script watches this source. Avoid changing its mtime on
-    // every dev launch when cargo has reused the same executable.
-    let source_bytes =
-        std::fs::read(&source).with_context(|| format!("read {}", source.display()))?;
-    if std::fs::read(&destination).ok().as_deref() != Some(source_bytes.as_slice()) {
-        std::fs::copy(&source, &destination)
-            .with_context(|| format!("stage {}", destination.display()))?;
+    for program in BUNDLED {
+        let source = ws
+            .root()
+            .join("target")
+            .join(if release { "release" } else { "debug" })
+            .join(format!("{program}{extension}"));
+        let destination = ws
+            .desktop_dir()
+            .join("src-tauri/binaries")
+            .join(format!("{program}-{target}{extension}"));
+        std::fs::create_dir_all(destination.parent().context("program staging folder")?)?;
+        // Tauri's build script watches this source. Avoid changing its mtime on
+        // every dev launch when cargo has reused the same executable.
+        let source_bytes =
+            std::fs::read(&source).with_context(|| format!("read {}", source.display()))?;
+        if std::fs::read(&destination).ok().as_deref() != Some(source_bytes.as_slice()) {
+            std::fs::copy(&source, &destination)
+                .with_context(|| format!("stage {}", destination.display()))?;
+        }
+        crate::xinfo!("  > {program} staged for {target}");
     }
-    crate::xinfo!("  > AgentHub staged for {target}");
     Ok(())
 }

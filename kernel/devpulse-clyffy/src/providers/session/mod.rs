@@ -149,6 +149,8 @@ pub struct AgentSession {
     definition: ProviderDefinition,
     program: PathBuf,
     data_dir: PathBuf,
+    /// Last, so the agent has stopped before what it was using goes away.
+    leases: Vec<Box<dyn std::any::Any + Send + Sync>>,
 }
 
 enum Kind {
@@ -229,7 +231,14 @@ impl AgentSession {
             definition: definition.clone(),
             program: program.to_path_buf(),
             data_dir: data_dir.to_path_buf(),
+            leases: Vec::new(),
         })
+    }
+
+    /// Keep `lease` for as long as this conversation: what its tools need to
+    /// stay valid, such as the memory token that ends when it is dropped.
+    pub fn retain(&mut self, lease: impl std::any::Any + Send + Sync) {
+        self.leases.push(Box::new(lease));
     }
 
     /// Send one prompt; the turn's events arrive on the returned receiver.

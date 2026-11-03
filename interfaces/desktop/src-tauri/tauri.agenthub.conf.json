@@ -1,5 +1,5 @@
 {
 	"bundle": {
-		"externalBin": ["binaries/devpulse-agenthub"]
+		"externalBin": ["binaries/devpulse-agenthub", "binaries/devpulse-persona-mcp"]
 	}
 }

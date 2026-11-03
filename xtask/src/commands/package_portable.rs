@@ -1589,6 +1589,35 @@ mod tests {
         );
     }
 
+    #[test]
+    fn the_memory_relay_is_required_beside_the_portable_desktop() {
+        let mut plan = fake_plan_with_declared_resources(0);
+        plan.conf.external_bins = vec![
+            "binaries/devpulse-agenthub".into(),
+            "binaries/devpulse-persona-mcp".into(),
+        ];
+        write_file(
+            &plan.target_release.join("devpulse-agenthub.exe"),
+            b"runtime fixture",
+        );
+        assert!(
+            plan_copies(&plan)
+                .expect_err("a missing relay must fail the package")
+                .to_string()
+                .contains("devpulse-persona-mcp.exe")
+        );
+        write_file(
+            &plan.target_release.join("devpulse-persona-mcp.exe"),
+            b"relay fixture",
+        );
+        let copies = plan_copies(&plan).expect("both are available");
+        assert!(
+            copies
+                .iter()
+                .any(|entry| entry.dest_rel == Path::new("devpulse-persona-mcp.exe"))
+        );
+    }
+
     fn fake_plan_with_declared_resources(n: usize) -> PackagePlan {
         let base = tempdir();
         let conf = TauriConfig {

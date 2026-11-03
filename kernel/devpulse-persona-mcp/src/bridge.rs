@@ -14,10 +14,12 @@
 //! ones.
 
 use std::collections::HashMap;
+use std::path::Path;
 use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 use std::time::Duration;
 
 use anyhow::{Context, Result, anyhow};
+use devpulse_clyffy::providers::ToolServer;
 use serde::{Deserialize, Serialize};
 use tokio::io::{AsyncBufReadExt, AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt, BufReader};
 use tokio::sync::watch;
@@ -33,6 +35,15 @@ use crate::store::PersonaStore;
 pub const PIPE_ENV: &str = "DEVPULSE_MEMORY_PIPE";
 /// The variable carrying the session's token.
 pub const TOKEN_ENV: &str = "DEVPULSE_MEMORY_TOKEN";
+
+/// The binary's name, shipped beside the desktop executable.
+pub const EXECUTABLE: &str = if cfg!(windows) {
+    "devpulse-persona-mcp.exe"
+} else {
+    "devpulse-persona-mcp"
+};
+/// What an agent calls the memory.
+pub const TOOL_SERVER_NAME: &str = "devpulse-memory";
 
 /// How long a connection has to present its token.
 const HANDSHAKE_WAIT: Duration = Duration::from_secs(5);
@@ -111,6 +122,21 @@ impl Bridge {
     #[must_use]
     pub fn address(&self) -> &str {
         &self.address
+    }
+
+    /// What an agent starts to reach this owner with `grant`: the relay at
+    /// `program`.
+    #[must_use]
+    pub fn tool_server(&self, grant: &Grant, program: &Path) -> ToolServer {
+        ToolServer {
+            name: TOOL_SERVER_NAME.to_owned(),
+            command: program.to_path_buf(),
+            args: Vec::new(),
+            env: vec![
+                (PIPE_ENV.to_owned(), self.address.clone()),
+                (TOKEN_ENV.to_owned(), grant.token().to_owned()),
+            ],
+        }
     }
 
     /// Let one session in, bound to `project`.

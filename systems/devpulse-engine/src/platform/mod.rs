@@ -39,6 +39,7 @@ pub mod health;
 pub mod init;
 #[cfg(feature = "inference")]
 pub mod integrations;
+pub mod memory;
 pub mod metrics;
 pub mod module;
 pub mod onboarding;
@@ -327,6 +328,8 @@ pub struct Platform {
     rooms: Option<Arc<rooms::Rooms>>,
     /// Scoped chat persistence and endpoint conversations.
     chat: Option<Arc<chat::Chat>>,
+    /// What your agents remember (needs the user database).
+    memory: Option<Arc<memory::Memory>>,
     user_analytics: Option<Arc<AnalyticsService>>,
     user_graph: Option<Arc<GraphService>>,
     // ── Global scope ────────────────────────────────────────────
@@ -410,6 +413,8 @@ struct UserWorkflows {
     rooms: Option<Arc<rooms::Rooms>>,
     /// Scoped chat persistence and endpoint conversations.
     chat: Option<Arc<chat::Chat>>,
+    /// What your agents remember.
+    memory: Option<Arc<memory::Memory>>,
 }
 
 /// Start the user-database workflows: first run, projects, containers,
@@ -477,11 +482,19 @@ async fn start_user_workflows(
             None
         }
     };
+    let memory = match memory::Memory::start(Arc::clone(user.adapter())).await {
+        Ok(memory) => Some(Arc::new(memory)),
+        Err(e) => {
+            tracing::error!(target: "memory", error = %format!("{e:#}"), "memory could not start");
+            None
+        }
+    };
     let agents = Some(Arc::new(agents::Agents::new(
         Arc::clone(user.adapter()),
         data_dir.to_path_buf(),
         Arc::clone(providers),
         projects.clone(),
+        memory.clone(),
         Arc::clone(agenthub.live()),
     )));
     let rooms = agents.as_ref().map(|agents| {
@@ -503,6 +516,7 @@ async fn start_user_workflows(
         agents,
         rooms,
         chat,
+        memory,
     }
 }
 
@@ -609,6 +623,7 @@ impl Platform {
             agents: user_workflows.agents,
             rooms: user_workflows.rooms,
             chat: user_workflows.chat,
+            memory: user_workflows.memory,
             providers,
             agenthub,
             user_analytics: booted.user_analytics,
@@ -854,6 +869,11 @@ impl Platform {
     /// Your threads with your agents (when the user database is open).
     pub fn agents(&self) -> Option<&Arc<agents::Agents>> {
         self.agents.as_ref()
+    }
+
+    /// What your agents remember (when the user database is open).
+    pub fn memory(&self) -> Option<&Arc<memory::Memory>> {
+        self.memory.as_ref()
     }
 
     /// Scoped chats (when the user database and connections are available).

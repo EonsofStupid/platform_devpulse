@@ -427,7 +427,13 @@ impl Host {
         let resume = self.room.tokens.lock().await.get(&key).cloned();
         let session = Arc::new(
             self.agents
-                .conversation(place.provider, &cwd, resume, talk_only)
+                .conversation(
+                    place.provider,
+                    &self.room.project_id,
+                    &cwd,
+                    resume,
+                    talk_only,
+                )
                 .await?,
         );
         self.room

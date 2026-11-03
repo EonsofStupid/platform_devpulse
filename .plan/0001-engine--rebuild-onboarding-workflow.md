@@ -2892,4 +2892,19 @@ queries proving what was written.
     - Not verified: no real agent has used this yet. Nothing passes a server
       (the engine passes none until phase d), so the live check is what proves
       Claude Code and Codex actually load it.
+  - 2026-11-02 — **B6.2d done: the engine owns memory, sessions get it.**
+    - `platform/memory.rs` puts the tables in the user database and runs the
+      bridge. `Agents::conversation`, the one place sessions are made (threads
+      and rooms), now takes the project and offers memory to any session that
+      may use tools; `AgentSession::retain` keeps the token as long as the
+      session. A missing relay leaves the session running without memory and
+      logs why.
+    - xtask's one build step builds and stages the relay beside the AgentHub
+      runtime, and both are in the overlay Tauri and the portable planner read.
+    - Verified: 164 engine platform tests, including that no second database
+      file appears; 114 xtask tests, including that a portable package without
+      the relay fails; `cargo xtask build-agenthub` stages both. The debug relay
+      is 77 MB; its release size is not measured.
+    - Not yet: seeing and editing memory in DevPulse (phase e). The relay is not
+      yet exercised by a real agent (the live check).
 

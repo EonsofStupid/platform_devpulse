@@ -4169,6 +4169,7 @@ dependencies = [
  "chrono",
  "devpulse-agenthub",
  "devpulse-clyffy",
+ "devpulse-persona-mcp",
  "devpulse-process",
  "devpulse-telemetry",
  "figment",
