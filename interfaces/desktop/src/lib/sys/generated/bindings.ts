@@ -22,29 +22,76 @@ async pickSaveFile(defaultName: string) : Promise<Result<string | null, string>>
 }
 },
 /**
- * Persist a user turn into `turns` for the active (or new) session in `project_id`.
+ * Save a user turn to the explicitly selected conversation, or create a new one.
+ * # Errors
+ * Returns platform, scope or persistence errors from the engine.
  */
-async sendMessage(projectId: string, content: string) : Promise<Result<ChatMessage, string>> {
+async sendMessage(projectId: string, sessionId: string | null, content: string) : Promise<Result<ChatMessage, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("send_message", { projectId, content }) };
+    return { status: "ok", data: await TAURI_INVOKE("send_message", { projectId, sessionId, content }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
 }
 },
 /**
- * Store an assistant turn (inference response) into the active session.
- * 
- * Called by the frontend after streaming inference completes.
- * Accepts metadata that only the inference pipeline knows: token count,
- * model identity, and latency.
- * 
+ * Start a conversation bound to the selected saved endpoint revision and model.
  * # Errors
- * Returns formatted error strings when the platform is still booting,
- * the relational service is unavailable, or any of the sequence /
- * insert / touch / read-back SQL operations fail.
+ * Returns engine validation and persistence errors.
  */
-async storeAssistantTurn(sessionId: string, projectId: string, content: string, tokenCount: number, modelUsed: string, latencyMs: number) : Promise<Result<ChatMessage, string>> {
+async chatEndpointStart(projectId: string, connectionId: string, revision: number, model: string) : Promise<Result<string, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("chat_endpoint_start", { projectId, connectionId, revision, model }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Read the selected conversation's routing identity without sending any network request.
+ * # Errors
+ * Returns engine scope and persistence errors.
+ */
+async chatEndpointTarget(projectId: string, sessionId: string | null) : Promise<Result<TextTarget | null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("chat_endpoint_target", { projectId, sessionId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Run one endpoint turn with a private channel for this request's text deltas.
+ * # Errors
+ * Returns scope, endpoint, cancellation and persistence errors.
+ */
+async chatEndpointPrompt(projectId: string, sessionId: string, requestId: string, content: string, onToken: TAURI_CHANNEL<string>) : Promise<Result<ChatMessage, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("chat_endpoint_prompt", { projectId, sessionId, requestId, content, onToken }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Stop only the identified endpoint request in its owning conversation.
+ * # Errors
+ * Returns engine scope and coordination errors.
+ */
+async chatEndpointCancel(projectId: string, sessionId: string, requestId: string) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("chat_endpoint_cancel", { projectId, sessionId, requestId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Save a completed ordinary-model answer to its owning conversation.
+ * # Errors
+ * Returns platform, scope or persistence errors from the engine.
+ */
+async storeAssistantTurn(sessionId: string, projectId: string, content: string, tokenCount: number | null, modelUsed: string, latencyMs: number) : Promise<Result<ChatMessage, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("store_assistant_turn", { sessionId, projectId, content, tokenCount, modelUsed, latencyMs }) };
 } catch (e) {
@@ -53,7 +100,9 @@ async storeAssistantTurn(sessionId: string, projectId: string, content: string, 
 }
 },
 /**
- * Load recent turns for a project. When `session_id` is `None`, uses the latest session for the project.
+ * Read the selected conversation. No selection means a new, empty chat.
+ * # Errors
+ * Returns platform, scope or persistence errors from the engine.
  */
 async loadRecent(projectId: string, sessionId: string | null) : Promise<Result<ChatMessage[], string>> {
     try {
@@ -6176,6 +6225,10 @@ value: Cell }
  */
 export type ChatCopy = { 
 /**
+ * Conversations through saved model endpoints.
+ */
+endpoints: EndpointChatCopy; 
+/**
  * Threads with your agents.
  */
 agents: AgentChatCopy }
@@ -6184,7 +6237,7 @@ agents: AgentChatCopy }
  */
 export type ChatMessage = { 
 /**
- * Turn primary key (UUID v7, string-encoded).
+ * Turn primary key (UUID, string-encoded).
  */
 id: string; 
 /**
@@ -6200,7 +6253,7 @@ role: string;
  */
 content: string; 
 /**
- * Unix timestamp in milliseconds when this turn was created.
+ * Unix timestamp in seconds when this turn was created.
  */
 createdAt: number; 
 /**
@@ -7721,6 +7774,46 @@ export type Effort =
  * Its most careful answer.
  */
 "high"
+/**
+ * Saved endpoint conversations, using plain-language controls.
+ */
+export type EndpointChatCopy = { 
+/**
+ * Picker heading.
+ */
+title: string; 
+/**
+ * Named saved connection field.
+ */
+connection: string; 
+/**
+ * Explicit advertised model field.
+ */
+model: string; 
+/**
+ * Start without sending any conversation text.
+ */
+start: string; 
+/**
+ * Cancel the current response.
+ */
+stop: string; 
+/**
+ * Return to a new ordinary model conversation.
+ */
+new_local: string; 
+/**
+ * Where to add and check connections.
+ */
+empty: string; 
+/**
+ * Explain when content leaves the app and billing can apply.
+ */
+disclosure: string; 
+/**
+ * Archived conversation state.
+ */
+read_only: string }
 /**
  * A text message; transport decisions and wire roles belong in the kernel.
  */
@@ -13042,6 +13135,10 @@ export type SavedConnection = {
  */
 id: string; 
 /**
+ * Changes on every edit, preventing stale conversation routing.
+ */
+revision: number; 
+/**
  * User-chosen name.
  */
 label: string; 
@@ -14543,6 +14640,26 @@ modified_ms: number;
  */
 is_current: boolean }
 /**
+ * Public identity of the connection and model a conversation was started with.
+ */
+export type TextTarget = { 
+/**
+ * Saved endpoint identity.
+ */
+connectionId: string; 
+/**
+ * Exact configuration generation approved when starting the conversation.
+ */
+revision: number; 
+/**
+ * Connection name at creation, retained even after removal.
+ */
+label: string; 
+/**
+ * Explicit model, never selected by a fallback.
+ */
+model: string }
+/**
  * One thought in a reasoning tree — mirrors the `thought` table in
  * `USER_GRAPH_SCHEMA`. `id` is the Surreal record id (`thought:<uuid>`)
  * so callers can use it directly as a relation endpoint.
@@ -15997,6 +16114,7 @@ close: string }
 
 import {
 	invoke as TAURI_INVOKE,
+	Channel as TAURI_CHANNEL,
 } from "@tauri-apps/api/core";
 import * as TAURI_API_EVENT from "@tauri-apps/api/event";
 import { type WebviewWindow as __WebviewWindow__ } from "@tauri-apps/api/webviewWindow";

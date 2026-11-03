@@ -117,6 +117,10 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
         .commands(collect_commands![
             commands::chat::pick_save_file,
             commands::chat::send_message,
+            commands::chat::endpoints::chat_endpoint_start,
+            commands::chat::endpoints::chat_endpoint_target,
+            commands::chat::endpoints::chat_endpoint_prompt,
+            commands::chat::endpoints::chat_endpoint_cancel,
             commands::chat::store_assistant_turn,
             commands::chat::history::load_recent,
             commands::chat::suggest::suggest_query,

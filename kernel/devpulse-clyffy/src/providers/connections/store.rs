@@ -9,6 +9,7 @@ pub(super) struct Record {
     pub provider: ProviderId,
     pub endpoint: String,
     pub credential_ref: Option<String>,
+    pub revision: i64,
 }
 
 fn decode(row: &SqlRow) -> Result<Record> {
@@ -26,21 +27,26 @@ fn decode(row: &SqlRow) -> Result<Record> {
             .get(4)
             .and_then(crate::cortex::persistence::SqlValue::as_text)
             .map(str::to_owned),
+        revision: row
+            .get(5)
+            .and_then(crate::cortex::persistence::SqlValue::as_integer)
+            .filter(|n| *n > 0)
+            .context("Invalid saved AI connection revision")?,
     })
 }
 
 pub(super) async fn list(db: &dyn SqlAdapter) -> Result<Vec<Record>> {
-    db.query("SELECT id, label, provider_id, endpoint, credential_ref FROM ai_connections ORDER BY label, id", &[])
+    db.query("SELECT id, label, provider_id, endpoint, credential_ref, revision FROM ai_connections ORDER BY label, id", &[])
         .await?.iter().map(decode).collect()
 }
 
 pub(super) async fn get(db: &dyn SqlAdapter, id: &str) -> Result<Record> {
-    let rows = db.query("SELECT id, label, provider_id, endpoint, credential_ref FROM ai_connections WHERE id = ?", &[id.into()]).await?;
+    let rows = db.query("SELECT id, label, provider_id, endpoint, credential_ref, revision FROM ai_connections WHERE id = ?", &[id.into()]).await?;
     decode(rows.first().context("Saved AI connection was not found")?)
 }
 
 pub(super) async fn save(db: &dyn SqlAdapter, record: &Record) -> Result<()> {
-    let affected = db.execute("INSERT INTO ai_connections (id, label, provider_id, endpoint, credential_ref) VALUES (?, ?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET label = excluded.label, provider_id = excluded.provider_id, endpoint = excluded.endpoint, credential_ref = excluded.credential_ref, updated_at = unixepoch()",
+    let affected = db.execute("INSERT INTO ai_connections (id, label, provider_id, endpoint, credential_ref) VALUES (?, ?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET label = excluded.label, provider_id = excluded.provider_id, endpoint = excluded.endpoint, credential_ref = excluded.credential_ref, revision = ai_connections.revision + 1, updated_at = unixepoch()",
         &[record.id.clone().into(), record.label.clone().into(), record.provider.key().into(), record.endpoint.clone().into(), record.credential_ref.clone().into()]).await?;
     ensure!(affected == 1, "AI connection was not saved");
     Ok(())

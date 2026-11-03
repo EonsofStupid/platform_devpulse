@@ -27,7 +27,10 @@ vi.mock("$lib/sys/logger.js", async (importOriginal) => ({
 }));
 vi.mock("$lib/sys/runes/global.svelte.js", () => ({ globalState: {} }));
 vi.mock("../util/format.js", () => ({ toBlockMessage: vi.fn() }));
-vi.mock("./chat.service.js", () => ({ loadRecent: mocks.loadRecent }));
+vi.mock("./chat.service.js", () => ({
+	loadRecent: mocks.loadRecent,
+	endpointTarget: vi.fn().mockResolvedValue(null),
+}));
 
 import { agentsState } from "./agents.state.svelte.js";
 import { chatState } from "./chat.state.svelte.js";

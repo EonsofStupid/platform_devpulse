@@ -3,6 +3,7 @@
  * @module @devpulse/domains/chat/data-access/chat.service
  */
 
+import { Channel } from "@tauri-apps/api/core";
 import { projectsState } from "$lib/domains/app/projects/index.js";
 import { withAction } from "$lib/sys/action-bus.svelte.js";
 import {
@@ -39,12 +40,16 @@ export async function loadRecent(
 	});
 }
 
-export async function sendMessage(projectId: string, content: string): Promise<ChatMessage> {
+export async function sendMessage(
+	projectId: string,
+	sessionId: string | null,
+	content: string,
+): Promise<ChatMessage> {
 	return withAction("chat.send", "Sending your message to the model…", async () => {
 		logInfo("chat", "send_message");
 		const pid = projectId || activeProjectId();
 		if (!pid) throw new Error("No active project — open a project in DevPulse first.");
-		const r = await commands.sendMessage(pid, content);
+		const r = await commands.sendMessage(pid, sessionId, content);
 		return ok(r);
 	});
 }
@@ -110,7 +115,7 @@ export async function storeAssistantTurn(
 	sessionId: string,
 	projectId: string,
 	content: string,
-	tokenCount: number,
+	tokenCount: number | null,
 	modelUsed: string,
 	latencyMs: number,
 ): Promise<ChatMessage> {
@@ -124,4 +129,31 @@ export async function storeAssistantTurn(
 		latencyMs,
 	);
 	return ok(r);
+}
+
+/** Endpoint commands use a channel belonging only to this request. */
+export async function endpointTarget(projectId: string, sessionId: string | null) {
+	return ok(await commands.chatEndpointTarget(projectId, sessionId));
+}
+export async function startEndpoint(
+	projectId: string,
+	connectionId: string,
+	revision: number,
+	model: string,
+) {
+	return ok(await commands.chatEndpointStart(projectId, connectionId, revision, model));
+}
+export async function promptEndpoint(
+	projectId: string,
+	sessionId: string,
+	requestId: string,
+	content: string,
+	onDelta: (text: string) => void,
+) {
+	const channel = new Channel<string>();
+	channel.onmessage = onDelta;
+	return ok(await commands.chatEndpointPrompt(projectId, sessionId, requestId, content, channel));
+}
+export async function cancelEndpoint(projectId: string, sessionId: string, requestId: string) {
+	return ok(await commands.chatEndpointCancel(projectId, sessionId, requestId));
 }

@@ -9,6 +9,8 @@ use serde::{Deserialize, Serialize};
 pub struct SavedConnection {
     /// Stable connection identity, independent of provider or label.
     pub id: String,
+    /// Changes on every edit, preventing stale conversation routing.
+    pub revision: i64,
     /// User-chosen name.
     pub label: String,
     /// Request/response adapter to use.

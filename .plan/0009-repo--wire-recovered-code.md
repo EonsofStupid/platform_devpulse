@@ -28,6 +28,64 @@ introduce compatibility layers or parallel replacement implementations.
 
 ## Restoration correction — governing direction, 2026-11-01
 
+### Saved endpoint conversations — 2026-11-02
+
+Continue the endpoint execution batch into actual Chat. Compare historical
+`alpha/orchestrator/src/chat/mod.rs` and `alpha/engine/src/facade/chat.rs`
+with current Tauri chat persistence and the frontend inference path. The old
+engine facade ignores session identity for its underlying singleton and leaves
+history/clear as stubs; the current ordinary Chat write also selects the latest
+project session instead of the selected one. Restore scoped session behavior
+directly, with real endpoint streaming and retained ordered conversation context.
+Do not restore fabricated assistant replies, estimated token usage or hardcoded
+model loading from the historical implementations.
+
+Keep AI endpoint configuration, credentials, request preparation and context
+validation in the kernel. Engine Chat owns durable session/turn coordination
+and cancellation; Tauri bridges typed requests and per-request streaming
+channels. Add `chat_endpoint_sessions` for explicit connection/model bindings,
+with connection revisions so an edited server cannot silently receive an old
+conversation. Preserve transcripts when a connection is removed. Use the
+existing sessions/turns store and atomic turn writer, without creating parallel
+transcript storage or putting model chats in AgentHub ticket tables.
+
+Expose saved endpoint/model selection and explicit start/stop actions in Chat
+using existing ColdLight components with colocated props. Fix ordinary Chat's
+selected-session writes and guard late responses across project/session changes.
+Verify real loopback multi-turn requests, restart persistence, wrong-project
+rejection, connection changes, cancellation, concurrent sends and UI ownership.
+Keep Council in Chat and AgentHub under Overmind; their complete worker/role
+routing and the wider restoration inventory remain unfinished. Record source
+comparison and limitations without promoting an entire historical module whose
+retrieval, analytics or role behavior has not been reconciled.
+
+Implemented this slice with kernel connection revisions/prepared requests,
+engine-owned Chat persistence/cancellation, thin typed Tauri commands and
+ColdLight connection/model selection plus Start/Stop. Ordinary sends now carry
+the selected session; null explicitly creates a new one. History reads retain
+the latest 200 turns in order, while endpoint requests include complete stored
+text context within explicit bounds. Cross-project writes, concurrent endpoint
+turns, edited connections and archived writes are rejected. Transcript reads and
+ordinary Chat remain available if saved connections cannot initialize. Late UI
+responses cannot overwrite another selected chat/project, and streaming chunks
+are no longer recorded as token usage.
+
+Source comparison, exact preserved-source hashes, owning paths, manual Tauri
+review steps and remaining behavior are in
+[endpoint-conversations.md](../docs/restoration/endpoint-conversations.md).
+Both complete historical Chat modules remain staged because their CAG, memory,
+analytics and roles are not fully reconciled. No historical source or planning
+file was removed; no whole-module restoration count was advanced for this slice.
+
+Verified: 7 Chat tests against the real user store and loopback HTTP;
+20 agent persistence tests; 1 room persistence test; 4 relational upgrade tests;
+5 copy tests; 147 provider tests passing with 3 ignored; 5 signal contract tests;
+25 focused browser tests; 10 architecture assertions. Reviewed the signal
+snapshot addition of connection revision 1. Workspace Clippy and rustfmt are
+clean; Svelte check reports zero errors and warnings. Native live-provider use
+and packaged-release testing remain
+unverified. R3b is still in progress.
+
 ### Endpoint execution restoration — 2026-11-02
 
 Restore the preserved `alpha/orchestrator/src/adapters/web/openai.rs` request,

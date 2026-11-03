@@ -65,7 +65,7 @@ pub struct Providers {
     state: Mutex<ProvidersState>,
     /// One action or check at a time.
     serial: Mutex<()>,
-    connections: OnceCell<Connections>,
+    connections: OnceCell<Arc<Connections>>,
 }
 
 impl Providers {
@@ -109,7 +109,7 @@ impl Providers {
         db: Arc<devpulse_clyffy::cortex::persistence::TursoAdapter>,
     ) -> Result<()> {
         // Do not hold up database boot behind subscription/network discovery.
-        let connections = Connections::new(db, Arc::new(NativeCredentials));
+        let connections = Arc::new(Connections::new(db, Arc::new(NativeCredentials)));
         let state = connections.state().await?;
         let mut current = self.state.lock().await;
         self.connections
@@ -121,7 +121,7 @@ impl Providers {
         Ok(())
     }
 
-    fn connection_service(&self) -> Result<&Connections> {
+    pub(super) fn connection_service(&self) -> Result<&Arc<Connections>> {
         self.connections
             .get()
             .ok_or_else(|| anyhow::anyhow!("AI connections need the user database to be available"))

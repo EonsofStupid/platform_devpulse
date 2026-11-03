@@ -5,6 +5,7 @@
 import { Button } from "@devpulse/coldlight/components/button";
 import { DynamicBackground } from "@devpulse/coldlight/components/dynamic-background";
 import { Text } from "@devpulse/coldlight/components/text";
+import { untrack } from "svelte";
 import { agenthubState } from "$lib/domains/agenthub/index.js";
 import { isInferenceReady, ModelEventCard, modelsState } from "$lib/domains/app/models/index.js";
 import { projectsState } from "$lib/domains/app/projects/index.js";
@@ -20,6 +21,7 @@ import ChatSessionList from "./ChatSessionList.svelte";
 import ChatStream from "./ChatStream.svelte";
 import CortexMemoryStrip from "./CortexMemoryStrip.svelte";
 
+let previousProject: string | null | undefined;
 let dismissedEvents = $state(new Set<string>());
 const hub = routeAt("/overmind/agenthub");
 const aiSettings = routeAt("/devpulse/settings/ai");
@@ -55,6 +57,11 @@ const activeModelEvents = $derived.by(() => {
 $effect(() => {
 	if (!projectsState.ready) return;
 	const project = projectsState.activeProjectId;
+	untrack(() => {
+		if (previousProject !== undefined && previousProject !== project)
+			chatState.setActiveSession(null);
+		previousProject = project;
+	});
 	void agentsState.initialize();
 	void sessionsState.refresh();
 	if (project) void agentsState.refresh(project);

@@ -46,6 +46,7 @@ function state(label: string): ProvidersState {
 					label,
 					provider: "ollama",
 					endpoint: "http://localhost:12400/v1",
+					revision: 1,
 					hasCredential: false,
 					check: null,
 					textTest: null,

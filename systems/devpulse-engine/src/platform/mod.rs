@@ -27,6 +27,7 @@
 pub mod agenthub;
 pub mod agents;
 mod boot;
+pub mod chat;
 pub mod config;
 pub mod containers;
 pub mod copy;
@@ -324,6 +325,8 @@ pub struct Platform {
     agents: Option<Arc<agents::Agents>>,
     /// Your rooms: agents seated in roles (needs the user database).
     rooms: Option<Arc<rooms::Rooms>>,
+    /// Scoped chat persistence and endpoint conversations.
+    chat: Option<Arc<chat::Chat>>,
     user_analytics: Option<Arc<AnalyticsService>>,
     user_graph: Option<Arc<GraphService>>,
     // ── Global scope ────────────────────────────────────────────
@@ -405,6 +408,8 @@ struct UserWorkflows {
     containers: Option<Arc<containers::Containers>>,
     agents: Option<Arc<agents::Agents>>,
     rooms: Option<Arc<rooms::Rooms>>,
+    /// Scoped chat persistence and endpoint conversations.
+    chat: Option<Arc<chat::Chat>>,
 }
 
 /// Start the user-database workflows: first run, projects, containers,
@@ -486,12 +491,18 @@ async fn start_user_workflows(
             Arc::clone(agents),
         ))
     });
+    // Reading transcripts and ordinary Chat must not depend on endpoint discovery.
+    let chat = Some(Arc::new(chat::Chat::new(
+        Arc::clone(user.adapter()),
+        providers.connection_service().ok().cloned(),
+    )));
     UserWorkflows {
         onboarding,
         projects,
         containers,
         agents,
         rooms,
+        chat,
     }
 }
 
@@ -597,6 +608,7 @@ impl Platform {
             containers: user_workflows.containers,
             agents: user_workflows.agents,
             rooms: user_workflows.rooms,
+            chat: user_workflows.chat,
             providers,
             agenthub,
             user_analytics: booted.user_analytics,
@@ -842,6 +854,11 @@ impl Platform {
     /// Your threads with your agents (when the user database is open).
     pub fn agents(&self) -> Option<&Arc<agents::Agents>> {
         self.agents.as_ref()
+    }
+
+    /// Scoped chats (when the user database and connections are available).
+    pub fn chat(&self) -> Option<&Arc<chat::Chat>> {
+        self.chat.as_ref()
     }
 
     /// Your rooms (when the user database is open).
@@ -1599,6 +1616,13 @@ impl Platform {
     /// databases and release file locks.
     #[allow(clippy::cast_possible_truncation)]
     pub async fn shutdown(&self) {
+        if let Some(chat) = &self.chat
+            && tokio::time::timeout(std::time::Duration::from_secs(5), chat.shutdown())
+                .await
+                .is_err()
+        {
+            tracing::warn!("Chat shutdown timed out");
+        }
         // Close the protocol while its platform authorities are still alive.
         if let Err(error) = self.agenthub.shutdown().await {
             tracing::warn!(target: "agenthub", %error, "runtime shutdown failed");

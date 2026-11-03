@@ -151,6 +151,7 @@ fn sample_providers() -> ProvidersState {
     ProvidersState {
         connections: Some(ConnectionsState {
             items: vec![SavedConnection {
+                revision: 1,
                 id: "local-ai".into(),
                 label: "My server".into(),
                 provider: ProviderId::Ollama,

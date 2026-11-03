@@ -1,39 +1,17 @@
 //! Chat commands — `turns` + `sessions` SSOT in user-scoped Turso.
 
+pub mod endpoints;
 pub mod history;
 pub mod interactions;
 pub mod sessions;
 pub mod suggest;
 
 use crate::state::PlatformState;
-use devpulse_engine::platform::SqlAdapter;
-use devpulse_engine::platform::agents::{TurnRow, save_turn};
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use tauri::State;
-use uuid::Uuid;
 
-/// A chat turn returned to the frontend (`turns.id` is a string key).
-#[derive(Debug, Clone, Serialize, Deserialize, Type)]
-#[serde(rename_all = "camelCase")]
-pub struct ChatMessage {
-    /// Turn primary key (UUID v7, string-encoded).
-    pub id: String,
-    /// Parent session this turn belongs to.
-    pub session_id: String,
-    /// Speaker role: `"user"`, `"assistant"`, or `"system"`.
-    pub role: String,
-    /// Message body (Markdown for assistant, plain text for user).
-    pub content: String,
-    /// Unix timestamp in milliseconds when this turn was created.
-    pub created_at: i64,
-    /// Token count consumed by this turn (populated for assistant turns).
-    pub token_count: Option<i64>,
-    /// Model identifier used for this turn (e.g. `"Qwen3-0.6B"`).
-    pub model_used: Option<String>,
-    /// Inference latency in milliseconds (populated for assistant turns).
-    pub latency_ms: Option<i64>,
-}
+pub use devpulse_engine::platform::chat::ChatMessage;
 
 /// Session row for sidebar / grouping.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
@@ -98,245 +76,58 @@ pub fn pick_save_file(default_name: String) -> Result<Option<String>, String> {
         .map(|p| p.to_string_lossy().into_owned()))
 }
 
-/// Persist a user turn into `turns` for the active (or new) session in `project_id`.
+/// Save a user turn to the explicitly selected conversation, or create a new one.
+/// # Errors
+/// Returns platform, scope or persistence errors from the engine.
 #[tauri::command]
 #[specta::specta]
-#[allow(clippy::missing_errors_doc, clippy::too_many_lines)]
 pub async fn send_message(
     project_id: String,
+    session_id: Option<String>,
     content: String,
     state: State<'_, PlatformState>,
 ) -> Result<ChatMessage, String> {
-    tracing::info!(project = %project_id, content_len = content.len(), "cmd send_message: entry");
-    // P0: lock-free atomic load.
     let platform = state
         .platform
         .load_full()
         .ok_or("Platform is still booting")?;
-    let svc = platform
-        .user_relational()
-        .ok_or("The user database is not open (see the boot log)")?;
-    let adapter = svc.adapter();
-
-    let proj = adapter
-        .query(
-            "SELECT id FROM projects WHERE id = ? LIMIT 1",
-            &[project_id.as_str().into()],
-        )
+    platform
+        .chat()
+        .ok_or("Chat is unavailable")?
+        .send_user(&project_id, session_id.as_deref(), &content)
         .await
-        .map_err(|e| format!("Failed to resolve project: {e}"))?;
-    if proj.is_empty() {
-        return Err(format!("Unknown project_id: {project_id}"));
-    }
-
-    let session_rows = adapter
-        .query(
-            "SELECT id FROM sessions WHERE project_id = ? AND ended_at IS NULL \
-			 ORDER BY updated_at DESC LIMIT 1",
-            &[project_id.as_str().into()],
-        )
-        .await
-        .map_err(|e| format!("Failed to query sessions: {e}"))?;
-
-    let session_id = if let Some(id) = session_rows.first().and_then(|r| r.first()) {
-        id.to_string()
-    } else {
-        let new_id = format!("sess-{}", Uuid::new_v4());
-        adapter
-            .execute(
-                "INSERT INTO sessions (id, project_id, title, is_active) VALUES (?, ?, NULL, 1)",
-                &[new_id.as_str().into(), project_id.as_str().into()],
-            )
-            .await
-            .map_err(|e| format!("Failed to create session: {e}"))?;
-        new_id
-    };
-
-    let trimmed = content.trim();
-    if trimmed.is_empty() {
-        return Err("Message content is empty".to_string());
-    }
-    let turn_id = save_turn(
-        adapter,
-        &session_id,
-        &project_id,
-        &TurnRow {
-            role: "user",
-            content: trimmed,
-            token_count: None,
-            model_used: None,
-            finish_reason: None,
-            latency_ms: None,
-            metadata: None,
-        },
-    )
-    .await
-    .map_err(|e| format!("Failed to save user turn: {e:#}"))?;
-
-    let created_rows = adapter
-        .query(
-            "SELECT id, session_id, role, content, created_at, token_count, model_used, latency_ms \
-			 FROM turns WHERE id = ? LIMIT 1",
-            &[turn_id.as_str().into()],
-        )
-        .await
-        .map_err(|e| format!("Failed to read turn: {e}"))?;
-
-    let row = created_rows.first().ok_or("Turn not found after insert")?;
-
-    tracing::info!(
-        project = %project_id,
-        session = %session_id,
-        turn = %turn_id,
-        "cmd send_message: exit ok"
-    );
-    Ok(ChatMessage {
-        id: row
-            .first()
-            .map(std::string::ToString::to_string)
-            .unwrap_or_default(),
-        session_id: row
-            .get(1)
-            .and_then(|v| v.as_text())
-            .unwrap_or("")
-            .to_string(),
-        role: row
-            .get(2)
-            .and_then(|v| v.as_text())
-            .unwrap_or("")
-            .to_string(),
-        content: row
-            .get(3)
-            .and_then(|v| v.as_text())
-            .unwrap_or("")
-            .to_string(),
-        created_at: row
-            .get(4)
-            .and_then(devpulse_engine::platform::SqlValue::as_integer)
-            .unwrap_or(0),
-        token_count: row
-            .get(5)
-            .and_then(devpulse_engine::platform::SqlValue::as_integer),
-        model_used: row
-            .get(6)
-            .and_then(|v| v.as_text())
-            .map(std::string::ToString::to_string),
-        latency_ms: row
-            .get(7)
-            .and_then(devpulse_engine::platform::SqlValue::as_integer),
-    })
+        .map_err(|e| format!("{e:#}"))
 }
 
-/// Store an assistant turn (inference response) into the active session.
-///
-/// Called by the frontend after streaming inference completes.
-/// Accepts metadata that only the inference pipeline knows: token count,
-/// model identity, and latency.
-///
+/// Save a completed ordinary-model answer to its owning conversation.
 /// # Errors
-/// Returns formatted error strings when the platform is still booting,
-/// the relational service is unavailable, or any of the sequence /
-/// insert / touch / read-back SQL operations fail.
+/// Returns platform, scope or persistence errors from the engine.
 #[tauri::command]
 #[specta::specta]
 pub async fn store_assistant_turn(
     session_id: String,
     project_id: String,
     content: String,
-    token_count: i64,
+    token_count: Option<i64>,
     model_used: String,
     latency_ms: i64,
     state: State<'_, PlatformState>,
 ) -> Result<ChatMessage, String> {
-    tracing::info!(
-        session = %session_id,
-        project = %project_id,
-        tokens = token_count,
-        model = %model_used,
-        latency_ms,
-        "cmd store_assistant_turn: entry"
-    );
-
-    // P0: lock-free atomic load.
     let platform = state
         .platform
         .load_full()
         .ok_or("Platform is still booting")?;
-    let svc = platform
-        .user_relational()
-        .ok_or("The user database is not open (see the boot log)")?;
-    let adapter = svc.adapter();
-
-    let turn_id = save_turn(
-        adapter,
-        &session_id,
-        &project_id,
-        &TurnRow {
-            role: "assistant",
-            content: &content,
-            token_count: Some(token_count),
-            model_used: Some(&model_used),
-            finish_reason: None,
-            latency_ms: Some(latency_ms),
-            metadata: None,
-        },
-    )
-    .await
-    .map_err(|e| format!("Failed to save assistant turn: {e:#}"))?;
-
-    let created_rows = adapter
-        .query(
-            "SELECT id, session_id, role, content, created_at, token_count, model_used, latency_ms \
-			 FROM turns WHERE id = ? LIMIT 1",
-            &[turn_id.as_str().into()],
+    platform
+        .chat()
+        .ok_or("Chat is unavailable")?
+        .save_assistant(
+            &project_id,
+            &session_id,
+            &content,
+            token_count,
+            &model_used,
+            latency_ms,
         )
         .await
-        .map_err(|e| format!("Failed to read turn: {e}"))?;
-
-    let row = created_rows.first().ok_or("Turn not found after insert")?;
-
-    tracing::info!(turn = %turn_id, "cmd store_assistant_turn: exit ok");
-    Ok(turn_row_to_chat_message(row))
-}
-
-/// Project a single turn row from `turns` into [`ChatMessage`].
-///
-/// Tolerates missing / nullable columns by emitting empty strings or
-/// `None` so the frontend never crashes on a partial row.
-fn turn_row_to_chat_message(row: &[devpulse_engine::platform::SqlValue]) -> ChatMessage {
-    ChatMessage {
-        id: row
-            .first()
-            .map(std::string::ToString::to_string)
-            .unwrap_or_default(),
-        session_id: row
-            .get(1)
-            .and_then(|v| v.as_text())
-            .unwrap_or("")
-            .to_string(),
-        role: row
-            .get(2)
-            .and_then(|v| v.as_text())
-            .unwrap_or("")
-            .to_string(),
-        content: row
-            .get(3)
-            .and_then(|v| v.as_text())
-            .unwrap_or("")
-            .to_string(),
-        created_at: row
-            .get(4)
-            .and_then(devpulse_engine::platform::SqlValue::as_integer)
-            .unwrap_or(0),
-        token_count: row
-            .get(5)
-            .and_then(devpulse_engine::platform::SqlValue::as_integer),
-        model_used: row
-            .get(6)
-            .and_then(|v| v.as_text())
-            .map(std::string::ToString::to_string),
-        latency_ms: row
-            .get(7)
-            .and_then(devpulse_engine::platform::SqlValue::as_integer),
-    }
+        .map_err(|e| format!("{e:#}"))
 }

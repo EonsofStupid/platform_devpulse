@@ -1,6 +1,8 @@
 //! Persistent, independently credentialed AI endpoint instances.
 //! The engine owns service lifecycle; this module owns AI connection decisions.
+mod execution;
 mod store;
+pub use execution::{PreparedText, TextTarget};
 #[cfg(test)]
 mod tests;
 mod types;
@@ -84,6 +86,7 @@ impl Connections {
                 check: checks.get(&record.id).and_then(|e| e.discovery.clone()),
                 text_test: checks.get(&record.id).and_then(|e| e.text_test.clone()),
                 id: record.id,
+                revision: record.revision,
                 label: record.label,
                 provider: record.provider,
                 endpoint: record.endpoint,
@@ -153,6 +156,7 @@ impl Connections {
             provider: request.provider,
             endpoint,
             credential_ref: new_key.clone(),
+            revision: 1, // Inserts start at one; the store atomically advances edits.
         };
         if let Err(error) = store::save(self.db.as_ref(), &record).await {
             if new_key != old_key {

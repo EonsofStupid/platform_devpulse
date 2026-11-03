@@ -2,7 +2,10 @@
   @feature ChatComposer — footer row + voice orb + type-time suggestions
 -->
 <script lang="ts">
+import { Button } from "@devpulse/coldlight/components/button";
 import { ChatFooter } from "@devpulse/coldlight/components/chat-footer";
+import { Text } from "@devpulse/coldlight/components/text";
+import { copyState } from "$lib/sys/copy/index.js";
 import type { Suggestion } from "$lib/sys/generated/bindings.js";
 import { agentsState } from "../data-access/agents.state.svelte.js";
 import { chatState } from "../data-access/chat.state.svelte.js";
@@ -58,6 +61,8 @@ function handleKeydown(e: KeyboardEvent): void {
 }
 </script>
 
+{#if copyState.catalog && chatState.readOnly}<Text size="xs">{copyState.catalog.chat.endpoints.read_only}</Text>{/if}
+{#if copyState.catalog && chatState.canStopEndpoint}<Button size="sm" variant="secondary" onclick={() => void chatState.stopEndpoint()}>{copyState.catalog.chat.endpoints.stop}</Button>{/if}
 <div
 	role="presentation"
 	onkeydowncapture={handleKeydown}
@@ -70,7 +75,7 @@ function handleKeydown(e: KeyboardEvent): void {
 			onValueChange={handleValueChange}
 			onInput={handleInput}
 			onSend={handleSend}
-			disabled={chatState.sending || chatState.isGenerating || !!agentsState.running(chatState.activeSessionId)}
+			disabled={chatState.loading || !chatState.routingReady || chatState.readOnly || chatState.sending || chatState.isGenerating || !!agentsState.running(chatState.activeSessionId)}
 		/>
 	</div>
 	<div class="flex items-center pr-2">

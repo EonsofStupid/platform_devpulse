@@ -634,7 +634,7 @@ mod tests {
     async fn only_a_saved_room_outcome_reports_finished() {
         for limit in [0, 1] {
             let tree = tempfile::tempdir().unwrap();
-            let schema = format!("CREATE TABLE sessions (id TEXT PRIMARY KEY, project_id TEXT,
+            let schema = format!("CREATE TABLE sessions (id TEXT PRIMARY KEY, project_id TEXT, ended_at INTEGER,
                 updated_at INTEGER DEFAULT 0, interaction_count INTEGER DEFAULT 0 CHECK(interaction_count <= {limit}));
                 CREATE TABLE turns (id TEXT, session_id TEXT, project_id TEXT, role TEXT, content TEXT,
                 sequence_num INTEGER, model_used TEXT, finish_reason TEXT, latency_ms INTEGER, metadata TEXT, token_count INTEGER);

@@ -504,10 +504,36 @@ pub struct AgentChatCopy {
     pub dismiss_retained: String,
 }
 
+/// Saved endpoint conversations, using plain-language controls.
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+#[serde(deny_unknown_fields)]
+pub struct EndpointChatCopy {
+    /// Picker heading.
+    pub title: String,
+    /// Named saved connection field.
+    pub connection: String,
+    /// Explicit advertised model field.
+    pub model: String,
+    /// Start without sending any conversation text.
+    pub start: String,
+    /// Cancel the current response.
+    pub stop: String,
+    /// Return to a new ordinary model conversation.
+    pub new_local: String,
+    /// Where to add and check connections.
+    pub empty: String,
+    /// Explain when content leaves the app and billing can apply.
+    pub disclosure: String,
+    /// Archived conversation state.
+    pub read_only: String,
+}
+
 /// The chat.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 #[serde(deny_unknown_fields)]
 pub struct ChatCopy {
+    /// Conversations through saved model endpoints.
+    pub endpoints: EndpointChatCopy,
     /// Threads with your agents.
     pub agents: AgentChatCopy,
 }

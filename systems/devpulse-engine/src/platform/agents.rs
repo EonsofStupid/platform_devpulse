@@ -542,7 +542,7 @@ pub(super) async fn save_turn_with_continuation(
          finish_reason, latency_ms, metadata, token_count) \
          SELECT ?, s.id, s.project_id, ?, ?, \
          (SELECT COALESCE(MAX(sequence_num), 0) + 1 FROM turns WHERE session_id = s.id), \
-         ?, ?, ?, ?, ? FROM sessions s WHERE s.id = ? AND s.project_id = ?",
+         ?, ?, ?, ?, ? FROM sessions s WHERE s.id = ? AND s.project_id = ? AND s.ended_at IS NULL",
             vec![
                 id.as_str().into(),
                 turn.role.into(),
@@ -669,7 +669,7 @@ mod tests {
 
     pub(super) async fn turn_fixture(limit: u32) -> (tempfile::TempDir, Arc<TursoAdapter>) {
         let tree = tempfile::tempdir().unwrap();
-        let schema = format!("CREATE TABLE sessions (id TEXT PRIMARY KEY, project_id TEXT NOT NULL,
+        let schema = format!("CREATE TABLE sessions (id TEXT PRIMARY KEY, project_id TEXT NOT NULL, ended_at INTEGER,
             updated_at INTEGER DEFAULT 0, interaction_count INTEGER DEFAULT 0 CHECK(interaction_count <= {limit}));
             CREATE TABLE turns (id TEXT PRIMARY KEY, session_id TEXT, project_id TEXT, role TEXT,
                 content TEXT CHECK(content != 'reject'), sequence_num INTEGER, model_used TEXT,

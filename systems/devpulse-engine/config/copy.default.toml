@@ -320,6 +320,17 @@ error_network = "Can't reach the sign-in server. Check your internet connection.
 error_supabase_not_configured = "Sign-in isn't set up in this copy of DevPulse yet."
 error_unknown_template = "Something went wrong — {error}"
 
+[chat.endpoints]
+title = "Chat with a saved connection"
+connection = "Connection"
+model = "Model"
+start = "Start chat"
+stop = "Stop response"
+new_local = "New local chat"
+empty = "Add a connection and check its models in Your AI, then choose it here."
+disclosure = "Sending a message shares this conversation with the selected server. Your provider may charge for usage."
+read_only = "This conversation is archived. You can read its history."
+
 [chat.agents]
 new_thread = "New thread with…"
 none_ready = "No agent can chat yet — install or sign in to one in Settings → Your AI."

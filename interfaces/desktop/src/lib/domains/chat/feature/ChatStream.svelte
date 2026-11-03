@@ -27,8 +27,9 @@ const runtimeError = $derived(
 	agenthubState.error ?? agenthubState.conversation(chatState.activeSessionId)?.error,
 );
 const author = $derived(
-	(thread &&
-		providersState.current?.report?.providers.find((p) => p.id === thread.providerId)?.name) ||
+	(chatState.endpoint && `${chatState.endpoint.label} / ${chatState.endpoint.model}`) ||
+		(thread &&
+			providersState.current?.report?.providers.find((p) => p.id === thread.providerId)?.name) ||
 		(copyState.catalog?.chat.agents.local ?? ""),
 );
 const streaming = $derived(agentTurn ? agentTurn.text : chatState.streamingContent);
@@ -51,18 +52,18 @@ $effect(() => {
 	bind:this={root}
 	class={cn("flex flex-1 min-h-0 flex-col gap-3 overflow-y-auto px-3 py-2", className)}
 >
+	{#if chatState.error}<p role="alert" class="text-sm text-[var(--signal-error)]">{chatState.error}</p>{/if}
 	{#if chatState.loading}
 		<p class="text-sm text-[var(--text-muted)]">Loading…</p>
-	{:else if chatState.error}
-		<p class="text-sm text-[var(--signal-error)]">{chatState.error}</p>
-	{:else if chatState.blockMessages.length === 0 && !chatState.isGenerating}
+
+	{:else if chatState.blockMessages.length === 0 && !chatState.generatingHere}
 		<EmptyChatState />
 	{:else}
 		{#each chatState.blockMessages as msg (msg.id)}
 			<MessageBubble message={msg} mode={chatState.mode} />
 		{/each}
 	{/if}
-	{#if (chatState.isGenerating || agentTurn) && streaming}
+	{#if (chatState.generatingHere || agentTurn) && streaming}
 		<MessageBubble
 			message={{
 				id: "streaming",
@@ -72,7 +73,7 @@ $effect(() => {
 			}}
 			mode={chatState.mode}
 		/>
-	{:else if (chatState.isGenerating || chatState.sending) && !agentTurn}
+	{:else if (chatState.generatingHere || chatState.sending) && !agentTurn}
 		<TypingIndicator />
 	{/if}
 	{#if agentTurn}

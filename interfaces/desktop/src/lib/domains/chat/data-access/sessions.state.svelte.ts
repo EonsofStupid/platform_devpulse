@@ -8,18 +8,21 @@ import * as chatService from "./chat.service.js";
 
 class SessionsState {
 	items = $state<ChatSession[]>([]);
+	private generation = 0;
 	loading = $state(false);
 	error = $state<string | null>(null);
 
 	async refresh(): Promise<void> {
+		const generation = ++this.generation;
 		this.loading = true;
 		this.error = null;
 		try {
-			this.items = await chatService.listSessions();
+			const items = await chatService.listSessions();
+			if (generation === this.generation) this.items = items;
 		} catch (e) {
-			this.error = e instanceof Error ? e.message : String(e);
+			if (generation === this.generation) this.error = e instanceof Error ? e.message : String(e);
 		} finally {
-			this.loading = false;
+			if (generation === this.generation) this.loading = false;
 		}
 	}
 

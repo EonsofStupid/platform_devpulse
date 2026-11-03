@@ -7,8 +7,13 @@ use crate::{
 };
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
-const SCHEMA: &str =
-    include_str!("../../../../../systems/devpulse-engine/migrations/user/0004_ai_connections.sql");
+const SCHEMA: &str = concat!(
+    include_str!("../../../../../systems/devpulse-engine/migrations/user/0004_ai_connections.sql"),
+    "CREATE TABLE sessions (id TEXT PRIMARY KEY);",
+    include_str!(
+        "../../../../../systems/devpulse-engine/migrations/user/0005_chat_endpoint_sessions.sql"
+    )
+);
 
 #[derive(Default)]
 struct Vault {
@@ -469,4 +474,90 @@ async fn unsupported_protocol_is_not_guessed_from_its_model_list() {
             .supports_text_test
     );
     db.close().await;
+}
+
+#[tokio::test]
+async fn prepared_conversations_reject_stale_removed_and_missing_credentials() {
+    let tree = tempfile::tempdir().unwrap();
+    let db = database(&tree).await;
+    let vault = Arc::new(Vault::default());
+    let connections = Connections::new(db, vault.clone());
+    let first = connections
+        .save(request(
+            None,
+            "Chat",
+            "http://localhost:12401/v1",
+            ConnectionCredential::Replace("private".into()),
+        ))
+        .await
+        .unwrap()
+        .items
+        .remove(0);
+    let prepared = connections
+        .prepare_text(&first.id, first.revision, "chosen")
+        .await
+        .unwrap();
+    assert_eq!(prepared.target().model, "chosen");
+    assert!(
+        connections
+            .prepare_text(&first.id, first.revision, " ")
+            .await
+            .is_err()
+    );
+    let next = connections
+        .save(request(
+            Some(first.id.clone()),
+            "Edited",
+            "http://localhost:12402/v1",
+            ConnectionCredential::Keep,
+        ))
+        .await
+        .unwrap()
+        .items
+        .remove(0);
+    assert_eq!(next.revision, first.revision + 1);
+    assert!(
+        connections
+            .prepare_text(&first.id, first.revision, "chosen")
+            .await
+            .is_err()
+    );
+    assert!(
+        connections
+            .prepare_text(&next.id, next.revision, "chosen")
+            .await
+            .is_ok()
+    );
+    vault.keys.lock().await.clear();
+    assert!(
+        connections
+            .prepare_text(&next.id, next.revision, "chosen")
+            .await
+            .is_err()
+    );
+    connections.remove(&next.id).await.unwrap();
+    assert!(
+        connections
+            .prepare_text(&next.id, next.revision, "chosen")
+            .await
+            .is_err()
+    );
+    // An in-flight prepared snapshot keeps its approved target, never the edited one.
+    assert_eq!(prepared.target().label, "Chat");
+}
+
+#[test]
+fn conversation_bounds_never_silently_drop_history() {
+    use crate::providers::adapters::openai_compatible::{EndpointChatMessage, EndpointRole};
+    let message = |content: String| EndpointChatMessage {
+        role: EndpointRole::User,
+        content,
+    };
+    assert!(PreparedText::validate_messages(&[]).is_err());
+    assert!(PreparedText::validate_messages(&[message(" ".into())]).is_err());
+    assert!(PreparedText::validate_messages(&[message("a".repeat(1024 * 1024))]).is_ok());
+    assert!(PreparedText::validate_messages(&[message("a".repeat(1024 * 1024 + 1))]).is_err());
+    let messages: Vec<_> = (0..2001).map(|_| message("hello".into())).collect();
+    assert!(PreparedText::validate_messages(&messages[..2000]).is_ok());
+    assert!(PreparedText::validate_messages(&messages).is_err());
 }
