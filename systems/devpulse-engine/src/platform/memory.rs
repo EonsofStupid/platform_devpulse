@@ -344,6 +344,10 @@ fn beside_this_program() -> Result<PathBuf> {
 }
 
 #[cfg(test)]
+#[path = "memory_live_tests.rs"]
+mod live_tests;
+
+#[cfg(test)]
 mod tests {
     #![allow(clippy::expect_used, clippy::unwrap_used, reason = "test assertions")]
 

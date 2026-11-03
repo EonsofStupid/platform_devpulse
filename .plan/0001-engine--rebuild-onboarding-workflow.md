@@ -1710,9 +1710,15 @@ or used), every visual in the B4.3 order.
   - **Bounded and visible.** At most 8,000 characters a session: your own notes
     first, then the project's, each by name. A note that does not fit is left out
     whole, never cut, and the page names it. The page shows the exact text sent.
-  - **Who gets it.** Whoever gets memory today. Talk-only seats get nothing, which
-    keeps Council's blind answers blind. A conversation already open keeps the
-    notes it started with.
+  - **Who gets it.** Whoever gets memory today. A conversation already open keeps
+    the notes it started with. Talk-only seats get nothing, and every shipped role
+    is talk-only, so no room seat gets notes or memory yet. *Corrected 2026-11-03:*
+    this was first justified as keeping Council's answers blind, which is wrong.
+    Blind means seats cannot see each other's answers and the selector sees letters,
+    and identical notes would not break that; memory tools would, since one seat
+    could read what another wrote. The real reason is that a Council sends your
+    notes to several companies at once. **Whether seats should get them is the
+    owner's call**; it is one condition in `Agents::conversation` and `delivery`.
   - **Told about the rest.** The memory server's MCP `instructions` say what it
     holds and when to use it, so a note you did not pick can still be found.
 
@@ -3032,6 +3038,24 @@ queries proving what was written.
     - Limits, as they stand: a conversation already open keeps the notes it started
       with. InlineMessage's `tone` is still dead (plan 0006 D3), so "an agent changed
       this" reads as plain text. Rendering Claude Code's system prompt fresh each
-      turn can cost it some prompt caching; not measured. Claude Code's real turn and
-      a room still go through phase e.
+      turn can cost it some prompt caching; not measured.
+  - 2026-11-03 — **B6.3e done: the B6.2e limits, each run or named.**
+    - Claude Code's real turn, through `Agents` (the code the app's commands call)
+      on a throwaway database and project: two turns answered from your notes with
+      no tool, a third looked up a note held back with its real memory tool, and the
+      saved turns hold only your words. Not through the window: a turn in this repo
+      would run this repo's hooks, and the Tauri layer is thin wrappers.
+    - A real Council through `Rooms` (three Claude Code answerers, a Codex selector):
+      all four seats answered `NONE`, as a talk-only seat should. Every shipped role
+      is talk-only, so no room seat can have memory until a role may use tools.
+    - Relay release size: 56.6 MB (77.6 MB debug). It links the whole kernel for one
+      database adapter, though relay mode needs neither. Worth a relay-only binary;
+      not done here.
+    - `--features rro` is not broken: `deps/rro` is a deliberate empty placeholder,
+      and its own note says the feature stays off until the real crate lands. The
+      B6.2e limit that called this a compile failure was wrong. Nothing to fix.
+    - macOS: `.github/workflows/macos-memory-relay.yml` runs the relay suite with real
+      children when the relay or the lockfile changes. It does not gate `CI Pass`
+      until it has passed once.
+    - Closed by B6.3a to d: agents not told about memory, and last-write-wins saves.
 

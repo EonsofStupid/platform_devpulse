@@ -1,0 +1,85 @@
+name: macOS memory relay
+
+# The memory relay's socket branch (plan 0001 B6.2b) with real child processes.
+# Ubuntu runs it in CI's Rust job and Windows runs the named pipe on developers'
+# machines; nothing else runs it on macOS. It builds the kernel, so it runs when
+# the relay or the lockfile changes rather than on every push.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "kernel/devpulse-persona-mcp/**"
+      - "Cargo.lock"
+      - ".github/workflows/macos-memory-relay.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  CARGO_PROFILE_DEV_DEBUG: "0"
+
+jobs:
+  relay:
+    name: Relay on macOS
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read workspace Rust toolchain
+        id: rust-toolchain
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import tomllib
+          with open("rust-toolchain.toml", "rb") as source:
+              toolchain = tomllib.load(source)["toolchain"]
+          print(f"channel={toolchain['channel']}")
+          print(f"components={','.join(toolchain['components'])}")
+          PY
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: ${{ steps.rust-toolchain.outputs.channel }}
+          components: ${{ steps.rust-toolchain.outputs.components }}
+
+      - name: Install protoc
+        uses: arduino/setup-protoc@v2
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      # .cargo/config.toml runs every cargo step through sccache.
+      - name: Install sccache
+        uses: mozilla-actions/sccache-action@v0.0.6
+
+      # As in CI's Rust job: cargo cannot fetch the private rro dependency
+      # anonymously, and a missing secret must fail rather than be skipped.
+      - name: Configure cargo for private rro fetches
+        env:
+          RRO_DEPLOY_TOKEN: ${{ secrets.RRO_DEPLOY_TOKEN }}
+        run: |
+          if [ -z "$RRO_DEPLOY_TOKEN" ]; then
+            echo "::warning::RRO_DEPLOY_TOKEN secret not set on this repo — cargo will fail to fetch private rro dep."
+            exit 0
+          fi
+          git config --global url."https://x-access-token:${RRO_DEPLOY_TOKEN}@github.com/EonsofStupid/rro".insteadOf "https://github.com/EonsofStupid/rro"
+          git config --global url."https://x-access-token:${RRO_DEPLOY_TOKEN}@github.com/EonsofStupid/rro.git".insteadOf "https://github.com/EonsofStupid/rro.git"
+          echo "CARGO_NET_GIT_FETCH_WITH_CLI=true" >> "$GITHUB_ENV"
+
+      - name: Cache Cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-relay-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-relay-
+
+      - name: Relay with real children, over the socket
+        run: cargo test -p devpulse-persona-mcp --test bridge
