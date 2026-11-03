@@ -260,6 +260,47 @@ impl RoomSpec {
         }
     }
 
+    /// The seat that routes, in a router room: the one its first phase seats.
+    #[must_use]
+    pub fn routing_seat(&self) -> Option<&str> {
+        (self.turn_policy == TurnPolicy::Router)
+            .then(|| self.phases.first()?.seats.first().map(String::as_str))
+            .flatten()
+    }
+
+    /// A router room's first phase seats one role that names a place and can
+    /// escalate, and a later phase has someone to send the question to.
+    fn router_issues(&self, roles: &[RoleCard]) -> Vec<Issue> {
+        if self.turn_policy != TurnPolicy::Router {
+            return Vec::new();
+        }
+        let at = format!("room {} · phases", self.id);
+        let role = self
+            .phases
+            .first()
+            .filter(|phase| phase.seats.len() == 1)
+            .and_then(|phase| self.seats.iter().find(|seat| seat.seat == phase.seats[0]))
+            .and_then(|seat| resolve_role(roles, &seat.role));
+        let mut issues = Vec::new();
+        let names_a_place = role.is_some_and(|role| {
+            let fields = role.output_fields();
+            fields.contains(&"place") && fields.contains(&"escalate")
+        });
+        if !names_a_place {
+            issues.push(Issue::new(
+                at.clone(),
+                "a router room's first phase seats one role whose answer names a place and can escalate",
+            ));
+        }
+        if self.phases.len() < 2 {
+            issues.push(Issue::new(
+                at,
+                "a router room needs a phase to send the question to",
+            ));
+        }
+        issues
+    }
+
     /// The rules a room keeps beyond its schema.
     #[must_use]
     pub fn validate(&self, roles: &[RoleCard]) -> Vec<Issue> {
@@ -274,6 +315,7 @@ impl RoomSpec {
         if semver(&self.version).is_none() {
             issues.push(Issue::new(at("version"), "must be major.minor.patch"));
         }
+        issues.extend(self.router_issues(roles));
         let mut seats = BTreeMap::new();
         for seat in &self.seats {
             if seats.insert(seat.seat.as_str(), seat).is_some() {

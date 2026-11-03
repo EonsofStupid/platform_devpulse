@@ -41,7 +41,7 @@ pub use run::{Outcome, Pick, RoomHost, RoomRun, RoomTurn, Stopped};
 pub use seating::{Assignment, Place, SeatedRoom, seat};
 
 /// The bundled roles, by file name.
-const BUNDLED_ROLES: [(&str, &str); 11] = [
+const BUNDLED_ROLES: [(&str, &str); 12] = [
     (
         "advocate.json",
         include_str!("../../config/roles/advocate.json"),
@@ -73,6 +73,10 @@ const BUNDLED_ROLES: [(&str, &str); 11] = [
     (
         "red-team.json",
         include_str!("../../config/roles/red-team.json"),
+    ),
+    (
+        "router.json",
+        include_str!("../../config/roles/router.json"),
     ),
     (
         "selector.json",

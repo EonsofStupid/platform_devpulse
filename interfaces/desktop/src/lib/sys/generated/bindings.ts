@@ -11349,7 +11349,11 @@ pick: Pick | null;
 /**
  * Authors that changed their answer (`pro-1 in round 2`).
  */
-flips: string[] }
+flips: string[]; 
+/**
+ * Where a router sent the question, in a room that routes.
+ */
+route?: Route | null }
 /**
  * A value a room fills in (a domain expert's domain).
  */
@@ -12832,6 +12836,11 @@ export type RoomEvent =
  */
 { kind: "finished"; outcome: Outcome } | 
 /**
+ * A router asked for a Council, which is now answering in its own room.
+ * Saved. The Council's events follow, ending with its own `Finished`.
+ */
+{ kind: "escalated"; outcome: Outcome; room: RoomThread } | 
+/**
  * The run could not be durably completed. Any recovery copy is named.
  */
 { kind: "failed"; message: string }
@@ -13020,6 +13029,26 @@ export type RoomType =
  * Ideas first, then grouping, critique and a shortlist.
  */
 "brainstorm"
+/**
+ * What a router decided.
+ */
+export type Route = { 
+/**
+ * The place it named; absent when there was no valid answer.
+ */
+place: string | null; 
+/**
+ * Why, in its words.
+ */
+rationale: string | null; 
+/**
+ * It asked for a Council instead of one place.
+ */
+escalate: boolean; 
+/**
+ * Why no one could be asked.
+ */
+problem: string | null }
 /**
  * A route's name and the lines shown with it.
  */

@@ -199,12 +199,6 @@ pub fn seat(
 fn runnable(room: &RoomSpec) -> Vec<Issue> {
     let at = |field: &str| format!("room {} · {field}", room.id);
     let mut issues = Vec::new();
-    if room.turn_policy == TurnPolicy::Router {
-        issues.push(Issue::new(
-            at("turn_policy"),
-            "a router room does not run yet: its router names no expert in its answer",
-        ));
-    }
     if room.turn_policy == TurnPolicy::Selector {
         issues.push(Issue::new(
             at("turn_policy"),
@@ -413,13 +407,24 @@ mod tests {
     }
 
     #[test]
-    fn a_router_room_says_it_does_not_run_yet() {
+    fn a_router_room_can_be_seated_and_its_experts_are_told_apart() {
         let library = Library::bundled();
-        let problems = seat(&library, "router", &[]).expect_err("router");
-        assert!(
-            problems
-                .iter()
-                .any(|i| i.problem.contains("router room does not run yet"))
-        );
+        let seating: Vec<Assignment> = ["router", "code", "facts", "decisions"]
+            .into_iter()
+            .map(|seat| Assignment {
+                seat: seat.to_owned(),
+                place: 0,
+                provider: ProviderId::ClaudeCode,
+                persona: None,
+            })
+            .collect();
+        let seated = seat(&library, "router", &seating).expect("seated");
+        let domains: std::collections::BTreeSet<_> = seated
+            .places
+            .iter()
+            .filter(|place| place.seat != "router")
+            .map(|place| place.parameters["domain"].clone())
+            .collect();
+        assert_eq!(domains.len(), 3, "each expert has its own domain");
     }
 }

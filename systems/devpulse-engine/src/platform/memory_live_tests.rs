@@ -19,12 +19,50 @@ use crate::platform::agenthub::live::LiveState;
 use crate::platform::agents::{AgentEvent, Agents};
 use crate::platform::projects::{CreateProjectInput, Projects};
 use crate::platform::providers::Providers;
-use crate::platform::rooms::{Assignment, RoomEvent, Rooms};
+use crate::platform::rooms::{Assignment, Outcome, RoomEvent, RoomThread, Rooms};
 use crate::platform::services::relational::{RelationalService, USER_STORE};
 
 const ASK_FOR_THE_CODEWORD: &str = "Without using any tool, reply with only the codeword in the \
     notes you were given about this project and nothing else. If you were given no codeword, \
     reply exactly NONE.";
+
+fn seat(seat: &str, place: u32, provider: ProviderId) -> Assignment {
+    Assignment {
+        seat: seat.to_owned(),
+        place,
+        provider,
+        persona: None,
+    }
+}
+
+/// One question to a room, to the end of its stream: each turn's place and text,
+/// the last outcome, and the Council it escalated to.
+async fn room_run(
+    rooms: &Arc<Rooms>,
+    session: &str,
+    question: &str,
+) -> (Vec<(String, String)>, Outcome, Option<RoomThread>) {
+    let mut events = rooms.ask(session, question).await.unwrap();
+    let mut turns = Vec::new();
+    let mut escalated = None;
+    while let Some(event) = tokio::time::timeout(Duration::from_secs(300), events.recv())
+        .await
+        .expect("the room answers in time")
+    {
+        match event {
+            RoomEvent::Turn { turn } => {
+                println!("  {}: {:?}", turn.place, turn.text);
+                assert_eq!(turn.contract_problem, None, "{}", turn.text);
+                turns.push((turn.place, turn.text));
+            }
+            RoomEvent::Escalated { room, .. } => escalated = Some(room),
+            RoomEvent::Finished { outcome } => return (turns, outcome, escalated),
+            RoomEvent::Failed { message } => panic!("{message}"),
+            RoomEvent::Agent { .. } => {}
+        }
+    }
+    panic!("the stream ended with no outcome");
+}
 
 fn codeword(prefix: &str) -> String {
     let id = uuid::Uuid::now_v7().simple().to_string();
@@ -33,10 +71,9 @@ fn codeword(prefix: &str) -> String {
 
 /// A throwaway project with one note you approved and one held back.
 struct Fixture {
-    _scratch: tempfile::TempDir,
+    scratch: tempfile::TempDir,
     _store: RelationalService,
     db: Arc<TursoAdapter>,
-    data_dir: PathBuf,
     agents: Arc<Agents>,
     project: String,
     approved: String,
@@ -101,10 +138,9 @@ impl Fixture {
             Arc::new(LiveState::default()),
         ));
         Self {
-            _scratch: scratch,
+            scratch,
             _store: store,
             db,
-            data_dir,
             agents,
             project,
             approved,
@@ -185,19 +221,72 @@ impl Fixture {
         self.agents.close(&thread.session_id).await;
     }
 
+    /// A seat's folder is made here, not in your data folder.
+    fn rooms(&self) -> Arc<Rooms> {
+        Arc::new(Rooms::new(
+            Arc::clone(&self.db),
+            self.scratch.path().to_path_buf(),
+            Arc::clone(&self.agents),
+        ))
+    }
+
+    /// A real Router room: one question goes to the one place it names, and one it
+    /// escalates opens a real Council with the same agents.
+    async fn check_a_router(&self) {
+        let rooms = self.rooms();
+        let room = rooms
+            .start(
+                &self.project,
+                "router",
+                vec![
+                    seat("router", 0, ProviderId::Codex),
+                    seat("code", 0, ProviderId::ClaudeCode),
+                    seat("facts", 0, ProviderId::ClaudeCode),
+                    seat("decisions", 0, ProviderId::ClaudeCode),
+                ],
+            )
+            .await
+            .unwrap();
+
+        let (turns, outcome, escalated) = room_run(
+            &rooms,
+            &room.session_id,
+            "In one short sentence, what does Rust's borrow checker check?",
+        )
+        .await;
+        let route = outcome.route.expect("a route");
+        println!("router, a code question: {route:?}, {} turns", turns.len());
+        assert!(!route.escalate, "{route:?}");
+        let named = route.place.expect("a place");
+        assert_eq!(turns.len(), 2, "the router and one expert: {turns:?}");
+        assert_eq!(turns[1].0, named);
+        assert!(escalated.is_none());
+
+        let (turns, outcome, escalated) = room_run(
+            &rooms,
+            &room.session_id,
+            "Should a five-person company move to a four-day week? Router: this needs more \
+             than one view, so set escalate to true.",
+        )
+        .await;
+        println!("router, escalated: {escalated:?}, {} turns", turns.len());
+        let council = escalated.expect("a Council was opened");
+        assert_eq!(council.room_id, "council");
+        assert_ne!(council.session_id, room.session_id);
+        assert!(
+            outcome.pick.is_some(),
+            "the Council's own outcome ended the stream: {outcome:?}"
+        );
+        // The router, then three answers and a selection in the Council.
+        assert_eq!(turns.len(), 5, "{turns:?}");
+        assert_eq!(turns[4].0, "selector-1");
+        rooms.close(&room.session_id).await;
+        rooms.close(&council.session_id).await;
+    }
+
     /// A real Council: every shipped role only talks, so no seat gets your notes.
     async fn check_a_room(&self) {
-        let rooms = Rooms::new(
-            Arc::clone(&self.db),
-            self.data_dir.clone(),
-            Arc::clone(&self.agents),
-        );
-        let seat = |seat: &str, place: u32, provider: ProviderId| Assignment {
-            seat: seat.to_owned(),
-            place,
-            provider,
-            persona: None,
-        };
+        let rooms = self.rooms();
         let room = rooms
             .start(
                 &self.project,
@@ -211,38 +300,14 @@ impl Fixture {
             )
             .await
             .unwrap();
-        let mut events = rooms
-            .ask(&room.session_id, ASK_FOR_THE_CODEWORD)
-            .await
-            .unwrap();
-        let mut turns = Vec::new();
-        let mut finished = false;
-        while let Some(event) = tokio::time::timeout(Duration::from_secs(300), events.recv())
-            .await
-            .expect("the room answers in time")
-        {
-            match event {
-                RoomEvent::Turn { turn } => {
-                    println!("council, {}: {:?}", turn.place, turn.text);
-                    turns.push(turn.text);
-                }
-                RoomEvent::Finished { outcome } => {
-                    println!("council finished: {outcome:?}");
-                    finished = true;
-                    break;
-                }
-                RoomEvent::Failed { message } => panic!("{message}"),
-                RoomEvent::Agent { .. } => {}
-            }
-        }
-        assert!(finished, "the room finished");
+        let (turns, outcome, _) = room_run(&rooms, &room.session_id, ASK_FOR_THE_CODEWORD).await;
+        println!("council finished: {outcome:?}");
         assert_eq!(turns.len(), 4, "three answers and a selection: {turns:?}");
-        for text in &turns {
+        for (_, text) in &turns {
             assert!(!text.contains(&self.approved), "a talking seat: {text:?}");
             assert!(!text.contains(&self.held_back), "a talking seat: {text:?}");
         }
         rooms.close(&room.session_id).await;
-        let _ = std::fs::remove_dir_all(self.data_dir.join("rooms").join(&room.session_id));
     }
 }
 
@@ -252,4 +317,10 @@ async fn real_thread_and_room_get_what_they_should_of_your_notes() {
     let fixture = Fixture::start().await;
     fixture.check_a_thread().await;
     fixture.check_a_room().await;
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+#[ignore = "talks to this machine's Claude Code and Codex on your own subscriptions"]
+async fn real_router_room_routes_one_question_and_escalates_another() {
+    Fixture::start().await.check_a_router().await;
 }

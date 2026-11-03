@@ -113,6 +113,21 @@ pub struct Pick {
     pub problem: Option<String>,
 }
 
+/// What a router decided.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
+#[serde(rename_all = "camelCase")]
+pub struct Route {
+    /// The place it named; absent when there was no valid answer.
+    pub place: Option<String>,
+    /// Why, in its words.
+    pub rationale: Option<String>,
+    /// It asked for a Council instead of one place.
+    pub escalate: bool,
+    /// Why no one could be asked.
+    pub problem: Option<String>,
+}
+
 /// How a run ended.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "specta", derive(specta::Type))]
@@ -126,6 +141,9 @@ pub struct Outcome {
     pub pick: Option<Pick>,
     /// Authors that changed their answer (`pro-1 in round 2`).
     pub flips: Vec<String>,
+    /// Where a router sent the question, in a room that routes.
+    #[serde(default)]
+    pub route: Option<Route>,
 }
 
 /// A seated room that runs your questions. It remembers which places have
@@ -134,6 +152,56 @@ pub struct RoomRun {
     seated: SeatedRoom,
     marker: Marker,
     briefed: HashSet<String>,
+}
+
+/// What the router's turn decided. Anything but a listed place, other than a
+/// request to escalate, is a problem to report rather than a place to ask.
+fn read_route(turn: Option<&RoomTurn>, seated: &SeatedRoom) -> Route {
+    let problem = |problem: String| Route {
+        place: None,
+        rationale: None,
+        escalate: false,
+        problem: Some(problem),
+    };
+    let Some(turn) = turn else {
+        return problem("the router did not answer".to_owned());
+    };
+    if let Some(failed) = &turn.failed {
+        return problem(format!("the router could not answer: {failed}"));
+    }
+    let Some(output) = &turn.output else {
+        let why = turn
+            .contract_problem
+            .as_deref()
+            .unwrap_or("it has no answer");
+        return problem(format!("the router's answer could not be read: {why}"));
+    };
+    let named = output["place"].as_str().unwrap_or_default();
+    let rationale = output["rationale"].as_str().map(str::to_owned);
+    let escalate = output["escalate"].as_bool().unwrap_or(false);
+    if escalate {
+        return Route {
+            place: None,
+            rationale,
+            escalate: true,
+            problem: None,
+        };
+    }
+    let listed = seated.places.iter().any(|place| {
+        place.key() == named && Some(place.seat.as_str()) != seated.room.routing_seat()
+    });
+    if listed {
+        Route {
+            place: Some(named.to_owned()),
+            rationale,
+            escalate: false,
+            problem: None,
+        }
+    } else {
+        problem(format!(
+            "the router named {named}, which is not a place in this room"
+        ))
+    }
 }
 
 /// This run's turns, and how far each place has been shown them.
@@ -166,6 +234,9 @@ impl RoomRun {
     /// Stops before the next phase if a completed turn cannot be kept.
     pub async fn ask(&mut self, question: &str, host: &dyn RoomHost) -> Result<Outcome> {
         let room = self.seated.room.clone();
+        if room.routing_seat().is_some() {
+            return self.route(question, host).await;
+        }
         let selection_phase = room.selection.as_ref().and_then(|selection| {
             room.phases
                 .iter()
@@ -177,6 +248,7 @@ impl RoomRun {
             stopped: Stopped::Rounds,
             pick: None,
             flips: Vec::new(),
+            route: None,
         };
         for round in 1..=room.stop.max_rounds.max(1) {
             let before = log.turns.len();
@@ -221,6 +293,45 @@ impl RoomRun {
             });
         }
         Ok(outcome)
+    }
+
+    /// A router room: the router speaks, then only the place it named. Nobody is
+    /// asked on a guess: an answer naming no listed place stops here and says so.
+    /// An escalation stops here too; opening the Council is the host's, which owns
+    /// seating and saving.
+    async fn route(&mut self, question: &str, host: &dyn RoomHost) -> Result<Outcome> {
+        let room = self.seated.room.clone();
+        let mut log = Log::default();
+        if let Some(phase) = room.phases.first() {
+            self.phase(phase, 1, question, &mut log, host).await?;
+        }
+        let route = read_route(log.turns.last(), &self.seated);
+        if let Some(place) = route.place.as_ref().filter(|_| !route.escalate) {
+            let place = self
+                .seated
+                .places
+                .iter()
+                .find(|candidate| candidate.key() == *place)
+                .cloned();
+            let phase = place.as_ref().and_then(|place| {
+                room.phases
+                    .iter()
+                    .skip(1)
+                    .find(|phase| phase.seats.contains(&place.seat))
+            });
+            if let (Some(place), Some(phase)) = (place, phase) {
+                let prompt = self.prompt(&place, phase, 1, question, &mut log);
+                let answer = host.ask(&place, &prompt).await;
+                finish(&place, phase, 1, answer, &mut log, host).await?;
+            }
+        }
+        Ok(Outcome {
+            rounds: 1,
+            stopped: Stopped::Rounds,
+            pick: None,
+            flips: Vec::new(),
+            route: Some(route),
+        })
     }
 
     /// One phase of one round.
@@ -744,7 +855,108 @@ mod tests {
     }
 
     fn expert(answer: &str) -> String {
-        json(&serde_json::json!({"answer": answer, "confidence": 0.8, "out_of_domain": false}))
+        json(&serde_json::json!({"answer": answer, "confidence": "high", "out_of_domain": []}))
+    }
+
+    fn router_run() -> RoomRun {
+        let library = Library::bundled();
+        let seating: Vec<Assignment> = ["router", "code", "facts", "decisions"]
+            .into_iter()
+            .map(|seat| Assignment {
+                seat: seat.to_owned(),
+                place: 0,
+                provider: ProviderId::ClaudeCode,
+                persona: None,
+            })
+            .collect();
+        RoomRun::new(seat(&library, "router", &seating).expect("seated"))
+    }
+
+    fn routed(place: &str, escalate: bool) -> String {
+        json(&serde_json::json!({
+            "place": place, "rationale": "its domain fits", "escalate": escalate
+        }))
+    }
+
+    fn asked(host: &Script, places: &[&str]) -> Vec<String> {
+        places
+            .iter()
+            .filter(|place| !host.prompts(place).is_empty())
+            .map(|place| (*place).to_owned())
+            .collect()
+    }
+
+    const EXPERTS: [&str; 3] = ["code-1", "facts-1", "decisions-1"];
+
+    #[tokio::test]
+    async fn only_the_place_the_router_names_answers() {
+        let host = Script::new(|place, _| {
+            Ok(if place == "router-1" {
+                routed("facts-1", false)
+            } else {
+                expert("Paris")
+            })
+        });
+        let outcome = router_run().ask("Capital of France?", &host).await.unwrap();
+
+        assert_eq!(asked(&host, &EXPERTS), ["facts-1"]);
+        let route = outcome.route.expect("a route");
+        assert_eq!(route.place.as_deref(), Some("facts-1"));
+        assert_eq!(route.rationale.as_deref(), Some("its domain fits"));
+        assert!(!route.escalate);
+        assert_eq!(route.problem, None);
+        assert!(host.prompts("facts-1")[0].contains("Capital of France?"));
+    }
+
+    #[tokio::test]
+    async fn the_router_is_told_the_places_it_can_name_with_their_domains() {
+        let host = Script::new(|place, _| {
+            Ok(if place == "router-1" {
+                routed("code-1", false)
+            } else {
+                expert("It compiles")
+            })
+        });
+        router_run().ask("Does it compile?", &host).await.unwrap();
+        let told = &host.prompts("router-1")[0];
+        assert!(told.contains("- code-1: software and code"), "{told}");
+        assert!(told.contains("- facts-1: research and facts"), "{told}");
+        assert!(
+            told.contains("- decisions-1: plans and decisions"),
+            "{told}"
+        );
+        // An expert is not told about routing.
+        assert!(!host.prompts("code-1")[0].contains("places you can name"));
+    }
+
+    #[tokio::test]
+    async fn a_place_that_is_not_listed_asks_no_one_and_says_so() {
+        for named in ["expert-1", "router-1"] {
+            let host = Script::new(move |_, _| Ok(routed(named, false)));
+            let outcome = router_run().ask("Q?", &host).await.unwrap();
+            assert_eq!(asked(&host, &EXPERTS), Vec::<String>::new());
+            let route = outcome.route.expect("a route");
+            assert_eq!(route.place, None);
+            assert!(route.problem.expect("a problem").contains(named));
+        }
+    }
+
+    #[tokio::test]
+    async fn a_router_with_no_valid_answer_asks_no_one_and_says_so() {
+        let host = Script::new(|_, _| Ok("words, with no JSON".to_owned()));
+        let outcome = router_run().ask("Q?", &host).await.unwrap();
+        assert_eq!(asked(&host, &EXPERTS), Vec::<String>::new());
+        let route = outcome.route.expect("a route");
+        assert_eq!(route.place, None);
+        assert!(route.problem.is_some());
+    }
+
+    #[tokio::test]
+    async fn escalating_asks_no_expert_and_leaves_the_council_to_the_host() {
+        let host = Script::new(|_, _| Ok(routed("code-1", true)));
+        let outcome = router_run().ask("Should we?", &host).await.unwrap();
+        assert_eq!(asked(&host, &EXPERTS), Vec::<String>::new());
+        assert!(outcome.route.expect("a route").escalate);
     }
 
     fn selector(winner: &str) -> String {

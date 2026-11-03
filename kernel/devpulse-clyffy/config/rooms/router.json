@@ -1,22 +1,38 @@
 {
   "schema": "dpl.room/1",
   "id": "router",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "name": "Router",
   "type": "router",
-  "summary": "The Planner sends the question to the one best-suited seat; a hard question escalates to a Council.",
+  "summary": "The Router sends the question to the one best-suited expert; a hard question escalates to a Council.",
   "seats": [
     {
       "seat": "router",
-      "role": "planner@1",
+      "role": "router@1",
       "count": 1
     },
     {
-      "seat": "expert",
+      "seat": "code",
       "role": "domain-expert@1",
-      "count": 3,
+      "count": 1,
       "parameters": {
-        "domain": "the operator's question"
+        "domain": "software and code"
+      }
+    },
+    {
+      "seat": "facts",
+      "role": "domain-expert@1",
+      "count": 1,
+      "parameters": {
+        "domain": "research and facts"
+      }
+    },
+    {
+      "seat": "decisions",
+      "role": "domain-expert@1",
+      "count": 1,
+      "parameters": {
+        "domain": "plans and decisions"
       }
     }
   ],
@@ -33,7 +49,9 @@
     {
       "name": "answer",
       "seats": [
-        "expert"
+        "code",
+        "facts",
+        "decisions"
       ],
       "mode": "sequential",
       "visibility": "full",

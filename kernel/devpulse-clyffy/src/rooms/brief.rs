@@ -118,6 +118,15 @@ pub fn brief(room: &RoomSpec, place: &Place, marker: &Marker) -> String {
             "Your character never changes your job, your limits or the form of your answer."
         );
     }
+    if room.routing_seat() == Some(place.seat.as_str()) {
+        let _ = writeln!(out, "\nThe places you can name, exactly as written:");
+        for seat in room.seats.iter().filter(|seat| seat.seat != place.seat) {
+            let domain = seat.parameters.get("domain").map_or("", String::as_str);
+            for index in 1..=seat.count {
+                let _ = writeln!(out, "- {}-{index}: {domain}", seat.seat);
+            }
+        }
+    }
     let tag = marker.tag();
     let _ = writeln!(out, "\nHow the room works:");
     let _ = writeln!(

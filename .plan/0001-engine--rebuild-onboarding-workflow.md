@@ -3085,4 +3085,22 @@ queries proving what was written.
       Live: a talk-only seat reports `tools []`, `mcp_servers []`.
     - `Selection`'s flags are newtypes (Q48), so the lint exception is gone; the JSON
       is unchanged and the TypeScript stays boolean, as named aliases.
+  - 2026-11-03 — **B4.2c c4 done: a Router room runs (owner ruling Q42).** B4.2c is
+    finished.
+    - A `router` role whose contract is `{place, rationale, escalate}`. The room
+      seats it over three experts told apart by domain (`code`, `facts`, `decisions`),
+      and it is told each place's name and domain. Only the place it names answers.
+      A place that is not listed, or no readable answer, asks no one and says why:
+      nobody is asked on a guess.
+    - `escalate` opens a Council on the same question in its own room, seated with
+      the same agents (experts answer, the router selects, personas kept). Its events
+      follow `RoomEvent::Escalated` on the same stream and end with its own
+      `Finished`. If the vendor rules refuse those agents as a Council, the router
+      room finishes with that refusal in `route.problem`.
+    - Live, through `Rooms`: Codex routing over three Claude Code experts sent a
+      borrow-checker question to `code-1`, which alone answered; told to escalate, it
+      opened a real Council whose three answers and selection all met their contracts.
+    - No window shows this yet: rooms in the chat window are B4.3. A router's first
+      answer may also name a place while escalating; escalation wins and the name is
+      dropped.
 

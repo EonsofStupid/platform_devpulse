@@ -9,13 +9,19 @@
 //! `turns` with its place, role, phase and round in `metadata`, and the
 //! run's events handed to the caller.
 //!
+//! When a router room's router escalates, its question opens a Council seated
+//! with the same agents ([`council_seating`]), and the Council's events continue
+//! on the same stream after [`RoomEvent::Escalated`].
+//!
 //! A seat that only talks works in an empty folder of its own
 //! (`{data_dir}/rooms/{session}/{place}`), its agent's tools are switched off
 //! where the agent has a switch for that, and every permission it asks for
 //! is refused.
 
 use std::collections::{BTreeMap, HashMap};
+use std::future::Future;
 use std::path::PathBuf;
+use std::pin::Pin;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
 
@@ -79,6 +85,14 @@ pub enum RoomEvent {
         /// How it ended.
         outcome: Outcome,
     },
+    /// A router asked for a Council, which is now answering in its own room.
+    /// Saved. The Council's events follow, ending with its own `Finished`.
+    Escalated {
+        /// How the router room ended.
+        outcome: Outcome,
+        /// The Council.
+        room: RoomThread,
+    },
     /// The run could not be durably completed. Any recovery copy is named.
     Failed {
         /// The failure, not a successful room outcome.
@@ -109,6 +123,29 @@ pub struct Rooms {
     data_dir: PathBuf,
     agents: Arc<Agents>,
     live: Mutex<HashMap<String, Arc<LiveRoom>>>,
+}
+
+/// The router room's agents, seated as a Council: its experts answer and its
+/// router selects, keeping each one's persona.
+fn council_seating(seating: &[Assignment], routing_seat: &str) -> Vec<Assignment> {
+    let mut answerers = 0;
+    seating
+        .iter()
+        .map(|place| {
+            let (seat, index) = if place.seat == routing_seat {
+                ("selector", 0)
+            } else {
+                answerers += 1;
+                ("answerer", answerers - 1)
+            };
+            Assignment {
+                seat: seat.to_owned(),
+                place: index,
+                provider: place.provider,
+                persona: place.persona.clone(),
+            }
+        })
+        .collect()
 }
 
 /// Issues as one error, each on its own clause.
@@ -291,7 +328,7 @@ impl Rooms {
     /// When the question is empty, the room is unknown or still answering,
     /// or its seating no longer fits your library.
     pub async fn ask(
-        &self,
+        self: &Arc<Self>,
         session_id: &str,
         question: &str,
     ) -> Result<mpsc::UnboundedReceiver<RoomEvent>> {
@@ -333,9 +370,21 @@ impl Rooms {
                 .begin(session_id, &room.project_id, None, None),
             places: Mutex::new(HashMap::new()),
         };
+        let rooms = Arc::clone(self);
         devpulse_telemetry::spawn(async move {
             match run.ask(&question, &host).await {
-                Ok(outcome) => host.finish(outcome).await,
+                Ok(outcome) if outcome.route.as_ref().is_some_and(|route| route.escalate) => {
+                    let routing_seat = run
+                        .seated()
+                        .room
+                        .routing_seat()
+                        .unwrap_or_default()
+                        .to_owned();
+                    rooms
+                        .escalate(&host, outcome, &question, &routing_seat)
+                        .await;
+                }
+                Ok(outcome) => host.finish(outcome, None).await,
                 Err(error) => {
                     host.observation.finish(&AgentEvent::Failed {
                         message: format!("{error:#}"),
@@ -347,6 +396,43 @@ impl Rooms {
             }
         });
         Ok(receiver)
+    }
+
+    /// Open a Council on the question a router escalated, and carry its events on
+    /// this room's stream. A Council that cannot be seated is the router room's
+    /// answer, in the engine's words: the vendor rules can refuse these agents.
+    fn escalate<'a>(
+        self: &'a Arc<Self>,
+        host: &'a Host,
+        mut outcome: Outcome,
+        question: &'a str,
+        routing_seat: &'a str,
+    ) -> Pin<Box<dyn Future<Output = ()> + Send + 'a>> {
+        Box::pin(async move {
+            let opened = async {
+                let record = self.record(&host.session_id).await?;
+                let seating = council_seating(&record.seating, routing_seat);
+                let room = self.start(&record.project_id, "council", seating).await?;
+                let events = self.ask(&room.session_id, question).await?;
+                anyhow::Ok((room, events))
+            }
+            .await;
+            match opened {
+                Ok((room, mut events)) => {
+                    host.finish(outcome, Some(room)).await;
+                    while let Some(event) = events.recv().await {
+                        let _ = host.out.send(event);
+                    }
+                }
+                Err(error) => {
+                    tracing::warn!(target: "rooms", session_id = %host.session_id, error = %format!("{error:#}"), "a Council could not be opened");
+                    if let Some(route) = outcome.route.as_mut() {
+                        route.problem = Some(format!("a Council could not be opened: {error:#}"));
+                    }
+                    host.finish(outcome, None).await;
+                }
+            }
+        })
     }
 
     /// Stop a room that is answering: every place's running turn ends, and
@@ -445,8 +531,8 @@ impl Host {
         Ok(session)
     }
 
-    /// Save the run's end and say so.
-    async fn finish(&self, outcome: Outcome) {
+    /// Save the run's end and say so; `escalated` is the Council it opened.
+    async fn finish(&self, outcome: Outcome, escalated: Option<RoomThread>) {
         let event = finish_outcome(
             &self.db,
             &self.data_dir,
@@ -455,6 +541,10 @@ impl Host {
             outcome,
         )
         .await;
+        let event = match (event, escalated) {
+            (RoomEvent::Finished { outcome }, Some(room)) => RoomEvent::Escalated { outcome, room },
+            (event, _) => event,
+        };
         self.observation.finish(&match &event {
             RoomEvent::Failed { message } => AgentEvent::Failed {
                 message: message.clone(),
@@ -632,9 +722,73 @@ impl RoomHost for Host {
 
 #[cfg(test)]
 mod tests {
-    #![allow(clippy::unwrap_used, reason = "test assertions")]
+    #![allow(clippy::expect_used, clippy::unwrap_used, reason = "test assertions")]
     use super::*;
     use devpulse_clyffy::cortex::persistence::TursoOptions;
+    use devpulse_clyffy::providers::ProviderId;
+
+    #[test]
+    fn a_router_rooms_agents_are_seated_as_a_council_keeping_their_personas() {
+        let place = |seat: &str, provider, persona: Option<&str>| Assignment {
+            seat: seat.to_owned(),
+            place: 0,
+            provider,
+            persona: persona.map(str::to_owned),
+        };
+        let seating = [
+            place("router", ProviderId::Codex, Some("ada")),
+            place("code", ProviderId::ClaudeCode, None),
+            place("facts", ProviderId::ClaudeCode, Some("grace")),
+            place("decisions", ProviderId::ClaudeCode, None),
+        ];
+        let council = council_seating(&seating, "router");
+        let shape: Vec<_> = council
+            .iter()
+            .map(|p| (p.seat.as_str(), p.place, p.provider, p.persona.as_deref()))
+            .collect();
+        assert_eq!(
+            shape,
+            [
+                ("selector", 0, ProviderId::Codex, Some("ada")),
+                ("answerer", 0, ProviderId::ClaudeCode, None),
+                ("answerer", 1, ProviderId::ClaudeCode, Some("grace")),
+                ("answerer", 2, ProviderId::ClaudeCode, None),
+            ]
+        );
+        // The bundled Council accepts that shape; these personas are only yours.
+        let without_personas: Vec<_> = council
+            .into_iter()
+            .map(|place| Assignment {
+                persona: None,
+                ..place
+            })
+            .collect();
+        library::seat(&Library::bundled(), "council", &without_personas).expect("a Council");
+    }
+
+    #[test]
+    fn a_council_the_vendor_rules_refuse_is_refused_in_their_words() {
+        let place = |seat: &str, index: u32| Assignment {
+            seat: seat.to_owned(),
+            place: index,
+            provider: ProviderId::ClaudeCode,
+            persona: None,
+        };
+        let seating = [
+            place("router", 0),
+            place("code", 0),
+            place("facts", 0),
+            place("decisions", 0),
+        ];
+        let council = council_seating(&seating, "router");
+        let Err(issues) = library::seat(&Library::bundled(), "council", &council) else {
+            panic!("a selector from the answerers' vendor must be refused");
+        };
+        assert!(
+            issues.iter().any(|issue| issue.at.contains("selector")),
+            "{issues:?}"
+        );
+    }
 
     #[tokio::test]
     async fn only_a_saved_room_outcome_reports_finished() {
@@ -657,6 +811,7 @@ mod tests {
                 stopped: library::Stopped::Rounds,
                 pick: None,
                 flips: vec![],
+                route: None,
             };
             let event = finish_outcome(&db, tree.path(), "s", "p", outcome.clone()).await;
             if limit == 0 {
