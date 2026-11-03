@@ -2860,4 +2860,21 @@ queries proving what was written.
     - Verified: 37 persona tests, including 5 through the protocol path over one
       store inside a host database; all-target Clippy; rustfmt. No session uses
       this yet: phases b–e and the live check remain.
+  - 2026-11-02 — **B6.2b done: the owner's pipe and the relay.**
+    - `bridge.rs`: `Bridge` serves one store on a private pipe; `Grant` is a
+      session's token, revoked on drop, which also ends its connections. A
+      token must arrive within 5 s and 512 bytes, and a silent connection holds
+      nothing up. The binary relays its stdio when `DEVPULSE_MEMORY_PIPE` is
+      set, and needs no database path or `CLYFFY_OFFLINE` to do so.
+    - Verified with the real binary as the child: two sessions at once, each in
+      its own project (the case that failed with the lock error); a wrong or
+      revoked token refused; no owner fails visibly on stderr with nothing on
+      the protocol stream; a killed session leaves the owner serving; closing
+      stdin ends the relay; memory survives the owner restarting. 15 repeat
+      runs of that suite, no failures. 47 persona tests; Clippy; rustfmt.
+    - Not verified: the Linux and macOS socket branch compiles only in CI here
+      (no such target installed), and has never run. Found on the way, not
+      touched: `--features rro` does not compile at HEAD
+      (`devpulse-clyffy/src/cortex/persistence/rro/mod.rs`).
+    - Still no session uses this: phases c–e and the live check remain.
 

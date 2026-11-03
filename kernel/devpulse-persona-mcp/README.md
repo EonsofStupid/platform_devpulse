@@ -17,6 +17,14 @@ the operating system's application-data directory. `CLYFFY_OFFLINE=true` enables
 local stdio operation. Without it, the preserved authentication gate rejects
 tool execution; remote authentication is not implemented by this executable.
 
+Inside DevPulse the store has one owner, because Turso lets one process hold a
+database: the engine keeps these tables in the user database and runs a `Bridge`
+on a private local pipe. Each agent session starts this binary with
+`DEVPULSE_MEMORY_PIPE` and `DEVPULSE_MEMORY_TOKEN`, and it only relays its stdio
+to the owner. The token decides what the session reaches: your own blocks and
+its project's to read, its project's to write. A caller's arguments never widen
+that. Plan 0001 B6.2 has the reasons.
+
 MCP messages use newline-delimited JSON on stdin/stdout. Logs go to stderr.
 Initialize the session, send `notifications/initialized`, then call tools.
 Closing stdin terminates the service. Successes expose both text content and

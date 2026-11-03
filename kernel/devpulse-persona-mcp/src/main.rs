@@ -5,6 +5,12 @@
 //! persona verb handlers, writes responses to stdout. Tracing goes
 //! to stderr — stdout is reserved for the protocol.
 //!
+//! Two modes. When `DevPulse` starts a session it sets `DEVPULSE_MEMORY_PIPE`
+//! and `DEVPULSE_MEMORY_TOKEN`, and this process only relays its stdio to the
+//! store `DevPulse` owns (see [`devpulse_persona_mcp::bridge`]). Otherwise it
+//! opens the database itself, for an MCP client outside `DevPulse`; that file
+//! must not be one `DevPulse` has open, which fails with a visible lock error.
+//!
 //! # Environment
 //!
 //! - `CLYFFY_OFFLINE` — set to `true`/`1` to enable v1 local mode.
@@ -15,6 +21,7 @@
 
 use anyhow::Context;
 use devpulse_persona_mcp::auth::AuthGate;
+use devpulse_persona_mcp::bridge::{self, PIPE_ENV, TOKEN_ENV};
 use devpulse_persona_mcp::{server::Server, store::PersonaStore};
 use std::env;
 use std::path::PathBuf;
@@ -23,6 +30,19 @@ use tracing_subscriber::{EnvFilter, fmt};
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     init_tracing();
+
+    if let Some(address) = env::var_os(PIPE_ENV) {
+        let code = match relay(&address).await {
+            Ok(()) => 0,
+            Err(error) => {
+                tracing::error!(target = "persona_mcp", "{error:#}");
+                1
+            }
+        };
+        // Tokio reads stdin on a blocking thread, which would hold the
+        // runtime open until the client next writes. The relay is over.
+        std::process::exit(code);
+    }
 
     let db_path = resolve_db_path()?;
     tracing::info!(
@@ -50,6 +70,14 @@ fn init_tracing() {
         .with_writer(std::io::stderr)
         .with_target(true)
         .try_init();
+}
+
+async fn relay(address: &std::ffi::OsStr) -> anyhow::Result<()> {
+    let address = address
+        .to_str()
+        .with_context(|| format!("{PIPE_ENV} is not valid text"))?;
+    let token = env::var(TOKEN_ENV).with_context(|| format!("{PIPE_ENV} needs {TOKEN_ENV}"))?;
+    bridge::relay(address, &token).await
 }
 
 fn resolve_db_path() -> anyhow::Result<PathBuf> {

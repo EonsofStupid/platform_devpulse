@@ -15,6 +15,7 @@
 
 pub mod auth;
 pub mod binding;
+pub mod bridge;
 pub mod error;
 pub mod idempotency;
 pub mod schema;
@@ -23,6 +24,7 @@ pub mod store;
 pub mod verbs;
 
 pub use binding::Binding;
+pub use bridge::{Bridge, Grant};
 pub use error::{ErrorEnvelope, ErrorKind, PersonaError};
 pub use server::Server;
 pub use store::{PersonaBlock, PersonaScope, PersonaStore, RecallHit, RecallMode};

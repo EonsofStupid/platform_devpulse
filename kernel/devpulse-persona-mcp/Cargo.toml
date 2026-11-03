@@ -14,9 +14,10 @@ rro = ["devpulse-clyffy/rro"]
 # Core
 serde = { workspace = true }
 serde_json = { workspace = true }
-uuid = { workspace = true }
+uuid = { workspace = true, features = ["v4"] }
 chrono = { workspace = true }
 tokio = { workspace = true }
+tokio-util = { workspace = true }
 anyhow = { workspace = true }
 thiserror = { workspace = true }
 tracing = { workspace = true }
