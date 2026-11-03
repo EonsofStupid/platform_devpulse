@@ -94,12 +94,8 @@ async fn selected_ordinary_session_and_project_own_every_write() {
     let tree = tempfile::tempdir().unwrap();
     let (db, _, chat) = open(&tree).await;
     assert!(chat.send_user("p", None, " ").await.is_err());
-    assert!(
-        db.query("SELECT id FROM sessions", &[])
-            .await
-            .unwrap()
-            .is_empty()
-    );
+    let sessions = db.query("SELECT id FROM sessions", &[]).await.unwrap();
+    assert_eq!(sessions.len(), 0);
     let first = chat.send_user("p", None, "first").await.unwrap();
     let second = chat.send_user("p", None, "second").await.unwrap();
     assert_ne!(first.session_id, second.session_id);
@@ -157,20 +153,36 @@ async fn selected_ordinary_session_and_project_own_every_write() {
     );
 }
 
+/// Stream two answers, returning the requests that asked for them.
+async fn answer_two_streams(listener: tokio::net::TcpListener) -> Vec<serde_json::Value> {
+    let mut requests = Vec::new();
+    for text in ["first answer", "second answer"] {
+        let (mut socket, _) = listener.accept().await.unwrap();
+        requests.push(request(&mut socket).await);
+        let body = stream_body(text);
+        socket.write_all(format!("HTTP/1.1 200 OK\r\nContent-Type: text/event-stream\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}", body.len()).as_bytes()).await.unwrap();
+    }
+    requests
+}
+
+/// One turn whose chunks the test does not need.
+async fn prompt_quietly(
+    chat: &Chat,
+    project: &str,
+    session: &str,
+    text: &str,
+) -> Result<ChatMessage> {
+    chat.prompt_endpoint(project, session, &Uuid::new_v4().to_string(), text, |_| {
+        Ok(())
+    })
+    .await
+}
+
 #[tokio::test]
 async fn endpoint_chat_retains_history_across_reopen_and_uses_explicit_target() {
     let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
     let url = format!("http://{}/custom/v1", listener.local_addr().unwrap());
-    let server = devpulse_telemetry::spawn(async move {
-        let mut requests = Vec::new();
-        for text in ["first answer", "second answer"] {
-            let (mut socket, _) = listener.accept().await.unwrap();
-            requests.push(request(&mut socket).await);
-            let body = stream_body(text);
-            socket.write_all(format!("HTTP/1.1 200 OK\r\nContent-Type: text/event-stream\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}", body.len()).as_bytes()).await.unwrap();
-        }
-        requests
-    });
+    let server = devpulse_telemetry::spawn(answer_two_streams(listener));
     let tree = tempfile::tempdir().unwrap();
     let (db, connections, chat) = open(&tree).await;
     let connection = save(&connections, None, &url).await;
@@ -184,15 +196,9 @@ async fn endpoint_chat_retains_history_across_reopen_and_uses_explicit_target() 
             .is_err()
     );
     assert!(
-        chat.prompt_endpoint(
-            "q",
-            &session,
-            &Uuid::new_v4().to_string(),
-            "wrong project",
-            |_| Ok(())
-        )
-        .await
-        .is_err()
+        prompt_quietly(&chat, "q", &session, "wrong project")
+            .await
+            .is_err()
     );
     let mut deltas = String::new();
     let answer = chat
@@ -215,15 +221,9 @@ async fn endpoint_chat_retains_history_across_reopen_and_uses_explicit_target() 
         .unwrap()
         .unwrap();
     assert_eq!(target.connection_id, connection.id);
-    chat.prompt_endpoint(
-        "p",
-        &session,
-        &Uuid::new_v4().to_string(),
-        "remember that",
-        |_| Ok(()),
-    )
-    .await
-    .unwrap();
+    prompt_quietly(&chat, "p", &session, "remember that")
+        .await
+        .unwrap();
     let requests = server.await.unwrap();
     assert_eq!(requests[0]["model"], "chosen-model");
     assert_eq!(requests[0]["messages"].as_array().unwrap().len(), 1);
@@ -242,17 +242,11 @@ async fn endpoint_chat_retains_history_across_reopen_and_uses_explicit_target() 
     .await;
     assert_eq!(edited.revision, connection.revision + 1);
     assert!(
-        chat.prompt_endpoint(
-            "p",
-            &session,
-            &Uuid::new_v4().to_string(),
-            "must not leak history",
-            |_| Ok(())
-        )
-        .await
-        .unwrap_err()
-        .to_string()
-        .contains("changed")
+        prompt_quietly(&chat, "p", &session, "must not leak history")
+            .await
+            .unwrap_err()
+            .to_string()
+            .contains("changed")
     );
     assert_eq!(chat.recent("p", Some(&session)).await.unwrap().len(), 4);
     connections.remove(&connection.id).await.unwrap();

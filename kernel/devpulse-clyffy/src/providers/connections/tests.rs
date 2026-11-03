@@ -305,7 +305,7 @@ async fn replacement_discards_only_the_old_key_and_missing_key_fails_closed() {
         check.error.as_deref(),
         Some("The saved key is missing; enter it again")
     );
-    assert!(check.models.is_empty());
+    assert_eq!(check.models, []);
     db.close().await;
 }
 
@@ -333,8 +333,51 @@ async fn invalid_configuration_is_rejected_before_any_key_is_written() {
         );
     }
     assert!(vault.keys.lock().await.is_empty());
-    assert!(connections.state().await.unwrap().items.is_empty());
+    assert_eq!(connections.state().await.unwrap().items, []);
     db.close().await;
+}
+
+/// Answer one text test, checking the request it was sent.
+async fn answer_one_text_test(listener: tokio::net::TcpListener) {
+    let (mut socket, _) = listener.accept().await.unwrap();
+    let mut bytes = Vec::new();
+    let mut buffer = [0; 4096];
+    let headers = loop {
+        let n = socket.read(&mut buffer).await.unwrap();
+        assert!(n > 0);
+        bytes.extend_from_slice(&buffer[..n]);
+        if let Some(end) = bytes.windows(4).position(|w| w == b"\r\n\r\n") {
+            let headers = String::from_utf8(bytes[..end].to_vec()).unwrap();
+            let length: usize = headers
+                .lines()
+                .find_map(|line| {
+                    line.to_ascii_lowercase()
+                        .strip_prefix("content-length:")
+                        .map(|n| n.trim().parse().unwrap())
+                })
+                .unwrap();
+            if bytes.len() >= end + 4 + length {
+                let body: serde_json::Value = serde_json::from_slice(&bytes[end + 4..]).unwrap();
+                assert_eq!(body["model"], "selected-model");
+                assert_eq!(body["messages"][0]["content"], "Visible question");
+                break headers.to_ascii_lowercase();
+            }
+        }
+    };
+    assert!(headers.starts_with("post /custom/v1/chat/completions "));
+    assert!(headers.contains("authorization: bearer this-connection-key"));
+    let body =
+        r#"{"choices":[{"index":0,"message":{"content":"Actual answer"},"finish_reason":"stop"}]}"#;
+    socket
+        .write_all(
+            format!(
+                "HTTP/1.1 200 OK\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}",
+                body.len()
+            )
+            .as_bytes(),
+        )
+        .await
+        .unwrap();
 }
 
 #[tokio::test]
@@ -345,47 +388,7 @@ async fn saved_text_test_uses_its_key_records_failure_and_edits_clear_the_answer
     let connections = Connections::new(db.clone(), vault.clone());
     let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
     let endpoint = format!("http://{}/custom/v1", listener.local_addr().unwrap());
-    let server = devpulse_telemetry::spawn(async move {
-        let (mut socket, _) = listener.accept().await.unwrap();
-        let mut bytes = Vec::new();
-        let mut buffer = [0; 4096];
-        let headers = loop {
-            let n = socket.read(&mut buffer).await.unwrap();
-            assert!(n > 0);
-            bytes.extend_from_slice(&buffer[..n]);
-            if let Some(end) = bytes.windows(4).position(|w| w == b"\r\n\r\n") {
-                let headers = String::from_utf8(bytes[..end].to_vec()).unwrap();
-                let length: usize = headers
-                    .lines()
-                    .find_map(|line| {
-                        line.to_ascii_lowercase()
-                            .strip_prefix("content-length:")
-                            .map(|n| n.trim().parse().unwrap())
-                    })
-                    .unwrap();
-                if bytes.len() >= end + 4 + length {
-                    let body: serde_json::Value =
-                        serde_json::from_slice(&bytes[end + 4..]).unwrap();
-                    assert_eq!(body["model"], "selected-model");
-                    assert_eq!(body["messages"][0]["content"], "Visible question");
-                    break headers.to_ascii_lowercase();
-                }
-            }
-        };
-        assert!(headers.starts_with("post /custom/v1/chat/completions "));
-        assert!(headers.contains("authorization: bearer this-connection-key"));
-        let body = r#"{"choices":[{"index":0,"message":{"content":"Actual answer"},"finish_reason":"stop"}]}"#;
-        socket
-            .write_all(
-                format!(
-                    "HTTP/1.1 200 OK\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}",
-                    body.len()
-                )
-                .as_bytes(),
-            )
-            .await
-            .unwrap();
-    });
+    let server = devpulse_telemetry::spawn(answer_one_text_test(listener));
     let saved = connections
         .save(request(
             None,
