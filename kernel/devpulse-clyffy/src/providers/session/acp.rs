@@ -14,10 +14,11 @@ use std::time::Duration;
 
 use agent_client_protocol::schema::ProtocolVersion;
 use agent_client_protocol::schema::v1::{
-    CancelNotification, ContentBlock, ContentChunk, Implementation, InitializeRequest,
-    PermissionOptionKind, RequestPermissionOutcome, RequestPermissionRequest,
-    RequestPermissionResponse, SelectedPermissionOutcome, SessionId, SessionNotification,
-    SessionUpdate, StopReason, ToolCallStatus,
+    CancelNotification, ContentBlock, ContentChunk, EnvVariable, Implementation, InitializeRequest,
+    LoadSessionRequest, McpServer, McpServerStdio, NewSessionRequest, PermissionOptionKind,
+    RequestPermissionOutcome, RequestPermissionRequest, RequestPermissionResponse,
+    ResumeSessionRequest, SelectedPermissionOutcome, SessionId, SessionNotification, SessionUpdate,
+    StopReason, ToolCallStatus,
 };
 use agent_client_protocol::util::MatchDispatch;
 use agent_client_protocol::{
@@ -28,7 +29,7 @@ use anyhow::{Result, anyhow, bail};
 use futures::FutureExt;
 use tokio::sync::{Mutex, mpsc, oneshot};
 
-use super::{AgentEvent, PERMISSION_WAIT, PermissionChoice, TurnEvents};
+use super::{AgentEvent, PERMISSION_WAIT, PermissionChoice, ToolServer, TurnEvents};
 use crate::providers::connect::Launch;
 use crate::providers::connect::acp::refuse;
 
@@ -67,11 +68,16 @@ pub struct AcpSession {
 }
 
 impl AcpSession {
-    /// Start the agent and open its session in `cwd`.
+    /// Start the agent and open its session in `cwd`, offering it `tools`.
     ///
     /// # Errors
     /// The agent's or the protocol's own error, or no session in time.
-    pub async fn start(launch: &Launch, cwd: &Path, resume: Option<String>) -> Result<Self> {
+    pub async fn start(
+        launch: &Launch,
+        cwd: &Path,
+        resume: Option<String>,
+        tools: Vec<ToolServer>,
+    ) -> Result<Self> {
         if resume.as_ref().is_some_and(|id| id.trim().is_empty()) {
             bail!("cannot restore an agent session with an empty id");
         }
@@ -84,6 +90,7 @@ impl AcpSession {
                 launch.clone(),
                 cwd.to_path_buf(),
                 resume,
+                mcp_servers(&tools),
                 receiver,
                 Arc::clone(&shared),
             ),
@@ -331,6 +338,7 @@ async fn run(
     launch: Launch,
     cwd: std::path::PathBuf,
     resume: Option<String>,
+    servers: Vec<McpServer>,
     mut commands: mpsc::UnboundedReceiver<Command>,
     shared: Arc<Shared>,
 ) {
@@ -357,7 +365,7 @@ async fn run(
             agent_client_protocol::on_receive_request!(),
         )
         .connect_with(agent, async move |connection: ConnectionTo<Agent>| {
-            let mut session = open_session(&connection, &cwd, resume.as_deref()).await?;
+            let mut session = open_session(&connection, &cwd, resume.as_deref(), servers).await?;
             *session_shared.session_id.lock().await = Some(session.session_id().0.to_string());
             tell_ready(&session_shared, Ok(())).await;
             let control = session.connection().clone();
@@ -408,10 +416,30 @@ async fn run(
     shared.pending.lock().await.clear();
 }
 
+/// ACP's stdio form, the one transport every agent must support.
+fn mcp_servers(tools: &[ToolServer]) -> Vec<McpServer> {
+    tools
+        .iter()
+        .map(|tool| {
+            McpServer::Stdio(
+                McpServerStdio::new(tool.name.clone(), tool.command.clone())
+                    .args(tool.args.clone())
+                    .env(
+                        tool.env
+                            .iter()
+                            .map(|(name, value)| EnvVariable::new(name.clone(), value.clone()))
+                            .collect(),
+                    ),
+            )
+        })
+        .collect()
+}
+
 async fn open_session(
     connection: &ConnectionTo<Agent>,
     cwd: &Path,
     resume: Option<&str>,
+    servers: Vec<McpServer>,
 ) -> Result<ActiveSession<'static, Agent>, agent_client_protocol::Error> {
     let initialized = connection
         .send_request(
@@ -422,7 +450,7 @@ async fn open_session(
         .await?;
     let Some(id) = resume else {
         return connection
-            .build_session(cwd)
+            .build_session_from(NewSessionRequest::new(cwd).mcp_servers(servers))
             .block_task()
             .start_session()
             .await;
@@ -430,7 +458,7 @@ async fn open_session(
     let capabilities = initialized.agent_capabilities;
     if capabilities.session_capabilities.resume.is_some() {
         return Ok(connection
-            .resume_session(id.to_owned(), cwd)
+            .resume_session_from(ResumeSessionRequest::new(id.to_owned(), cwd).mcp_servers(servers))
             .block_task()
             .start_session()
             .await?
@@ -441,7 +469,7 @@ async fn open_session(
             .data("This agent cannot restore saved sessions: it advertises neither session/resume nor session/load"));
     }
     let mut session = connection
-        .load_session(id.to_owned(), cwd)
+        .load_session_from(LoadSessionRequest::new(id.to_owned(), cwd).mcp_servers(servers))
         .block_task()
         .start_session()
         .await?

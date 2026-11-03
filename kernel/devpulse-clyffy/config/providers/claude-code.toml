@@ -68,4 +68,10 @@ resume = ["--resume", "{session}"]
 # and `--strict-mcp-config` with no `--mcp-config` loads no MCP servers.
 # Checked 2026-10-21 against `claude --help` (2.1.296).
 talk_only = ["--tools", "", "--strict-mcp-config"]
+# A session with MCP servers (plan 0001 B6.2): `--mcp-config` reads the file
+# DevPulse writes, and print mode refuses a tool it may not use, so
+# `--allowedTools` names each server (`mcp__<server>` covers all its tools).
+# Both take several values, so they stay after the prompt. Checked 2026-11-02
+# against `claude --help` (2.1.316).
+tool_servers = ["--mcp-config", "{mcp_config}", "--allowedTools", "mcp__{tool_server}"]
 output = "claude-stream-json"

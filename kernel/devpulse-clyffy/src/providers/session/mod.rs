@@ -108,6 +108,41 @@ impl AgentEvent {
 /// [`AgentEvent::Failed`].
 pub type TurnEvents = mpsc::UnboundedReceiver<AgentEvent>;
 
+/// A stdio MCP server an agent may use during a conversation: `DevPulse`'s
+/// memory (plan 0001 B6.2). Its environment can hold a session's token, so a
+/// debug print names the variables and not their values.
+#[derive(Clone, PartialEq, Eq)]
+pub struct ToolServer {
+    /// What the agent calls it.
+    pub name: String,
+    /// The program the agent starts.
+    pub command: PathBuf,
+    /// Its arguments.
+    pub args: Vec<String>,
+    /// Its environment.
+    pub env: Vec<(String, String)>,
+}
+
+impl std::fmt::Debug for ToolServer {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("ToolServer")
+            .field("name", &self.name)
+            .field("command", &self.command)
+            .field("args", &self.args)
+            .field(
+                "env",
+                &self.env.iter().map(|(name, _)| name).collect::<Vec<_>>(),
+            )
+            .finish()
+    }
+}
+
+/// What a session may use: a seat that only talks gets nothing, whatever the
+/// caller offered, which keeps a Council's blind answers blind.
+fn tools_for(talk_only: bool, offered: Vec<ToolServer>) -> Vec<ToolServer> {
+    if talk_only { Vec::new() } else { offered }
+}
+
 /// A live conversation with one agent.
 pub struct AgentSession {
     kind: Kind,
@@ -127,7 +162,10 @@ impl AgentSession {
     /// earlier ([`Self::resume_token`]). `talk_only` adds the agent's own
     /// switch for no tools when its definition has one (a headless agent's
     /// `connect.conversation.talk_only`); an ACP agent has none, so the
-    /// caller refuses its permission requests instead.
+    /// caller refuses its permission requests instead. `tools` are the MCP
+    /// servers the agent may use: offered to an ACP agent when its session
+    /// opens, and through a headless agent's `connect.conversation.tool_servers`
+    /// when its definition has them.
     ///
     /// # Errors
     /// When the definition says nothing about talking to it, it is a
@@ -140,7 +178,9 @@ impl AgentSession {
         cwd: &Path,
         resume: Option<String>,
         talk_only: bool,
+        tools: Vec<ToolServer>,
     ) -> Result<Self> {
+        let tools = tools_for(talk_only, tools);
         super::supervisor::inspect(definition, program, data_dir)
             .await
             .availability
@@ -155,7 +195,7 @@ impl AgentSession {
         let launch = connect::launch(definition, program, data_dir, "")?;
         let kind = match definition.protocol() {
             Some(AgentProtocol::Acp) => {
-                Kind::Acp(acp::AcpSession::start(&launch, cwd, resume).await?)
+                Kind::Acp(acp::AcpSession::start(&launch, cwd, resume, tools).await?)
             }
             Some(AgentProtocol::Headless) => {
                 let Some(conversation) = &connect_spec.conversation else {
@@ -164,6 +204,11 @@ impl AgentSession {
                         definition.name()
                     );
                 };
+                let tools = if tools.is_empty() || conversation.tool_servers.is_empty() {
+                    None
+                } else {
+                    Some(headless::ToolConfig::write(data_dir, &tools)?)
+                };
                 Kind::Headless(Box::new(headless::HeadlessSession::new(
                     &launch,
                     program,
@@ -171,6 +216,7 @@ impl AgentSession {
                     cwd,
                     resume,
                     talk_only,
+                    tools,
                 )))
             }
             None => bail!(
@@ -268,6 +314,28 @@ mod tests {
     use super::*;
     use crate::providers::{ProviderId, catalog, discovery::installed};
 
+    fn memory_server() -> ToolServer {
+        ToolServer {
+            name: "devpulse-memory".into(),
+            command: PathBuf::from("devpulse-persona-mcp"),
+            args: Vec::new(),
+            env: vec![("DEVPULSE_MEMORY_TOKEN".into(), "secret-token".into())],
+        }
+    }
+
+    #[test]
+    fn a_seat_that_only_talks_gets_no_tools_whatever_it_was_offered() {
+        assert_eq!(tools_for(true, vec![memory_server()]), []);
+        assert_eq!(tools_for(false, vec![memory_server()]), [memory_server()]);
+    }
+
+    #[test]
+    fn a_debug_print_never_shows_a_session_token() {
+        let printed = format!("{:?}", memory_server());
+        assert!(printed.contains("DEVPULSE_MEMORY_TOKEN"), "{printed}");
+        assert!(!printed.contains("secret-token"), "{printed}");
+    }
+
     #[tokio::test]
     async fn a_live_session_rechecks_login_and_cancellation_before_dispatch() {
         use crate::providers::definition::{PerOs, SignedInSpec};
@@ -295,9 +363,10 @@ mod tests {
             output_signed_out: None,
             absent_means_signed_out: true,
         });
-        let session = AgentSession::start(&definition, &program, &dir, &dir, None, false)
-            .await
-            .unwrap();
+        let session =
+            AgentSession::start(&definition, &program, &dir, &dir, None, false, Vec::new())
+                .await
+                .unwrap();
         std::fs::remove_file(&login).unwrap();
         let error = session.prompt("must not dispatch").await.unwrap_err();
         assert!(error.to_string().contains("Sign in to"), "{error:#}");
@@ -355,9 +424,17 @@ mod tests {
                 .unwrap();
             let program =
                 installed::locate(&definition, home.as_deref(), &data_dir).expect("installed");
-            let session = AgentSession::start(&definition, &program, &data_dir, &cwd, None, false)
-                .await
-                .unwrap_or_else(|e| panic!("{}: {e:#}", id.key()));
+            let session = AgentSession::start(
+                &definition,
+                &program,
+                &data_dir,
+                &cwd,
+                None,
+                false,
+                Vec::new(),
+            )
+            .await
+            .unwrap_or_else(|e| panic!("{}: {e:#}", id.key()));
             let first = answer(
                 session
                     .prompt("Remember the word marmalade. Reply with just: OK")

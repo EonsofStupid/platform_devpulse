@@ -253,6 +253,7 @@ impl Agents {
             cwd,
             resume,
             talk_only,
+            Vec::new(),
         )
         .await
     }

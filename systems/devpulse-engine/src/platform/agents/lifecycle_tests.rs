@@ -54,6 +54,7 @@ async fn fixture_session(dir: &Path, running: bool) -> AgentSession {
         dir,
         Some("saved-thread".into()),
         false,
+        Vec::new(),
     )
     .await
     .unwrap()

@@ -177,7 +177,7 @@ async fn cancelling_real_acp_startup_terminates_the_sdk_child() {
         env: vec![],
     };
     let caller = devpulse_telemetry::spawn(async move {
-        AcpSession::start(&launch, Path::new("C:/"), None).await
+        AcpSession::start(&launch, Path::new("C:/"), None, Vec::new()).await
     });
     let connected = tokio::time::timeout(Duration::from_secs(10), listener.accept()).await;
     caller.abort();

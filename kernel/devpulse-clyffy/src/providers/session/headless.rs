@@ -4,18 +4,20 @@
 //! `--resume`). Its definition's `connect.conversation` says which
 //! arguments, how to resume, and what it prints.
 
+use std::collections::BTreeMap;
+use std::io::Write as _;
 use std::path::{Path, PathBuf};
 use std::process::Stdio;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
 
-use anyhow::{Result, anyhow};
-use serde_json::Value;
+use anyhow::{Context, Result, anyhow};
+use serde_json::{Value, json};
 use tokio::io::{AsyncBufReadExt, AsyncReadExt, BufReader};
 use tokio::sync::{Mutex, mpsc, oneshot};
 use tokio_util::task::AbortOnDropHandle;
 
-use super::{AgentEvent, TurnEvents};
+use super::{AgentEvent, ToolServer, TurnEvents};
 use crate::providers::connect::Launch;
 use crate::providers::definition::{ConversationSpec, StreamFormat};
 
@@ -23,6 +25,86 @@ use crate::providers::definition::{ConversationSpec, StreamFormat};
 const STDERR_TAIL: usize = 4 * 1024;
 /// How long a turn waits for the last turn's process to finish exiting.
 const EXIT_WAIT: std::time::Duration = std::time::Duration::from_secs(15);
+
+/// A headless session's MCP servers, in the file its agent reads each turn. A
+/// file and not the command line: it holds the session's token, and on Linux
+/// anyone on the machine can read a process's arguments. It goes with the
+/// session; one a crash leaves behind holds a token that ended with the app.
+pub struct ToolConfig {
+    path: PathBuf,
+    names: Vec<String>,
+}
+
+impl ToolConfig {
+    /// Write `tools` for a session under `data_dir`.
+    ///
+    /// # Errors
+    /// When the file cannot be written.
+    pub fn write(data_dir: &Path, tools: &[ToolServer]) -> Result<Self> {
+        let folder = data_dir.join("tools").join("sessions");
+        std::fs::create_dir_all(&folder).with_context(|| format!("create {}", folder.display()))?;
+        let path = folder.join(format!("{}.json", uuid::Uuid::now_v7()));
+        let servers: serde_json::Map<String, Value> = tools
+            .iter()
+            .map(|tool| {
+                let env: BTreeMap<&str, &str> = tool
+                    .env
+                    .iter()
+                    .map(|(name, value)| (name.as_str(), value.as_str()))
+                    .collect();
+                (
+                    tool.name.clone(),
+                    json!({
+                        "type": "stdio",
+                        "command": tool.command,
+                        "args": tool.args,
+                        "env": env,
+                    }),
+                )
+            })
+            .collect();
+        let config = json!({ "mcpServers": servers }).to_string();
+        let mut options = std::fs::OpenOptions::new();
+        options.write(true).create_new(true);
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::OpenOptionsExt;
+            options.mode(0o600);
+        }
+        options
+            .open(&path)
+            .and_then(|mut file| file.write_all(config.as_bytes()))
+            .with_context(|| format!("write {}", path.display()))?;
+        Ok(Self {
+            path,
+            names: tools.iter().map(|tool| tool.name.clone()).collect(),
+        })
+    }
+
+    /// The definition's `tool_servers` arguments, filled in.
+    fn args(&self, spec: &[String]) -> Vec<String> {
+        let file = self.path.to_string_lossy();
+        let mut args = Vec::with_capacity(spec.len());
+        for arg in spec {
+            if arg.contains("{tool_server}") {
+                args.extend(
+                    self.names
+                        .iter()
+                        .map(|name| arg.replace("{tool_server}", name)),
+                );
+            } else {
+                args.push(arg.replace("{mcp_config}", &file));
+            }
+        }
+        args
+    }
+}
+
+impl Drop for ToolConfig {
+    fn drop(&mut self) {
+        let _ = std::fs::remove_file(&self.path);
+    }
+}
 
 /// A live headless conversation.
 pub struct HeadlessSession {
@@ -33,6 +115,8 @@ pub struct HeadlessSession {
     cwd: PathBuf,
     /// Every turn adds the conversation's `talk_only` arguments.
     talk_only: bool,
+    /// Every turn adds the conversation's `tool_servers` arguments.
+    tools: Option<ToolConfig>,
     /// The session id the agent reported (continues the conversation).
     session: Arc<Mutex<Option<String>>>,
     /// Stops the running turn; empty once the turn has ended.
@@ -45,8 +129,9 @@ pub struct HeadlessSession {
 
 impl HeadlessSession {
     /// A conversation with the agent at `provider_program` (its definition's
-    /// conversation spec), in `cwd`; `resume` continues an earlier one, and
-    /// `talk_only` turns the agent's tools off on every turn.
+    /// conversation spec), in `cwd`; `resume` continues an earlier one,
+    /// `talk_only` turns the agent's tools off on every turn, and `tools` are
+    /// the MCP servers it may use.
     #[must_use]
     pub fn new(
         launch: &Launch,
@@ -55,6 +140,7 @@ impl HeadlessSession {
         cwd: &Path,
         resume: Option<String>,
         talk_only: bool,
+        tools: Option<ToolConfig>,
     ) -> Self {
         Self {
             program: launch.program.clone(),
@@ -63,6 +149,7 @@ impl HeadlessSession {
             conversation,
             cwd: cwd.to_path_buf(),
             talk_only,
+            tools,
             session: Arc::new(Mutex::new(resume)),
             stop: Arc::new(Mutex::new(None)),
             previous: Mutex::new(None),
@@ -108,6 +195,9 @@ impl HeadlessSession {
         let mut args: Vec<String> = self.conversation.args.iter().map(fill).collect();
         if session.is_some() {
             args.extend(self.conversation.resume.iter().map(fill));
+        }
+        if let Some(tools) = &self.tools {
+            args.extend(tools.args(&self.conversation.tool_servers));
         }
         if self.talk_only {
             args.extend(self.conversation.talk_only.iter().cloned());
@@ -584,6 +674,10 @@ mod tests {
     }
 
     fn session(talk_only: bool) -> HeadlessSession {
+        session_with(talk_only, None)
+    }
+
+    fn session_with(talk_only: bool, tools: Option<ToolConfig>) -> HeadlessSession {
         HeadlessSession::new(
             &Launch {
                 adapter: crate::providers::definition::AdapterKind::Headless,
@@ -596,12 +690,124 @@ mod tests {
                 args: vec!["-p".into(), "{prompt}".into()],
                 resume: vec!["--resume".into(), "{session}".into()],
                 talk_only: vec!["--tools".into(), String::new()],
+                tool_servers: vec![
+                    "--mcp-config".into(),
+                    "{mcp_config}".into(),
+                    "--allowedTools".into(),
+                    "mcp__{tool_server}".into(),
+                ],
                 output: StreamFormat::ClaudeStreamJson,
             },
             Path::new("/tmp"),
             None,
             talk_only,
+            tools,
         )
+    }
+
+    fn memory() -> ToolServer {
+        ToolServer {
+            name: "devpulse-memory".into(),
+            command: PathBuf::from("C:/DevPulse/devpulse-persona-mcp.exe"),
+            args: Vec::new(),
+            env: vec![
+                ("DEVPULSE_MEMORY_PIPE".into(), "pipe-name".into()),
+                ("DEVPULSE_MEMORY_TOKEN".into(), "session-token".into()),
+            ],
+        }
+    }
+
+    #[test]
+    fn a_session_with_tools_gets_them_after_the_prompt_on_every_turn() {
+        let data = tempfile::tempdir().unwrap();
+        let config = ToolConfig::write(data.path(), &[memory()]).unwrap();
+        let file = config.path.to_string_lossy().into_owned();
+        let session = session_with(false, Some(config));
+        // Both switches take several values, so nothing may follow them that
+        // they could swallow: the prompt and the resume id come first.
+        assert_eq!(
+            session.turn_args("hi", None),
+            [
+                "-p",
+                "hi",
+                "--mcp-config",
+                &file,
+                "--allowedTools",
+                "mcp__devpulse-memory"
+            ]
+        );
+        assert_eq!(
+            session.turn_args("again", Some("abc")),
+            [
+                "-p",
+                "again",
+                "--resume",
+                "abc",
+                "--mcp-config",
+                &file,
+                "--allowedTools",
+                "mcp__devpulse-memory"
+            ]
+        );
+    }
+
+    #[test]
+    fn the_config_file_holds_the_servers_and_goes_with_the_session() {
+        let data = tempfile::tempdir().unwrap();
+        let config = ToolConfig::write(data.path(), &[memory()]).unwrap();
+        let path = config.path.clone();
+        assert!(path.starts_with(data.path()), "inside the DevPulse folder");
+        let written: Value =
+            serde_json::from_str(&std::fs::read_to_string(&path).unwrap()).unwrap();
+        assert_eq!(
+            written,
+            json!({"mcpServers": {"devpulse-memory": {
+                "type": "stdio",
+                "command": "C:/DevPulse/devpulse-persona-mcp.exe",
+                "args": [],
+                "env": {
+                    "DEVPULSE_MEMORY_PIPE": "pipe-name",
+                    "DEVPULSE_MEMORY_TOKEN": "session-token",
+                },
+            }}})
+        );
+        let session = session_with(false, Some(config));
+        drop(session);
+        assert!(!path.exists(), "the token's file outlived its session");
+    }
+
+    #[test]
+    fn claude_codes_definition_says_how_to_attach_and_a_broken_one_is_refused() {
+        let bundled = crate::providers::catalog::bundled().unwrap();
+        let claude = bundled
+            .iter()
+            .find(|d| d.id == crate::providers::ProviderId::ClaudeCode)
+            .unwrap();
+        let conversation = claude
+            .connect
+            .as_ref()
+            .and_then(|connect| connect.conversation.as_ref())
+            .unwrap();
+        assert!(
+            conversation
+                .tool_servers
+                .iter()
+                .any(|a| a == "--mcp-config")
+        );
+        // It still loads none on a seat that only talks.
+        assert!(
+            conversation
+                .talk_only
+                .iter()
+                .any(|a| a == "--strict-mcp-config")
+        );
+
+        // The real definition, with only this line broken.
+        let real = include_str!("../../../config/providers/claude-code.toml");
+        let broken = real.replace("\"{mcp_config}\", ", "");
+        assert_ne!(real, broken);
+        let error = crate::providers::ProviderDefinition::parse(&broken).expect_err("no config");
+        assert!(format!("{error:#}").contains("tool_servers"), "{error:#}");
     }
 
     #[test]

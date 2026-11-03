@@ -35,5 +35,5 @@ pub use catalog::Catalog;
 pub use connect::connector::ConnectorReport;
 pub use definition::{AdapterKind, ProviderDefinition, ProviderKind};
 pub use discovery::{ProviderReport, ProvidersReport, SignedIn, check, signed_in_now};
-pub use session::{AgentEvent, AgentSession, PermissionChoice, TurnEvents};
+pub use session::{AgentEvent, AgentSession, PermissionChoice, ToolServer, TurnEvents};
 pub use types::ProviderId;

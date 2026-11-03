@@ -267,6 +267,12 @@ pub struct ConversationSpec {
     /// refuses the seat's permission requests and gives it an empty folder.
     #[serde(default)]
     pub talk_only: Vec<String>,
+    /// Added on every turn of a session with MCP servers: the agent's own
+    /// switches for them. Must carry `{mcp_config}`, the JSON file `DevPulse`
+    /// writes; an argument with `{tool_server}` is repeated for each server's
+    /// name. Without it, the agent gets no MCP servers from `DevPulse`.
+    #[serde(default)]
+    pub tool_servers: Vec<String>,
     /// What the agent prints.
     pub output: StreamFormat,
 }
@@ -532,6 +538,14 @@ impl ProviderDefinition {
                         && !conversation.resume.iter().any(|a| a.contains("{session}"))
                     {
                         bail!("{id}: connect.conversation.resume must carry {{session}}");
+                    }
+                    if !conversation.tool_servers.is_empty()
+                        && !conversation
+                            .tool_servers
+                            .iter()
+                            .any(|a| a.contains("{mcp_config}"))
+                    {
+                        bail!("{id}: connect.conversation.tool_servers must carry {{mcp_config}}");
                     }
                 }
             }

@@ -2877,4 +2877,19 @@ queries proving what was written.
       touched: `--features rro` does not compile at HEAD
       (`devpulse-clyffy/src/cortex/persistence/rro/mod.rs`).
     - Still no session uses this: phases c–e and the live check remain.
+  - 2026-11-02 — **B6.2c done: sessions carry tool servers.**
+    - `AgentSession::start` takes `ToolServer`s. An ACP agent is offered them on
+      `session/new`, `session/resume` and `session/load`; a fixture agent checks
+      the exact `mcpServers` it receives on all three. A seat that only talks
+      gets none, enforced here and not left to the caller.
+    - A headless agent gets them from its definition's
+      `connect.conversation.tool_servers`. Claude Code's are `--mcp-config` and
+      `--allowedTools` (checked against `claude --help`, 2.1.316; both take
+      several values, so a test pins them after the prompt). The session's token
+      is in a file under `{data_dir}/tools/sessions/`, not on the command line,
+      removed with the session. Antigravity CLI's definition has no such section,
+      so it gets no memory.
+    - Not verified: no real agent has used this yet. Nothing passes a server
+      (the engine passes none until phase d), so the live check is what proves
+      Claude Code and Codex actually load it.
 

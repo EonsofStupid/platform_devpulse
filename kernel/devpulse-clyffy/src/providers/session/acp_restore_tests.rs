@@ -101,8 +101,13 @@ async fn restoration(capabilities: Value, method: Option<&str>, refused: bool) {
     let client = Client
         .builder()
         .connect_with(transport, async move |connection| {
-            let result =
-                open_session(&connection, Path::new("C:/workspace"), Some("saved-thread")).await;
+            let result = open_session(
+                &connection,
+                Path::new("C:/workspace"),
+                Some("saved-thread"),
+                Vec::new(),
+            )
+            .await;
             if should_fail {
                 let error = result.expect_err("restoration must fail, never create a new session");
                 assert!(error.to_string().contains(if refused {
@@ -139,6 +144,108 @@ async fn restoration(capabilities: Value, method: Option<&str>, refused: bool) {
     })
     .await
     .expect("protocol test deadline");
+}
+
+/// What an agent receives when a session opens: the whole offer, on every way
+/// a session can open.
+async fn offered_on(capabilities: Value, resume: Option<&'static str>, method: &str) -> Value {
+    let tool = ToolServer {
+        name: "devpulse-memory".into(),
+        command: "C:/DevPulse/devpulse-persona-mcp.exe".into(),
+        args: vec!["--quiet".into()],
+        env: vec![
+            ("DEVPULSE_MEMORY_PIPE".into(), "pipe-name".into()),
+            ("DEVPULSE_MEMORY_TOKEN".into(), "session-token".into()),
+        ],
+    };
+    let (transport, mut peer) = Channel::duplex();
+    let client = Client
+        .builder()
+        .connect_with(transport, async move |connection| {
+            let opened = open_session(
+                &connection,
+                Path::new("C:/workspace"),
+                resume,
+                mcp_servers(&[tool]),
+            )
+            .await?;
+            drop(opened);
+            Ok(())
+        });
+    let agent = async {
+        let (id, _) = request(&mut peer, "initialize").await;
+        send(
+            &peer,
+            vec![RawJsonRpcMessage::response(
+                id,
+                Ok(json!({
+                    "protocolVersion":1, "agentCapabilities":capabilities, "authMethods":[]
+                })),
+            )],
+        );
+        let (id, params) = request(&mut peer, method).await;
+        send(
+            &peer,
+            vec![RawJsonRpcMessage::response(
+                id,
+                Ok(json!({"sessionId":"saved-thread"})),
+            )],
+        );
+        params
+    };
+    tokio::time::timeout(Duration::from_secs(10), async {
+        let (result, params) = tokio::join!(client, agent);
+        result.expect("connection");
+        params["mcpServers"].clone()
+    })
+    .await
+    .expect("protocol test deadline")
+}
+
+fn the_offer() -> Value {
+    json!([{
+        "name": "devpulse-memory",
+        "command": "C:/DevPulse/devpulse-persona-mcp.exe",
+        "args": ["--quiet"],
+        "env": [
+            {"name": "DEVPULSE_MEMORY_PIPE", "value": "pipe-name"},
+            {"name": "DEVPULSE_MEMORY_TOKEN", "value": "session-token"},
+        ],
+    }])
+}
+
+#[tokio::test]
+async fn a_new_session_is_offered_its_tools() {
+    assert_eq!(
+        offered_on(json!({}), None, "session/new").await,
+        the_offer()
+    );
+}
+
+#[tokio::test]
+async fn a_resumed_session_is_offered_its_tools() {
+    assert_eq!(
+        offered_on(
+            json!({"sessionCapabilities":{"resume":{}}}),
+            Some("saved-thread"),
+            "session/resume",
+        )
+        .await,
+        the_offer()
+    );
+}
+
+#[tokio::test]
+async fn a_loaded_session_is_offered_its_tools() {
+    assert_eq!(
+        offered_on(
+            json!({"loadSession":true}),
+            Some("saved-thread"),
+            "session/load",
+        )
+        .await,
+        the_offer()
+    );
 }
 
 #[tokio::test]
