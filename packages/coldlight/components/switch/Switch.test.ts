@@ -11,9 +11,61 @@
  * Setup:  vitest-browser-svelte
  */
 
+import "@devpulse/coldlight/index.css";
 import { describe, expect, test, vi } from "vitest";
 import { render } from "vitest-browser-svelte";
 import Switch from "./Switch.svelte";
+import type { SwitchProps } from "./types.js";
+
+// =============================================================================
+// ITS LOOK
+// =============================================================================
+
+describe("switch component — on and off read differently", () => {
+	function drawn(checked: boolean, props: Partial<SwitchProps> = {}) {
+		const screen = render(Switch, { checked, "aria-label": "Setting", ...props });
+		const track = screen.container.querySelector('[role="switch"]') as HTMLElement;
+		const thumb = track.querySelector('[data-slot="thumb"]') as HTMLElement;
+		return { track, thumb };
+	}
+	/** Wait out the track's colour and the thumb's slide, so this reads where they land. */
+	const settled = () => new Promise((resolve) => setTimeout(resolve, 300));
+
+	// Where the thumb lands is Tailwind, which this package's tests do not compile;
+	// the app checks it in domains/app/memory/ui/memory-notes/switch-layout.test.ts.
+	test("the track changes colour", async () => {
+		const off = drawn(false);
+		const on = drawn(true);
+		await settled();
+		expect(getComputedStyle(on.track).backgroundColor).not.toBe(
+			getComputedStyle(off.track).backgroundColor,
+		);
+	});
+
+	test("the thumb has its own colour on both tracks", async () => {
+		for (const checked of [false, true]) {
+			const { track, thumb } = drawn(checked);
+			await settled();
+			expect(getComputedStyle(thumb).backgroundColor).not.toBe(
+				getComputedStyle(track).backgroundColor,
+			);
+			expect(getComputedStyle(thumb).backgroundColor).not.toBe("rgba(0, 0, 0, 0)");
+		}
+	});
+
+	test("off comes from the family and its role, on from the primary role whatever they are", async () => {
+		const off = drawn(false, { surface: "glass", variant: "deep" });
+		expect(off.track.dataset.surface).toBe("glass");
+		expect(off.track.dataset.variant).toBe("deep");
+		const glass = drawn(true, { surface: "glass", variant: "deep" });
+		const stark = drawn(true, { surface: "stark", variant: "glow" });
+		await settled();
+		expect(getComputedStyle(glass.track).backgroundColor).toBe(
+			getComputedStyle(stark.track).backgroundColor,
+		);
+		expect(getComputedStyle(glass.track).backgroundImage).toBe("none");
+	});
+});
 
 // =============================================================================
 // ARIA ATTRIBUTES

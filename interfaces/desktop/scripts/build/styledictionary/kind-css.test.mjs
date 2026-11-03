@@ -8,7 +8,11 @@ import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
-import { kindCss, kindTokenFilter, kindTypes, readKindFile } from './kind-css.mjs';
+import { STATE_SELECTORS, kindCss, kindTokenFilter, kindTypes, readKindFile } from './kind-css.mjs';
+
+test('checked reads the state a control writes, on the kind that holds it', () => {
+	assert.equal(STATE_SELECTORS.checked, '[data-state="checked"]');
+});
 
 /** A transformed token as Style Dictionary hands it to a format. */
 const token = (path, value, original = value) => ({

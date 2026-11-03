@@ -1,2 +1,2 @@
 export { default as Switch } from "./Switch.svelte";
-export type { SwitchPreset, SwitchProps, SwitchSize } from "./types.js";
+export type { SwitchProps, SwitchSize, SwitchVariant } from "./types.js";

@@ -14,7 +14,7 @@
  *                                        to read the family in scope (`--surface-role-<role>-*`)
  *   <kind>.size.<name>.<property>        [data-size="<name>"]
  *   <kind>.tone.<name>.<property>        [data-tone="<name>"]
- *   <kind>.state.<state>.<property>      hover, active, focus-visible, pressed, selected, open, disabled
+ *   <kind>.state.<state>.<property>      hover, active, focus-visible, pressed, selected, checked, open, disabled
  *   <kind>.part.<slot>.<property>        another part of the kind, [data-slot="<slot>"]; its own
  *                                        custom properties `--<kind>-<slot>-<property>`
  *   <kind>.part.<slot>.tone.<name>.<property>
@@ -61,6 +61,7 @@ export const STATE_SELECTORS = {
 	'focus-visible': ':focus-visible',
 	pressed: '[data-pressed]',
 	selected: '[data-selected]',
+	checked: '[data-state="checked"]',
 	open: '[data-open]',
 	disabled: ':is(:disabled, [data-disabled], [aria-disabled="true"])',
 };

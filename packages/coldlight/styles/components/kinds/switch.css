@@ -1,0 +1,116 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+[data-kind="switch"][data-slot="root"] {
+	--switch-border-style: solid;
+	--switch-border-width: 0.125rem;
+	--switch-border-radius: var(--radius-full);
+	--switch-cursor: pointer;
+	border-style: var(--switch-border-style);
+	border-width: var(--switch-border-width);
+	border-radius: var(--switch-border-radius);
+	cursor: var(--switch-cursor);
+	background-color: var(--switch-background-color);
+	box-shadow: var(--switch-box-shadow);
+	border-color: var(--switch-border-color);
+	opacity: var(--switch-opacity);
+	animation: var(--switch-animation);
+	transition-duration: var(--switch-transition-duration);
+	transition-timing-function: var(--switch-transition-timing-function);
+	background-image: var(--switch-gradient);
+}
+
+[data-kind="switch"][data-slot="root"][data-variant="elevated"] {
+	--switch-background-color: var(--surface-role-elevated-background-color);
+	--switch-box-shadow: var(--surface-role-elevated-box-shadow);
+	--switch-border-color: var(--surface-role-elevated-border-color);
+	--switch-opacity: var(--surface-role-elevated-opacity);
+	--switch-animation: var(--surface-role-elevated-animation);
+	--switch-transition-duration: var(--surface-role-elevated-transition-duration);
+	--switch-transition-timing-function: var(--surface-role-elevated-transition-timing-function);
+	--switch-gradient: var(--surface-role-elevated-gradient);
+}
+
+[data-kind="switch"][data-slot="root"][data-variant="deep"] {
+	--switch-background-color: var(--surface-role-deep-background-color);
+	--switch-box-shadow: var(--surface-role-deep-box-shadow);
+	--switch-border-color: var(--surface-role-deep-border-color);
+	--switch-opacity: var(--surface-role-deep-opacity);
+	--switch-animation: var(--surface-role-deep-animation);
+	--switch-transition-duration: var(--surface-role-deep-transition-duration);
+	--switch-transition-timing-function: var(--surface-role-deep-transition-timing-function);
+	--switch-gradient: var(--surface-role-deep-gradient);
+}
+
+[data-kind="switch"][data-slot="root"][data-variant="minimal"] {
+	--switch-background-color: var(--surface-role-minimal-background-color);
+	--switch-box-shadow: var(--surface-role-minimal-box-shadow);
+	--switch-border-color: var(--surface-role-minimal-border-color);
+	--switch-opacity: var(--surface-role-minimal-opacity);
+	--switch-animation: var(--surface-role-minimal-animation);
+	--switch-transition-duration: var(--surface-role-minimal-transition-duration);
+	--switch-transition-timing-function: var(--surface-role-minimal-transition-timing-function);
+	--switch-gradient: var(--surface-role-minimal-gradient);
+}
+
+[data-kind="switch"][data-slot="root"][data-variant="solid"] {
+	--switch-background-color: var(--surface-role-solid-background-color);
+	--switch-box-shadow: var(--surface-role-solid-box-shadow);
+	--switch-border-color: var(--surface-role-solid-border-color);
+	--switch-opacity: var(--surface-role-solid-opacity);
+	--switch-animation: var(--surface-role-solid-animation);
+	--switch-transition-duration: var(--surface-role-solid-transition-duration);
+	--switch-transition-timing-function: var(--surface-role-solid-transition-timing-function);
+	--switch-gradient: var(--surface-role-solid-gradient);
+}
+
+[data-kind="switch"][data-slot="root"][data-variant="glow"] {
+	--switch-background-color: var(--surface-role-glow-background-color);
+	--switch-box-shadow: var(--surface-role-glow-box-shadow);
+	--switch-border-color: var(--surface-role-glow-border-color);
+	--switch-opacity: var(--surface-role-glow-opacity);
+	--switch-animation: var(--surface-role-glow-animation);
+	--switch-transition-duration: var(--surface-role-glow-transition-duration);
+	--switch-transition-timing-function: var(--surface-role-glow-transition-timing-function);
+	--switch-gradient: var(--surface-role-glow-gradient);
+}
+
+[data-kind="switch"][data-slot="root"][data-variant="muted"] {
+	--switch-background-color: var(--surface-role-muted-background-color);
+	--switch-box-shadow: var(--surface-role-muted-box-shadow);
+	--switch-border-color: var(--surface-role-muted-border-color);
+	--switch-opacity: var(--surface-role-muted-opacity);
+	--switch-animation: var(--surface-role-muted-animation);
+	--switch-transition-duration: var(--surface-role-muted-transition-duration);
+	--switch-transition-timing-function: var(--surface-role-muted-transition-timing-function);
+	--switch-gradient: var(--surface-role-muted-gradient);
+}
+
+[data-kind="switch"][data-slot="root"][data-state="checked"] {
+	--switch-background-color: var(--primary-main);
+	--switch-border-color: var(--primary-main);
+	--switch-gradient: none;
+}
+
+[data-kind="switch"][data-slot="root"]:focus-visible {
+	--switch-outline-style: solid;
+	--switch-outline-width: 0.125rem;
+	--switch-outline-offset: 0.125rem;
+	outline-style: var(--switch-outline-style);
+	outline-width: var(--switch-outline-width);
+	outline-offset: var(--switch-outline-offset);
+}
+
+[data-kind="switch"][data-slot="root"]:is(:disabled, [data-disabled], [aria-disabled="true"]) {
+	--switch-opacity: 0.5;
+	--switch-pointer-events: none;
+	pointer-events: var(--switch-pointer-events);
+}
+
+[data-kind="switch"][data-slot="thumb"] {
+	--switch-thumb-background-color: var(--text-primary);
+	background-color: var(--switch-thumb-background-color);
+	--switch-thumb-border-radius: var(--radius-full);
+	border-radius: var(--switch-thumb-border-radius);
+}
