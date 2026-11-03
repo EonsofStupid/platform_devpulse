@@ -331,6 +331,30 @@ empty = "Add a connection and check its models in Your AI, then choose it here."
 disclosure = "Sending a message shares this conversation with the selected server. Your provider may charge for usage."
 read_only = "This conversation is archived. You can read its history."
 
+[memory]
+subtitle = "Short notes your agents can look up while they work. They stay on this computer until an agent you started reads one; what it reads then goes to that agent's company, like anything else you tell it."
+yours_title = "About you"
+yours_description = "Every agent in every project can read these. Only you can change them."
+project_title = "About a project"
+project_description = "Agents working in this project can read and change these. Agents in other projects can't see them."
+project_label = "Project"
+no_projects = "Add a project to keep notes about it."
+unavailable = "Memory isn't available right now. DevPulse's log says why."
+empty = "Nothing here yet."
+add = "Add a note"
+name = "Name"
+name_hint = "A short name, like “preferences”."
+name_taken = "You already have a note named “{name}”. Edit that one, or choose another name."
+body = "Note"
+characters = "{used} of {limit} characters"
+save = "Save"
+cancel = "Cancel"
+edit = "Edit"
+remove = "Delete"
+remove_confirm = "Delete “{name}”? Your agents won't be able to read it any more, and this can't be undone."
+remove_yes = "Delete it"
+keep = "Keep it"
+
 [chat.agents]
 new_thread = "New thread with…"
 none_ready = "No agent can chat yet — install or sign in to one in Settings → Your AI."
@@ -383,6 +407,10 @@ label = "Settings"
 [nav."/devpulse/settings/ai"]
 label = "Your AI"
 blurb = "The AI you already pay for: installed, signed in, up to date."
+
+[nav."/devpulse/settings/memory"]
+label = "Memory"
+blurb = "What your agents can remember about you and each project."
 
 [nav."/devpulse/stats"]
 label = "Stats"

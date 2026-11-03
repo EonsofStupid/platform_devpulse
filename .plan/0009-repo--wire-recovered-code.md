@@ -28,6 +28,15 @@ introduce compatibility layers or parallel replacement implementations.
 
 ## Restoration correction — governing direction, 2026-11-01
 
+### Persona memory attached to sessions — 2026-11-03
+
+The persona service below was "executable but not yet bundled/attached". It now
+is both: plan 0001 B6.2 owns the design and the evidence. Memory lives in the
+user database with one owner, each session relays to it with a token bound to
+its project, real Claude Code and Codex answered from it, and Settings → Memory
+shows it. That also answers `LIBSQL_TO_TURSO_MIGRATION.md` OQ-3. No historical
+source was moved or removed, and no restoration count changed.
+
 ### Saved endpoint conversations — 2026-11-02
 
 Continue the endpoint execution batch into actual Chat. Compare historical

@@ -102,6 +102,7 @@ pub mod interactions;
 pub mod knowledge;
 pub mod llama;
 pub mod llama_server_config;
+pub mod memory;
 pub mod models;
 pub mod ollama;
 pub mod onboarding;

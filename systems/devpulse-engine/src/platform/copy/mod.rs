@@ -393,6 +393,56 @@ pub struct EndpointCopy {
     pub try_answered: String,
 }
 
+/// Settings → Memory: the notes your agents can read.
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+#[serde(deny_unknown_fields)]
+pub struct MemoryCopy {
+    /// What the page is, and where the notes go.
+    pub subtitle: String,
+    /// Heading of your own notes.
+    pub yours_title: String,
+    /// Who reads and changes your own notes.
+    pub yours_description: String,
+    /// Heading of a project's notes.
+    pub project_title: String,
+    /// Who reads and changes a project's notes.
+    pub project_description: String,
+    /// The project picker's name.
+    pub project_label: String,
+    /// There are no projects to keep notes about.
+    pub no_projects: String,
+    /// Memory did not start.
+    pub unavailable: String,
+    /// A list with no notes.
+    pub empty: String,
+    /// Adds a note.
+    pub add: String,
+    /// A note's name.
+    pub name: String,
+    /// What a good name looks like.
+    pub name_hint: String,
+    /// That name is in use (`{name}`).
+    pub name_taken: String,
+    /// A note's text.
+    pub body: String,
+    /// How long a note is (`{used}`, `{limit}`).
+    pub characters: String,
+    /// Saves a note.
+    pub save: String,
+    /// Leaves the form.
+    pub cancel: String,
+    /// Opens a note to change it.
+    pub edit: String,
+    /// Starts deleting a note.
+    pub remove: String,
+    /// What deleting does (`{name}`).
+    pub remove_confirm: String,
+    /// Deletes it.
+    pub remove_yes: String,
+    /// Does not delete it.
+    pub keep: String,
+}
+
 /// First run.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 #[serde(deny_unknown_fields)]
@@ -684,6 +734,8 @@ pub struct CopyCatalog {
     pub devtools: DevtoolsCopy,
     /// The chat.
     pub chat: ChatCopy,
+    /// Settings → Memory.
+    pub memory: MemoryCopy,
     /// The `DevPulse` account: sign-in, sign-up, sign-out (moved from the
     /// model-loader wizard copy; auth is not AI, so its text is the engine's).
     pub auth: AuthCopy,

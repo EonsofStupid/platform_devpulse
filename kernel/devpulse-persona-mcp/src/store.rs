@@ -482,6 +482,32 @@ impl PersonaStore {
             })
     }
 
+    /// Delete one block; returns whether there was one. This is for your own
+    /// screens in `DevPulse`: no MCP tool offers it, so an agent can change a
+    /// project's memory but cannot erase it.
+    ///
+    /// # Errors
+    /// Returns [`PersonaError::InvalidArg`] on scope/slug mismatch, or
+    /// [`PersonaError::Backend`] on storage failure.
+    pub async fn delete_block(
+        &self,
+        scope: PersonaScope,
+        slug: Option<&str>,
+        label: &str,
+    ) -> PersonaResult<bool> {
+        validate_scope_slug(scope, slug)?;
+        let connection = self.conn()?;
+        let deleted = connection
+            .execute(
+                "DELETE FROM persona_blocks \
+                 WHERE scope = ?1 AND coalesce(slug, '') = ?2 AND label = ?3",
+                turso::params![scope.as_str(), slug.unwrap_or_default(), label],
+            )
+            .await
+            .map_err(|e| PersonaError::Backend(e.into()))?;
+        Ok(deleted > 0)
+    }
+
     /// List blocks under `(scope, slug)` with optional `label` filter
     /// and `since` RFC3339 cutoff. Bounded by `limit` (clamped to
     /// `[1, 1000]`).

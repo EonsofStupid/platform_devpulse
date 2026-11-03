@@ -174,6 +174,53 @@ async fn idempotency_failure_rolls_back_the_block_write() {
 }
 
 #[tokio::test]
+async fn deleting_removes_exactly_one_block() {
+    let test = fixture().await;
+    for (scope, slug) in [
+        (PersonaScope::User, None),
+        (PersonaScope::Project, Some("alpha")),
+        (PersonaScope::Project, Some("beta")),
+    ] {
+        test.store
+            .save_block(scope, slug, "facts", "memory")
+            .await
+            .expect("save");
+    }
+    let deleted = test
+        .store
+        .delete_block(PersonaScope::Project, Some("alpha"), "facts")
+        .await
+        .expect("delete");
+    assert!(deleted);
+    let again = test
+        .store
+        .delete_block(PersonaScope::Project, Some("alpha"), "facts")
+        .await
+        .expect("delete again");
+    assert!(!again, "it was already gone");
+    for (scope, slug, expected) in [
+        (PersonaScope::User, None, 1),
+        (PersonaScope::Project, Some("alpha"), 0),
+        (PersonaScope::Project, Some("beta"), 1),
+    ] {
+        let blocks = test.store.load_blocks(scope, slug).await.expect("load");
+        assert_eq!(blocks.len(), expected, "{scope:?} {slug:?}");
+    }
+    test.store
+        .delete_block(PersonaScope::User, None, "facts")
+        .await
+        .expect("your own");
+    assert_eq!(
+        test.store
+            .load_blocks(PersonaScope::User, None)
+            .await
+            .expect("load")
+            .len(),
+        0
+    );
+}
+
+#[tokio::test]
 async fn retries_survive_reopening_the_database() {
     let Fixture { store, directory } = fixture().await;
     let original = save(&store, args("persistent", "original"))

@@ -2924,4 +2924,35 @@ queries proving what was written.
     run inside a Claude Code session. It drives `AgentSession` directly, so the
     window, threads and rooms using this are still to be seen in the running app
     with phase e. Memory surviving a restart is checked by tests, not this run.
+  - 2026-11-03 — **B6.2e done: your memory in DevPulse, proven through the app.**
+    - Settings → Memory (`domains/app/memory`, from its route folder): your own
+      notes and each project's, added, edited and deleted with ColdLight, typed
+      commands and copy. It says plainly that what an agent reads goes to that
+      agent's company. A new note under a name in use is stopped, because saving
+      would overwrite that note. Deleting is yours alone: no MCP tool offers it.
+    - Live in the running app: notes added on the page, stored under the right
+      project; a real Codex thread in that project, started through the app's
+      own `agent_thread_start`, called `persona.load` and saved the note's
+      codeword as its answer; delete confirmed with its warning; no page errors;
+      no token file left. The boot log says memory is ready. Screenshots at 1440
+      and 1024 wide checked.
+    - The live check found a bug that was not this work's: the status bar's
+      `hardwareState.subscribe()` could loop 1,002 times and stop the whole app
+      ("DevPulse failed to start"). Fixed at its source in the signal fabric,
+      with a test that failed the same way first (`26cbc993`).
+    - Verified: 13 memory component and state tests, 3 page wiring tests, 20
+      architecture tests, 49 persona tests, engine memory tests; svelte-check,
+      Biome, Clippy, rustfmt.
+    - Limits, as they stand:
+      - In the app, a real turn ran on Codex only. Claude Code's real turn was
+        through `AgentSession` directly, because a turn in this repo also runs
+        this repo's own hooks. Rooms attach through the same one place but no
+        room with memory has run.
+      - Saving a note is last-write-wins: if an agent changes a project note
+        while you have it open, your save replaces its change.
+      - The Linux and macOS socket has never run. The relay's release size is
+        not measured (77 MB in debug).
+      - Agents are offered memory but not told to use it: nothing puts your
+        notes in front of them unprompted. "Your context in every session"
+        (B6's goal) needs that next step.
 

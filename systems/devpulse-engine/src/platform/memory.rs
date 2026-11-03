@@ -13,7 +13,50 @@ use anyhow::{Context, Result, anyhow};
 use devpulse_clyffy::cortex::persistence::TursoAdapter;
 use devpulse_clyffy::providers::ToolServer;
 use devpulse_persona_mcp::bridge::{Bridge, EXECUTABLE, Grant};
-use devpulse_persona_mcp::store::PersonaStore;
+use devpulse_persona_mcp::store::{PersonaBlock, PersonaScope, PersonaStore};
+use serde::Serialize;
+use specta::Type;
+
+/// How many notes one list shows; memory is meant to stay short.
+const LIST_LIMIT: usize = 1000;
+
+/// One note your agents can read.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Type)]
+#[serde(rename_all = "camelCase")]
+pub struct MemoryNote {
+    /// The project it belongs to; `None` for your own, read in every project.
+    pub project_id: Option<String>,
+    /// Its name, unique in its place.
+    pub label: String,
+    /// What it says.
+    pub body: String,
+    /// The most characters it may hold.
+    pub char_limit: u32,
+    /// When it last changed (RFC 3339).
+    pub updated_at: String,
+    /// How many times it has been saved.
+    pub version: u32,
+}
+
+impl From<PersonaBlock> for MemoryNote {
+    fn from(block: PersonaBlock) -> Self {
+        Self {
+            project_id: block.slug,
+            label: block.label,
+            body: block.body,
+            char_limit: u32::try_from(block.char_limit).unwrap_or(u32::MAX),
+            updated_at: block.updated_at,
+            version: u32::try_from(block.version).unwrap_or(u32::MAX),
+        }
+    }
+}
+
+const fn scope_of(project_id: Option<&str>) -> PersonaScope {
+    match project_id {
+        Some(_) => PersonaScope::Project,
+        None => PersonaScope::User,
+    }
+}
 
 /// What one session is given: the server its agent starts, and the grant that
 /// must live as long as the session.
@@ -57,10 +100,52 @@ impl Memory {
         })
     }
 
-    /// The memory itself, for `DevPulse`'s own screens.
+    /// The memory itself.
     #[must_use]
     pub fn store(&self) -> &Arc<PersonaStore> {
         &self.store
+    }
+
+    /// Your own notes (`project_id` `None`) or one project's, newest first.
+    ///
+    /// # Errors
+    /// When the memory cannot be read.
+    pub async fn notes(&self, project_id: Option<&str>) -> Result<Vec<MemoryNote>> {
+        let blocks = self
+            .store
+            .list_blocks(scope_of(project_id), project_id, None, None, LIST_LIMIT)
+            .await
+            .map_err(|error| anyhow!("{error}"))?;
+        Ok(blocks.into_iter().map(MemoryNote::from).collect())
+    }
+
+    /// Write a note. Your screens are not bound: this is you, not an agent.
+    ///
+    /// # Errors
+    /// When its name is empty, it is over its limit, or it cannot be saved.
+    pub async fn save(
+        &self,
+        project_id: Option<&str>,
+        label: &str,
+        body: &str,
+    ) -> Result<MemoryNote> {
+        let block = self
+            .store
+            .save_block(scope_of(project_id), project_id, label, body)
+            .await
+            .map_err(|error| anyhow!("{error}"))?;
+        Ok(block.into())
+    }
+
+    /// Delete a note; returns whether there was one.
+    ///
+    /// # Errors
+    /// When the memory cannot be changed.
+    pub async fn remove(&self, project_id: Option<&str>, label: &str) -> Result<bool> {
+        self.store
+            .delete_block(scope_of(project_id), project_id, label)
+            .await
+            .map_err(|error| anyhow!("{error}"))
     }
 
     /// A session's way in, bound to `project_id`. `None` when the shipped
@@ -224,6 +309,60 @@ mod tests {
             .await
             .unwrap();
         assert_eq!(block.body, "prefers Rust");
+    }
+
+    #[tokio::test]
+    async fn your_screens_read_write_and_delete_notes_in_their_place() {
+        let dir = tempfile::tempdir().unwrap();
+        let memory = Memory::start_with(database(&dir).await, None)
+            .await
+            .unwrap();
+
+        let yours = memory.save(None, "human", "prefers Rust").await.unwrap();
+        assert_eq!(yours.project_id, None);
+        assert_eq!(yours.version, 1);
+        let alpha = memory
+            .save(Some("alpha"), "facts", "uses Turso")
+            .await
+            .unwrap();
+        assert_eq!(alpha.project_id.as_deref(), Some("alpha"));
+        memory
+            .save(Some("beta"), "facts", "uses Postgres")
+            .await
+            .unwrap();
+
+        let saved_again = memory
+            .save(None, "human", "prefers Rust 2024")
+            .await
+            .unwrap();
+        assert_eq!(saved_again.version, 2);
+
+        let bodies =
+            |notes: Vec<MemoryNote>| notes.into_iter().map(|note| note.body).collect::<Vec<_>>();
+        assert_eq!(
+            bodies(memory.notes(None).await.unwrap()),
+            ["prefers Rust 2024"]
+        );
+        assert_eq!(
+            bodies(memory.notes(Some("alpha")).await.unwrap()),
+            ["uses Turso"]
+        );
+
+        assert!(memory.remove(Some("alpha"), "facts").await.unwrap());
+        assert!(!memory.remove(Some("alpha"), "facts").await.unwrap());
+        assert_eq!(memory.notes(Some("alpha")).await.unwrap(), []);
+        assert_eq!(
+            bodies(memory.notes(Some("beta")).await.unwrap()),
+            ["uses Postgres"]
+        );
+
+        let over = "x".repeat(5001);
+        let error = memory.save(None, "long", &over).await.unwrap_err();
+        assert!(error.to_string().contains("char_limit"), "{error}");
+        assert!(
+            memory.save(None, "   ", "body").await.is_err(),
+            "a blank name"
+        );
     }
 
     /// One turn with a real agent, in a session offered this memory. Only a

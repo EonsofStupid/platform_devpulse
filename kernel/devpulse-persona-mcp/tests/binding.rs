@@ -228,6 +228,29 @@ async fn a_bound_session_cannot_change_your_own_blocks() {
 }
 
 #[tokio::test]
+async fn no_tool_lets_an_agent_erase_memory() {
+    let (_dir, _database, store) = store_in_a_host_database().await;
+    let mut session = Client::connect(&store, project("alpha")).await;
+    let tools = session.request("tools/list", json!({})).await;
+    let mut names: Vec<&str> = tools["tools"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|tool| tool["name"].as_str().unwrap())
+        .collect();
+    names.sort_unstable();
+    assert_eq!(
+        names,
+        [
+            "persona.list",
+            "persona.load",
+            "persona.recall",
+            "persona.save"
+        ]
+    );
+}
+
+#[tokio::test]
 async fn connections_share_one_store_at_the_same_time() {
     let (_dir, database, store) = store_in_a_host_database().await;
     let mut alpha = Client::connect(&store, project("alpha")).await;

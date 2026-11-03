@@ -2507,6 +2507,39 @@ async agenthubSessionPage(providerId: ProviderId, locator: string, cursor: strin
 }
 },
 /**
+ * Your own notes (`project_id` absent) or one project's, newest first.
+ */
+async memoryNotes(projectId: string | null) : Promise<Result<MemoryNote[], CommandError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("memory_notes", { projectId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Write a note.
+ */
+async memorySave(projectId: string | null, label: string, body: string) : Promise<Result<MemoryNote, CommandError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("memory_save", { projectId, label, body }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Delete a note; says whether there was one.
+ */
+async memoryRemove(projectId: string | null, label: string) : Promise<Result<boolean, CommandError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("memory_remove", { projectId, label }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * The current providers state (the same value the `providers` signal carries).
  */
 async providersState() : Promise<Result<ProvidersState, string>> {
@@ -7040,6 +7073,10 @@ devtools: DevtoolsCopy;
  */
 chat: ChatCopy; 
 /**
+ * Settings → Memory.
+ */
+memory: MemoryCopy; 
+/**
  * The `DevPulse` account: sign-in, sign-up, sign-out (moved from the
  * model-loader wizard copy; auth is not AI, so its text is the engine's).
  */
@@ -10445,6 +10482,98 @@ protocolVersion: string;
  */
 installs: ClaudeInstalls }
 /**
+ * Settings → Memory: the notes your agents can read.
+ */
+export type MemoryCopy = { 
+/**
+ * What the page is, and where the notes go.
+ */
+subtitle: string; 
+/**
+ * Heading of your own notes.
+ */
+yours_title: string; 
+/**
+ * Who reads and changes your own notes.
+ */
+yours_description: string; 
+/**
+ * Heading of a project's notes.
+ */
+project_title: string; 
+/**
+ * Who reads and changes a project's notes.
+ */
+project_description: string; 
+/**
+ * The project picker's name.
+ */
+project_label: string; 
+/**
+ * There are no projects to keep notes about.
+ */
+no_projects: string; 
+/**
+ * Memory did not start.
+ */
+unavailable: string; 
+/**
+ * A list with no notes.
+ */
+empty: string; 
+/**
+ * Adds a note.
+ */
+add: string; 
+/**
+ * A note's name.
+ */
+name: string; 
+/**
+ * What a good name looks like.
+ */
+name_hint: string; 
+/**
+ * That name is in use (`{name}`).
+ */
+name_taken: string; 
+/**
+ * A note's text.
+ */
+body: string; 
+/**
+ * How long a note is (`{used}`, `{limit}`).
+ */
+characters: string; 
+/**
+ * Saves a note.
+ */
+save: string; 
+/**
+ * Leaves the form.
+ */
+cancel: string; 
+/**
+ * Opens a note to change it.
+ */
+edit: string; 
+/**
+ * Starts deleting a note.
+ */
+remove: string; 
+/**
+ * What deleting does (`{name}`).
+ */
+remove_confirm: string; 
+/**
+ * Deletes it.
+ */
+remove_yes: string; 
+/**
+ * Does not delete it.
+ */
+keep: string }
+/**
  * Kind taxonomy for stored memories.
  * 
  * Carries both serde and rkyv derives so the same value flows
@@ -10485,6 +10614,34 @@ export type MemoryKind =
  * End-of-session reflection / structured summary.
  */
 "reflection"
+/**
+ * One note your agents can read.
+ */
+export type MemoryNote = { 
+/**
+ * The project it belongs to; `None` for your own, read in every project.
+ */
+projectId: string | null; 
+/**
+ * Its name, unique in its place.
+ */
+label: string; 
+/**
+ * What it says.
+ */
+body: string; 
+/**
+ * The most characters it may hold.
+ */
+charLimit: number; 
+/**
+ * When it last changed (RFC 3339).
+ */
+updatedAt: string; 
+/**
+ * How many times it has been saved.
+ */
+version: number }
 /**
  * Aggregate counts from Turso — cheap `COUNT(*)` queries, not row scans.
  */
