@@ -254,6 +254,11 @@ pub struct ConnectSpec {
     /// resumed session gets its notes on its first prompt instead.
     #[serde(default)]
     pub context_env: std::collections::BTreeMap<String, String>,
+    /// Environment for a seat that only talks: an ACP agent's own switch for
+    /// changing nothing. Without it, `DevPulse` can only refuse what the agent asks
+    /// about, and an agent may act without asking.
+    #[serde(default)]
+    pub talk_only_env: std::collections::BTreeMap<String, String>,
 }
 
 /// One conversation turn in an agent's headless mode.

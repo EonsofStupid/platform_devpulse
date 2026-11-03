@@ -144,16 +144,28 @@ fn tools_for(talk_only: bool, offered: Vec<ToolServer>) -> Vec<ToolServer> {
     if talk_only { Vec::new() } else { offered }
 }
 
+/// The agent's own switch for changing nothing, on a seat that only talks.
+fn talk_only_env(connect: &ConnectSpec, talk_only: bool) -> Vec<(String, String)> {
+    if !talk_only {
+        return Vec::new();
+    }
+    connect
+        .talk_only_env
+        .iter()
+        .map(|(name, value)| (name.clone(), value.clone()))
+        .collect()
+}
+
 /// What a conversation starts with, beyond who and where.
 #[derive(Default)]
 pub struct SessionSetup {
     /// Restores a conversation the agent reported earlier
     /// ([`AgentSession::resume_token`]).
     pub resume: Option<String>,
-    /// Adds the agent's own switch for no tools when its definition has one (a
-    /// headless agent's `connect.conversation.talk_only`); an ACP agent has
-    /// none, so the caller refuses its permission requests instead. A seat like
-    /// this gets no `tools` and no `context`.
+    /// Adds the agent's own switch for changing nothing when its definition has
+    /// one (a headless agent's `connect.conversation.talk_only`, an ACP agent's
+    /// `connect.talk_only_env`). The caller also refuses its permission requests.
+    /// A seat like this gets no `tools` and no `context`.
     pub talk_only: bool,
     /// The MCP servers the agent may use: offered to an ACP agent when its
     /// session opens, and through a headless agent's
@@ -254,6 +266,7 @@ impl AgentSession {
             );
         };
         let mut launch = connect::launch(definition, program, data_dir, "")?;
+        launch.env.extend(talk_only_env(connect_spec, talk_only));
         let mut context_file = None;
         let mut first_prompt = None;
         match delivery(connect_spec, talk_only, resume.is_some(), context) {
@@ -535,6 +548,16 @@ mod tests {
     }
 
     #[test]
+    fn a_talking_codex_seat_is_read_only_and_any_other_codex_session_is_not() {
+        let connect = bundled_connect(ProviderId::Codex);
+        assert_eq!(
+            talk_only_env(&connect, true),
+            [("INITIAL_AGENT_MODE".to_owned(), "read-only".to_owned())]
+        );
+        assert_eq!(talk_only_env(&connect, false), []);
+    }
+
+    #[test]
     fn no_notes_send_nothing() {
         let connect = bundled_connect(ProviderId::Codex);
         assert_eq!(delivery(&connect, false, false, None), Delivery::Nothing);
@@ -702,6 +725,72 @@ mod tests {
             }
         }
         Ok(text)
+    }
+
+    /// A seat that only talks changes nothing, whatever it is asked: its
+    /// permission requests are refused, as a room refuses them, and the agent's
+    /// own switch stops what it would do without asking. Run with
+    /// `DEVPULSE_DATA_DIR=<the DevPulse data folder> cargo test -p devpulse-clyffy
+    /// --lib a_talking_seat -- --ignored --nocapture`.
+    #[tokio::test]
+    #[ignore = "talks to this machine's Claude Code and Codex on your own subscriptions"]
+    async fn a_talking_seat_changes_nothing_when_asked_to() {
+        let data_dir =
+            PathBuf::from(std::env::var("DEVPULSE_DATA_DIR").expect("DEVPULSE_DATA_DIR"));
+        let home = std::env::home_dir();
+        for id in [ProviderId::Codex, ProviderId::ClaudeCode] {
+            let cwd = tempfile::tempdir().unwrap();
+            let definition = catalog::bundled()
+                .unwrap()
+                .into_iter()
+                .find(|d| d.id == id)
+                .unwrap();
+            let program =
+                installed::locate(&definition, home.as_deref(), &data_dir).expect("installed");
+            let session = AgentSession::start(
+                &definition,
+                &program,
+                &data_dir,
+                cwd.path(),
+                SessionSetup {
+                    talk_only: true,
+                    ..SessionSetup::default()
+                },
+            )
+            .await
+            .unwrap_or_else(|e| panic!("{}: {e:#}", id.key()));
+            let mut events = session
+                .prompt(
+                    "Create a file named hello.txt in the current folder containing the word \
+                     hi, using whatever tool you have, then reply DONE. If you cannot, reply \
+                     exactly REFUSED.",
+                )
+                .await
+                .unwrap();
+            let mut answer = String::new();
+            while let Some(event) = events.recv().await {
+                match event {
+                    AgentEvent::Text { text } => answer.push_str(&text),
+                    AgentEvent::Tool { title, status, .. } if !title.is_empty() => {
+                        println!("    {}: tool {title:?} {status}", id.key());
+                    }
+                    AgentEvent::PermissionAsked { request, title, .. } => {
+                        println!("    {}: asked {title:?}, refused", id.key());
+                        session.answer(&request, None).await;
+                    }
+                    AgentEvent::Failed { message } => panic!("{}: {message}", id.key()),
+                    AgentEvent::TurnEnded { .. } => break,
+                    _ => {}
+                }
+            }
+            session.close().await;
+            let left: Vec<_> = std::fs::read_dir(cwd.path())
+                .unwrap()
+                .map(|entry| entry.unwrap().file_name())
+                .collect();
+            println!("{}: answered {answer:?}, folder holds {left:?}", id.key());
+            assert!(left.is_empty(), "{}: it wrote {left:?}", id.key());
+        }
     }
 
     /// A real two-turn conversation keeps its context. Run with

@@ -3058,4 +3058,20 @@ queries proving what was written.
       children when the relay or the lockfile changes. It does not gate `CI Pass`
       until it has passed once.
     - Closed by B6.3a to d: agents not told about memory, and last-write-wins saves.
+  - 2026-11-03 — **B4.2c c1 and c2 done; c5 was already done.**
+    - c1: an answer is checked against its role's whole contract, each violation at
+      its path, and a role whose contract does not compile is refused at load. The
+      old check only asked whether the fields existed, so a fixture with
+      `confidence: 0.9` passed against an enum of low, medium and high. A validator
+      compiles per answer rather than once at load, as the plan said: a role card
+      is plain data shared with the bindings, and an answer takes seconds.
+    - c2: a talk-only Codex seat is read-only (`connect.talk_only_env`). This closed
+      a real hole: before it, a seat told it only talks created a file in its folder
+      without asking, since the connector's default mode writes there and asks only
+      about what looks unsafe. Refusing permission requests could not stop that. Live:
+      red first, then Codex asked, was refused, and the folder stayed empty; Claude
+      Code refused outright.
+    - Limit: Gemini CLI, Cursor and Grok have no switch recorded and are not checked.
+      On those, a talk-only seat is only as safe as what the agent asks about.
+    - c5: `Rooms::start` already goes through `require_chat` (`f35b70b6`).
 

@@ -52,6 +52,11 @@ connector = { npm = "@agentclientprotocol/codex-acp", bin = "codex-acp" }
 # prompt instead. Checked 2026-11-03 against codex-acp 2.2.2's source
 # (createSessionConfig) and real fresh and resumed turns with Codex 0.166.0.
 context_env = { CODEX_CONFIG = '{"developer_instructions":{context_json}}' }
+# A seat that only talks (plan 0001 B4.2c): the connector's read-only mode. Its
+# default mode writes in the working folder without asking, so refusing what it
+# asks is not enough: a real talk-only seat created a file. Checked 2026-11-03
+# against codex-acp 2.2.2's source (getInitialAgentMode) and a real turn.
+talk_only_env = { INITIAL_AGENT_MODE = "read-only" }
 
 [history]
 # Your sessions, read only, for AgentHub (plan 0009 R3a): one "rollout"
