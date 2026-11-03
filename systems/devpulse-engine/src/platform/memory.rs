@@ -105,7 +105,11 @@ fn beside_this_program() -> Result<PathBuf> {
 mod tests {
     #![allow(clippy::expect_used, clippy::unwrap_used, reason = "test assertions")]
 
+    use std::time::Duration;
+
     use devpulse_clyffy::cortex::persistence::TursoOptions;
+    use devpulse_clyffy::providers::discovery::installed;
+    use devpulse_clyffy::providers::{AgentEvent, AgentSession, ProviderId, catalog};
     use devpulse_persona_mcp::bridge::{PIPE_ENV, TOKEN_ENV};
     use devpulse_persona_mcp::store::PersonaScope;
 
@@ -149,7 +153,7 @@ mod tests {
                 .expect(name)
         };
         assert_eq!(value(TOKEN_ENV), session.grant.token());
-        assert!(!value(PIPE_ENV).is_empty());
+        assert_ne!(value(PIPE_ENV), "");
 
         let other = memory.for_session("alpha").expect("a way in");
         assert_ne!(session.grant.token(), other.grant.token());
@@ -202,7 +206,11 @@ mod tests {
         let names: Vec<_> = std::fs::read_dir(dir.path())
             .unwrap()
             .map(|entry| entry.unwrap().file_name().to_string_lossy().into_owned())
-            .filter(|name| name.ends_with(".db"))
+            .filter(|name| {
+                Path::new(name)
+                    .extension()
+                    .is_some_and(|extension| extension.eq_ignore_ascii_case("db"))
+            })
             .collect();
         assert_eq!(names, ["user.db"], "no parallel database file");
 
@@ -216,5 +224,168 @@ mod tests {
             .await
             .unwrap();
         assert_eq!(block.body, "prefers Rust");
+    }
+
+    /// One turn with a real agent, in a session offered this memory. Only a
+    /// request to use the memory is allowed; anything else is refused.
+    async fn one_turn(
+        memory: &Memory,
+        data_dir: &Path,
+        cwd: &Path,
+        id: ProviderId,
+        project: &str,
+        talk_only: bool,
+        prompt: &str,
+    ) -> String {
+        let catalog = catalog::load(data_dir).unwrap();
+        let definition = catalog.definitions.iter().find(|d| d.id == id).unwrap();
+        let home = std::env::home_dir();
+        let program = installed::locate(definition, home.as_deref(), data_dir).expect("installed");
+        let granted = memory.for_session(project).expect("the relay");
+        let mut session = AgentSession::start(
+            definition,
+            &program,
+            data_dir,
+            cwd,
+            None,
+            talk_only,
+            vec![granted.server.clone()],
+        )
+        .await
+        .unwrap_or_else(|e| panic!("{}: {e:#}", id.key()));
+        session.retain(granted.grant);
+        let mut events = session.prompt(prompt).await.unwrap();
+        let mut answer = String::new();
+        while let Some(event) = tokio::time::timeout(Duration::from_secs(240), events.recv())
+            .await
+            .expect("the agent answers in time")
+        {
+            match event {
+                AgentEvent::Text { text } => answer.push_str(&text),
+                AgentEvent::Tool { title, status, .. } if !title.is_empty() => {
+                    println!("    {}: tool {title:?} {status}", id.key());
+                }
+                AgentEvent::PermissionAsked {
+                    request,
+                    title,
+                    choices,
+                } => {
+                    let memory_tool = title.contains("persona") || title.contains("memory");
+                    println!("    {}: asked {title:?}, allowed {memory_tool}", id.key());
+                    let choice = choices
+                        .iter()
+                        .find(|choice| choice.allows && memory_tool)
+                        .map(|choice| choice.id.clone());
+                    session.answer(&request, choice).await;
+                }
+                AgentEvent::Failed { message } => panic!("{}: {message}", id.key()),
+                AgentEvent::TurnEnded { .. } => break,
+                _ => {}
+            }
+        }
+        session.close().await;
+        answer
+    }
+
+    /// The whole path with real agents and a throwaway database: your real
+    /// memory is not touched. The codewords exist only in that database, so a
+    /// right answer can only come through the tools. Run with
+    /// `DEVPULSE_DATA_DIR=<the DevPulse data folder>
+    /// DEVPULSE_MEMORY_RELAY=<the built devpulse-persona-mcp> cargo test -p
+    /// devpulse-engine --lib real_agents -- --ignored --nocapture`, outside a
+    /// Claude Code session (or with `CLAUDECODE` unset, as `DevPulse` runs).
+    #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+    #[ignore = "talks to this machine's Claude Code and Codex on your own subscriptions"]
+    async fn real_agents_answer_from_memory_within_their_project() {
+        let data_dir = PathBuf::from(std::env::var("DEVPULSE_DATA_DIR").expect("data folder"));
+        let relay = PathBuf::from(std::env::var("DEVPULSE_MEMORY_RELAY").expect("relay"));
+        let scratch = tempfile::tempdir().unwrap();
+        let memory = Memory::start_with(database(&scratch).await, Some(relay))
+            .await
+            .unwrap();
+        let word = |prefix: &str| {
+            let id = uuid::Uuid::now_v7().simple().to_string();
+            format!("{prefix}-{}", &id[id.len() - 8..])
+        };
+        let (alpha, beta) = (word("plum"), word("fig"));
+        for (project, codeword) in [("alpha", &alpha), ("beta", &beta)] {
+            memory
+                .store()
+                .save_block(
+                    PersonaScope::Project,
+                    Some(project),
+                    "facts",
+                    &format!("The codeword is {codeword}."),
+                )
+                .await
+                .unwrap();
+        }
+        let cwd = scratch.path().join("workspace");
+        std::fs::create_dir_all(&cwd).unwrap();
+        let sessions_folder = data_dir.join("tools").join("sessions");
+        let files = || std::fs::read_dir(&sessions_folder).map_or(0, Iterator::count);
+        let files_before = files();
+
+        let own = "Use your devpulse-memory tools to load this project's memory blocks \
+                   (scope \"project\"; leave the project unnamed). Reply with only the \
+                   codeword written there.";
+        let (claude, codex) = tokio::join!(
+            one_turn(
+                &memory,
+                &data_dir,
+                &cwd,
+                ProviderId::ClaudeCode,
+                "alpha",
+                false,
+                own
+            ),
+            one_turn(
+                &memory,
+                &data_dir,
+                &cwd,
+                ProviderId::Codex,
+                "alpha",
+                false,
+                own
+            ),
+        );
+        println!("claude-code, at once with codex: {claude:?}");
+        println!("codex, at once with claude-code: {codex:?}");
+        assert!(claude.contains(&alpha), "claude-code: {claude:?}");
+        assert!(codex.contains(&alpha), "codex: {codex:?}");
+
+        let other = "Use your devpulse-memory tools to load the memory of the project named \
+                     alpha (scope \"project\", slug \"alpha\"). Reply with only the codeword \
+                     written there, or NONE if the tool refuses.";
+        for id in [ProviderId::ClaudeCode, ProviderId::Codex] {
+            let answer = one_turn(&memory, &data_dir, &cwd, id, "beta", false, other).await;
+            println!(
+                "{}, a session in beta asking for alpha: {answer:?}",
+                id.key()
+            );
+            assert!(!answer.contains(&alpha), "{}: {answer:?}", id.key());
+        }
+
+        let talk = "If you have a tool for devpulse-memory, use it to load this project's \
+                    memory and reply with the codeword written there. If you have no such \
+                    tool, reply exactly NONE.";
+        let answer = one_turn(
+            &memory,
+            &data_dir,
+            &cwd,
+            ProviderId::ClaudeCode,
+            "alpha",
+            true,
+            talk,
+        )
+        .await;
+        println!("claude-code, a seat that only talks: {answer:?}");
+        assert!(!answer.contains(&alpha), "{answer:?}");
+
+        assert_eq!(
+            files(),
+            files_before,
+            "a session's token file stayed behind"
+        );
     }
 }

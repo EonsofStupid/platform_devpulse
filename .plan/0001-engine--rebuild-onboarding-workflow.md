@@ -2905,6 +2905,23 @@ queries proving what was written.
       file appears; 114 xtask tests, including that a portable package without
       the relay fails; `cargo xtask build-agenthub` stages both. The debug relay
       is 77 MB; its release size is not measured.
-    - Not yet: seeing and editing memory in DevPulse (phase e). The relay is not
-      yet exercised by a real agent (the live check).
+    - Not yet: seeing and editing memory in DevPulse (phase e).
+  - 2026-11-02 — **B6 live: real agents answer from your memory.** With Claude
+    Code 2.1.316 and Codex 0.166.0 on your subscriptions, a throwaway database
+    (your real memory untouched) and a random codeword found nowhere else:
+    - both, running at the same time, answered with the codeword through
+      `persona.load` (`mcp__devpulse-memory__persona_load`,
+      `mcp.devpulse-memory.persona.load`), the tool name with its dot working on
+      both;
+    - a session in project beta asking for alpha's memory called the tool, was
+      refused, and answered NONE, on both;
+    - a talk-only Claude Code seat, offered the server, made no tool call and
+      answered NONE;
+    - no session's token file stayed behind.
+    Codex showed its own "Guardian Review" step around the memory tool and asked
+    DevPulse for no permission. The check is an ignored test in
+    `platform/memory.rs`, run with `CLAUDECODE` unset because DevPulse does not
+    run inside a Claude Code session. It drives `AgentSession` directly, so the
+    window, threads and rooms using this are still to be seen in the running app
+    with phase e. Memory surviving a restart is checked by tests, not this run.
 
