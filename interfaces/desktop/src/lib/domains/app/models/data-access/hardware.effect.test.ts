@@ -53,6 +53,7 @@ vi.mock("$lib/sys/logger.js", () => ({
 	logWarn: vi.fn(),
 }));
 
+import { subscribeInEffect } from "./hardware.effect.fixture.svelte.js";
 import { hardwareState } from "./hardware.state.svelte.js";
 
 function stateSignal(type: "hardware" | "boot", data: unknown, revision: number): Signal {
@@ -81,9 +82,7 @@ it("a subscriber arriving after the full snapshot subscribes once", async () => 
 	mocks.attached.length = 0;
 
 	// The status bar, the way it subscribes.
-	const destroy = $effect.root(() => {
-		$effect(() => hardwareState.subscribe("statusbar"));
-	});
+	const destroy = subscribeInEffect("statusbar");
 	try {
 		flushSync();
 		expect(mocks.attached).toEqual(["attached (reason: statusbar)"]);
