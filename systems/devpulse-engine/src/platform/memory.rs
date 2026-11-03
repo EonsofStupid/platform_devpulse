@@ -194,7 +194,7 @@ mod tests {
 
     use devpulse_clyffy::cortex::persistence::TursoOptions;
     use devpulse_clyffy::providers::discovery::installed;
-    use devpulse_clyffy::providers::{AgentEvent, AgentSession, ProviderId, catalog};
+    use devpulse_clyffy::providers::{AgentEvent, AgentSession, ProviderId, SessionSetup, catalog};
     use devpulse_persona_mcp::bridge::{PIPE_ENV, TOKEN_ENV};
     use devpulse_persona_mcp::store::PersonaScope;
 
@@ -386,9 +386,11 @@ mod tests {
             &program,
             data_dir,
             cwd,
-            None,
-            talk_only,
-            vec![granted.server.clone()],
+            SessionSetup {
+                talk_only,
+                tools: vec![granted.server.clone()],
+                ..SessionSetup::default()
+            },
         )
         .await
         .unwrap_or_else(|e| panic!("{}: {e:#}", id.key()));

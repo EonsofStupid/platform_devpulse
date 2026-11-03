@@ -20,6 +20,7 @@ pub mod acp;
 pub mod headless;
 
 use std::path::{Path, PathBuf};
+use std::sync::Mutex;
 use std::time::Duration;
 
 use anyhow::{Result, bail};
@@ -27,7 +28,7 @@ use serde::{Deserialize, Serialize};
 use tokio::sync::mpsc;
 
 use super::connect;
-use super::definition::ProviderDefinition;
+use super::definition::{ConnectSpec, ProviderDefinition};
 use super::types::AgentProtocol;
 
 /// How long a permission request waits for your answer before it is refused.
@@ -143,12 +144,66 @@ fn tools_for(talk_only: bool, offered: Vec<ToolServer>) -> Vec<ToolServer> {
     if talk_only { Vec::new() } else { offered }
 }
 
+/// What a conversation starts with, beyond who and where.
+#[derive(Default)]
+pub struct SessionSetup {
+    /// Restores a conversation the agent reported earlier
+    /// ([`AgentSession::resume_token`]).
+    pub resume: Option<String>,
+    /// Adds the agent's own switch for no tools when its definition has one (a
+    /// headless agent's `connect.conversation.talk_only`); an ACP agent has
+    /// none, so the caller refuses its permission requests instead. A seat like
+    /// this gets no `tools` and no `context`.
+    pub talk_only: bool,
+    /// The MCP servers the agent may use: offered to an ACP agent when its
+    /// session opens, and through a headless agent's
+    /// `connect.conversation.tool_servers` when its definition has them.
+    pub tools: Vec<ToolServer>,
+    /// Your notes for the agent: see [`delivery`].
+    pub context: Option<String>,
+}
+
+/// How a session's notes reach its agent.
+#[derive(Debug, PartialEq, Eq)]
+enum Delivery {
+    /// There are none.
+    Nothing,
+    /// Instructions, through its environment.
+    Environment(Vec<(String, String)>),
+    /// Instructions, from a file named on every turn.
+    File(String),
+    /// A marked block on the first prompt of this live session.
+    FirstPrompt(String),
+}
+
+/// Instructions where the definition says the agent has them, because they
+/// outlast the vendor's compaction and stay out of your history; otherwise the
+/// first prompt. A seat that only talks gets nothing.
+fn delivery(connect: &ConnectSpec, talk_only: bool, context: Option<String>) -> Delivery {
+    let Some(notes) = context.filter(|notes| !talk_only && !notes.is_empty()) else {
+        return Delivery::Nothing;
+    };
+    if !connect.context_env.is_empty() {
+        return Delivery::Environment(connect::context_env(connect, &notes));
+    }
+    if connect
+        .conversation
+        .as_ref()
+        .is_some_and(|conversation| !conversation.context.is_empty())
+    {
+        return Delivery::File(notes);
+    }
+    Delivery::FirstPrompt(notes)
+}
+
 /// A live conversation with one agent.
 pub struct AgentSession {
     kind: Kind,
     definition: ProviderDefinition,
     program: PathBuf,
     data_dir: PathBuf,
+    /// Notes the first prompt still has to carry.
+    first_prompt: Mutex<Option<String>>,
     /// Last, so the agent has stopped before what it was using goes away.
     leases: Vec<Box<dyn std::any::Any + Send + Sync>>,
 }
@@ -160,14 +215,7 @@ enum Kind {
 
 impl AgentSession {
     /// Start a conversation with an installed agent at `program`, working in
-    /// `cwd`. `resume` restores a conversation the agent reported
-    /// earlier ([`Self::resume_token`]). `talk_only` adds the agent's own
-    /// switch for no tools when its definition has one (a headless agent's
-    /// `connect.conversation.talk_only`); an ACP agent has none, so the
-    /// caller refuses its permission requests instead. `tools` are the MCP
-    /// servers the agent may use: offered to an ACP agent when its session
-    /// opens, and through a headless agent's `connect.conversation.tool_servers`
-    /// when its definition has them.
+    /// `cwd`, as `setup` says.
     ///
     /// # Errors
     /// When the definition says nothing about talking to it, it is a
@@ -178,10 +226,14 @@ impl AgentSession {
         program: &Path,
         data_dir: &Path,
         cwd: &Path,
-        resume: Option<String>,
-        talk_only: bool,
-        tools: Vec<ToolServer>,
+        setup: SessionSetup,
     ) -> Result<Self> {
+        let SessionSetup {
+            resume,
+            talk_only,
+            tools,
+            context,
+        } = setup;
         let tools = tools_for(talk_only, tools);
         super::supervisor::inspect(definition, program, data_dir)
             .await
@@ -194,7 +246,17 @@ impl AgentSession {
                 definition.name()
             );
         };
-        let launch = connect::launch(definition, program, data_dir, "")?;
+        let mut launch = connect::launch(definition, program, data_dir, "")?;
+        let mut context_file = None;
+        let mut first_prompt = None;
+        match delivery(connect_spec, talk_only, context) {
+            Delivery::Nothing => {}
+            Delivery::Environment(env) => launch.env.extend(env),
+            Delivery::File(notes) => {
+                context_file = Some(headless::ContextFile::write(data_dir, &notes)?);
+            }
+            Delivery::FirstPrompt(notes) => first_prompt = Some(notes),
+        }
         let kind = match definition.protocol() {
             Some(AgentProtocol::Acp) => {
                 Kind::Acp(acp::AcpSession::start(&launch, cwd, resume, tools).await?)
@@ -218,7 +280,10 @@ impl AgentSession {
                     cwd,
                     resume,
                     talk_only,
-                    tools,
+                    headless::TurnFiles {
+                        tools,
+                        context: context_file,
+                    },
                 )))
             }
             None => bail!(
@@ -231,6 +296,7 @@ impl AgentSession {
             definition: definition.clone(),
             program: program.to_path_buf(),
             data_dir: data_dir.to_path_buf(),
+            first_prompt: Mutex::new(first_prompt),
             leases: Vec::new(),
         })
     }
@@ -271,10 +337,21 @@ impl AgentSession {
                 observed.availability.chat.require(self.definition.name())?;
             }
         }
+        let text = self.with_first_prompt_notes(text);
         match &self.kind {
-            Kind::Acp(session) => session.prompt(text),
-            Kind::Headless(session) => session.prompt(text).await,
+            Kind::Acp(session) => session.prompt(&text),
+            Kind::Headless(session) => session.prompt(&text).await,
         }
+    }
+
+    /// `text`, after the notes the first prompt still has to carry.
+    fn with_first_prompt_notes(&self, text: &str) -> String {
+        let notes = self
+            .first_prompt
+            .lock()
+            .ok()
+            .and_then(|mut first_prompt| first_prompt.take());
+        notes.map_or_else(|| text.to_owned(), |notes| format!("{notes}\n\n{text}"))
     }
 
     /// Stop the running turn, if any.
@@ -345,6 +422,173 @@ mod tests {
         assert!(!printed.contains("secret-token"), "{printed}");
     }
 
+    fn bundled_connect(id: ProviderId) -> ConnectSpec {
+        catalog::bundled()
+            .unwrap()
+            .into_iter()
+            .find(|d| d.id == id)
+            .unwrap()
+            .connect
+            .unwrap()
+    }
+
+    #[test]
+    fn claude_code_takes_notes_from_a_file_as_instructions() {
+        assert_eq!(
+            delivery(
+                &bundled_connect(ProviderId::ClaudeCode),
+                false,
+                Some("notes".into())
+            ),
+            Delivery::File("notes".into())
+        );
+    }
+
+    #[test]
+    fn codex_takes_notes_as_developer_instructions_with_any_text_intact() {
+        let notes = "Line one.\nSay \"yes\" and use C:\\tools.";
+        let Delivery::Environment(env) = delivery(
+            &bundled_connect(ProviderId::Codex),
+            false,
+            Some(notes.into()),
+        ) else {
+            panic!("Codex has an instructions channel");
+        };
+        let (name, value) = env.first().unwrap();
+        assert_eq!(name, "CODEX_CONFIG");
+        let config: serde_json::Value = serde_json::from_str(value).unwrap();
+        assert_eq!(config["developer_instructions"], notes);
+    }
+
+    #[test]
+    fn an_agent_with_no_instructions_channel_gets_the_first_prompt() {
+        assert_eq!(
+            delivery(
+                &bundled_connect(ProviderId::GeminiCli),
+                false,
+                Some("notes".into())
+            ),
+            Delivery::FirstPrompt("notes".into())
+        );
+    }
+
+    #[test]
+    fn a_seat_that_only_talks_gets_no_notes_on_any_channel() {
+        for id in [
+            ProviderId::ClaudeCode,
+            ProviderId::Codex,
+            ProviderId::GeminiCli,
+        ] {
+            assert_eq!(
+                delivery(&bundled_connect(id), true, Some("notes".into())),
+                Delivery::Nothing,
+                "{}",
+                id.key()
+            );
+        }
+    }
+
+    #[test]
+    fn no_notes_send_nothing() {
+        let connect = bundled_connect(ProviderId::Codex);
+        assert_eq!(delivery(&connect, false, None), Delivery::Nothing);
+        assert_eq!(
+            delivery(&connect, false, Some(String::new())),
+            Delivery::Nothing
+        );
+    }
+
+    #[test]
+    fn a_definition_that_loses_its_placeholder_is_refused() {
+        let real = include_str!("../../../config/providers/codex.toml");
+        let broken = real.replace("{context_json}", "");
+        assert_ne!(real, broken);
+        let error = crate::providers::ProviderDefinition::parse(&broken).expect_err("no notes");
+        assert!(format!("{error:#}").contains("context_env"), "{error:#}");
+
+        let real = include_str!("../../../config/providers/claude-code.toml");
+        let broken = real.replace("{context_file}", "");
+        assert_ne!(real, broken);
+        let error = crate::providers::ProviderDefinition::parse(&broken).expect_err("no file");
+        assert!(format!("{error:#}").contains("context"), "{error:#}");
+    }
+
+    /// An agent that prints the prompt it was given, with no channel for notes.
+    fn echoing_session_definition() -> (ProviderDefinition, PathBuf) {
+        use crate::providers::definition::StreamFormat;
+        let mut definition = catalog::bundled()
+            .unwrap()
+            .into_iter()
+            .find(|d| d.id == ProviderId::ClaudeCode)
+            .unwrap();
+        definition.signed_in = None;
+        definition.sign_in = None;
+        let conversation = definition
+            .connect
+            .as_mut()
+            .unwrap()
+            .conversation
+            .as_mut()
+            .unwrap();
+        conversation.resume.clear();
+        conversation.tool_servers.clear();
+        conversation.talk_only.clear();
+        conversation.context.clear();
+        conversation.output = StreamFormat::Text;
+        #[cfg(windows)]
+        let (program, args) = (
+            "powershell",
+            vec![
+                "-NoProfile",
+                "-NonInteractive",
+                "-Command",
+                "Write-Output '{prompt}'",
+            ],
+        );
+        #[cfg(unix)]
+        let (program, args) = ("sh", vec!["-c", "printf '%s\\n' \"$1\"", "sh", "{prompt}"]);
+        conversation.args = args.into_iter().map(str::to_owned).collect();
+        let program = installed::on_path(program).unwrap();
+        (definition, program)
+    }
+
+    #[tokio::test]
+    async fn only_the_first_prompt_carries_the_notes_and_a_talking_seat_never_does() {
+        let dir = tempfile::tempdir().unwrap();
+        let (definition, program) = echoing_session_definition();
+        let start = |talk_only| {
+            AgentSession::start(
+                &definition,
+                &program,
+                dir.path(),
+                dir.path(),
+                SessionSetup {
+                    talk_only,
+                    context: Some("MARKED-NOTES".into()),
+                    ..SessionSetup::default()
+                },
+            )
+        };
+        let session = start(false).await.unwrap();
+        let first = answer(session.prompt("first").await.unwrap())
+            .await
+            .unwrap();
+        assert!(first.contains("MARKED-NOTES"), "{first:?}");
+        assert!(first.contains("first"), "{first:?}");
+        let second = answer(session.prompt("second").await.unwrap())
+            .await
+            .unwrap();
+        assert!(second.contains("second"), "{second:?}");
+        assert!(!second.contains("MARKED-NOTES"), "{second:?}");
+        session.close().await;
+
+        let seat = start(true).await.unwrap();
+        let spoken = answer(seat.prompt("only").await.unwrap()).await.unwrap();
+        assert!(spoken.contains("only"), "{spoken:?}");
+        assert!(!spoken.contains("MARKED-NOTES"), "{spoken:?}");
+        seat.close().await;
+    }
+
     #[tokio::test]
     async fn a_live_session_rechecks_login_and_cancellation_before_dispatch() {
         use crate::providers::definition::{PerOs, SignedInSpec};
@@ -373,7 +617,7 @@ mod tests {
             absent_means_signed_out: true,
         });
         let session =
-            AgentSession::start(&definition, &program, &dir, &dir, None, false, Vec::new())
+            AgentSession::start(&definition, &program, &dir, &dir, SessionSetup::default())
                 .await
                 .unwrap();
         std::fs::remove_file(&login).unwrap();
@@ -438,9 +682,7 @@ mod tests {
                 &program,
                 &data_dir,
                 &cwd,
-                None,
-                false,
-                Vec::new(),
+                SessionSetup::default(),
             )
             .await
             .unwrap_or_else(|e| panic!("{}: {e:#}", id.key()));

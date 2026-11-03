@@ -249,6 +249,10 @@ pub struct ConnectSpec {
     /// an ACP agent keeps one session open instead).
     #[serde(default)]
     pub conversation: Option<ConversationSpec>,
+    /// Environment that gives a session's notes to the agent as instructions.
+    /// Each value must carry `{context_json}`, the notes as a JSON string.
+    #[serde(default)]
+    pub context_env: std::collections::BTreeMap<String, String>,
 }
 
 /// One conversation turn in an agent's headless mode.
@@ -273,6 +277,11 @@ pub struct ConversationSpec {
     /// name. Without it, the agent gets no MCP servers from `DevPulse`.
     #[serde(default)]
     pub tool_servers: Vec<String>,
+    /// Added on every turn of a session with notes: the agent's own switch for
+    /// instructions from a file. Must carry `{context_file}`, the file `DevPulse`
+    /// writes. Without this or `context_env`, the notes go on the first prompt.
+    #[serde(default)]
+    pub context: Vec<String>,
     /// What the agent prints.
     pub output: StreamFormat,
 }
@@ -519,6 +528,13 @@ impl ProviderDefinition {
 
     fn check_connect(&self, connect: &ConnectSpec) -> Result<()> {
         let id = self.id.key();
+        if let Some((name, _)) = connect
+            .context_env
+            .iter()
+            .find(|(_, value)| !value.contains("{context_json}"))
+        {
+            bail!("{id}: connect.context_env.{name} must carry {{context_json}}");
+        }
         match self.adapter() {
             AdapterKind::McpClient => {
                 bail!("{id}: connect is for acp_agent or headless, not mcp_client");
@@ -546,6 +562,14 @@ impl ProviderDefinition {
                             .any(|a| a.contains("{mcp_config}"))
                     {
                         bail!("{id}: connect.conversation.tool_servers must carry {{mcp_config}}");
+                    }
+                    if !conversation.context.is_empty()
+                        && !conversation
+                            .context
+                            .iter()
+                            .any(|a| a.contains("{context_file}"))
+                    {
+                        bail!("{id}: connect.conversation.context must carry {{context_file}}");
                     }
                 }
             }

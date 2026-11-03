@@ -74,4 +74,9 @@ talk_only = ["--tools", "", "--strict-mcp-config"]
 # Both take several values, so they stay after the prompt. Checked 2026-11-02
 # against `claude --help` (2.1.316).
 tool_servers = ["--mcp-config", "{mcp_config}", "--allowedTools", "mcp__{tool_server}"]
+# Your notes for a session (plan 0001 B6.3): a file, for the same reason as the
+# MCP config, added to Claude Code's system prompt on every turn, so compaction
+# keeps them and they stay out of your transcript. Checked 2026-11-03 against
+# `claude --help` (2.1.316) and a real turn.
+context = ["--append-system-prompt-file", "{context_file}"]
 output = "claude-stream-json"

@@ -17,7 +17,7 @@ use devpulse_clyffy::cortex::persistence::{SqlAdapter, SqlValue, TursoAdapter};
 // IP-NOTE: conversation vocabulary only — thread, turn, agent, event; public
 // names, no kernel internals.
 pub use devpulse_clyffy::providers::{AgentEvent, PermissionChoice, ProviderId};
-use devpulse_clyffy::providers::{AgentSession, catalog};
+use devpulse_clyffy::providers::{AgentSession, SessionSetup, catalog};
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use tokio::sync::{Mutex, mpsc};
@@ -267,9 +267,12 @@ impl Agents {
             Path::new(&location),
             &self.data_dir,
             cwd,
-            resume,
-            talk_only,
-            tools,
+            SessionSetup {
+                resume,
+                talk_only,
+                tools,
+                context: None,
+            },
         )
         .await?;
         if let Some(memory) = memory {

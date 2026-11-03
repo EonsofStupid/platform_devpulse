@@ -45,6 +45,11 @@ bin = "codex"
 # bundles. Checked 2026-10-20 against codex-acp 2.2.2.
 env = { CODEX_PATH = "{program}" }
 connector = { npm = "@agentclientprotocol/codex-acp", bin = "codex-acp" }
+# Your notes for a session (plan 0001 B6.3): the connector merges CODEX_CONFIG
+# into the session's config on new and resumed sessions, and Codex keeps its
+# developer_instructions in front of the model. Checked 2026-11-03 against
+# codex-acp 2.2.2's source (createSessionConfig) and a real turn.
+context_env = { CODEX_CONFIG = '{"developer_instructions":{context_json}}' }
 
 [history]
 # Your sessions, read only, for AgentHub (plan 0009 R3a): one "rollout"

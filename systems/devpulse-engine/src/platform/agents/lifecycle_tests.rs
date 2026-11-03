@@ -52,9 +52,10 @@ async fn fixture_session(dir: &Path, running: bool) -> AgentSession {
         &program,
         dir,
         dir,
-        Some("saved-thread".into()),
-        false,
-        Vec::new(),
+        SessionSetup {
+            resume: Some("saved-thread".into()),
+            ..SessionSetup::default()
+        },
     )
     .await
     .unwrap()

@@ -21,7 +21,7 @@ use std::time::Duration;
 use anyhow::{Context, Result, anyhow, bail};
 use devpulse_process::{self as process, Ran};
 
-use super::definition::{AdapterKind, ProviderDefinition};
+use super::definition::{AdapterKind, ConnectSpec, ProviderDefinition};
 
 /// How long one question may take (an agent may start a runtime first).
 pub const ASK_TIMEOUT: Duration = Duration::from_secs(180);
@@ -57,6 +57,17 @@ pub fn ask_dir(data_dir: &Path) -> PathBuf {
 fn fill(text: &str, program: &Path, prompt: &str) -> String {
     text.replace("{program}", &program.to_string_lossy())
         .replace("{prompt}", prompt)
+}
+
+/// The definition's `context_env`, carrying `notes` as a JSON string.
+#[must_use]
+pub fn context_env(connect: &ConnectSpec, notes: &str) -> Vec<(String, String)> {
+    let notes = serde_json::Value::from(notes).to_string();
+    connect
+        .context_env
+        .iter()
+        .map(|(name, value)| (name.clone(), value.replace("{context_json}", &notes)))
+        .collect()
 }
 
 /// How to ask this provider, installed at `program`.

@@ -26,6 +26,74 @@ const STDERR_TAIL: usize = 4 * 1024;
 /// How long a turn waits for the last turn's process to finish exiting.
 const EXIT_WAIT: std::time::Duration = std::time::Duration::from_secs(15);
 
+/// The folder a session's private files live in.
+fn session_files(data_dir: &Path) -> PathBuf {
+    data_dir.join("tools").join("sessions")
+}
+
+/// Write `contents` to a new file only this user can read.
+fn private_file(data_dir: &Path, extension: &str, contents: &str) -> Result<PathBuf> {
+    let folder = session_files(data_dir);
+    std::fs::create_dir_all(&folder).with_context(|| format!("create {}", folder.display()))?;
+    let path = folder.join(format!("{}.{extension}", uuid::Uuid::now_v7()));
+    let mut options = std::fs::OpenOptions::new();
+    options.write(true).create_new(true);
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::OpenOptionsExt;
+        options.mode(0o600);
+    }
+    options
+        .open(&path)
+        .and_then(|mut file| file.write_all(contents.as_bytes()))
+        .with_context(|| format!("write {}", path.display()))?;
+    Ok(path)
+}
+
+/// Remove what a crashed run left behind. Call only once this process owns the
+/// data folder, before any session starts: a session's files go with it.
+pub fn clear_leftover_files(data_dir: &Path) {
+    let Ok(entries) = std::fs::read_dir(session_files(data_dir)) else {
+        return;
+    };
+    for entry in entries.flatten() {
+        let _ = std::fs::remove_file(entry.path());
+    }
+}
+
+/// A headless session's notes, in the file its agent reads each turn: on Linux
+/// anyone on the machine can read a process's arguments, and a long note must
+/// not depend on how long a command line may be.
+pub struct ContextFile {
+    path: PathBuf,
+}
+
+impl ContextFile {
+    /// Write `notes` for a session under `data_dir`.
+    ///
+    /// # Errors
+    /// When the file cannot be written.
+    pub fn write(data_dir: &Path, notes: &str) -> Result<Self> {
+        Ok(Self {
+            path: private_file(data_dir, "md", notes)?,
+        })
+    }
+
+    /// The definition's `context` arguments, filled in.
+    fn args(&self, spec: &[String]) -> Vec<String> {
+        let file = self.path.to_string_lossy();
+        spec.iter()
+            .map(|arg| arg.replace("{context_file}", &file))
+            .collect()
+    }
+}
+
+impl Drop for ContextFile {
+    fn drop(&mut self) {
+        let _ = std::fs::remove_file(&self.path);
+    }
+}
+
 /// A headless session's MCP servers, in the file its agent reads each turn. A
 /// file and not the command line: it holds the session's token, and on Linux
 /// anyone on the machine can read a process's arguments. It goes with the
@@ -41,9 +109,6 @@ impl ToolConfig {
     /// # Errors
     /// When the file cannot be written.
     pub fn write(data_dir: &Path, tools: &[ToolServer]) -> Result<Self> {
-        let folder = data_dir.join("tools").join("sessions");
-        std::fs::create_dir_all(&folder).with_context(|| format!("create {}", folder.display()))?;
-        let path = folder.join(format!("{}.json", uuid::Uuid::now_v7()));
         let servers: serde_json::Map<String, Value> = tools
             .iter()
             .map(|tool| {
@@ -64,19 +129,8 @@ impl ToolConfig {
             })
             .collect();
         let config = json!({ "mcpServers": servers }).to_string();
-        let mut options = std::fs::OpenOptions::new();
-        options.write(true).create_new(true);
-        #[cfg(unix)]
-        {
-            use std::os::unix::fs::OpenOptionsExt;
-            options.mode(0o600);
-        }
-        options
-            .open(&path)
-            .and_then(|mut file| file.write_all(config.as_bytes()))
-            .with_context(|| format!("write {}", path.display()))?;
         Ok(Self {
-            path,
+            path: private_file(data_dir, "json", &config)?,
             names: tools.iter().map(|tool| tool.name.clone()).collect(),
         })
     }
@@ -106,6 +160,15 @@ impl Drop for ToolConfig {
     }
 }
 
+/// The files every turn of a headless session hands its agent.
+#[derive(Default)]
+pub struct TurnFiles {
+    /// The MCP servers it may use.
+    pub tools: Option<ToolConfig>,
+    /// Your notes for it.
+    pub context: Option<ContextFile>,
+}
+
 /// A live headless conversation.
 pub struct HeadlessSession {
     program: PathBuf,
@@ -115,8 +178,8 @@ pub struct HeadlessSession {
     cwd: PathBuf,
     /// Every turn adds the conversation's `talk_only` arguments.
     talk_only: bool,
-    /// Every turn adds the conversation's `tool_servers` arguments.
-    tools: Option<ToolConfig>,
+    /// Every turn adds the conversation's `tool_servers` and `context` arguments.
+    files: TurnFiles,
     /// The session id the agent reported (continues the conversation).
     session: Arc<Mutex<Option<String>>>,
     /// Stops the running turn; empty once the turn has ended.
@@ -130,8 +193,8 @@ pub struct HeadlessSession {
 impl HeadlessSession {
     /// A conversation with the agent at `provider_program` (its definition's
     /// conversation spec), in `cwd`; `resume` continues an earlier one,
-    /// `talk_only` turns the agent's tools off on every turn, and `tools` are
-    /// the MCP servers it may use.
+    /// `talk_only` turns the agent's tools off on every turn, and `files` are
+    /// what each turn hands it.
     #[must_use]
     pub fn new(
         launch: &Launch,
@@ -140,7 +203,7 @@ impl HeadlessSession {
         cwd: &Path,
         resume: Option<String>,
         talk_only: bool,
-        tools: Option<ToolConfig>,
+        files: TurnFiles,
     ) -> Self {
         Self {
             program: launch.program.clone(),
@@ -149,7 +212,7 @@ impl HeadlessSession {
             conversation,
             cwd: cwd.to_path_buf(),
             talk_only,
-            tools,
+            files,
             session: Arc::new(Mutex::new(resume)),
             stop: Arc::new(Mutex::new(None)),
             previous: Mutex::new(None),
@@ -187,16 +250,20 @@ impl HeadlessSession {
     /// The arguments for one turn.
     fn turn_args(&self, prompt: &str, session: Option<&str>) -> Vec<String> {
         let program = self.provider_program.to_string_lossy();
+        // The prompt goes in last: your words are not searched for placeholders.
         let fill = |a: &String| {
             a.replace("{program}", &program)
-                .replace("{prompt}", prompt)
                 .replace("{session}", session.unwrap_or_default())
+                .replace("{prompt}", prompt)
         };
         let mut args: Vec<String> = self.conversation.args.iter().map(fill).collect();
         if session.is_some() {
             args.extend(self.conversation.resume.iter().map(fill));
         }
-        if let Some(tools) = &self.tools {
+        if let Some(context) = &self.files.context {
+            args.extend(context.args(&self.conversation.context));
+        }
+        if let Some(tools) = &self.files.tools {
             args.extend(tools.args(&self.conversation.tool_servers));
         }
         if self.talk_only {
@@ -678,6 +745,16 @@ mod tests {
     }
 
     fn session_with(talk_only: bool, tools: Option<ToolConfig>) -> HeadlessSession {
+        session_with_files(
+            talk_only,
+            TurnFiles {
+                tools,
+                context: None,
+            },
+        )
+    }
+
+    fn session_with_files(talk_only: bool, files: TurnFiles) -> HeadlessSession {
         HeadlessSession::new(
             &Launch {
                 adapter: crate::providers::definition::AdapterKind::Headless,
@@ -696,12 +773,16 @@ mod tests {
                     "--allowedTools".into(),
                     "mcp__{tool_server}".into(),
                 ],
+                context: vec![
+                    "--append-system-prompt-file".into(),
+                    "{context_file}".into(),
+                ],
                 output: StreamFormat::ClaudeStreamJson,
             },
             Path::new("/tmp"),
             None,
             talk_only,
-            tools,
+            files,
         )
     }
 
@@ -808,6 +889,62 @@ mod tests {
         assert_ne!(real, broken);
         let error = crate::providers::ProviderDefinition::parse(&broken).expect_err("no config");
         assert!(format!("{error:#}").contains("tool_servers"), "{error:#}");
+    }
+
+    #[test]
+    fn a_session_with_notes_points_every_turn_at_their_file_which_goes_with_it() {
+        let data = tempfile::tempdir().unwrap();
+        let context = ContextFile::write(data.path(), "Prefers Rust.").unwrap();
+        let path = context.path.clone();
+        let file = path.to_string_lossy().into_owned();
+        assert!(path.starts_with(data.path()), "inside the DevPulse folder");
+        assert_eq!(std::fs::read_to_string(&path).unwrap(), "Prefers Rust.");
+        let session = session_with_files(
+            false,
+            TurnFiles {
+                tools: None,
+                context: Some(context),
+            },
+        );
+        assert_eq!(
+            session.turn_args("hi", None),
+            ["-p", "hi", "--append-system-prompt-file", &file]
+        );
+        assert_eq!(
+            session.turn_args("again", Some("abc")),
+            [
+                "-p",
+                "again",
+                "--resume",
+                "abc",
+                "--append-system-prompt-file",
+                &file
+            ]
+        );
+        drop(session);
+        assert!(!path.exists(), "your notes outlived their session");
+    }
+
+    #[test]
+    fn what_a_crash_left_behind_is_cleared_and_nothing_else() {
+        let data = tempfile::tempdir().unwrap();
+        clear_leftover_files(data.path()); // No folder yet: nothing to do.
+        let left = ContextFile::write(data.path(), "notes").unwrap();
+        let path = left.path.clone();
+        std::mem::forget(left);
+        let beside = data.path().join("tools").join("keep.txt");
+        std::fs::write(&beside, "kept").unwrap();
+        clear_leftover_files(data.path());
+        assert!(!path.exists());
+        assert!(beside.exists());
+    }
+
+    #[test]
+    fn your_words_are_not_searched_for_placeholders() {
+        assert_eq!(
+            session(false).turn_args("what is {session}?", Some("abc")),
+            ["-p", "what is {session}?", "--resume", "abc"]
+        );
     }
 
     #[test]
