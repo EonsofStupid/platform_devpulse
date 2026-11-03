@@ -19,14 +19,16 @@
 //! The store shares the database adapter and opens one connection per operation.
 //! Each query retains its connection until its rows have been consumed.
 
+use crate::context::SessionNotes;
 use crate::error::{PersonaError, PersonaResult};
 use crate::idempotency::IdempotencyCache;
-use crate::schema::{DEFAULT_BLOCK_CHAR_LIMIT, PERSONA_SCHEMA};
+use crate::schema::{DEFAULT_BLOCK_CHAR_LIMIT, PERSONA_SCHEMA, SESSION_NOTES_CHAR_LIMIT};
 use chrono::{DateTime, Utc};
 #[cfg(feature = "rro")]
 use devpulse_clyffy::cortex::persistence::RroAdapter;
 use devpulse_clyffy::cortex::persistence::{TursoAdapter, TursoOptions};
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::path::Path;
 use std::sync::Arc;
 use turso::Connection;
@@ -91,6 +93,23 @@ pub struct PersonaBlock {
     /// Monotonically incrementing version. Bumped on every successful
     /// `save`.
     pub version: i64,
+}
+
+/// What a save of yours expects to find, so it cannot replace text you never
+/// saw (plan 0001 B6.3).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Expected {
+    /// A new note: nothing has this name yet.
+    Nothing,
+    /// The note at the version you were looking at.
+    Version(i64),
+}
+
+/// A save made on your own screens: checked, and it decides the approval.
+#[derive(Debug, Clone, Copy)]
+struct YourSave {
+    expected: Expected,
+    include: bool,
 }
 
 /// `persona.recall` retrieval mode.
@@ -344,7 +363,28 @@ impl PersonaStore {
         label: &str,
         body: &str,
     ) -> PersonaResult<PersonaBlock> {
-        self.save_atomic(scope, slug, label, body, None).await
+        self.save_atomic(scope, slug, label, body, None, None).await
+    }
+
+    /// Your own save: it refuses when the note is not as you `expected`, which
+    /// changes nothing, and `include` decides whether this exact text goes with
+    /// every session. This is for your own screens; no MCP tool offers it.
+    ///
+    /// # Errors
+    /// Returns [`PersonaError::Conflict`] when the note moved on, or the errors
+    /// of [`Self::save_block`].
+    pub async fn save_yours(
+        &self,
+        scope: PersonaScope,
+        slug: Option<&str>,
+        label: &str,
+        body: &str,
+        expected: Expected,
+        include: bool,
+    ) -> PersonaResult<PersonaBlock> {
+        let yours = YourSave { expected, include };
+        self.save_atomic(scope, slug, label, body, None, Some(yours))
+            .await
     }
 
     /// Save the block and its retry result in the same transaction.
@@ -364,7 +404,8 @@ impl PersonaStore {
                 "idempotency_key is required".into(),
             ));
         }
-        self.save_atomic(scope, slug, label, body, Some(key)).await
+        self.save_atomic(scope, slug, label, body, Some(key), None)
+            .await
     }
 
     async fn save_atomic(
@@ -374,6 +415,7 @@ impl PersonaStore {
         label: &str,
         body: &str,
         key: Option<&str>,
+        yours: Option<YourSave>,
     ) -> PersonaResult<PersonaBlock> {
         validate_scope_slug(scope, slug)?;
         if label.trim().is_empty() {
@@ -412,6 +454,16 @@ impl PersonaStore {
                 }
             }
             let existing = read_block(&transaction, scope, slug, label).await?;
+            if let Some(yours) = yours {
+                let current = existing.as_ref().map(|block| block.version);
+                let expected = match yours.expected {
+                    Expected::Nothing => None,
+                    Expected::Version(version) => Some(version),
+                };
+                if current != expected {
+                    return Err(PersonaError::Conflict(NOTE_MOVED_ON.to_owned()));
+                }
+            }
             let limit = existing.as_ref().map_or(DEFAULT_BLOCK_CHAR_LIMIT, |block| block.char_limit);
             let length = body.chars().count();
             if length > limit {
@@ -429,6 +481,9 @@ impl PersonaStore {
             ).await.map_err(|e| PersonaError::Backend(e.into()))?;
             let block = read_block(&transaction, scope, slug, label).await?
                 .ok_or_else(|| PersonaError::Backend(anyhow::anyhow!("saved block disappeared")))?;
+            if let Some(yours) = yours {
+                set_approval(&transaction, &block, yours.include).await?;
+            }
             if let Some(key) = key {
                 let response = serde_json::to_string(&block).map_err(|e| PersonaError::Backend(e.into()))?;
                 let ttl = i64::try_from(crate::schema::IDEMPOTENCY_TTL_SECS)
@@ -441,22 +496,7 @@ impl PersonaStore {
             }
             Ok(block)
         }.await;
-        match outcome {
-            Ok(block) => {
-                transaction
-                    .commit()
-                    .await
-                    .map_err(|e| PersonaError::Backend(e.into()))?;
-                Ok(block)
-            }
-            Err(error) => {
-                transaction
-                    .rollback()
-                    .await
-                    .map_err(|e| PersonaError::Backend(e.into()))?;
-                Err(error)
-            }
-        }
+        finish(transaction, outcome).await
     }
 
     /// Read a single block by `(scope, slug, label)`.
@@ -482,6 +522,118 @@ impl PersonaStore {
             })
     }
 
+    /// Say whether the note at `version` goes with every session. Approving
+    /// names the version, so you approve the text you read and not whatever an
+    /// agent has saved since. For your own screens; no MCP tool offers it.
+    ///
+    /// # Errors
+    /// Returns [`PersonaError::NotFound`] when there is no such note,
+    /// [`PersonaError::Conflict`] when it moved on, or a storage error.
+    pub async fn set_included(
+        &self,
+        scope: PersonaScope,
+        slug: Option<&str>,
+        label: &str,
+        version: i64,
+        include: bool,
+    ) -> PersonaResult<PersonaBlock> {
+        validate_scope_slug(scope, slug)?;
+        let mut connection = self.conn()?;
+        let transaction = connection
+            .transaction_with_behavior(turso::transaction::TransactionBehavior::Immediate)
+            .await
+            .map_err(|e| PersonaError::Backend(e.into()))?;
+        let outcome = async {
+            let block = read_block(&transaction, scope, slug, label)
+                .await?
+                .ok_or_else(|| PersonaError::NotFound(format!("no note named {label}")))?;
+            if block.version != version {
+                return Err(PersonaError::Conflict(NOTE_MOVED_ON.to_owned()));
+            }
+            set_approval(&transaction, &block, include).await?;
+            Ok(block)
+        }
+        .await;
+        finish(transaction, outcome).await
+    }
+
+    /// The version of each note you approved under `(scope, slug)`, by name.
+    /// One that differs from the note's own version was changed since.
+    ///
+    /// # Errors
+    /// Returns a validation or storage error.
+    pub async fn approved_versions(
+        &self,
+        scope: PersonaScope,
+        slug: Option<&str>,
+    ) -> PersonaResult<HashMap<String, i64>> {
+        validate_scope_slug(scope, slug)?;
+        let connection = self.conn()?;
+        let mut rows = connection
+            .query(
+                "SELECT b.label, a.version FROM persona_note_approvals a \
+                 JOIN persona_blocks b ON b.id = a.block_id \
+                 WHERE b.scope = ?1 AND b.slug IS ?2",
+                turso::params![scope.as_str(), slug.map(str::to_owned)],
+            )
+            .await
+            .map_err(|e| PersonaError::Backend(e.into()))?;
+        let mut versions = HashMap::new();
+        while let Some(row) = rows
+            .next()
+            .await
+            .map_err(|e| PersonaError::Backend(e.into()))?
+        {
+            let label: String = row.get(0).map_err(|e| PersonaError::Backend(e.into()))?;
+            let version: i64 = row.get(1).map_err(|e| PersonaError::Backend(e.into()))?;
+            versions.insert(label, version);
+        }
+        Ok(versions)
+    }
+
+    /// What a session in `project` gets unasked: your approved notes and the
+    /// project's, each still at the version you approved, up to the limit.
+    ///
+    /// # Errors
+    /// Returns a validation or storage error.
+    pub async fn session_notes(&self, project: &str) -> PersonaResult<SessionNotes> {
+        let mut notes = self.approved_blocks(PersonaScope::User, None).await?;
+        notes.extend(
+            self.approved_blocks(PersonaScope::Project, Some(project))
+                .await?,
+        );
+        Ok(SessionNotes::fit(notes, SESSION_NOTES_CHAR_LIMIT))
+    }
+
+    async fn approved_blocks(
+        &self,
+        scope: PersonaScope,
+        slug: Option<&str>,
+    ) -> PersonaResult<Vec<PersonaBlock>> {
+        validate_scope_slug(scope, slug)?;
+        let connection = self.conn()?;
+        let mut rows = connection
+            .query(
+                "SELECT b.id, b.scope, b.slug, b.label, b.body, b.char_limit, \
+                        b.created_at, b.updated_at, b.version \
+                 FROM persona_blocks b \
+                 JOIN persona_note_approvals a ON a.block_id = b.id AND a.version = b.version \
+                 WHERE b.scope = ?1 AND b.slug IS ?2 ORDER BY b.label",
+                turso::params![scope.as_str(), slug.map(str::to_owned)],
+            )
+            .await
+            .map_err(|e| PersonaError::Backend(e.into()))?;
+        let mut blocks = Vec::new();
+        while let Some(row) = rows
+            .next()
+            .await
+            .map_err(|e| PersonaError::Backend(e.into()))?
+        {
+            blocks.push(row_to_block(&row)?);
+        }
+        Ok(blocks)
+    }
+
     /// Delete one block; returns whether there was one. This is for your own
     /// screens in `DevPulse`: no MCP tool offers it, so an agent can change a
     /// project's memory but cannot erase it.
@@ -496,16 +648,33 @@ impl PersonaStore {
         label: &str,
     ) -> PersonaResult<bool> {
         validate_scope_slug(scope, slug)?;
-        let connection = self.conn()?;
-        let deleted = connection
-            .execute(
-                "DELETE FROM persona_blocks \
-                 WHERE scope = ?1 AND coalesce(slug, '') = ?2 AND label = ?3",
-                turso::params![scope.as_str(), slug.unwrap_or_default(), label],
-            )
+        let mut connection = self.conn()?;
+        let transaction = connection
+            .transaction_with_behavior(turso::transaction::TransactionBehavior::Immediate)
             .await
             .map_err(|e| PersonaError::Backend(e.into()))?;
-        Ok(deleted > 0)
+        let outcome = async {
+            transaction
+                .execute(
+                    "DELETE FROM persona_note_approvals WHERE block_id IN \
+                     (SELECT id FROM persona_blocks \
+                      WHERE scope = ?1 AND coalesce(slug, '') = ?2 AND label = ?3)",
+                    turso::params![scope.as_str(), slug.unwrap_or_default(), label],
+                )
+                .await
+                .map_err(|e| PersonaError::Backend(e.into()))?;
+            let deleted = transaction
+                .execute(
+                    "DELETE FROM persona_blocks \
+                     WHERE scope = ?1 AND coalesce(slug, '') = ?2 AND label = ?3",
+                    turso::params![scope.as_str(), slug.unwrap_or_default(), label],
+                )
+                .await
+                .map_err(|e| PersonaError::Backend(e.into()))?;
+            Ok(deleted > 0)
+        }
+        .await;
+        finish(transaction, outcome).await
     }
 
     /// List blocks under `(scope, slug)` with optional `label` filter
@@ -553,6 +722,58 @@ impl PersonaStore {
         }
         Ok(blocks)
     }
+}
+
+/// What a stale save or approval of yours is told. It changed nothing.
+const NOTE_MOVED_ON: &str = "this note changed since you opened it, so nothing was saved";
+
+/// Commit on success, roll back on failure, and hand back `outcome`.
+async fn finish<T>(
+    transaction: turso::transaction::Transaction<'_>,
+    outcome: PersonaResult<T>,
+) -> PersonaResult<T> {
+    match outcome {
+        Ok(value) => {
+            transaction
+                .commit()
+                .await
+                .map_err(|e| PersonaError::Backend(e.into()))?;
+            Ok(value)
+        }
+        Err(error) => {
+            transaction
+                .rollback()
+                .await
+                .map_err(|e| PersonaError::Backend(e.into()))?;
+            Err(error)
+        }
+    }
+}
+
+/// Record whether `block`, at its current version, goes with every session.
+async fn set_approval(
+    connection: &Connection,
+    block: &PersonaBlock,
+    include: bool,
+) -> PersonaResult<()> {
+    if include {
+        connection
+            .execute(
+                "INSERT OR REPLACE INTO persona_note_approvals (block_id, version, approved_at) \
+                 VALUES (?1, ?2, ?3)",
+                turso::params![block.id.as_str(), block.version, Utc::now().to_rfc3339()],
+            )
+            .await
+    } else {
+        connection
+            .execute(
+                "DELETE FROM persona_note_approvals WHERE block_id = ?1",
+                turso::params![block.id.as_str()],
+            )
+            .await
+    }
+    .map_err(|e| PersonaError::Backend(e.into()))?;
+    Ok(())
 }
 
 async fn read_block(

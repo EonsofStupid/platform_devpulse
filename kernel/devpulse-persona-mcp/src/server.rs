@@ -40,6 +40,15 @@ pub const MCP_PROTOCOL_VERSION: &str = "2025-06-18";
 pub const SERVER_NAME: &str = "devpulse-persona-mcp";
 /// `serverInfo.version` — kept in sync with `Cargo.toml`.
 pub const SERVER_VERSION: &str = env!("CARGO_PKG_VERSION");
+/// `instructions` — what an agent is told this server is for, so a note that was
+/// not put in front of it can still be found (plan 0001 B6.3).
+pub const SERVER_INSTRUCTIONS: &str = "DevPulse memory: short notes the person keeps across \
+    sessions. Some may already be in your instructions. Use persona.list and persona.load with \
+    scope \"user\" for notes about them and scope \"project\" for this project's, when their \
+    preferences or the project's past decisions would help. Use persona.save with scope \
+    \"project\" to keep something lasting about this project; the person can read and change \
+    everything here. Saving over a note stops it going to later sessions automatically until \
+    the person approves it again.";
 
 /// JSON-RPC 2.0 request envelope.
 #[derive(Debug, Deserialize)]
@@ -247,7 +256,8 @@ impl Server {
             },
             "capabilities": {
                 "tools": {}
-            }
+            },
+            "instructions": SERVER_INSTRUCTIONS,
         })
     }
 
@@ -528,6 +538,7 @@ mod tests {
         assert_eq!(parsed["result"]["protocolVersion"], MCP_PROTOCOL_VERSION);
         assert_eq!(parsed["result"]["serverInfo"]["name"], SERVER_NAME);
         assert!(parsed["result"]["capabilities"]["tools"].is_object());
+        assert_eq!(parsed["result"]["instructions"], SERVER_INSTRUCTIONS);
     }
 
     #[tokio::test]

@@ -59,10 +59,22 @@ CREATE TABLE IF NOT EXISTS persona_idempotency (
 
 CREATE INDEX IF NOT EXISTS persona_idempotency_expires
     ON persona_idempotency(expires_at);
+
+-- The version of a note you chose to send with every session. A later save
+-- moves the note past this version, which ends the approval, and no MCP tool
+-- reaches this table, so an agent cannot approve what it wrote.
+CREATE TABLE IF NOT EXISTS persona_note_approvals (
+    block_id    TEXT PRIMARY KEY,
+    version     INTEGER NOT NULL,
+    approved_at TEXT NOT NULL
+);
 ";
 
 /// Default char limit for new blocks (Letta default).
 pub const DEFAULT_BLOCK_CHAR_LIMIT: usize = 5000;
+
+/// The most note text that goes with one session unasked (plan 0001 B6.3).
+pub const SESSION_NOTES_CHAR_LIMIT: usize = 8000;
 
 /// Idempotency TTL — SSOT §2 lock.
 pub const IDEMPOTENCY_TTL_SECS: u64 = 24 * 60 * 60;

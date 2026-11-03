@@ -1676,6 +1676,44 @@ or used), every visual in the B4.3 order.
   blocks hold; a second project's session cannot read it; a talk-only seat has
   no memory tools; two sessions run at once; the fact survives a restart. This
   uses your subscriptions for a few short turns.
+- **B6.3 In front of them.** *Owner 2026-11-03, choosing this next: "put your
+  notes in front of agents automatically", "choose what's included".* B6.2 offers
+  memory; an agent only looks when asked. Now the notes you pick go with the
+  session, and an agent is told the rest exists.
+  - **You approve the exact text.** A note goes automatically only while its
+    current version is the version you approved. An agent that changes a project
+    note ends that approval without any extra rule, so text an agent read in a
+    file or web page cannot put itself into every later session's instructions.
+    The note stays readable, and the page says an agent changed it. Approvals sit
+    in their own table (`persona_note_approvals`), which no MCP tool reaches.
+  - **Saving is checked.** Your save names the version you were looking at. If an
+    agent changed the note meanwhile, nothing is overwritten: the page shows its
+    text beside yours and you decide. This replaces last-write-wins from B6.2e.
+  - **Which channel.** Instructions, not a chat message, where the agent has them,
+    because they survive the vendor's compaction and stay out of your history:
+    Claude Code's `--append-system-prompt-file` (a mode-0600 file, as B6.2 did for
+    its MCP config) and Codex's `developer_instructions` through its connector's
+    `CODEX_CONFIG`, read on new and resumed sessions (checked 2026-11-03 against
+    codex-acp 2.2.2's source, `createSessionConfig`). Both are definition data
+    (`connect.conversation.context`, `connect.context_env`), so no runtime is
+    special-cased. An agent with neither gets them as a marked block on the first
+    prompt of each live session. Endpoint chats get a system message.
+  - **Bounded and visible.** At most 8,000 characters a session: your own notes
+    first, then the project's, each by name. A note that does not fit is left out
+    whole, never cut, and the page names it. The page shows the exact text sent.
+  - **Who gets it.** Whoever gets memory today. Talk-only seats get nothing, which
+    keeps Council's blind answers blind. A conversation already open keeps the
+    notes it started with.
+  - **Told about the rest.** The memory server's MCP `instructions` say what it
+    holds and when to use it, so a note you did not pick can still be found.
+
+  | Phase | Outcome | Check |
+  | --- | --- | --- |
+  | a | Approvals and checked saves in the store; MCP `instructions`. | An agent's save ends the approval; a stale save is refused and changes nothing; delete clears the approval; the budget leaves whole notes out |
+  | b | A session can carry context: the definition's channel, or the first prompt. | Exact arguments and environment for Claude Code and Codex; the fake ACP agent sees the block once; talk-only sends nothing |
+  | c | The engine gives every session its notes, endpoint chats included. | Engine tests, then real Claude Code and Codex answer a codeword with no tool call |
+  | d | The page: a switch per note, approval state, the conflict flow, the exact text sent. | Component tests, then the running app |
+  | e | The B6.2e limits closed: a real Claude Code turn and a room through the engine, relay release size, `--features rro`, the macOS socket in CI. | Each one run, or said plainly why not |
 
 ### B7 — the Social tab (master plan H9)
 
