@@ -441,6 +441,32 @@ pub struct MemoryCopy {
     pub remove_yes: String,
     /// Does not delete it.
     pub keep: String,
+    /// The switch that sends a note with every conversation.
+    pub include_label: String,
+    /// An agent saved over a note you approved.
+    pub changed_by_agent: String,
+    /// Your choice came too late: the note had changed.
+    pub include_moved: String,
+    /// Your save came too late: an agent had changed the note.
+    pub save_moved: String,
+    /// Your save came too late: the note had been deleted.
+    pub save_gone: String,
+    /// Heading of the note's newer text.
+    pub current_title: String,
+    /// Heading of what goes to your agents.
+    pub sending_title: String,
+    /// Who gets it, and when.
+    pub sending_description: String,
+    /// Nothing goes yet.
+    pub sending_none: String,
+    /// How much goes (`{used}`, `{limit}`).
+    pub sending_used: String,
+    /// Notes that did not fit (`{names}`).
+    pub sending_left_out: String,
+    /// Shows the exact text.
+    pub sending_show: String,
+    /// Hides the exact text.
+    pub sending_hide: String,
 }
 
 /// First run.

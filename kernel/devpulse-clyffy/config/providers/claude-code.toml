@@ -76,7 +76,10 @@ talk_only = ["--tools", "", "--strict-mcp-config"]
 tool_servers = ["--mcp-config", "{mcp_config}", "--allowedTools", "mcp__{tool_server}"]
 # Your notes for a session (plan 0001 B6.3): a file, for the same reason as the
 # MCP config, added to Claude Code's system prompt on every turn, so compaction
-# keeps them and they stay out of your transcript. Checked 2026-11-03 against
-# `claude --help` (2.1.316) and a real turn.
-context = ["--append-system-prompt-file", "{context_file}"]
+# keeps them and they stay out of your transcript. By default Claude Code records
+# a conversation's system prompt once and reuses it on resume, so a thread you
+# come back to would never get a note added since; the snapshot switch makes it
+# read the file. Checked 2026-11-03 against `claude --help` (2.1.316) and real
+# fresh and resumed turns.
+context = ["--append-system-prompt-file", "{context_file}", "--system-prompt-snapshot", "off"]
 output = "claude-stream-json"

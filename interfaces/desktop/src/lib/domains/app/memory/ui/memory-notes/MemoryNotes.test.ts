@@ -32,6 +32,19 @@ const copy: MemoryCopy = {
 	remove_confirm: "Delete {name}? This can't be undone.",
 	remove_yes: "Delete it",
 	keep: "Keep it",
+	include_label: "Send with every conversation",
+	changed_by_agent: "An agent changed this note.",
+	include_moved: "This note changed before your choice was saved.",
+	save_moved: "An agent changed this note while you were editing.",
+	save_gone: "This note was deleted while you were editing.",
+	current_title: "What it says now",
+	sending_title: "What your agents get",
+	sending_description: "This goes with every new conversation.",
+	sending_none: "Nothing goes automatically yet.",
+	sending_used: "{used} of {limit} characters.",
+	sending_left_out: "Too long to fit: {names}.",
+	sending_show: "Show the exact text",
+	sending_hide: "Hide the exact text",
 };
 
 function note(label: string, body: string, charLimit = 5000): MemoryNote {
@@ -42,15 +55,20 @@ function note(label: string, body: string, charLimit = 5000): MemoryNote {
 		charLimit,
 		updatedAt: "2026-11-03T00:00:00Z",
 		version: 1,
+		included: false,
+		changedSinceApproved: false,
 	};
 }
 
 function setup(notes: MemoryNote[]) {
-	const onSave = vi.fn().mockResolvedValue(true);
+	const onSave = vi.fn().mockResolvedValue({ kind: "saved", note: note("saved", "saved") });
+	const onInclude = vi.fn().mockResolvedValue({ kind: "saved", note: note("saved", "saved") });
 	const onRemove = vi.fn().mockResolvedValue(true);
-	const screen = render(MemoryNotes, { copy, notes, busy: false, onSave, onRemove });
-	return { screen, onSave, onRemove };
+	const screen = render(MemoryNotes, { copy, notes, busy: false, onSave, onInclude, onRemove });
+	return { screen, onSave, onInclude, onRemove };
 }
+
+const INCLUDE = { name: "Send with every conversation" };
 
 test("an empty place says so and offers a note", async () => {
 	const { screen } = setup([]);
@@ -64,7 +82,8 @@ test("adding a note sends its trimmed name and its text", async () => {
 	await screen.getByLabelText("Name").fill("  preferences  ");
 	await screen.getByLabelText("Note").fill("prefers Rust");
 	await screen.getByRole("button", { name: "Save" }).click();
-	expect(onSave).toHaveBeenCalledExactlyOnceWith("preferences", "prefers Rust");
+	// A new note expects nothing there, and goes with every conversation unless you say not.
+	expect(onSave).toHaveBeenCalledExactlyOnceWith("preferences", "prefers Rust", null, true);
 	// Saved: the form closes.
 	await expect.element(screen.getByRole("button", { name: "Add a note" })).toBeVisible();
 });
@@ -88,7 +107,70 @@ test("editing keeps the note's name and sends the new text", async () => {
 	await expect.element(screen.getByLabelText("Note")).toHaveValue("prefers Rust");
 	await screen.getByLabelText("Note").fill("prefers Rust 2024");
 	await screen.getByRole("button", { name: "Save" }).click();
-	expect(onSave).toHaveBeenCalledExactlyOnceWith("preferences", "prefers Rust 2024");
+	expect(onSave).toHaveBeenCalledExactlyOnceWith("preferences", "prefers Rust 2024", 1, false);
+});
+
+test("a new note can be kept back from every conversation", async () => {
+	const { screen, onSave } = setup([]);
+	await screen.getByRole("button", { name: "Add a note" }).click();
+	await screen.getByLabelText("Name").fill("private");
+	await screen.getByRole("switch", INCLUDE).click();
+	await screen.getByRole("button", { name: "Save" }).click();
+	expect(onSave).toHaveBeenCalledExactlyOnceWith("private", "", null, false);
+});
+
+test("a note's switch shows its state and sends the version you are reading", async () => {
+	const { screen, onInclude } = setup([{ ...note("stack", "Tauri"), version: 4, included: true }]);
+	const toggle = screen.getByRole("switch", INCLUDE);
+	await expect.element(toggle).toBeChecked();
+	await toggle.click();
+	expect(onInclude).toHaveBeenCalledExactlyOnceWith("stack", 4, false);
+});
+
+test("a note an agent changed says so, and its switch is off", async () => {
+	const { screen } = setup([{ ...note("stack", "Agent text"), changedSinceApproved: true }]);
+	await expect.element(screen.getByText("An agent changed this note.")).toBeVisible();
+	await expect.element(screen.getByRole("switch", INCLUDE)).not.toBeChecked();
+});
+
+test("turning on a note that has since changed says nothing changed", async () => {
+	const { screen, onInclude } = setup([note("stack", "What you read")]);
+	onInclude.mockResolvedValueOnce({ kind: "changed", current: note("stack", "Newer") });
+	await screen.getByRole("switch", INCLUDE).click();
+	await expect
+		.element(screen.getByText("This note changed before your choice was saved."))
+		.toBeVisible();
+});
+
+test("a save that came too late keeps your text, shows the note's, and saving again replaces it", async () => {
+	const { screen, onSave } = setup([note("stack", "What you read")]);
+	const newer = { ...note("stack", "The agent's newer text"), version: 2 };
+	onSave.mockResolvedValueOnce({ kind: "changed", current: newer });
+	await screen.getByRole("button", { name: "Edit" }).click();
+	await screen.getByLabelText("Note").fill("What you typed");
+	await screen.getByRole("button", { name: "Save" }).click();
+
+	await expect
+		.element(screen.getByText("An agent changed this note while you were editing."))
+		.toBeVisible();
+	await expect.element(screen.getByText("The agent's newer text")).toBeVisible();
+	await expect.element(screen.getByLabelText("Note")).toHaveValue("What you typed");
+
+	await screen.getByRole("button", { name: "Save" }).click();
+	expect(onSave).toHaveBeenLastCalledWith("stack", "What you typed", 2, false);
+	await expect.element(screen.getByRole("button", { name: "Add a note" })).toBeVisible();
+});
+
+test("a note deleted while you edited says so, and saving again creates it", async () => {
+	const { screen, onSave } = setup([note("stack", "What you read")]);
+	onSave.mockResolvedValueOnce({ kind: "changed", current: null });
+	await screen.getByRole("button", { name: "Edit" }).click();
+	await screen.getByRole("button", { name: "Save" }).click();
+	await expect
+		.element(screen.getByText("This note was deleted while you were editing."))
+		.toBeVisible();
+	await screen.getByRole("button", { name: "Save" }).click();
+	expect(onSave).toHaveBeenLastCalledWith("stack", "What you read", null, false);
 });
 
 test("a note over its limit cannot be saved, counted in characters", async () => {
@@ -118,9 +200,10 @@ test("deleting says what it does first, and keeping it does nothing", async () =
 });
 
 test("a refused save keeps what you wrote", async () => {
-	const onSave = vi.fn().mockResolvedValue(false);
+	const onSave = vi.fn().mockResolvedValue(null);
+	const onInclude = vi.fn();
 	const onRemove = vi.fn();
-	const screen = render(MemoryNotes, { copy, notes: [], busy: false, onSave, onRemove });
+	const screen = render(MemoryNotes, { copy, notes: [], busy: false, onSave, onInclude, onRemove });
 	await screen.getByRole("button", { name: "Add a note" }).click();
 	await screen.getByLabelText("Name").fill("preferences");
 	await screen.getByLabelText("Note").fill("do not lose this");

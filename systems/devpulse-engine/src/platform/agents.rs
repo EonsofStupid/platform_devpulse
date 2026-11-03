@@ -16,6 +16,7 @@ use anyhow::{Context, Result, anyhow, bail};
 use devpulse_clyffy::cortex::persistence::{SqlAdapter, SqlValue, TursoAdapter};
 // IP-NOTE: conversation vocabulary only — thread, turn, agent, event; public
 // names, no kernel internals.
+use devpulse_clyffy::providers::session::headless;
 pub use devpulse_clyffy::providers::{AgentEvent, PermissionChoice, ProviderId};
 use devpulse_clyffy::providers::{AgentSession, SessionSetup, catalog};
 use serde::{Deserialize, Serialize};
@@ -82,6 +83,8 @@ impl Agents {
         memory: Option<Arc<Memory>>,
         observations: Arc<LiveState>,
     ) -> Self {
+        // This process holds the user database, so no other run is using them.
+        headless::clear_leftover_files(&data_dir);
         Self {
             db,
             data_dir,
@@ -229,7 +232,8 @@ impl Agents {
     /// Start a conversation in its existing workspace. Only `talk_only`
     /// places may create an isolated folder. `resume` continues a previous
     /// conversation; `talk_only` turns tools off where the agent supports it.
-    /// Any other session gets your memory, bound to `project_id`.
+    /// Any other session gets your memory, bound to `project_id`, and the notes
+    /// you approved for it.
     ///
     /// # Errors
     /// When the workspace is unavailable or the agent cannot start.
@@ -262,6 +266,10 @@ impl Agents {
             .as_ref()
             .map(|memory| vec![memory.server.clone()])
             .unwrap_or_default();
+        let context = match self.memory.as_ref().filter(|_| !talk_only) {
+            Some(memory) => memory.session_text(project_id).await,
+            None => None,
+        };
         let mut session = AgentSession::start(
             definition,
             Path::new(&location),
@@ -271,7 +279,7 @@ impl Agents {
                 resume,
                 talk_only,
                 tools,
-                context: None,
+                context,
             },
         )
         .await?;

@@ -508,6 +508,7 @@ async fn start_user_workflows(
     let chat = Some(Arc::new(chat::Chat::new(
         Arc::clone(user.adapter()),
         providers.connection_service().ok().cloned(),
+        memory.clone(),
     )));
     UserWorkflows {
         onboarding,

@@ -6,6 +6,7 @@ mod turns;
 mod types;
 
 use super::agents::{TurnRow, save_turn};
+use super::memory::Memory;
 use anyhow::{Context, Result, ensure};
 pub use devpulse_clyffy::providers::connections::TextTarget;
 use devpulse_clyffy::{
@@ -35,6 +36,8 @@ struct Running {
 pub struct Chat {
     db: Arc<TursoAdapter>,
     connections: Option<Arc<Connections>>,
+    /// Your memory; the notes you approved go with each endpoint conversation.
+    memory: Option<Arc<Memory>>,
     running: Mutex<HashMap<String, Running>>,
     closed: AtomicBool,
     drained: tokio::sync::Notify,
@@ -56,10 +59,15 @@ impl Drop for TurnGuard<'_> {
 impl Chat {
     /// Bind platform-owned persistence to kernel-owned endpoint execution.
     #[must_use]
-    pub fn new(db: Arc<TursoAdapter>, connections: Option<Arc<Connections>>) -> Self {
+    pub fn new(
+        db: Arc<TursoAdapter>,
+        connections: Option<Arc<Connections>>,
+        memory: Option<Arc<Memory>>,
+    ) -> Self {
         Self {
             db,
             connections,
+            memory,
             running: Mutex::new(HashMap::new()),
             closed: AtomicBool::new(false),
             drained: tokio::sync::Notify::new(),
@@ -171,6 +179,17 @@ impl Chat {
             .prepare_text(&target.connection_id, target.revision, &target.model)
             .await?;
         let mut messages = self.context(project, session).await?;
+        if let Some(memory) = &self.memory
+            && let Some(notes) = memory.session_text(project).await
+        {
+            messages.insert(
+                0,
+                EndpointChatMessage {
+                    role: EndpointRole::System,
+                    content: notes,
+                },
+            );
+        }
         messages.push(EndpointChatMessage {
             role: EndpointRole::User,
             content: content.trim().to_owned(),

@@ -1693,11 +1693,20 @@ or used), every visual in the B4.3 order.
     because they survive the vendor's compaction and stay out of your history:
     Claude Code's `--append-system-prompt-file` (a mode-0600 file, as B6.2 did for
     its MCP config) and Codex's `developer_instructions` through its connector's
-    `CODEX_CONFIG`, read on new and resumed sessions (checked 2026-11-03 against
-    codex-acp 2.2.2's source, `createSessionConfig`). Both are definition data
-    (`connect.conversation.context`, `connect.context_env`), so no runtime is
-    special-cased. An agent with neither gets them as a marked block on the first
-    prompt of each live session. Endpoint chats get a system message.
+    `CODEX_CONFIG`. Both are definition data (`connect.conversation.context`,
+    `connect.context_env`), so no runtime is special-cased. An agent with neither
+    gets them as a marked block on the first prompt of each live session. Endpoint
+    chats get a system message.
+  - **Coming back to a thread.** *Found in real turns 2026-11-03; the first version
+    of this plan was wrong here.* Both vendors fix a thread's instructions when it
+    starts. Claude Code reuses one recorded system prompt on every resume, so a note
+    added since never arrived; `--system-prompt-snapshot off` makes it read the file
+    on every turn, at the cost of its prompt being rendered fresh each time. Codex
+    has no such switch: the connector passes `CODEX_CONFIG` on resume but a resumed
+    thread answered as if it had none, so a resumed Codex session gets the marked
+    block on its first prompt. That block lands in Codex's own transcript, not in
+    DevPulse's history. A note you have since removed can still sit in what an older
+    thread was told.
   - **Bounded and visible.** At most 8,000 characters a session: your own notes
     first, then the project's, each by name. A note that does not fit is left out
     whole, never cut, and the page names it. The page shows the exact text sent.
@@ -3000,4 +3009,29 @@ queries proving what was written.
       five clippy lints in other tests had kept every Rust job red (`5dd9b920`).
       Release still fails on a repository permission (release-please: "Resource
       not accessible by integration"), which code cannot fix.
+  - 2026-11-03 — **B6.3a to d done: the notes you choose go with every session.**
+    - The store (`e0f47d61`): approvals bound to a note's version, checked saves,
+      the 8,000-character limit, and MCP `instructions`. Sessions (`14017cb4`): the
+      definition's channel, or the first prompt. A headless prompt is now filled in
+      last, because a prompt naming `{session}` had it replaced.
+    - The engine gives every session its notes, endpoint chats a system message;
+      DevPulse's own history keeps only your words. Settings → Memory has a switch
+      per note, says when an agent changed one, and shows the exact text sent.
+    - Live with real agents on a throwaway database: Claude Code 2.1.316 and Codex
+      0.166.0 each answered a codeword with no tool, only for a note you approved;
+      a note held back and a note an agent had changed answered `NONE`. A thread
+      started with no notes and resumed with one answered it. Live in the running
+      app, 12 of 12: notes added on the page, the switch moving what is sent, a real
+      resumed Codex thread answering from the note while its history held an older
+      codeword, Codex's real `persona.save` ending the approval, a stale save stopped
+      with both texts kept, no page errors.
+    - **Found by running it.** The first version claimed both channels work on
+      resume. Neither did: see "Coming back to a thread". And Switch had no on or
+      off look at all, so the switch that decides what is sent read the same both
+      ways; fixed in ColdLight (plan 0006 §0s.6, 2026-11-03).
+    - Limits, as they stand: a conversation already open keeps the notes it started
+      with. InlineMessage's `tone` is still dead (plan 0006 D3), so "an agent changed
+      this" reads as plain text. Rendering Claude Code's system prompt fresh each
+      turn can cost it some prompt caching; not measured. Claude Code's real turn and
+      a room still go through phase e.
 

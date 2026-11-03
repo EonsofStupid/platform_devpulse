@@ -2,8 +2,8 @@
     @file YourMemory.svelte
     @module @devpulse/domains/app/memory/feature
 
-    Your own notes and one project's: wires the memory state and your projects
-    to the notes UI.
+    Your own notes and one project's, and what goes to your agents: wires the
+    memory state and your projects to the notes UI.
 -->
 <script lang="ts">
 import { Heading } from "@devpulse/coldlight/components/heading";
@@ -19,6 +19,7 @@ import { projectsState } from "$lib/domains/app/projects/index.js";
 import type { MemoryCopy } from "$lib/sys/generated/bindings.js";
 import { memoryState } from "../data-access/memory.state.svelte.js";
 import { MemoryNotes } from "../ui/memory-notes/index.js";
+import { MemorySendingPanel } from "../ui/memory-sending/index.js";
 
 let { copy }: { copy: MemoryCopy } = $props();
 
@@ -48,7 +49,8 @@ $effect(() => {
             {copy}
             notes={memoryState.yours}
             busy={memoryState.busy}
-            onSave={(label, body) => memoryState.save(null, label, body)}
+            onSave={(label, body, expected, include) => memoryState.save(null, label, body, expected, include)}
+            onInclude={(label, version, include) => memoryState.setIncluded(null, label, version, include)}
             onRemove={(label) => memoryState.remove(null, label)}
         />
     </section>
@@ -72,11 +74,18 @@ $effect(() => {
                         {copy}
                         notes={memoryState.project}
                         busy={memoryState.busy}
-                        onSave={(label, body) => memoryState.save(shown, label, body)}
+                        onSave={(label, body, expected, include) => memoryState.save(shown, label, body, expected, include)}
+                        onInclude={(label, version, include) => memoryState.setIncluded(shown, label, version, include)}
                         onRemove={(label) => memoryState.remove(shown, label)}
                     />
                 {/key}
             {/if}
         {/if}
     </section>
+    {#if memoryState.sending}
+        <section class="flex flex-col gap-3" aria-label={copy.sending_title}>
+            <Heading level={2} size="lg">{copy.sending_title}</Heading>
+            <MemorySendingPanel {copy} sending={memoryState.sending} />
+        </section>
+    {/if}
 {/if}

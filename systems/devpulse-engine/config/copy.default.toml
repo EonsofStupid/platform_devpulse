@@ -332,7 +332,7 @@ disclosure = "Sending a message shares this conversation with the selected serve
 read_only = "This conversation is archived. You can read its history."
 
 [memory]
-subtitle = "Short notes your agents can look up while they work. They stay on this computer until an agent you started reads one; what it reads then goes to that agent's company, like anything else you tell it."
+subtitle = "Short notes for your agents. The ones you choose go with every conversation, so each agent starts out knowing them; the rest stay on this computer until an agent looks one up. Whatever an agent gets goes to that agent's company, like anything else you tell it."
 yours_title = "About you"
 yours_description = "Every agent in every project can read these. Only you can change them."
 project_title = "About a project"
@@ -354,6 +354,19 @@ remove = "Delete"
 remove_confirm = "Delete “{name}”? Your agents won't be able to read it any more, and this can't be undone."
 remove_yes = "Delete it"
 keep = "Keep it"
+include_label = "Send with every conversation"
+changed_by_agent = "An agent changed this note, so it no longer goes automatically. Read it, then turn this back on if you still want it sent."
+include_moved = "This note changed before your choice was saved, so nothing changed. Read the newer text, then choose again."
+save_moved = "An agent changed this note while you were editing, so nothing was saved. Its text is below and yours is still in the box. Saving again replaces its text with yours."
+save_gone = "This note was deleted while you were editing, so nothing was saved. Saving again creates it."
+current_title = "What it says now"
+sending_title = "What your agents get"
+sending_description = "This goes with every new conversation in the project above, to whichever agent you talk to. A conversation already open keeps the notes it started with. Seats that only talk, like a Council's blind answers, get none of it."
+sending_none = "Nothing goes automatically yet. Turn on “Send with every conversation” on a note to include it."
+sending_used = "{used} of {limit} characters."
+sending_left_out = "Too long to fit, so not sent: {names}. Shorten a note or turn another off."
+sending_show = "Show the exact text"
+sending_hide = "Hide the exact text"
 
 [chat.agents]
 new_thread = "New thread with…"

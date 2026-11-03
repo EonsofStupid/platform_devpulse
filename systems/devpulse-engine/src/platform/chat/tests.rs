@@ -40,7 +40,7 @@ async fn open(tree: &tempfile::TempDir) -> (Arc<TursoAdapter>, Arc<Connections>,
     let db = Arc::clone(store.adapter());
     db.execute_batch("INSERT OR IGNORE INTO projects(id,name,root_path) VALUES ('p','one','/one'),('q','two','/two');").await.unwrap();
     let connections = Arc::new(Connections::new(db.clone(), Arc::new(Vault::default())));
-    let chat = Arc::new(Chat::new(db.clone(), Some(connections.clone())));
+    let chat = Arc::new(Chat::new(db.clone(), Some(connections.clone()), None));
     (db, connections, chat)
 }
 async fn save(connections: &Connections, id: Option<String>, endpoint: &str) -> SavedConnection {
@@ -163,6 +163,53 @@ async fn answer_two_streams(listener: tokio::net::TcpListener) -> Vec<serde_json
         socket.write_all(format!("HTTP/1.1 200 OK\r\nContent-Type: text/event-stream\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}", body.len()).as_bytes()).await.unwrap();
     }
     requests
+}
+
+#[tokio::test]
+async fn an_endpoint_conversation_gets_the_notes_you_approved_and_saves_only_your_words() {
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let url = format!("http://{}/custom/v1", listener.local_addr().unwrap());
+    let server = devpulse_telemetry::spawn(answer_two_streams(listener));
+    let tree = tempfile::tempdir().unwrap();
+    let (db, connections, _) = open(&tree).await;
+    let memory = Arc::new(Memory::start(db.clone()).await.unwrap());
+    memory
+        .save(Some("p"), "stack", "Tauri and Svelte.", None, true)
+        .await
+        .unwrap();
+    memory
+        .save(Some("q"), "other", "Another project's note.", None, true)
+        .await
+        .unwrap();
+    memory
+        .save(Some("p"), "private", "Held back.", None, false)
+        .await
+        .unwrap();
+    let chat = Chat::new(db.clone(), Some(connections.clone()), Some(memory));
+    let connection = save(&connections, None, &url).await;
+    let session = chat
+        .start_endpoint("p", &connection.id, connection.revision, "chosen-model")
+        .await
+        .unwrap();
+
+    prompt_quietly(&chat, "p", &session, "hello").await.unwrap();
+    prompt_quietly(&chat, "p", &session, "again").await.unwrap();
+
+    let requests = server.await.unwrap();
+    for request in &requests {
+        let first = &request["messages"][0];
+        assert_eq!(first["role"], "system", "{request}");
+        let notes = first["content"].as_str().unwrap();
+        assert!(notes.contains("Tauri and Svelte."), "{notes}");
+        assert!(!notes.contains("Another project's note."), "{notes}");
+        assert!(!notes.contains("Held back."), "{notes}");
+    }
+    assert_eq!(requests[0]["messages"][1]["content"], "hello");
+    let saved = chat.recent("p", Some(&session)).await.unwrap();
+    assert!(
+        saved.iter().all(|turn| !turn.content.contains("Tauri")),
+        "your history holds your words, not the notes"
+    );
 }
 
 /// One turn whose chunks the test does not need.
@@ -425,7 +472,7 @@ async fn transcript_access_does_not_require_the_endpoint_service() {
         .start_endpoint("p", &connection.id, connection.revision, "model")
         .await
         .unwrap();
-    let unavailable = Chat::new(db, None);
+    let unavailable = Chat::new(db, None, None);
     assert!(
         unavailable
             .recent("p", Some(&session))

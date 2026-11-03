@@ -321,6 +321,8 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             commands::agenthub::agenthub_session_page,
             commands::memory::memory_notes,
             commands::memory::memory_save,
+            commands::memory::memory_set_included,
+            commands::memory::memory_sending,
             commands::memory::memory_remove,
             commands::providers_status::providers_state,
             commands::providers_status::provider_connection_options,

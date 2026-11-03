@@ -178,20 +178,27 @@ enum Delivery {
 
 /// Instructions where the definition says the agent has them, because they
 /// outlast the vendor's compaction and stay out of your history; otherwise the
-/// first prompt. A seat that only talks gets nothing.
-fn delivery(connect: &ConnectSpec, talk_only: bool, context: Option<String>) -> Delivery {
+/// first prompt. An agent told through its environment takes that only when a
+/// thread starts: a real resumed Codex thread answered as if it had none. A seat
+/// that only talks gets nothing.
+fn delivery(
+    connect: &ConnectSpec,
+    talk_only: bool,
+    resuming: bool,
+    context: Option<String>,
+) -> Delivery {
     let Some(notes) = context.filter(|notes| !talk_only && !notes.is_empty()) else {
         return Delivery::Nothing;
     };
-    if !connect.context_env.is_empty() {
-        return Delivery::Environment(connect::context_env(connect, &notes));
-    }
     if connect
         .conversation
         .as_ref()
         .is_some_and(|conversation| !conversation.context.is_empty())
     {
         return Delivery::File(notes);
+    }
+    if !connect.context_env.is_empty() && !resuming {
+        return Delivery::Environment(connect::context_env(connect, &notes));
     }
     Delivery::FirstPrompt(notes)
 }
@@ -249,7 +256,7 @@ impl AgentSession {
         let mut launch = connect::launch(definition, program, data_dir, "")?;
         let mut context_file = None;
         let mut first_prompt = None;
-        match delivery(connect_spec, talk_only, context) {
+        match delivery(connect_spec, talk_only, resume.is_some(), context) {
             Delivery::Nothing => {}
             Delivery::Environment(env) => launch.env.extend(env),
             Delivery::File(notes) => {
@@ -438,9 +445,44 @@ mod tests {
             delivery(
                 &bundled_connect(ProviderId::ClaudeCode),
                 false,
+                false,
                 Some("notes".into())
             ),
             Delivery::File("notes".into())
+        );
+    }
+
+    #[test]
+    fn a_resumed_claude_code_thread_still_reads_the_file() {
+        assert_eq!(
+            delivery(
+                &bundled_connect(ProviderId::ClaudeCode),
+                false,
+                true,
+                Some("notes".into())
+            ),
+            Delivery::File("notes".into())
+        );
+        // It keeps one system prompt per conversation unless told not to, and a
+        // thread you come back to would never get a note added since.
+        let connect = bundled_connect(ProviderId::ClaudeCode);
+        let context = connect.conversation.unwrap().context;
+        assert_eq!(
+            context[context.len() - 2..],
+            ["--system-prompt-snapshot", "off"]
+        );
+    }
+
+    #[test]
+    fn a_resumed_codex_thread_gets_the_first_prompt_because_it_ignores_new_instructions() {
+        assert_eq!(
+            delivery(
+                &bundled_connect(ProviderId::Codex),
+                false,
+                true,
+                Some("notes".into())
+            ),
+            Delivery::FirstPrompt("notes".into())
         );
     }
 
@@ -449,6 +491,7 @@ mod tests {
         let notes = "Line one.\nSay \"yes\" and use C:\\tools.";
         let Delivery::Environment(env) = delivery(
             &bundled_connect(ProviderId::Codex),
+            false,
             false,
             Some(notes.into()),
         ) else {
@@ -466,6 +509,7 @@ mod tests {
             delivery(
                 &bundled_connect(ProviderId::GeminiCli),
                 false,
+                false,
                 Some("notes".into())
             ),
             Delivery::FirstPrompt("notes".into())
@@ -479,21 +523,23 @@ mod tests {
             ProviderId::Codex,
             ProviderId::GeminiCli,
         ] {
-            assert_eq!(
-                delivery(&bundled_connect(id), true, Some("notes".into())),
-                Delivery::Nothing,
-                "{}",
-                id.key()
-            );
+            for resuming in [false, true] {
+                assert_eq!(
+                    delivery(&bundled_connect(id), true, resuming, Some("notes".into())),
+                    Delivery::Nothing,
+                    "{}",
+                    id.key()
+                );
+            }
         }
     }
 
     #[test]
     fn no_notes_send_nothing() {
         let connect = bundled_connect(ProviderId::Codex);
-        assert_eq!(delivery(&connect, false, None), Delivery::Nothing);
+        assert_eq!(delivery(&connect, false, false, None), Delivery::Nothing);
         assert_eq!(
-            delivery(&connect, false, Some(String::new())),
+            delivery(&connect, false, false, Some(String::new())),
             Delivery::Nothing
         );
     }

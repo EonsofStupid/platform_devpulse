@@ -2518,11 +2518,33 @@ async memoryNotes(projectId: string | null) : Promise<Result<MemoryNote[], Comma
 }
 },
 /**
- * Write a note.
+ * Write a note, if it is still at `expected_version` (absent for a new one).
  */
-async memorySave(projectId: string | null, label: string, body: string) : Promise<Result<MemoryNote, CommandError>> {
+async memorySave(projectId: string | null, label: string, body: string, expectedVersion: number | null, include: boolean) : Promise<Result<MemorySave, CommandError>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("memory_save", { projectId, label, body }) };
+    return { status: "ok", data: await TAURI_INVOKE("memory_save", { projectId, label, body, expectedVersion, include }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Say whether the note at `version` goes with every session.
+ */
+async memorySetIncluded(projectId: string | null, label: string, version: number, include: boolean) : Promise<Result<MemorySave, CommandError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("memory_set_included", { projectId, label, version, include }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * What goes with a session in a project, exactly as an agent receives it.
+ */
+async memorySending(projectId: string) : Promise<Result<MemorySending, CommandError>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("memory_sending", { projectId }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -10572,7 +10594,59 @@ remove_yes: string;
 /**
  * Does not delete it.
  */
-keep: string }
+keep: string; 
+/**
+ * The switch that sends a note with every conversation.
+ */
+include_label: string; 
+/**
+ * An agent saved over a note you approved.
+ */
+changed_by_agent: string; 
+/**
+ * Your choice came too late: the note had changed.
+ */
+include_moved: string; 
+/**
+ * Your save came too late: an agent had changed the note.
+ */
+save_moved: string; 
+/**
+ * Your save came too late: the note had been deleted.
+ */
+save_gone: string; 
+/**
+ * Heading of the note's newer text.
+ */
+current_title: string; 
+/**
+ * Heading of what goes to your agents.
+ */
+sending_title: string; 
+/**
+ * Who gets it, and when.
+ */
+sending_description: string; 
+/**
+ * Nothing goes yet.
+ */
+sending_none: string; 
+/**
+ * How much goes (`{used}`, `{limit}`).
+ */
+sending_used: string; 
+/**
+ * Notes that did not fit (`{names}`).
+ */
+sending_left_out: string; 
+/**
+ * Shows the exact text.
+ */
+sending_show: string; 
+/**
+ * Hides the exact text.
+ */
+sending_hide: string }
 /**
  * Kind taxonomy for stored memories.
  * 
@@ -10641,7 +10715,47 @@ updatedAt: string;
 /**
  * How many times it has been saved.
  */
-version: number }
+version: number; 
+/**
+ * It goes with every session unasked: you approved this exact text.
+ */
+included: boolean; 
+/**
+ * You approved an earlier version, and it has been saved over since.
+ */
+changedSinceApproved: boolean }
+/**
+ * What became of a save of yours.
+ */
+export type MemorySave = 
+/**
+ * It went through.
+ */
+{ kind: "saved"; note: MemoryNote } | 
+/**
+ * The note moved on since you opened it, so nothing changed.
+ */
+{ kind: "changed"; current: MemoryNote | null }
+/**
+ * What goes with a session in one project, exactly as an agent receives it.
+ */
+export type MemorySending = { 
+/**
+ * The text sent; absent when no note goes.
+ */
+text: string | null; 
+/**
+ * The notes you approved that did not fit, by name.
+ */
+leftOut: string[]; 
+/**
+ * How many characters of notes go.
+ */
+used: number; 
+/**
+ * The most that can go.
+ */
+limit: number }
 /**
  * Aggregate counts from Turso — cheap `COUNT(*)` queries, not row scans.
  */

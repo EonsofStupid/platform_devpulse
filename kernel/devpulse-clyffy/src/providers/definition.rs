@@ -249,8 +249,9 @@ pub struct ConnectSpec {
     /// an ACP agent keeps one session open instead).
     #[serde(default)]
     pub conversation: Option<ConversationSpec>,
-    /// Environment that gives a session's notes to the agent as instructions.
-    /// Each value must carry `{context_json}`, the notes as a JSON string.
+    /// Environment that gives a new session's notes to the agent as instructions.
+    /// Each value must carry `{context_json}`, the notes as a JSON string. A
+    /// resumed session gets its notes on its first prompt instead.
     #[serde(default)]
     pub context_env: std::collections::BTreeMap<String, String>,
 }

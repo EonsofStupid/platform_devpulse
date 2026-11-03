@@ -10,6 +10,8 @@ import type { MemoryNote } from "$lib/sys/generated/bindings.js";
 const mocks = vi.hoisted(() => ({
 	notes: vi.fn(),
 	save: vi.fn(),
+	setIncluded: vi.fn(),
+	sending: vi.fn(),
 	remove: vi.fn(),
 }));
 vi.mock("./memory.service.js", () => mocks);
@@ -24,8 +26,12 @@ function note(projectId: string | null, label: string): MemoryNote {
 		charLimit: 5000,
 		updatedAt: "2026-11-03T00:00:00Z",
 		version: 1,
+		included: false,
+		changedSinceApproved: false,
 	};
 }
+
+const nothingSent = { text: null, leftOut: [], used: 0, limit: 8000 };
 
 function deferred<T>() {
 	let resolve!: (value: T) => void;
@@ -40,7 +46,10 @@ function deferred<T>() {
 beforeEach(() => {
 	mocks.notes.mockReset();
 	mocks.save.mockReset();
+	mocks.setIncluded.mockReset();
+	mocks.sending.mockReset();
 	mocks.remove.mockReset();
+	mocks.sending.mockResolvedValue(nothingSent);
 });
 
 test("a late answer for a project you left does not replace the one on screen", async () => {
@@ -77,10 +86,11 @@ test("saving your own note rereads your notes and leaves the project's alone", a
 	mocks.notes.mockResolvedValueOnce([note("alpha", "alpha note")]);
 	await state.chooseProject("alpha");
 
-	mocks.save.mockResolvedValueOnce(note(null, "human"));
+	const saved = { kind: "saved", note: note(null, "human") };
+	mocks.save.mockResolvedValueOnce(saved);
 	mocks.notes.mockResolvedValueOnce([note(null, "human")]);
-	expect(await state.save(null, "human", "body")).toBe(true);
-	expect(mocks.save).toHaveBeenCalledExactlyOnceWith(null, "human", "body");
+	expect(await state.save(null, "human", "body", null, true)).toEqual(saved);
+	expect(mocks.save).toHaveBeenCalledExactlyOnceWith(null, "human", "body", null, true);
 	expect(state.yours.map((n) => n.label)).toEqual(["human"]);
 	expect(state.project.map((n) => n.label)).toEqual(["alpha note"]);
 	expect(state.busy).toBe(false);
@@ -106,14 +116,50 @@ test("deleting from the shown project rereads it without blanking it first", asy
 test("a refused write says why, reports failure and clears on the next attempt", async () => {
 	const state = new MemoryState();
 	mocks.save.mockRejectedValueOnce(new Error("block body has 6000 characters"));
-	expect(await state.save(null, "long", "x")).toBe(false);
+	expect(await state.save(null, "long", "x", null, true)).toBeNull();
 	expect(state.problem).toBe("block body has 6000 characters");
 	expect(state.busy).toBe(false);
 
-	mocks.save.mockResolvedValueOnce(note(null, "long"));
+	mocks.save.mockResolvedValueOnce({ kind: "saved", note: note(null, "long") });
 	mocks.notes.mockResolvedValueOnce([note(null, "long")]);
-	expect(await state.save(null, "long", "y")).toBe(true);
+	expect(await state.save(null, "long", "y", null, true)).not.toBeNull();
 	expect(state.problem).toBeNull();
+});
+
+test("a save that came too late still rereads, so you see what the note says now", async () => {
+	const state = new MemoryState();
+	const newer = { ...note(null, "human"), body: "an agent's text", version: 2 };
+	mocks.save.mockResolvedValueOnce({ kind: "changed", current: newer });
+	mocks.notes.mockResolvedValueOnce([newer]);
+	expect(await state.save(null, "human", "yours", 1, true)).toEqual({
+		kind: "changed",
+		current: newer,
+	});
+	expect(state.yours[0]?.body).toBe("an agent's text");
+	expect(state.problem).toBeNull();
+});
+
+test("changing your own note updates what the shown project sends", async () => {
+	const state = new MemoryState();
+	mocks.notes.mockResolvedValueOnce([]);
+	await state.chooseProject("alpha");
+	expect(state.sending).toEqual(nothingSent);
+
+	const sent = { text: "the notes", leftOut: [], used: 9, limit: 8000 };
+	mocks.setIncluded.mockResolvedValueOnce({ kind: "saved", note: note(null, "human") });
+	mocks.notes.mockResolvedValueOnce([note(null, "human")]);
+	mocks.sending.mockResolvedValueOnce(sent);
+	await state.setIncluded(null, "human", 1, true);
+	expect(mocks.setIncluded).toHaveBeenCalledExactlyOnceWith(null, "human", 1, true);
+	expect(state.sending).toEqual(sent);
+});
+
+test("leaving a project stops showing what it sends", async () => {
+	const state = new MemoryState();
+	mocks.notes.mockResolvedValueOnce([]);
+	await state.chooseProject("alpha");
+	await state.chooseProject(null);
+	expect(state.sending).toBeNull();
 });
 
 test("memory that cannot be read is reported as unavailable", async () => {
