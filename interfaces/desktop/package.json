@@ -6,8 +6,8 @@
 	"scripts": {
 		"generate:terminology": "tsx scripts/build/terminology/generate.ts",
 		"bindings:regen": "cd ../.. && cargo xtask regen-bindings",
-		"dev": "pnpm ds:tokens:build && pnpm generate:terminology && vite dev",
-		"build": "pnpm ds:tokens:build && pnpm generate:terminology && vite build",
+		"dev": "node scripts/build/styledictionary/build.mjs && tsx scripts/build/terminology/generate.ts && vite dev",
+		"build": "node scripts/build/styledictionary/build.mjs && tsx scripts/build/terminology/generate.ts && vite build",
 		"build:full": "pnpm bindings:regen && pnpm build",
 		"preview": "vite preview",
 		"check": "svelte-check --tsconfig ./tsconfig.json",
