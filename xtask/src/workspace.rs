@@ -26,19 +26,28 @@ static GENERATOR_SELECTED: OnceLock<String> = OnceLock::new();
 #[path = "../../tools/platform_config.rs"]
 mod platform_config;
 
+/// Your `PATH` after `vcvars64`: its order, then anything of yours it lost. It normally
+/// only adds to the front, but a batch file must not be able to lose your tools.
+#[cfg_attr(not(windows), allow(dead_code))]
+fn keep_inherited_path(after: &std::ffi::OsStr, inherited: &std::ffi::OsStr) -> Vec<PathBuf> {
+    let mut dirs: Vec<PathBuf> = env::split_paths(after).collect();
+    for dir in env::split_paths(inherited) {
+        let known = dirs
+            .iter()
+            .any(|have| have.as_os_str().eq_ignore_ascii_case(dir.as_os_str()));
+        if !known {
+            dirs.push(dir);
+        }
+    }
+    dirs
+}
+
 /// Immutable workspace context. Created once in `main`, passed to every [`Task`].
 pub struct Workspace {
     /// Monorepo root (contains root `Cargo.toml` + `interfaces/`).
     root: PathBuf,
     /// `PATH` with `node_modules/.bin` prepended for Node tool resolution.
     node_bin: PathBuf,
-    /// The directory of the Node runtime found at startup. MSVC's `vcvars64`
-    /// replaces the child PATH; retain Node so Tauri's frontend scripts can
-    /// run `node` after the native build environment is activated.
-    node_runtime_bin: Option<PathBuf>,
-    /// The package-manager directory found at startup. Tauri runs nested
-    /// lifecycle scripts that invoke `pnpm` again, so retain its shim too.
-    package_manager_bin: Option<PathBuf>,
 }
 
 impl Workspace {
@@ -54,22 +63,8 @@ impl Workspace {
             .join("desktop")
             .join("node_modules")
             .join(".bin");
-        let inherited_path = env::var_os("PATH");
-        let node_runtime_bin = inherited_path
-            .as_deref()
-            .and_then(|path| which::which_in("node", Some(path), &root).ok())
-            .and_then(|node| node.parent().map(Path::to_path_buf));
-        let package_manager_bin = inherited_path
-            .as_deref()
-            .and_then(|path| which::which_in("pnpm", Some(path), &root).ok())
-            .and_then(|pnpm| pnpm.parent().map(Path::to_path_buf));
 
-        Ok(Self {
-            root,
-            node_bin,
-            node_runtime_bin,
-            package_manager_bin,
-        })
+        Ok(Self { root, node_bin })
     }
 
     // ── Paths ──────────────────────────────────────────────────────
@@ -104,10 +99,7 @@ impl Workspace {
     /// Compose the current build PATH after native toolchain activation.
     fn path(&self) -> std::ffi::OsString {
         let inherited = crate::child_env::var_os("PATH").unwrap_or_default();
-        let dirs = std::iter::once(self.node_bin.clone())
-            .chain(self.node_runtime_bin.iter().cloned())
-            .chain(self.package_manager_bin.iter().cloned())
-            .chain(env::split_paths(&inherited));
+        let dirs = std::iter::once(self.node_bin.clone()).chain(env::split_paths(&inherited));
         env::join_paths(dirs).unwrap_or(inherited)
     }
 
@@ -608,8 +600,19 @@ fn merge_rfc7396(target: &mut serde_json::Value, patch: &serde_json::Value) {
 mod merge_tests {
     #![allow(clippy::expect_used, reason = "test assertions")]
 
-    use super::merge_rfc7396;
+    use super::{keep_inherited_path, merge_rfc7396};
     use serde_json::json;
+
+    #[test]
+    fn vcvars_can_add_to_your_path_and_cannot_lose_it() {
+        let join = |dirs: &[&str]| std::env::join_paths(dirs).unwrap();
+        let dirs = keep_inherited_path(
+            &join(&["msvc", "C:/Node", "system"]),
+            &join(&["c:/node", "mine", "system"]),
+        );
+        let names: Vec<_> = dirs.iter().map(|dir| dir.to_str().unwrap()).collect();
+        assert_eq!(names, ["msvc", "C:/Node", "system", "mine"]);
+    }
 
     #[test]
     fn array_replaces_wholesale() {
@@ -1874,6 +1877,7 @@ fn apply_vcvars_env(vcvars: &Path) -> bool {
         return false;
     }
     let stdout = String::from_utf8_lossy(&output.stdout);
+    let inherited_path = crate::child_env::var_os("PATH").unwrap_or_default();
     let mut applied: u32 = 0;
     for line in stdout.lines() {
         // Valid env-var lines from `set` look like `NAME=value`. The first
@@ -1903,6 +1907,10 @@ fn apply_vcvars_env(vcvars: &Path) -> bool {
     if applied == 0 {
         println!("  [warn] vcvars64.bat ran but produced no recognizable env vars");
         return false;
+    }
+    let after = crate::child_env::var_os("PATH").unwrap_or_default();
+    if let Ok(path) = env::join_paths(keep_inherited_path(&after, &inherited_path)) {
+        crate::child_env::set("PATH", path);
     }
     println!(
         "  [env] vcvars64.bat applied {applied} env vars (PATH, INCLUDE, LIB, LIBPATH, \
