@@ -495,6 +495,7 @@ async fn start_user_workflows(
         Arc::clone(providers),
         projects.clone(),
         memory.clone(),
+        containers.clone(),
         Arc::clone(agenthub.live()),
     )));
     let rooms = agents.as_ref().map(|agents| {
@@ -509,6 +510,7 @@ async fn start_user_workflows(
         Arc::clone(user.adapter()),
         providers.connection_service().ok().cloned(),
         memory.clone(),
+        containers.clone(),
     )));
     UserWorkflows {
         onboarding,

@@ -2080,3 +2080,130 @@ is the specific board decision (no extra library card kind).
     29 MB here) — about 200 ms warm, 3.8–4.8 s for the first call while the
     app boots. The board keeps the index between calls and re-reads only
     files whose size or time changed.
+
+## Owner direction — host-aware Chat, Overmind Workbench and capability contracts (2026-11-03)
+
+This plan must restore and extend the existing product around its actual
+boundaries. Do not build a parallel orchestration surface or bury recovered
+work in `recovered/` once its source has been identified and reconciled.
+
+### Host-aware Chat and safe machine management
+
+Chat should know the observed capabilities of the current computer and be able
+to help operate them. Start from the existing engine-owned
+`systems/devpulse-engine/src/platform/containers/{detect,service,actions}.rs`,
+the bundled/overridable engine configuration, its published container state,
+and the Tauri `commands/containers` facade. Detection already covers Docker,
+Podman, Windows WSL/virtualization and explicit setup steps. Chat must consume
+that same typed, current state; it must not implement a second detector or run
+unbounded shell commands from the webview.
+
+The missing integration is a permissioned Chat tool/action contract: expose
+observed facts and supported operations to the active session, explain the
+proposed operation and target, require human approval for mutations, execute
+through the engine's existing action boundary, and return structured result
+and refreshed state. Scope and authorization must be per machine/project;
+never infer that installed means running or authorized. A failed/unknown probe
+must remain explicit. Confirm which container actions are safe, reversible,
+and supported before exposing them in Chat.
+
+### Overmind Workbench
+
+Overmind owns AgentHub's AI ticket factory and a Workbench for controlled
+experiments. Workbench is the operator-visible place to build reusable test
+harnesses, run reproducible model/provider/agent comparisons, inspect results,
+and perform supervised reverse-engineering/optimization against a declared
+target. It does not replace Chat or move Council out of Chat. Results, inputs,
+endpoint/model identity, versions, harness schema, run provenance, and human
+labels must be retained so recovered code and experiments become reusable
+evidence rather than untracked output.
+
+Before implementing Workbench UI, inventory the recovered `devpulselabs`
+sources and their source commits. The workspace history mentions
+`dpl-hub-workbench`, but `recovered/devpulselabs/crates/hubs/workbench` is not
+present in the current tree; verify the exact recovered location and catalog
+it. Compare its contracts and tests against existing Overmind routes, AgentHub
+tables, Clyffy endpoint execution and the devtools registry. Then move/authored
+code into its owning engine/kernel/domain folders and wire one complete
+vertical journey. Do not present a static dashboard as a working harness.
+
+The requested Uncle Bob / GitHub engineering tactics also need provenance:
+inventory the original notes, links, examples or code that established them
+before translating them into DevPulse guidance. The current targeted search
+found only a Clean Architecture citation and a few generic clean-code sprint
+references, not a canonical tactic set. Preserve the source material, extract
+each tactic into a documented and reviewable rule, map it to the repository's
+engine/kernel/interface boundaries, and provide an actionable in-product
+review/learning surface. Do not claim the tactics have been absorbed until the
+source inventory and consumer are both present.
+
+### Small endpoint set and extensible documented schemas
+
+Keep a small, canonical set of endpoint families by responsibility: the
+desktop-to-engine control plane, configured AI/provider endpoints, the
+account/update service, and explicitly enabled optional integrations. Local
+services are endpoints too. Do not introduce per-feature hardcoded URLs or
+parallel endpoint registries. Every configured connection needs a stable
+identity, protocol/capabilities, credential reference (never credential
+material in ordinary config), revision, and verifiable health/evidence owned
+by the proper engine/kernel module.
+
+New endpoint/service types must be definable through versioned schemas with
+stable identity, purpose, required/optional fields, authentication reference,
+capabilities, validation, lifecycle/health contract, documentation metadata,
+and migration policy. Reuse existing signal specs, config parsing and
+`kernel/devpulse-clyffy/config/schemas` where applicable; do not make schema
+formats compete. A schema is accepted only when its documentation and a real
+consumer exist. Record unsupported capabilities and validation errors instead
+of silently falling back to another endpoint.
+
+### Execution sequence and evidence
+
+1. Inventory source history and compare recovered Workbench/host integration
+   code with the owning modules; record exact source commit/path and what is
+   already implemented.
+2. Trace the existing containers state/action through engine, Tauri, signals,
+   Chat tool authorization and UI. Define the typed, approval-gated contract.
+3. Audit endpoint registries/config/schema formats and choose the one canonical
+   contract; document migration from any competing format before changing it.
+4. Author Workbench's persisted harness/run/result model and endpoint identity
+   first, then its Overmind UI and devtool grouping. Keep Council in Chat and
+   AgentHub under Overmind.
+5. Demonstrate a real end-to-end run: Chat observes a Windows machine and a
+   running/stopped Docker engine accurately, proposes an allowed action,
+   receives approval, executes via the engine, and refreshes state; Workbench
+   runs the same declared harness against two explicitly selected endpoints
+   and persists a comparable, attributable result.
+
+No stage is complete from compile success or screenshots alone. Close each
+slice with source-to-destination restoration evidence, schema/config examples,
+failure behavior, and a live Tauri journey. Preserve existing unrelated staged
+files while performing this work.
+
+### Implementation started — shared host awareness (2026-11-04)
+
+Authored the first vertical foundation against the existing owner modules:
+
+- `Containers::host_context()` formats only observed OS/hardware, WSL,
+  virtualization, and Docker/Podman installed/running/version facts. It omits
+  project paths, credentials, advice, and command output; absent report stays
+  absent. The message labels the snapshot read-only and tells the model that
+  observation is not authorization.
+- `Agents` receives the existing engine `Containers` service and attaches a
+  refreshed snapshot to each agent dispatch. The user's saved message remains
+  the exact original text in DevPulse history.
+- Endpoint Chat receives the same host snapshot as a system message on each
+  turn, from the same service. This sends the small host/hardware inventory to
+  the explicitly selected endpoint; the Chat UI now shows the observed OS and
+  engine state with its observation time and an explicit refresh action.
+- Validation so far: `cargo check -p devpulse-engine` succeeds;
+  `pnpm --dir interfaces/desktop check` reports zero errors and warnings.
+  Tests were not run.
+
+This is awareness and visibility, not completion of machine management. An
+engine-owned, approval-gated action tool is still required before Chat can
+invoke Docker/Podman actions through DevPulse. The agent's existing provider
+permission protocol remains in place; do not conflate a provider terminal
+permission with a DevPulse-owned machine action authorization. Workbench source
+recovery and implementation, canonical endpoint schema consolidation, and the
+account/onboarding changes remain outstanding.

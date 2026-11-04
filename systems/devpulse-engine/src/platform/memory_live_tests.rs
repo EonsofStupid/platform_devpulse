@@ -135,6 +135,7 @@ impl Fixture {
             Providers::start(data_dir.clone(), engine),
             Some(projects),
             Some(memory),
+            None,
             Arc::new(LiveState::default()),
         ));
         Self {

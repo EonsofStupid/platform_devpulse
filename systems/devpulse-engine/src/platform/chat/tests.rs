@@ -40,7 +40,7 @@ async fn open(tree: &tempfile::TempDir) -> (Arc<TursoAdapter>, Arc<Connections>,
     let db = Arc::clone(store.adapter());
     db.execute_batch("INSERT OR IGNORE INTO projects(id,name,root_path) VALUES ('p','one','/one'),('q','two','/two');").await.unwrap();
     let connections = Arc::new(Connections::new(db.clone(), Arc::new(Vault::default())));
-    let chat = Arc::new(Chat::new(db.clone(), Some(connections.clone()), None));
+    let chat = Arc::new(Chat::new(db.clone(), Some(connections.clone()), None, None));
     (db, connections, chat)
 }
 async fn save(connections: &Connections, id: Option<String>, endpoint: &str) -> SavedConnection {
@@ -185,7 +185,7 @@ async fn an_endpoint_conversation_gets_the_notes_you_approved_and_saves_only_you
         .save(Some("p"), "private", "Held back.", None, false)
         .await
         .unwrap();
-    let chat = Chat::new(db.clone(), Some(connections.clone()), Some(memory));
+    let chat = Chat::new(db.clone(), Some(connections.clone()), Some(memory), None);
     let connection = save(&connections, None, &url).await;
     let session = chat
         .start_endpoint("p", &connection.id, connection.revision, "chosen-model")
@@ -472,7 +472,7 @@ async fn transcript_access_does_not_require_the_endpoint_service() {
         .start_endpoint("p", &connection.id, connection.revision, "model")
         .await
         .unwrap();
-    let unavailable = Chat::new(db, None, None);
+    let unavailable = Chat::new(db, None, None, None);
     assert!(
         unavailable
             .recent("p", Some(&session))

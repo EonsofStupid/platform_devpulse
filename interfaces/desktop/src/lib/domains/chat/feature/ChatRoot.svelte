@@ -7,6 +7,7 @@ import { DynamicBackground } from "@devpulse/coldlight/components/dynamic-backgr
 import { Text } from "@devpulse/coldlight/components/text";
 import { untrack } from "svelte";
 import { agenthubState } from "$lib/domains/agenthub/index.js";
+import { containersState } from "$lib/domains/app/containers/index.js";
 import { isInferenceReady, ModelEventCard, modelsState } from "$lib/domains/app/models/index.js";
 import { projectsState } from "$lib/domains/app/projects/index.js";
 import { openMainPage } from "$lib/sys/bindings/window/index.js";
@@ -27,6 +28,22 @@ const hub = routeAt("/overmind/agenthub");
 const aiSettings = routeAt("/devpulse/settings/ai");
 let navigationError = $state<string | null>(null);
 let showSessions = $state(false);
+const hostReport = $derived(containersState.current?.report ?? null);
+const hostSummary = $derived.by(() => {
+	if (!hostReport) return "Machine status not checked";
+	const running = hostReport.engines
+		.filter((engine) => engine.running)
+		.map((engine) => engine.name);
+	const installed = hostReport.engines
+		.filter((engine) => engine.installed)
+		.map((engine) => engine.name);
+	const engines = running.length
+		? `${running.join(", ")} running`
+		: installed.length
+			? `${installed.join(", ")} installed · not running or unreachable`
+			: "no container engine detected";
+	return `${hostReport.host.os} · ${engines}`;
+});
 async function openPage(route: RouteNode, conversation: string | null = null) {
 	navigationError = null;
 	try {
@@ -54,6 +71,10 @@ const activeModelEvents = $derived.by(() => {
 
 // Sessions and messages follow the active project; until Rust's projects
 // state has arrived and the platform answers, there is nothing to load.
+$effect(() => {
+	return containersState.start();
+});
+
 $effect(() => {
 	if (!projectsState.ready) return;
 	const project = projectsState.activeProjectId;
@@ -87,7 +108,13 @@ $effect(() => {
 		</aside>
 		<div class="flex min-h-0 min-w-0 flex-1 flex-col gap-2">
 			<div class="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] pb-1">
-				<Text size="xs" weight="semibold" class="truncate">{projectsState.activeProject?.name ?? "Choose a project to chat"}</Text>
+				<div class="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
+					<Text size="xs" weight="semibold" class="truncate">{projectsState.activeProject?.name ?? "Choose a project to chat"}</Text>
+					<Text size="xs" class="text-[var(--text-secondary)]" title={hostReport ? `Observed ${new Date(hostReport.checkedAt * 1000).toLocaleString()}` : "Refresh to inspect this computer"}>{hostSummary}</Text>
+					<Button variant="ghost" size="sm" onclick={() => void containersState.check()} disabled={containersState.busy} title="Refresh operating system and container-engine observations">
+						{containersState.busy ? "Checking…" : "Refresh machine"}
+					</Button>
+				</div>
 				<div class="flex flex-wrap items-center gap-2">
 					<Button variant="ghost" size="sm" class="md:hidden" aria-expanded={showSessions} aria-controls="chat-sessions" onclick={() => { showSessions = !showSessions; }}>Sessions</Button>
 					{#if hub}<Button variant="ghost" size="sm" onclick={() => void openPage(hub, chatState.activeSessionId)} title="Open AgentHub in Overmind">{routeCopy(hub)?.label ?? "AgentHub"}</Button>{/if}

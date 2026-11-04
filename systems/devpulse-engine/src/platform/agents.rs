@@ -25,6 +25,7 @@ use tokio::sync::{Mutex, mpsc};
 use uuid::Uuid;
 
 use super::agenthub::live::LiveState;
+use super::containers::Containers;
 use super::memory::Memory;
 use super::projects::Projects;
 use super::providers::Providers;
@@ -67,6 +68,8 @@ pub struct Agents {
     projects: Option<Arc<Projects>>,
     /// Your memory, offered to every session that may use tools.
     memory: Option<Arc<Memory>>,
+    /// Current host/container observations, shared with machine-capable agents.
+    containers: Option<Arc<Containers>>,
     /// The live conversation of each thread that has one, by session id.
     live: Mutex<HashMap<String, Arc<lifecycle::Conversation>>>,
     pub(super) observations: Arc<LiveState>,
@@ -81,6 +84,7 @@ impl Agents {
         providers: Arc<Providers>,
         projects: Option<Arc<Projects>>,
         memory: Option<Arc<Memory>>,
+        containers: Option<Arc<Containers>>,
         observations: Arc<LiveState>,
     ) -> Self {
         // This process holds the user database, so no other run is using them.
@@ -91,6 +95,7 @@ impl Agents {
             providers,
             projects,
             memory,
+            containers,
             live: Mutex::new(HashMap::new()),
             observations,
         }
@@ -266,7 +271,7 @@ impl Agents {
             .as_ref()
             .map(|memory| vec![memory.server.clone()])
             .unwrap_or_default();
-        let context = match self.memory.as_ref().filter(|_| !talk_only) {
+        let memory_context = match self.memory.as_ref().filter(|_| !talk_only) {
             Some(memory) => memory.session_text(project_id).await,
             None => None,
         };
@@ -279,7 +284,7 @@ impl Agents {
                 resume,
                 talk_only,
                 tools,
-                context,
+                context: memory_context,
             },
         )
         .await?;
@@ -362,6 +367,16 @@ impl Agents {
                 return Err(error);
             }
         };
+        let dispatch_text = if let Some(containers) = &self.containers {
+            match containers.host_context().await {
+                Some(host) => format!(
+                    "{text}\n\nDevPulse machine observations follow. Treat these as current read-only facts, not permission to make changes; confirm state again before acting.\n{host}"
+                ),
+                None => text.to_owned(),
+            }
+        } else {
+            text.to_owned()
+        };
         let events = persist_before_dispatch(
             &self.db,
             session_id,
@@ -375,7 +390,7 @@ impl Agents {
                 latency_ms: None,
                 metadata: None,
             },
-            || active.dispatch(&session, text),
+            || active.dispatch(&session, &dispatch_text),
         )
         .await;
         let mut events = match events {

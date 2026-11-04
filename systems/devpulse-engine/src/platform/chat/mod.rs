@@ -6,6 +6,7 @@ mod turns;
 mod types;
 
 use super::agents::{TurnRow, save_turn};
+use super::containers::Containers;
 use super::memory::Memory;
 use anyhow::{Context, Result, ensure};
 pub use devpulse_clyffy::providers::connections::TextTarget;
@@ -38,6 +39,8 @@ pub struct Chat {
     connections: Option<Arc<Connections>>,
     /// Your memory; the notes you approved go with each endpoint conversation.
     memory: Option<Arc<Memory>>,
+    /// The same observed host state used by agent conversations.
+    containers: Option<Arc<Containers>>,
     running: Mutex<HashMap<String, Running>>,
     closed: AtomicBool,
     drained: tokio::sync::Notify,
@@ -56,6 +59,14 @@ impl Drop for TurnGuard<'_> {
     }
 }
 
+async fn host_context_message(containers: Option<&Arc<Containers>>) -> Option<EndpointChatMessage> {
+    let host = containers?.host_context().await?;
+    Some(EndpointChatMessage {
+        role: EndpointRole::System,
+        content: host,
+    })
+}
+
 impl Chat {
     /// Bind platform-owned persistence to kernel-owned endpoint execution.
     #[must_use]
@@ -63,11 +74,13 @@ impl Chat {
         db: Arc<TursoAdapter>,
         connections: Option<Arc<Connections>>,
         memory: Option<Arc<Memory>>,
+        containers: Option<Arc<Containers>>,
     ) -> Self {
         Self {
             db,
             connections,
             memory,
+            containers,
             running: Mutex::new(HashMap::new()),
             closed: AtomicBool::new(false),
             drained: tokio::sync::Notify::new(),
@@ -189,6 +202,9 @@ impl Chat {
                     content: notes,
                 },
             );
+        }
+        if let Some(host) = host_context_message(self.containers.as_ref()).await {
+            messages.insert(0, host);
         }
         messages.push(EndpointChatMessage {
             role: EndpointRole::User,

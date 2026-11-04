@@ -1770,6 +1770,28 @@ nowhere. The "settings" mention at `:183` is only a comment. Git shows it was
 mounted once, in the root layout (`9a170b88`), and removed by `cecd61b5`.
 
 - `first-run.flow.toml` gains an `account` stage right after `welcome`:
+  Reconciliation against the 2026-11-03 codebase: this is not implemented yet.
+  `Stage` currently only accepts `welcome`, `you`, `your_ai`, and `containers`;
+  the workflow has no authenticated-account requirement, and `later` can bypass
+  the account entirely. Add the engine-owned account requirement and make the
+  account stage non-skippable until Rust verifies the Supabase access token at
+  the configured auth endpoint. Reuse the existing Supabase `LoginShell` and
+  onboarding intent pattern. Keep DevPulse account identity separate from
+  vendor subscriptions in Your AI.
+
+  The auth URL is already configuration-driven; the public anon key is loaded
+  from deployment config or the OS keychain. A clean install without either
+  must show a clear configuration error and cannot claim account readiness.
+  Never ship a fabricated key or private credential. Remove the wizard content
+  fetch's literal `https://devpulse.app/api/v1/wizard-content` from the client;
+  make its source deployment-configurable or rely on its bundled fallback.
+  This content endpoint is independent of Supabase auth configuration.
+
+  shippin.cloud is an optional follow-up link, not an authentication provider.
+  The existing plan records that no Shippin API was available. Before building
+  that link, identify the supported Nomen/Shippin endpoint and its auth contract;
+  until then, offer no fake provisioning action and keep the account/onboarding
+  flow usable without it.
   required, email required, no skip.
 - Offline: it explains that a connection is needed and retries.
 - `LoginShell` is mounted there. Its visuals are rebuilt in the B4.3 order

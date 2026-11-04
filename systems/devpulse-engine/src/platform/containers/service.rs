@@ -90,6 +90,13 @@ impl Containers {
         self.state.lock().await.clone()
     }
 
+    /// A concise, credential-free host snapshot for an explicitly selected
+    /// AI conversation. Missing observations stay missing; callers must not
+    /// infer that a tool is installed or running.
+    pub async fn host_context(&self) -> Option<String> {
+        self.state().await.report.as_ref().map(format_host_context)
+    }
+
     async fn publish(&self) -> ContainersState {
         let state = self.state().await;
         self.signals.emit(Signal::new(
@@ -208,6 +215,67 @@ impl Containers {
         }
         self.check_locked().await
     }
+}
+
+fn format_host_context(report: &ContainersReport) -> String {
+    let engines = report
+        .engines
+        .iter()
+        .map(|engine| {
+            format!(
+                "{}: installed={}, running={}, client_version={}, engine_version={}, compose={}",
+                engine.name,
+                engine.installed,
+                engine.running,
+                engine.client_version.as_deref().unwrap_or("unknown"),
+                engine.engine_version.as_deref().unwrap_or("unknown"),
+                engine.compose.as_deref().unwrap_or("unavailable")
+            )
+        })
+        .collect::<Vec<_>>();
+    let wsl = report.host.wsl.as_ref().map_or_else(
+        || "not reported".to_owned(),
+        |wsl| {
+            format!(
+                "installed={}, version={}, distributions={}",
+                wsl.installed,
+                wsl.version.as_deref().unwrap_or("unknown"),
+                wsl.distributions
+            )
+        },
+    );
+    let virtualization = report.host.virtualization.map_or_else(
+        || "not reported".to_owned(),
+        |virtualization| {
+            format!(
+                "firmware_enabled={:?}, hypervisor_present={:?}",
+                virtualization.firmware_enabled, virtualization.hypervisor_present
+            )
+        },
+    );
+    format!(
+        "## DevPulse host observations (checked at {})\nOS: {} {} ({}); RAM: {} MiB; CPU cores: {}; NVIDIA GPUs: {}.\nWSL: {wsl}. Virtualization: {virtualization}.\nContainer engines: {}.\nThese are read-only observations, not permission to change the machine. Recheck before acting; installed does not mean running.",
+        report.checked_at,
+        report.host.os,
+        report
+            .host
+            .os_version
+            .as_deref()
+            .unwrap_or("version unknown"),
+        report.host.arch,
+        report.host.ram_total_mb,
+        report.host.cpu_cores,
+        if report.host.nvidia_gpus.is_empty() {
+            "none reported".to_owned()
+        } else {
+            report.host.nvidia_gpus.join(", ")
+        },
+        if engines.is_empty() {
+            "none detected".to_owned()
+        } else {
+            engines.join("; ")
+        }
+    )
 }
 
 async fn load_answers(db: &dyn SqlAdapter) -> Result<Option<Answers>> {
