@@ -1,0 +1,42 @@
+{
+  "schema": "dpl.room/1",
+  "id": "round-robin",
+  "version": "1.0.0",
+  "name": "Round Robin Group",
+  "type": "round-robin",
+  "summary": "Everyone takes turns in a fixed order and sees everything said, until a round adds nothing or the rounds run out.",
+  "seats": [
+    {
+      "seat": "member",
+      "role": "group-member@1",
+      "count": 3
+    }
+  ],
+  "phases": [
+    {
+      "name": "turn",
+      "seats": [
+        "member"
+      ],
+      "mode": "sequential",
+      "visibility": "full",
+      "max_turns": 1
+    }
+  ],
+  "turn_policy": "round-robin",
+  "stop": {
+    "max_rounds": 3,
+    "stability": true
+  },
+  "carry_forward": "full-transcript",
+  "record": [
+    "flips"
+  ],
+  "provenance": {
+    "sources": [
+      "48",
+      "11"
+    ],
+    "evidence": "practice"
+  }
+}

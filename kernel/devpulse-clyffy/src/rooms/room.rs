@@ -32,6 +32,8 @@ pub enum RoomType {
     Router,
     /// Ideas first, then grouping, critique and a shortlist.
     Brainstorm,
+    /// Everyone takes turns in a fixed order and sees everything said.
+    RoundRobin,
 }
 
 /// One seat: a role, how many sit in it, and the role's parameters filled.
@@ -93,7 +95,8 @@ pub struct Phase {
 pub enum TurnPolicy {
     /// The phases' order, as written.
     Fixed,
-    /// Each seat in turn.
+    /// Each seat in turn, and each new question starts with the next seat, so
+    /// nobody always speaks first.
     RoundRobin,
     /// The selector seat decides.
     Selector,
@@ -309,6 +312,45 @@ impl RoomSpec {
         issues
     }
 
+    /// A round-robin group is one phase everyone speaks in, in turn, seeing
+    /// everything, with nobody picking a winner.
+    fn group_issues(&self) -> Vec<Issue> {
+        if self.room_type != RoomType::RoundRobin {
+            return Vec::new();
+        }
+        let at = format!("room {} · phases", self.id);
+        let mut issues = Vec::new();
+        if self.turn_policy != TurnPolicy::RoundRobin {
+            issues.push(Issue::new(
+                format!("room {} · turn_policy", self.id),
+                "a round-robin room takes turns round-robin",
+            ));
+        }
+        let [phase] = self.phases.as_slice() else {
+            issues.push(Issue::new(at, "a round-robin room has one phase"));
+            return issues;
+        };
+        if phase.mode != PhaseMode::Sequential || phase.visibility != Visibility::Full {
+            issues.push(Issue::new(
+                at.clone(),
+                "a round-robin room's phase is sequential with full visibility",
+            ));
+        }
+        if self.seats.iter().map(|seat| seat.count).sum::<u32>() < 2 {
+            issues.push(Issue::new(
+                at,
+                "a round-robin room needs two places or more",
+            ));
+        }
+        if self.selection.is_some() {
+            issues.push(Issue::new(
+                format!("room {} · selection", self.id),
+                "a round-robin room has no selector; use a Council to pick one answer",
+            ));
+        }
+        issues
+    }
+
     /// The rules a room keeps beyond its schema.
     #[must_use]
     pub fn validate(&self, roles: &[RoleCard]) -> Vec<Issue> {
@@ -324,6 +366,7 @@ impl RoomSpec {
             issues.push(Issue::new(at("version"), "must be major.minor.patch"));
         }
         issues.extend(self.router_issues(roles));
+        issues.extend(self.group_issues());
         let mut seats = BTreeMap::new();
         for seat in &self.seats {
             if seats.insert(seat.seat.as_str(), seat).is_some() {
@@ -416,6 +459,36 @@ mod tests {
 
     use super::*;
     use crate::rooms::Library;
+
+    #[test]
+    fn a_round_robin_room_keeps_its_shape() {
+        let library = Library::bundled();
+        let room = library.room("round-robin").expect("bundled").clone();
+        assert!(room.validate(&library.roles).is_empty());
+        let problem = |change: fn(&mut RoomSpec), expected: &str| {
+            let mut broken = room.clone();
+            change(&mut broken);
+            let issues = broken.validate(&library.roles);
+            assert!(
+                issues.iter().any(|issue| issue.problem.contains(expected)),
+                "{expected}: {issues:?}"
+            );
+        };
+        problem(
+            |r| r.turn_policy = TurnPolicy::Fixed,
+            "takes turns round-robin",
+        );
+        problem(|r| r.phases[0].mode = PhaseMode::Parallel, "sequential");
+        problem(|r| r.phases[0].visibility = Visibility::None, "sequential");
+        problem(|r| r.seats[0].count = 1, "two places");
+        problem(
+            |r| {
+                let phase = r.phases[0].clone();
+                r.phases.push(phase);
+            },
+            "one phase",
+        );
+    }
 
     /// A room is checked against the library it would seat.
     #[test]

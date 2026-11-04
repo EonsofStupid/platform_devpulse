@@ -41,7 +41,7 @@ pub use run::{Outcome, Pick, RoomHost, RoomRun, RoomTurn, Stopped};
 pub use seating::{Assignment, Place, SeatedRoom, seat};
 
 /// The bundled roles, by file name.
-const BUNDLED_ROLES: [(&str, &str); 12] = [
+const BUNDLED_ROLES: [(&str, &str); 13] = [
     (
         "advocate.json",
         include_str!("../../config/roles/advocate.json"),
@@ -57,6 +57,10 @@ const BUNDLED_ROLES: [(&str, &str); 12] = [
     (
         "fact-checker.json",
         include_str!("../../config/roles/fact-checker.json"),
+    ),
+    (
+        "group-member.json",
+        include_str!("../../config/roles/group-member.json"),
     ),
     (
         "planner.json",
@@ -93,7 +97,7 @@ const BUNDLED_ROLES: [(&str, &str); 12] = [
 ];
 
 /// The bundled rooms, by file name.
-const BUNDLED_ROOMS: [(&str, &str); 5] = [
+const BUNDLED_ROOMS: [(&str, &str); 6] = [
     (
         "author-critic.json",
         include_str!("../../config/rooms/author-critic.json"),
@@ -109,6 +113,10 @@ const BUNDLED_ROOMS: [(&str, &str); 5] = [
     (
         "debate.json",
         include_str!("../../config/rooms/debate.json"),
+    ),
+    (
+        "round-robin.json",
+        include_str!("../../config/rooms/round-robin.json"),
     ),
     (
         "router.json",

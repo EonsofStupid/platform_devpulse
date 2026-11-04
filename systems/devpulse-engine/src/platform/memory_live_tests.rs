@@ -303,6 +303,57 @@ impl Fixture {
         rooms.close(&council.session_id).await;
     }
 
+    /// A real round-robin group of mixed agents: they take turns in order, each
+    /// seeing what came before, and a room opened again continues its rotation.
+    async fn check_a_group(&self) {
+        let rooms = self.rooms();
+        let room = rooms
+            .start(
+                &self.project,
+                "round-robin",
+                vec![
+                    seat("member", 0, ProviderId::ClaudeCode),
+                    seat("member", 1, ProviderId::Codex),
+                    seat("member", 2, ProviderId::ClaudeCode),
+                ],
+            )
+            .await
+            .unwrap();
+        let (turns, outcome, _) = room_run(
+            &rooms,
+            &room.session_id,
+            "In one short sentence each, name one risk of storing passwords in plain text that \
+             nobody before you has named. If you have nothing new, say so and set changed to \
+             false.",
+        )
+        .await;
+        println!(
+            "group finished: {:?}, {} turns",
+            outcome.stopped,
+            turns.len()
+        );
+        let order: Vec<&str> = turns.iter().map(|(place, _)| place.as_str()).collect();
+        assert_eq!(
+            order[..3],
+            ["member-1", "member-2", "member-3"],
+            "{order:?}"
+        );
+        assert_eq!(outcome.pick, None, "a group picks no winner");
+        rooms.close(&room.session_id).await;
+
+        // A fresh engine, as after a restart: the next question starts one along.
+        let reopened = self.rooms();
+        let (turns, _, _) = room_run(
+            &reopened,
+            &room.session_id,
+            "Reply with one short sentence saying you agree, and set changed to false.",
+        )
+        .await;
+        println!("group reopened: first speaker {}", turns[0].0);
+        assert_eq!(turns[0].0, "member-2", "{turns:?}");
+        reopened.close(&room.session_id).await;
+    }
+
     /// A real Council whose seats only talk: they get your notes, except the seat
     /// you said no for, and none of them has the tools to look up the rest.
     async fn check_a_room(&self) {
@@ -350,6 +401,12 @@ async fn real_thread_and_room_get_what_they_should_of_your_notes() {
     let fixture = Fixture::start().await;
     fixture.check_a_thread().await;
     fixture.check_a_room().await;
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+#[ignore = "talks to this machine's Claude Code and Codex on your own subscriptions"]
+async fn real_round_robin_group_takes_turns_and_continues_its_rotation() {
+    Fixture::start().await.check_a_group().await;
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 4)]

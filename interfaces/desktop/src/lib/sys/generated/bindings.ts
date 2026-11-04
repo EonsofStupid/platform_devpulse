@@ -13082,7 +13082,11 @@ export type RoomType =
 /**
  * Ideas first, then grouping, critique and a shortlist.
  */
-"brainstorm"
+"brainstorm" | 
+/**
+ * Everyone takes turns in a fixed order and sees everything said.
+ */
+"round-robin"
 /**
  * What a router decided.
  */
@@ -15174,7 +15178,8 @@ export type TurnPolicy =
  */
 "fixed" | 
 /**
- * Each seat in turn.
+ * Each seat in turn, and each new question starts with the next seat, so
+ * nobody always speaks first.
  */
 "round-robin" | 
 /**

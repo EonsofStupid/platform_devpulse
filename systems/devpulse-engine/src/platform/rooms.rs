@@ -299,6 +299,24 @@ impl Rooms {
         })
     }
 
+    /// How many questions this room has been asked, from its saved turns.
+    async fn questions_asked(&self, session_id: &str) -> Result<usize> {
+        let rows = self
+            .sql()
+            .query(
+                "SELECT COUNT(*) FROM turns WHERE session_id = ? AND role = 'user'",
+                &[session_id.into()],
+            )
+            .await
+            .context("count the room's questions")?;
+        let count = rows
+            .first()
+            .and_then(|row| row.first())
+            .and_then(SqlValue::as_integer)
+            .unwrap_or(0);
+        Ok(usize::try_from(count).unwrap_or(0))
+    }
+
     /// The room's live state, opened on first use (seated again from your
     /// library as it is now).
     async fn live_room(&self, session_id: &str) -> Result<Arc<LiveRoom>> {
@@ -310,9 +328,10 @@ impl Rooms {
         let library = self.library();
         let seated =
             library::seat(&library, &record.room_id, &record.seating).map_err(|i| refusal(&i))?;
+        let asked = self.questions_asked(session_id).await?;
         let room = Arc::new(LiveRoom {
             project_id: record.project_id,
-            run: Arc::new(Mutex::new(RoomRun::new(seated))),
+            run: Arc::new(Mutex::new(RoomRun::new(seated).having_asked(asked))),
             places: Mutex::new(HashMap::new()),
             tokens: Mutex::new(record.tokens),
             stopped: AtomicBool::new(false),

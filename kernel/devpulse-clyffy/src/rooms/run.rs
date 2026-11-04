@@ -31,7 +31,7 @@ use serde::{Deserialize, Serialize};
 use super::Visibility;
 use super::brief::{Marker, brief, read_output};
 use super::role::Stance;
-use super::room::{CarryForward, Phase, PhaseMode, Selection};
+use super::room::{CarryForward, Phase, PhaseMode, RoomSpec, Selection, TurnPolicy};
 use super::seating::{Place, SeatedRoom};
 use crate::providers::types::ProviderId;
 
@@ -152,6 +152,9 @@ pub struct RoomRun {
     seated: SeatedRoom,
     marker: Marker,
     briefed: HashSet<String>,
+    /// Questions this room has been asked: in a round-robin room, where the
+    /// next one starts.
+    asked: usize,
 }
 
 /// What the router's turn decided. Anything but a listed place, other than a
@@ -220,7 +223,16 @@ impl RoomRun {
             seated,
             marker: Marker::new(),
             briefed: HashSet::new(),
+            asked: 0,
         }
+    }
+
+    /// A room that has already been asked `asked` questions, reopened: its
+    /// rotation continues rather than starting over.
+    #[must_use]
+    pub const fn having_asked(mut self, asked: usize) -> Self {
+        self.asked = asked;
+        self
     }
 
     /// The room and its places.
@@ -237,6 +249,17 @@ impl RoomRun {
         if room.routing_seat().is_some() {
             return self.route(question, host).await;
         }
+        let outcome = self.rounds(&room, question, host).await;
+        self.asked += 1;
+        outcome
+    }
+
+    async fn rounds(
+        &mut self,
+        room: &RoomSpec,
+        question: &str,
+        host: &dyn RoomHost,
+    ) -> Result<Outcome> {
         let selection_phase = room.selection.as_ref().and_then(|selection| {
             room.phases
                 .iter()
@@ -343,11 +366,18 @@ impl RoomRun {
         log: &mut Log,
         host: &dyn RoomHost,
     ) -> Result<()> {
-        let places: Vec<Place> = phase
+        let mut places: Vec<Place> = phase
             .seats
             .iter()
             .flat_map(|seat| self.seated.places_of(seat).cloned().collect::<Vec<_>>())
             .collect();
+        if self.seated.room.turn_policy == TurnPolicy::RoundRobin
+            && phase.mode == PhaseMode::Sequential
+            && !places.is_empty()
+        {
+            let first = self.asked % places.len();
+            places.rotate_left(first);
+        }
         for _ in 0..phase.max_turns.max(1) {
             match phase.mode {
                 PhaseMode::Parallel => {
@@ -857,6 +887,92 @@ mod tests {
 
     fn expert(answer: &str) -> String {
         json(&serde_json::json!({"answer": answer, "confidence": "high", "out_of_domain": []}))
+    }
+
+    fn group() -> RoomRun {
+        let seating: Vec<Assignment> = (0..3)
+            .map(|place| assign("member", place, ProviderId::ClaudeCode))
+            .collect();
+        RoomRun::new(seat(&Library::bundled(), "round-robin", &seating).expect("seated"))
+    }
+
+    fn member(contribution: &str, changed: bool) -> String {
+        json(&serde_json::json!({"contribution": contribution, "changed": changed}))
+    }
+
+    const MEMBERS: [&str; 3] = ["member-1", "member-2", "member-3"];
+
+    #[tokio::test]
+    async fn a_group_takes_turns_in_order_and_each_sees_what_came_before() {
+        let host = Script::new(|place, _| Ok(member(&format!("from {place}"), true)));
+        let outcome = group().ask("Q?", &host).await.unwrap();
+
+        // Its round limit: three rounds of three, in the same order.
+        let cycle: Vec<&str> = MEMBERS.iter().copied().cycle().take(9).collect();
+        assert_eq!(host.order(), cycle);
+        assert_eq!(outcome.rounds, 3);
+        assert_eq!(outcome.stopped, Stopped::Rounds);
+        assert_eq!(outcome.pick, None, "a group picks no winner");
+
+        let first = &host.prompts("member-1")[0];
+        assert!(!first.contains("from member-2"), "{first}");
+        let second = &host.prompts("member-2")[0];
+        assert!(second.contains("from member-1"), "{second}");
+        let third = &host.prompts("member-3")[0];
+        assert!(third.contains("from member-1"), "{third}");
+        assert!(third.contains("from member-2"), "{third}");
+        // In the next round, the first member sees what came after it.
+        let again = &host.prompts("member-1")[1];
+        assert!(again.contains("from member-3"), "{again}");
+    }
+
+    #[tokio::test]
+    async fn a_group_stops_when_a_round_adds_nothing() {
+        // Each member adds something on its first turn, and nothing on its second.
+        let host = Script::new(|_, turn| Ok(member("something", turn == 1)));
+        let outcome = group().ask("Q?", &host).await.unwrap();
+        assert_eq!(outcome.stopped, Stopped::Stable);
+        assert_eq!(outcome.rounds, 2, "it needs a second round to compare");
+        assert_eq!(host.order().len(), 6);
+    }
+
+    #[tokio::test]
+    async fn each_new_question_starts_with_the_next_member() {
+        let mut run = group();
+        run.seated.room.stop.max_rounds = 1;
+        let starts = [["member-1"], ["member-2"], ["member-3"], ["member-1"]];
+        for start in starts {
+            let host = Script::new(|place, _| Ok(member(place, true)));
+            run.ask("Q?", &host).await.unwrap();
+            assert_eq!(host.order()[0], start[0]);
+            assert_eq!(host.order().len(), 3, "everyone still speaks");
+        }
+    }
+
+    #[tokio::test]
+    async fn a_reopened_group_continues_its_rotation() {
+        let mut run = group().having_asked(1);
+        run.seated.room.stop.max_rounds = 1;
+        let host = Script::new(|place, _| Ok(member(place, true)));
+        run.ask("Q?", &host).await.unwrap();
+        assert_eq!(host.order(), ["member-2", "member-3", "member-1"]);
+    }
+
+    #[tokio::test]
+    async fn a_room_with_fixed_turns_always_starts_at_its_first_seat() {
+        let mut run = council();
+        run.seated.room.phases[0].mode = PhaseMode::Sequential;
+        for _ in 0..2 {
+            let host = Script::new(|place, _| {
+                Ok(if place == "selector-1" {
+                    selector("a")
+                } else {
+                    expert(place)
+                })
+            });
+            run.ask("Q?", &host).await.unwrap();
+            assert_eq!(host.order()[0], "answerer-1");
+        }
     }
 
     fn router_run() -> RoomRun {

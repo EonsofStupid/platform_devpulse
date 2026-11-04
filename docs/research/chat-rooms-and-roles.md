@@ -167,6 +167,7 @@ handoffs or guardrails [28–37].
 | **Author + Critic** | The author drafts; a critic from a different vendor returns rubric scores and defects [24][26] | a rubric pass or three iterations | The Selector picks the best draft of all iterations; later is not always better [11]. |
 | **Router** | One seat, matched on its `summary` and tags [26][30][36] | one reply | Escalates to a Council when unsure or high-stakes. |
 | **Brainstorm** | Separate idea generation [47]; the Planner groups ideas without rewriting them; Realist, Skeptic and Pre-mortem annotate; the Selector shortlists k | an idea quota or a time box | The Disney order: Dreamer, Realist, Critic [38]. |
+| **Round Robin Group** | Every seat speaks in a fixed order and sees everything said [48] | a round adds nothing, or the round limit | Added 2026-11-04 at the owner's ruling. Sharing every turn invites conformity [11], so a member says when it has nothing to add, and each new question starts with the next member, so nobody always anchors the group. |
 
 ### 1.6 Risks and what counters them
 
@@ -373,6 +374,7 @@ participant's reasoning and tool logs never reach another.
 45. Dennett, *Intuition Pumps* (2013), Rapoport's rules. https://effectiviology.substack.com/p/rapoports-rules
 46. Lorenz et al., "How social influence can undermine the wisdom of crowd effect," PNAS 2011. https://pmc.ncbi.nlm.nih.gov/articles/PMC3107299
 47. Diehl & Stroebe, "Productivity loss in brainstorming groups," JPSP 1987. https://homepages.se.edu/cvonbergen/files/2013/01/Productivity-Loss-In-Brainstorming_Toward-the-Solution-of-a-Riddle.pdf
+48. Microsoft AutoGen, "Teams" and `RoundRobinGroupChat` (read 2026-11-04): a fixed rotation, one shared context, a termination condition, and a resumed run continuing at the next speaker. https://microsoft.github.io/autogen/stable/user-guide/agentchat-user-guide/tutorial/teams.html
 
 ## References, part 2 (read 2026-10-20 unless dated)
 

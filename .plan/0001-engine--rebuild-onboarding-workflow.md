@@ -3185,4 +3185,25 @@ queries proving what was written.
     - No window shows this yet: rooms in the chat window are B4.3. A router's first
       answer may also name a place while escalating; escalation wins and the name is
       dropped.
+  - 2026-11-04 — **B4.5 L1 done: notes are a yes or no everywhere.**
+    - `seats[].notes` in `room.v1` (default yes), a per-place override in the seating
+      (`b39dcde3`), and `chat_session_settings` (migration 0006) for threads and endpoint
+      chats. A choice that cannot be read sends nothing.
+    - The chat window shows "Notes: yes" or "Notes: no" with a switch on any thread or
+      endpoint chat. Live in the running app: it changes, the engine agrees, and it
+      survives a reload. Live with real agents: in one Council two seats answered from
+      the notes and the seat turned off answered `NONE`; a Claude Code thread turned off
+      answered `NONE`, and turned on again answered the codeword.
+    - Limits: Clyffy's own local conversation has no switch, because it does not read
+      notes yet. Seats have no switch on screen until L5, since no window seats a room
+      yet. Turning notes off on a Codex thread that already has them cannot unsend what
+      it was told.
+  - 2026-11-04 — **B4.5 L2 done: the Round Robin Group.**
+    - `round-robin.json` and a `group-member` role: everyone takes turns in a fixed
+      order, sees everything said, and says when it has nothing to add; a round that
+      adds nothing ends it, as does the round limit. A group picks no winner.
+    - `turn_policy` now does something, which it never did: under `round-robin` each new
+      question starts with the next seat, so nobody always anchors the group, and a
+      reopened room continues from its saved questions. This also applies to Debate's
+      rebuttals, its only other user.
 
