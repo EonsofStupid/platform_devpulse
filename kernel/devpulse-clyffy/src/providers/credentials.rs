@@ -99,7 +99,14 @@ mod tests {
     #[test]
     fn native_backend_is_selected_without_accessing_the_vault() {
         // Construction only: no read, write or delete of any OS credential.
-        let _entry = keyring::Entry::new("devpulse-backend-type-test", "unused").unwrap();
+        let entry = keyring::Entry::new("devpulse-backend-type-test", "unused");
+        // A Linux machine with no secret service has no store at all, and keyring 4
+        // says so up front. Refusing is right: a key is never kept in a stand-in.
+        #[cfg(target_os = "linux")]
+        if matches!(entry, Err(keyring::Error::NoDefaultStore)) {
+            return;
+        }
+        let _entry = entry.unwrap();
         let store = keyring_core::get_default_store().unwrap();
         assert!(!store.vendor().starts_with("Mock store"));
         assert!(matches!(
