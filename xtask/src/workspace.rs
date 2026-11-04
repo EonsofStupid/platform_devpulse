@@ -32,6 +32,10 @@ pub struct Workspace {
     root: PathBuf,
     /// `PATH` with `node_modules/.bin` prepended for Node tool resolution.
     node_bin: PathBuf,
+    /// The directory of the Node runtime found at startup. MSVC's `vcvars64`
+    /// replaces the child PATH; retain Node so Tauri's frontend scripts can
+    /// run `node` after the native build environment is activated.
+    node_runtime_bin: Option<PathBuf>,
 }
 
 impl Workspace {
@@ -47,8 +51,16 @@ impl Workspace {
             .join("desktop")
             .join("node_modules")
             .join(".bin");
+        let node_runtime_bin = env::var_os("PATH")
+            .as_deref()
+            .and_then(|path| which::which_in("node", Some(path), &root).ok())
+            .and_then(|node| node.parent().map(Path::to_path_buf));
 
-        Ok(Self { root, node_bin })
+        Ok(Self {
+            root,
+            node_bin,
+            node_runtime_bin,
+        })
     }
 
     // ── Paths ──────────────────────────────────────────────────────
@@ -83,7 +95,9 @@ impl Workspace {
     /// Compose the current build PATH after native toolchain activation.
     fn path(&self) -> std::ffi::OsString {
         let inherited = crate::child_env::var_os("PATH").unwrap_or_default();
-        let dirs = std::iter::once(self.node_bin.clone()).chain(env::split_paths(&inherited));
+        let dirs = std::iter::once(self.node_bin.clone())
+            .chain(self.node_runtime_bin.iter().cloned())
+            .chain(env::split_paths(&inherited));
         env::join_paths(dirs).unwrap_or(inherited)
     }
 
