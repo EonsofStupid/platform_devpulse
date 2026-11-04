@@ -5,7 +5,7 @@ mod tests;
 mod turns;
 mod types;
 
-use super::agents::{TurnRow, save_turn};
+use super::agents::{TurnRow, notes_on, save_turn};
 use super::containers::Containers;
 use super::memory::Memory;
 use anyhow::{Context, Result, ensure};
@@ -193,6 +193,7 @@ impl Chat {
             .await?;
         let mut messages = self.context(project, session).await?;
         if let Some(memory) = &self.memory
+            && notes_on(self.db.as_ref(), session).await
             && let Some(notes) = memory.session_text(project).await
         {
             messages.insert(

@@ -51,6 +51,31 @@ pub struct AgentThread {
     pub turn_count: i64,
     /// Unix seconds of its last turn.
     pub updated_at: i64,
+    /// It gets the notes you chose. Yes unless you said no for this thread.
+    pub notes: bool,
+}
+
+/// Whether a conversation gets your notes: yes unless you said no. If your choice
+/// cannot be read they do not go, since sending them is the step you cannot undo,
+/// and the log says why.
+pub(super) async fn notes_on(db: &dyn SqlAdapter, session_id: &str) -> bool {
+    match db
+        .query(
+            "SELECT notes FROM chat_session_settings WHERE session_id = ?",
+            &[session_id.into()],
+        )
+        .await
+    {
+        Ok(rows) => rows
+            .first()
+            .and_then(|row| row.first())
+            .and_then(SqlValue::as_integer)
+            .is_none_or(|notes| notes != 0),
+        Err(error) => {
+            tracing::warn!(target: "agents", %session_id, error = %format!("{error:#}"), "your choice for notes could not be read; none go");
+            false
+        }
+    }
 }
 
 /// What a thread needs to (re)start its conversation.
@@ -114,7 +139,8 @@ impl Agents {
             .sql()
             .query(
                 "SELECT s.id, s.project_id, a.provider_id, COALESCE(s.title, ''), \
-                 (SELECT COUNT(*) FROM turns t WHERE t.session_id = s.id), s.updated_at \
+                 (SELECT COUNT(*) FROM turns t WHERE t.session_id = s.id), s.updated_at, \
+                 COALESCE((SELECT c.notes FROM chat_session_settings c WHERE c.session_id = s.id), 1) \
                  FROM agenthub_threads a JOIN sessions s ON s.id = a.session_id \
                  WHERE s.project_id = ? ORDER BY s.updated_at DESC",
                 &[project_id.into()],
@@ -132,6 +158,7 @@ impl Agents {
                     title: row.get(3).and_then(SqlValue::as_text)?.to_owned(),
                     turn_count: row.get(4).and_then(SqlValue::as_integer).unwrap_or(0),
                     updated_at: row.get(5).and_then(SqlValue::as_integer).unwrap_or(0),
+                    notes: row.get(6).and_then(SqlValue::as_integer) != Some(0),
                 })
             })
             .collect())
@@ -181,7 +208,40 @@ impl Agents {
             title,
             turn_count: 0,
             updated_at: 0,
+            notes: true,
         })
+    }
+
+    /// Whether this conversation gets your notes.
+    pub async fn notes(&self, session_id: &str) -> bool {
+        notes_on(self.sql(), session_id).await
+    }
+
+    /// Say whether this conversation gets your notes. An agent's notes are set when
+    /// its session starts, so a live one ends here and its next turn starts anew
+    /// with your choice, continuing the same conversation. What it was already told
+    /// stays in what it remembers.
+    ///
+    /// # Errors
+    /// When it is still answering, or your choice cannot be saved.
+    pub async fn set_notes(&self, session_id: &str, notes: bool) -> Result<()> {
+        let live = self.live.lock().await.get(session_id).cloned();
+        if let Some(conversation) = &live {
+            drop(conversation.begin()?);
+        }
+        self.sql()
+            .execute(
+                "INSERT INTO chat_session_settings (session_id, notes) VALUES (?, ?) \
+                 ON CONFLICT(session_id) DO UPDATE SET notes = excluded.notes",
+                &[session_id.into(), i64::from(notes).into()],
+            )
+            .await
+            .context("save your choice for notes")?;
+        if let Some(conversation) = live {
+            self.live.lock().await.remove(session_id);
+            conversation.close().await;
+        }
+        Ok(())
     }
 
     async fn record(&self, session_id: &str) -> Result<ThreadRecord> {
@@ -223,7 +283,8 @@ impl Agents {
     ) -> Result<Arc<AgentSession>> {
         turn.session(async {
             let cwd = self.folder(&record.project_id).await?;
-            let session = self.conversation(record.provider_id, &record.project_id, &cwd, record.resume_token.clone(), false).await?;
+            let notes = self.notes(session_id).await;
+            let session = self.conversation(record.provider_id, &record.project_id, &cwd, record.resume_token.clone(), false, notes).await?;
             tracing::info!(target: "agents", %session_id, provider = record.provider_id.key(), cwd = %cwd.display(), "conversation started");
             Ok(session)
         }).await
@@ -237,8 +298,8 @@ impl Agents {
     /// Start a conversation in its existing workspace. Only `talk_only`
     /// places may create an isolated folder. `resume` continues a previous
     /// conversation; `talk_only` turns tools off where the agent supports it.
-    /// Any other session gets your memory, bound to `project_id`, and the notes
-    /// you approved for it.
+    /// Any other session gets your memory, bound to `project_id`. With `notes`,
+    /// it gets the notes you approved, whichever kind of seat it is.
     ///
     /// # Errors
     /// When the workspace is unavailable or the agent cannot start.
@@ -249,6 +310,7 @@ impl Agents {
         cwd: &Path,
         resume: Option<String>,
         talk_only: bool,
+        notes: bool,
     ) -> Result<AgentSession> {
         prepare_workspace(cwd, talk_only)?;
         let catalog = catalog::load(&self.data_dir)?;
@@ -271,7 +333,7 @@ impl Agents {
             .as_ref()
             .map(|memory| vec![memory.server.clone()])
             .unwrap_or_default();
-        let memory_context = match self.memory.as_ref().filter(|_| !talk_only) {
+        let memory_context = match self.memory.as_ref().filter(|_| notes) {
             Some(memory) => memory.session_text(project_id).await,
             None => None,
         };

@@ -795,6 +795,7 @@ mod tests {
             place,
             provider,
             persona: None,
+            notes: None,
         }
     }
 
@@ -867,6 +868,7 @@ mod tests {
                 place: 0,
                 provider: ProviderId::ClaudeCode,
                 persona: None,
+                notes: None,
             })
             .collect();
         RoomRun::new(seat(&library, "router", &seating).expect("seated"))

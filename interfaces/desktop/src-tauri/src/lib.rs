@@ -215,6 +215,8 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             commands::candle::candle_save_config,
             commands::candle::candle_restart_pool,
             commands::agents::agent_threads,
+            commands::agents::conversation_notes,
+            commands::agents::conversation_set_notes,
             commands::agents::agent_thread_start,
             commands::agents::agent_prompt,
             commands::agents::agent_cancel,

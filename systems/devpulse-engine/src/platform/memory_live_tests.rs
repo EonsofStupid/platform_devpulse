@@ -32,6 +32,7 @@ fn seat(seat: &str, place: u32, provider: ProviderId) -> Assignment {
         place,
         provider,
         persona: None,
+        notes: None,
     }
 }
 
@@ -219,6 +220,23 @@ impl Fixture {
             your_words,
             [ASK_FOR_THE_CODEWORD, ASK_FOR_THE_CODEWORD, look_up]
         );
+
+        // You say no for this thread: a new one knows nothing, and yes brings it back.
+        assert!(thread.notes);
+        let no = self
+            .agents
+            .start_thread(&self.project, ProviderId::ClaudeCode)
+            .await
+            .unwrap();
+        self.agents.set_notes(&no.session_id, false).await.unwrap();
+        let answer = self.turn(&no.session_id, ASK_FOR_THE_CODEWORD).await;
+        println!("claude code thread, notes off: {answer:?}");
+        assert!(!answer.contains(&self.approved), "{answer:?}");
+        self.agents.set_notes(&no.session_id, true).await.unwrap();
+        let answer = self.turn(&no.session_id, ASK_FOR_THE_CODEWORD).await;
+        println!("claude code thread, notes back on: {answer:?}");
+        assert!(answer.contains(&self.approved), "{answer:?}");
+        self.agents.close(&no.session_id).await;
         self.agents.close(&thread.session_id).await;
     }
 
@@ -285,7 +303,8 @@ impl Fixture {
         rooms.close(&council.session_id).await;
     }
 
-    /// A real Council: every shipped role only talks, so no seat gets your notes.
+    /// A real Council whose seats only talk: they get your notes, except the seat
+    /// you said no for, and none of them has the tools to look up the rest.
     async fn check_a_room(&self) {
         let rooms = self.rooms();
         let room = rooms
@@ -295,7 +314,10 @@ impl Fixture {
                 vec![
                     seat("answerer", 0, ProviderId::ClaudeCode),
                     seat("answerer", 1, ProviderId::ClaudeCode),
-                    seat("answerer", 2, ProviderId::ClaudeCode),
+                    Assignment {
+                        notes: Some(false),
+                        ..seat("answerer", 2, ProviderId::ClaudeCode)
+                    },
                     seat("selector", 0, ProviderId::Codex),
                 ],
             )
@@ -304,9 +326,19 @@ impl Fixture {
         let (turns, outcome, _) = room_run(&rooms, &room.session_id, ASK_FOR_THE_CODEWORD).await;
         println!("council finished: {outcome:?}");
         assert_eq!(turns.len(), 4, "three answers and a selection: {turns:?}");
+        let said = |place: &str| {
+            let (_, text) = turns.iter().find(|(p, _)| p == place).expect(place);
+            text.clone()
+        };
+        for place in ["answerer-1", "answerer-2"] {
+            assert!(said(place).contains(&self.approved), "{place}: {turns:?}");
+        }
+        assert!(
+            !said("answerer-3").contains(&self.approved),
+            "notes off: {turns:?}"
+        );
         for (_, text) in &turns {
-            assert!(!text.contains(&self.approved), "a talking seat: {text:?}");
-            assert!(!text.contains(&self.held_back), "a talking seat: {text:?}");
+            assert!(!text.contains(&self.held_back), "held back: {text:?}");
         }
         rooms.close(&room.session_id).await;
     }

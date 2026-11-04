@@ -361,7 +361,7 @@ save_moved = "An agent changed this note while you were editing, so nothing was 
 save_gone = "This note was deleted while you were editing, so nothing was saved. Saving again creates it."
 current_title = "What it says now"
 sending_title = "What your agents get"
-sending_description = "This goes with every new conversation in the project above, to whichever agent you talk to. A conversation already open keeps the notes it started with. Seats that only talk, like a Council's blind answers, get none of it."
+sending_description = "This goes with every new conversation in the project above, to whichever agent you talk to, and to every seat in a room. You can say no for one conversation or one seat, and each one shows yes or no. A conversation already open keeps the notes it started with."
 sending_none = "Nothing goes automatically yet. Turn on “Send with every conversation” on a note to include it."
 sending_used = "{used} of {limit} characters."
 sending_left_out = "Too long to fit, so not sent: {names}. Shorten a note or turn another off."
@@ -381,6 +381,12 @@ stop = "Stop"
 retained_answer = "Retained answer"
 retained_note = "This copy stays here until dismissed. Check the error for whether history was saved. Copy anything you need before closing this window."
 dismiss_retained = "Dismiss copy"
+notes_label = "Send my notes"
+notes_yes = "Notes: yes"
+notes_no = "Notes: no"
+notes_help = "When this is on, the notes you chose in Settings → Memory go with this conversation. Turning it off stops them going from now on; what an agent was already told stays in what it remembers."
+notes_change = "Choose which notes"
+notes_failed = "Your choice wasn't saved: {reason}"
 
 # ─────────────────────────────────────────────────────────────────────
 # Routes — one name per route folder, keyed by its URL path (plan 0008).

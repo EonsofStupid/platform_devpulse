@@ -1585,6 +1585,69 @@ Each phase passes:
 
 **B4.4 — your checkpoint.** Your sign-off.
 
+**B4.5 — your library, configurable** (owner 2026-11-04; runs with B4.3, whose
+window it fills).
+
+Owner, 2026-11-04: "YES THEY GET THE FUCKING NOTES THERE IS A SCHEMA THAT DEFINES
+AND PROVIDES BASELINE TEMPLATES AND EXAMPLES AND THE MOST HIGH IN DEMAND TYPES OF
+AGENTS AND WE INCLUDE THEM THE USER CAN CREATE COUNCILS TAILORED WE ALSO PROVIDE
+ROUND ROBIN GROUP"; "its fully configurable toggles clear UI that lets you know no
+notes yes notes"; "GET MY FUCKING CODE FUCKING RESTORED FUCKING PROPERLY".
+
+This replaces B6.3's "talk-only seats get nothing": seats get notes by default, and
+every seat and conversation has a visible yes or no. Memory tools stay off for a
+talk-only seat, since one seat could read what another wrote and that would break
+blindness; notes do not.
+
+What the sweep found (2026-11-04), with the code it comes from:
+
+- **The spec exists; most of it was never built.** `scripts/docs/PHILOSOPHY.md:216-234`
+  defines the Clyffy Council (9 seats, each with an animal character).
+  `interfaces/desktop/src/lib/domains/app/overmind/OVERMIND_SPEC.md` §3C specifies
+  templates: "User selects a template -> System displays the COSTAR breakdown -> User
+  customizes or spawns", with `AgentTemplatePopup.svelte`, never committed.
+  `docs/chat-modes/_raw/all-prompts.txt:148,164-165`: "a pattern for extension that
+  clearly states its minimal requirements to be added", "how they are to be authored".
+- **Round robin is named, not implemented.** `room.v1` and `TurnPolicy` have it and
+  `debate.json` sets it, but `rooms/run.rs` never reads `turn_policy`. There is no
+  round-robin room. AutoGen's `RoundRobinGroupChat` is the established shape: fixed
+  rotation, one shared transcript, a termination condition, resume at the next
+  speaker (autogen docs, read 2026-11-04).
+- **Nothing ships but thinking roles.** 12 roles, 5 rooms; `Library.personas` says
+  "None ship; these are yours", and every shipped role is talk-only, so none can read
+  the code it is asked about.
+- **Restorable source material** (all staged in `recovered/repo/alpha`, older
+  architecture, content portable, code not):
+  `orchestrator/src/frames/catalog/mod.rs` (Systems Architect, Supportive Ally,
+  Devil's Advocate, Pragmatist: prompts, traits, domains);
+  `orchestrator/src/types/expert.rs` and `sub_agents/guardian/manifest.toml` (the
+  "add one" pattern: id, capabilities, signals, allowed tools);
+  `shared/src/config/persona.rs`, `engine/src/facade/persona.rs`,
+  `lab/ui/src/routes/persona/+page.svelte` (a persona editor, as reference for the form).
+- **The seats' names:** `scripts/docs/consolidation/LOCKED_DECISIONS.md` §D, historical
+  but the only source: Clyffy the cow, Siggy the Johnny Crane, Fleece the sheep, Quincy
+  the pig, Warden the badger, Rusty and Pip the goat twins, Fox, the Mini Pony, the
+  Llama. Psych's layman name is Human Diagnostics (`all-prompts.txt:14901`).
+- **Not recoverable from this repo:** `COUNCIL.md`, the Minion System Specification,
+  and the "separate doc" of Council personas that `LOCKED_DECISIONS.md` §L names. No
+  prompt or character file for any seat survives, so those are authored fresh from the
+  lines above and say so in their provenance.
+
+Conflicts, resolved as stated here unless the owner rules otherwise: the roster is
+`PHILOSOPHY.md`'s (it is newer and agrees with `all-prompts.txt:162`), one seat for
+the twins, so Scribe rather than a separate Translator. The 9-seat Clyffy Council and
+R25's vendor council are different things and both ship: one is a template, seated
+like any other, the other the existing Council room. `chat-native-program.md:197` R16
+keeps Clyffy out of group chat; nothing here makes Clyffy join one unless you seat it.
+
+| Phase | Outcome | Check |
+| --- | --- | --- |
+| L1 | Notes: `seats[].notes` in `room.v1` (default yes), a per-seat override in the seating, a per-conversation choice for threads and endpoint chats, delivery no longer tied to talk-only, and a clear yes/no in the chat window | A seat with notes answers the codeword and one with notes off answers `NONE`, in the same real Council; a thread turned off stops sending; the toggle survives a restart |
+| L2 | Round-robin group: `turn_policy` means something, a `round-robin` room type, a bundled room and a member role | Fake-host tests for rotation, shared transcript, stop rules and resume at the next speaker; one real group |
+| L3 | Tailored rooms: a seat takes any fitting role and persona; the engine saves your role, room and persona files, validated by the kernel; a bundled entry starts yours | Kernel refusals by name; saved files reload; a tailored Council runs |
+| L4 | The baseline library: research-backed agent types with read access where they need it, restored personas with provenance, the Clyffy Council template, and a page saying the minimal requirements to add one | Every file passes its schema; a real reviewer seat reads a real file and has no write access; the research page cites each type |
+| L5 | B4.3 in the window: the template picker with its COSTAR breakdown, seating with agent, role, persona and notes on each seat, the room's stream and outcome, reopening with history | Live: tailor a Council from the window, see notes yes and no on its seats, run it, restart, reopen |
+
 ### B5 — AgentHub board, its own module (master plan H4)
 
 **Owner correction 2026-10-27:** AgentHub is a supervised subprocess bundled
@@ -1710,15 +1773,11 @@ or used), every visual in the B4.3 order.
   - **Bounded and visible.** At most 8,000 characters a session: your own notes
     first, then the project's, each by name. A note that does not fit is left out
     whole, never cut, and the page names it. The page shows the exact text sent.
-  - **Who gets it.** Whoever gets memory today. A conversation already open keeps
-    the notes it started with. Talk-only seats get nothing, and every shipped role
-    is talk-only, so no room seat gets notes or memory yet. *Corrected 2026-11-03:*
-    this was first justified as keeping Council's answers blind, which is wrong.
-    Blind means seats cannot see each other's answers and the selector sees letters,
-    and identical notes would not break that; memory tools would, since one seat
-    could read what another wrote. The real reason is that a Council sends your
-    notes to several companies at once. **Whether seats should get them is the
-    owner's call**; it is one condition in `Agents::conversation` and `delivery`.
+  - **Who gets it.** *Owner ruling 2026-11-04 (B4.5): "YES THEY GET THE FUCKING
+    NOTES", with toggles and clear UI.* Every conversation and every seat, including
+    talk-only ones, gets them unless you say no for it. A conversation already open
+    keeps the notes it started with. Memory tools stay off for a talk-only seat:
+    one seat could read what another wrote, which would break blindness.
   - **Told about the rest.** The memory server's MCP `instructions` say what it
     holds and when to use it, so a note you did not pick can still be found.
 

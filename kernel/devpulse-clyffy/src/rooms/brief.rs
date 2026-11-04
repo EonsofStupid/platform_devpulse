@@ -243,6 +243,7 @@ mod tests {
                 place,
                 provider: ProviderId::ClaudeCode,
                 persona: None,
+                notes: None,
             })
             .collect();
         seating.push(Assignment {
@@ -250,6 +251,7 @@ mod tests {
             place: 0,
             provider: ProviderId::Codex,
             persona: None,
+            notes: None,
         });
         let seated = seat(&library, "council", &seating).expect("seated");
         (seated.room.clone(), seated.places[0].clone())

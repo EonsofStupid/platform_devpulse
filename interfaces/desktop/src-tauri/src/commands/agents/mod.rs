@@ -37,6 +37,32 @@ pub async fn agent_threads(
         .map_err(|e| format!("{e:#}"))
 }
 
+/// Whether a conversation (a thread or an endpoint chat) gets your notes.
+#[tauri::command]
+#[specta::specta]
+#[allow(clippy::missing_errors_doc)]
+pub async fn conversation_notes(
+    session_id: String,
+    state: State<'_, PlatformState>,
+) -> Result<bool, String> {
+    Ok(agents(&state)?.notes(&session_id).await)
+}
+
+/// Say whether a conversation gets your notes.
+#[tauri::command]
+#[specta::specta]
+#[allow(clippy::missing_errors_doc)]
+pub async fn conversation_set_notes(
+    session_id: String,
+    notes: bool,
+    state: State<'_, PlatformState>,
+) -> Result<(), String> {
+    agents(&state)?
+        .set_notes(&session_id, notes)
+        .await
+        .map_err(|e| format!("{e:#}"))
+}
+
 /// Start a thread with one of your installed agents.
 #[tauri::command]
 #[specta::specta]

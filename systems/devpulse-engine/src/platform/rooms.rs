@@ -143,6 +143,7 @@ fn council_seating(seating: &[Assignment], routing_seat: &str) -> Vec<Assignment
                 place: index,
                 provider: place.provider,
                 persona: place.persona.clone(),
+                notes: place.notes,
             }
         })
         .collect()
@@ -519,6 +520,7 @@ impl Host {
                     &cwd,
                     resume,
                     talk_only,
+                    place.notes,
                 )
                 .await?,
         );
@@ -734,6 +736,7 @@ mod tests {
             place: 0,
             provider,
             persona: persona.map(str::to_owned),
+            notes: None,
         };
         let seating = [
             place("router", ProviderId::Codex, Some("ada")),
@@ -773,6 +776,7 @@ mod tests {
             place: index,
             provider: ProviderId::ClaudeCode,
             persona: None,
+            notes: None,
         };
         let seating = [
             place("router", 0),

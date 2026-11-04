@@ -553,6 +553,18 @@ pub struct SidebarCopy {
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 #[serde(deny_unknown_fields)]
 pub struct AgentChatCopy {
+    /// The switch that sends your notes with this conversation.
+    pub notes_label: String,
+    /// This conversation gets your notes.
+    pub notes_yes: String,
+    /// This conversation does not.
+    pub notes_no: String,
+    /// What the switch does, and what turning it off cannot undo.
+    pub notes_help: String,
+    /// Opens the page that chooses them.
+    pub notes_change: String,
+    /// The choice could not be saved (`{reason}`).
+    pub notes_failed: String,
     /// Label of the agent picker.
     pub new_thread: String,
     /// Shown when no agent can hold a conversation yet.

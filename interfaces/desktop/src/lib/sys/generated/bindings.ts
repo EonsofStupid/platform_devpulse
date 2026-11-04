@@ -1283,6 +1283,28 @@ async agentThreads(projectId: string) : Promise<Result<AgentThread[], string>> {
 }
 },
 /**
+ * Whether a conversation (a thread or an endpoint chat) gets your notes.
+ */
+async conversationNotes(sessionId: string) : Promise<Result<boolean, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("conversation_notes", { sessionId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Say whether a conversation gets your notes.
+ */
+async conversationSetNotes(sessionId: string, notes: boolean) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("conversation_set_notes", { sessionId, notes }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Start a thread with one of your installed agents.
  */
 async agentThreadStart(projectId: string, providerId: ProviderId) : Promise<Result<AgentThread, string>> {
@@ -4779,6 +4801,30 @@ export type Affinity =
  */
 export type AgentChatCopy = { 
 /**
+ * The switch that sends your notes with this conversation.
+ */
+notes_label: string; 
+/**
+ * This conversation gets your notes.
+ */
+notes_yes: string; 
+/**
+ * This conversation does not.
+ */
+notes_no: string; 
+/**
+ * What the switch does, and what turning it off cannot undo.
+ */
+notes_help: string; 
+/**
+ * Opens the page that chooses them.
+ */
+notes_change: string; 
+/**
+ * The choice could not be saved (`{reason}`).
+ */
+notes_failed: string; 
+/**
  * Label of the agent picker.
  */
 new_thread: string; 
@@ -4912,7 +4958,11 @@ turnCount: number;
 /**
  * Unix seconds of its last turn.
  */
-updatedAt: number }
+updatedAt: number; 
+/**
+ * It gets the notes you chose. Yes unless you said no for this thread.
+ */
+notes: boolean }
 /**
  * "None passes" is a valid outcome.
  */
@@ -5452,7 +5502,11 @@ provider: ProviderId;
 /**
  * The id of the persona it speaks as.
  */
-persona?: string | null }
+persona?: string | null; 
+/**
+ * Your choice for this place's notes; absent, the room's seat decides.
+ */
+notes?: boolean | null }
 /**
  * Built-in keyword action types the assistant can dispatch.
  * 
@@ -13535,7 +13589,12 @@ count: number;
 /**
  * The role's parameters, filled.
  */
-parameters?: Partial<{ [key in string]: string }> }
+parameters?: Partial<{ [key in string]: string }>; 
+/**
+ * It gets the notes you chose: yes unless you say otherwise, here or when
+ * you seat the room.
+ */
+notes?: boolean }
 /**
  * How the room chooses one answer (select, never blend).
  * 

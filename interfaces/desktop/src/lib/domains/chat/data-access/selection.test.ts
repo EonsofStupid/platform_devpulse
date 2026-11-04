@@ -66,6 +66,7 @@ function thread(projectId: string): AgentThread {
 		title: projectId,
 		turnCount: 0,
 		updatedAt: 0,
+		notes: true,
 	};
 }
 

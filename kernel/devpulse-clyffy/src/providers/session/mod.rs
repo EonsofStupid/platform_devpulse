@@ -165,13 +165,15 @@ pub struct SessionSetup {
     /// Adds the agent's own switch for changing nothing when its definition has
     /// one (a headless agent's `connect.conversation.talk_only`, an ACP agent's
     /// `connect.talk_only_env`). The caller also refuses its permission requests.
-    /// A seat like this gets no `tools` and no `context`.
+    /// A seat like this gets no `tools`: one seat's memory tools could read what
+    /// another wrote. It can still have `context`.
     pub talk_only: bool,
     /// The MCP servers the agent may use: offered to an ACP agent when its
     /// session opens, and through a headless agent's
     /// `connect.conversation.tool_servers` when its definition has them.
     pub tools: Vec<ToolServer>,
-    /// Your notes for the agent: see [`delivery`].
+    /// Your notes for the agent, when this conversation gets them: see
+    /// [`delivery`]. The caller decides, from your choice for it.
     pub context: Option<String>,
 }
 
@@ -191,15 +193,9 @@ enum Delivery {
 /// Instructions where the definition says the agent has them, because they
 /// outlast the vendor's compaction and stay out of your history; otherwise the
 /// first prompt. An agent told through its environment takes that only when a
-/// thread starts: a real resumed Codex thread answered as if it had none. A seat
-/// that only talks gets nothing.
-fn delivery(
-    connect: &ConnectSpec,
-    talk_only: bool,
-    resuming: bool,
-    context: Option<String>,
-) -> Delivery {
-    let Some(notes) = context.filter(|notes| !talk_only && !notes.is_empty()) else {
+/// thread starts: a real resumed Codex thread answered as if it had none.
+fn delivery(connect: &ConnectSpec, resuming: bool, context: Option<String>) -> Delivery {
+    let Some(notes) = context.filter(|notes| !notes.is_empty()) else {
         return Delivery::Nothing;
     };
     if connect
@@ -269,7 +265,7 @@ impl AgentSession {
         launch.env.extend(talk_only_env(connect_spec, talk_only));
         let mut context_file = None;
         let mut first_prompt = None;
-        match delivery(connect_spec, talk_only, resume.is_some(), context) {
+        match delivery(connect_spec, resume.is_some(), context) {
             Delivery::Nothing => {}
             Delivery::Environment(env) => launch.env.extend(env),
             Delivery::File(notes) => {
@@ -458,7 +454,6 @@ mod tests {
             delivery(
                 &bundled_connect(ProviderId::ClaudeCode),
                 false,
-                false,
                 Some("notes".into())
             ),
             Delivery::File("notes".into())
@@ -470,7 +465,6 @@ mod tests {
         assert_eq!(
             delivery(
                 &bundled_connect(ProviderId::ClaudeCode),
-                false,
                 true,
                 Some("notes".into())
             ),
@@ -491,7 +485,6 @@ mod tests {
         assert_eq!(
             delivery(
                 &bundled_connect(ProviderId::Codex),
-                false,
                 true,
                 Some("notes".into())
             ),
@@ -504,7 +497,6 @@ mod tests {
         let notes = "Line one.\nSay \"yes\" and use C:\\tools.";
         let Delivery::Environment(env) = delivery(
             &bundled_connect(ProviderId::Codex),
-            false,
             false,
             Some(notes.into()),
         ) else {
@@ -522,29 +514,10 @@ mod tests {
             delivery(
                 &bundled_connect(ProviderId::GeminiCli),
                 false,
-                false,
                 Some("notes".into())
             ),
             Delivery::FirstPrompt("notes".into())
         );
-    }
-
-    #[test]
-    fn a_seat_that_only_talks_gets_no_notes_on_any_channel() {
-        for id in [
-            ProviderId::ClaudeCode,
-            ProviderId::Codex,
-            ProviderId::GeminiCli,
-        ] {
-            for resuming in [false, true] {
-                assert_eq!(
-                    delivery(&bundled_connect(id), true, resuming, Some("notes".into())),
-                    Delivery::Nothing,
-                    "{}",
-                    id.key()
-                );
-            }
-        }
     }
 
     #[test]
@@ -560,9 +533,9 @@ mod tests {
     #[test]
     fn no_notes_send_nothing() {
         let connect = bundled_connect(ProviderId::Codex);
-        assert_eq!(delivery(&connect, false, false, None), Delivery::Nothing);
+        assert_eq!(delivery(&connect, false, None), Delivery::Nothing);
         assert_eq!(
-            delivery(&connect, false, false, Some(String::new())),
+            delivery(&connect, false, Some(String::new())),
             Delivery::Nothing
         );
     }
@@ -623,7 +596,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn only_the_first_prompt_carries_the_notes_and_a_talking_seat_never_does() {
+    async fn only_the_first_prompt_carries_the_notes_on_any_kind_of_seat() {
         let dir = tempfile::tempdir().unwrap();
         let (definition, program) = echoing_session_definition();
         let start = |talk_only| {
@@ -655,7 +628,7 @@ mod tests {
         let seat = start(true).await.unwrap();
         let spoken = answer(seat.prompt("only").await.unwrap()).await.unwrap();
         assert!(spoken.contains("only"), "{spoken:?}");
-        assert!(!spoken.contains("MARKED-NOTES"), "{spoken:?}");
+        assert!(spoken.contains("MARKED-NOTES"), "{spoken:?}");
         seat.close().await;
     }
 

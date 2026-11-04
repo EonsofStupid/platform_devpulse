@@ -18,6 +18,7 @@ import { sessionsState } from "../data-access/sessions.state.svelte.js";
 import ChatActionsMenu from "./ChatActionsMenu.svelte";
 import ChatComposer from "./ChatComposer.svelte";
 import ChatModeSelector from "./ChatModeSelector.svelte";
+import ChatNotes from "./ChatNotes.svelte";
 import ChatSessionList from "./ChatSessionList.svelte";
 import ChatStream from "./ChatStream.svelte";
 import CortexMemoryStrip from "./CortexMemoryStrip.svelte";
@@ -123,6 +124,7 @@ $effect(() => {
 				</div>
 			</div>
 			{#if navigationError}<Text role="alert" size="xs">{navigationError}</Text>{/if}
+			<ChatNotes />
 			<CortexMemoryStrip />
 			<div class="relative flex min-h-0 flex-1 gap-2">
 				<div id="chat-sessions" class={`${showSessions ? "flex" : "hidden"} absolute inset-y-0 left-0 z-20 w-56 md:static md:flex md:w-48 md:shrink-0`}>

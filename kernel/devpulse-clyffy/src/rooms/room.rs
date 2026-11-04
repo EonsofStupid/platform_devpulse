@@ -48,6 +48,14 @@ pub struct Seat {
     /// The role's parameters, filled.
     #[serde(default)]
     pub parameters: BTreeMap<String, String>,
+    /// It gets the notes you chose: yes unless you say otherwise, here or when
+    /// you seat the room.
+    #[serde(default = "notes_by_default")]
+    pub notes: bool,
+}
+
+const fn notes_by_default() -> bool {
+    true
 }
 
 /// How a phase's seats take their turns.
@@ -420,6 +428,7 @@ mod tests {
             role: "oracle@1".to_owned(),
             count: 1,
             parameters: BTreeMap::new(),
+            notes: true,
         });
         let problems: Vec<String> = room
             .validate(&library.roles)

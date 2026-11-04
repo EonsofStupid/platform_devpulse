@@ -212,6 +212,63 @@ async fn an_endpoint_conversation_gets_the_notes_you_approved_and_saves_only_you
     );
 }
 
+#[tokio::test]
+async fn saying_no_for_one_endpoint_conversation_keeps_your_notes_from_it_alone() {
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let url = format!("http://{}/custom/v1", listener.local_addr().unwrap());
+    let server = devpulse_telemetry::spawn(answer_two_streams(listener));
+    let tree = tempfile::tempdir().unwrap();
+    let (db, connections, _) = open(&tree).await;
+    let memory = Arc::new(Memory::start(db.clone()).await.unwrap());
+    memory
+        .save(Some("p"), "stack", "Tauri and Svelte.", None, true)
+        .await
+        .unwrap();
+    let chat = Chat::new(db.clone(), Some(connections.clone()), Some(memory), None);
+    let connection = save(&connections, None, &url).await;
+    let start = || chat.start_endpoint("p", &connection.id, connection.revision, "chosen-model");
+    let (off, on) = (start().await.unwrap(), start().await.unwrap());
+    db.execute(
+        "INSERT INTO chat_session_settings (session_id, notes) VALUES (?, 0)",
+        &[off.as_str().into()],
+    )
+    .await
+    .unwrap();
+
+    prompt_quietly(&chat, "p", &off, "hello").await.unwrap();
+    prompt_quietly(&chat, "p", &on, "hello").await.unwrap();
+
+    let requests = server.await.unwrap();
+    let carries_notes =
+        |request: &serde_json::Value| request.to_string().contains("Tauri and Svelte.");
+    assert!(!carries_notes(&requests[0]), "{}", requests[0]);
+    assert!(carries_notes(&requests[1]), "{}", requests[1]);
+}
+
+#[tokio::test]
+async fn a_conversation_gets_notes_unless_you_said_no_and_an_unreadable_choice_sends_none() {
+    let tree = tempfile::tempdir().unwrap();
+    let (db, _, _) = open(&tree).await;
+    db.execute_batch("INSERT INTO sessions (id, project_id, title) VALUES ('s', 'p', 't');")
+        .await
+        .unwrap();
+    assert!(notes_on(db.as_ref(), "s").await, "yes by default");
+    db.execute(
+        "INSERT INTO chat_session_settings (session_id, notes) VALUES ('s', 0)",
+        &[],
+    )
+    .await
+    .unwrap();
+    assert!(!notes_on(db.as_ref(), "s").await, "you said no");
+
+    let plain = tempfile::tempdir().unwrap();
+    let no_table =
+        TursoAdapter::open_with_schema(&plain.path().join("plain.db"), "", TursoOptions::default())
+            .await
+            .unwrap();
+    assert!(!notes_on(&no_table, "s").await, "unreadable: none go");
+}
+
 /// One turn whose chunks the test does not need.
 async fn prompt_quietly(
     chat: &Chat,

@@ -35,6 +35,9 @@ pub struct Assignment {
     /// The id of the persona it speaks as.
     #[serde(default)]
     pub persona: Option<String>,
+    /// Your choice for this place's notes; absent, the room's seat decides.
+    #[serde(default)]
+    pub notes: Option<bool>,
 }
 
 /// One place of a room, seated.
@@ -50,6 +53,8 @@ pub struct Place {
     pub parameters: BTreeMap<String, String>,
     /// The character it speaks as.
     pub persona: Option<Persona>,
+    /// It gets the notes you chose.
+    pub notes: bool,
     /// The agent in it.
     pub provider: ProviderId,
     /// The agent's vendor.
@@ -162,6 +167,7 @@ pub fn seat(
                 role: role.clone(),
                 parameters: seat.parameters.clone(),
                 persona,
+                notes: assignment.notes.unwrap_or(seat.notes),
                 provider: assignment.provider,
                 vendor: row.vendor,
             });
@@ -281,6 +287,7 @@ mod tests {
             place,
             provider,
             persona: None,
+            notes: None,
         }
     }
 
@@ -407,6 +414,47 @@ mod tests {
     }
 
     #[test]
+    fn a_seat_gets_notes_unless_the_room_or_you_say_no() {
+        let mut library = Library::bundled();
+        let seating = |notes: Option<bool>| {
+            let mut seating: Vec<Assignment> = (0..3)
+                .map(|place| Assignment {
+                    notes,
+                    ..assign("answerer", place, ProviderId::ClaudeCode)
+                })
+                .collect();
+            seating.push(assign("selector", 0, ProviderId::Codex));
+            seating
+        };
+        let answerer = |seated: &SeatedRoom| seated.places_of("answerer").next().unwrap().notes;
+
+        let by_default = seat(&library, "council", &seating(None)).unwrap();
+        assert!(answerer(&by_default), "the room says nothing: yes");
+        let yours = seat(&library, "council", &seating(Some(false))).unwrap();
+        assert!(!answerer(&yours), "you said no");
+
+        let council = library
+            .rooms
+            .iter_mut()
+            .find(|r| r.id == "council")
+            .unwrap();
+        for seat in &mut council.seats {
+            seat.notes = false;
+        }
+        let room_says_no = seat(&library, "council", &seating(None)).unwrap();
+        assert!(!answerer(&room_says_no), "the room's seat said no");
+        let you_overrule = seat(&library, "council", &seating(Some(true))).unwrap();
+        assert!(answerer(&you_overrule), "your choice wins");
+    }
+
+    #[test]
+    fn a_seating_saved_before_this_choice_existed_still_reads() {
+        let saved = r#"{"seat":"answerer","place":0,"provider":"claude-code","persona":null}"#;
+        let assignment: Assignment = serde_json::from_str(saved).unwrap();
+        assert_eq!(assignment.notes, None);
+    }
+
+    #[test]
     fn a_router_room_can_be_seated_and_its_experts_are_told_apart() {
         let library = Library::bundled();
         let seating: Vec<Assignment> = ["router", "code", "facts", "decisions"]
@@ -416,6 +464,7 @@ mod tests {
                 place: 0,
                 provider: ProviderId::ClaudeCode,
                 persona: None,
+                notes: None,
             })
             .collect();
         let seated = seat(&library, "router", &seating).expect("seated");

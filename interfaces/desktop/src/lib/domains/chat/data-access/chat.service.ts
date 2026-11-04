@@ -131,6 +131,16 @@ export async function storeAssistantTurn(
 	return ok(r);
 }
 
+/** Whether a conversation gets your notes. */
+export async function conversationNotes(sessionId: string): Promise<boolean> {
+	return ok(await commands.conversationNotes(sessionId));
+}
+
+/** Say whether a conversation gets your notes. */
+export async function setConversationNotes(sessionId: string, notes: boolean): Promise<void> {
+	ok(await commands.conversationSetNotes(sessionId, notes));
+}
+
 /** Endpoint commands use a channel belonging only to this request. */
 export async function endpointTarget(projectId: string, sessionId: string | null) {
 	return ok(await commands.chatEndpointTarget(projectId, sessionId));
