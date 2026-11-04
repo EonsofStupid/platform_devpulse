@@ -7,6 +7,8 @@
 node_modules
 .svelte-kit
 .vitest/
+.vitest-attachments/
+__screenshots__/
 /build
 /dist
 
