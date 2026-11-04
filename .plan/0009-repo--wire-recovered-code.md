@@ -47,9 +47,17 @@ Not lost, because never real: `OvermindDashboard`, `DevDashboard`, `WiredDashboa
 `WiredfrontFrame`, `UIDemoPage` and `MaestroDashboard` never exceeded 812 bytes in any
 commit. `lib/layouts/chat/components/{panels,shell}` are the same.
 
+Batch 2, `25a9dfe0`, rendered once with no uncaught errors: the owner's registry, hub
+contracts, state registry, flags and artifact ids are back under `sys/` and read by the
+sidebar, hub pages and devtools; routes merged into the generated manifest, streams into
+the signal fabric. 972 rows restored. `core/registry.contract` and `core/domain.registry`
+were never in git and are rebuilt from sprint docs. Its new tests name open violations:
+14 stream boundary, 3 state modules outside `data-access/`, 9 export names, 4 flags that
+gate nothing. Voice runs over a chosen endpoint (plan 0007), never yet against a real
+speech server. To review: the agent's own `owner` field, three new contracts, Structure
+devtool, and Overmind and DevForge marked active.
+
 **Next, in order:**
-- `sys/contracts/**` and `sys/registries/**`, the owner's strict patterns. Reconcile
-  with routes generated from folders (plan 0008) before restoring.
 - ColdLight's `recipes` (160), `presets` (67), `shortcodes` (86), `blueprints` (16),
   `taxonomy/kinds` (124), `behaviors` (36), `builders` (16): reported as replaced by
   kind tokens and specs by one agent, not yet reviewed against them by the owner.

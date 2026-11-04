@@ -724,6 +724,16 @@ sign it off (R-H7, R-H8).
 
 ## Part L — Everything on its latest stable release (owner 2026-10-18)
 
+**Status 2026-11-04: L2-L5 landed in `1ca73205`.** npm: SvelteKit 3.1.1, Vite 8.3.5, Vitest
+5.1.0, pnpm 12.16.1, Tauri JS 2.12.4. Rust: keyring 4.2, wgpu 30, rodio 0.23, ACP 5, candle
+0.11, sherpa 2.0.1. Held, each with its reason: TypeScript 6.0.3 (SvelteKit 3 needs it),
+Prisma 7.10.1 (latest is a release candidate), burn 0.21 (regex conflict through mistralrs),
+specta rc.26, ort rc.12. Open: `lucide-svelte` is deprecated for `@lucide/svelte`; the
+browser test suite was not run on the new stack; IPC logging is off because Tauri no longer
+lets `invoke` be wrapped; piper's native build hits an `ort-sys` 404; L6 is not done, since
+`cargo xtask deps` updates rather than reports, and fails on `deps/rro`. pnpm 12 needs a
+global upgrade per machine; Node and pnpm in the portable folder is the proper fix.
+
 2026-11-01: owner requests “latest 2024 minimal”. Working interpretation is
 Rust edition 2024 as the minimum source edition, alongside the existing latest
 stable policy (clarification requested). The initial audit found 12 owned
