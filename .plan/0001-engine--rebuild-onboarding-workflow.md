@@ -3206,4 +3206,66 @@ queries proving what was written.
       question starts with the next seat, so nobody always anchors the group, and a
       reopened room continues from its saved questions. This also applies to Debate's
       rebuttals, its only other user.
+  - 2026-11-04 — **B4.5 L3 done: tailored rooms, in the kernel and engine.**
+    - A place can take any role that can do its seat's job, with its own values for that
+      role's parameters; a selection seat must still select and a routing seat must still
+      route. A seat brings a default character per place, and you can change it.
+    - `rooms::authoring` saves your role, room or persona under `{data}/config/` after the
+      same checks the library runs, whole-file, and says what is wrong at the field. A
+      bundled id takes a higher version; deleting yours brings the bundled one back. An id
+      cannot leave your folder. `Library.yours` says which entries are yours.
+    - Tauri `room_library_save` and `room_library_remove`. Nothing on screen yet: L5.
+    - Blindness survives tailoring: a seat that answers blind may read, gets no memory
+      tools (one seat could read what another saved), and may not hold a role that can
+      write.
+    - **A real tailored Council found three bugs in how a selector judges**, none of which
+      a unit test had caught, because each only appears once a place can take another role.
+      Each one made the selector ignore or fail the only seat that could answer:
+      - Whether an answer is a candidate came from the role's stance, so a reviewer in an
+        answer seat was dropped without a word. It is now the seat's job in the room.
+      - A Council shows structured outputs, and a reviewer's is `{"defects": []}`, so the
+        selector never saw what it said. A role you seated is now shown whole.
+      - A selector that only talks faulted a seat for reading "despite the room's
+        prohibition". It now sees `may="read"` beside a candidate, which says what the
+        seat was allowed and nothing of who it is.
+    - Live: that Council, with a fourth answerer, a reviewer reading the project beside
+      seats that only talk, a character and one seat without notes, picked the reviewer.
+  - 2026-11-04 — **B4.5 L4 done: the baseline library, and seats that can really read.**
+    - `tools_allowed` was never enforced, and `fact-checker` named capabilities nothing
+      knew. A role now says `read`, `web` or `write`, and `Access` (`Full`, `Looks`,
+      `TalkOnly`) reaches each agent through its own definition: `connect.conversation.
+      read_only` and `capabilities` for Claude Code, `connect.read_only_env` for Codex.
+    - **What real agents found that unit tests could not:**
+      - A talking Codex in read-only mode read any file by full path. Turning its shell off
+        was not enough: it then used a `node_repl` MCP server, without asking. So a limited
+        seat lists the agent's own servers (`codex mcp list --json`) and turns each off,
+        plus the features that act outside the sandbox. If it cannot list them, the seat
+        does not start. Now a talking Codex answers `NONE`.
+      - The connector's session servers replace the config's whole `mcp_servers` table, so
+        a limited seat's servers go in the config, with the memory server approved there
+        by name: Codex asks before each call to a server, and a room refuses what a limited
+        seat asks.
+      - On some requests Codex offers only a refusal that stops the turn, which lost the
+        seat's answer. A room now continues the seat once, unless you pressed Stop. Live:
+        refused, stopped, continued, answered, folder unchanged.
+    - Live with Claude Code and Codex together: a Code Review room read a real file and
+      changed nothing; the Clyffy Council's Conductor routed a graphics-memory question to
+      the hardware seat, which answered as Rusty; seats that look answered from memory.
+      Thread, router, round-robin and notes checks passed again afterwards.
+    - The library: 27 new roles (40 total), 14 personas, 3 new rooms (9 total),
+      `config/AUTHORING.md` with minimal examples a test parses, and research Part 3.
+    - **Restored:** the owner's four frames, taken from the recovered source by script: the
+      prompt byte for byte (a test pins one), traits, domains and style. `style` is a new
+      persona field, since dropping it would have lost the owner's numbers; nothing read
+      them in the original either, and a seat's brief now does. `SOURCES.tsv` records it.
+    - **Not restored:** `frames/mod.rs`'s `FrameManager` and one-hop lifetime have no home
+      in rooms yet and stay in staging. No character file for the nine seats survives, so
+      their backstories are written fresh from `PHILOSOPHY.md` and `LOCKED_DECISIONS.md`,
+      and each says so in `origin`.
+    - **Limits:** Gemini, Cursor and Grok have no limit switches in their definitions, so
+      for them a limited seat rests on refusing what they ask and on the brief; none is
+      verified. Codex's read-only mode has one switch, so a role without `web` can still
+      search there. Escalating from the Clyffy Council seats only its first three experts,
+      which is the Council's size. A seat's hooks still run in the project folder, as they
+      do for you. "Most in demand" has no usage data behind it: research Part 3 says so.
 

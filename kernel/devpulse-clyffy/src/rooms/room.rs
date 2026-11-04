@@ -54,6 +54,12 @@ pub struct Seat {
     /// you seat the room.
     #[serde(default = "notes_by_default")]
     pub notes: bool,
+    /// The persona each place speaks as by default, in order.
+    #[serde(default)]
+    pub personas: Vec<String>,
+    /// One line a router reads to choose this seat.
+    #[serde(default)]
+    pub summary: Option<String>,
 }
 
 const fn notes_by_default() -> bool {
@@ -369,6 +375,12 @@ impl RoomSpec {
         issues.extend(self.group_issues());
         let mut seats = BTreeMap::new();
         for seat in &self.seats {
+            if seat.personas.len() > usize::try_from(seat.count).unwrap_or(usize::MAX) {
+                issues.push(Issue::new(
+                    at("seats"),
+                    format!("seat {} names more personas than it has places", seat.seat),
+                ));
+            }
             if seats.insert(seat.seat.as_str(), seat).is_some() {
                 issues.push(Issue::new(
                     at("seats"),
@@ -464,7 +476,7 @@ mod tests {
     fn a_round_robin_room_keeps_its_shape() {
         let library = Library::bundled();
         let room = library.room("round-robin").expect("bundled").clone();
-        assert!(room.validate(&library.roles).is_empty());
+        assert_eq!(room.validate(&library.roles), []);
         let problem = |change: fn(&mut RoomSpec), expected: &str| {
             let mut broken = room.clone();
             change(&mut broken);
@@ -502,6 +514,8 @@ mod tests {
             count: 1,
             parameters: BTreeMap::new(),
             notes: true,
+            personas: Vec::new(),
+            summary: None,
         });
         let problems: Vec<String> = room
             .validate(&library.roles)

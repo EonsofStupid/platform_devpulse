@@ -71,6 +71,13 @@ resume = ["--resume", "{session}"]
 # and `--strict-mcp-config` with no `--mcp-config` loads no MCP servers.
 # Checked 2026-10-21 against `claude --help` (2.1.296).
 talk_only = ["--tools", "", "--strict-mcp-config"]
+# A room seat that looks and changes nothing (plan 0001 B4.5): `--tools` is all the
+# built-in tools it has, and print mode refuses a tool that would ask, so
+# `--allowedTools` lets it use them. `--strict-mcp-config` keeps the project's own
+# MCP servers out, since those could change things. Checked 2026-11-04 against
+# `claude --help` (2.1.316) and a real seat that read a file and could not write one.
+read_only = ["--tools", "{tools}", "--allowedTools", "{tools}", "--strict-mcp-config"]
+capabilities = { read = ["Read", "Grep", "Glob"], web = ["WebSearch", "WebFetch"] }
 # A session with MCP servers (plan 0001 B6.2): `--mcp-config` reads the file
 # DevPulse writes, and print mode refuses a tool it may not use, so
 # `--allowedTools` names each server (`mcp__<server>` covers all its tools).

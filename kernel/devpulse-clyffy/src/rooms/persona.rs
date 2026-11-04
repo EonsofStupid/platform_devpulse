@@ -5,8 +5,9 @@
 //! role still decides the method, the limits and the output. The research
 //! found a character adds nothing to accuracy; the choice is the owner's.
 //!
-//! None ship: you write yours in `{data_dir}/config/personas/`. The tone is
-//! the minions' [`VoiceTone`].
+//! Some ship (your frames and the Council's characters, under `config/personas/`);
+//! you write yours in `{data_dir}/config/personas/`. The tone is the minions'
+//! [`VoiceTone`].
 
 use serde::{Deserialize, Serialize};
 
@@ -41,9 +42,28 @@ pub struct Persona {
     /// Anything else about how the character answers.
     #[serde(default)]
     pub instructions: String,
+    /// How it comes across, when that is worth setting.
+    #[serde(default)]
+    pub style: Option<PersonaStyle>,
     /// Words to find it by.
     #[serde(default)]
     pub tags: Vec<String>,
+    /// Where this character comes from, when that is worth saying.
+    #[serde(default)]
+    pub origin: Option<String>,
+}
+
+/// How a character comes across, each out of 100.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
+#[serde(deny_unknown_fields)]
+pub struct PersonaStyle {
+    /// Casual at 0, formal at 100.
+    pub formality: u8,
+    /// Brief at 0, thorough at 100.
+    pub verbosity: u8,
+    /// Tentative at 0, sure of itself at 100.
+    pub confidence: u8,
 }
 
 impl Persona {
@@ -87,6 +107,13 @@ impl Persona {
         }
         if self.expertise.iter().all(|e| e.trim().is_empty()) {
             issues.push(Issue::new(at("expertise"), "needs at least one area"));
+        }
+        if let Some(style) = self.style
+            && [style.formality, style.verbosity, style.confidence]
+                .iter()
+                .any(|value| *value > 100)
+        {
+            issues.push(Issue::new(at("style"), "each is out of 100"));
         }
         issues
     }

@@ -23,12 +23,12 @@ use std::path::{Path, PathBuf};
 use std::sync::Mutex;
 use std::time::Duration;
 
-use anyhow::{Result, bail};
+use anyhow::{Context as _, Result, bail};
 use serde::{Deserialize, Serialize};
 use tokio::sync::mpsc;
 
 use super::connect;
-use super::definition::{ConnectSpec, ProviderDefinition};
+use super::definition::{ConnectSpec, OwnToolServers, ProviderDefinition};
 use super::types::AgentProtocol;
 
 /// How long a permission request waits for your answer before it is refused.
@@ -138,22 +138,130 @@ impl std::fmt::Debug for ToolServer {
     }
 }
 
-/// What a session may use: a seat that only talks gets nothing, whatever the
-/// caller offered, which keeps a Council's blind answers blind.
-fn tools_for(talk_only: bool, offered: Vec<ToolServer>) -> Vec<ToolServer> {
-    if talk_only { Vec::new() } else { offered }
+/// What an agent may do in a session, whatever else it was offered.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub enum Access {
+    /// What it may do anywhere else; it asks you before it changes things.
+    #[default]
+    Full,
+    /// It may look, with these capabilities (`read`, `web`), and change nothing.
+    /// The caller also refuses its permission requests.
+    Looks(Vec<String>),
+    /// No tools at all. The caller also refuses its permission requests, and
+    /// gives it a folder of its own.
+    TalkOnly,
 }
 
-/// The agent's own switch for changing nothing, on a seat that only talks.
-fn talk_only_env(connect: &ConnectSpec, talk_only: bool) -> Vec<(String, String)> {
-    if !talk_only {
-        return Vec::new();
+/// What a session may use: a seat that only talks gets nothing, whatever the
+/// caller offered, which keeps a Council's blind answers blind.
+fn tools_for(access: &Access, offered: Vec<ToolServer>) -> Vec<ToolServer> {
+    if *access == Access::TalkOnly {
+        Vec::new()
+    } else {
+        offered
     }
-    connect
-        .talk_only_env
-        .iter()
+}
+
+/// The agent's own switch for what this session may do.
+fn access_env(connect: &ConnectSpec, access: &Access) -> Vec<(String, String)> {
+    let env = match access {
+        Access::Full => return Vec::new(),
+        Access::Looks(_) => &connect.read_only_env,
+        Access::TalkOnly => &connect.talk_only_env,
+    };
+    env.iter()
         .map(|(name, value)| (name.clone(), value.clone()))
         .collect()
+}
+
+/// How long an agent gets to list its own MCP servers.
+const LIST_OWN_TOOLS_WAIT: Duration = Duration::from_secs(30);
+
+/// The `mcp_servers` table for a limited seat: every server `listed` by the agent
+/// turned off (with its transport, which a server from a plugin has nowhere else),
+/// and what `DevPulse` offers it.
+fn limited_tool_servers(
+    listed: &str,
+    offered: &[ToolServer],
+    settings: &std::collections::BTreeMap<String, String>,
+) -> Result<serde_json::Value> {
+    let listed: Vec<serde_json::Value> =
+        serde_json::from_str(listed).context("its list of tool servers is not JSON")?;
+    let mut servers = serde_json::Map::new();
+    for server in &listed {
+        let (Some(name), Some(transport)) = (
+            server.get("name").and_then(serde_json::Value::as_str),
+            server
+                .get("transport")
+                .and_then(serde_json::Value::as_object),
+        ) else {
+            bail!("its list of tool servers has one without a name and a transport");
+        };
+        let mut off = serde_json::Map::new();
+        for field in ["command", "args", "url"] {
+            if let Some(value) = transport.get(field).filter(|value| !value.is_null()) {
+                off.insert(field.to_owned(), value.clone());
+            }
+        }
+        off.insert("enabled".to_owned(), false.into());
+        servers.insert(name.to_owned(), off.into());
+    }
+    for tool in offered {
+        let mut server = serde_json::json!({
+            "command": tool.command,
+            "args": tool.args,
+            "env": tool.env.iter().cloned().collect::<std::collections::BTreeMap<_, _>>(),
+        });
+        for (name, value) in settings {
+            server[name] = value.clone().into();
+        }
+        servers.insert(tool.name.clone(), server);
+    }
+    Ok(serde_json::json!({ "mcp_servers": servers }))
+}
+
+/// Ask the agent for its own MCP servers, for a limited seat. A seat whose limit
+/// cannot be kept does not start.
+async fn limit_own_tool_servers(
+    own: &OwnToolServers,
+    program: &Path,
+    offered: &[ToolServer],
+) -> Result<(String, String)> {
+    let args: Vec<&str> = own.list.iter().map(String::as_str).collect();
+    let program_name = program.to_string_lossy();
+    let listed = match devpulse_process::run(&program_name, &args, &[], LIST_OWN_TOOLS_WAIT).await {
+        Ok(devpulse_process::Ran::Answered(answer)) if answer.ok() => answer.stdout,
+        Ok(devpulse_process::Ran::Answered(answer)) => bail!("{}", answer.reason()),
+        Ok(devpulse_process::Ran::Missing) => bail!("{program_name} could not be started"),
+        Err(error) => return Err(error),
+    };
+    let table = limited_tool_servers(&listed, offered, &own.offered)?;
+    Ok((own.config_env.clone(), table.to_string()))
+}
+
+/// Add to what a session starts with. A variable set twice with JSON objects
+/// merges them, so an agent's one config variable can carry both a seat's limits
+/// and your notes.
+fn add_env(into: &mut Vec<(String, String)>, env: Vec<(String, String)>) {
+    for (name, value) in env {
+        match into.iter_mut().find(|(existing, _)| *existing == name) {
+            Some((_, existing)) => *existing = merged_value(existing, value),
+            None => into.push((name, value)),
+        }
+    }
+}
+
+fn merged_value(existing: &str, value: String) -> String {
+    match (
+        serde_json::from_str::<serde_json::Value>(existing),
+        serde_json::from_str::<serde_json::Value>(&value),
+    ) {
+        (Ok(serde_json::Value::Object(mut first)), Ok(serde_json::Value::Object(second))) => {
+            first.extend(second);
+            serde_json::Value::Object(first).to_string()
+        }
+        _ => value,
+    }
 }
 
 /// What a conversation starts with, beyond who and where.
@@ -162,12 +270,12 @@ pub struct SessionSetup {
     /// Restores a conversation the agent reported earlier
     /// ([`AgentSession::resume_token`]).
     pub resume: Option<String>,
-    /// Adds the agent's own switch for changing nothing when its definition has
-    /// one (a headless agent's `connect.conversation.talk_only`, an ACP agent's
-    /// `connect.talk_only_env`). The caller also refuses its permission requests.
-    /// A seat like this gets no `tools`: one seat's memory tools could read what
-    /// another wrote. It can still have `context`.
-    pub talk_only: bool,
+    /// What it may do, through the agent's own switches when its definition has
+    /// them (a headless agent's `connect.conversation`, an ACP agent's
+    /// `connect.talk_only_env` and `connect.read_only_env`). A seat that only
+    /// talks gets no `tools`: one seat's memory tools could read what another
+    /// wrote. It can still have `context`.
+    pub access: Access,
     /// The MCP servers the agent may use: offered to an ACP agent when its
     /// session opens, and through a headless agent's
     /// `connect.conversation.tool_servers` when its definition has them.
@@ -245,11 +353,11 @@ impl AgentSession {
     ) -> Result<Self> {
         let SessionSetup {
             resume,
-            talk_only,
+            access,
             tools,
             context,
         } = setup;
-        let tools = tools_for(talk_only, tools);
+        let tools = tools_for(&access, tools);
         super::supervisor::inspect(definition, program, data_dir)
             .await
             .availability
@@ -262,12 +370,27 @@ impl AgentSession {
             );
         };
         let mut launch = connect::launch(definition, program, data_dir, "")?;
-        launch.env.extend(talk_only_env(connect_spec, talk_only));
+        add_env(&mut launch.env, access_env(connect_spec, &access));
+        let tools = match (&access, &connect_spec.own_tool_servers) {
+            (Access::Full, _) | (_, None) => tools,
+            (_, Some(own)) => {
+                let config = limit_own_tool_servers(own, program, &tools)
+                    .await
+                    .with_context(|| {
+                        format!(
+                            "{} can't be limited to this seat: its own tools could not be turned off",
+                            definition.name()
+                        )
+                    })?;
+                add_env(&mut launch.env, vec![config]);
+                Vec::new()
+            }
+        };
         let mut context_file = None;
         let mut first_prompt = None;
         match delivery(connect_spec, resume.is_some(), context) {
             Delivery::Nothing => {}
-            Delivery::Environment(env) => launch.env.extend(env),
+            Delivery::Environment(env) => add_env(&mut launch.env, env),
             Delivery::File(notes) => {
                 context_file = Some(headless::ContextFile::write(data_dir, &notes)?);
             }
@@ -295,7 +418,7 @@ impl AgentSession {
                     conversation.clone(),
                     cwd,
                     resume,
-                    talk_only,
+                    access,
                     headless::TurnFiles {
                         tools,
                         context: context_file,
@@ -427,8 +550,11 @@ mod tests {
 
     #[test]
     fn a_seat_that_only_talks_gets_no_tools_whatever_it_was_offered() {
-        assert_eq!(tools_for(true, vec![memory_server()]), []);
-        assert_eq!(tools_for(false, vec![memory_server()]), [memory_server()]);
+        assert_eq!(tools_for(&Access::TalkOnly, vec![memory_server()]), []);
+        assert_eq!(
+            tools_for(&Access::Full, vec![memory_server()]),
+            [memory_server()]
+        );
     }
 
     #[test]
@@ -521,13 +647,91 @@ mod tests {
     }
 
     #[test]
-    fn a_talking_codex_seat_is_read_only_and_any_other_codex_session_is_not() {
+    fn a_talking_codex_seat_has_no_shell_and_any_other_codex_session_has_one() {
         let connect = bundled_connect(ProviderId::Codex);
+        let talking = access_env(&connect, &Access::TalkOnly);
+        assert!(talking.contains(&("INITIAL_AGENT_MODE".to_owned(), "read-only".to_owned())));
+        let (_, config) = talking
+            .iter()
+            .find(|(name, _)| name == "CODEX_CONFIG")
+            .expect("its config");
+        let config: serde_json::Value = serde_json::from_str(config).unwrap();
+        assert_eq!(config["features"]["shell_tool"], false);
+        assert_eq!(config["features"]["unified_exec"], false);
+
+        // Looking is read-only with its shell, since that is how Codex reads.
+        let looking = access_env(&connect, &Access::Looks(vec!["read".to_owned()]));
+        assert!(looking.contains(&("INITIAL_AGENT_MODE".to_owned(), "read-only".to_owned())));
+        let (_, config) = looking
+            .iter()
+            .find(|(name, _)| name == "CODEX_CONFIG")
+            .expect("its config");
+        let config: serde_json::Value = serde_json::from_str(config).unwrap();
+        assert_eq!(config["features"]["computer_use"], false);
+        assert!(config["features"].get("shell_tool").is_none());
+        assert_eq!(access_env(&connect, &Access::Full), []);
+    }
+
+    #[test]
+    fn a_limited_seat_turns_off_each_server_of_the_agents_and_keeps_what_devpulse_offers() {
+        let listed = r#"[
+            {"name":"node_repl","enabled":true,"transport":{"type":"stdio","command":"node","args":["r"],"env":{"SECRET":"x"},"cwd":null}},
+            {"name":"hosted","enabled":true,"transport":{"type":"streamable_http","url":"https://example.test/mcp","bearer_token_env_var":null}}
+        ]"#;
+        let settings = [(
+            "default_tools_approval_mode".to_owned(),
+            "approve".to_owned(),
+        )]
+        .into();
+        let table = limited_tool_servers(listed, &[memory_server()], &settings).unwrap();
+        let servers = &table["mcp_servers"];
         assert_eq!(
-            talk_only_env(&connect, true),
-            [("INITIAL_AGENT_MODE".to_owned(), "read-only".to_owned())]
+            servers["node_repl"],
+            serde_json::json!({"command":"node","args":["r"],"enabled":false})
         );
-        assert_eq!(talk_only_env(&connect, false), []);
+        assert_eq!(
+            servers["hosted"],
+            serde_json::json!({"url":"https://example.test/mcp","enabled":false})
+        );
+        assert_eq!(
+            servers[memory_server().name.as_str()]["enabled"],
+            serde_json::Value::Null
+        );
+        assert!(
+            !table.to_string().contains("SECRET"),
+            "its secrets stay out"
+        );
+        assert_eq!(
+            servers[memory_server().name.as_str()]["default_tools_approval_mode"],
+            "approve",
+            "what DevPulse offers needs no asking"
+        );
+        assert!(limited_tool_servers("not json", &[], &settings).is_err());
+        assert!(limited_tool_servers(r#"[{"enabled":true}]"#, &[], &settings).is_err());
+    }
+
+    #[test]
+    fn a_seats_limits_and_your_notes_share_one_config_variable() {
+        let connect = bundled_connect(ProviderId::Codex);
+        let mut env = vec![("CODEX_PATH".to_owned(), "codex".to_owned())];
+        add_env(&mut env, access_env(&connect, &Access::TalkOnly));
+        let Delivery::Environment(notes) = delivery(&connect, false, Some("MARKED".into())) else {
+            panic!("a new Codex session gets its notes through the environment");
+        };
+        add_env(&mut env, notes);
+        let configs: Vec<_> = env
+            .iter()
+            .filter(|(name, _)| name == "CODEX_CONFIG")
+            .collect();
+        assert_eq!(configs.len(), 1);
+        let config: serde_json::Value = serde_json::from_str(&configs[0].1).unwrap();
+        assert_eq!(config["developer_instructions"], "MARKED");
+        assert_eq!(config["features"]["shell_tool"], false);
+
+        // A plain value is replaced, as it always was.
+        let mut plain = vec![("MODE".to_owned(), "a".to_owned())];
+        add_env(&mut plain, vec![("MODE".to_owned(), "b".to_owned())]);
+        assert_eq!(plain, [("MODE".to_owned(), "b".to_owned())]);
     }
 
     #[test]
@@ -606,7 +810,11 @@ mod tests {
                 dir.path(),
                 dir.path(),
                 SessionSetup {
-                    talk_only,
+                    access: if talk_only {
+                        Access::TalkOnly
+                    } else {
+                        Access::Full
+                    },
                     context: Some("MARKED-NOTES".into()),
                     ..SessionSetup::default()
                 },
@@ -763,7 +971,7 @@ mod tests {
                 &data_dir,
                 cwd.path(),
                 SessionSetup {
-                    talk_only: true,
+                    access: Access::TalkOnly,
                     ..SessionSetup::default()
                 },
             )
@@ -800,6 +1008,209 @@ mod tests {
                 .collect();
             println!("{}: answered {answer:?}, folder holds {left:?}", id.key());
             assert!(left.is_empty(), "{}: it wrote {left:?}", id.key());
+        }
+    }
+
+    /// One real turn with this access: what it answered, and what was in the folder
+    /// afterwards.
+    async fn one_turn(
+        id: ProviderId,
+        access: Access,
+        cwd: &Path,
+        prompt: &str,
+    ) -> (String, Vec<std::ffi::OsString>) {
+        let data_dir =
+            PathBuf::from(std::env::var("DEVPULSE_DATA_DIR").expect("DEVPULSE_DATA_DIR"));
+        let home = std::env::home_dir();
+        let definition = catalog::bundled()
+            .unwrap()
+            .into_iter()
+            .find(|d| d.id == id)
+            .unwrap();
+        let program =
+            installed::locate(&definition, home.as_deref(), &data_dir).expect("installed");
+        let session = AgentSession::start(
+            &definition,
+            &program,
+            &data_dir,
+            cwd,
+            SessionSetup {
+                access,
+                ..SessionSetup::default()
+            },
+        )
+        .await
+        .unwrap_or_else(|e| panic!("{}: {e:#}", id.key()));
+        let mut events = session.prompt(prompt).await.unwrap();
+        let mut answer = String::new();
+        while let Some(event) = events.recv().await {
+            match event {
+                AgentEvent::Text { text } => answer.push_str(&text),
+                AgentEvent::Tool { title, status, .. } if !title.is_empty() => {
+                    println!("    {}: tool {title:?} {status}", id.key());
+                }
+                AgentEvent::PermissionAsked {
+                    request,
+                    title,
+                    choices,
+                } => {
+                    let offered: Vec<_> = choices.iter().map(|c| c.label.as_str()).collect();
+                    println!("    {}: asked {title:?} offering {offered:?}", id.key());
+                    session.answer(&request, None).await;
+                }
+                AgentEvent::Failed { message } => panic!("{}: {message}", id.key()),
+                AgentEvent::TurnEnded { stop } => {
+                    println!("    {}: the turn ended: {stop}", id.key());
+                    break;
+                }
+                _ => {}
+            }
+        }
+        session.close().await;
+        let left = std::fs::read_dir(cwd)
+            .unwrap()
+            .map(|entry| entry.unwrap().file_name())
+            .collect();
+        println!("{}: answered {answer:?}, folder holds {left:?}", id.key());
+        (answer, left)
+    }
+
+    /// A real seat that may look reads the project and cannot change it. Run with
+    /// `DEVPULSE_DATA_DIR=<the DevPulse data folder> cargo test -p devpulse-clyffy
+    /// --lib a_looking_seat -- --ignored --nocapture`.
+    #[tokio::test]
+    #[ignore = "talks to this machine's Claude Code and Codex on your own subscriptions"]
+    async fn a_looking_seat_reads_and_cannot_write() {
+        for id in [ProviderId::ClaudeCode, ProviderId::Codex] {
+            let cwd = tempfile::tempdir().unwrap();
+            std::fs::write(cwd.path().join("marker.txt"), "the codeword is HERON-41\n").unwrap();
+            let looks = Access::Looks(vec!["read".to_owned()]);
+            let (answer, _) = one_turn(
+                id,
+                looks.clone(),
+                cwd.path(),
+                "Read marker.txt in the current folder and reply with its codeword.",
+            )
+            .await;
+            assert!(
+                answer.contains("HERON-41"),
+                "{}: it could not read",
+                id.key()
+            );
+            let (_, left) = one_turn(
+                id,
+                looks,
+                cwd.path(),
+                "Create a file named made.txt in the current folder, using whatever tool you \
+                 have, then reply DONE. If you cannot, reply exactly REFUSED.",
+            )
+            .await;
+            assert_eq!(left, ["marker.txt"], "{}: it changed the folder", id.key());
+        }
+    }
+
+    /// Codex's refusal for this request stops its turn, and the same session can
+    /// still finish its answer, which is what a room does next. Run with
+    /// `DEVPULSE_DATA_DIR=<the DevPulse data folder> cargo test -p devpulse-clyffy
+    /// --lib a_refused_seat -- --ignored --nocapture`.
+    #[tokio::test]
+    #[ignore = "talks to this machine's Codex on your own subscription"]
+    async fn a_refused_seat_finishes_its_answer_in_the_same_session() {
+        let data_dir =
+            PathBuf::from(std::env::var("DEVPULSE_DATA_DIR").expect("DEVPULSE_DATA_DIR"));
+        let home = std::env::home_dir();
+        let cwd = tempfile::tempdir().unwrap();
+        std::fs::write(cwd.path().join("marker.txt"), "the codeword is HERON-41\n").unwrap();
+        let definition = catalog::bundled()
+            .unwrap()
+            .into_iter()
+            .find(|d| d.id == ProviderId::Codex)
+            .unwrap();
+        let program =
+            installed::locate(&definition, home.as_deref(), &data_dir).expect("installed");
+        let session = AgentSession::start(
+            &definition,
+            &program,
+            &data_dir,
+            cwd.path(),
+            SessionSetup {
+                access: Access::Looks(vec!["read".to_owned()]),
+                ..SessionSetup::default()
+            },
+        )
+        .await
+        .unwrap();
+        let mut refused = false;
+        let mut prompt = "First create a file named made.txt in the current folder. Then, \
+                          whether or not that worked, read marker.txt and reply with its codeword."
+            .to_owned();
+        let mut answer = String::new();
+        for _ in 0..2 {
+            answer.clear();
+            let mut events = session.prompt(&prompt).await.unwrap();
+            let mut stop = String::new();
+            while let Some(event) = events.recv().await {
+                match event {
+                    AgentEvent::Text { text } => answer.push_str(&text),
+                    AgentEvent::PermissionAsked { request, title, .. } => {
+                        println!("    asked {title:?}, refused");
+                        refused = true;
+                        session.answer(&request, None).await;
+                    }
+                    AgentEvent::Failed { message } => panic!("{message}"),
+                    AgentEvent::TurnEnded { stop: ended } => {
+                        stop = ended;
+                        break;
+                    }
+                    _ => {}
+                }
+            }
+            println!("    the turn ended {stop}: {answer:?}");
+            if stop != "cancelled" {
+                break;
+            }
+            crate::rooms::brief::AFTER_A_REFUSAL.clone_into(&mut prompt);
+        }
+        session.close().await;
+        assert!(refused, "it never asked, so this proved nothing");
+        assert!(
+            answer.contains("HERON-41"),
+            "it lost its answer: {answer:?}"
+        );
+        assert!(
+            !cwd.path().join("made.txt").exists(),
+            "it changed the folder"
+        );
+    }
+
+    /// A real seat that only talks cannot reach a file by its full path either,
+    /// which is what keeps blind answers blind. Run with
+    /// `DEVPULSE_DATA_DIR=<the DevPulse data folder> cargo test -p devpulse-clyffy
+    /// --lib a_talking_seat_reads -- --ignored --nocapture`.
+    #[tokio::test]
+    #[ignore = "talks to this machine's Claude Code and Codex on your own subscriptions"]
+    async fn a_talking_seat_reads_nothing_outside_its_folder() {
+        let elsewhere = tempfile::tempdir().unwrap();
+        let marker = elsewhere.path().join("marker.txt");
+        std::fs::write(&marker, "the codeword is HERON-41\n").unwrap();
+        for id in [ProviderId::ClaudeCode, ProviderId::Codex] {
+            let cwd = tempfile::tempdir().unwrap();
+            let (answer, _) = one_turn(
+                id,
+                Access::TalkOnly,
+                cwd.path(),
+                &format!(
+                    "Read the file {} using whatever tool you have, and reply with the codeword \
+                     in it. If you cannot, reply exactly NONE.",
+                    marker.display()
+                ),
+            )
+            .await;
+            assert!(
+                !answer.contains("HERON-41"),
+                "{}: it read the file",
+                id.key()
+            );
         }
     }
 

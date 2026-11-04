@@ -6,7 +6,9 @@
 
 use std::sync::Arc;
 
-use devpulse_engine::platform::rooms::{Assignment, Library, RoomThread, Rooms};
+use devpulse_engine::platform::rooms::{
+    Assignment, Issue, Library, LibraryKind, RoomThread, Rooms,
+};
 use tauri::State;
 use tauri_specta::Event;
 
@@ -30,6 +32,40 @@ fn rooms(state: &PlatformState) -> Result<Arc<Rooms>, String> {
 #[allow(clippy::missing_errors_doc)]
 pub async fn room_library(state: State<'_, PlatformState>) -> Result<Library, String> {
     Ok(rooms(&state)?.library())
+}
+
+/// One problem as what a screen shows beside a save.
+fn not_ready(message: String) -> Vec<Issue> {
+    vec![Issue::new("rooms", message)]
+}
+
+/// Save a role, room or persona of yours; returns its id, or everything wrong
+/// with it.
+#[tauri::command]
+#[specta::specta]
+#[allow(clippy::missing_errors_doc)]
+pub async fn room_library_save(
+    kind: LibraryKind,
+    text: String,
+    state: State<'_, PlatformState>,
+) -> Result<String, Vec<Issue>> {
+    rooms(&state)
+        .map_err(not_ready)?
+        .save_to_library(kind, &text)
+}
+
+/// Delete a file of yours; a bundled entry it replaced comes back.
+#[tauri::command]
+#[specta::specta]
+#[allow(clippy::missing_errors_doc)]
+pub async fn room_library_remove(
+    kind: LibraryKind,
+    id: String,
+    state: State<'_, PlatformState>,
+) -> Result<bool, Vec<Issue>> {
+    rooms(&state)
+        .map_err(not_ready)?
+        .remove_from_library(kind, &id)
 }
 
 /// The rooms of a project, latest first.

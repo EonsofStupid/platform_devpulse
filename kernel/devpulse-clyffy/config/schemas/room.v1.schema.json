@@ -54,6 +54,17 @@
             "description": "Whether this seat gets the notes you chose in Settings → Memory. Yes unless you say otherwise; you can also change it per place when you seat the room.",
             "type": "boolean",
             "default": true
+          },
+          "personas": {
+            "description": "The persona each place speaks as by default, in order.",
+            "type": "array",
+            "items": { "type": "string", "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$" }
+          },
+          "summary": {
+            "description": "One line a Router reads to choose this seat.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
           }
         }
       }

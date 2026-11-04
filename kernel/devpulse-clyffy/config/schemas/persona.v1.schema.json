@@ -56,6 +56,21 @@
     "tags": {
       "type": "array",
       "items": { "type": "string", "minLength": 1 }
+    },
+    "style": {
+      "description": "How it comes across, each out of 100.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["formality", "verbosity", "confidence"],
+      "properties": {
+        "formality": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "verbosity": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "confidence": { "type": "integer", "minimum": 0, "maximum": 100 }
+      }
+    },
+    "origin": {
+      "description": "Where this character comes from.",
+      "type": "string"
     }
   }
 }

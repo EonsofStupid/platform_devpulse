@@ -1,0 +1,54 @@
+{
+  "schema": "dpl.room/1",
+  "id": "product-team",
+  "version": "1.0.0",
+  "name": "Product Team",
+  "type": "round-robin",
+  "summary": "A product manager, a UX reviewer and a project manager take turns turning a need into a plan.",
+  "seats": [
+    {
+      "seat": "product",
+      "role": "product-manager@1",
+      "count": 1
+    },
+    {
+      "seat": "ux",
+      "role": "ux-reviewer@1",
+      "count": 1
+    },
+    {
+      "seat": "project",
+      "role": "project-manager@1",
+      "count": 1
+    }
+  ],
+  "phases": [
+    {
+      "name": "turn",
+      "seats": [
+        "product",
+        "ux",
+        "project"
+      ],
+      "mode": "sequential",
+      "visibility": "full",
+      "max_turns": 1
+    }
+  ],
+  "turn_policy": "round-robin",
+  "stop": {
+    "max_rounds": 2
+  },
+  "carry_forward": "full-transcript",
+  "record": [
+    "flips"
+  ],
+  "provenance": {
+    "sources": [
+      "48",
+      "49",
+      "51"
+    ],
+    "evidence": "practice"
+  }
+}

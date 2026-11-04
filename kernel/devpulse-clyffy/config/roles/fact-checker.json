@@ -70,8 +70,8 @@
   "permissions": {
     "talk_only": false,
     "tools_allowed": [
-      "web-search",
-      "read-files"
+      "web",
+      "read"
     ]
   },
   "model_prefs": {

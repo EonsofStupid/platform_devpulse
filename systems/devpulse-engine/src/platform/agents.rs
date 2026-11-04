@@ -16,7 +16,7 @@ use anyhow::{Context, Result, anyhow, bail};
 use devpulse_clyffy::cortex::persistence::{SqlAdapter, SqlValue, TursoAdapter};
 // IP-NOTE: conversation vocabulary only — thread, turn, agent, event; public
 // names, no kernel internals.
-use devpulse_clyffy::providers::session::headless;
+use devpulse_clyffy::providers::session::{Access, headless};
 pub use devpulse_clyffy::providers::{AgentEvent, PermissionChoice, ProviderId};
 use devpulse_clyffy::providers::{AgentSession, SessionSetup, catalog};
 use serde::{Deserialize, Serialize};
@@ -76,6 +76,16 @@ pub(super) async fn notes_on(db: &dyn SqlAdapter, session_id: &str) -> bool {
             false
         }
     }
+}
+
+/// What one conversation may do, and whether it gets your notes.
+pub(super) struct ConversationSeat {
+    /// What the agent may do.
+    pub(super) access: Access,
+    /// It gets the notes you approved.
+    pub(super) notes: bool,
+    /// It answers where it may see no other answer, so it gets no shared tools.
+    pub(super) blind: bool,
 }
 
 /// What a thread needs to (re)start its conversation.
@@ -284,7 +294,7 @@ impl Agents {
         turn.session(async {
             let cwd = self.folder(&record.project_id).await?;
             let notes = self.notes(session_id).await;
-            let session = self.conversation(record.provider_id, &record.project_id, &cwd, record.resume_token.clone(), false, notes).await?;
+            let session = self.conversation(record.provider_id, &record.project_id, &cwd, record.resume_token.clone(), ConversationSeat { access: Access::Full, notes, blind: false }).await?;
             tracing::info!(target: "agents", %session_id, provider = record.provider_id.key(), cwd = %cwd.display(), "conversation started");
             Ok(session)
         }).await
@@ -295,10 +305,11 @@ impl Agents {
         self.providers.require_chat(provider_id).await
     }
 
-    /// Start a conversation in its existing workspace. Only `talk_only`
-    /// places may create an isolated folder. `resume` continues a previous
-    /// conversation; `talk_only` turns tools off where the agent supports it.
-    /// Any other session gets your memory, bound to `project_id`. With `notes`,
+    /// Start a conversation in its existing workspace. Only places that only
+    /// talk may create an isolated folder. `resume` continues a previous
+    /// conversation; `seat` limits it where the agent supports that. Any session
+    /// that does more than talk and answers in the open gets your memory, bound to
+    /// `project_id`, since a blind seat could read what another saved. With `notes`,
     /// it gets the notes you approved, whichever kind of seat it is.
     ///
     /// # Errors
@@ -309,9 +320,14 @@ impl Agents {
         project_id: &str,
         cwd: &Path,
         resume: Option<String>,
-        talk_only: bool,
-        notes: bool,
+        seat: ConversationSeat,
     ) -> Result<AgentSession> {
+        let ConversationSeat {
+            access,
+            notes,
+            blind,
+        } = seat;
+        let talk_only = access == Access::TalkOnly;
         prepare_workspace(cwd, talk_only)?;
         let catalog = catalog::load(&self.data_dir)?;
         let definition = catalog
@@ -327,7 +343,7 @@ impl Agents {
         let memory = self
             .memory
             .as_ref()
-            .filter(|_| !talk_only)
+            .filter(|_| !talk_only && !blind)
             .and_then(|memory| memory.for_session(project_id));
         let tools = memory
             .as_ref()
@@ -344,7 +360,7 @@ impl Agents {
             cwd,
             SessionSetup {
                 resume,
-                talk_only,
+                access,
                 tools,
                 context: memory_context,
             },

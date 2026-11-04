@@ -259,6 +259,30 @@ pub struct ConnectSpec {
     /// about, and an agent may act without asking.
     #[serde(default)]
     pub talk_only_env: std::collections::BTreeMap<String, String>,
+    /// Environment for a seat that may look and change nothing: an ACP agent's
+    /// own switch for that. Without it, `DevPulse` can only refuse what the agent
+    /// asks about.
+    #[serde(default)]
+    pub read_only_env: std::collections::BTreeMap<String, String>,
+    /// How a limited seat turns off the MCP servers this agent has of its own,
+    /// which act without asking and outside its sandbox.
+    #[serde(default)]
+    pub own_tool_servers: Option<OwnToolServers>,
+}
+
+/// How to find an agent's own MCP servers and turn them off.
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct OwnToolServers {
+    /// Arguments that list them, as a JSON array of `{name, transport}`.
+    pub list: Vec<String>,
+    /// The variable holding the agent's JSON config, whose `mcp_servers` table
+    /// turns each one off and holds what `DevPulse` offers the seat.
+    pub config_env: String,
+    /// Settings for what `DevPulse` offers the seat, in that table: a limited seat's
+    /// requests are refused, and these are the servers it may use without asking.
+    #[serde(default)]
+    pub offered: std::collections::BTreeMap<String, String>,
 }
 
 /// How a conversation's prompt reaches a headless agent.
@@ -292,6 +316,15 @@ pub struct ConversationSpec {
     /// refuses the seat's permission requests and gives it an empty folder.
     #[serde(default)]
     pub talk_only: Vec<String>,
+    /// Added on every turn of a seat that may look and change nothing: the
+    /// agent's own switches for that, with `{tools}` as what `capabilities` names
+    /// for the seat. Without it, `DevPulse` still refuses the seat's permission
+    /// requests.
+    #[serde(default)]
+    pub read_only: Vec<String>,
+    /// The agent's own tools for each thing a role may do (`read`, `web`).
+    #[serde(default)]
+    pub capabilities: std::collections::BTreeMap<String, Vec<String>>,
     /// Added on every turn of a session with MCP servers: the agent's own
     /// switches for them. Must carry `{mcp_config}`, the JSON file `DevPulse`
     /// writes; an argument with `{tool_server}` is repeated for each server's

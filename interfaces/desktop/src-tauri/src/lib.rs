@@ -223,6 +223,8 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             commands::agents::agent_answer,
             commands::agents::agent_close,
             commands::rooms::room_library,
+            commands::rooms::room_library_save,
+            commands::rooms::room_library_remove,
             commands::rooms::room_threads,
             commands::rooms::room_start,
             commands::rooms::room_ask,

@@ -1,0 +1,54 @@
+{
+  "schema": "dpl.room/1",
+  "id": "code-review",
+  "version": "1.0.0",
+  "name": "Code Review",
+  "type": "round-robin",
+  "summary": "A reviewer, a security auditor and a test engineer take turns on the same code. They can read it and change nothing.",
+  "seats": [
+    {
+      "seat": "reviewer",
+      "role": "code-reviewer@1",
+      "count": 1
+    },
+    {
+      "seat": "security",
+      "role": "security-auditor@1",
+      "count": 1
+    },
+    {
+      "seat": "tests",
+      "role": "test-engineer@1",
+      "count": 1
+    }
+  ],
+  "phases": [
+    {
+      "name": "turn",
+      "seats": [
+        "reviewer",
+        "security",
+        "tests"
+      ],
+      "mode": "sequential",
+      "visibility": "full",
+      "max_turns": 1
+    }
+  ],
+  "turn_policy": "round-robin",
+  "stop": {
+    "max_rounds": 2
+  },
+  "carry_forward": "full-transcript",
+  "record": [
+    "flips"
+  ],
+  "provenance": {
+    "sources": [
+      "48",
+      "49",
+      "51"
+    ],
+    "evidence": "practice"
+  }
+}

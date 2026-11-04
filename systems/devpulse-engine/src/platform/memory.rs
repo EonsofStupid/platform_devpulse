@@ -355,6 +355,7 @@ mod tests {
 
     use devpulse_clyffy::cortex::persistence::TursoOptions;
     use devpulse_clyffy::providers::discovery::installed;
+    use devpulse_clyffy::providers::session::Access;
     use devpulse_clyffy::providers::{AgentEvent, AgentSession, ProviderId, SessionSetup, catalog};
     use devpulse_persona_mcp::bridge::{PIPE_ENV, TOKEN_ENV};
     use devpulse_persona_mcp::store::PersonaScope;
@@ -857,9 +858,11 @@ mod tests {
         cwd: &Path,
         id: ProviderId,
         project: &str,
-        talk_only: bool,
+        access: Access,
         prompt: &str,
     ) -> String {
+        // A room refuses everything a seat that looks asks for.
+        let may_allow = !matches!(access, Access::Looks(_));
         let catalog = catalog::load(data_dir).unwrap();
         let definition = catalog.definitions.iter().find(|d| d.id == id).unwrap();
         let home = std::env::home_dir();
@@ -871,7 +874,7 @@ mod tests {
             data_dir,
             cwd,
             SessionSetup {
-                talk_only,
+                access,
                 tools: vec![granted.server.clone()],
                 ..SessionSetup::default()
             },
@@ -895,7 +898,8 @@ mod tests {
                     title,
                     choices,
                 } => {
-                    let memory_tool = title.contains("persona") || title.contains("memory");
+                    let memory_tool =
+                        may_allow && (title.contains("persona") || title.contains("memory"));
                     println!("    {}: asked {title:?}, allowed {memory_tool}", id.key());
                     let choice = choices
                         .iter()
@@ -910,6 +914,51 @@ mod tests {
         }
         session.close().await;
         answer
+    }
+
+    /// A real seat that looks has your memory, and nothing else of the agent's,
+    /// without anyone allowing it. Run as
+    /// `real_agents_answer_from_memory_within_their_project` is.
+    #[tokio::test(flavor = "multi_thread", worker_threads = 4)]
+    #[ignore = "talks to this machine's Claude Code and Codex on your own subscriptions"]
+    async fn real_seats_that_look_answer_from_memory() {
+        let data_dir = PathBuf::from(std::env::var("DEVPULSE_DATA_DIR").expect("data folder"));
+        let relay = PathBuf::from(std::env::var("DEVPULSE_MEMORY_RELAY").expect("relay"));
+        let scratch = tempfile::tempdir().unwrap();
+        let memory = Memory::start_with(database(&scratch).await, Some(relay))
+            .await
+            .unwrap();
+        let id = uuid::Uuid::now_v7().simple().to_string();
+        let codeword = format!("plum-{}", &id[id.len() - 8..]);
+        memory
+            .store()
+            .save_block(
+                PersonaScope::Project,
+                Some("alpha"),
+                "facts",
+                &format!("The codeword is {codeword}."),
+            )
+            .await
+            .unwrap();
+        let cwd = scratch.path().join("workspace");
+        std::fs::create_dir_all(&cwd).unwrap();
+        let own = "Use your devpulse-memory tools to load this project's memory blocks (scope \
+                   \"project\"; leave the project unnamed). Reply with only the codeword written \
+                   there, or exactly NONE if you have no such tools.";
+        for agent in [ProviderId::ClaudeCode, ProviderId::Codex] {
+            let answer = one_turn(
+                &memory,
+                &data_dir,
+                &cwd,
+                agent,
+                "alpha",
+                Access::Looks(vec!["read".to_owned()]),
+                own,
+            )
+            .await;
+            println!("{}: {answer:?}", agent.key());
+            assert!(answer.contains(&codeword), "{}: {answer:?}", agent.key());
+        }
     }
 
     /// The whole path with real agents and a throwaway database: your real
@@ -961,7 +1010,7 @@ mod tests {
                 &cwd,
                 ProviderId::ClaudeCode,
                 "alpha",
-                false,
+                Access::Full,
                 own
             ),
             one_turn(
@@ -970,7 +1019,7 @@ mod tests {
                 &cwd,
                 ProviderId::Codex,
                 "alpha",
-                false,
+                Access::Full,
                 own
             ),
         );
@@ -983,7 +1032,7 @@ mod tests {
                      alpha (scope \"project\", slug \"alpha\"). Reply with only the codeword \
                      written there, or NONE if the tool refuses.";
         for id in [ProviderId::ClaudeCode, ProviderId::Codex] {
-            let answer = one_turn(&memory, &data_dir, &cwd, id, "beta", false, other).await;
+            let answer = one_turn(&memory, &data_dir, &cwd, id, "beta", Access::Full, other).await;
             println!(
                 "{}, a session in beta asking for alpha: {answer:?}",
                 id.key()
@@ -1000,7 +1049,7 @@ mod tests {
             &cwd,
             ProviderId::ClaudeCode,
             "alpha",
-            true,
+            Access::TalkOnly,
             talk,
         )
         .await;

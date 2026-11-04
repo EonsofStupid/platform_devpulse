@@ -17,7 +17,7 @@ use tokio::io::{AsyncBufReadExt, AsyncReadExt, AsyncWriteExt, BufReader};
 use tokio::sync::{Mutex, mpsc, oneshot};
 use tokio_util::task::AbortOnDropHandle;
 
-use super::{AgentEvent, ToolServer, TurnEvents};
+use super::{Access, AgentEvent, ToolServer, TurnEvents};
 use crate::providers::connect::Launch;
 use crate::providers::definition::{ConversationSpec, PromptVia, StreamFormat};
 
@@ -176,8 +176,8 @@ pub struct HeadlessSession {
     env: Vec<(String, String)>,
     conversation: ConversationSpec,
     cwd: PathBuf,
-    /// Every turn adds the conversation's `talk_only` arguments.
-    talk_only: bool,
+    /// Every turn adds the conversation's arguments for this.
+    access: Access,
     /// Every turn adds the conversation's `tool_servers` and `context` arguments.
     files: TurnFiles,
     /// The session id the agent reported (continues the conversation).
@@ -193,8 +193,8 @@ pub struct HeadlessSession {
 impl HeadlessSession {
     /// A conversation with the agent at `provider_program` (its definition's
     /// conversation spec), in `cwd`; `resume` continues an earlier one,
-    /// `talk_only` turns the agent's tools off on every turn, and `files` are
-    /// what each turn hands it.
+    /// `access` limits the agent's tools on every turn, and `files` are what
+    /// each turn hands it.
     #[must_use]
     pub fn new(
         launch: &Launch,
@@ -202,7 +202,7 @@ impl HeadlessSession {
         conversation: ConversationSpec,
         cwd: &Path,
         resume: Option<String>,
-        talk_only: bool,
+        access: Access,
         files: TurnFiles,
     ) -> Self {
         Self {
@@ -211,7 +211,7 @@ impl HeadlessSession {
             env: launch.env.clone(),
             conversation,
             cwd: cwd.to_path_buf(),
-            talk_only,
+            access,
             files,
             session: Arc::new(Mutex::new(resume)),
             stop: Arc::new(Mutex::new(None)),
@@ -266,10 +266,32 @@ impl HeadlessSession {
         if let Some(tools) = &self.files.tools {
             args.extend(tools.args(&self.conversation.tool_servers));
         }
-        if self.talk_only {
-            args.extend(self.conversation.talk_only.iter().cloned());
+        match &self.access {
+            Access::Full => {}
+            Access::TalkOnly => args.extend(self.conversation.talk_only.iter().cloned()),
+            Access::Looks(capabilities) => args.extend(self.read_only_args(capabilities)),
         }
         args
+    }
+
+    /// A seat that looks: the agent's tools for what it may do. With none, it has
+    /// the tools of a seat that only talks.
+    fn read_only_args(&self, capabilities: &[String]) -> Vec<String> {
+        let tools = capabilities
+            .iter()
+            .filter_map(|capability| self.conversation.capabilities.get(capability))
+            .flatten()
+            .map(String::as_str)
+            .collect::<Vec<_>>()
+            .join(",");
+        if tools.is_empty() {
+            return self.conversation.talk_only.clone();
+        }
+        self.conversation
+            .read_only
+            .iter()
+            .map(|arg| arg.replace("{tools}", &tools))
+            .collect()
     }
 
     /// Run one turn.
@@ -785,6 +807,14 @@ mod tests {
         session_with(talk_only, None)
     }
 
+    fn access(talk_only: bool) -> Access {
+        if talk_only {
+            Access::TalkOnly
+        } else {
+            Access::Full
+        }
+    }
+
     fn session_with(talk_only: bool, tools: Option<ToolConfig>) -> HeadlessSession {
         session_with_files(
             talk_only,
@@ -809,6 +839,8 @@ mod tests {
                 prompt_via: PromptVia::Argument,
                 resume: vec!["--resume".into(), "{session}".into()],
                 talk_only: vec!["--tools".into(), String::new()],
+                read_only: Vec::new(),
+                capabilities: BTreeMap::new(),
                 tool_servers: vec![
                     "--mcp-config".into(),
                     "{mcp_config}".into(),
@@ -823,7 +855,7 @@ mod tests {
             },
             Path::new("/tmp"),
             None,
-            talk_only,
+            access(talk_only),
             files,
         )
     }
@@ -1009,13 +1041,15 @@ mod tests {
                 prompt_via: PromptVia::Stdin,
                 resume: Vec::new(),
                 talk_only: Vec::new(),
+                read_only: Vec::new(),
+                capabilities: BTreeMap::new(),
                 tool_servers: Vec::new(),
                 context: Vec::new(),
                 output: StreamFormat::Text,
             },
             Path::new("."),
             None,
-            false,
+            Access::Full,
             TurnFiles::default(),
         );
         // Over a pipe's buffer as well as the Windows limit, so writing it must
@@ -1080,6 +1114,56 @@ mod tests {
         assert_eq!(
             session.turn_args("again", Some("abc")),
             ["-p", "again", "--resume", "abc"]
+        );
+    }
+
+    #[test]
+    fn a_seat_that_looks_has_only_the_tools_for_what_it_may_do() {
+        let looking = |capabilities: &[&str]| {
+            let mut session = session(false);
+            session.conversation.read_only = vec![
+                "--tools".into(),
+                "{tools}".into(),
+                "--allowedTools".into(),
+                "{tools}".into(),
+            ];
+            session.conversation.capabilities = [
+                (
+                    "read".to_owned(),
+                    vec!["Read".to_owned(), "Grep".to_owned()],
+                ),
+                ("web".to_owned(), vec!["WebSearch".to_owned()]),
+            ]
+            .into();
+            session.access = Access::Looks(capabilities.iter().map(|c| (*c).to_owned()).collect());
+            session
+        };
+        assert_eq!(
+            looking(&["read"]).turn_args("hi", None),
+            [
+                "-p",
+                "hi",
+                "--tools",
+                "Read,Grep",
+                "--allowedTools",
+                "Read,Grep"
+            ]
+        );
+        assert_eq!(
+            looking(&["read", "web"]).turn_args("hi", None),
+            [
+                "-p",
+                "hi",
+                "--tools",
+                "Read,Grep,WebSearch",
+                "--allowedTools",
+                "Read,Grep,WebSearch"
+            ]
+        );
+        assert_eq!(
+            looking(&[]).turn_args("hi", None),
+            ["-p", "hi", "--tools", ""],
+            "nothing it may use is the same as a seat that only talks"
         );
     }
 

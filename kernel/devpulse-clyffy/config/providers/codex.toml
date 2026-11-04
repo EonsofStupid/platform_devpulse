@@ -56,7 +56,24 @@ context_env = { CODEX_CONFIG = '{"developer_instructions":{context_json}}' }
 # default mode writes in the working folder without asking, so refusing what it
 # asks is not enough: a real talk-only seat created a file. Checked 2026-11-03
 # against codex-acp 2.2.2's source (getInitialAgentMode) and a real turn.
-talk_only_env = { INITIAL_AGENT_MODE = "read-only" }
+# Read-only still reads anything on disk through its shell, which would let one
+# blind seat read another's folder, so its tools are off too: a real talking seat
+# read a file by its full path until they were. Checked 2026-11-04 against
+# `codex features list` (0.166.0) and a real turn.
+talk_only_env = { INITIAL_AGENT_MODE = "read-only", CODEX_CONFIG = '{"features":{"shell_tool":false,"unified_exec":false,"apps":false,"plugins":false,"multi_agent":false,"view_image":false,"image_generation":false,"browser_use":false,"browser_use_external":false,"in_app_browser":false,"computer_use":false},"web_search":"disabled"}' }
+# A seat that looks and changes nothing (plan 0001 B4.5): the same mode. It reads
+# without asking and asks before it changes anything, and a room refuses what it asks.
+# Its shell stays, since that is how Codex reads; the tools that act outside the
+# sandbox go. A role without `web` can still search, since this mode has one switch.
+read_only_env = { INITIAL_AGENT_MODE = "read-only", CODEX_CONFIG = '{"features":{"apps":false,"plugins":false,"multi_agent":false,"image_generation":false,"browser_use":false,"browser_use_external":false,"in_app_browser":false,"computer_use":false}}' }
+# A limited seat without the MCP servers you gave Codex: a real talking seat with no
+# shell read a file through one, without asking. They go in the config, not the
+# session, because the connector's session servers replace the config's whole table.
+# Checked 2026-11-04 against `codex mcp list --json` (0.166.0), codex-acp 2.2.2's
+# source (createSessionConfig) and real seats. Codex asks before each call to a tool
+# server, and a room refuses what a limited seat asks, so the memory DevPulse offers is
+# approved here: only that server, scoped to the seat's project.
+own_tool_servers = { list = ["mcp", "list", "--json"], config_env = "CODEX_CONFIG", offered = { default_tools_approval_mode = "approve" } }
 
 [history]
 # Your sessions, read only, for AgentHub (plan 0009 R3a): one "rollout"

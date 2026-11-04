@@ -325,6 +325,62 @@ participant's reasoning and tool logs never reach another.
 - **Unverified:** vLLM's Responses endpoint, and how to discover a local
   model's context size.
 
+## Part 3 — which agents to ship
+
+**Asked:** the operator, 2026-11-04: a schema that "provides baseline templates and
+examples and the most high in demand types of agents and we include them", so that
+people can tailor their own councils. **Researched:** 2026-11-04.
+
+**What the evidence can and cannot say.** Nobody publishes usage numbers per agent
+type. The one large survey below measures the tasks organisations give agents, and
+the two community collections measure popularity (stars), not use. Community guides
+agree on a short list but give no numbers. So this list is a judgement built on
+those signals, and it is graded practice.
+
+**The signals:**
+- Anthropic and Material surveyed more than 500 technical leaders. About 90% use AI
+  for development and 86% use agents for production code. Across the development
+  lifecycle they report savings on planning (58%) and on code generation,
+  documentation, and review and testing (59% each). The highest-impact uses were
+  data analysis and reports (60%) and internal process automation (48%), and 56%
+  plan to adopt research and reporting agents next [49].
+- The largest collection, 202 agents, treats code review, debugging, git and testing
+  as developer essentials, with security scanning alongside [50]. The other sorts
+  its agents into 10 categories across engineering, data, product and business [51].
+- One secondary summary of McKinsey puts customer service at 78% of organisations
+  deploying agents. We could not check it against the original [52].
+- Vendors' own sub-agents need only a name and a description, and their reviewers
+  read and search without being able to change anything [28].
+
+**What ships, on top of the debate roles in Part 1:**
+
+| Group | Roles | Access | Sources |
+| --- | --- | --- | --- |
+| Software | Code Reviewer, Test Engineer, Security Auditor, Debugger, Software Architect, Performance Engineer, Refactoring Specialist, DevOps Engineer, Documentation Writer, Codebase Explorer | Reads the project, changes nothing | [28] [49] [50] [51] [S2] |
+| Knowledge | Researcher (and the web), Data Analyst | Reads | [16] [49] [51] |
+| Product and business | Product Manager, UX Reviewer, Project Manager, Customer Support, Content Writer, Automation Planner, Prompt Engineer | Talks only | [49] [51] [52] |
+| Clyffy Council | Conductor, Researcher, Scribe, Guardian, Diary, Teacher, Human Diagnostics, Vision, Enforcer | By seat | [53] |
+
+**Why these limits.** A reviewer that cannot read the code is no reviewer, and one
+that can change it is no longer independent, so review roles read and do not write.
+Roles that write code in a room are left to you: add `write` to a role of your own
+and every permission request comes to you.
+
+**Characters are separate from jobs.** A role is the job and a persona is who speaks.
+Two sets ship:
+- Four frames restored from the operator's own orchestrator catalog: Systems
+  Architect, Supportive Ally, Devil's Advocate and Pragmatist.
+- The Clyffy Council's characters, from the operator's philosophy document [53]. That
+  document names the seats, their jobs and animals. The separate personas document
+  and `COUNCIL.md` it relied on could not be recovered, so each character's backstory
+  here is written new from those lines, and its `origin` field says so.
+
+**Rooms that ship as templates:** Council, Debate, Author-Critic, Router, Brainstorm,
+Round Robin Group [48], Code Review, Product Team and Clyffy Council. Every one is a
+starting point: seat any role that can do the job, change its character and its notes,
+or save it under your own name. `kernel/devpulse-clyffy/config/AUTHORING.md` states
+the minimal requirements to write one by hand.
+
 ## References
 
 1. Du et al., "Improving Factuality and Reasoning in Language Models through Multiagent Debate," ICML 2024. https://arxiv.org/abs/2305.14325
@@ -375,6 +431,11 @@ participant's reasoning and tool logs never reach another.
 46. Lorenz et al., "How social influence can undermine the wisdom of crowd effect," PNAS 2011. https://pmc.ncbi.nlm.nih.gov/articles/PMC3107299
 47. Diehl & Stroebe, "Productivity loss in brainstorming groups," JPSP 1987. https://homepages.se.edu/cvonbergen/files/2013/01/Productivity-Loss-In-Brainstorming_Toward-the-Solution-of-a-Riddle.pdf
 48. Microsoft AutoGen, "Teams" and `RoundRobinGroupChat` (read 2026-11-04): a fixed rotation, one shared context, a termination condition, and a resumed run continuing at the next speaker. https://microsoft.github.io/autogen/stable/user-guide/agentchat-user-guide/tutorial/teams.html
+49. Anthropic, "How enterprises are building AI agents in 2026," with Material, 500+ technical leaders (2025-12-09). https://claude.com/blog/how-enterprises-are-building-ai-agents-in-2026
+50. wshobson, `agents`: 202 agents, 94 plugins, 42.2k stars (read 2026-11-04; stars are popularity, not use). https://github.com/wshobson/agents
+51. VoltAgent, `awesome-claude-code-subagents`: 10 categories, 26.3k stars (read 2026-11-04; stars are popularity, not use). https://github.com/VoltAgent/awesome-claude-code-subagents
+52. CallSphere's summary of McKinsey on agents in production (read 2026-11-04; secondary, not checked against the original). https://www.callsphere.ai/blog/mckinsey-45-percent-fortune-500-deploy-production-ai-agents-2026
+53. The operator's philosophy document, "The Clyffy Council": the seats, their jobs and characters. `scripts/docs/PHILOSOPHY.md`
 
 ## References, part 2 (read 2026-10-20 unless dated)
 

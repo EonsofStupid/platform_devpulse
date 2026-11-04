@@ -1,0 +1,150 @@
+{
+  "schema": "dpl.room/1",
+  "id": "clyffy-council",
+  "version": "1.0.0",
+  "name": "Clyffy Council",
+  "type": "router",
+  "summary": "Clyffy's nine seats, each with its own character. The Conductor sends each question to the seat that should take it.",
+  "seats": [
+    {
+      "seat": "conductor",
+      "role": "conductor@1",
+      "count": 1,
+      "personas": [
+        "clyffy"
+      ],
+      "summary": "Routes signals and arbitrates between seats."
+    },
+    {
+      "seat": "researcher",
+      "role": "researcher@1",
+      "count": 1,
+      "personas": [
+        "llama"
+      ],
+      "summary": "External knowledge: library docs, search and citations."
+    },
+    {
+      "seat": "scribe",
+      "role": "scribe@1",
+      "count": 1,
+      "personas": [
+        "fox"
+      ],
+      "summary": "Input rehabilitation: turns rough words into a clear spec and prompt."
+    },
+    {
+      "seat": "guardian",
+      "role": "guardian@1",
+      "count": 1,
+      "personas": [
+        "warden"
+      ],
+      "summary": "Boundaries: scope, context budget and drift."
+    },
+    {
+      "seat": "diary",
+      "role": "diary@1",
+      "count": 1,
+      "personas": [
+        "fleece"
+      ],
+      "summary": "Memory: what you were working on and what was decided."
+    },
+    {
+      "seat": "teacher",
+      "role": "teacher@1",
+      "count": 1,
+      "personas": [
+        "quincy"
+      ],
+      "summary": "Competency: why this matters, at the depth you need."
+    },
+    {
+      "seat": "human-diagnostics",
+      "role": "human-diagnostics@1",
+      "count": 1,
+      "personas": [
+        "mini-pony"
+      ],
+      "summary": "Tone: frustration, pacing and how to adjust."
+    },
+    {
+      "seat": "vision",
+      "role": "vision@1",
+      "count": 1,
+      "personas": [
+        "siggy"
+      ],
+      "summary": "Visual context: screens, diagrams and screenshots you share."
+    },
+    {
+      "seat": "hardware",
+      "role": "enforcer@1",
+      "count": 1,
+      "personas": [
+        "rusty"
+      ],
+      "summary": "Hardware constraints: what the machine can really do.",
+      "parameters": {
+        "focus": "hardware constraints"
+      }
+    },
+    {
+      "seat": "software",
+      "role": "enforcer@1",
+      "count": 1,
+      "personas": [
+        "pip"
+      ],
+      "summary": "Software inefficiency: what is being wasted.",
+      "parameters": {
+        "focus": "software inefficiency"
+      }
+    }
+  ],
+  "phases": [
+    {
+      "name": "route",
+      "seats": [
+        "conductor"
+      ],
+      "mode": "sequential",
+      "visibility": "full",
+      "max_turns": 1
+    },
+    {
+      "name": "answer",
+      "seats": [
+        "researcher",
+        "scribe",
+        "guardian",
+        "diary",
+        "teacher",
+        "human-diagnostics",
+        "vision",
+        "hardware",
+        "software"
+      ],
+      "mode": "sequential",
+      "visibility": "full",
+      "max_turns": 1
+    }
+  ],
+  "turn_policy": "router",
+  "stop": {
+    "max_rounds": 1
+  },
+  "carry_forward": "full-transcript",
+  "record": [
+    "rationale"
+  ],
+  "provenance": {
+    "sources": [
+      "53",
+      "26"
+    ],
+    "evidence": "practice",
+    "note": "The seats and their jobs are the owner's (scripts/docs/PHILOSOPHY.md). The Enforcer is one seat with two specialists there; here each twin is a place, so the Conductor can name either."
+  }
+}

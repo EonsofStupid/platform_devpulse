@@ -14,10 +14,16 @@ use std::fmt::Write as _;
 
 use jsonschema::error::ValidationErrorKind;
 
-use super::persona::VoiceTone;
+use super::persona::{Persona, VoiceTone};
 use super::role::RoleCard;
 use super::room::RoomSpec;
 use super::seating::Place;
+
+/// What a seat that changes nothing is told after a refusal stopped its turn: an
+/// agent may offer only a refusal that does.
+pub const AFTER_A_REFUSAL: &str = "That was refused: this seat changes nothing, so it cannot do \
+that. Finish your answer now from what you have, in the form you were asked for, without trying \
+to change anything.";
 
 /// The tags a room wraps others' words in.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -106,24 +112,18 @@ pub fn brief(room: &RoomSpec, place: &Place, marker: &Marker) -> String {
         let _ = writeln!(out, "- {}", fill(criterion));
     }
     if let Some(persona) = &place.persona {
-        let _ = writeln!(out, "\nYou speak as {}: {}", persona.name, persona.summary);
-        let _ = writeln!(out, "Who you are: {}", persona.backstory);
-        let _ = writeln!(out, "What you know well: {}", persona.expertise.join(", "));
-        let _ = writeln!(out, "How you speak: {}", tone(persona.tone));
-        if !persona.instructions.trim().is_empty() {
-            let _ = writeln!(out, "{}", persona.instructions.trim());
-        }
-        let _ = writeln!(
-            out,
-            "Your character never changes your job, your limits or the form of your answer."
-        );
+        write_persona(&mut out, persona);
     }
     if room.routing_seat() == Some(place.seat.as_str()) {
         let _ = writeln!(out, "\nThe places you can name, exactly as written:");
         for seat in room.seats.iter().filter(|seat| seat.seat != place.seat) {
-            let domain = seat.parameters.get("domain").map_or("", String::as_str);
+            let says = seat
+                .summary
+                .as_deref()
+                .or_else(|| seat.parameters.get("domain").map(String::as_str))
+                .unwrap_or_default();
             for index in 1..=seat.count {
-                let _ = writeln!(out, "- {}-{index}: {domain}", seat.seat);
+                let _ = writeln!(out, "- {}-{index}: {says}", seat.seat);
             }
         }
     }
@@ -144,6 +144,16 @@ pub fn brief(room: &RoomSpec, place: &Place, marker: &Marker) -> String {
             out,
             "- You only talk: use no tools, read and change no files, run nothing."
         );
+    } else if !role.may_change() {
+        let _ = writeln!(
+            out,
+            "- You may read this project's files{}, and you change nothing: a change is for the operator to make.",
+            if role.capabilities().iter().any(|tool| tool == "web") {
+                " and use the web"
+            } else {
+                ""
+            }
+        );
     }
     let _ = writeln!(
         out,
@@ -153,6 +163,28 @@ pub fn brief(room: &RoomSpec, place: &Place, marker: &Marker) -> String {
         serde_json::to_string_pretty(&role.output_contract).unwrap_or_default()
     );
     out
+}
+
+/// Who a seat speaks as, in its brief.
+fn write_persona(out: &mut String, persona: &Persona) {
+    let _ = writeln!(out, "\nYou speak as {}: {}", persona.name, persona.summary);
+    let _ = writeln!(out, "Who you are: {}", persona.backstory);
+    let _ = writeln!(out, "What you know well: {}", persona.expertise.join(", "));
+    let _ = writeln!(out, "How you speak: {}", tone(persona.tone));
+    if let Some(style) = persona.style {
+        let _ = writeln!(
+            out,
+            "Out of 100: formality {}, thoroughness {}, confidence {}.",
+            style.formality, style.verbosity, style.confidence
+        );
+    }
+    if !persona.instructions.trim().is_empty() {
+        let _ = writeln!(out, "{}", persona.instructions.trim());
+    }
+    let _ = writeln!(
+        out,
+        "Your character never changes your job, your limits or the form of your answer."
+    );
 }
 
 /// How a tone is put to the agent.
@@ -244,6 +276,8 @@ mod tests {
                 provider: ProviderId::ClaudeCode,
                 persona: None,
                 notes: None,
+                role: None,
+                parameters: std::collections::BTreeMap::new(),
             })
             .collect();
         seating.push(Assignment {
@@ -252,6 +286,8 @@ mod tests {
             provider: ProviderId::Codex,
             persona: None,
             notes: None,
+            role: None,
+            parameters: std::collections::BTreeMap::new(),
         });
         let seated = seat(&library, "council", &seating).expect("seated");
         (seated.room.clone(), seated.places[0].clone())

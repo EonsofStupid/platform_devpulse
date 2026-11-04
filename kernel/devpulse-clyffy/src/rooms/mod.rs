@@ -20,8 +20,10 @@
 //! Your own files live in `{data_dir}/config/{roles,rooms,personas}/*.json`.
 //! A new role is a new file. One of yours with a bundled id replaces it only
 //! with a higher version. A file that does not pass is never loaded half-way:
-//! it is named with its problems.
+//! it is named with its problems. `config/AUTHORING.md` says the minimal
+//! requirements to write one, and [`authoring`] saves them.
 
+pub mod authoring;
 pub mod brief;
 pub mod persona;
 pub mod role;
@@ -41,10 +43,51 @@ pub use run::{Outcome, Pick, RoomHost, RoomRun, RoomTurn, Stopped};
 pub use seating::{Assignment, Place, SeatedRoom, seat};
 
 /// The bundled roles, by file name.
-const BUNDLED_ROLES: [(&str, &str); 13] = [
+const BUNDLED_ROLES: [(&str, &str); 40] = [
     (
         "advocate.json",
         include_str!("../../config/roles/advocate.json"),
+    ),
+    (
+        "automation-planner.json",
+        include_str!("../../config/roles/automation-planner.json"),
+    ),
+    (
+        "code-reviewer.json",
+        include_str!("../../config/roles/code-reviewer.json"),
+    ),
+    (
+        "codebase-explorer.json",
+        include_str!("../../config/roles/codebase-explorer.json"),
+    ),
+    (
+        "conductor.json",
+        include_str!("../../config/roles/conductor.json"),
+    ),
+    (
+        "content-writer.json",
+        include_str!("../../config/roles/content-writer.json"),
+    ),
+    (
+        "customer-support.json",
+        include_str!("../../config/roles/customer-support.json"),
+    ),
+    (
+        "data-analyst.json",
+        include_str!("../../config/roles/data-analyst.json"),
+    ),
+    (
+        "debugger.json",
+        include_str!("../../config/roles/debugger.json"),
+    ),
+    (
+        "devops-engineer.json",
+        include_str!("../../config/roles/devops-engineer.json"),
+    ),
+    ("diary.json", include_str!("../../config/roles/diary.json")),
+    (
+        "documentation-writer.json",
+        include_str!("../../config/roles/documentation-writer.json"),
     ),
     (
         "domain-expert.json",
@@ -55,12 +98,28 @@ const BUNDLED_ROLES: [(&str, &str); 13] = [
         include_str!("../../config/roles/dreamer.json"),
     ),
     (
+        "enforcer.json",
+        include_str!("../../config/roles/enforcer.json"),
+    ),
+    (
         "fact-checker.json",
         include_str!("../../config/roles/fact-checker.json"),
     ),
     (
         "group-member.json",
         include_str!("../../config/roles/group-member.json"),
+    ),
+    (
+        "guardian.json",
+        include_str!("../../config/roles/guardian.json"),
+    ),
+    (
+        "human-diagnostics.json",
+        include_str!("../../config/roles/human-diagnostics.json"),
+    ),
+    (
+        "performance-engineer.json",
+        include_str!("../../config/roles/performance-engineer.json"),
     ),
     (
         "planner.json",
@@ -71,6 +130,18 @@ const BUNDLED_ROLES: [(&str, &str); 13] = [
         include_str!("../../config/roles/pre-mortem.json"),
     ),
     (
+        "product-manager.json",
+        include_str!("../../config/roles/product-manager.json"),
+    ),
+    (
+        "project-manager.json",
+        include_str!("../../config/roles/project-manager.json"),
+    ),
+    (
+        "prompt-engineer.json",
+        include_str!("../../config/roles/prompt-engineer.json"),
+    ),
+    (
         "realist.json",
         include_str!("../../config/roles/realist.json"),
     ),
@@ -79,8 +150,24 @@ const BUNDLED_ROLES: [(&str, &str); 13] = [
         include_str!("../../config/roles/red-team.json"),
     ),
     (
+        "refactoring-specialist.json",
+        include_str!("../../config/roles/refactoring-specialist.json"),
+    ),
+    (
+        "researcher.json",
+        include_str!("../../config/roles/researcher.json"),
+    ),
+    (
         "router.json",
         include_str!("../../config/roles/router.json"),
+    ),
+    (
+        "scribe.json",
+        include_str!("../../config/roles/scribe.json"),
+    ),
+    (
+        "security-auditor.json",
+        include_str!("../../config/roles/security-auditor.json"),
     ),
     (
         "selector.json",
@@ -91,13 +178,33 @@ const BUNDLED_ROLES: [(&str, &str); 13] = [
         include_str!("../../config/roles/skeptic.json"),
     ),
     (
+        "software-architect.json",
+        include_str!("../../config/roles/software-architect.json"),
+    ),
+    (
         "steelman.json",
         include_str!("../../config/roles/steelman.json"),
+    ),
+    (
+        "teacher.json",
+        include_str!("../../config/roles/teacher.json"),
+    ),
+    (
+        "test-engineer.json",
+        include_str!("../../config/roles/test-engineer.json"),
+    ),
+    (
+        "ux-reviewer.json",
+        include_str!("../../config/roles/ux-reviewer.json"),
+    ),
+    (
+        "vision.json",
+        include_str!("../../config/roles/vision.json"),
     ),
 ];
 
 /// The bundled rooms, by file name.
-const BUNDLED_ROOMS: [(&str, &str); 6] = [
+const BUNDLED_ROOMS: [(&str, &str); 9] = [
     (
         "author-critic.json",
         include_str!("../../config/rooms/author-critic.json"),
@@ -105,6 +212,14 @@ const BUNDLED_ROOMS: [(&str, &str); 6] = [
     (
         "brainstorm.json",
         include_str!("../../config/rooms/brainstorm.json"),
+    ),
+    (
+        "clyffy-council.json",
+        include_str!("../../config/rooms/clyffy-council.json"),
+    ),
+    (
+        "code-review.json",
+        include_str!("../../config/rooms/code-review.json"),
     ),
     (
         "council.json",
@@ -115,12 +230,70 @@ const BUNDLED_ROOMS: [(&str, &str); 6] = [
         include_str!("../../config/rooms/debate.json"),
     ),
     (
+        "product-team.json",
+        include_str!("../../config/rooms/product-team.json"),
+    ),
+    (
         "round-robin.json",
         include_str!("../../config/rooms/round-robin.json"),
     ),
     (
         "router.json",
         include_str!("../../config/rooms/router.json"),
+    ),
+];
+
+/// The bundled personas, by file name.
+const BUNDLED_PERSONAS: [(&str, &str); 14] = [
+    (
+        "clyffy.json",
+        include_str!("../../config/personas/clyffy.json"),
+    ),
+    (
+        "devils-advocate.json",
+        include_str!("../../config/personas/devils-advocate.json"),
+    ),
+    (
+        "fleece.json",
+        include_str!("../../config/personas/fleece.json"),
+    ),
+    ("fox.json", include_str!("../../config/personas/fox.json")),
+    (
+        "llama.json",
+        include_str!("../../config/personas/llama.json"),
+    ),
+    (
+        "mini-pony.json",
+        include_str!("../../config/personas/mini-pony.json"),
+    ),
+    ("pip.json", include_str!("../../config/personas/pip.json")),
+    (
+        "pragmatist.json",
+        include_str!("../../config/personas/pragmatist.json"),
+    ),
+    (
+        "quincy.json",
+        include_str!("../../config/personas/quincy.json"),
+    ),
+    (
+        "rusty.json",
+        include_str!("../../config/personas/rusty.json"),
+    ),
+    (
+        "siggy.json",
+        include_str!("../../config/personas/siggy.json"),
+    ),
+    (
+        "supportive-ally.json",
+        include_str!("../../config/personas/supportive-ally.json"),
+    ),
+    (
+        "systems-architect.json",
+        include_str!("../../config/personas/systems-architect.json"),
+    ),
+    (
+        "warden.json",
+        include_str!("../../config/personas/warden.json"),
     ),
 ];
 
@@ -175,7 +348,8 @@ pub struct Issue {
 }
 
 impl Issue {
-    pub(crate) fn new(at: impl Into<String>, problem: impl Into<String>) -> Self {
+    /// A problem at a place you can find.
+    pub fn new(at: impl Into<String>, problem: impl Into<String>) -> Self {
         Self {
             at: at.into(),
             problem: problem.into(),
@@ -274,10 +448,24 @@ pub struct Library {
     pub roles: Vec<RoleCard>,
     /// By name.
     pub rooms: Vec<RoomSpec>,
-    /// By name. None ship; these are yours.
+    /// By name.
     pub personas: Vec<Persona>,
+    /// Which of these came from your files.
+    pub yours: YourEntries,
     /// Files that were not loaded, and why.
     pub rejected: Vec<Rejected>,
+}
+
+/// The ids in the library that are yours rather than bundled.
+#[derive(Debug, Clone, Default, Serialize)]
+#[cfg_attr(feature = "specta", derive(specta::Type))]
+pub struct YourEntries {
+    /// Your roles.
+    pub roles: Vec<String>,
+    /// Your rooms.
+    pub rooms: Vec<String>,
+    /// Your personas.
+    pub personas: Vec<String>,
 }
 
 impl Library {
@@ -318,19 +506,80 @@ impl Library {
                 Err(issues) => library.rejected.push(Rejected { file, issues }),
             }
         }
-        for (file, text) in &files.personas {
-            match Persona::parse(file, text) {
-                Ok(persona) => admit(&mut library.personas, &mut library.rejected, file, persona),
-                Err(issues) => library.rejected.push(Rejected {
-                    file: file.clone(),
-                    issues,
-                }),
+        let bundled_personas = BUNDLED_PERSONAS
+            .iter()
+            .map(|(file, text)| (format!("bundled {file}"), *text));
+        let your_personas = files
+            .personas
+            .iter()
+            .map(|(file, text)| (file.clone(), text.as_str()));
+        for (file, text) in bundled_personas.chain(your_personas) {
+            match Persona::parse(&file, text) {
+                Ok(persona) => admit(&mut library.personas, &mut library.rejected, &file, persona),
+                Err(issues) => library.rejected.push(Rejected { file, issues }),
             }
         }
+        library.yours = library.yours_among(files);
         library.roles.sort_by(|a, b| a.name.cmp(&b.name));
         library.rooms.sort_by(|a, b| a.name.cmp(&b.name));
         library.personas.sort_by(|a, b| a.name.cmp(&b.name));
         library
+    }
+
+    /// Which entries your files put in the library: what parsed from them and
+    /// was admitted, by id and version.
+    fn yours_among(&self, files: &Files) -> YourEntries {
+        fn ids<T: Versioned>(
+            entries: &[T],
+            yours: &[(String, String)],
+            parse: impl Fn(&str, &str) -> Option<T>,
+        ) -> Vec<String> {
+            yours
+                .iter()
+                .filter_map(|(file, text)| parse(file, text))
+                .filter(|item| {
+                    entries
+                        .iter()
+                        .any(|e| e.id() == item.id() && e.version() == item.version())
+                })
+                .map(|item| item.id().to_owned())
+                .filter(|id| !id.is_empty())
+                .collect()
+        }
+        let bundled = |kind_roles: bool, id: &str, version: &str| -> bool {
+            let list: &[(&str, &str)] = if kind_roles {
+                &BUNDLED_ROLES
+            } else {
+                &BUNDLED_PERSONAS
+            };
+            list.iter().any(|(_, text)| {
+                serde_json::from_str::<serde_json::Value>(text)
+                    .is_ok_and(|value| value["id"] == id && value["version"] == version)
+            })
+        };
+        let bundled_room = |id: &str, version: &str| {
+            BUNDLED_ROOMS.iter().any(|(_, text)| {
+                serde_json::from_str::<serde_json::Value>(text)
+                    .is_ok_and(|value| value["id"] == id && value["version"] == version)
+            })
+        };
+        YourEntries {
+            roles: ids(&self.roles, &files.roles, |file, text| {
+                RoleCard::parse(file, text)
+                    .ok()
+                    .filter(|r| !bundled(true, &r.id, &r.version))
+            }),
+            rooms: ids(&self.rooms, &files.rooms, |file, text| {
+                RoomSpec::parse(file, text, &self.roles)
+                    .ok()
+                    .filter(|r| !bundled_room(&r.id, &r.version))
+            }),
+            personas: ids(&self.personas, &files.personas, |file, text| {
+                Persona::parse(file, text)
+                    .ok()
+                    .filter(|p| !bundled(false, &p.id, &p.version))
+            }),
+        }
     }
 
     /// The role with this id.
@@ -500,7 +749,7 @@ mod tests {
         assert!(library.rejected.is_empty(), "{:?}", library.rejected);
         assert_eq!(library.roles.len(), BUNDLED_ROLES.len());
         assert_eq!(library.rooms.len(), BUNDLED_ROOMS.len());
-        assert!(library.personas.is_empty(), "no persona ships");
+        assert_eq!(library.personas.len(), BUNDLED_PERSONAS.len());
         for id in ["dreamer", "realist", "skeptic", "selector"] {
             assert!(library.role(id).is_some(), "the owner's named role {id}");
         }
@@ -588,6 +837,83 @@ mod tests {
         );
     }
 
+    /// What the owner asked to ship: the agents people most want, the characters,
+    /// and rooms that actually seat them.
+    #[test]
+    fn the_baseline_library_ships_and_every_room_can_be_seated() {
+        let library = Library::bundled();
+        assert!(library.rejected.is_empty(), "{:?}", library.rejected);
+        for id in [
+            "code-reviewer",
+            "test-engineer",
+            "security-auditor",
+            "debugger",
+            "documentation-writer",
+            "researcher",
+            "data-analyst",
+            "product-manager",
+            "customer-support",
+            "conductor",
+            "diary",
+            "human-diagnostics",
+        ] {
+            assert!(library.role(id).is_some(), "{id}");
+        }
+        for id in [
+            "systems-architect",
+            "devils-advocate",
+            "clyffy",
+            "rusty",
+            "pip",
+        ] {
+            assert!(library.persona(id).is_some(), "{id}");
+        }
+        for room in &library.rooms {
+            for persona in room.seats.iter().flat_map(|seat| &seat.personas) {
+                assert!(library.persona(persona).is_some(), "{}: {persona}", room.id);
+            }
+        }
+    }
+
+    /// The owner's frames are the recovered text, not a retelling of it.
+    #[test]
+    fn the_restored_frames_keep_the_owners_words_and_numbers() {
+        let library = Library::bundled();
+        let architect = library.persona("systems-architect").expect("restored");
+        assert_eq!(
+            architect.instructions,
+            "You are a systems architect persona. Your role is to:\n\
+             - Think in terms of system design and architecture\n\
+             - Consider scalability, maintainability, and extensibility\n\
+             - Identify potential issues before they arise\n\
+             - Propose structured, well-organized solutions\n\
+             - Balance idealism with pragmatism"
+        );
+        assert_eq!(
+            architect.style,
+            Some(persona::PersonaStyle {
+                formality: 70,
+                verbosity: 60,
+                confidence: 80,
+            })
+        );
+    }
+
+    #[test]
+    fn the_authoring_page_examples_are_real_files() {
+        let page = include_str!("../../config/AUTHORING.md");
+        let examples: Vec<&str> = page
+            .split("```json\n")
+            .skip(1)
+            .filter_map(|block| block.split("```").next())
+            .collect();
+        assert_eq!(examples.len(), 3, "a role, a room and a persona");
+        let library = Library::bundled();
+        RoleCard::parse("example", examples[0]).expect("the smallest role");
+        RoomSpec::parse("example", examples[1], &library.roles).expect("the smallest room");
+        Persona::parse("example", examples[2]).expect("the smallest persona");
+    }
+
     /// Files are read from the data folder; a missing folder is empty.
     #[test]
     fn load_reads_your_folders() {
@@ -601,7 +927,8 @@ mod tests {
         std::fs::write(personas.join("notes.txt"), "not a persona").unwrap();
 
         let library = load(&data);
-        assert_eq!(library.personas.len(), 1);
+        assert_eq!(library.personas.len(), BUNDLED_PERSONAS.len() + 1);
+        assert_eq!(library.yours.personas, ["ada"]);
         assert_eq!(library.roles.len(), BUNDLED_ROLES.len());
         assert!(library.rejected.is_empty(), "{:?}", library.rejected);
         let _ = std::fs::remove_dir_all(data);

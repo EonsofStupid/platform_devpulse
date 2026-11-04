@@ -15,6 +15,7 @@ use std::collections::BTreeSet;
 use serde::{Deserialize, Serialize};
 
 use super::{Issue, Provenance, Visibility, is_kebab, semver};
+use crate::providers::session::Access;
 
 /// The `schema` value of every role file.
 pub const ROLE_SCHEMA: &str = "dpl.role/1";
@@ -163,7 +164,39 @@ pub struct RoleCard {
     pub provenance: Provenance,
 }
 
+/// What a role may do besides talk.
+pub const CAPABILITIES: [&str; 3] = ["read", "web", "write"];
+
 impl RoleCard {
+    /// What a seat in this role is limited to: nothing while it only talks.
+    #[must_use]
+    pub fn capabilities(&self) -> Vec<String> {
+        if self.permissions.talk_only {
+            Vec::new()
+        } else {
+            self.permissions.tools_allowed.clone()
+        }
+    }
+
+    /// What a seat in this role may do, for the session it starts.
+    #[must_use]
+    pub fn access(&self) -> Access {
+        if self.permissions.talk_only {
+            Access::TalkOnly
+        } else if self.may_change() {
+            Access::Full
+        } else {
+            Access::Looks(self.capabilities())
+        }
+    }
+
+    /// It may change things, so its permission requests go to you. Otherwise
+    /// they are refused for you.
+    #[must_use]
+    pub fn may_change(&self) -> bool {
+        self.capabilities().iter().any(|tool| tool == "write")
+    }
+
     /// Parse one role file's text and check its rules.
     ///
     /// # Errors
@@ -222,6 +255,14 @@ impl RoleCard {
         }
         if self.provenance.sources.is_empty() {
             issues.push(Issue::new(at("provenance"), "needs at least one source"));
+        }
+        for tool in &self.permissions.tools_allowed {
+            if !CAPABILITIES.contains(&tool.as_str()) {
+                issues.push(Issue::new(
+                    at("permissions"),
+                    format!("{tool} is not one of {}", CAPABILITIES.join(", ")),
+                ));
+            }
         }
         if self.permissions.talk_only && !self.permissions.tools_allowed.is_empty() {
             issues.push(Issue::new(
@@ -324,6 +365,33 @@ mod tests {
                 .iter()
                 .any(|issue| issue.problem.contains("talk-only"))
         );
+    }
+
+    #[test]
+    fn a_role_says_what_it_may_do_in_words_the_kernel_knows() {
+        let mut role = selector();
+        role.permissions.talk_only = false;
+        role.permissions.tools_allowed = vec!["read".to_owned()];
+        assert_eq!(role.capabilities(), ["read"]);
+        assert!(!role.may_change());
+        role.permissions.tools_allowed = vec!["read".to_owned(), "write".to_owned()];
+        assert!(role.may_change());
+        assert_eq!(role.access(), Access::Full);
+        role.permissions.tools_allowed = vec!["read".to_owned(), "web".to_owned()];
+        assert_eq!(
+            role.access(),
+            Access::Looks(vec!["read".to_owned(), "web".to_owned()])
+        );
+        role.permissions.tools_allowed = vec!["sudo".to_owned()];
+        assert!(
+            role.validate()
+                .iter()
+                .any(|issue| issue.problem.contains("sudo"))
+        );
+        role.permissions.talk_only = true;
+        role.permissions.tools_allowed.clear();
+        assert_eq!(role.capabilities(), Vec::<String>::new());
+        assert_eq!(role.access(), Access::TalkOnly);
     }
 
     #[test]

@@ -1374,6 +1374,29 @@ async roomLibrary() : Promise<Result<Library, string>> {
 }
 },
 /**
+ * Save a role, room or persona of yours; returns its id, or everything wrong
+ * with it.
+ */
+async roomLibrarySave(kind: LibraryKind, text: string) : Promise<Result<string, Issue[]>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("room_library_save", { kind, text }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Delete a file of yours; a bundled entry it replaced comes back.
+ */
+async roomLibraryRemove(kind: LibraryKind, id: string) : Promise<Result<boolean, Issue[]>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("room_library_remove", { kind, id }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * The rooms of a project, latest first.
  */
 async roomThreads(projectId: string) : Promise<Result<RoomThread[], string>> {
@@ -5506,7 +5529,15 @@ persona?: string | null;
 /**
  * Your choice for this place's notes; absent, the room's seat decides.
  */
-notes?: boolean | null }
+notes?: boolean | null; 
+/**
+ * The role this place takes instead of the seat's (`code-reviewer@1`).
+ */
+role?: string | null; 
+/**
+ * Values for its role's parameters, over the room's.
+ */
+parameters?: Partial<{ [key in string]: string }> }
 /**
  * Built-in keyword action types the assistant can dispatch.
  * 
@@ -10060,13 +10091,33 @@ roles: RoleCard[];
  */
 rooms: RoomSpec[]; 
 /**
- * By name. None ship; these are yours.
+ * By name.
  */
 personas: Persona[]; 
+/**
+ * Which of these came from your files.
+ */
+yours: YourEntries; 
 /**
  * Files that were not loaded, and why.
  */
 rejected: Rejected[] }
+/**
+ * Which part of your library a file belongs to.
+ */
+export type LibraryKind = 
+/**
+ * A job one seat does.
+ */
+"role" | 
+/**
+ * Who sits where, in what order.
+ */
+"room" | 
+/**
+ * A character a seat speaks as.
+ */
+"persona"
 /**
  * Where the license verdict came from. Drives UX copy on the
  * "subscription" panel — `Dev` shows a "developer bypass" badge,
@@ -11521,9 +11572,33 @@ expertise: string[];
  */
 instructions?: string; 
 /**
+ * How it comes across, when that is worth setting.
+ */
+style?: PersonaStyle | null; 
+/**
  * Words to find it by.
  */
-tags?: string[] }
+tags?: string[]; 
+/**
+ * Where this character comes from, when that is worth saying.
+ */
+origin?: string | null }
+/**
+ * How a character comes across, each out of 100.
+ */
+export type PersonaStyle = { 
+/**
+ * Casual at 0, formal at 100.
+ */
+formality: number; 
+/**
+ * Brief at 0, thorough at 100.
+ */
+verbosity: number; 
+/**
+ * Tentative at 0, sure of itself at 100.
+ */
+confidence: number }
 /**
  * One step of a room.
  */
@@ -13598,7 +13673,15 @@ parameters?: Partial<{ [key in string]: string }>;
  * It gets the notes you chose: yes unless you say otherwise, here or when
  * you seat the room.
  */
-notes?: boolean }
+notes?: boolean; 
+/**
+ * The persona each place speaks as by default, in order.
+ */
+personas?: string[]; 
+/**
+ * One line a router reads to choose this seat.
+ */
+summary?: string | null }
 /**
  * How the room chooses one answer (select, never blend).
  * 
@@ -16489,6 +16572,22 @@ in_devpulse_folder: string;
  * Button: close the steps.
  */
 close: string }
+/**
+ * The ids in the library that are yours rather than bundled.
+ */
+export type YourEntries = { 
+/**
+ * Your roles.
+ */
+roles: string[]; 
+/**
+ * Your rooms.
+ */
+rooms: string[]; 
+/**
+ * Your personas.
+ */
+personas: string[] }
 
 /** tauri-specta globals **/
 

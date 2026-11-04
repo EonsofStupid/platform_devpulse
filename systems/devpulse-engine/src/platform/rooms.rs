@@ -31,8 +31,10 @@ use devpulse_clyffy::cortex::persistence::{SqlAdapter, SqlValue, TursoAdapter};
 // IP-NOTE: room vocabulary only — room, seat, place, role, persona, turn;
 // public names, no kernel internals.
 use devpulse_clyffy::providers::AgentSession;
-use devpulse_clyffy::rooms::{self as library, Issue, Place, RoomHost, RoomRun};
-pub use devpulse_clyffy::rooms::{Assignment, Library, Outcome, RoomTurn};
+use devpulse_clyffy::providers::session::Access;
+pub use devpulse_clyffy::rooms::authoring::LibraryKind;
+use devpulse_clyffy::rooms::{self as library, Place, RoomHost, RoomRun};
+pub use devpulse_clyffy::rooms::{Assignment, Issue, Library, Outcome, RoomTurn};
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use tokio::sync::{Mutex, mpsc};
@@ -40,7 +42,8 @@ use uuid::Uuid;
 
 use super::agenthub::live::Observation;
 use super::agents::{
-    AgentEvent, Agents, ResumeUpdate, TurnRow, recovery, save_turn, save_turn_with_continuation,
+    AgentEvent, Agents, ConversationSeat, ResumeUpdate, TurnRow, recovery, save_turn,
+    save_turn_with_continuation,
 };
 
 /// A room of yours.
@@ -127,24 +130,23 @@ pub struct Rooms {
 
 /// The router room's agents, seated as a Council: its experts answer and its
 /// router selects, keeping each one's persona.
-fn council_seating(seating: &[Assignment], routing_seat: &str) -> Vec<Assignment> {
-    let mut answerers = 0;
-    seating
-        .iter()
-        .map(|place| {
-            let (seat, index) = if place.seat == routing_seat {
-                ("selector", 0)
-            } else {
-                answerers += 1;
-                ("answerer", answerers - 1)
-            };
-            Assignment {
-                seat: seat.to_owned(),
-                place: index,
-                provider: place.provider,
-                persona: place.persona.clone(),
-                notes: place.notes,
-            }
+fn council_seating(seating: &[Assignment], routing_seat: &str, places: u32) -> Vec<Assignment> {
+    let (routers, experts): (Vec<_>, Vec<_>) =
+        seating.iter().partition(|place| place.seat == routing_seat);
+    let selector = routers.into_iter().map(|place| ("selector", 0, place));
+    let answerers = (0..places)
+        .zip(experts)
+        .map(|(index, place)| ("answerer", index, place));
+    selector
+        .chain(answerers)
+        .map(|(seat, index, place)| Assignment {
+            seat: seat.to_owned(),
+            place: index,
+            provider: place.provider,
+            persona: place.persona.clone(),
+            notes: place.notes,
+            role: None,
+            parameters: std::collections::BTreeMap::new(),
         })
         .collect()
 }
@@ -181,6 +183,23 @@ impl Rooms {
     #[must_use]
     pub fn library(&self) -> Library {
         library::load(&self.data_dir)
+    }
+
+    /// Save a role, room or persona of yours; returns its id.
+    ///
+    /// # Errors
+    /// Everything wrong with it, at the field it is in. Nothing is written.
+    pub fn save_to_library(&self, kind: LibraryKind, text: &str) -> Result<String, Vec<Issue>> {
+        library::authoring::save(&self.data_dir, kind, text)
+    }
+
+    /// Delete a file of yours, which brings back a bundled entry it replaced;
+    /// returns whether there was one.
+    ///
+    /// # Errors
+    /// When it cannot be deleted.
+    pub fn remove_from_library(&self, kind: LibraryKind, id: &str) -> Result<bool, Vec<Issue>> {
+        library::authoring::remove(&self.data_dir, kind, id)
     }
 
     /// The rooms of a project, latest first.
@@ -431,7 +450,12 @@ impl Rooms {
         Box::pin(async move {
             let opened = async {
                 let record = self.record(&host.session_id).await?;
-                let seating = council_seating(&record.seating, routing_seat);
+                let places = self
+                    .library()
+                    .room("council")
+                    .and_then(|council| council.seats.iter().find(|seat| seat.seat == "answerer"))
+                    .map_or(0, |seat| seat.count);
+                let seating = council_seating(&record.seating, routing_seat, places);
                 let room = self.start(&record.project_id, "council", seating).await?;
                 let events = self.ask(&room.session_id, question).await?;
                 anyhow::Ok((room, events))
@@ -521,8 +545,8 @@ impl Host {
         if let Some(session) = self.room.places.lock().await.get(&key) {
             return Ok(Arc::clone(session));
         }
-        let talk_only = place.role.permissions.talk_only;
-        let cwd = if talk_only {
+        let access = place.role.access();
+        let cwd = if access == Access::TalkOnly {
             self.data_dir
                 .join("rooms")
                 .join(&self.session_id)
@@ -538,8 +562,11 @@ impl Host {
                     &self.room.project_id,
                     &cwd,
                     resume,
-                    talk_only,
-                    place.notes,
+                    ConversationSeat {
+                        access: access.clone(),
+                        notes: place.notes,
+                        blind: place.blind,
+                    },
                 )
                 .await?,
         );
@@ -548,7 +575,7 @@ impl Host {
             .lock()
             .await
             .insert(key.clone(), Arc::clone(&session));
-        tracing::info!(target: "rooms", session_id = %self.session_id, place = %key, provider = place.provider.key(), talk_only, "place joined");
+        tracing::info!(target: "rooms", session_id = %self.session_id, place = %key, provider = place.provider.key(), ?access, "place joined");
         Ok(session)
     }
 
@@ -625,12 +652,28 @@ impl RoomHost for Host {
         let mut events = session.prompt(prompt).await?;
         let key = place.key();
         let mut text = String::new();
+        let mut refused = false;
+        let mut continued = false;
         while let Some(event) = events.recv().await {
             if let AgentEvent::PermissionAsked { request, title, .. } = &event
-                && place.role.permissions.talk_only
+                && !place.role.may_change()
             {
-                tracing::info!(target: "rooms", place = %key, %title, "a talk-only place asked for a permission; refused");
+                refused = true;
+                tracing::info!(target: "rooms", place = %key, %title, "a place that changes nothing asked for a permission; refused");
                 session.answer(request, None).await;
+                continue;
+            }
+            // An agent may offer only a refusal that stops its turn, which would
+            // lose the seat's answer for asking. It gets one more turn to finish.
+            if matches!(&event, AgentEvent::TurnEnded { stop } if stop == "cancelled")
+                && refused
+                && !continued
+                && !self.room.stopped.load(Ordering::SeqCst)
+            {
+                tracing::info!(target: "rooms", place = %key, "a refusal stopped its turn; continuing");
+                continued = true;
+                text.clear();
+                events = session.prompt(library::brief::AFTER_A_REFUSAL).await?;
                 continue;
             }
             if let Some(observation) = self.places.lock().await.get(&key) {
@@ -756,6 +799,8 @@ mod tests {
             provider,
             persona: persona.map(str::to_owned),
             notes: None,
+            role: None,
+            parameters: std::collections::BTreeMap::new(),
         };
         let seating = [
             place("router", ProviderId::Codex, Some("ada")),
@@ -763,7 +808,7 @@ mod tests {
             place("facts", ProviderId::ClaudeCode, Some("grace")),
             place("decisions", ProviderId::ClaudeCode, None),
         ];
-        let council = council_seating(&seating, "router");
+        let council = council_seating(&seating, "router", 3);
         let shape: Vec<_> = council
             .iter()
             .map(|p| (p.seat.as_str(), p.place, p.provider, p.persona.as_deref()))
@@ -796,6 +841,8 @@ mod tests {
             provider: ProviderId::ClaudeCode,
             persona: None,
             notes: None,
+            role: None,
+            parameters: std::collections::BTreeMap::new(),
         };
         let seating = [
             place("router", 0),
@@ -803,7 +850,7 @@ mod tests {
             place("facts", 0),
             place("decisions", 0),
         ];
-        let council = council_seating(&seating, "router");
+        let council = council_seating(&seating, "router", 3);
         let Err(issues) = library::seat(&Library::bundled(), "council", &council) else {
             panic!("a selector from the answerers' vendor must be refused");
         };

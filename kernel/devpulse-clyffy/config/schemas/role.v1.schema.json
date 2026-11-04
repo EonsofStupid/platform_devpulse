@@ -103,8 +103,9 @@
           "type": "boolean"
         },
         "tools_allowed": {
+          "description": "What the seat may do: read the project's files, use the web, or change things.",
           "type": "array",
-          "items": { "type": "string", "minLength": 1 }
+          "items": { "enum": ["read", "web", "write"] }
         }
       }
     },

@@ -16,8 +16,8 @@ use std::collections::BTreeMap;
 use serde::{Deserialize, Serialize};
 
 use super::role::{RoleCard, Stance};
-use super::room::{RoomSpec, SelectionMethod, TurnPolicy, resolve_role};
-use super::{Issue, Library, Persona};
+use super::room::{RoomSpec, Seat, SelectionMethod, TurnPolicy, resolve_role};
+use super::{Issue, Library, Persona, Visibility};
 use crate::providers::registry;
 use crate::providers::types::{ProviderId, Vendor};
 
@@ -38,6 +38,12 @@ pub struct Assignment {
     /// Your choice for this place's notes; absent, the room's seat decides.
     #[serde(default)]
     pub notes: Option<bool>,
+    /// The role this place takes instead of the seat's (`code-reviewer@1`).
+    #[serde(default)]
+    pub role: Option<String>,
+    /// Values for its role's parameters, over the room's.
+    #[serde(default)]
+    pub parameters: BTreeMap<String, String>,
 }
 
 /// One place of a room, seated.
@@ -51,6 +57,10 @@ pub struct Place {
     pub role: RoleCard,
     /// The role's parameters, as the room fills them.
     pub parameters: BTreeMap<String, String>,
+    /// It answers where it may see no other answer, so it gets no shared tools.
+    pub blind: bool,
+    /// Its seat's answers are what a selector chooses between.
+    pub author: bool,
     /// The character it speaks as.
     pub persona: Option<Persona>,
     /// It gets the notes you chose.
@@ -68,10 +78,11 @@ impl Place {
         format!("{}-{}", self.seat, self.index + 1)
     }
 
-    /// Its answers are candidates: its role generates or argues.
+    /// Its answers are candidates. That is the seat's job in the room, whichever
+    /// role you seat in it: a reviewer in an answer seat still answers.
     #[must_use]
-    pub fn is_author(&self) -> bool {
-        matches!(self.role.stance, Stance::Generate | Stance::Adversarial)
+    pub const fn is_author(&self) -> bool {
+        self.author
     }
 
     /// The agent's name.
@@ -116,16 +127,6 @@ pub fn seat(
     let mut issues = runnable(room);
     let mut places = Vec::new();
     for seat in &room.seats {
-        let Some(role) = resolve_role(&library.roles, &seat.role) else {
-            issues.push(Issue::new(
-                at("seats"),
-                format!(
-                    "seat {} names {}, which is not in the library",
-                    seat.seat, seat.role
-                ),
-            ));
-            continue;
-        };
         for index in 0..seat.count {
             let mut chosen = assignments
                 .iter()
@@ -138,39 +139,9 @@ pub fn seat(
             if chosen.next().is_some() {
                 issues.push(Issue::new(at(&key), "is given more than one agent"));
             }
-            let persona = match &assignment.persona {
-                None => None,
-                Some(id) => {
-                    let found = library.persona(id).cloned();
-                    if found.is_none() {
-                        issues.push(Issue::new(
-                            at(&key),
-                            format!("persona {id} is not in your library"),
-                        ));
-                    }
-                    found
-                }
-            };
-            let Some(row) = registry::find(assignment.provider) else {
-                issues.push(Issue::new(
-                    at(&key),
-                    format!(
-                        "{} is not an agent DevPulse knows",
-                        assignment.provider.key()
-                    ),
-                ));
-                continue;
-            };
-            places.push(Place {
-                seat: seat.seat.clone(),
-                index,
-                role: role.clone(),
-                parameters: seat.parameters.clone(),
-                persona,
-                notes: assignment.notes.unwrap_or(seat.notes),
-                provider: assignment.provider,
-                vendor: row.vendor,
-            });
+            if let Some(place) = seat_place(library, room, seat, index, assignment, &mut issues) {
+                places.push(place);
+            }
         }
     }
     for assignment in assignments {
@@ -199,6 +170,134 @@ pub fn seat(
     } else {
         Err(issues)
     }
+}
+
+/// One place, seated, with what stops it added to `issues`.
+fn seat_place(
+    library: &Library,
+    room: &RoomSpec,
+    seat: &Seat,
+    index: u32,
+    assignment: &Assignment,
+    issues: &mut Vec<Issue>,
+) -> Option<Place> {
+    let at = format!("room {} · {}-{}", room.id, seat.seat, index + 1);
+    let reference = assignment.role.as_deref().unwrap_or(&seat.role);
+    let Some(role) = resolve_role(&library.roles, reference) else {
+        issues.push(Issue::new(
+            at,
+            format!("names {reference}, which is not in the library"),
+        ));
+        return None;
+    };
+    let parameters = merged_parameters(seat, assignment);
+    issues.extend(role_fit(room, seat, role, &parameters, &at));
+    let blind = answers_blind(room, seat);
+    if blind && role.may_change() {
+        issues.push(Issue::new(
+            at.clone(),
+            format!(
+                "{} can change things, and this seat answers blind: another seat could read what it changed",
+                role.id
+            ),
+        ));
+    }
+    let author = resolve_role(&library.roles, &seat.role)
+        .is_some_and(|own| matches!(own.stance, Stance::Generate | Stance::Adversarial));
+    let default_persona = seat
+        .personas
+        .get(usize::try_from(index).unwrap_or(usize::MAX));
+    let persona = match assignment.persona.as_ref().or(default_persona) {
+        None => None,
+        Some(id) => {
+            let found = library.persona(id).cloned();
+            if found.is_none() {
+                issues.push(Issue::new(
+                    at.clone(),
+                    format!("persona {id} is not in your library"),
+                ));
+            }
+            found
+        }
+    };
+    let Some(row) = registry::find(assignment.provider) else {
+        issues.push(Issue::new(
+            at,
+            format!(
+                "{} is not an agent DevPulse knows",
+                assignment.provider.key()
+            ),
+        ));
+        return None;
+    };
+    Some(Place {
+        seat: seat.seat.clone(),
+        index,
+        role: role.clone(),
+        parameters,
+        blind,
+        author,
+        persona,
+        notes: assignment.notes.unwrap_or(seat.notes),
+        provider: assignment.provider,
+        vendor: row.vendor,
+    })
+}
+
+/// A place's parameters: the room's, with yours over them.
+fn merged_parameters(seat: &Seat, assignment: &Assignment) -> BTreeMap<String, String> {
+    let mut parameters = seat.parameters.clone();
+    parameters.extend(assignment.parameters.clone());
+    parameters
+}
+
+/// This seat answers in a phase where it may see no other answer.
+fn answers_blind(room: &RoomSpec, seat: &Seat) -> bool {
+    room.phases
+        .iter()
+        .any(|phase| phase.visibility == Visibility::None && phase.seats.contains(&seat.seat))
+}
+
+/// A role taken in place of the seat's still has to do the seat's job.
+fn role_fit(
+    room: &RoomSpec,
+    seat: &Seat,
+    role: &RoleCard,
+    parameters: &BTreeMap<String, String>,
+    at: &str,
+) -> Vec<Issue> {
+    let mut issues = Vec::new();
+    for parameter in &role.parameters {
+        if !parameters.contains_key(&parameter.name) {
+            issues.push(Issue::new(
+                at,
+                format!("{} needs its {}", role.id, parameter.name),
+            ));
+        }
+    }
+    let selects = room
+        .selection
+        .as_ref()
+        .is_some_and(|selection| selection.seat == seat.seat);
+    if selects && role.stance != Stance::Select {
+        issues.push(Issue::new(
+            at,
+            format!(
+                "{} does not select, and this seat picks the answer",
+                role.id
+            ),
+        ));
+    }
+    if room.routing_seat() == Some(seat.seat.as_str()) {
+        let fields = role.output_fields();
+        if !fields.contains(&"place") || !fields.contains(&"escalate") {
+            issues.push(Issue::new(
+                at,
+                format!("{} does not name a place, and this seat routes", role.id),
+            ));
+        }
+    }
+    issues
 }
 
 /// What a room asks that cannot run yet.
@@ -288,6 +387,8 @@ mod tests {
             provider,
             persona: None,
             notes: None,
+            role: None,
+            parameters: std::collections::BTreeMap::new(),
         }
     }
 
@@ -448,6 +549,121 @@ mod tests {
     }
 
     #[test]
+    fn a_place_can_take_any_role_that_can_do_the_seats_job() {
+        let library = Library::bundled();
+        let mut seating: Vec<Assignment> = (0..3)
+            .map(|place| assign("answerer", place, ProviderId::ClaudeCode))
+            .collect();
+        seating.push(assign("selector", 0, ProviderId::Codex));
+
+        seating[0].role = Some("code-reviewer@1".to_owned());
+        let seated = seat(&library, "council", &seating).expect("a reviewer can answer");
+        assert_eq!(seated.places[0].role.id, "code-reviewer");
+        assert!(
+            seated.places[0].is_author(),
+            "its answer is still a candidate, or it would be dropped without a word"
+        );
+        assert_eq!(seated.places[1].role.id, "domain-expert");
+
+        seating[3].role = Some("skeptic@1".to_owned());
+        let issues = seat(&library, "council", &seating).expect_err("a selector must select");
+        assert!(
+            issues.iter().any(|i| i.problem.contains("does not select")),
+            "{issues:?}"
+        );
+        seating[3].role = None;
+
+        seating[0].role = Some("oracle@1".to_owned());
+        let issues = seat(&library, "council", &seating).expect_err("no such role");
+        assert!(
+            issues.iter().any(|i| i.problem.contains("oracle")),
+            "{issues:?}"
+        );
+    }
+
+    #[test]
+    fn a_blind_seat_may_read_and_may_not_change_things() {
+        let mut library = Library::bundled();
+        let mut seating: Vec<Assignment> = (0..3)
+            .map(|place| assign("answerer", place, ProviderId::ClaudeCode))
+            .collect();
+        seating.push(assign("selector", 0, ProviderId::Codex));
+
+        seating[0].role = Some("code-reviewer@1".to_owned());
+        let seated = seat(&library, "council", &seating).expect("a reviewer can read blind");
+        assert!(seated.places[0].blind);
+
+        let mut writer = library.role("code-reviewer").unwrap().clone();
+        writer.id = "fixer".to_owned();
+        writer.permissions.tools_allowed = vec!["read".to_owned(), "write".to_owned()];
+        library.roles.push(writer);
+        seating[0].role = Some("fixer@1".to_owned());
+        let issues = seat(&library, "council", &seating).expect_err("it could leave an answer");
+        assert!(
+            issues.iter().any(|i| i.problem.contains("blind")),
+            "{issues:?}"
+        );
+
+        // Where everyone sees everything, it may.
+        let mut group: Vec<Assignment> = (0..3)
+            .map(|place| assign("member", place, ProviderId::ClaudeCode))
+            .collect();
+        group[0].role = Some("fixer@1".to_owned());
+        let seated = seat(&library, "round-robin", &group).expect("a group sees everything");
+        assert!(!seated.places[0].blind);
+    }
+
+    #[test]
+    fn a_role_that_needs_a_value_gets_it_from_the_place_or_is_refused() {
+        let library = Library::bundled();
+        let mut seating: Vec<Assignment> = (0..3)
+            .map(|place| assign("member", place, ProviderId::ClaudeCode))
+            .collect();
+        seating[0].role = Some("domain-expert@1".to_owned());
+        let issues = seat(&library, "round-robin", &seating).expect_err("no domain");
+        assert!(
+            issues.iter().any(|i| i.problem.contains("domain")),
+            "{issues:?}"
+        );
+
+        seating[0]
+            .parameters
+            .insert("domain".to_owned(), "soldering".to_owned());
+        let seated = seat(&library, "round-robin", &seating).expect("a domain");
+        assert_eq!(seated.places[0].parameters["domain"], "soldering");
+    }
+
+    #[test]
+    fn a_seat_brings_its_default_persona_and_you_can_change_it() {
+        let library = Library::bundled();
+        let mut seating: Vec<Assignment> = library
+            .room("clyffy-council")
+            .unwrap()
+            .seats
+            .iter()
+            .map(|s| assign(&s.seat, 0, ProviderId::ClaudeCode))
+            .collect();
+        let seated = seat(&library, "clyffy-council", &seating).expect("the Council");
+        let persona = |seated: &SeatedRoom, name: &str| {
+            seated
+                .places_of(name)
+                .next()
+                .and_then(|place| place.persona.clone())
+                .map(|persona| persona.id)
+        };
+        assert_eq!(persona(&seated, "conductor").as_deref(), Some("clyffy"));
+        assert_eq!(persona(&seated, "hardware").as_deref(), Some("rusty"));
+        assert_eq!(persona(&seated, "software").as_deref(), Some("pip"));
+
+        seating[0].persona = Some("pragmatist".to_owned());
+        let changed = seat(&library, "clyffy-council", &seating).expect("yours");
+        assert_eq!(
+            persona(&changed, "conductor").as_deref(),
+            Some("pragmatist")
+        );
+    }
+
+    #[test]
     fn a_seating_saved_before_this_choice_existed_still_reads() {
         let saved = r#"{"seat":"answerer","place":0,"provider":"claude-code","persona":null}"#;
         let assignment: Assignment = serde_json::from_str(saved).unwrap();
@@ -465,6 +681,8 @@ mod tests {
                 provider: ProviderId::ClaudeCode,
                 persona: None,
                 notes: None,
+                role: None,
+                parameters: std::collections::BTreeMap::new(),
             })
             .collect();
         let seated = seat(&library, "router", &seating).expect("seated");

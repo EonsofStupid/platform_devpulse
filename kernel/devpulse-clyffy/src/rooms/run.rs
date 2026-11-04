@@ -467,20 +467,38 @@ impl RoomRun {
 
     /// One turn as another place sees it, or nothing.
     fn show(&self, turn: &RoomTurn, visibility: Visibility) -> Option<String> {
+        // A structured output stands for the answer only under the role the room
+        // was built around: a reviewer's says `defects`, not what it was asked.
+        let as_designed = self.seated.room.seats.iter().any(|seat| {
+            seat.seat == turn.seat && seat.role.split('@').next() == Some(turn.role.as_str())
+        });
         let content = match self.seated.room.carry_forward {
-            CarryForward::StructuredOutputs => turn
+            CarryForward::StructuredOutputs if as_designed => turn
                 .output
                 .as_ref()
                 .and_then(|output| serde_json::to_string_pretty(output).ok())
                 .unwrap_or_else(|| turn.text.clone()),
-            CarryForward::FullTranscript => turn.text.clone(),
+            CarryForward::StructuredOutputs | CarryForward::FullTranscript => turn.text.clone(),
         };
         match visibility {
             Visibility::None => None,
             Visibility::Anonymized => Some(match &turn.candidate {
-                Some(letter) => self
-                    .marker
-                    .frame(&[("candidate", letter.as_str())], &content),
+                Some(letter) => {
+                    // What it was allowed to do says nothing of who it is, and a
+                    // judge who only talks would otherwise fault a seat for reading.
+                    let may = self
+                        .seated
+                        .places
+                        .iter()
+                        .find(|place| place.key() == turn.place)
+                        .map(|place| place.role.capabilities().join(" and "))
+                        .unwrap_or_default();
+                    let mut attributes = vec![("candidate", letter.as_str())];
+                    if !may.is_empty() {
+                        attributes.push(("may", may.as_str()));
+                    }
+                    self.marker.frame(&attributes, &content)
+                }
                 None => self
                     .marker
                     .frame(&[("from", "another participant")], &content),
@@ -504,7 +522,10 @@ fn selector_ask(selection: &Selection) -> String {
     let mut out = String::from(
         "\nYou pick: the candidates are the answers marked candidate=\"A\", \"B\" and so on. \
          Put exactly one letter in \"winner\", the next best in \"runner_up\", your reasons in \
-         \"reasons\" and any disagreement in \"dissent\".",
+         \"reasons\" and any disagreement in \"dissent\". Each may have been allowed different \
+         things than you: one marked may=\"read\" could read this project's files, may=\"web\" \
+         could use the web, and one with no mark only talks. Do not fault a candidate for using \
+         what it was allowed, or for not having what it was not.",
     );
     if selection.swap_order.0 {
         out.push_str(
@@ -826,6 +847,8 @@ mod tests {
             provider,
             persona: None,
             notes: None,
+            role: None,
+            parameters: std::collections::BTreeMap::new(),
         }
     }
 
@@ -985,6 +1008,8 @@ mod tests {
                 provider: ProviderId::ClaudeCode,
                 persona: None,
                 notes: None,
+                role: None,
+                parameters: std::collections::BTreeMap::new(),
             })
             .collect();
         RoomRun::new(seat(&library, "router", &seating).expect("seated"))
@@ -1156,6 +1181,39 @@ mod tests {
                 .contains("broke its form"),
             "{pick:?}"
         );
+    }
+
+    /// The role you seat decides what a place says, not whether the selector hears
+    /// it: its answer is a candidate, and all of it is shown.
+    #[tokio::test]
+    async fn a_selector_hears_the_whole_answer_of_a_role_you_seated() {
+        let library = Library::bundled();
+        let mut seating = vec![
+            assign("answerer", 0, ProviderId::ClaudeCode),
+            assign("answerer", 1, ProviderId::ClaudeCode),
+            assign("answerer", 2, ProviderId::ClaudeCode),
+            assign("selector", 0, ProviderId::Codex),
+        ];
+        seating[0].role = Some("code-reviewer@1".to_owned());
+        let seated = seat(&library, "council", &seating).unwrap();
+        let mut run = RoomRun::new(seated);
+        let host = Script::new(|place, _| {
+            Ok(match place {
+                "answerer-1" => {
+                    "The file says HERON-41.\n\n```json\n{\"defects\":[]}\n```".to_owned()
+                }
+                "answerer-2" | "answerer-3" => expert("Unknown"),
+                _ => selector("a"),
+            })
+        });
+        let outcome = run.ask("What does it say?", &host).await.unwrap();
+        let pick = outcome.pick.expect("a pick");
+        assert_eq!(pick.winner_place.as_deref(), Some("answerer-1"));
+        let shown = &host.prompts("selector-1")[0];
+        assert!(shown.contains("candidate=\"C\""), "{shown}");
+        assert!(shown.contains("The file says HERON-41."), "{shown}");
+        assert!(shown.contains("candidate=\"A\" may=\"read\""), "{shown}");
+        assert!(!shown.contains("candidate=\"B\" may"), "{shown}");
     }
 
     #[tokio::test]
