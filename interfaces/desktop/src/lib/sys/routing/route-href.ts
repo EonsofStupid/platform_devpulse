@@ -12,7 +12,13 @@
 import { resolve } from "$app/paths";
 import { page } from "$app/state";
 import type { ResolvedPathname, RouteId } from "$app/types";
-import { findRoute, findRouteById, type RouteNode, type RoutePath } from "./route-manifest.js";
+import {
+	findRoute,
+	findRouteById,
+	type RouteNode,
+	type RoutePath,
+	topLevelOf,
+} from "./route-manifest.js";
 
 // `resolve` types its argument per literal route; TypeScript cannot match a
 // variable holding the whole union against that, though every member is valid.
@@ -38,4 +44,14 @@ export function routeAt(path: RoutePath): RouteNode | undefined {
  */
 export function routeHere(): RouteNode | undefined {
 	return findRouteById(page.route.id);
+}
+
+/**
+ * The hub of the page being shown. The URL is the state (SPRINT-01B lock 1), so
+ * this follows every navigation, not only a click on the sidebar. Reactive
+ * inside `$derived`.
+ */
+export function hubHere(): RouteNode | undefined {
+	const here = routeHere();
+	return here ? topLevelOf(here) : undefined;
 }

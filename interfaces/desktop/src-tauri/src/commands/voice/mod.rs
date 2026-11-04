@@ -1,8 +1,9 @@
 //! Voice Tauri commands — TTS, STT, voice profiles.
 //!
-//! All 11 commands required by the frontend voice domain.
-//! Actual audio inference (Kokoro TTS, Whisper STT) requires the
-//! voice inference sprint. Until then, commands return clear errors.
+//! Speaking and transcribing go to the saved connection you chose for them
+//! ([`endpoints`], [`route`]). With nothing chosen they use the compiled-in voice
+//! slots, as they always have. The saved voice, speed, language, beam, VAD and
+//! active profile are read here by what they configure ([`settings`]).
 //!
 //! # Cast lints
 //!
@@ -26,8 +27,13 @@
     reason = "Tauri command module — every Result-returning fn is a thin wrapper over `Platform` voice services / audio playback whose docs hold the canonical # Errors copy"
 )]
 
+pub mod endpoints;
+mod route;
+mod settings;
+
 use crate::state::PlatformState;
-use devpulse_media::decode_audio_file_to_pcm;
+use devpulse_engine::platform::providers::{SpeechBinding, SpeechRole};
+use devpulse_media::{decode_audio_file_to_pcm, trim_to_voice};
 use serde::{Deserialize, Serialize};
 use specta::Type;
 use std::sync::Arc;
@@ -122,18 +128,28 @@ pub struct VoiceStatusInfo {
     pub stt_loaded: bool,
     /// Whether the TTS slot has a model loaded.
     pub tts_loaded: bool,
-    /// Whether a microphone was detected (best-effort; actual detection requires audio sprint).
+    /// Whether this machine has a default input device right now.
     pub mic_detected: bool,
     /// Currently active voice profile ID.
     pub active_profile: String,
-    /// Currently active TTS voice ID.
+    /// Voice used when none is asked for: the active profile's, or the saved default.
     pub active_voice: String,
+    /// The saved connection transcription runs through; `null` means the STT slot.
+    pub stt_endpoint: Option<SpeechBinding>,
+    /// The saved connection speech runs through; `null` means the TTS slot.
+    pub tts_endpoint: Option<SpeechBinding>,
+}
+
+/// Whether this machine has a default input device.
+fn microphone_present() -> bool {
+    rodio::cpal::traits::HostTrait::default_input_device(&rodio::cpal::default_host()).is_some()
 }
 
 /// Get the current voice subsystem status.
 ///
-/// Derives STT/TTS loaded state from model loader slot statuses.
-/// Mic detection is best-effort until the audio sprint wires real device enumeration.
+/// STT/TTS loaded state comes from the model loader's slots, the active profile
+/// and voice from the saved settings, the microphone from the audio host, and the
+/// endpoints from the saved bindings. No endpoint is contacted.
 #[tauri::command]
 #[specta::specta]
 pub async fn get_voice_status(state: State<'_, PlatformState>) -> Result<VoiceStatusInfo, String> {
@@ -154,12 +170,28 @@ pub async fn get_voice_status(state: State<'_, PlatformState>) -> Result<VoiceSt
         (false, false)
     };
 
+    let active = settings::active_profile(&platform)?;
+    let mic_detected = devpulse_telemetry::spawn_blocking(microphone_present)
+        .await
+        .map_err(|e| format!("Microphone check thread failed: {e}"))?;
+    let providers = platform.providers();
+    let stt_endpoint = providers
+        .speech_endpoint(SpeechRole::Stt)
+        .await
+        .map_err(|e| format!("{e:#}"))?;
+    let tts_endpoint = providers
+        .speech_endpoint(SpeechRole::Tts)
+        .await
+        .map_err(|e| format!("{e:#}"))?;
+
     Ok(VoiceStatusInfo {
         stt_loaded,
         tts_loaded,
-        mic_detected: false, // Real detection requires audio sprint
-        active_profile: "default".to_string(),
-        active_voice: "af_heart".to_string(),
+        mic_detected,
+        active_profile: active.id,
+        active_voice: active.voice,
+        stt_endpoint,
+        tts_endpoint,
     })
 }
 
@@ -167,8 +199,9 @@ pub async fn get_voice_status(state: State<'_, PlatformState>) -> Result<VoiceSt
 
 /// Speak text using TTS.
 ///
-/// Synthesizes via the TTS model loaded in the voice.tts slot,
-/// then plays the PCM audio through rodio.
+/// Synthesizes through the chosen text-to-speech connection, else the TTS model
+/// loaded in the voice.tts slot, then plays the PCM audio through rodio. A voice
+/// or speed left out comes from the active profile and the saved settings.
 #[tauri::command]
 #[specta::specta]
 #[tracing::instrument(skip(state), fields(text_len = text.len()))]
@@ -182,13 +215,14 @@ pub async fn speak(
 ) -> Result<(), String> {
     // P0: lock-free atomic load.
     let platform = state.platform.load_full().ok_or("Platform not ready")?;
-    let loader = platform
-        .model_loader()
-        .ok_or("Model Loader not available")?;
 
     let slot_id = slot.as_deref().unwrap_or("voice.tts");
-    let voice_name = voice.as_deref().unwrap_or("af_heart");
-    let tts_speed = speed.unwrap_or(1.0);
+    let voice_name = match voice {
+        Some(voice) => voice,
+        None => settings::active_profile(&platform)?.voice,
+    };
+    let voice_name = voice_name.as_str();
+    let tts_speed = speed.unwrap_or_else(|| platform.voice_tts_config_load().default_speed);
     tracing::info!(
         slot = %slot_id,
         voice = %voice_name,
@@ -197,10 +231,11 @@ pub async fn speak(
         "speak() starting"
     );
 
-    let samples = loader
-        .synthesize(slot_id, &text, voice_name)
+    let spoken = route::synthesize(&platform, slot_id, &text, voice_name, tts_speed)
         .await
         .map_err(|e| format!("TTS synthesis failed: {e}"))?;
+    let samples = spoken.audio;
+    let playback_speed = spoken.playback_speed;
 
     // Set playback state + clear stop flag
     playback.playing.store(true, Ordering::SeqCst);
@@ -220,7 +255,7 @@ pub async fn speak(
             sample_rate = source.sample_rate().get(),
             "Playing TTS audio via rodio"
         );
-        player.set_speed(tts_speed);
+        player.set_speed(playback_speed);
         player.append(source);
 
         // Poll for stop request instead of blocking forever
@@ -400,7 +435,9 @@ pub async fn test_microphone(state: State<'_, PlatformState>) -> Result<MicTestR
 /// Transcribe audio from the microphone.
 ///
 /// Captures ~3 seconds of audio from the default input device via rodio/cpal,
-/// then runs it through the Whisper STT model loaded in voice.stt slot.
+/// trims it to what the saved VAD sensitivity counts as speech, then runs it
+/// through the chosen speech-to-text connection, else the Whisper STT model loaded
+/// in the voice.stt slot. A capture with no speech in it is not sent anywhere.
 #[tauri::command]
 #[specta::specta]
 #[tracing::instrument(skip(state))]
@@ -418,18 +455,20 @@ pub async fn transcribe_audio(state: State<'_, PlatformState>) -> Result<String,
             .await
             .map_err(|e| format!("Mic capture thread failed: {e}"))??;
 
-    let loader = platform
-        .model_loader()
-        .ok_or("Model Loader not available")?;
+    let vad_threshold = platform.voice_stt_config_load().vad_threshold;
+    let voiced = trim_to_voice(&pcm_data, 16000, vad_threshold).ok_or_else(|| {
+        format!(
+            "No speech was heard above the VAD sensitivity of {vad_threshold:.2}. Speak up, or lower it."
+        )
+    })?;
 
     let audio = AudioSamples {
-        data: pcm_data,
+        data: voiced.to_vec(),
         sample_rate: 16000,
         channels: 1,
     };
 
-    loader
-        .transcribe("voice.stt", &audio)
+    route::transcribe(&platform, "voice.stt", &audio)
         .await
         .map_err(|e| format!("STT transcription failed: {e}"))
 }
@@ -596,20 +635,12 @@ pub async fn list_voice_profiles(
         .platform
         .load_full()
         .ok_or("Platform is still booting")?;
-    let prefs_path = platform.config().data_dir.clone();
-    let prefs_file = std::path::PathBuf::from(&prefs_path).join("preferences.json");
-
-    let prefs: std::collections::HashMap<String, String> = if prefs_file.exists() {
-        let content = std::fs::read_to_string(&prefs_file).map_err(|e| e.to_string())?;
-        serde_json::from_str(&content).unwrap_or_default()
-    } else {
-        std::collections::HashMap::new()
-    };
+    let prefs = settings::read_preferences(&platform)?;
 
     let active_id = prefs
-        .get("voice:active_profile")
+        .get(settings::ACTIVE_PROFILE_KEY)
         .cloned()
-        .unwrap_or_else(|| "default".to_string());
+        .unwrap_or_else(|| settings::DEFAULT_PROFILE_ID.to_string());
 
     let mut profiles: Vec<VoiceProfile> = prefs
         .iter()
@@ -617,13 +648,16 @@ pub async fn list_voice_profiles(
         .filter_map(|(_, v)| serde_json::from_str::<VoiceProfile>(v).ok())
         .collect();
 
-    // Always include a default profile
-    if !profiles.iter().any(|p| p.id == "default") {
+    // Always include a default profile: the saved default voice.
+    if !profiles
+        .iter()
+        .any(|p| p.id == settings::DEFAULT_PROFILE_ID)
+    {
         profiles.push(VoiceProfile {
-            id: "default".to_string(),
+            id: settings::DEFAULT_PROFILE_ID.to_string(),
             name: "Default".to_string(),
-            tts_voice_id: "af_heart".to_string(),
-            stt_quality: "standard".to_string(),
+            tts_voice_id: platform.voice_tts_config_load().default_voice,
+            stt_quality: settings::STANDARD_QUALITY.to_string(),
             active: false,
         });
     }
@@ -651,22 +685,12 @@ pub async fn save_voice_profile(
         .platform
         .load_full()
         .ok_or("Platform is still booting")?;
-    let prefs_path = platform.config().data_dir.clone();
-    let prefs_file = std::path::PathBuf::from(&prefs_path).join("preferences.json");
+    let mut prefs = settings::read_preferences(&platform)?;
 
-    let mut prefs: std::collections::HashMap<String, String> = if prefs_file.exists() {
-        let content = std::fs::read_to_string(&prefs_file).map_err(|e| e.to_string())?;
-        serde_json::from_str(&content).unwrap_or_default()
-    } else {
-        std::collections::HashMap::new()
-    };
-
-    let key = format!("voice:profile:{}", profile.id);
     let json = serde_json::to_string(&profile).map_err(|e| e.to_string())?;
-    prefs.insert(key, json);
+    prefs.insert(settings::profile_key(&profile.id), json);
 
-    let out = serde_json::to_string_pretty(&prefs).map_err(|e| e.to_string())?;
-    std::fs::write(&prefs_file, out).map_err(|e| e.to_string())?;
+    settings::write_preferences(&platform, &prefs)?;
     tracing::info!(profile_id = %profile.id, "Voice profile saved");
     Ok(())
 }
@@ -685,30 +709,23 @@ pub async fn delete_voice_profile(
         .platform
         .load_full()
         .ok_or("Platform is still booting")?;
-    let prefs_path = platform.config().data_dir.clone();
-    let prefs_file = std::path::PathBuf::from(&prefs_path).join("preferences.json");
+    let mut prefs = settings::read_preferences(&platform)?;
 
-    let mut prefs: std::collections::HashMap<String, String> = if prefs_file.exists() {
-        let content = std::fs::read_to_string(&prefs_file).map_err(|e| e.to_string())?;
-        serde_json::from_str(&content).unwrap_or_default()
-    } else {
-        return Ok(());
-    };
-
-    let key = format!("voice:profile:{profile_id}");
-    prefs.remove(&key);
+    prefs.remove(&settings::profile_key(&profile_id));
 
     // If deleted profile was active, reset to default
     if prefs
-        .get("voice:active_profile")
+        .get(settings::ACTIVE_PROFILE_KEY)
         .map(std::string::String::as_str)
         == Some(&profile_id)
     {
-        prefs.insert("voice:active_profile".to_string(), "default".to_string());
+        prefs.insert(
+            settings::ACTIVE_PROFILE_KEY.to_string(),
+            settings::DEFAULT_PROFILE_ID.to_string(),
+        );
     }
 
-    let out = serde_json::to_string_pretty(&prefs).map_err(|e| e.to_string())?;
-    std::fs::write(&prefs_file, out).map_err(|e| e.to_string())?;
+    settings::write_preferences(&platform, &prefs)?;
     tracing::info!(profile_id = %profile_id, "Voice profile deleted");
     Ok(())
 }
@@ -727,19 +744,10 @@ pub async fn activate_voice_profile(
         .platform
         .load_full()
         .ok_or("Platform is still booting")?;
-    let prefs_path = platform.config().data_dir.clone();
-    let prefs_file = std::path::PathBuf::from(&prefs_path).join("preferences.json");
+    let mut prefs = settings::read_preferences(&platform)?;
 
-    let mut prefs: std::collections::HashMap<String, String> = if prefs_file.exists() {
-        let content = std::fs::read_to_string(&prefs_file).map_err(|e| e.to_string())?;
-        serde_json::from_str(&content).unwrap_or_default()
-    } else {
-        std::collections::HashMap::new()
-    };
-
-    prefs.insert("voice:active_profile".to_string(), profile_id.clone());
-    let out = serde_json::to_string_pretty(&prefs).map_err(|e| e.to_string())?;
-    std::fs::write(&prefs_file, out).map_err(|e| e.to_string())?;
+    prefs.insert(settings::ACTIVE_PROFILE_KEY.to_string(), profile_id.clone());
+    settings::write_preferences(&platform, &prefs)?;
     tracing::info!(profile_id = %profile_id, "Voice profile activated");
     Ok(())
 }
@@ -748,9 +756,9 @@ pub async fn activate_voice_profile(
 
 /// Transcribe an audio file on disk (MP3, WAV, FLAC, Vorbis).
 ///
-/// Decodes via rodio → mono 16 kHz PCM → voice.stt slot. Lets the user
-/// upload any supported audio file and get back a transcript without
-/// going through the microphone path.
+/// Decodes via rodio → mono 16 kHz PCM → the chosen speech-to-text connection,
+/// else the voice.stt slot. Lets the user upload any supported audio file and get
+/// back a transcript without going through the microphone path.
 #[tauri::command]
 #[specta::specta]
 #[tracing::instrument(skip(state), fields(path))]
@@ -769,9 +777,6 @@ pub async fn transcribe_audio_file(
 
     // P0: lock-free atomic load.
     let platform = state.platform.load_full().ok_or("Platform not ready")?;
-    let loader = platform
-        .model_loader()
-        .ok_or("Model Loader not available")?;
 
     let audio = AudioSamples {
         data: pcm,
@@ -779,19 +784,18 @@ pub async fn transcribe_audio_file(
         channels: 1,
     };
 
-    loader
-        .transcribe("voice.stt", &audio)
+    route::transcribe(&platform, "voice.stt", &audio)
         .await
         .map_err(|e| format!("STT transcription failed: {e}"))
 }
 
 /// Result of a voice smoke test — closed-loop TTS→STT round-trip.
 ///
-/// Runs without any bundled assets: synthesizes a fixed phrase via the
-/// voice.tts slot, then feeds the PCM output straight into the voice.stt
-/// slot. Reports per-stage success so the UI can pinpoint which side of
-/// the pipeline is broken when a user hits "Run smoke test" in the Voice
-/// Lab.
+/// Runs without any bundled assets: synthesizes a fixed phrase, through the chosen
+/// connection or the voice.tts slot, then feeds the PCM output straight into the
+/// chosen connection or the voice.stt slot. Reports per-stage success so the UI can
+/// pinpoint which side of the pipeline is broken when a user hits "Run smoke test"
+/// in the Voice Lab.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 pub struct VoiceSmokeReport {
     /// Whether the TTS stage returned non-empty audio.
@@ -810,10 +814,11 @@ pub struct VoiceSmokeReport {
 
 /// Closed-loop voice smoke test: TTS → STT round-trip.
 ///
-/// Synthesizes a fixed phrase via `voice.tts`, resamples to 16 kHz mono,
-/// and feeds it into `voice.stt`. No audio is played and no files are
-/// needed. Failure at any stage is captured in the report rather than
-/// bubbled up, so the UI can show a two-green-check or a pinpoint error.
+/// Synthesizes a fixed phrase in the active voice, resamples to 16 kHz mono,
+/// and transcribes it, each stage through its chosen connection or its slot. No
+/// audio is played and no files are needed. Failure at any stage is captured in the
+/// report rather than bubbled up, so the UI can show a two-green-check or a pinpoint
+/// error.
 #[tauri::command]
 #[specta::specta]
 #[tracing::instrument(skip(state))]
@@ -825,12 +830,13 @@ pub async fn voice_smoke_test(state: State<'_, PlatformState>) -> Result<VoiceSm
 
     // P0: lock-free atomic load.
     let platform = state.platform.load_full().ok_or("Platform not ready")?;
-    let loader = platform
-        .model_loader()
-        .ok_or("Model Loader not available")?;
+    let voice_name = settings::active_profile(&platform)?.voice;
 
-    // Stage 1: TTS
-    let tts_samples = match loader.synthesize("voice.tts", &spoken, "af_heart").await {
+    // Stage 1: TTS, at its natural speed
+    let tts_samples = match route::synthesize(&platform, "voice.tts", &spoken, &voice_name, 1.0)
+        .await
+        .map(|spoken| spoken.audio)
+    {
         Ok(s) if !s.data.is_empty() => s,
         Ok(_) => {
             return Ok(VoiceSmokeReport {
@@ -896,7 +902,7 @@ pub async fn voice_smoke_test(state: State<'_, PlatformState>) -> Result<VoiceSm
     };
 
     // Stage 2: STT
-    let transcript = match loader.transcribe("voice.stt", &stt_input).await {
+    let transcript = match route::transcribe(&platform, "voice.stt", &stt_input).await {
         Ok(t) => t,
         Err(e) => {
             return Ok(VoiceSmokeReport {
@@ -946,9 +952,11 @@ pub struct StsPipelineResult {
 /// Run the full speech-to-speech pipeline.
 ///
 /// Stages:
-/// 1. **STT** — transcribe `audio_path` via voice.stt slot
-/// 2. **Brain** — generate a reply via `brain_slot` (defaults to `chat.brain`)
-/// 3. **TTS** — synthesize the reply via voice.tts slot with `voice`
+/// 1. **STT** — transcribe `audio_path` via the chosen connection, else voice.stt slot
+/// 2. **Brain** — generate a reply via `brain_slot` (defaults to `chat.brain`); this
+///    stage has no connection to choose yet and always runs through the slot
+/// 3. **TTS** — synthesize the reply with `voice` or the active voice, via the chosen
+///    connection, else voice.tts slot, at the saved default speed
 /// 4. **Playback** — play through the default output device
 ///
 /// Errors from any stage are returned with enough context that the UI can
@@ -968,7 +976,6 @@ pub async fn run_sts_pipeline(
     use devpulse_engine::platform::telemetry::TraceContext;
 
     let brain_slot_id = brain_slot.unwrap_or_else(|| "chat.brain".to_string());
-    let voice_name = voice.unwrap_or_else(|| "af_heart".to_string());
     let max_tokens = max_tokens.unwrap_or(256);
 
     // Stage 1: STT — decode + transcribe
@@ -981,9 +988,11 @@ pub async fn run_sts_pipeline(
 
     // P0: lock-free atomic load.
     let platform = state.platform.load_full().ok_or("Platform not ready")?;
-    let loader = platform
-        .model_loader()
-        .ok_or("Model Loader not available")?;
+    let voice_name = match voice {
+        Some(voice) => voice,
+        None => settings::active_profile(&platform)?.voice,
+    };
+    let tts_speed = platform.voice_tts_config_load().default_speed;
 
     let samples = AudioSamples {
         data: pcm,
@@ -991,13 +1000,15 @@ pub async fn run_sts_pipeline(
         channels: 1,
     };
 
-    let transcript = loader
-        .transcribe("voice.stt", &samples)
+    let transcript = route::transcribe(&platform, "voice.stt", &samples)
         .await
         .map_err(|e| format!("STS stage 1 (STT) failed: {e}"))?;
     tracing::info!(transcript_len = transcript.len(), "STS stage 1 complete");
 
     // Stage 2: Brain — chain transcript into inference
+    let loader = platform
+        .model_loader()
+        .ok_or("Model Loader not available")?;
     let handle = loader
         .inference_handle(&brain_slot_id)
         .await
@@ -1031,10 +1042,11 @@ pub async fn run_sts_pipeline(
     tracing::info!(reply_len = reply.len(), "STS stage 2 complete");
 
     // Stage 3: TTS — synthesize the reply
-    let tts_samples = loader
-        .synthesize("voice.tts", &reply, &voice_name)
+    let spoken = route::synthesize(&platform, "voice.tts", &reply, &voice_name, tts_speed)
         .await
         .map_err(|e| format!("STS stage 3 (TTS) failed: {e}"))?;
+    let playback_speed = spoken.playback_speed;
+    let tts_samples = spoken.audio;
     tracing::info!(
         samples = tts_samples.data.len(),
         "STS stage 3 complete — playing audio"
@@ -1049,6 +1061,7 @@ pub async fn run_sts_pipeline(
         )?;
         let device = open_speakers()?;
         let player = rodio::Player::connect_new(device.mixer());
+        player.set_speed(playback_speed);
         player.append(source);
         player.sleep_until_end();
         Ok::<(), String>(())

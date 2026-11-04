@@ -6,10 +6,13 @@
  */
 
 export { routeCopy } from "./route-copy.js";
-export { hrefOf, routeAt, routeHere } from "./route-href.js";
+export { domainOf } from "./route-domain.js";
+export { hrefOf, hubHere, routeAt, routeHere } from "./route-href.js";
+export { routesInventory } from "./route-inventory.js";
 export {
 	findRoute,
 	findRouteById,
+	groupOf,
 	pagesUnder,
 	parentOf,
 	type RouteNode,

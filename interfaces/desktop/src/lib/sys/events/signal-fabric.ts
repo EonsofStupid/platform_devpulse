@@ -36,6 +36,7 @@ import {
 	type StateSnapshot,
 } from "#lib/sys/generated/bindings.js";
 import { logDebug, logWarn } from "#lib/sys/logger.js";
+import { streamsRegistry } from "#lib/sys/registries/streams/streams.registry.js";
 
 /** Discriminant of every signal variant (`"hardware"`, `"system"`, …). */
 export type SignalType = SignalVariant["type"];
@@ -52,6 +53,9 @@ type AnyHandler = (data: unknown, signal: Signal) => void;
 function payloadData(signal: Signal): unknown {
 	return "data" in signal.payload ? signal.payload.data : undefined;
 }
+
+/** A watched signal kind's entry in the streams registry. */
+const streamIdOf = (type: SignalType): string => `signal:${type}`;
 
 /**
  * Pure bookkeeping for state signals: which process run the UI follows and
@@ -97,6 +101,7 @@ class SignalFabric {
 	private readonly ledger = new FabricLedger();
 	private readonly handlers = new Map<SignalType, Set<AnyHandler>>();
 	private attached = false;
+	private listening = false;
 	private syncing = false;
 	private buffered: Signal[] = [];
 
@@ -105,10 +110,20 @@ class SignalFabric {
 	 * delivered immediately. Returns the teardown fn — return it from
 	 * `$effect` / `onMount` so it runs on unmount. The first handler of a kind
 	 * tells Rust someone is watching it; the last one leaving says no one is.
+	 * The streams registry lists the kinds being watched.
 	 */
 	on<T extends SignalType>(type: T, handler: SignalHandler<T>): () => void {
 		const set = this.handlers.get(type) ?? new Set<AnyHandler>();
-		if (set.size === 0) void commands.setSignalInterest(type as SignalKind, true);
+		if (set.size === 0) {
+			void commands.setSignalInterest(type as SignalKind, true);
+			streamsRegistry.register(streamIdOf(type), {
+				id: streamIdOf(type),
+				type: "signal",
+				source: type,
+				status: this.listening ? "active" : "connecting",
+				createdAt: new Date(),
+			});
+		}
 		this.handlers.set(type, set);
 		const entry = handler as AnyHandler;
 		set.add(entry);
@@ -129,14 +144,27 @@ class SignalFabric {
 			if (set.size === 0) {
 				this.handlers.delete(type);
 				void commands.setSignalInterest(type as SignalKind, false);
+				streamsRegistry.unregister(streamIdOf(type));
 			}
 		};
 	}
 
 	private async attach(): Promise<void> {
 		this.syncing = true;
-		await events.signalBroadcast.listen((event) => {
-			this.receive(event.payload.signal);
+		try {
+			await events.signalBroadcast.listen((event) => {
+				this.receive(event.payload.signal);
+			});
+		} catch (err) {
+			logWarn("signalFabric", `not listening to signal-broadcast: ${String(err)}`);
+			this.handlers.forEach((_, type) => {
+				streamsRegistry.updateStatus(streamIdOf(type), "error", String(err));
+			});
+			return;
+		}
+		this.listening = true;
+		this.handlers.forEach((_, type) => {
+			streamsRegistry.updateStatus(streamIdOf(type), "active");
 		});
 		logDebug("signalFabric", "listening to signal-broadcast");
 		await this.resync();
@@ -179,6 +207,7 @@ class SignalFabric {
 	}
 
 	private dispatch(signal: Signal): void {
+		streamsRegistry.recordMessage(streamIdOf(signal.payload.type));
 		this.handlers.get(signal.payload.type)?.forEach((handler) => {
 			handler(payloadData(signal), signal);
 		});

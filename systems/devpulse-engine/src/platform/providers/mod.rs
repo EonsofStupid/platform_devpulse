@@ -7,6 +7,8 @@
 //! `providers` state every window renders. The question Try it asks is copy
 //! (`onboarding.your_ai.test_prompt`), so you can change it.
 
+mod speech;
+
 use std::path::PathBuf;
 use std::sync::Arc;
 
@@ -17,6 +19,7 @@ pub use devpulse_clyffy::providers::connections::{
 use devpulse_clyffy::providers::{connections::Connections, credentials::NativeCredentials};
 use serde::{Deserialize, Serialize};
 use specta::Type;
+pub use speech::{SpeechBinding, SpeechBindingState, SpeechEndpoints, SpeechHearing, SpeechRole};
 use tokio::sync::{Mutex, OnceCell};
 
 // Kernel-owned facts cross intact; the window translates their presentation.

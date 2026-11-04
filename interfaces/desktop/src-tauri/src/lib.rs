@@ -450,6 +450,10 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             commands::voice::voice_tts_save_config,
             commands::voice::voice_stt_load_config,
             commands::voice::voice_stt_save_config,
+            commands::voice::endpoints::voice_endpoints_list,
+            commands::voice::endpoints::voice_endpoint_get,
+            commands::voice::endpoints::voice_endpoint_set,
+            commands::voice::endpoints::voice_endpoint_clear,
             // Credential management (keyring)
             commands::credentials::store_api_key,
             commands::credentials::delete_api_key,

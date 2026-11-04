@@ -38,6 +38,8 @@ export interface RouteNode {
 	path: RoutePath;
 	/** SvelteKit route id, groups kept: `/(devtools)/devtools/system/datastores/turso`. */
 	routeId: RouteId;
+	/** Route group the folder sits in (`(devtools)`); `null` outside any group. */
+	group: string | null;
 	/** Last path segment (`turso`); empty for the root. */
 	segment: string;
 	/** Whether the folder has its own `+page.svelte`. */
@@ -78,6 +80,12 @@ export function routeExports<T extends object>(name: `_${string}`): Map<string, 
 
 const isGroup = (segment: string): boolean => segment.startsWith("(") && segment.endsWith(")");
 
+/** `/(app)/devpulse/models` → `(app)`; `null` when the route has no group. */
+export function groupOf(routeId: string | null): string | null {
+	const first = routeId?.split("/")[1] ?? "";
+	return isGroup(first) ? first : null;
+}
+
 /** `/(app)/latest` → `/latest`. */
 function pathOf(routeId: string): string {
 	const segments = routeId.split("/").filter((s) => s !== "" && !isGroup(s));
@@ -110,6 +118,7 @@ function buildTree(): RouteIndex {
 			// `RouteId` from, so these strings are members of those unions.
 			path: path as RoutePath,
 			routeId: routeId as RouteId,
+			group: groupOf(routeId),
 			segment: path === "/" ? "" : path.slice(path.lastIndexOf("/") + 1),
 			hasPage: false,
 			nav: navById.get(routeId) ?? {},

@@ -27,6 +27,12 @@
 // (legacy path) can be redirected by replacing only the import,
 // without splitting the call site between two files.
 export { cancelDownload, downloadModel } from "#lib/sys/bindings/models/index.js";
+// ── Contract ─────────────────────────────────────────────
+export {
+	MODEL_LOADER_DOMAIN,
+	MODEL_LOADER_FEATURES,
+	type ModelLoaderFeature,
+} from "#lib/sys/contracts/index.js";
 // ── Types ────────────────────────────────────────────────
 export type { WizardCopy as WizardCopyData } from "#lib/sys/generated/bindings.js";
 // ── Boot-time event bridge ───────────────────────────────

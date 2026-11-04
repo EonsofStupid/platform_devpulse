@@ -40,9 +40,15 @@ pub(super) async fn list(db: &dyn SqlAdapter) -> Result<Vec<Record>> {
         .await?.iter().map(decode).collect()
 }
 
-pub(super) async fn get(db: &dyn SqlAdapter, id: &str) -> Result<Record> {
+pub(super) async fn find(db: &dyn SqlAdapter, id: &str) -> Result<Option<Record>> {
     let rows = db.query("SELECT id, label, provider_id, endpoint, credential_ref, revision FROM ai_connections WHERE id = ?", &[id.into()]).await?;
-    decode(rows.first().context("Saved AI connection was not found")?)
+    rows.first().map(decode).transpose()
+}
+
+pub(super) async fn get(db: &dyn SqlAdapter, id: &str) -> Result<Record> {
+    find(db, id)
+        .await?
+        .context("Saved AI connection was not found")
 }
 
 pub(super) async fn save(db: &dyn SqlAdapter, record: &Record) -> Result<()> {
@@ -57,5 +63,57 @@ pub(super) async fn remove(db: &dyn SqlAdapter, id: &str) -> Result<()> {
         .execute("DELETE FROM ai_connections WHERE id = ?", &[id.into()])
         .await?;
     ensure!(affected == 1, "AI connection was not found");
+    Ok(())
+}
+
+/// A saved choice of connection and model for one speech role.
+pub(super) struct SpeechRow {
+    pub connection_id: String,
+    pub revision: i64,
+    pub label: String,
+    pub model: String,
+}
+
+pub(super) async fn speech_binding(db: &dyn SqlAdapter, role: &str) -> Result<Option<SpeechRow>> {
+    let rows = db.query("SELECT connection_id, connection_revision, connection_label, model FROM speech_endpoint_bindings WHERE role = ?", &[role.into()]).await?;
+    rows.first()
+        .map(|row| {
+            let text = |i| {
+                row.get(i)
+                    .and_then(crate::cortex::persistence::SqlValue::as_text)
+                    .context("Invalid speech binding column")
+            };
+            Ok(SpeechRow {
+                connection_id: text(0)?.to_owned(),
+                revision: row
+                    .get(1)
+                    .and_then(crate::cortex::persistence::SqlValue::as_integer)
+                    .filter(|n| *n > 0)
+                    .context("Invalid speech binding revision")?,
+                label: text(2)?.to_owned(),
+                model: text(3)?.to_owned(),
+            })
+        })
+        .transpose()
+}
+
+pub(super) async fn save_speech_binding(
+    db: &dyn SqlAdapter,
+    role: &str,
+    row: &SpeechRow,
+) -> Result<()> {
+    let affected = db.execute("INSERT INTO speech_endpoint_bindings (role, connection_id, connection_revision, connection_label, model) VALUES (?, ?, ?, ?, ?) ON CONFLICT(role) DO UPDATE SET connection_id = excluded.connection_id, connection_revision = excluded.connection_revision, connection_label = excluded.connection_label, model = excluded.model, updated_at = unixepoch()",
+        &[role.into(), row.connection_id.clone().into(), row.revision.into(), row.label.clone().into(), row.model.clone().into()]).await?;
+    ensure!(affected == 1, "Speech binding was not saved");
+    Ok(())
+}
+
+/// Clearing a role that has no binding is not a failure: the outcome is the same.
+pub(super) async fn clear_speech_binding(db: &dyn SqlAdapter, role: &str) -> Result<()> {
+    db.execute(
+        "DELETE FROM speech_endpoint_bindings WHERE role = ?",
+        &[role.into()],
+    )
+    .await?;
     Ok(())
 }

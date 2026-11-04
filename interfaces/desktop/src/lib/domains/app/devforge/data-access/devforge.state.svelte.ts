@@ -3,6 +3,8 @@
  * @module @devpulse/domains/app/devforge/data-access/devforge.state
  */
 
+import { DEVFORGE_DOMAIN, type StateModuleContract } from "#lib/sys/contracts/index.js";
+import { logWarn } from "#lib/sys/logger.js";
 import type { DevforgeBootstrapStatus } from "../util/devforge.types.js";
 import {
 	addProject,
@@ -13,7 +15,9 @@ import {
 	removeProject,
 } from "./devforge.svc.js";
 
-class DevForgeState {
+class DevForgeState implements StateModuleContract {
+	readonly domain = DEVFORGE_DOMAIN.id;
+
 	// ── Status ──────────────────────────────────────────────
 	status = $state<DevforgeBootstrapStatus | null>(null);
 	statusLoading = $state(false);
@@ -97,8 +101,9 @@ class DevForgeState {
 		this.projectsLoading = true;
 		try {
 			this.recentProjects = await listRecentProjects();
-		} catch {
+		} catch (e) {
 			// non-fatal
+			logWarn(this.domain, `recent projects did not load: ${String(e)}`);
 		} finally {
 			this.projectsLoading = false;
 		}

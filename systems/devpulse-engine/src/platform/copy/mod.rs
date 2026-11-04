@@ -778,6 +778,72 @@ pub struct DevtoolsCopy {
     pub planned_body: String,
     /// The Action log devtool's own text (its name and lines are `nav`).
     pub action_log: ActionLogCopy,
+    /// The Structure devtool's own text (its name and lines are `nav`).
+    pub structure: StructureCopy,
+}
+
+/// The Structure devtool: the app's contracts and registries, read live.
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+#[serde(deny_unknown_fields)]
+pub struct StructureCopy {
+    /// Tab: every state module.
+    pub tab_state: String,
+    /// Tab: this window's live subscriptions.
+    pub tab_streams: String,
+    /// Tab: the route inventory.
+    pub tab_routes: String,
+    /// Tab: the feature flags.
+    pub tab_flags: String,
+    /// Tab: the artifact catalog.
+    pub tab_artifacts: String,
+    /// Accessible name of the table of hub contracts.
+    pub hubs_label: String,
+    /// Column: a hub.
+    pub col_hub: String,
+    /// Column: a hub's status.
+    pub col_status: String,
+    /// Column: the domain folder that owns a hub.
+    pub col_owner: String,
+    /// Column: a hub's features.
+    pub col_features: String,
+    /// Column: the feature a hub opens on.
+    pub col_default_feature: String,
+    /// Column: how many state modules a hub's owner has.
+    pub col_state_modules: String,
+    /// Column: a state module.
+    pub col_module: String,
+    /// Column: a file path.
+    pub col_path: String,
+    /// Column: a live subscription.
+    pub col_stream: String,
+    /// Column: what kind of subscription or artifact it is.
+    pub col_kind: String,
+    /// Column: where a subscription's messages come from.
+    pub col_source: String,
+    /// Column: when a subscription last received a message.
+    pub col_last_message: String,
+    /// Column: why a subscription failed.
+    pub col_error: String,
+    /// Column: a route group.
+    pub col_group: String,
+    /// Column: a name.
+    pub col_name: String,
+    /// Column: a feature flag.
+    pub col_flag: String,
+    /// Column: a flag's value.
+    pub col_value: String,
+    /// Column: an artifact's id.
+    pub col_artifact: String,
+    /// A flag that is on.
+    pub on: String,
+    /// A flag that is off.
+    pub off: String,
+    /// A subscription that has received nothing so far.
+    pub none_yet: String,
+    /// What the live streams tab lists.
+    pub streams_note: String,
+    /// Shown when this window has no live subscriptions.
+    pub no_streams: String,
 }
 
 /// The Action log devtool: today's wrapped app actions, tailed live.
@@ -910,12 +976,54 @@ pub struct VoiceLabOptionCopy {
     pub label: String,
 }
 
+/// Voice Lab: choosing the saved connection speech runs through.
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+#[serde(deny_unknown_fields)]
+pub struct VoiceLabEndpointsCopy {
+    /// Heading when choosing for text-to-speech.
+    pub tts_title: String,
+    /// Heading when choosing for speech-to-text.
+    pub stt_title: String,
+    /// Text-to-speech with nothing chosen. Placeholder `{slot}`.
+    pub tts_none: String,
+    /// Speech-to-text with nothing chosen. Placeholder `{slot}`.
+    pub stt_none: String,
+    /// The binding in use. Placeholders `{label}`, `{model}`.
+    pub using: String,
+    /// The slot stands aside while a connection is chosen. Placeholder `{slot}`.
+    pub using_slot_note: String,
+    /// The connection was edited after it was chosen. Placeholder `{label}`.
+    pub changed: String,
+    /// The connection no longer exists. Placeholder `{label}`.
+    pub removed: String,
+    /// Label of the connection list.
+    pub connection: String,
+    /// Label of the model list.
+    pub model: String,
+    /// Label of the typed model name.
+    pub model_typed: String,
+    /// Why a model can be typed.
+    pub model_hint: String,
+    /// No saved connection can carry speech yet.
+    pub empty: String,
+    /// What choosing a connection shares.
+    pub disclosure: String,
+    /// Button that chooses the connection.
+    pub use_connection: String,
+    /// Button that stops using a connection.
+    pub stop_using: String,
+    /// One line naming the binding. Placeholders `{label}`, `{model}`.
+    pub line: String,
+    /// Label of the voice name.
+    pub voice: String,
+    /// What the voice name is for.
+    pub voice_hint: String,
+}
+
 /// Voice Lab: the TTS Setup tab.
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 #[serde(deny_unknown_fields)]
 pub struct VoiceLabTtsCopy {
-    /// Why no text-to-speech endpoint can be chosen. Placeholder `{slot}`.
-    pub endpoint_unavailable: String,
     /// Heading over the slot cards.
     pub runtime_title: String,
     /// The output slot's name when the registry has none.
@@ -946,6 +1054,10 @@ pub struct VoiceLabTtsCopy {
     pub speed: String,
     /// The speed shown beside the slider. Placeholder `{speed}`.
     pub speed_value: String,
+    /// Button that saves the speed.
+    pub save: String,
+    /// Button that discards an unsaved speed.
+    pub reset: String,
     /// Heading of the audio file card.
     pub file_title: String,
     /// What the audio file card does.
@@ -974,8 +1086,6 @@ pub struct VoiceLabTtsCopy {
 #[derive(Debug, Clone, Serialize, Deserialize, Type)]
 #[serde(deny_unknown_fields)]
 pub struct VoiceLabSttCopy {
-    /// Why no speech-to-text endpoint can be chosen. Placeholder `{slot}`.
-    pub endpoint_unavailable: String,
     /// The input slot's name when the registry has none.
     pub input_fallback: String,
     /// Label of the language list.
@@ -1136,6 +1246,8 @@ pub struct VoiceLabCopy {
     pub unknown_backend: String,
     /// The slot names no loading strategy.
     pub unknown_loading: String,
+    /// Choosing a saved connection.
+    pub endpoints: VoiceLabEndpointsCopy,
     /// The TTS Setup tab.
     pub tts: VoiceLabTtsCopy,
     /// The STT Setup tab.

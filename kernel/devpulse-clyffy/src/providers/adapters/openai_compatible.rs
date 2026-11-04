@@ -9,12 +9,18 @@ use async_trait::async_trait;
 use reqwest::StatusCode;
 use serde::Deserialize;
 
+mod audio;
+#[cfg(test)]
+mod audio_tests;
 mod chat;
 mod http;
 #[cfg(test)]
 mod operation_tests;
 mod sse;
 mod types;
+pub use audio::{
+    EndpointAudio, EndpointSpeechRequest, EndpointTranscriptionRequest, speak, transcribe,
+};
 pub use chat::{complete, embed, stream};
 pub use types::*;
 

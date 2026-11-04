@@ -197,7 +197,7 @@ crate), verified live, approval between phases.
 | 7 | Slots routed to runtime endpoints | `commands/models/mod.rs`, `services/model_loader.rs`, `sidecars/runtime/service.rs` | chat.brain answers in the UI through llama-server; probe reports OpenAI + Anthropic |
 | 8 | Intents + UI (install, start, stop, update, roll back, remove) | `commands/models/mod.rs`, Runtimes devtool, Model Loader card | CDP screenshots of every state |
 | 9 | moshi releases from the `deps/moshi` sub repo (decision 2) | sub repo release workflow, catalog entry, submodule pin | release assets with digests; "standalone worker listening" on this machine |
-| 10 | Voice listening via whisper-server; speaking per decision 4 | catalog + slot mapping | live transcription in the UI |
+| 10 | Voice listening via whisper-server; speaking per decision 4 | catalog + slot mapping; bindings to any saved connection: see "Voice on saved connections" below | live transcription in the UI |
 | 11 | Hand-bundled sidecar + dead commands removed | `commands/{llama,llama_cpp,llama_cpp_embedded}`, `binaries/`, `lib.rs` PATH prepend, xtask `fetch-llama-cpp`, stale `tauri.windows.conf.json` merge | `cargo check -p devpulse_desktop_backend`; no references left |
 | 12 | xtask stops adding GPU features; engine `gpu-*` removed | `xtask/src/workspace.rs`, engine `Cargo.toml` | `cargo xtask run-dev` builds no llama.cpp / candle |
 | 13 | Compiled-in engines removed | model-loader backends + features, clyffy features + `whisper.rs` / `kokoros.rs`, `deps/llama-cpp-rs` submodule, `deps/moshi` out of the Cargo workspace (root `exclude`/`[patch]`; the sub repo stays), ort fork, deps.toml cmake/ninja | `cargo tree -i candle-core / ort-sys / moshi / llama-cpp-sys-2` → no match; build time before/after |
@@ -312,6 +312,27 @@ Found during this stage, proposed next:
 
 - A registry id is a UUID of the model file's **absolute** path ([discovery.rs:1015](../kernel/model-loader/src/models/discovery.rs#L1015)), and `registry.json` stores absolute paths. Moving the DevPulse folder therefore drops every slot pick. Proposed fix: identity from the path relative to the models folder.
 - Discovery also scans the Hugging Face cache in the user profile ([registry.rs:171](../kernel/model-loader/src/models/registry.rs#L171)), which is outside the DevPulse folder. Proposed fix: make it a configured extra source rather than a built-in default.
+
+### Voice on saved connections (2026-11-04)
+
+Owner, on the restored Voice Lab: "restored to its location but authored properly for
+endpoints". This is the endpoint half of phase 10. It does not install or supervise a
+speech runtime; it lets speech run at any saved connection, local or remote.
+
+- Kernel: `providers/adapters/openai_compatible/audio.rs` speaks the standard
+  `audio/speech` and `audio/transcriptions` at the connection's explicit API base.
+  `providers/connections/speech.rs` binds each role (`stt`, `tts`) to a saved connection,
+  revision and model, as a chat does. No second connection store. Migration
+  `user/0007_speech_endpoint_bindings.sql`.
+- An edited or removed connection refuses speech until chosen again. Only "nothing is
+  chosen" lets the compiled-in `voice_pool` run, and it keeps running as it did until
+  phase 13: nothing is deleted.
+- Engine: `platform/providers/speech.rs`, a facade. Desktop: `commands/voice/endpoints.rs`
+  (list, get, set, clear), `route.rs` (connection, else slot), `settings.rs` (active profile,
+  voice, language, beam). `get_voice_status` returns real values.
+- Open: the speech-to-speech reply stage still runs through the `chat.brain` slot; language
+  and beam do not reach the compiled-in slots, whose backends take neither.
+- Verification so far: `cargo check` only. No server, app or test has run this yet.
 
 ### Part S — Surreal runs as a built binary under the kernel's supervisor; the `surrealdb` crate leaves the build
 

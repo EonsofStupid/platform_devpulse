@@ -13,6 +13,7 @@
  *   MCP tool wiring) lives in devtools — never here.
  */
 
+export { CLYFFY_DOMAIN } from "#lib/sys/contracts/index.js";
 export { default as ClyffyLoadingBlock } from "./learning/ClyffyLoadingBlock.svelte";
 export { default as LoadingContentCard } from "./learning/LoadingContentCard.svelte";
 // ── Learning (DYK / KDROPS / T&T rotating content)

@@ -22,10 +22,10 @@ import { POPOVER_DEFAULTS } from "@devpulse/coldlight/components/popover";
 import { Text } from "@devpulse/coldlight/components/text";
 import { styleAttrs } from "@devpulse/coldlight/renderforge";
 import { cn } from "@devpulse/coldlight/utils";
-import { hrefOf, routeCopy } from "#lib/sys/routing/index.js";
+import { groupOf, hrefOf, routeCopy } from "#lib/sys/routing/index.js";
 import { globalState } from "#lib/sys/runes/global.svelte.js";
 import { page } from "$app/state";
-import { groupOf, hubEntries, isActiveRoute, submenuOf } from "./sidebar-entries.js";
+import { hubEntries, isActiveRoute, submenuOf } from "./sidebar-entries.js";
 
 interface Props {
 	/** The sidebar rail; a press there is the hub buttons' to handle. */

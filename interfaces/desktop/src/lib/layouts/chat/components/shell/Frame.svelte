@@ -18,8 +18,8 @@ import { ChatTopBar } from "@devpulse/coldlight/components/chat-topbar";
 import { Brain, Cpu } from "lucide-svelte";
 import type { Snippet } from "svelte";
 import { openWindow, type WindowRole } from "#lib/sys/bindings/window/index.js";
+import { DEVPULSE_DOMAIN } from "#lib/sys/contracts/index.js";
 import { logError } from "#lib/sys/logger.js";
-import { globalState } from "#lib/sys/runes/global.svelte.js";
 
 interface Props {
 	children: Snippet;
@@ -36,7 +36,7 @@ async function open(role: WindowRole): Promise<void> {
 </script>
 
 <ChatFrame state="open" engaged={true}>
-	<ChatTopBar hubLabel={globalState.current_domain.toUpperCase()} title="CHAT">
+	<ChatTopBar hubLabel={DEVPULSE_DOMAIN.id.toUpperCase()} title="CHAT">
 		{#snippet children()}
 			<Button variant="ghost" size="sm" onclick={() => open("KnowledgeViewer")} title="Knowledge Viewer" aria-label="Open Knowledge Viewer">
 				<Brain size={14} />

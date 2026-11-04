@@ -128,6 +128,40 @@ pub fn decode_audio_file_to_pcm(path: &Path, target_rate: u32) -> Result<Vec<f32
     Ok(resampled)
 }
 
+/// Audio decoded from bytes, as the source had it.
+#[derive(Debug, Clone, PartialEq)]
+pub struct DecodedAudio {
+    /// Interleaved samples normalised to `[-1.0, 1.0]`.
+    pub samples: Vec<f32>,
+    /// Samples per second, per channel.
+    pub sample_rate: u32,
+    /// Interleaved channel count.
+    pub channels: u16,
+}
+
+/// Decode encoded audio held in memory (what a speech server answers with).
+///
+/// # Errors
+/// Returns a string error if the format is not recognised or the stream decodes
+/// to zero samples.
+pub fn decode_audio_bytes(bytes: Vec<u8>) -> Result<DecodedAudio, String> {
+    use rodio::{Decoder, Source};
+
+    let decoder = Decoder::try_from(std::io::Cursor::new(bytes))
+        .map_err(|e| format!("Failed to decode audio: {e}"))?;
+    let sample_rate = decoder.sample_rate().get();
+    let channels = decoder.channels().get();
+    let samples: Vec<f32> = decoder.collect();
+    if samples.is_empty() {
+        return Err("Audio decoded to zero samples".to_owned());
+    }
+    Ok(DecodedAudio {
+        samples,
+        sample_rate,
+        channels,
+    })
+}
+
 /// Whisper STT input convention — 16 kHz mono PCM.
 pub const WHISPER_SAMPLE_RATE: u32 = 16_000;
 
@@ -186,6 +220,20 @@ mod tests {
         let path = dir.path().join(file);
         std::fs::write(&path, bytes).unwrap();
         decode_audio_file_to_pcm(&path, target_rate).unwrap()
+    }
+
+    #[test]
+    fn bytes_decode_as_the_source_had_them() {
+        let audio = decode_audio_bytes(wav(2, 24_000, &[16_384, -16_384, 0, 0])).unwrap();
+        assert_eq!(audio.sample_rate, 24_000);
+        assert_eq!(audio.channels, 2);
+        assert_eq!(audio.samples.len(), 4);
+        assert!((audio.samples[0] - 0.5).abs() < 0.001);
+    }
+
+    #[test]
+    fn bytes_that_are_not_audio_fail() {
+        assert!(decode_audio_bytes(b"{\"error\":\"nope\"}".to_vec()).is_err());
     }
 
     #[test]

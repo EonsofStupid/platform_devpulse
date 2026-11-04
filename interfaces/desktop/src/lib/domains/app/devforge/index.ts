@@ -5,6 +5,13 @@
  * recent projects, window management.
  */
 
+// ── Contract ────────────────────────────────────────────────
+export {
+	DEVFORGE_DOMAIN,
+	DEVFORGE_FEATURES,
+	type DevForgeFeature,
+} from "#lib/sys/contracts/index.js";
+
 // ── State ───────────────────────────────────────────────────
 export { devforgeState } from "./data-access/devforge.state.svelte.js";
 

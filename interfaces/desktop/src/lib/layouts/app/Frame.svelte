@@ -25,6 +25,7 @@ import { cn } from "@devpulse/coldlight/utils";
 import type { Snippet } from "svelte";
 import { SwapOverlay } from "#lib/domains/app/models/index.js";
 import ActivityHud from "#lib/sys/activity-hud/ActivityHud.svelte";
+import { hubHere } from "#lib/sys/routing/index.js";
 import { globalState } from "#lib/sys/runes/global.svelte.js";
 import { iconGlow } from "./icon-glow.js";
 import Sidebar from "./Sidebar.svelte";
@@ -115,7 +116,7 @@ const SLOTS = {
 	data-layout="app"
 	data-sidebar={globalState.sidebar_mode}
 	data-context={globalState.context_mode}
-	data-route={globalState.current_domain}
+	data-route={hubHere()?.segment}
 >
 	<!-- Shell-wide cosmic backdrop — subtle ambient layer behind everything.
 	     The sidebar mounts its own stronger instance below for accent depth.

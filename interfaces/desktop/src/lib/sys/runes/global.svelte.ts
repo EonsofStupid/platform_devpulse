@@ -1,7 +1,10 @@
 export type ChatMode = "developer" | "planning" | "image" | "general";
 
+/**
+ * The shell's own UI state. Which hub is showing is not here: the URL is the
+ * state (SPRINT-01B lock 1), read with `hubHere()` from `#lib/sys/routing`.
+ */
 class GlobalState {
-	current_domain = $state<string>("devpulse");
 	sidebar_mode = $state<"collapsed" | "expanded">("collapsed");
 	sidebar_submenu = $state<string | null>(null);
 	context_mode = $state<"collapsed" | "expanded">("collapsed");
@@ -12,10 +15,6 @@ class GlobalState {
 	chat_mode = $state<ChatMode>("general");
 	/** The floating chat panel inside the main window (the owner's ChatOverlay). */
 	chat_overlay_open = $state<boolean>(false);
-
-	setDomain(domain: string): void {
-		this.current_domain = domain;
-	}
 
 	toggleSidebar(): void {
 		this.sidebar_mode = this.sidebar_mode === "collapsed" ? "expanded" : "collapsed";

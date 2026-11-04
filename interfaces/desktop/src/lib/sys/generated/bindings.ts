@@ -1681,15 +1681,17 @@ export const commands = {
 	/**
 	 *  Get the current voice subsystem status.
 	 * 
-	 *  Derives STT/TTS loaded state from model loader slot statuses.
-	 *  Mic detection is best-effort until the audio sprint wires real device enumeration.
+	 *  STT/TTS loaded state comes from the model loader's slots, the active profile
+	 *  and voice from the saved settings, the microphone from the audio host, and the
+	 *  endpoints from the saved bindings. No endpoint is contacted.
 	 */
 	getVoiceStatus: () => typedError<VoiceStatusInfo, string>(__TAURI_INVOKE("get_voice_status")),
 	/**
 	 *  Speak text using TTS.
 	 * 
-	 *  Synthesizes via the TTS model loaded in the voice.tts slot,
-	 *  then plays the PCM audio through rodio.
+	 *  Synthesizes through the chosen text-to-speech connection, else the TTS model
+	 *  loaded in the voice.tts slot, then plays the PCM audio through rodio. A voice
+	 *  or speed left out comes from the active profile and the saved settings.
 	 */
 	speak: (text: string, voice: string | null, slot: string | null, speed: number | null) => typedError<null, string>(__TAURI_INVOKE("speak", { text, voice, slot, speed })),
 	/**  Stop current speech. */
@@ -1718,24 +1720,28 @@ export const commands = {
 	 *  Transcribe audio from the microphone.
 	 * 
 	 *  Captures ~3 seconds of audio from the default input device via rodio/cpal,
-	 *  then runs it through the Whisper STT model loaded in voice.stt slot.
+	 *  trims it to what the saved VAD sensitivity counts as speech, then runs it
+	 *  through the chosen speech-to-text connection, else the Whisper STT model loaded
+	 *  in the voice.stt slot. A capture with no speech in it is not sent anywhere.
 	 */
 	transcribeAudio: () => typedError<string, string>(__TAURI_INVOKE("transcribe_audio")),
 	/**
 	 *  Transcribe an audio file on disk (MP3, WAV, FLAC, Vorbis).
 	 * 
-	 *  Decodes via rodio → mono 16 kHz PCM → voice.stt slot. Lets the user
-	 *  upload any supported audio file and get back a transcript without
-	 *  going through the microphone path.
+	 *  Decodes via rodio → mono 16 kHz PCM → the chosen speech-to-text connection,
+	 *  else the voice.stt slot. Lets the user upload any supported audio file and get
+	 *  back a transcript without going through the microphone path.
 	 */
 	transcribeAudioFile: (path: string) => typedError<string, string>(__TAURI_INVOKE("transcribe_audio_file", { path })),
 	/**
 	 *  Run the full speech-to-speech pipeline.
 	 * 
 	 *  Stages:
-	 *  1. **STT** — transcribe `audio_path` via voice.stt slot
-	 *  2. **Brain** — generate a reply via `brain_slot` (defaults to `chat.brain`)
-	 *  3. **TTS** — synthesize the reply via voice.tts slot with `voice`
+	 *  1. **STT** — transcribe `audio_path` via the chosen connection, else voice.stt slot
+	 *  2. **Brain** — generate a reply via `brain_slot` (defaults to `chat.brain`); this
+	 *     stage has no connection to choose yet and always runs through the slot
+	 *  3. **TTS** — synthesize the reply with `voice` or the active voice, via the chosen
+	 *     connection, else voice.tts slot, at the saved default speed
 	 *  4. **Playback** — play through the default output device
 	 * 
 	 *  Errors from any stage are returned with enough context that the UI can
@@ -1745,10 +1751,11 @@ export const commands = {
 	/**
 	 *  Closed-loop voice smoke test: TTS → STT round-trip.
 	 * 
-	 *  Synthesizes a fixed phrase via `voice.tts`, resamples to 16 kHz mono,
-	 *  and feeds it into `voice.stt`. No audio is played and no files are
-	 *  needed. Failure at any stage is captured in the report rather than
-	 *  bubbled up, so the UI can show a two-green-check or a pinpoint error.
+	 *  Synthesizes a fixed phrase in the active voice, resamples to 16 kHz mono,
+	 *  and transcribes it, each stage through its chosen connection or its slot. No
+	 *  audio is played and no files are needed. Failure at any stage is captured in the
+	 *  report rather than bubbled up, so the UI can show a two-green-check or a pinpoint
+	 *  error.
 	 */
 	voiceSmokeTest: () => typedError<VoiceSmokeReport, string>(__TAURI_INVOKE("voice_smoke_test")),
 	/**  List saved voice profiles. */
@@ -1776,6 +1783,35 @@ export const commands = {
 	voiceSttLoadConfig: () => typedError<VoiceSttConfig, string>(__TAURI_INVOKE("voice_stt_load_config")),
 	/**  Persist STT config atomically. Returns the clamped config. */
 	voiceSttSaveConfig: (cfg: VoiceSttConfig) => typedError<VoiceSttConfig, string>(__TAURI_INVOKE("voice_stt_save_config", { cfg })),
+	/**
+	 *  Every speech binding and the adapters one may use.
+	 * 
+	 *  # Errors
+	 *  Returns storage errors or an unavailable user database.
+	 */
+	voiceEndpointsList: () => typedError<SpeechEndpoints, string>(__TAURI_INVOKE("voice_endpoints_list")),
+	/**
+	 *  One role's binding; `null` when nothing is chosen.
+	 * 
+	 *  # Errors
+	 *  Returns storage errors.
+	 */
+	voiceEndpointGet: (role: SpeechRole) => typedError<SpeechBinding | null, string>(__TAURI_INVOKE("voice_endpoint_get", { role })),
+	/**
+	 *  Choose the saved connection, at this revision, and model one role uses.
+	 * 
+	 *  # Errors
+	 *  Refuses a removed or edited connection, an adapter without audio, an empty
+	 *  model and a missing key; the prior choice stays in place.
+	 */
+	voiceEndpointSet: (role: SpeechRole, connectionId: string, revision: number, model: string) => typedError<SpeechEndpoints, string>(__TAURI_INVOKE("voice_endpoint_set", { role, connectionId, revision, model })),
+	/**
+	 *  Stop using a connection for one role.
+	 * 
+	 *  # Errors
+	 *  Returns storage errors or an unavailable user database.
+	 */
+	voiceEndpointClear: (role: SpeechRole) => typedError<SpeechEndpoints, string>(__TAURI_INVOKE("voice_endpoint_clear", { role })),
 	/**
 	 *  Store an API key in the OS keychain and mirror a masked hint to Turso.
 	 * 
@@ -4050,6 +4086,8 @@ export type DevtoolsCopy = {
 	planned_body: string,
 	/**  The Action log devtool's own text (its name and lines are `nav`). */
 	action_log: ActionLogCopy,
+	/**  The Structure devtool's own text (its name and lines are `nav`). */
+	structure: StructureCopy,
 };
 
 /**  Where on disk a downloaded model lands. */
@@ -9775,6 +9813,48 @@ export type SpanTraceRow = {
 	created_at: string,
 };
 
+/**  Public identity of one role's binding. No credential crosses this boundary. */
+export type SpeechBinding = {
+	/**  The role this binding serves. */
+	role: SpeechRole,
+	/**  Saved endpoint identity. */
+	connectionId: string,
+	/**  Exact configuration generation approved when it was chosen. */
+	revision: number,
+	/**  Connection name when chosen, retained even after removal. */
+	label: string,
+	/**  Explicit model, never selected by a fallback. */
+	model: string,
+	/**  Whether requests would be sent or refused. Says nothing about the server's health. */
+	state: SpeechBindingState,
+};
+
+/**  Whether a binding can still be honoured, without contacting any endpoint. */
+export type SpeechBindingState = 
+/**  The connection is at the generation that was chosen. */
+"current" | 
+/**  The connection was edited after it was chosen. */
+"connectionChanged" | 
+/**  The connection no longer exists. */
+"connectionRemoved";
+
+/**  Every role's binding, and the adapters a binding may use. */
+export type SpeechEndpoints = {
+	/**  Listening, if chosen. */
+	stt: SpeechBinding | null,
+	/**  Speaking, if chosen. */
+	tts: SpeechBinding | null,
+	/**  Adapters that can carry the standard audio operations. */
+	providers: ProviderId[],
+};
+
+/**  What a binding is for. */
+export type SpeechRole = 
+/**  Listening: speech to text, `audio/transcriptions`. */
+"stt" | 
+/**  Speaking: text to speech, `audio/speech`. */
+"tts";
+
 /**  The result of a statement typed into the SQL console. */
 export type SqlOutcome = {
 	/**  Rows returned (statements that read). */
@@ -9881,6 +9961,68 @@ export type Stopped =
 "stable" | 
 /**  Every critique reported no defects. */
 "passed";
+
+/**  The Structure devtool: the app's contracts and registries, read live. */
+export type StructureCopy = {
+	/**  Tab: every state module. */
+	tab_state: string,
+	/**  Tab: this window's live subscriptions. */
+	tab_streams: string,
+	/**  Tab: the route inventory. */
+	tab_routes: string,
+	/**  Tab: the feature flags. */
+	tab_flags: string,
+	/**  Tab: the artifact catalog. */
+	tab_artifacts: string,
+	/**  Accessible name of the table of hub contracts. */
+	hubs_label: string,
+	/**  Column: a hub. */
+	col_hub: string,
+	/**  Column: a hub's status. */
+	col_status: string,
+	/**  Column: the domain folder that owns a hub. */
+	col_owner: string,
+	/**  Column: a hub's features. */
+	col_features: string,
+	/**  Column: the feature a hub opens on. */
+	col_default_feature: string,
+	/**  Column: how many state modules a hub's owner has. */
+	col_state_modules: string,
+	/**  Column: a state module. */
+	col_module: string,
+	/**  Column: a file path. */
+	col_path: string,
+	/**  Column: a live subscription. */
+	col_stream: string,
+	/**  Column: what kind of subscription or artifact it is. */
+	col_kind: string,
+	/**  Column: where a subscription's messages come from. */
+	col_source: string,
+	/**  Column: when a subscription last received a message. */
+	col_last_message: string,
+	/**  Column: why a subscription failed. */
+	col_error: string,
+	/**  Column: a route group. */
+	col_group: string,
+	/**  Column: a name. */
+	col_name: string,
+	/**  Column: a feature flag. */
+	col_flag: string,
+	/**  Column: a flag's value. */
+	col_value: string,
+	/**  Column: an artifact's id. */
+	col_artifact: string,
+	/**  A flag that is on. */
+	on: string,
+	/**  A flag that is off. */
+	off: string,
+	/**  A subscription that has received nothing so far. */
+	none_yet: string,
+	/**  What the live streams tab lists. */
+	streams_note: string,
+	/**  Shown when this window has no live subscriptions. */
+	no_streams: string,
+};
 
 /**
  *  Result of a full STS (speech-to-speech) pipeline run.
@@ -10752,6 +10894,8 @@ export type VoiceLabCopy = {
 	unknown_backend: string,
 	/**  The slot names no loading strategy. */
 	unknown_loading: string,
+	/**  Choosing a saved connection. */
+	endpoints: VoiceLabEndpointsCopy,
 	/**  The TTS Setup tab. */
 	tts: VoiceLabTtsCopy,
 	/**  The STT Setup tab. */
@@ -10760,6 +10904,48 @@ export type VoiceLabCopy = {
 	profiles: VoiceLabProfilesCopy,
 	/**  The Test Bench tab. */
 	test: VoiceLabTestCopy,
+};
+
+/**  Voice Lab: choosing the saved connection speech runs through. */
+export type VoiceLabEndpointsCopy = {
+	/**  Heading when choosing for text-to-speech. */
+	tts_title: string,
+	/**  Heading when choosing for speech-to-text. */
+	stt_title: string,
+	/**  Text-to-speech with nothing chosen. Placeholder `{slot}`. */
+	tts_none: string,
+	/**  Speech-to-text with nothing chosen. Placeholder `{slot}`. */
+	stt_none: string,
+	/**  The binding in use. Placeholders `{label}`, `{model}`. */
+	using: string,
+	/**  The slot stands aside while a connection is chosen. Placeholder `{slot}`. */
+	using_slot_note: string,
+	/**  The connection was edited after it was chosen. Placeholder `{label}`. */
+	changed: string,
+	/**  The connection no longer exists. Placeholder `{label}`. */
+	removed: string,
+	/**  Label of the connection list. */
+	connection: string,
+	/**  Label of the model list. */
+	model: string,
+	/**  Label of the typed model name. */
+	model_typed: string,
+	/**  Why a model can be typed. */
+	model_hint: string,
+	/**  No saved connection can carry speech yet. */
+	empty: string,
+	/**  What choosing a connection shares. */
+	disclosure: string,
+	/**  Button that chooses the connection. */
+	use_connection: string,
+	/**  Button that stops using a connection. */
+	stop_using: string,
+	/**  One line naming the binding. Placeholders `{label}`, `{model}`. */
+	line: string,
+	/**  Label of the voice name. */
+	voice: string,
+	/**  What the voice name is for. */
+	voice_hint: string,
 };
 
 /**  One choice in a Voice Lab list. */
@@ -10804,8 +10990,6 @@ export type VoiceLabProfilesCopy = {
 
 /**  Voice Lab: the STT Setup tab. */
 export type VoiceLabSttCopy = {
-	/**  Why no speech-to-text endpoint can be chosen. Placeholder `{slot}`. */
-	endpoint_unavailable: string,
 	/**  The input slot's name when the registry has none. */
 	input_fallback: string,
 	/**  Label of the language list. */
@@ -10898,8 +11082,6 @@ export type VoiceLabTestCopy = {
 
 /**  Voice Lab: the TTS Setup tab. */
 export type VoiceLabTtsCopy = {
-	/**  Why no text-to-speech endpoint can be chosen. Placeholder `{slot}`. */
-	endpoint_unavailable: string,
 	/**  Heading over the slot cards. */
 	runtime_title: string,
 	/**  The output slot's name when the registry has none. */
@@ -10930,6 +11112,10 @@ export type VoiceLabTtsCopy = {
 	speed: string,
 	/**  The speed shown beside the slider. Placeholder `{speed}`. */
 	speed_value: string,
+	/**  Button that saves the speed. */
+	save: string,
+	/**  Button that discards an unsaved speed. */
+	reset: string,
 	/**  Heading of the audio file card. */
 	file_title: string,
 	/**  What the audio file card does. */
@@ -10995,11 +11181,11 @@ export type VoiceSampleUpload = {
 /**
  *  Result of a voice smoke test — closed-loop TTS→STT round-trip.
  * 
- *  Runs without any bundled assets: synthesizes a fixed phrase via the
- *  voice.tts slot, then feeds the PCM output straight into the voice.stt
- *  slot. Reports per-stage success so the UI can pinpoint which side of
- *  the pipeline is broken when a user hits "Run smoke test" in the Voice
- *  Lab.
+ *  Runs without any bundled assets: synthesizes a fixed phrase, through the chosen
+ *  connection or the voice.tts slot, then feeds the PCM output straight into the
+ *  chosen connection or the voice.stt slot. Reports per-stage success so the UI can
+ *  pinpoint which side of the pipeline is broken when a user hits "Run smoke test"
+ *  in the Voice Lab.
  */
 export type VoiceSmokeReport = {
 	/**  Whether the TTS stage returned non-empty audio. */
@@ -11022,12 +11208,16 @@ export type VoiceStatusInfo = {
 	stt_loaded: boolean,
 	/**  Whether the TTS slot has a model loaded. */
 	tts_loaded: boolean,
-	/**  Whether a microphone was detected (best-effort; actual detection requires audio sprint). */
+	/**  Whether this machine has a default input device right now. */
 	mic_detected: boolean,
 	/**  Currently active voice profile ID. */
 	active_profile: string,
-	/**  Currently active TTS voice ID. */
+	/**  Voice used when none is asked for: the active profile's, or the saved default. */
 	active_voice: string,
+	/**  The saved connection transcription runs through; `null` means the STT slot. */
+	stt_endpoint: SpeechBinding | null,
+	/**  The saved connection speech runs through; `null` means the TTS slot. */
+	tts_endpoint: SpeechBinding | null,
 };
 
 /**  Persisted user STT preferences. */

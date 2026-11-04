@@ -34,6 +34,12 @@ export const voiceTtsSaveConfig = commands.voiceTtsSaveConfig;
 export const voiceSttLoadConfig = commands.voiceSttLoadConfig;
 export const voiceSttSaveConfig = commands.voiceSttSaveConfig;
 
+// ── Speech endpoints ────────────────────────────────────────────
+export const voiceEndpointsList = commands.voiceEndpointsList;
+export const voiceEndpointGet = commands.voiceEndpointGet;
+export const voiceEndpointSet = commands.voiceEndpointSet;
+export const voiceEndpointClear = commands.voiceEndpointClear;
+
 // ── Types ───────────────────────────────────────────────────────
 export type {
 	MicTestResult,

@@ -1,5 +1,5 @@
 <!--
-  @file STT Setup tab — speech-to-text slot, mic test, VAD config.
+  @file STT Setup tab — speech-to-text connection and slot, mic test, VAD config.
   @domain voice
 -->
 <script lang="ts">
@@ -33,6 +33,7 @@ import {
 	type VoiceLabCopy,
 	type VoiceStatusInfo,
 } from "../../util/voice.contract.js";
+import SpeechEndpointSetup from "./SpeechEndpointSetup.svelte";
 
 let { copy }: { copy: VoiceLabCopy } = $props();
 
@@ -96,9 +97,7 @@ async function handleMicTest(): Promise<void> {
 </script>
 
 <div class="flex flex-col gap-6">
-	<InlineMessage tone="warning">
-		{fill(copy.stt.endpoint_unavailable, { slot: STT_SLOT })}
-	</InlineMessage>
+	<SpeechEndpointSetup {copy} role="stt" slot={STT_SLOT} onChanged={refreshSttRuntime} />
 
 	<!-- Model status -->
 	<div class="flex items-center justify-between gap-4">
@@ -169,6 +168,8 @@ async function handleMicTest(): Promise<void> {
 						})}
 					</Text>
 				</div>
+			{:else if voiceStatus}
+				<Text size="sm">{voiceStatus.mic_detected ? copy.stt.mic_detected : copy.stt.mic_missing}</Text>
 			{/if}
 
 			<Button variant="primary" size="sm" onclick={handleMicTest} disabled={voiceState.loading}>

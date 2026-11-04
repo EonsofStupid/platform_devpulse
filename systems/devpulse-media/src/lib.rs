@@ -11,13 +11,15 @@ pub mod capture;
 pub mod error;
 pub mod frame;
 pub mod pipeline;
+pub mod voice_activity;
 
 // Re-exports for convenience
 pub use audio_decode::{
-    QWEN3_TTS_SAMPLE_RATE, WHISPER_SAMPLE_RATE, decode_audio_file_to_pcm,
-    decode_to_qwen3_tts_reference, decode_to_whisper,
+    DecodedAudio, QWEN3_TTS_SAMPLE_RATE, WHISPER_SAMPLE_RATE, decode_audio_bytes,
+    decode_audio_file_to_pcm, decode_to_qwen3_tts_reference, decode_to_whisper,
 };
 pub use capture::CameraManager;
 pub use error::{MediaError, MediaResult};
 pub use frame::Frame;
 pub use pipeline::MediaPipeline;
+pub use voice_activity::trim_to_voice;

@@ -203,7 +203,7 @@ function selectBlock(e: MouseEvent, id: string) {
 					<!-- Category Items -->
 					{#if !collapsedCategories.has(group.id)}
 						<div class="grid grid-cols-2 gap-1 mt-1">
-							{#each group.items as item (item.kind)}
+							{#each group.items as item (item.id)}
 								<DraggableFrame id={paletteDragId(item.kind)}>
 									<Button
 										variant="ghost"

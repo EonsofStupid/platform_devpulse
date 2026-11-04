@@ -4,6 +4,11 @@
  */
 
 export {
+	LATEST_DOMAIN,
+	LATEST_FEATURES,
+	type LatestFeature,
+} from "#lib/sys/contracts/index.js";
+export {
 	checkForUpdate,
 	getUpdateChannel,
 	installUpdate,

@@ -9,18 +9,26 @@ import { InlineMessage } from "@devpulse/coldlight/components/inline-message";
 import { Text } from "@devpulse/coldlight/components/text";
 import { Textarea } from "@devpulse/coldlight/components/textarea";
 import { Mic, Play, Square } from "lucide-svelte";
+import { onMount } from "svelte";
 import { fill } from "#lib/sys/copy/index.js";
 import {
-	ensureSlotLoaded,
+	ensureSpeechReady,
 	runSmokeTest,
 	speak,
 	stopSpeaking,
 	transcribeAudio,
 } from "../../data-access/voice.service.js";
 import { voiceState } from "../../data-access/voice.state.svelte.js";
+import { voiceEndpointsState } from "../../data-access/voice-endpoints.state.svelte.js";
 import { STT_SLOT, type VoiceLabCopy, type VoiceSmokeReport } from "../../util/voice.contract.js";
 
 let { copy }: { copy: VoiceLabCopy } = $props();
+
+const speaking = $derived(voiceEndpointsState.binding("tts"));
+
+onMount(() => {
+	void voiceEndpointsState.load();
+});
 
 /** What you typed; the catalog's test line until you do. */
 let typed = $state<string | null>(null);
@@ -34,7 +42,7 @@ async function handleSpeak(): Promise<void> {
 	const start = performance.now();
 	voiceState.isSpeaking = true;
 	try {
-		await ensureSlotLoaded(voiceState.selectedTtsSlot);
+		await ensureSpeechReady("tts", voiceState.selectedTtsSlot);
 		await speak(
 			ttsInput,
 			voiceState.selectedVoice || undefined,
@@ -62,7 +70,7 @@ async function handleTranscribe(): Promise<void> {
 	const start = performance.now();
 	voiceState.isListening = true;
 	try {
-		await ensureSlotLoaded(STT_SLOT);
+		await ensureSpeechReady("stt", STT_SLOT);
 		voiceState.lastTranscription = await transcribeAudio();
 		sttLatency = Math.round(performance.now() - start);
 	} catch (e) {
@@ -76,7 +84,10 @@ async function handleSmokeTest(): Promise<void> {
 	smokeRunning = true;
 	smokeReport = null;
 	try {
-		await Promise.all([ensureSlotLoaded(voiceState.selectedTtsSlot), ensureSlotLoaded(STT_SLOT)]);
+		await Promise.all([
+			ensureSpeechReady("tts", voiceState.selectedTtsSlot),
+			ensureSpeechReady("stt", STT_SLOT),
+		]);
 		smokeReport = await runSmokeTest();
 	} catch (e) {
 		voiceState.error = e instanceof Error ? e.message : String(e);
@@ -104,7 +115,9 @@ async function handleSmokeTest(): Promise<void> {
 			<div class="flex items-center gap-3">
 				<Text size="sm">{fill(copy.test.voice_line, { voice: voiceState.selectedVoice })}</Text>
 				<Text size="sm" color="muted">
-					{fill(copy.slot_line, { slot: voiceState.selectedTtsSlot })}
+					{speaking
+						? fill(copy.endpoints.line, { label: speaking.label, model: speaking.model })
+						: fill(copy.slot_line, { slot: voiceState.selectedTtsSlot })}
 				</Text>
 			</div>
 

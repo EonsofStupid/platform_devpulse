@@ -24,6 +24,7 @@
 
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import { log, logError } from "#lib/sys/logger.js";
+import { streamsRegistry } from "#lib/sys/registries/streams/streams.registry.js";
 
 export interface TauriEventStream<T> {
 	/** Register a handler. Returns a cleanup fn — wire into `$effect` return. */
@@ -48,15 +49,24 @@ export function createTauriEvent<T>(eventName: string): TauriEventStream<T> {
 	let count = $state(0);
 	let unlisten: UnlistenFn | null = null;
 	let attaching: Promise<void> | null = null;
+	const streamId = `tauri:${eventName}`;
 
 	async function attach(): Promise<void> {
 		if (unlisten || attaching) {
 			await attaching;
 			return;
 		}
+		streamsRegistry.register(streamId, {
+			id: streamId,
+			type: "tauri-event",
+			source: eventName,
+			status: "connecting",
+			createdAt: new Date(),
+		});
 		attaching = (async () => {
 			try {
 				unlisten = await listen<T>(eventName, (event) => {
+					streamsRegistry.recordMessage(streamId);
 					// Verbatim dev logging — every Tauri event receipt
 					// lands in the session JSONL with its payload. Safe
 					// in release; the Rust pipeline filters DEBUG there.
@@ -76,11 +86,11 @@ export function createTauriEvent<T>(eventName: string): TauriEventStream<T> {
 						fn(event.payload);
 					});
 				});
+				streamsRegistry.updateStatus(streamId, "active");
 			} catch (e) {
-				logError(
-					"sys.streams.tauri-event",
-					`failed to attach ${eventName}: ${e instanceof Error ? e.message : String(e)}`,
-				);
+				const message = e instanceof Error ? e.message : String(e);
+				streamsRegistry.updateStatus(streamId, "error", message);
+				logError("sys.streams.tauri-event", `failed to attach ${eventName}: ${message}`);
 			} finally {
 				attaching = null;
 			}
@@ -99,6 +109,7 @@ export function createTauriEvent<T>(eventName: string): TauriEventStream<T> {
 			);
 		}
 		unlisten = null;
+		streamsRegistry.unregister(streamId);
 	}
 
 	return {

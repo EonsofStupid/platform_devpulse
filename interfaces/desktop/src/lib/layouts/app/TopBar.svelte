@@ -30,7 +30,7 @@ import { ClyffyStatusOrb } from "#lib/domains/clyffy/index.js";
 import { openWindow } from "#lib/sys/bindings/window/index.js";
 import { copyState } from "#lib/sys/copy/index.js";
 import { logError } from "#lib/sys/logger.js";
-import { hrefOf, routeAt, routeCopy } from "#lib/sys/routing/index.js";
+import { hrefOf, hubHere, routeAt, routeCopy } from "#lib/sys/routing/index.js";
 import { globalState } from "#lib/sys/runes/global.svelte.js";
 
 let searchOpen = $state(false);
@@ -88,7 +88,7 @@ function onKey(e: KeyboardEvent): void {
 		<div class="flex items-center gap-2" style:font-family="var(--font-display)">
 			<Parasite size="sm" />
 		</div>
-		<Badge variant="neutral" size="sm">{globalState.current_domain.toUpperCase()}</Badge>
+		<Badge variant="neutral" size="sm">{(hubHere()?.segment ?? "").toUpperCase()}</Badge>
 		<!-- Active-project pill — next to brand so "what am I working on"
 		     is the first thing the user sees after the app identity. -->
 		<ProjectSwitcher />

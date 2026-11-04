@@ -18,6 +18,9 @@ import type { SlotInfo, VoiceLabCopy } from "#lib/sys/generated/bindings.js";
 export type {
 	MicTestResult,
 	SlotInfo,
+	SpeechBinding,
+	SpeechEndpoints,
+	SpeechRole,
 	StsPipelineResult,
 	VoiceInfo,
 	VoiceLabCopy,

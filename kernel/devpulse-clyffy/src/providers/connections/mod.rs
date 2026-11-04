@@ -1,8 +1,12 @@
 //! Persistent, independently credentialed AI endpoint instances.
 //! The engine owns service lifecycle; this module owns AI connection decisions.
 mod execution;
+mod speech;
 mod store;
 pub use execution::{PreparedText, TextTarget};
+pub use speech::{
+    PreparedSpeech, SpeechBinding, SpeechBindingState, SpeechEndpoints, SpeechHearing, SpeechRole,
+};
 #[cfg(test)]
 mod tests;
 mod types;

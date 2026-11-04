@@ -4,6 +4,11 @@
  * @description System layer barrel export
  */
 
+// Feature flags
+export type { FeatureFlags } from "./cfg/flags.js";
+export { flags } from "./cfg/flags.js";
+// Contracts
+export * from "./contracts/index.js";
 // Debug tools (dev-only)
 export * from "./debug/index.js";
 // Terminology (generated from kernel_terms.toml)
@@ -24,3 +29,5 @@ export { getIcon } from "./generated/terminology-icons.js";
 export { initSys, isSysInitialized } from "./init.js";
 // Logger (bridges to Rust tracing)
 export { log, logDebug, logError, logInfo, logWarn } from "./logger.js";
+// Registries
+export * from "./registries/index.js";

@@ -12,6 +12,9 @@ import {
 	type MicTestResult,
 	type Result,
 	type SlotInfo,
+	type SpeechBinding,
+	type SpeechEndpoints,
+	type SpeechRole,
 	type StsPipelineResult,
 	type VoiceInfo,
 	type VoiceProfile,
@@ -26,7 +29,7 @@ function take<T>(result: Result<T, string>): T {
 	return result.data;
 }
 
-/** Speak text through the active TTS slot. */
+/** Speak text through the chosen connection, else the active TTS slot. */
 export async function speak(
 	text: string,
 	voice?: string,
@@ -70,7 +73,8 @@ export async function transcribeAudio(): Promise<string> {
  * Transcribe an audio file on disk.
  *
  * Supported formats: MP3, WAV, FLAC, Vorbis. Decoded to mono 16 kHz PCM
- * via rodio, then passed to the STT slot. Path must be absolute.
+ * via rodio, then passed to the chosen connection, else the STT slot.
+ * Path must be absolute.
  */
 export async function transcribeAudioFile(path: string): Promise<string> {
 	return take(await commands.transcribeAudioFile(path));
@@ -127,7 +131,40 @@ export async function ensureSlotLoaded(slotId: string): Promise<void> {
 	if (result.status === "error") throw new Error(formatLoadError(result.error));
 }
 
-/** Closed-loop round trip: the TTS slot's audio into the STT slot. */
+/** Every speech binding and the adapters one may use. */
+export async function listSpeechEndpoints(): Promise<SpeechEndpoints> {
+	return take(await commands.voiceEndpointsList());
+}
+
+/** The saved connection one speech role runs through; null when none is chosen. */
+export async function getSpeechEndpoint(role: SpeechRole): Promise<SpeechBinding | null> {
+	return take(await commands.voiceEndpointGet(role));
+}
+
+/** Choose the saved connection, at this revision, and model one speech role uses. */
+export async function setSpeechEndpoint(
+	role: SpeechRole,
+	connectionId: string,
+	revision: number,
+	model: string,
+): Promise<SpeechEndpoints> {
+	return take(await commands.voiceEndpointSet(role, connectionId, revision, model));
+}
+
+/** Stop using a connection for one speech role. */
+export async function clearSpeechEndpoint(role: SpeechRole): Promise<SpeechEndpoints> {
+	return take(await commands.voiceEndpointClear(role));
+}
+
+/**
+ * Get one speech role ready: a chosen connection needs no slot, so only a role
+ * with nothing chosen loads its compiled-in slot.
+ */
+export async function ensureSpeechReady(role: SpeechRole, slotId: string): Promise<void> {
+	if (!(await getSpeechEndpoint(role))) await ensureSlotLoaded(slotId);
+}
+
+/** Closed-loop round trip: speech into transcription, through each chosen connection or slot. */
 export async function runSmokeTest(): Promise<VoiceSmokeReport> {
 	return take(await commands.voiceSmokeTest());
 }

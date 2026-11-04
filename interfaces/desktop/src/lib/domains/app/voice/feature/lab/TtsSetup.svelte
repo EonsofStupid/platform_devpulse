@@ -1,5 +1,5 @@
 <!--
-  @file TTS Setup tab — select model, preview voices, set defaults.
+  @file TTS Setup tab — choose a connection or model, preview voices, set defaults.
   @domain voice
 -->
 <script lang="ts">
@@ -14,11 +14,12 @@ import {
 } from "@devpulse/coldlight/components/select";
 import { Slider } from "@devpulse/coldlight/components/slider";
 import { Text } from "@devpulse/coldlight/components/text";
+import { TextField } from "@devpulse/coldlight/components/text-field";
 import { onMount } from "svelte";
 import { fill } from "#lib/sys/copy/index.js";
 import {
 	ensureSlotLoaded,
-	getDefaultVoiceProfile,
+	ensureSpeechReady,
 	getVoiceStatus,
 	listSlots,
 	listVoices,
@@ -30,6 +31,7 @@ import {
 } from "../../data-access/voice.service.js";
 import { voiceState } from "../../data-access/voice.state.svelte.js";
 import { voiceTtsConfigState } from "../../data-access/voice-config.state.svelte.js";
+import { voiceEndpointsState } from "../../data-access/voice-endpoints.state.svelte.js";
 import {
 	describeSlotConfig,
 	type SlotInfo,
@@ -40,6 +42,7 @@ import {
 	type VoiceLabCopy,
 	type VoiceStatusInfo,
 } from "../../util/voice.contract.js";
+import SpeechEndpointSetup from "./SpeechEndpointSetup.svelte";
 
 let { copy }: { copy: VoiceLabCopy } = $props();
 
@@ -50,8 +53,10 @@ let filterGender = $state("all");
 let voiceStatus = $state<VoiceStatusInfo | null>(null);
 let ttsSlot = $state<SlotInfo | null>(null);
 let voiceBrainSlot = $state<SlotInfo | null>(null);
-/** The saved default voice's id, from the assistant config. */
-let defaultVoice = $state<string | null>(null);
+/** The saved default voice's id, the one speaking reads when none is picked. */
+const defaultVoice = $derived(voiceTtsConfigState.config?.default_voice ?? null);
+/** A chosen connection has its own voices, which the registry cannot list. */
+const speakingAtEndpoint = $derived(voiceEndpointsState.binding("tts") !== null);
 let savingDefault = $state(false);
 let fileRunning = $state(false);
 
@@ -71,29 +76,24 @@ function voiceLabelFor(voiceId: string | null): string {
 	return voices.find((voice) => voice.id === voiceId)?.label ?? voiceId;
 }
 
-/** `<engine>:<voice>` → `<voice>`. */
-function voiceIdOf(profile: string): string {
-	return profile.slice(profile.indexOf(":") + 1);
-}
-
 async function refreshVoiceRuntime(): Promise<void> {
 	try {
-		const [voiceList, status, slots, profile] = await Promise.all([
+		const [voiceList, status, slots] = await Promise.all([
 			listVoices(voiceState.selectedTtsSlot),
 			getVoiceStatus(),
 			listSlots(),
-			getDefaultVoiceProfile(),
 		]);
 
 		voiceState.ttsVoices = voiceList;
 		voiceStatus = status;
 		ttsSlot = slots.find((slot) => slot.id === voiceState.selectedTtsSlot) ?? null;
 		voiceBrainSlot = slots.find((slot) => slot.id === VOICE_BRAIN_SLOT) ?? null;
-		defaultVoice = voiceIdOf(profile);
 
-		if (!voiceList.some((voice) => voice.id === voiceState.selectedVoice)) {
-			const saved = voiceList.find((voice) => voice.id === defaultVoice);
-			voiceState.selectedVoice = saved?.id ?? voiceList[0]?.id ?? "";
+		if (status.tts_endpoint) {
+			voiceState.selectedVoice ||= status.active_voice;
+		} else if (!voiceList.some((voice) => voice.id === voiceState.selectedVoice)) {
+			const active = voiceList.find((voice) => voice.id === status.active_voice);
+			voiceState.selectedVoice = active?.id ?? voiceList[0]?.id ?? "";
 		}
 
 		loadError = null;
@@ -111,7 +111,7 @@ onMount(() => {
 
 async function handlePreview(voice: VoiceInfo): Promise<void> {
 	try {
-		await ensureSlotLoaded(voiceState.selectedTtsSlot);
+		await ensureSpeechReady("tts", voiceState.selectedTtsSlot);
 		voiceState.selectedVoice = voice.id;
 		await previewVoice(voice.id, voiceState.selectedTtsSlot);
 		await refreshVoiceRuntime();
@@ -125,7 +125,7 @@ async function handleTranscribeFile(): Promise<void> {
 	try {
 		const path = await pickAudioFile(copy.tts.pick_title);
 		if (!path) return;
-		await ensureSlotLoaded(STT_SLOT);
+		await ensureSpeechReady("stt", STT_SLOT);
 		voiceState.lastTranscript = await transcribeAudioFile(path);
 	} catch (e) {
 		voiceState.error = e instanceof Error ? e.message : String(e);
@@ -140,8 +140,8 @@ async function handleStsRun(): Promise<void> {
 		const path = await pickAudioFile(copy.tts.pick_title);
 		if (!path) return;
 		await Promise.all([
-			ensureSlotLoaded(STT_SLOT),
-			ensureSlotLoaded(voiceState.selectedTtsSlot),
+			ensureSpeechReady("stt", STT_SLOT),
+			ensureSpeechReady("tts", voiceState.selectedTtsSlot),
 			ensureSlotLoaded(STS_BRAIN_SLOT),
 		]);
 		const result = await runStsPipeline(
@@ -170,11 +170,12 @@ async function handleLoadVoiceOutput(): Promise<void> {
 
 async function handleSetDefaultVoice(): Promise<void> {
 	const voice = voices.find((candidate) => candidate.id === voiceState.selectedVoice);
-	if (!voice) return;
+	if (!voice && !speakingAtEndpoint) return;
 	savingDefault = true;
 	try {
-		await setDefaultVoiceProfile(`${voice.engine}:${voice.id}`);
-		voiceTtsConfigState.draft.default_voice = voice.id;
+		// The assistant config names a registry voice; a server's own voice lives in the settings.
+		if (voice) await setDefaultVoiceProfile(`${voice.engine}:${voice.id}`);
+		voiceTtsConfigState.draft.default_voice = voiceState.selectedVoice;
 		await voiceTtsConfigState.save();
 		await refreshVoiceRuntime();
 	} catch (e) {
@@ -186,9 +187,12 @@ async function handleSetDefaultVoice(): Promise<void> {
 </script>
 
 <div class="flex flex-col gap-4">
-	<InlineMessage tone="warning">
-		{fill(copy.tts.endpoint_unavailable, { slot: voiceState.selectedTtsSlot })}
-	</InlineMessage>
+	<SpeechEndpointSetup
+		{copy}
+		role="tts"
+		slot={voiceState.selectedTtsSlot}
+		onChanged={refreshVoiceRuntime}
+	/>
 
 	<div class="flex gap-6">
 		<!-- Left: Live slot cards -->
@@ -280,6 +284,16 @@ async function handleSetDefaultVoice(): Promise<void> {
 				{/each}
 			</div>
 
+			{#if speakingAtEndpoint}
+				<TextField
+					label={copy.endpoints.voice}
+					description={copy.endpoints.voice_hint}
+					value={voiceState.selectedVoice}
+					onValueChange={(voice: string) => (voiceState.selectedVoice = voice)}
+					size="sm"
+				/>
+			{/if}
+
 			<!-- Speed control -->
 			<div class="flex items-center gap-4 mt-4">
 				<Text size="sm" class="w-16">{copy.tts.speed}</Text>
@@ -297,6 +311,26 @@ async function handleSetDefaultVoice(): Promise<void> {
 					{fill(copy.tts.speed_value, { speed: voiceState.speechSpeed.toFixed(2) })}
 				</Text>
 			</div>
+			{#if voiceTtsConfigState.dirty}
+				<div class="flex items-center gap-2">
+					<Button
+						variant="secondary"
+						size="sm"
+						onclick={() => voiceTtsConfigState.save()}
+						disabled={voiceTtsConfigState.saving}
+					>
+						{copy.tts.save}
+					</Button>
+					<Button
+						variant="ghost"
+						size="sm"
+						onclick={() => voiceTtsConfigState.reset()}
+						disabled={voiceTtsConfigState.saving}
+					>
+						{copy.tts.reset}
+					</Button>
+				</div>
+			{/if}
 
 			<!-- Audio file + STS pipeline -->
 			<Card variant="minimal">

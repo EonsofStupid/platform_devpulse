@@ -15,6 +15,10 @@ pub const DEFAULT_LANGUAGE: &str = "";
 pub const DEFAULT_BEAM_SIZE: u32 = 1;
 /// Default voice-activity-detection energy threshold. 0.0..1.0.
 pub const DEFAULT_VAD_THRESHOLD: f32 = 0.5;
+/// Beam width a `high_quality` voice profile asks for at least.
+const HIGH_QUALITY_BEAM_SIZE: u32 = 5;
+/// Widest beam, and what a `best` voice profile asks for.
+const MAX_BEAM_SIZE: u32 = 10;
 
 /// Persisted user STT preferences.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -43,7 +47,7 @@ impl VoiceSttConfig {
         if self.beam_size == 0 {
             self.beam_size = DEFAULT_BEAM_SIZE;
         }
-        self.beam_size = self.beam_size.min(10);
+        self.beam_size = self.beam_size.min(MAX_BEAM_SIZE);
         if !self.vad_threshold.is_finite() {
             self.vad_threshold = DEFAULT_VAD_THRESHOLD;
         }
@@ -51,6 +55,23 @@ impl VoiceSttConfig {
         // Normalize language to trimmed-lowercase; empty means auto-detect.
         self.language = self.language.trim().to_ascii_lowercase();
         self
+    }
+
+    /// The language to ask for; `None` means auto-detect.
+    #[must_use]
+    pub fn language_hint(&self) -> Option<&str> {
+        Some(self.language.as_str()).filter(|language| !language.is_empty())
+    }
+
+    /// The beam width a voice profile's STT quality asks for. A profile only
+    /// ever widens the saved setting. `standard` and anything unknown keep it.
+    #[must_use]
+    pub fn beam_size_for_quality(&self, quality: &str) -> u32 {
+        match quality {
+            "high_quality" => self.beam_size.max(HIGH_QUALITY_BEAM_SIZE),
+            "best" => MAX_BEAM_SIZE,
+            _ => self.beam_size,
+        }
     }
 }
 
@@ -118,5 +139,24 @@ mod tests {
         assert!((saved.vad_threshold - 1.0).abs() < f32::EPSILON);
         assert_eq!(saved.language, "en");
         Ok(())
+    }
+
+    #[test]
+    fn empty_language_means_auto_detect() {
+        let mut cfg = VoiceSttConfig::default();
+        assert_eq!(cfg.language_hint(), None);
+        cfg.language = "fr".into();
+        assert_eq!(cfg.language_hint(), Some("fr"));
+    }
+
+    #[test]
+    fn a_profile_quality_only_widens_the_saved_beam() {
+        let mut cfg = VoiceSttConfig::default();
+        assert_eq!(cfg.beam_size_for_quality("standard"), DEFAULT_BEAM_SIZE);
+        assert_eq!(cfg.beam_size_for_quality("high_quality"), 5);
+        assert_eq!(cfg.beam_size_for_quality("best"), 10);
+        cfg.beam_size = 7;
+        assert_eq!(cfg.beam_size_for_quality("high_quality"), 7);
+        assert_eq!(cfg.beam_size_for_quality("unknown"), 7);
     }
 }

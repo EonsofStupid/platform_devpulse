@@ -10,6 +10,7 @@
  */
 
 import { BLOCK_CATEGORIES, type BlockCategory } from "@devpulse/coldlight/blocks";
+import { type ArtifactId, createArtifactId } from "#lib/sys/contracts/index.js";
 import {
 	getAllowedChildren,
 	getKindDefinition,
@@ -31,6 +32,8 @@ export type PaletteCategory = BlockCategory;
  * Single palette item representing a draggable block.
  */
 export interface PaletteItem {
+	/** The block's platform-wide identity (`common:block:<kind>`) */
+	id: ArtifactId;
 	/** Block kind from taxonomy */
 	kind: string;
 	/** Display label */
@@ -80,6 +83,7 @@ export function kindLabel(kind: string): string {
  */
 function createPaletteItem(kind: string, category: PaletteCategory): PaletteItem {
 	return {
+		id: createArtifactId("common", "block", kind),
 		kind,
 		label: kindLabel(kind),
 		category,

@@ -29,11 +29,18 @@ import { Button } from "@devpulse/coldlight/components/button";
 import { Text } from "@devpulse/coldlight/components/text";
 import { cn, stack } from "@devpulse/coldlight/utils";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-svelte";
+import { flags } from "#lib/sys/cfg/flags.js";
 import { copyState } from "#lib/sys/copy/index.js";
-import { hrefOf, type RouteNode, routeCopy } from "#lib/sys/routing/index.js";
+import { groupOf, hrefOf, type RouteNode, routeCopy } from "#lib/sys/routing/index.js";
 import { globalState } from "#lib/sys/runes/global.svelte.js";
 import { page } from "$app/state";
-import { footerEntries, groupOf, hubEntries, isActiveRoute, submenuOf } from "./sidebar-entries.js";
+import {
+	footerEntries,
+	hubEntries,
+	isActiveRoute,
+	isComingSoon,
+	submenuOf,
+} from "./sidebar-entries.js";
 
 const group = $derived(groupOf(page.route.id));
 const hubs = $derived(hubEntries(group));
@@ -48,7 +55,6 @@ function handleHubClick(hub: RouteNode): void {
 	} else {
 		globalState.closeSubmenu();
 	}
-	globalState.setDomain(hub.segment);
 }
 
 const isExpanded = $derived(globalState.sidebar_mode === "expanded");
@@ -58,6 +64,8 @@ const isExpanded = $derived(globalState.sidebar_mode === "expanded");
 	{@const copy = routeCopy(node)}
 	{@const label = copy?.label ?? ""}
 	{@const Icon = node.nav.icon}
+	{@const comingSoon = isComingSoon(node)}
+	{@const title = comingSoon && copy?.badge ? `${label}: ${copy.badge}` : label}
 	<a href={hrefOf(node)} {onclick} class="contents">
 		<Button
 			variant={isActive(node) ? "primary" : "ghost"}
@@ -67,9 +75,9 @@ const isExpanded = $derived(globalState.sidebar_mode === "expanded");
 				isExpanded ? "w-full justify-start gap-3 px-3 py-2" : "h-11 w-11 justify-self-center",
 				extraClass,
 			)}
-			aria-label={label}
+			aria-label={title}
 			aria-current={isActive(node) ? "page" : undefined}
-			title={label}
+			{title}
 		>
 			{#if Icon}
 				<Icon size={20} />
@@ -77,7 +85,12 @@ const isExpanded = $derived(globalState.sidebar_mode === "expanded");
 			{#if isExpanded}
 				<Text size="sm" color="secondary" class="truncate">{label}</Text>
 			{/if}
-			{#if node.nav.badge?.()}
+			{#if comingSoon}
+				<span
+					class="absolute right-1.5 top-1.5 h-2 w-2 rounded-full"
+					style="background: var(--accent-warning-main)"
+				></span>
+			{:else if node.nav.badge?.()}
 				<span
 					aria-label={copy?.badge ?? undefined}
 					class="absolute right-1.5 top-1.5 h-2 w-2 rounded-full"
@@ -95,7 +108,7 @@ const isExpanded = $derived(globalState.sidebar_mode === "expanded");
 		{/each}
 	</div>
 
-	{#if import.meta.env.DEV && footer.length > 0}
+	{#if flags.DEV_MODE && footer.length > 0}
 		<div class={`${stack({ gap: "1" })} border-t border-[var(--border-soft)] pt-1`}>
 			{#each footer as pinned (pinned.path)}
 				{@render entry(pinned, "")}

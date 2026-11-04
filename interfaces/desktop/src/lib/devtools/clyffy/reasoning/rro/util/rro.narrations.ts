@@ -10,7 +10,9 @@
  */
 
 export interface Narration {
+	/** Short phrasings — what an end user sees. */
 	layman: string[];
+	/** Educational copy — why this state matters, what to watch. */
 	learning?: string[];
 }
 

@@ -12,8 +12,13 @@ const SCHEMA: &str = concat!(
     "CREATE TABLE sessions (id TEXT PRIMARY KEY);",
     include_str!(
         "../../../../../systems/devpulse-engine/migrations/user/0005_chat_endpoint_sessions.sql"
+    ),
+    include_str!(
+        "../../../../../systems/devpulse-engine/migrations/user/0007_speech_endpoint_bindings.sql"
     )
 );
+
+mod speech;
 
 #[derive(Default)]
 struct Vault {
