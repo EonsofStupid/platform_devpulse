@@ -36,6 +36,9 @@ pub struct Workspace {
     /// replaces the child PATH; retain Node so Tauri's frontend scripts can
     /// run `node` after the native build environment is activated.
     node_runtime_bin: Option<PathBuf>,
+    /// The package-manager directory found at startup. Tauri runs nested
+    /// lifecycle scripts that invoke `pnpm` again, so retain its shim too.
+    package_manager_bin: Option<PathBuf>,
 }
 
 impl Workspace {
@@ -51,15 +54,21 @@ impl Workspace {
             .join("desktop")
             .join("node_modules")
             .join(".bin");
-        let node_runtime_bin = env::var_os("PATH")
+        let inherited_path = env::var_os("PATH");
+        let node_runtime_bin = inherited_path
             .as_deref()
             .and_then(|path| which::which_in("node", Some(path), &root).ok())
             .and_then(|node| node.parent().map(Path::to_path_buf));
+        let package_manager_bin = inherited_path
+            .as_deref()
+            .and_then(|path| which::which_in("pnpm", Some(path), &root).ok())
+            .and_then(|pnpm| pnpm.parent().map(Path::to_path_buf));
 
         Ok(Self {
             root,
             node_bin,
             node_runtime_bin,
+            package_manager_bin,
         })
     }
 
@@ -97,6 +106,7 @@ impl Workspace {
         let inherited = crate::child_env::var_os("PATH").unwrap_or_default();
         let dirs = std::iter::once(self.node_bin.clone())
             .chain(self.node_runtime_bin.iter().cloned())
+            .chain(self.package_manager_bin.iter().cloned())
             .chain(env::split_paths(&inherited));
         env::join_paths(dirs).unwrap_or(inherited)
     }
