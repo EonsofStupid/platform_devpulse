@@ -6,8 +6,8 @@
 		"hover": {
 			"$value": {
 				"colorSpace": "oklch",
-				"components": [1.0032, 0.0305, 28.88],
-				"alpha": 0.059,
+				"components": [1, 0, 0],
+				"alpha": 0.06,
 				"hex": "#ffffff"
 			},
 			"$description": "Hover overlay — subtle lighten."
@@ -15,8 +15,8 @@
 		"active": {
 			"$value": {
 				"colorSpace": "oklch",
-				"components": [1.0032, 0.0305, 28.88],
-				"alpha": 0.102,
+				"components": [1, 0, 0],
+				"alpha": 0.1,
 				"hex": "#ffffff"
 			},
 			"$description": "Active/pressed overlay."
@@ -24,8 +24,8 @@
 		"selected": {
 			"$value": {
 				"colorSpace": "oklch",
-				"components": [1.0032, 0.0305, 28.88],
-				"alpha": 0.149,
+				"components": [1, 0, 0],
+				"alpha": 0.15,
 				"hex": "#ffffff"
 			},
 			"$description": "Selected/checked overlay."
@@ -33,8 +33,8 @@
 		"disabled": {
 			"$value": {
 				"colorSpace": "oklch",
-				"components": [1.0032, 0.0305, 28.88],
-				"alpha": 0.031,
+				"components": [1, 0, 0],
+				"alpha": 0.03,
 				"hex": "#ffffff"
 			},
 			"$description": "Disabled state overlay."

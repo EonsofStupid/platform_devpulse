@@ -407,9 +407,9 @@ async function handleClear(): Promise<void> {
 		border: 0.0625rem solid var(--border-subtle, #1a2030);
 		background: var(--surface-inset, #080d18);
 		color: var(--text-primary, #e6eaf3);
-		font-family: var(--font-family-mono, ui-monospace, monospace);
+		font-family: var(--font-mono, ui-monospace, monospace);
 		font-size: 0.875rem;
-		transition: border-color var(--motion-duration-fast, 150ms);
+		transition: border-color var(--duration-fast, 150ms);
 	}
 	.token-input:focus {
 		outline: none;
@@ -433,9 +433,9 @@ async function handleClear(): Promise<void> {
 		border-radius: var(--radius-md, 0.5rem);
 		cursor: pointer;
 		transition:
-			color var(--motion-duration-fast, 150ms),
-			border-color var(--motion-duration-fast, 150ms),
-			background var(--motion-duration-fast, 150ms);
+			color var(--duration-fast, 150ms),
+			border-color var(--duration-fast, 150ms),
+			background var(--duration-fast, 150ms);
 	}
 	.inline-action:hover:not(:disabled) {
 		color: var(--accent-cyan-main, #58c4e6);
@@ -459,7 +459,7 @@ async function handleClear(): Promise<void> {
 			var(--surface-inset, #080d18)
 		);
 		color: var(--accent-teal-main, #14b8a6);
-		font-family: var(--font-family-mono, ui-monospace, monospace);
+		font-family: var(--font-mono, ui-monospace, monospace);
 		font-size: 0.8125rem;
 		align-self: flex-start;
 	}
@@ -475,7 +475,7 @@ async function handleClear(): Promise<void> {
 		border-radius: 999px;
 		background: var(--accent-teal-main, #14b8a6);
 		color: var(--surface-base, #04080f);
-		font-family: var(--font-family-sans, system-ui, sans-serif);
+		font-family: var(--font-sans, system-ui, sans-serif);
 		font-size: 0.6875rem;
 		font-weight: 700;
 		letter-spacing: 0.05em;

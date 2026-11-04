@@ -10,6 +10,8 @@ class GlobalState {
 	// Chat mode. The chat window itself is a native OS window: open,
 	// minimize and close are window operations, not UI state.
 	chat_mode = $state<ChatMode>("general");
+	/** The floating chat panel inside the main window (the owner's ChatOverlay). */
+	chat_overlay_open = $state<boolean>(false);
 
 	setDomain(domain: string): void {
 		this.current_domain = domain;
@@ -41,6 +43,10 @@ class GlobalState {
 
 	setMode(mode: ChatMode): void {
 		this.chat_mode = mode;
+	}
+
+	toggleChatOverlay(): void {
+		this.chat_overlay_open = !this.chat_overlay_open;
 	}
 }
 

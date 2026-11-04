@@ -18,12 +18,13 @@ import type { UseMenuProps, UseMenuReturn } from "./menu.types.js";
 
 export function useMenu(props: UseMenuProps = {}): UseMenuReturn {
 	const id = uid("menu");
+	const triggerId = `${id}-trigger`;
 	const contentId = `${id}-content`;
 
 	let isOpen = $state(props.open ?? false);
 	let contentEl: HTMLElement | null = null;
 
-	function setOpen(v: boolean): void {
+	function applyOpen(v: boolean, returnFocus: boolean): void {
 		if (v === isOpen) return;
 		isOpen = v;
 		props.onOpenChange?.(v);
@@ -35,7 +36,14 @@ export function useMenu(props: UseMenuProps = {}): UseMenuReturn {
 				);
 				first?.focus();
 			});
+		} else if (returnFocus) {
+			// APG: closing returns focus to the trigger. An outside press leaves it where the press put it.
+			document.getElementById(triggerId)?.focus();
 		}
+	}
+
+	function setOpen(v: boolean): void {
+		applyOpen(v, true);
 	}
 
 	function getItems(): HTMLElement[] {
@@ -70,6 +78,7 @@ export function useMenu(props: UseMenuProps = {}): UseMenuReturn {
 
 	const trigger = $derived({
 		...menuAnatomy.attrs.trigger,
+		id: triggerId,
 		type: "button" as const,
 		"aria-expanded": isOpen,
 		"aria-haspopup": "menu" as const,
@@ -77,7 +86,7 @@ export function useMenu(props: UseMenuProps = {}): UseMenuReturn {
 		"data-state": isOpen ? ("open" as const) : ("closed" as const),
 		onclick: () => setOpen(!isOpen),
 		onkeydown: (e: KeyboardEvent) => {
-			if (e.key === kbd.ARROW_DOWN) {
+			if (e.key === kbd.ARROW_DOWN || e.key === kbd.ARROW_UP) {
 				e.preventDefault();
 				setOpen(true);
 			}
@@ -89,7 +98,11 @@ export function useMenu(props: UseMenuProps = {}): UseMenuReturn {
 		id: contentId,
 		role: "menu" as const,
 		"aria-label": props["aria-label"],
+		"aria-labelledby":
+			props["aria-label"] === undefined && !props.triggerless ? triggerId : undefined,
+		"aria-orientation": "vertical" as const,
 		"data-state": isOpen ? ("open" as const) : ("closed" as const),
+		tabindex: -1 as const,
 		onkeydown: handleContentKeydown,
 	});
 
@@ -104,7 +117,8 @@ export function useMenu(props: UseMenuProps = {}): UseMenuReturn {
 		useDismissLayer({
 			enabled: () => isOpen,
 			node: () => contentEl,
-			onDismiss: () => setOpen(false),
+			exclude: () => [document.getElementById(triggerId)],
+			onDismiss: () => applyOpen(false, false),
 		});
 		usePresence({ open: () => isOpen, node: () => contentEl });
 		return {
@@ -129,8 +143,13 @@ export function useMenu(props: UseMenuProps = {}): UseMenuReturn {
 			return separator;
 		},
 
-		getItem(value: string, options?: { disabled?: boolean }) {
+		getItem(value: string, options?: { disabled?: boolean; onSelect?: () => void }) {
 			const isDisabled = options?.disabled ?? false;
+			const activate = () => {
+				options?.onSelect?.();
+				props.onSelect?.(value);
+				setOpen(false);
+			};
 			return {
 				...menuAnatomy.attrs.item,
 				role: "menuitem" as const,
@@ -139,17 +158,13 @@ export function useMenu(props: UseMenuProps = {}): UseMenuReturn {
 				"data-disabled": isDisabled ? ("" as const) : undefined,
 				"aria-disabled": isDisabled || undefined,
 				onclick: () => {
-					if (!isDisabled) {
-						props.onSelect?.(value);
-						setOpen(false);
-					}
+					if (!isDisabled) activate();
 				},
 				onkeydown: (e: KeyboardEvent) => {
 					if (isDisabled) return;
 					if (e.key === kbd.ENTER || e.key === kbd.SPACE) {
 						e.preventDefault();
-						props.onSelect?.(value);
-						setOpen(false);
+						activate();
 					}
 				},
 			};

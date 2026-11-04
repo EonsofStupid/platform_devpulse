@@ -11,6 +11,7 @@
  * consumers get autocomplete for every token atom in this category.
  */
 
+import brandAmberLeaf from './brand-amber.tokens.json' with { type: 'json' };
 import brandAzureLeaf from './brand-azure.tokens.json' with { type: 'json' };
 import brandBlueLeaf from './brand-blue.tokens.json' with { type: 'json' };
 import brandCoralLeaf from './brand-coral.tokens.json' with { type: 'json' };
@@ -19,10 +20,13 @@ import brandElectricLeaf from './brand-electric.tokens.json' with { type: 'json'
 import brandGoldLeaf from './brand-gold.tokens.json' with { type: 'json' };
 import brandGreenLeaf from './brand-green.tokens.json' with { type: 'json' };
 import brandHotpinkLeaf from './brand-hotpink.tokens.json' with { type: 'json' };
+import brandLimeLeaf from './brand-lime.tokens.json' with { type: 'json' };
+import brandPinkLeaf from './brand-pink.tokens.json' with { type: 'json' };
 import brandSalmonLeaf from './brand-salmon.tokens.json' with { type: 'json' };
 import brandVioletLeaf from './brand-violet.tokens.json' with { type: 'json' };
 
 export const brandAccent = {
+	'brand-amber': brandAmberLeaf.color['brand-amber'],
 	'brand-azure': brandAzureLeaf.color['brand-azure'],
 	'brand-blue': brandBlueLeaf.color['brand-blue'],
 	'brand-coral': brandCoralLeaf.color['brand-coral'],
@@ -31,6 +35,8 @@ export const brandAccent = {
 	'brand-gold': brandGoldLeaf.color['brand-gold'],
 	'brand-green': brandGreenLeaf.color['brand-green'],
 	'brand-hotpink': brandHotpinkLeaf.color['brand-hotpink'],
+	'brand-lime': brandLimeLeaf.color['brand-lime'],
+	'brand-pink': brandPinkLeaf.color['brand-pink'],
 	'brand-salmon': brandSalmonLeaf.color['brand-salmon'],
 	'brand-violet': brandVioletLeaf.color['brand-violet'],
 } as const;

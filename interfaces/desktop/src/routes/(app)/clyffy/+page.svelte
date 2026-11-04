@@ -136,7 +136,7 @@ const activity = $derived(clyffyStatus.activity);
 						<Text weight="semibold" size="sm">RAG Pipeline</Text>
 						<div class={hstack({ justify: "between" })}>
 							<Text size="xs" color="secondary">Documents</Text>
-							<Text size="xs">0</Text>
+							<Text size="xs" color="muted">--</Text>
 						</div>
 						<div class={hstack({ justify: "between" })}>
 							<Text size="xs" color="secondary">Embeddings</Text>
@@ -147,7 +147,7 @@ const activity = $derived(clyffyStatus.activity);
 						<Text weight="semibold" size="sm">CAG Pipeline</Text>
 						<div class={hstack({ justify: "between" })}>
 							<Text size="xs" color="secondary">Cache Entries</Text>
-							<Text size="xs">0</Text>
+							<Text size="xs" color="muted">--</Text>
 						</div>
 						<div class={hstack({ justify: "between" })}>
 							<Text size="xs" color="secondary">Hit Rate</Text>
@@ -158,7 +158,7 @@ const activity = $derived(clyffyStatus.activity);
 						<Text weight="semibold" size="sm">HyDE Generator</Text>
 						<div class={hstack({ justify: "between" })}>
 							<Text size="xs" color="secondary">Hypotheticals</Text>
-							<Text size="xs">0</Text>
+							<Text size="xs" color="muted">--</Text>
 						</div>
 						<div class={hstack({ justify: "between" })}>
 							<Text size="xs" color="secondary">Accuracy</Text>

@@ -4,15 +4,15 @@
 		"$type": "color",
 		"$description": "Gradient layer fills.",
 		"animated-1": {
-			"$value": { "colorSpace": "oklch", "components": [0.1407, 0.0433, 220.15], "alpha": 0.6, "hex": "#000c11" },
+			"$value": { "colorSpace": "oklch", "components": [0.24, 0.07, 183], "alpha": 0.6, "hex": "#012521" },
 			"$description": "Primary gradient layer — slow 25s ease-in-out infinite shift."
 		},
 		"animated-2": {
-			"$value": { "colorSpace": "oklch", "components": [0.1206, 0.0595, 280.32], "alpha": 0.4, "hex": "#04021c" },
+			"$value": { "colorSpace": "oklch", "components": [0.24, 0.07, 302], "alpha": 0.4, "hex": "#26153a" },
 			"$description": "Secondary gradient layer — reverse shift, mix-blend-mode overlay."
 		},
 		"teal-purple": {
-			"$value": { "colorSpace": "oklch", "components": [0.1149, 0.0423, 190.54], "alpha": 0.702, "hex": "#000706" },
+			"$value": { "colorSpace": "oklch", "components": [0.24, 0.07, 240], "alpha": 0.702, "hex": "#032235" },
 			"$description": "Teal-to-purple gradient midpoint for button primary."
 		},
 		"cyan-green": {

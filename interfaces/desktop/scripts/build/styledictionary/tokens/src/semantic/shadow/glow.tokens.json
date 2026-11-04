@@ -22,9 +22,9 @@
 			"$value": {
 				"color": {
 					"colorSpace": "oklch",
-					"components": [0.586, 0.0624, 164.59],
+					"components": [0.55, 0.18, 180],
 					"alpha": 0.702,
-					"hex": "#588873"
+					"hex": "#138374"
 				},
 				"offsetX": { "value": 0, "unit": "rem" },
 				"offsetY": { "value": 0, "unit": "rem" },
@@ -37,9 +37,9 @@
 			"$value": {
 				"color": {
 					"colorSpace": "oklch",
-					"components": [0.5517, 0.1399, 232.9],
+					"components": [0.5575, 0.2525, 302.32],
 					"alpha": 0.702,
-					"hex": "#027ca9"
+					"hex": "#9333ea"
 				},
 				"offsetX": { "value": 0, "unit": "rem" },
 				"offsetY": { "value": 0, "unit": "rem" },
@@ -52,9 +52,9 @@
 			"$value": {
 				"color": {
 					"colorSpace": "oklch",
-					"components": [0.5513, 0.1128, 329.06],
+					"components": [0.55, 0.2, 330],
 					"alpha": 0.702,
-					"hex": "#965892"
+					"hex": "#ad36a7"
 				},
 				"offsetX": { "value": 0, "unit": "rem" },
 				"offsetY": { "value": 0, "unit": "rem" },
@@ -67,9 +67,9 @@
 			"$value": {
 				"color": {
 					"colorSpace": "oklch",
-					"components": [0.5507, 0.1776, 16.41],
+					"components": [0.55, 0.18, 25],
 					"alpha": 0.702,
-					"hex": "#c3354c"
+					"hex": "#c53637"
 				},
 				"offsetX": { "value": 0, "unit": "rem" },
 				"offsetY": { "value": 0, "unit": "rem" },
@@ -82,9 +82,9 @@
 			"$value": {
 				"color": {
 					"colorSpace": "oklch",
-					"components": [0.5844, 0.0833, 202.74],
+					"components": [0.58, 0.1, 220],
 					"alpha": 0.6,
-					"hex": "#318a91"
+					"hex": "#1988a3"
 				},
 				"offsetX": { "value": 0, "unit": "rem" },
 				"offsetY": { "value": 0, "unit": "rem" },
@@ -97,9 +97,9 @@
 			"$value": {
 				"color": {
 					"colorSpace": "oklch",
-					"components": [0.5725, 0.0715, 136.04],
+					"components": [0.55, 0.18, 160],
 					"alpha": 0.702,
-					"hex": "#658257"
+					"hex": "#168659"
 				},
 				"offsetX": { "value": 0, "unit": "rem" },
 				"offsetY": { "value": 0, "unit": "rem" },

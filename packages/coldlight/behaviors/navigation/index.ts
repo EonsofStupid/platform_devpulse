@@ -13,9 +13,13 @@ export { accordionAnatomy, useAccordion } from "./accordion/index.js";
 export type * from "./breadcrumbs/index.js";
 // --- breadcrumbs ---
 export { breadcrumbsAnatomy, useBreadcrumbs } from "./breadcrumbs/index.js";
-
+export type * from "./context-menu/index.js";
+// --- context-menu ---
+export { contextMenuAnatomy, useContextMenu } from "./context-menu/index.js";
 // --- data-table ---
 export { useDataTable } from "./data-table/index.js";
+// --- dropdown-menu ---
+export { dropdownMenuAnatomy } from "./dropdown-menu/index.js";
 export type * from "./grid-list/index.js";
 // --- grid-list ---
 export { gridListAnatomy, useGridList } from "./grid-list/index.js";
@@ -28,6 +32,9 @@ export { useLinkPreview } from "./link-preview/index.js";
 export type * from "./menu/index.js";
 // --- menu ---
 export { menuAnatomy, useMenu } from "./menu/index.js";
+export type * from "./nav-item/index.js";
+// --- nav-item ---
+export { navItemAnatomy, useNavItem } from "./nav-item/index.js";
 
 // --- pagination ---
 export { usePagination } from "./pagination/index.js";

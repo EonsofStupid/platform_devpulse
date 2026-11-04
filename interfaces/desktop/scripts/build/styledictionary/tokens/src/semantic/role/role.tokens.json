@@ -1,10 +1,10 @@
 {
-	"$description": "Hand-authored Tier-2 role bindings. Roles are intent (primary/secondary/danger/success/warning/info/muted); each is a layman-readable pointer at a palette or signal seed. The visual editor rebinds role -> palette without touching components. Three primaries (main/alt/deep) ship as the brand floor — teal, deep purple, deep blue. Same shape as accent: { main, glow, fill, fg } with -alt- / -deep- sibling variants where roles need siblings.",
+	"$description": "Hand-authored Tier-2 role bindings. Roles are intent (primary/secondary/danger/success/warning/info/muted); each is a layman-readable pointer at a palette or signal seed. The visual editor rebinds role -> palette without touching components. Three primaries (main/alt/deep) ship as the brand floor — blue, deep purple, deep blue. Same shape as accent: { main, glow, fill, fg } with -alt- / -deep- sibling variants where roles need siblings.",
 
 	"primary": {
 		"$type": "color",
 		"$description": "Lead brand role. Three independent primaries — main (brand blue, hue 240), alt (deep purple), deep (deep blue). CTAs MUST be blue per locked product requirement #6 (project_model_loader_requirements.md): 'Blue tint — stop shipping black-and-white UI · CTAs must be BLUE.' Rebind by swapping the $value reference; components keep working.",
-		"main":      { "$value": "{accent.blue.main}",       "$description": "Primary lead — bound to brand blue (hue 240)." },
+		"main":      { "$value": "{color.brand-blue.500}",   "$description": "Primary lead — brand blue (hue 240), stop 500: light labels hold their contrast on it, which they do not on the owner's brighter #3ea4ea (accent.blue.main)." },
 		"glow":      { "$value": "{accent.blue.glow}",       "$description": "Primary lead glow." },
 		"fill":      { "$value": "{accent.blue.fill}",       "$description": "Primary lead area fill." },
 		"fg":        { "$value": "{text.primary}",           "$description": "Foreground / on-primary text." },
@@ -22,10 +22,10 @@
 
 	"secondary": {
 		"$type": "color",
-		"$description": "Secondary brand surface — paired with primary. Default: ember.",
-		"main": { "$value": "{accent.ember.main}", "$description": "Secondary indicator — bound to ember." },
-		"glow": { "$value": "{accent.ember.glow}", "$description": "Secondary glow." },
-		"fill": { "$value": "{accent.ember.fill}", "$description": "Secondary area fill." },
+		"$description": "Secondary brand surface — paired with primary. Default: the owner's purple.",
+		"main": { "$value": "{accent.purple.main}", "$description": "Secondary indicator — bound to purple." },
+		"glow": { "$value": "{accent.purple.glow}", "$description": "Secondary glow." },
+		"fill": { "$value": "{accent.purple.fill}", "$description": "Secondary area fill." },
 		"fg":   { "$value": "{text.primary}",      "$description": "Foreground / on-secondary text." }
 	},
 

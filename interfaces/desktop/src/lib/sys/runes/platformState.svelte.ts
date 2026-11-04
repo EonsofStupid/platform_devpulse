@@ -16,6 +16,7 @@
  * - All intervals and listeners are tracked and cleaned up.
  */
 
+import { getVersion } from "@tauri-apps/api/app";
 import { invoke } from "@tauri-apps/api/core";
 import { signalFabric } from "$lib/sys/events/signal-fabric.js";
 import type {
@@ -34,7 +35,8 @@ export type SubsystemState = "pending" | "loading" | "ready" | "skipped" | "fail
 export interface SubsystemInfo {
 	name: string;
 	state: SubsystemState;
-	latencyMs: number | null;
+	/** How long the step took, in microseconds, as Rust measured it. */
+	latencyUs: number | null;
 	message: string | null;
 	friendlyName: string;
 }
@@ -98,6 +100,10 @@ function mapInitStatus(status: InitStatus): SubsystemState {
 class PlatformState {
 	phase = $state<BootPhase>("initializing");
 	subsystems = $state<Map<string, SubsystemInfo>>(new Map());
+	/** Every step change in the order it arrived: the technical boot view's log. */
+	bootEvents = $state<InitEvent[]>([]);
+	/** This build's version, from the app itself; null until the bridge answers. */
+	appVersion = $state<string | null>(null);
 	health = $state<SystemHealth | null>(null);
 	error = $state<string | null>(null);
 
@@ -173,6 +179,24 @@ class PlatformState {
 		return Math.round((ready / total) * 100);
 	}
 
+	/** The step Rust is running right now, if any. */
+	get currentStep(): string | null {
+		for (let i = this.bootEvents.length - 1; i >= 0; i--) {
+			const step = this.bootEvents[i].step;
+			if (this.subsystems.get(step)?.state === "loading") return step;
+		}
+		return null;
+	}
+
+	/** Time spent in every step so far, in microseconds. */
+	get totalLatencyUs(): number {
+		let total = 0;
+		this.subsystems.forEach((info) => {
+			total += info.latencyUs ?? 0;
+		});
+		return total;
+	}
+
 	get connectionStatus(): "online" | "offline" | "hybrid" {
 		if (!this.isReady) return "offline";
 		switch (this.health?.status) {
@@ -227,6 +251,7 @@ class PlatformState {
 		try {
 			await waitForTauri();
 			markIpcReady(); // Flush buffered logs to Rust
+			void this.loadAppVersion();
 		} catch (e) {
 			logError("boot", `Tauri IPC bridge unavailable: ${e}`);
 			this.phase = "failed";
@@ -270,7 +295,7 @@ class PlatformState {
 			if (
 				!known ||
 				known.state !== mapInitStatus(step.status) ||
-				known.latencyMs !== step.latency_us
+				known.latencyUs !== step.latency_us
 			) {
 				this.applyEvent(step);
 			}
@@ -315,13 +340,14 @@ class PlatformState {
 		const info: SubsystemInfo = {
 			name: event.step,
 			state,
-			latencyMs: event.latency_us,
+			latencyUs: event.latency_us,
 			message: event.message,
 			friendlyName,
 		};
 		const next = new Map(this.subsystems);
 		next.set(event.step, info);
 		this.subsystems = next;
+		this.bootEvents = [...this.bootEvents, event];
 
 		// Update the human-readable step label
 		if (state === "loading") {
@@ -331,6 +357,14 @@ class PlatformState {
 		} else if (state === "failed") {
 			this.bootStepLabel = `${friendlyName} failed`;
 			logError("boot", `Subsystem failed: step=${event.step} message=${event.message ?? "none"}`);
+		}
+	}
+
+	private async loadAppVersion(): Promise<void> {
+		try {
+			this.appVersion = await getVersion();
+		} catch (e) {
+			logWarn("boot", `could not read the app version: ${e}`);
 		}
 	}
 

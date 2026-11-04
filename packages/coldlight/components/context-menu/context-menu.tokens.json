@@ -1,0 +1,72 @@
+{
+	"$description": "ContextMenu's tokens (plan 0006 §0s). The build generates styles/components/kinds/context-menu.css and context-menu.generated.ts from the context-menu group. Layout and values from the owner's design/shortcodes/components/context-menu.css and its recipe's sizes.",
+	"context-menu": {
+		"$description": "Styles the open menu. Each variant is a surface role read from the family in scope, as Popover's panel is; the default is elevated. The items, separators and labels are its parts.",
+		"$extensions": {
+			"com.coldlight": {
+				"slot": "content",
+				"accepts": ["surface", "text", "frame"],
+				"defaults": { "variant": "elevated", "size": "md" }
+			}
+		},
+		"base": {
+			"border-style": { "$value": "solid", "$type": "strokeStyle" },
+			"border-width": { "$value": "0.0625rem", "$type": "dimension" },
+			"border-radius": { "$value": "{radius.md}", "$type": "dimension" },
+			"min-width": { "$value": "8rem", "$type": "dimension" }
+		},
+		"variant": {
+			"elevated": { "$extensions": { "com.coldlight": { "role": "elevated" } } },
+			"deep": { "$extensions": { "com.coldlight": { "role": "deep" } } },
+			"minimal": { "$extensions": { "com.coldlight": { "role": "minimal" } } },
+			"solid": { "$extensions": { "com.coldlight": { "role": "solid" } } },
+			"glow": { "$extensions": { "com.coldlight": { "role": "glow" } } },
+			"muted": { "$extensions": { "com.coldlight": { "role": "muted" } } }
+		},
+		"size": {
+			"sm": {
+				"padding": { "$value": "0.75rem", "$type": "dimension" },
+				"font-size": { "$value": "0.875rem", "$type": "dimension" }
+			},
+			"md": {
+				"padding": { "$value": "1rem", "$type": "dimension" },
+				"font-size": { "$value": "0.875rem", "$type": "dimension" }
+			},
+			"lg": {
+				"padding": { "$value": "1.5rem", "$type": "dimension" },
+				"font-size": { "$value": "1rem", "$type": "dimension" }
+			}
+		},
+		"part": {
+			"item": {
+				"cursor": { "$value": "default" },
+				"border-radius": { "$value": "{radius.sm}", "$type": "dimension" },
+				"padding": { "$value": "{space.1} {space.2}" },
+				"color": { "$value": "{text.primary}", "$type": "color" },
+				"state": {
+					"hover": {
+						"background-color": { "$value": "{interaction.hover}", "$type": "color" }
+					},
+					"focus-visible": {
+						"background-color": { "$value": "{interaction.active}", "$type": "color" },
+						"outline-style": { "$value": "none" }
+					},
+					"disabled": {
+						"opacity": { "$value": 0.5, "$type": "number" },
+						"cursor": { "$value": "not-allowed" }
+					}
+				}
+			},
+			"separator": {
+				"height": { "$value": "0.0625rem", "$type": "dimension" },
+				"margin": { "$value": "{space.1}", "$type": "dimension" },
+				"background-color": { "$value": "{interaction.hover}", "$type": "color" }
+			},
+			"group-label": {
+				"padding": { "$value": "{space.1} {space.2}" },
+				"font-weight": { "$value": 600, "$type": "fontWeight" },
+				"color": { "$value": "{text.primary}", "$type": "color" }
+			}
+		}
+	}
+}

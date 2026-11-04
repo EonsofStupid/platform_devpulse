@@ -16,11 +16,18 @@ export { default as WizardInfoPopup } from "./components/WizardInfoPopup.svelte"
 
 // Boot-time bridge (wired by routes/+layout.svelte)
 export { bootstrapDownloadBridge } from "./download-bootstrap.js";
+export { default as LocalModelSetup } from "./LocalModelSetup.svelte";
+export { default as SetupWizard } from "./SetupWizard.svelte";
 export { default as SetupWizardOverlay } from "./SetupWizardOverlay.svelte";
+export { default as ModelLoaderStep } from "./steps/ModelLoaderStep.svelte";
+export { default as ModelsStep } from "./steps/ModelsStep.svelte";
+export { default as SearchBrowseStep } from "./steps/SearchBrowseStep.svelte";
 
 // Service
 export {
 	assignAndLoad,
+	autoAssignAllSlots,
+	bulkDownloadAndAssign,
 	cancelActiveDownload,
 	checkOnboardingComplete,
 	downloadAndAssign,
@@ -28,8 +35,10 @@ export {
 	evaluateContinueGate,
 	fetchRecommendations,
 	listAllPresets,
+	loadWizardCopy,
 	markOnboardingComplete,
 	selectPreset,
+	setUpRecommended,
 	startHardwareScan,
 	testInference,
 } from "./wizard.service.js";

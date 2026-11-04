@@ -82,17 +82,23 @@ const RAMP_LIGHTNESS = [0.97, 0.89, 0.81, 0.73, 0.65, 0.55, 0.46, 0.37, 0.28, 0.
 const RAMP_STOPS = ['50', '100', '200', '300', '400', '500', '600', '700', '800', '900', '950'];
 
 /**
- * Brand primaries — DevPulse's 6 core hub colours. Hue in degrees,
- * chroma held constant across all 11 lightness stops for perceptual
- * uniformity.
+ * The owner's ramp shape (design/tokens/src/color/primitive.json): chroma rises
+ * to its peak at stop 500 and falls away toward both ends, as a share of the peak.
+ */
+const OWNER_CHROMA_CURVE = [0.111, 0.306, 0.511, 0.689, 0.867, 1, 0.844, 0.661, 0.472, 0.278, 0.167];
+
+/**
+ * Brand primaries — DevPulse's 6 core hub colours. Hue in degrees; `peak` is the
+ * chroma at stop 500, shaped by OWNER_CHROMA_CURVE. Teal's hue is the owner's
+ * primary teal rgba(65, 240, 219); purple's reaches his rgba(147, 51, 234) at 500.
  */
 const BRAND_HUES = [
-	{ id: 'teal', hue: 173, chroma: 0.08, description: 'DevPulse primary brand — cold teal.' },
-	{ id: 'purple', hue: 280, chroma: 0.12, description: 'Clyffy agent brand — vivid purple.' },
-	{ id: 'magenta', hue: 330, chroma: 0.14, description: 'OverMind brand — hot magenta.' },
-	{ id: 'ember', hue: 25, chroma: 0.12, description: 'DevForge brand — warm ember.' },
-	{ id: 'frost', hue: 220, chroma: 0.06, description: 'Frost accent — cool neutral blue.' },
-	{ id: 'cyber', hue: 160, chroma: 0.1, description: 'WiredFront brand — cyber green-teal.' },
+	{ id: 'teal', hue: 183, peak: 0.18, description: "DevPulse primary brand — the owner's teal, the hue of rgba(65, 240, 219)." },
+	{ id: 'purple', hue: 302, peak: 0.25, description: "Clyffy agent brand — the owner's purple, rgba(147, 51, 234) at stop 500." },
+	{ id: 'magenta', hue: 330, peak: 0.2, description: 'OverMind brand — hot magenta.' },
+	{ id: 'ember', hue: 25, peak: 0.18, description: 'DevForge brand — warm ember.' },
+	{ id: 'frost', hue: 220, peak: 0.1, description: 'Frost accent — cool neutral blue.' },
+	{ id: 'cyber', hue: 160, peak: 0.18, description: 'WiredFront brand — cyber green-teal.' },
 ];
 
 /** Named brand accents — 9 saturated brand colours for advertising / landing surfaces. */
@@ -107,6 +113,9 @@ const BRAND_ACCENT_HUES = [
 	{ id: 'brand-violet', hue: 285, chroma: 0.20, description: 'Brand violet — #9b6dff family.' },
 	{ id: 'brand-electric', hue: 215, chroma: 0.22, description: 'Brand electric — vivid electric-blue family, high chroma.' },
 	{ id: 'brand-azure', hue: 250, chroma: 0.18, description: 'Brand azure — saturated azure-blue family (semantic-promoted from wheel).' },
+	{ id: 'brand-pink', hue: 344, chroma: 0.28, description: "Brand pink — the owner's accent pink, rgba(255, 10, 190)." },
+	{ id: 'brand-lime', hue: 143.5, chroma: 0.27, description: "Brand lime — the owner's accent lime, hsl(125 100% 59%)." },
+	{ id: 'brand-amber', hue: 73.5, chroma: 0.16, description: "Brand amber — the owner's accent amber, hsl(38 95% 55%)." },
 ];
 
 /**
@@ -139,21 +148,27 @@ const WHEEL_HUES = [
 	{ id: 'crimson', hue: 10, chroma: 0.16 },
 ];
 
+/**
+ * Where a dark surface starts: the owner's void, rgba(15, 23, 42) ("NEVER USE BLACK
+ * USE DARKS BUT TEALS PURPLES BLUES ALL DARK DARK DARK OR SLATE").
+ */
+const DARK_FLOOR_L = 0.21;
+
 /** Hues that receive generated gradient pairs (surface / glow / accent). */
 const GRADIENT_HUES = [
-	{ id: 'teal', hue: 173, chroma: 0.02, baseL: 0.09 },
-	{ id: 'purple', hue: 280, chroma: 0.03, baseL: 0.09 },
-	{ id: 'ember', hue: 25, chroma: 0.02, baseL: 0.09 },
-	{ id: 'frost', hue: 220, chroma: 0.015, baseL: 0.09 },
-	{ id: 'cyber', hue: 160, chroma: 0.02, baseL: 0.09 },
-	{ id: 'magenta', hue: 330, chroma: 0.03, baseL: 0.09 },
-	{ id: 'brand-cyan', hue: 195, chroma: 0.03, baseL: 0.09 },
-	{ id: 'brand-green', hue: 155, chroma: 0.03, baseL: 0.09 },
-	{ id: 'brand-hotpink', hue: 355, chroma: 0.04, baseL: 0.09 },
-	{ id: 'brand-coral', hue: 10, chroma: 0.03, baseL: 0.09 },
-	{ id: 'brand-blue', hue: 240, chroma: 0.03, baseL: 0.09 },
-	{ id: 'brand-salmon', hue: 15, chroma: 0.03, baseL: 0.09 },
-	{ id: 'brand-gold', hue: 100, chroma: 0.03, baseL: 0.09 },
+	{ id: 'teal', hue: 183, chroma: 0.03, baseL: DARK_FLOOR_L },
+	{ id: 'purple', hue: 302, chroma: 0.04, baseL: DARK_FLOOR_L },
+	{ id: 'ember', hue: 25, chroma: 0.03, baseL: DARK_FLOOR_L },
+	{ id: 'frost', hue: 220, chroma: 0.03, baseL: DARK_FLOOR_L },
+	{ id: 'cyber', hue: 160, chroma: 0.03, baseL: DARK_FLOOR_L },
+	{ id: 'magenta', hue: 330, chroma: 0.04, baseL: DARK_FLOOR_L },
+	{ id: 'brand-cyan', hue: 195, chroma: 0.03, baseL: DARK_FLOOR_L },
+	{ id: 'brand-green', hue: 155, chroma: 0.03, baseL: DARK_FLOOR_L },
+	{ id: 'brand-hotpink', hue: 355, chroma: 0.04, baseL: DARK_FLOOR_L },
+	{ id: 'brand-coral', hue: 10, chroma: 0.03, baseL: DARK_FLOOR_L },
+	{ id: 'brand-blue', hue: 240, chroma: 0.03, baseL: DARK_FLOOR_L },
+	{ id: 'brand-salmon', hue: 15, chroma: 0.03, baseL: DARK_FLOOR_L },
+	{ id: 'brand-gold', hue: 100, chroma: 0.03, baseL: DARK_FLOOR_L },
 ];
 
 /** Hand-authored multi-stop mesh gradients. Design decisions, not formulas. */
@@ -164,9 +179,9 @@ const MESH_GRADIENTS = [
 		kind: 'linear',
 		angle: 135,
 		stops: [
-			{ components: [0.55, 0.08, 173], position: 0 },
+			{ components: [0.55, 0.156, 183], position: 0 },
 			{ components: [0.5, 0.1, 200], position: 0.5 },
-			{ components: [0.45, 0.12, 280], position: 1 },
+			{ components: [0.45, 0.2, 302], position: 1 },
 		],
 	},
 	{
@@ -177,7 +192,7 @@ const MESH_GRADIENTS = [
 		stops: [
 			{ components: [0.55, 0.12, 25], position: 0 },
 			{ components: [0.5, 0.14, 330], position: 0.5 },
-			{ components: [0.45, 0.12, 280], position: 1 },
+			{ components: [0.45, 0.2, 302], position: 1 },
 		],
 	},
 	{
@@ -187,18 +202,18 @@ const MESH_GRADIENTS = [
 		angle: 135,
 		stops: [
 			{ components: [0.55, 0.06, 220], position: 0 },
-			{ components: [0.5, 0.08, 173], position: 0.5 },
+			{ components: [0.5, 0.15, 183], position: 0.5 },
 			{ components: [0.45, 0.1, 160], position: 1 },
 		],
 	},
 	{
 		id: 'void',
-		description: 'Void — deep dark descent, subtle hue shift.',
+		description: "Void — the owner's rgba(15, 23, 42) down to his hsl(222 84% 5%).",
 		kind: 'linear',
 		angle: 180,
 		stops: [
-			{ components: [0.12, 0.01, 224], position: 0 },
-			{ components: [0.06, 0.005, 224], position: 1 },
+			{ components: [0.2077, 0.0398, 265.75], position: 0 },
+			{ components: [0.1363, 0.0364, 259.2], position: 1 },
 		],
 	},
 ];
@@ -398,16 +413,17 @@ const FONT_SIZE_ENTRIES = (() => {
  * }
  * ```
  */
-function buildColorRampFile({ id, hue, chroma, description }) {
+function buildColorRampFile({ id, hue, chroma, peak, description }) {
 	const stops = {};
 	for (let i = 0; i < RAMP_STOPS.length; i++) {
 		const key = RAMP_STOPS[i];
 		const L = RAMP_LIGHTNESS[i];
+		const C = peak === undefined ? chroma : round(peak * OWNER_CHROMA_CURVE[i]);
 		stops[key] = {
 			$value: dtcgColor({
 				colorSpace: 'oklch',
-				components: [L, chroma, hue],
-				hex: oklchToHex(L, chroma, hue),
+				components: [L, C, hue],
+				hex: oklchToHex(L, C, hue),
 			}),
 			$description: `${id} ${key} — lightness ${L}.`,
 		};
@@ -425,13 +441,13 @@ function buildColorRampFile({ id, hue, chroma, description }) {
 }
 
 /**
- * Build the `void` ramp — 11 lightness stops at ultra-low chroma
- * plus a `base` anchor at L=0.08. The base is DevPulse's deepest
- * app background.
+ * Build the `void` ramp — the owner's dark blue-slate. Eleven lightness stops at
+ * the chroma and hue of his void, rgba(15, 23, 42), plus a `base` anchor at that
+ * colour: "NEVER USE BLACK". The deepest stop is his hsl(222 84% 5%), not a black.
  */
 function buildVoidRampFile() {
-	const hue = 220;
-	const chroma = 0.01;
+	const hue = 265.75;
+	const chroma = 0.0398;
 	const stops = {};
 	for (let i = 0; i < RAMP_STOPS.length; i++) {
 		const key = RAMP_STOPS[i];
@@ -445,13 +461,21 @@ function buildVoidRampFile() {
 			$description: `void ${key} — lightness ${L}.`,
 		};
 	}
+	stops['950'] = {
+		$value: dtcgColor({
+			colorSpace: 'oklch',
+			components: [0.1363, 0.0364, 259.2],
+			hex: oklchToHex(0.1363, 0.0364, 259.2),
+		}),
+		$description: "void 950 — the owner's deepest navy, hsl(222 84% 5%).",
+	};
 	stops.base = {
 		$value: dtcgColor({
 			colorSpace: 'oklch',
-			components: [0.08, chroma, hue],
-			hex: oklchToHex(0.08, chroma, hue),
+			components: [0.2077, chroma, hue],
+			hex: oklchToHex(0.2077, chroma, hue),
 		}),
-		$description: 'Void base — deepest app background anchor.',
+		$description: "Void base — the owner's void, rgba(15, 23, 42): the app background.",
 	};
 	return {
 		$description: HEADER_WARNING,
@@ -459,7 +483,7 @@ function buildVoidRampFile() {
 			void: {
 				$type: 'color',
 				$description:
-					'Ultra-low-chroma dark scale plus a base anchor. Deepest app backgrounds and void surfaces.',
+					"The owner's dark blue-slate scale plus a base anchor. App backgrounds and void surfaces; never a black.",
 				...stops,
 			},
 		},

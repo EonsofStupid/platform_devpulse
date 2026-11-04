@@ -21,7 +21,7 @@ const ctx = getSliderContext();
 	{...ctx.hook.thumb}
 	{...rest}
 	class={cn(
-		"block size-5 rounded-full border-2 shadow-sm",
+		"block size-5 rounded-full border-2 border-current shadow-sm",
 		"cursor-grab active:cursor-grabbing",
 		"focus-visible:outline-2 focus-visible:outline-offset-2",
 		className)}

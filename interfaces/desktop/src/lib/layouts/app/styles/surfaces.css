@@ -1,0 +1,92 @@
+/**
+ * @file layouts/app/styles/surfaces.css
+ * @layer layouts
+ *
+ * Glass & Surface Styles for App Shell
+ * Consumes ColdLight tokens. The regions take the deep glass from the owner's
+ * layout.css, mapped from its .frame-* classes to Frame's data-slot regions.
+ * The content well keeps only its recess: the route backdrops and cosmic scene
+ * behind it belong to app.css and Frame, and an opaque fill would hide them.
+ *
+ * @since 0.1.0
+ */
+
+[data-layout="app"][data-slot="frame"] {
+	border: var(--layouts-frame-border-width) solid var(--layouts-frame-border);
+	border-radius: var(--radius-lg);
+	box-shadow: var(--layouts-frame-shadow);
+}
+
+[data-layout="app"] > [data-slot="topbar"] {
+	position: relative;
+	z-index: var(--z-index-raised);
+	background: var(--layouts-glass-fill);
+	backdrop-filter: var(--layouts-glass-filter);
+	border-bottom: var(--border-width-hairline) solid var(--layouts-topbar-border);
+	box-shadow: var(--layouts-topbar-shadow);
+}
+
+[data-layout="app"] > [data-slot="sidebar"] {
+	background: var(--layouts-sidebar-fill);
+	border-right: var(--border-width-hairline) solid var(--layouts-sidebar-border);
+	box-shadow: var(--layouts-sidebar-shadow);
+}
+
+[data-layout="app"] > [data-slot="sidebar"]::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: 0;
+	pointer-events: none;
+	background: var(--layouts-sidebar-wash);
+}
+
+[data-layout="app"] > [data-slot="content"] {
+	box-shadow: var(--layouts-well-shadow);
+}
+
+[data-layout="app"] > [data-slot="statusbar"] {
+	position: relative;
+	z-index: var(--z-index-raised);
+	background: var(--layouts-glass-fill);
+	backdrop-filter: var(--layouts-glass-filter);
+	border-top: var(--border-width-hairline) solid var(--layouts-statusbar-border);
+	box-shadow: var(--layouts-statusbar-shadow);
+}
+
+/* The liquid sheen, on the top bar and status bar. */
+[data-layout="app"] > :is([data-slot="topbar"], [data-slot="statusbar"])::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: 0;
+	pointer-events: none;
+	background: var(--layouts-topbar-sheen);
+}
+
+[data-layout="app"] > :is([data-slot="topbar"], [data-slot="statusbar"])::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: 0;
+	pointer-events: none;
+	background: var(--layouts-topbar-sheen-glow);
+	opacity: 0.9;
+}
+
+[data-layout="app"] > :is([data-slot="topbar"], [data-slot="statusbar"]) > * {
+	position: relative;
+	z-index: 1;
+}
+
+[data-status="online"] {
+	color: var(--color-teal-400);
+}
+
+[data-status="offline"] {
+	color: var(--signal-error);
+}
+
+[data-status="hybrid"] {
+	color: var(--color-purple-400);
+}

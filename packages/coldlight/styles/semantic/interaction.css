@@ -4,9 +4,9 @@
 
 @layer tokens.semantic {
   :root {
-  --interaction-hover: oklch(1.0032 0.0305 28.88 / 0.059); /** Hover overlay — subtle lighten. */
-  --interaction-active: oklch(1.0032 0.0305 28.88 / 0.102); /** Active/pressed overlay. */
-  --interaction-selected: oklch(1.0032 0.0305 28.88 / 0.149); /** Selected/checked overlay. */
-  --interaction-disabled: oklch(1.0032 0.0305 28.88 / 0.031); /** Disabled state overlay. */
+  --interaction-hover: oklch(1 0 0 / 0.06); /** Hover overlay — subtle lighten. */
+  --interaction-active: oklch(1 0 0 / 0.1); /** Active/pressed overlay. */
+  --interaction-selected: oklch(1 0 0 / 0.15); /** Selected/checked overlay. */
+  --interaction-disabled: oklch(1 0 0 / 0.03); /** Disabled state overlay. */
   }
 }

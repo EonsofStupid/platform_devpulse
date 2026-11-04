@@ -15,6 +15,9 @@
 /* 2. SD5-generated Tailwind @theme registrations */
 @import "./theme/index.css";
 
+/* 2b. Non-token: the default border colour (Tailwind 4 leaves it at currentColor) */
+@import "./generated/border-default.css";
+
 /* 3. Non-token: typography utilities */
 @import "./generated/typography.css";
 

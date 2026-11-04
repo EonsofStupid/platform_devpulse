@@ -57,6 +57,15 @@ export const AccentTokens = [
 	"azure-main",
 	"azure-glow",
 	"azure-fill",
+	"pink-main",
+	"pink-glow",
+	"pink-fill",
+	"lime-main",
+	"lime-glow",
+	"lime-fill",
+	"amber-main",
+	"amber-glow",
+	"amber-fill",
 ] as const;
 export type AccentToken = (typeof AccentTokens)[number];
 
@@ -112,7 +121,16 @@ export type AccentCSSVar =
 	| "--accent-electric-fill"
 	| "--accent-azure-main"
 	| "--accent-azure-glow"
-	| "--accent-azure-fill";
+	| "--accent-azure-fill"
+	| "--accent-pink-main"
+	| "--accent-pink-glow"
+	| "--accent-pink-fill"
+	| "--accent-lime-main"
+	| "--accent-lime-glow"
+	| "--accent-lime-fill"
+	| "--accent-amber-main"
+	| "--accent-amber-glow"
+	| "--accent-amber-fill";
 
 export type AccentRecord = {
 	main: string;
@@ -195,6 +213,21 @@ export type AccentRecord = {
 		fill: string;
 	};
 	azure: {
+		main: string;
+		glow: string;
+		fill: string;
+	};
+	pink: {
+		main: string;
+		glow: string;
+		fill: string;
+	};
+	lime: {
+		main: string;
+		glow: string;
+		fill: string;
+	};
+	amber: {
 		main: string;
 		glow: string;
 		fill: string;

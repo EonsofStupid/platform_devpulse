@@ -8,11 +8,11 @@
   --glow-spread-lg: 1.875rem;
   --glow-spread-xl: 2.5rem;
   --drop-shadow-off: 0rem 0rem 0rem 0rem #00000000;
-  --drop-shadow-teal: 0rem 0rem 1.875rem 0.75rem #588873b3;
-  --drop-shadow-purple: 0rem 0rem 1.875rem 0.75rem #027ca9b3;
-  --drop-shadow-magenta: 0rem 0rem 1.875rem 0.75rem #965892b3;
-  --drop-shadow-ember: 0rem 0rem 1.875rem 0.75rem #c3354cb3;
-  --drop-shadow-frost: 0rem 0rem 1.875rem 0.75rem #318a9199;
-  --drop-shadow-cyber: 0rem 0rem 1.875rem 0.75rem #658257b3;
+  --drop-shadow-teal: 0rem 0rem 1.875rem 0.75rem #138374b3;
+  --drop-shadow-purple: 0rem 0rem 1.875rem 0.75rem #9333eab3;
+  --drop-shadow-magenta: 0rem 0rem 1.875rem 0.75rem #ad36a7b3;
+  --drop-shadow-ember: 0rem 0rem 1.875rem 0.75rem #c53637b3;
+  --drop-shadow-frost: 0rem 0rem 1.875rem 0.75rem #1988a399;
+  --drop-shadow-cyber: 0rem 0rem 1.875rem 0.75rem #168659b3;
   --drop-shadow-blue: 0rem 0rem 1.875rem 0.75rem #3673acb3;
 }

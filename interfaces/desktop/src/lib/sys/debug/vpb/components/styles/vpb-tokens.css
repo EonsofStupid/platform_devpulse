@@ -1,0 +1,81 @@
+/**
+ * @file src/lib/sys/debug/vpb/components/styles/vpb-tokens.css
+ * @name vpb-tokens.css
+ * @layer recipes
+ *
+ * @description
+ * VPB-specific design tokens. The names are the VPB's; every value is a
+ * ColdLight token, so the panel follows the theme and holds no raw colour.
+ *
+ * @since 1.0.0
+ */
+
+/* ============================================
+   VPB-TOKENS.CSS - VPB-specific design tokens
+   Lives in design system, consumed by VPB components
+   ============================================ */
+
+[data-kind="vpb"] {
+	/* =============================================
+     VPB COLOR TOKENS
+     ============================================= */
+
+	/* Cyber gradient - the signature VPB scan color */
+	--vpb-cyber-gradient: var(--accent-cyber-main);
+	--vpb-cyber-start: var(--accent-cyan-main);
+	--vpb-cyber-end: var(--accent-violet-main);
+	--vpb-cyber-fill: var(--accent-cyber-fill);
+
+	/* Panel colors */
+	--vpb-panel-bg: var(--surface-overlay);
+	--vpb-panel-border: var(--border-soft);
+	--vpb-panel-glow: var(--glow-cyber);
+
+	/* Surface colors */
+	--vpb-surface-base: var(--surface-raised);
+	--vpb-surface-raised: var(--surface-chrome);
+	--vpb-surface-sunken: var(--surface-inset);
+	--vpb-surface-hover: var(--interaction-hover);
+
+	/* Text colors */
+	--vpb-text-primary: var(--text-primary);
+	--vpb-text-secondary: var(--text-secondary);
+	--vpb-text-muted: var(--text-muted);
+
+	/* Button colors */
+	--vpb-btn-bg: var(--surface-inset);
+	--vpb-btn-border: var(--border-subtle);
+	--vpb-btn-hover: var(--interaction-hover);
+
+	/* Action colors */
+	--vpb-action-play: var(--signal-success);
+	--vpb-action-pause: var(--signal-warning);
+	--vpb-action-stop: var(--signal-error);
+
+	/* =============================================
+     VPB SIZING TOKENS
+     ============================================= */
+
+	--vpb-menu-width: calc(var(--space-9) * 5);
+	--vpb-inspector-width: calc(var(--space-9) * 8);
+
+	/* =============================================
+     VPB STACKING: over everything in the app, under the full-window builder
+     ============================================= */
+
+	--vpb-z-overlay: calc(var(--z-index-tooltip) + 10);
+	--vpb-z-panel: calc(var(--z-index-tooltip) + 20);
+	--vpb-z-fab: calc(var(--z-index-tooltip) + 20);
+	--vpb-z-inspector: calc(var(--z-index-tooltip) + 30);
+
+	/* =============================================
+     VPB EFFECT TOKENS
+     ============================================= */
+
+	--vpb-blur: blur(var(--glass-blur-void));
+	--vpb-shadow: var(--depth-z4);
+
+	/* Transition */
+	--vpb-transition-fast: var(--duration-fast) var(--easing-ease-out);
+	--vpb-transition-normal: var(--duration-normal) var(--easing-ease-out);
+}

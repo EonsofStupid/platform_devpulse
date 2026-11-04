@@ -1,0 +1,81 @@
+/**
+ * @file src/lib/sys/debug/vpb/components/styles/vpb-panel.css
+ * @name vpb-panel.css
+ * @layer recipes
+ *
+ * @description
+ * VPB Panel Recipe: the sections inside the Glass Box, the drag handle and
+ * the status text.
+ *
+ * @since 1.0.0
+ */
+
+/* =============================================
+   DRAG HANDLE (Floating mode drags, docked does not)
+   ============================================= */
+
+[data-kind="vpb"] .vpb-topbar {
+	padding: var(--space-1) var(--space-3);
+}
+
+[data-kind="vpb"] .vpb-drag-handle {
+	color: var(--vpb-text-muted);
+	font-family: var(--font-mono);
+	user-select: none;
+}
+
+[data-kind="vpb"] .vpb-drag-handle[data-mode="floating"] {
+	cursor: grab;
+}
+
+[data-kind="vpb"] .vpb-drag-handle[data-mode="floating"]:active {
+	cursor: grabbing;
+}
+
+[data-kind="vpb"] .vpb-brand {
+	font-weight: 700;
+	letter-spacing: -0.01em;
+	color: var(--vpb-text-secondary);
+}
+
+[data-kind="vpb"] .vpb-brand__accent {
+	color: var(--accent-teal-main);
+}
+
+/* =============================================
+   PANEL SECTIONS
+   ============================================= */
+
+[data-kind="vpb"] .vpb-panel__header {
+	background: var(--vpb-surface-base);
+	border-bottom: var(--border-width-thin) solid var(--vpb-btn-border);
+}
+
+[data-kind="vpb"] .vpb-panel__toolbar {
+	padding: var(--space-1) var(--space-3);
+	border-bottom: var(--border-width-thin) solid var(--vpb-btn-border);
+}
+
+[data-kind="vpb"] .vpb-panel__footer {
+	padding: var(--space-1) var(--space-3);
+	border-top: var(--border-width-thin) solid var(--vpb-btn-border);
+	background: var(--vpb-surface-sunken);
+}
+
+/* =============================================
+   STATUS TEXT
+   ============================================= */
+
+[data-kind="vpb"] .vpb-status {
+	font-family: var(--font-mono);
+	font-size: var(--font-size-sm);
+	color: var(--vpb-text-muted);
+}
+
+[data-kind="vpb"] .vpb-status--active {
+	color: var(--vpb-cyber-start);
+}
+
+[data-kind="vpb"] .vpb-status--paused {
+	color: var(--vpb-action-pause);
+}

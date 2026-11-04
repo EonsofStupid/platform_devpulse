@@ -1,0 +1,34 @@
+/**
+ * @file vpb-tabs.css
+ * @layer vpb
+ * @description VPB Tabs - the strip and the window controls beside it.
+ * ColdLight's Tabs draw the triggers.
+ */
+
+/* The List Container */
+[data-kind="vpb"] .vpb-tabs {
+	padding: 0 var(--space-2) var(--space-1);
+}
+
+/* Grip */
+[data-kind="vpb"] .vpb-grip-icon {
+	color: var(--vpb-text-muted);
+}
+
+/* Window Control Buttons */
+[data-kind="vpb"] .vpb-tabs__control {
+	width: var(--space-6);
+	height: var(--space-6);
+	padding: 0;
+	color: var(--vpb-text-muted);
+	transition: all var(--vpb-transition-fast);
+}
+
+[data-kind="vpb"] .vpb-tabs__control:hover {
+	background: var(--vpb-surface-hover);
+	color: var(--vpb-text-primary);
+}
+
+[data-kind="vpb"] .vpb-tabs__control--close:hover {
+	color: var(--vpb-action-stop);
+}

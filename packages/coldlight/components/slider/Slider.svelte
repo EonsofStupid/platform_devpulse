@@ -106,7 +106,7 @@ const m = $derived(renderForge({ kind: "slider", preset }));
 			<div
 				{...sliderAnatomy.attrs.thumb}
 				{...hook.thumb}
-				class="block size-5 rounded-full border-2 shadow-sm cursor-grab active:cursor-grabbing focus-visible:outline-2 focus-visible:outline-offset-2"
+				class="block size-5 rounded-full border-2 border-current shadow-sm cursor-grab active:cursor-grabbing focus-visible:outline-2 focus-visible:outline-offset-2"
 				style={orientation === "horizontal"
 					? `left: ${hook.percent}%`
 					: `bottom: ${hook.percent}%`}

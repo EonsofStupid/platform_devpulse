@@ -27,6 +27,8 @@
 // (legacy path) can be redirected by replacing only the import,
 // without splitting the call site between two files.
 export { cancelDownload, downloadModel } from "$lib/sys/bindings/models/index.js";
+// ── Types ────────────────────────────────────────────────
+export type { WizardCopy as WizardCopyData } from "$lib/sys/generated/bindings.js";
 // ── Boot-time event bridge ───────────────────────────────
 // Singleton bridge wired by `+layout.svelte` at app boot. Lives in
 // `data-access/` because it boots data-access runes; nothing UI-side.
@@ -37,7 +39,7 @@ export { generateText, onInferenceToken } from "./data-access/inference.service.
 // ── State runes ──────────────────────────────────────────
 export { modelsState } from "./data-access/models.state.svelte.js";
 export { narrationState } from "./data-access/narration.state.svelte.js";
-
+export { setupWizardOverlayState } from "./data-access/setup-wizard-overlay.state.svelte.js";
 // ── In-flight install/swap overlay ───────────────────────
 export { default as ModelLoaderPanel } from "./feature/components/ModelLoaderPanel.svelte";
 export { default as SwapOverlay } from "./feature/components/SwapOverlay.svelte";
@@ -60,8 +62,23 @@ export {
 } from "./feature/downloader/index.js";
 // ── Setup wizard (restored from e0b576ff^) ───────────────
 // The single-screen cortex wizard; `/cortex` mounts it on its cortex view.
+// The guided flow under `/model-loader/*` and the local section of Your AI
+// compose the rest (plan 0009, one activation path).
 export {
+	CurrentSetupPopup,
+	fetchRecommendations,
+	LocalModelSetup,
+	listAllPresets,
+	loadWizardCopy,
+	ModelLoaderStep,
+	ModelsStep,
+	PHASE_INFO,
+	PROGRESS_PHASES,
+	SearchBrowseStep,
+	SetupWizard,
 	SetupWizardOverlay,
+	selectPreset,
+	type WizardPhase,
 	type WizardView,
 	wizardState,
 } from "./feature/setup-wizard/index.js";
@@ -74,7 +91,12 @@ export { default as VramBar } from "./ui/VramBar.svelte";
 export { default as VramGauge } from "./ui/VramGauge.svelte";
 // ── Helpers + role metadata ──────────────────────────────
 export { formatBytes, formatLoadError, formatMb } from "./util/format.js";
-export { isInferenceReady, type ModelStatus } from "./util/models.types.js";
+export {
+	type AutoConfig,
+	type HardwareTier,
+	isInferenceReady,
+	type ModelStatus,
+} from "./util/models.types.js";
 export {
 	ROLE_COLORS,
 	ROLE_FRAMES,
@@ -83,7 +105,6 @@ export {
 	roleForSlot,
 } from "./util/roles.js";
 export { getSlotLabel, type SlotLabel } from "./util/slots.js";
-// ── Types ────────────────────────────────────────────────
 export type {
 	HardwareInfo,
 	LoadError,

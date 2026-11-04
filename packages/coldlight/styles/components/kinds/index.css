@@ -1,8 +1,13 @@
 /* AUTO-GENERATED — DO NOT EDIT. One file per colocated kind tokens file. */
+@import "./breadcrumbs.css";
 @import "./button.css";
 @import "./card.css";
+@import "./context-menu.css";
 @import "./dialog.css";
+@import "./dropdown-menu.css";
 @import "./log.css";
+@import "./nav-item.css";
+@import "./panel.css";
 @import "./popover.css";
 @import "./select.css";
 @import "./sheet.css";

@@ -11,7 +11,7 @@
  */
 
 import { withAction } from "$lib/sys/action-bus.svelte.js";
-import { commands } from "$lib/sys/generated/bindings.js";
+import { commands, type WizardCopy as GeneratedWizardCopy } from "$lib/sys/generated/bindings.js";
 import { logError, logInfo } from "$lib/sys/logger.js";
 import {
 	autoConfigureHardware,
@@ -398,8 +398,6 @@ export async function cancelActiveDownload(downloadId: string): Promise<void> {
 	toast.info("Download cancelled");
 }
 
-// autoAssignAllSlots() DELETED — wizard now uses explicit per-slot assignment
-
 /**
  * Assign a model to a slot and immediately load it. Single-click UX.
  *
@@ -434,7 +432,56 @@ export async function assignAndLoad(slotId: string, modelId: string): Promise<vo
 	}
 }
 
-// bulkDownloadAndAssign() DELETED — wizard uses per-model download, no bulk queue
+/**
+ * Download and assign several recommendations, one after another. A failure
+ * on one is logged (and toasted by `downloadAndAssign`) and the next still
+ * runs. Only ever called from a button you pressed.
+ */
+export async function bulkDownloadAndAssign(recs: ModelRec[]): Promise<void> {
+	logInfo("wizard.bulkDownload", `bulkDownloadAndAssign() start — count=${recs.length}`);
+	for (const rec of recs) {
+		try {
+			await downloadAndAssign(rec);
+		} catch (e) {
+			const msg = e instanceof Error ? e.message : String(e);
+			logError(
+				"wizard.bulkDownload",
+				`Bulk download failed: repo=${rec.repo} file=${rec.file} slot=${rec.slot} error=${msg}`,
+			);
+		}
+	}
+	logInfo("wizard.bulkDownload", "bulkDownloadAndAssign() finished");
+}
+
+/**
+ * Assign every recommendation that is already on disk to its slot. Nothing
+ * downloads and nothing loads. A slot the kernel refuses is logged and left
+ * as it was.
+ */
+export async function autoAssignAllSlots(recs: ModelRec[]): Promise<void> {
+	for (const rec of recs.filter((r) => r.alreadyDownloaded)) {
+		const model = modelsState.models.find((m) => m.filename === rec.file);
+		if (!model) continue;
+		try {
+			await modelsState.assign(rec.slot, model.id);
+		} catch (e) {
+			const msg = e instanceof Error ? e.message : String(e);
+			logError("wizard.autoAssign", `assign failed: slot=${rec.slot} error=${msg}`);
+		}
+	}
+}
+
+/**
+ * The whole recommended plan, from one button you pressed: download what is
+ * missing, assign what is on disk, then read the real slots back.
+ */
+export async function setUpRecommended(recs: ModelRec[]): Promise<void> {
+	const toDownload = recs.filter((rec) => !rec.alreadyDownloaded);
+	if (toDownload.length > 0) await bulkDownloadAndAssign(toDownload);
+	await autoAssignAllSlots(recs);
+	await modelsState.scan();
+	await modelsState.refresh();
+}
 
 // ── Phase 4: Clyffy Activation ──────────────────────────
 
@@ -494,5 +541,62 @@ export async function markOnboardingComplete(): Promise<void> {
 	});
 }
 
-// validateModelPaths/detectHardwareChange/subsequentLaunchCheck DELETED
-// Subsequent launch detection moves to Sprint 4 with setup_complete flag
+// ── Coming back to setup ───────────────────────────────
+
+/**
+ * Slots whose assigned model is no longer in the registry (the file moved or
+ * was deleted).
+ *
+ * @sideeffects Refreshes modelsState.
+ */
+export async function validateModelPaths(): Promise<{ valid: boolean; missing: string[] }> {
+	await modelsState.refresh();
+	const missing = modelsState.slots
+		.filter((slot) => slot.assigned_model_id && !modelsState.assignedModel(slot.id))
+		.map((slot) => slot.id);
+	return { valid: missing.length === 0, missing };
+}
+
+/**
+ * Whether the GPU differs from the one setup last saw.
+ *
+ * @sideeffects Reads and writes the `last_gpu_name` preference. Returns false
+ * on any error, and on the first run (nothing to compare with).
+ */
+export async function detectHardwareChange(): Promise<boolean> {
+	try {
+		const lastGpu = unwrap(await commands.getPreference("last_gpu_name"));
+		await hardwareState.refresh("wizard-launch-check");
+		const currentGpu = hardwareState.gpuName ?? "";
+		unwrap(await commands.setPreference("last_gpu_name", currentGpu));
+		return lastGpu !== null && lastGpu !== currentGpu;
+	} catch (e) {
+		const msg = e instanceof Error ? e.message : String(e);
+		logError("wizard.launchCheck", `detectHardwareChange failed: ${msg}`);
+		return false;
+	}
+}
+
+/** What the wizard should open with when you come back to it. */
+export type LaunchCheck =
+	| { action: "wizard" }
+	| { action: "repair"; missingSlots: string[] }
+	| { action: "redetect" };
+
+/**
+ * Decide what setup opens with. Nothing here downloads, installs or loads.
+ *
+ * @sideeffects See `detectHardwareChange` and `validateModelPaths`.
+ */
+export async function subsequentLaunchCheck(): Promise<LaunchCheck> {
+	const complete = await checkOnboardingComplete();
+	if (!complete) return { action: "wizard" };
+	if (await detectHardwareChange()) return { action: "redetect" };
+	const { valid, missing } = await validateModelPaths();
+	return valid ? { action: "wizard" } : { action: "repair", missingSlots: missing };
+}
+
+/** The kernel's wizard text. */
+export async function loadWizardCopy(): Promise<GeneratedWizardCopy> {
+	return unwrap(await commands.getWizardCopy());
+}

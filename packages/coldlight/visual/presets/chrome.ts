@@ -15,7 +15,7 @@ export const chromeElevated: PresetDefinition = {
 	label: "Chrome Elevated",
 	description: "Polished chrome — specular gradient, sharp highlight, steel surface",
 	axes: {
-		backgroundColor: "oklch(0.3 0.01 250)",
+		backgroundColor: "oklch(0.336 0.03 250)",
 		backgroundBlur: "0",
 		shadow: [
 			{ offsetX: "0", offsetY: "0.25rem", blur: "1rem", spread: "0", color: "oklch(0 0 0 / 0.5)" },
@@ -43,14 +43,14 @@ export const chromeElevated: PresetDefinition = {
 			lineHeight: 1.5,
 		},
 		gradient:
-			"linear-gradient(135deg, oklch(0.4 0.01 250) 0%, oklch(0.25 0.008 250) 50%, oklch(0.35 0.01 250) 100%)",
+			"linear-gradient(135deg, oklch(0.4 0.01 250) 0%, oklch(0.304 0.03 250) 50%, oklch(0.368 0.03 250) 100%)",
 		color: "oklch(0.92 0.015 240)",
 		borderRadius: "0.5rem",
 		opacity: 1,
 	},
 	states: {
 		hover: {
-			backgroundColor: "oklch(0.33 0.012 250)",
+			backgroundColor: "oklch(0.355 0.03 250)",
 			shadow: [
 				{
 					offsetX: "0",
@@ -69,10 +69,10 @@ export const chromeElevated: PresetDefinition = {
 			],
 			border: { color: "oklch(0.65 0.025 250 / 0.5)" },
 			gradient:
-				"linear-gradient(135deg, oklch(0.43 0.012 250) 0%, oklch(0.28 0.01 250) 50%, oklch(0.38 0.012 250) 100%)",
+				"linear-gradient(135deg, oklch(0.43 0.012 250) 0%, oklch(0.323 0.03 250) 50%, oklch(0.387 0.03 250) 100%)",
 		},
 		active: {
-			backgroundColor: "oklch(0.27 0.008 250)",
+			backgroundColor: "oklch(0.317 0.03 250)",
 			shadow: [
 				{
 					offsetX: "0",
@@ -83,10 +83,10 @@ export const chromeElevated: PresetDefinition = {
 				},
 			],
 			gradient:
-				"linear-gradient(135deg, oklch(0.35 0.008 250) 0%, oklch(0.22 0.006 250) 50%, oklch(0.3 0.008 250) 100%)",
+				"linear-gradient(135deg, oklch(0.368 0.03 250) 0%, oklch(0.285 0.03 250) 50%, oklch(0.336 0.03 250) 100%)",
 		},
 		disabled: {
-			backgroundColor: "oklch(0.22 0.004 250)",
+			backgroundColor: "oklch(0.285 0.03 250)",
 			opacity: 0.4,
 			border: { color: "oklch(0.45 0.005 250 / 0.2)" },
 			gradient: "none",
@@ -102,7 +102,7 @@ export const chromeDeep: PresetDefinition = {
 	label: "Chrome Deep",
 	description: "Dark chrome — gunmetal surface, deep reflections, heavy metal",
 	axes: {
-		backgroundColor: "oklch(0.15 0.008 260)",
+		backgroundColor: "oklch(0.24 0.03 260)",
 		backgroundBlur: "0",
 		shadow: [
 			{
@@ -131,14 +131,14 @@ export const chromeDeep: PresetDefinition = {
 			letterSpacing: "0.01em",
 			lineHeight: 1.5,
 		},
-		gradient: "linear-gradient(160deg, oklch(0.22 0.01 260) 0%, oklch(0.12 0.005 260) 100%)",
+		gradient: "linear-gradient(160deg, oklch(0.285 0.03 260) 0%, oklch(0.221 0.03 260) 100%)",
 		color: "oklch(0.8 0.01 250)",
 		borderRadius: "0.5rem",
 		opacity: 1,
 	},
 	states: {
 		hover: {
-			backgroundColor: "oklch(0.18 0.01 260)",
+			backgroundColor: "oklch(0.259 0.03 260)",
 			shadow: [
 				{
 					offsetX: "0",
@@ -159,7 +159,7 @@ export const chromeDeep: PresetDefinition = {
 			border: { color: "oklch(0.5 0.012 260 / 0.4)" },
 		},
 		active: {
-			backgroundColor: "oklch(0.12 0.006 260)",
+			backgroundColor: "oklch(0.221 0.03 260)",
 			shadow: [
 				{
 					offsetX: "0",
@@ -171,7 +171,7 @@ export const chromeDeep: PresetDefinition = {
 			],
 		},
 		disabled: {
-			backgroundColor: "oklch(0.12 0.003 260)",
+			backgroundColor: "oklch(0.221 0.03 260)",
 			opacity: 0.4,
 			border: { color: "oklch(0.35 0.005 260 / 0.15)" },
 			gradient: "none",
@@ -186,7 +186,7 @@ export const chromeMinimal: PresetDefinition = {
 	label: "Chrome Minimal",
 	description: "Brushed aluminum — subtle directional grain, matte metal",
 	axes: {
-		backgroundColor: "oklch(0.25 0.005 250)",
+		backgroundColor: "oklch(0.304 0.03 250)",
 		backgroundBlur: "0",
 		shadow: [
 			{
@@ -214,7 +214,7 @@ export const chromeMinimal: PresetDefinition = {
 	},
 	states: {
 		hover: {
-			backgroundColor: "oklch(0.28 0.007 250)",
+			backgroundColor: "oklch(0.323 0.03 250)",
 			shadow: [
 				{
 					offsetX: "0",
@@ -227,7 +227,7 @@ export const chromeMinimal: PresetDefinition = {
 			border: { color: "oklch(0.55 0.007 250 / 0.28)" },
 		},
 		active: {
-			backgroundColor: "oklch(0.22 0.004 250)",
+			backgroundColor: "oklch(0.285 0.03 250)",
 			shadow: [
 				{
 					offsetX: "0",
@@ -239,7 +239,7 @@ export const chromeMinimal: PresetDefinition = {
 			],
 		},
 		disabled: {
-			backgroundColor: "oklch(0.2 0.003 250)",
+			backgroundColor: "oklch(0.272 0.03 250)",
 			opacity: 0.4,
 			border: { color: "oklch(0.4 0.003 250 / 0.12)" },
 			color: "oklch(0.55 0.004 250)",
@@ -254,7 +254,7 @@ export const chromeSolid: PresetDefinition = {
 	label: "Chrome Solid",
 	description: "Cast metal — dense, opaque, industrial steel plate",
 	axes: {
-		backgroundColor: "oklch(0.28 0.01 255)",
+		backgroundColor: "oklch(0.323 0.03 255)",
 		backgroundBlur: "0",
 		shadow: [
 			{
@@ -289,7 +289,7 @@ export const chromeSolid: PresetDefinition = {
 	},
 	states: {
 		hover: {
-			backgroundColor: "oklch(0.31 0.012 255)",
+			backgroundColor: "oklch(0.343 0.03 255)",
 			shadow: [
 				{
 					offsetX: "0",
@@ -309,7 +309,7 @@ export const chromeSolid: PresetDefinition = {
 			border: { color: "oklch(0.55 0.018 255 / 0.45)" },
 		},
 		active: {
-			backgroundColor: "oklch(0.25 0.008 255)",
+			backgroundColor: "oklch(0.304 0.03 255)",
 			shadow: [
 				{
 					offsetX: "0",
@@ -321,7 +321,7 @@ export const chromeSolid: PresetDefinition = {
 			],
 		},
 		disabled: {
-			backgroundColor: "oklch(0.2 0.004 255)",
+			backgroundColor: "oklch(0.272 0.03 255)",
 			opacity: 0.4,
 			border: { color: "oklch(0.4 0.005 255 / 0.18)" },
 			color: "oklch(0.6 0.005 250)",
@@ -336,7 +336,7 @@ export const chromeGlow: PresetDefinition = {
 	label: "Chrome Glow",
 	description: "Plasma chrome — ice-blue emission, electrified metal edge",
 	axes: {
-		backgroundColor: "oklch(0.2 0.02 250)",
+		backgroundColor: "oklch(0.272 0.03 250)",
 		backgroundBlur: "0",
 		shadow: [
 			{ offsetX: "0", offsetY: "0.25rem", blur: "1rem", spread: "0", color: "oklch(0 0 0 / 0.45)" },
@@ -370,14 +370,14 @@ export const chromeGlow: PresetDefinition = {
 			letterSpacing: "0.02em",
 			lineHeight: 1.5,
 		},
-		gradient: "linear-gradient(135deg, oklch(0.3 0.02 250) 0%, oklch(0.18 0.015 240) 100%)",
+		gradient: "linear-gradient(135deg, oklch(0.336 0.03 250) 0%, oklch(0.259 0.03 240) 100%)",
 		color: "oklch(0.85 0.08 240)",
 		borderRadius: "0.5rem",
 		opacity: 1,
 	},
 	states: {
 		hover: {
-			backgroundColor: "oklch(0.22 0.025 250)",
+			backgroundColor: "oklch(0.285 0.03 250)",
 			shadow: [
 				{
 					offsetX: "0",
@@ -404,7 +404,7 @@ export const chromeGlow: PresetDefinition = {
 			border: { color: "oklch(0.75 0.14 240 / 0.45)" },
 		},
 		active: {
-			backgroundColor: "oklch(0.17 0.018 250)",
+			backgroundColor: "oklch(0.253 0.03 250)",
 			shadow: [
 				{
 					offsetX: "0",
@@ -423,7 +423,7 @@ export const chromeGlow: PresetDefinition = {
 			],
 		},
 		disabled: {
-			backgroundColor: "oklch(0.16 0.005 250)",
+			backgroundColor: "oklch(0.247 0.03 250)",
 			opacity: 0.4,
 			border: { color: "oklch(0.5 0.03 240 / 0.15)" },
 			gradient: "none",
@@ -439,7 +439,7 @@ export const chromeMuted: PresetDefinition = {
 	label: "Chrome Muted",
 	description: "Tarnished metal — oxidized, desaturated, weathered chrome",
 	axes: {
-		backgroundColor: "oklch(0.2 0.003 250)",
+		backgroundColor: "oklch(0.272 0.03 250)",
 		backgroundBlur: "0",
 		shadow: [
 			{
@@ -467,16 +467,16 @@ export const chromeMuted: PresetDefinition = {
 	},
 	states: {
 		hover: {
-			backgroundColor: "oklch(0.22 0.005 250)",
+			backgroundColor: "oklch(0.285 0.03 250)",
 			border: { color: "oklch(0.45 0.005 250 / 0.28)" },
 			opacity: 0.85,
 		},
 		active: {
-			backgroundColor: "oklch(0.18 0.003 250)",
+			backgroundColor: "oklch(0.259 0.03 250)",
 			opacity: 0.7,
 		},
 		disabled: {
-			backgroundColor: "oklch(0.17 0.002 250)",
+			backgroundColor: "oklch(0.253 0.03 250)",
 			opacity: 0.35,
 			color: "oklch(0.45 0.003 250)",
 		},

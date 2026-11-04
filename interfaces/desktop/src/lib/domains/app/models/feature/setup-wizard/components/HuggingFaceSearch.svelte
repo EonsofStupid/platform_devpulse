@@ -537,8 +537,8 @@ function isSafetensorFile(filename: string): boolean {
 			linear-gradient(135deg, color-mix(in oklch, var(--accent-cyan-fill) 90%, transparent), transparent 54%),
 			linear-gradient(330deg, color-mix(in oklch, var(--accent-purple-fill) 82%, transparent), transparent 62%),
 			var(--glass-deep);
-		border: var(--border-preset-default-width) solid color-mix(in oklch, var(--accent-cyan-main) 28%, transparent);
-		box-shadow: var(--shadow-z1);
+		border: var(--border-width-thin) solid color-mix(in oklch, var(--accent-cyan-main) 28%, transparent);
+		box-shadow: var(--card-box-shadow);
 	}
 
 	.search-hero-copy {
@@ -583,7 +583,7 @@ function isSafetensorFile(filename: string): boolean {
 		padding: 0.3125rem 0.625rem;
 		border-radius: 999px;
 		background: color-mix(in oklch, var(--surface-base, #0c1220) 84%, transparent);
-		border: var(--border-preset-default-width) solid color-mix(in oklch, var(--accent-cyan-main) 20%, transparent);
+		border: var(--border-width-thin) solid color-mix(in oklch, var(--accent-cyan-main) 20%, transparent);
 		color: var(--text-secondary);
 		font-size: 0.6875rem;
 		font-weight: 700;
@@ -625,13 +625,13 @@ function isSafetensorFile(filename: string): boolean {
 	.suggest-btn {
 		padding: 0.3125rem 0.75rem;
 		border-radius: 999px;
-		border: var(--border-preset-default-width) solid var(--border-subtle);
-		background: color-mix(in oklch, var(--glass-elevated) 84%, transparent);
+		border: var(--border-width-thin) solid var(--border-subtle);
+		background: color-mix(in oklch, var(--glass-standard) 84%, transparent);
 		color: var(--accent-cyan-main);
 		font-size: 0.75rem;
 		font-weight: 700;
 		cursor: pointer;
-		transition: var(--transition-all-fast);
+		transition: all var(--duration-fast);
 	}
 
 	.suggest-btn:hover {
@@ -653,13 +653,13 @@ function isSafetensorFile(filename: string): boolean {
 		gap: 0.375rem;
 		padding: 0.5rem 0.875rem;
 		border-radius: 999px;
-		border: var(--border-preset-default-width) solid var(--border-subtle);
-		background: color-mix(in oklch, var(--glass-elevated) 84%, transparent);
+		border: var(--border-width-thin) solid var(--border-subtle);
+		background: color-mix(in oklch, var(--glass-standard) 84%, transparent);
 		color: var(--text-secondary);
 		font-size: 0.8125rem;
 		font-weight: 700;
 		cursor: pointer;
-		transition: var(--transition-all-fast);
+		transition: all var(--duration-fast);
 	}
 
 	.format-tab.active,
@@ -679,7 +679,7 @@ function isSafetensorFile(filename: string): boolean {
 		padding: 2rem 1rem;
 		border-radius: 1rem;
 		background: var(--glass-deep);
-		border: var(--border-preset-default-width) solid var(--border-subtle);
+		border: var(--border-width-thin) solid var(--border-subtle);
 		text-align: center;
 	}
 
@@ -702,7 +702,7 @@ function isSafetensorFile(filename: string): boolean {
 		padding: 0.875rem 1rem;
 		border-radius: 1rem;
 		background: color-mix(in oklch, var(--signal-error) 12%, transparent);
-		border: var(--border-preset-default-width) solid color-mix(in oklch, var(--signal-error) 40%, transparent);
+		border: var(--border-width-thin) solid color-mix(in oklch, var(--signal-error) 40%, transparent);
 		color: var(--text-primary);
 	}
 
@@ -730,8 +730,8 @@ function isSafetensorFile(filename: string): boolean {
 		padding: 1rem;
 		border-radius: 1rem;
 		background: var(--glass-deep);
-		border: var(--border-preset-default-width) solid var(--border-subtle);
-		box-shadow: var(--shadow-z1);
+		border: var(--border-width-thin) solid var(--border-subtle);
+		box-shadow: var(--card-box-shadow);
 	}
 
 	.result-header {
@@ -774,7 +774,7 @@ function isSafetensorFile(filename: string): boolean {
 		padding: 0.1875rem 0.5rem;
 		border-radius: 999px;
 		background: color-mix(in oklch, var(--accent-purple-fill) 88%, transparent);
-		border: var(--border-preset-default-width) solid color-mix(in oklch, var(--accent-purple-main) 30%, transparent);
+		border: var(--border-width-thin) solid color-mix(in oklch, var(--accent-purple-main) 30%, transparent);
 		color: var(--text-secondary);
 		font-size: 0.6875rem;
 		font-weight: 700;
@@ -785,7 +785,7 @@ function isSafetensorFile(filename: string): boolean {
 		flex-direction: column;
 		gap: 0.125rem;
 		padding-top: 0.625rem;
-		border-top: var(--border-preset-default-width) solid var(--border-subtle);
+		border-top: var(--border-width-thin) solid var(--border-subtle);
 	}
 
 	.format-label {
@@ -804,9 +804,9 @@ function isSafetensorFile(filename: string): boolean {
 		gap: 0.625rem;
 		padding: 0.875rem;
 		border-radius: 1rem;
-		background: color-mix(in oklch, var(--glass-elevated) 84%, transparent);
-		border: var(--border-preset-default-width) solid var(--border-subtle);
-		transition: var(--transition-all-fast);
+		background: color-mix(in oklch, var(--glass-standard) 84%, transparent);
+		border: var(--border-width-thin) solid var(--border-subtle);
+		transition: all var(--duration-fast);
 	}
 
 	.file-row:hover,
@@ -846,7 +846,7 @@ function isSafetensorFile(filename: string): boolean {
 		padding: 0.625rem 0.75rem;
 		background: color-mix(in oklch, var(--surface-base, #0c1220) 82%, transparent);
 		border-radius: 0.875rem;
-		border: var(--border-preset-default-width) solid var(--border-subtle);
+		border: var(--border-width-thin) solid var(--border-subtle);
 		max-height: 8rem;
 		overflow-y: auto;
 	}
@@ -854,7 +854,7 @@ function isSafetensorFile(filename: string): boolean {
 	.shard-item {
 		font-size: 0.75rem;
 		color: var(--text-muted);
-		font-family: var(--font-family-mono, monospace);
+		font-family: var(--font-mono, monospace);
 	}
 
 	.slot-label {
@@ -865,13 +865,13 @@ function isSafetensorFile(filename: string): boolean {
 	.slot-chip {
 		padding: 0.25rem 0.625rem;
 		border-radius: 999px;
-		border: var(--border-preset-default-width) solid var(--border-subtle);
+		border: var(--border-width-thin) solid var(--border-subtle);
 		background: transparent;
 		color: var(--text-secondary);
 		font-size: 0.75rem;
 		font-weight: 700;
 		cursor: pointer;
-		transition: var(--transition-all-fast);
+		transition: all var(--duration-fast);
 	}
 
 	.slot-chip.selected,
@@ -885,8 +885,8 @@ function isSafetensorFile(filename: string): boolean {
 		font-size: 0.6875rem;
 		padding: 0.1875rem 0.5rem;
 		border-radius: 999px;
-		background: color-mix(in oklch, var(--glass-elevated) 86%, transparent);
-		border: var(--border-preset-default-width) solid var(--border-subtle);
+		background: color-mix(in oklch, var(--glass-standard) 86%, transparent);
+		border: var(--border-width-thin) solid var(--border-subtle);
 		color: var(--text-secondary);
 	}
 
@@ -899,7 +899,7 @@ function isSafetensorFile(filename: string): boolean {
 		padding: 0.625rem 0.75rem;
 		border-radius: 0.875rem;
 		background: color-mix(in oklch, var(--accent-gold-main) 12%, transparent);
-		border: var(--border-preset-default-width) solid color-mix(in oklch, var(--accent-gold-main) 38%, transparent);
+		border: var(--border-width-thin) solid color-mix(in oklch, var(--accent-gold-main) 38%, transparent);
 		color: var(--text-secondary);
 		font-size: 0.75rem;
 	}
@@ -915,7 +915,7 @@ function isSafetensorFile(filename: string): boolean {
 		font-size: 0.8125rem;
 		font-weight: 700;
 		cursor: pointer;
-		transition: var(--transition-all-fast);
+		transition: all var(--duration-fast);
 	}
 
 	.btn-accent {
@@ -932,8 +932,8 @@ function isSafetensorFile(filename: string): boolean {
 
 	.btn-outline-lg {
 		padding: 0.625rem 1.25rem;
-		border: var(--border-preset-default-width) solid var(--border-subtle);
-		background: color-mix(in oklch, var(--glass-elevated) 80%, transparent);
+		border: var(--border-width-thin) solid var(--border-subtle);
+		background: color-mix(in oklch, var(--glass-standard) 80%, transparent);
 		color: var(--text-primary);
 	}
 
@@ -944,7 +944,7 @@ function isSafetensorFile(filename: string): boolean {
 
 	.btn-ghost {
 		padding: 0.5rem 0.875rem;
-		border: var(--border-preset-default-width) solid transparent;
+		border: var(--border-width-thin) solid transparent;
 		background: transparent;
 		color: var(--text-muted);
 	}
@@ -967,8 +967,8 @@ function isSafetensorFile(filename: string): boolean {
 		margin-top: 0.25rem;
 		padding: 0.875rem 1rem;
 		border-radius: 1rem;
-		background: color-mix(in oklch, var(--glass-elevated) 84%, transparent);
-		border: var(--border-preset-default-width) solid var(--border-subtle);
+		background: color-mix(in oklch, var(--glass-standard) 84%, transparent);
+		border: var(--border-width-thin) solid var(--border-subtle);
 		text-align: left;
 		max-width: 24rem;
 	}
@@ -1003,11 +1003,11 @@ function isSafetensorFile(filename: string): boolean {
 		padding: 0.625rem 0.75rem;
 		border-radius: 0.875rem;
 		background: color-mix(in oklch, var(--surface-overlay) 94%, transparent);
-		border: var(--border-preset-default-width) solid color-mix(in oklch, var(--accent-cyan-main) 24%, transparent);
+		border: var(--border-width-thin) solid color-mix(in oklch, var(--accent-cyan-main) 24%, transparent);
 		color: var(--text-secondary);
 		font-size: 0.75rem;
 		line-height: 1.45;
-		box-shadow: var(--shadow-z3);
+		box-shadow: var(--popover-box-shadow);
 		pointer-events: none;
 	}
 

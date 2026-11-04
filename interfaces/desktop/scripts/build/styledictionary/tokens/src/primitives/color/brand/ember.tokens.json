@@ -7,10 +7,10 @@
 					"colorSpace": "oklch",
 					"components": [
 						0.97,
-						0.12,
+						0.02,
 						25
 					],
-					"hex": "#f5f5f5"
+					"hex": "#fff2f0"
 				},
 				"$description": "ember 50 — lightness 0.97."
 			},
@@ -19,10 +19,10 @@
 					"colorSpace": "oklch",
 					"components": [
 						0.89,
-						0.12,
+						0.0551,
 						25
 					],
-					"hex": "#ffcdc8"
+					"hex": "#fdcdc9"
 				},
 				"$description": "ember 100 — lightness 0.89."
 			},
@@ -31,10 +31,10 @@
 					"colorSpace": "oklch",
 					"components": [
 						0.81,
-						0.12,
+						0.092,
 						25
 					],
-					"hex": "#faa8a1"
+					"hex": "#f7aaa3"
 				},
 				"$description": "ember 200 — lightness 0.81."
 			},
@@ -43,10 +43,10 @@
 					"colorSpace": "oklch",
 					"components": [
 						0.73,
-						0.12,
+						0.124,
 						25
 					],
-					"hex": "#ea8881"
+					"hex": "#eb8780"
 				},
 				"$description": "ember 300 — lightness 0.73."
 			},
@@ -55,10 +55,10 @@
 					"colorSpace": "oklch",
 					"components": [
 						0.65,
-						0.12,
+						0.1561,
 						25
 					],
-					"hex": "#ce7069"
+					"hex": "#de635d"
 				},
 				"$description": "ember 400 — lightness 0.65."
 			},
@@ -67,10 +67,10 @@
 					"colorSpace": "oklch",
 					"components": [
 						0.55,
-						0.12,
+						0.18,
 						25
 					],
-					"hex": "#ad524d"
+					"hex": "#c53637"
 				},
 				"$description": "ember 500 — lightness 0.55."
 			},
@@ -79,10 +79,10 @@
 					"colorSpace": "oklch",
 					"components": [
 						0.46,
-						0.12,
+						0.1519,
 						25
 					],
-					"hex": "#8f3734"
+					"hex": "#9b2729"
 				},
 				"$description": "ember 600 — lightness 0.46."
 			},
@@ -91,10 +91,10 @@
 					"colorSpace": "oklch",
 					"components": [
 						0.37,
-						0.12,
+						0.119,
 						25
 					],
-					"hex": "#721c1c"
+					"hex": "#721c1d"
 				},
 				"$description": "ember 700 — lightness 0.37."
 			},
@@ -103,10 +103,10 @@
 					"colorSpace": "oklch",
 					"components": [
 						0.28,
-						0.12,
+						0.085,
 						25
 					],
-					"hex": "#520409"
+					"hex": "#4a1212"
 				},
 				"$description": "ember 800 — lightness 0.28."
 			},
@@ -115,10 +115,10 @@
 					"colorSpace": "oklch",
 					"components": [
 						0.19,
-						0.12,
+						0.05,
 						25
 					],
-					"hex": "#2c0203"
+					"hex": "#260908"
 				},
 				"$description": "ember 900 — lightness 0.19."
 			},
@@ -127,10 +127,10 @@
 					"colorSpace": "oklch",
 					"components": [
 						0.12,
-						0.12,
+						0.0301,
 						25
 					],
-					"hex": "#130001"
+					"hex": "#0f0202"
 				},
 				"$description": "ember 950 — lightness 0.12."
 			},

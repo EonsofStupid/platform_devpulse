@@ -1,0 +1,99 @@
+/**
+ * @file layouts/app/styles/depth.css
+ * @layer layouts
+ *
+ * Multi-layer Depth System for App Shell and the chat window
+ * Neumorphism + bevel + rim lights using ColdLight tokens.
+ * Chat's depth.css was the same system, so both layouts share these rules.
+ *
+ * @since 0.1.0
+ */
+
+:is([data-layout="app"], [data-layout="chat"]) [data-depth="float"] {
+	box-shadow: var(--layouts-depth-float);
+}
+:is([data-layout="app"], [data-layout="chat"]) [data-depth="raised"] {
+	box-shadow: var(--layouts-depth-raised);
+}
+:is([data-layout="app"], [data-layout="chat"]) [data-depth="elevated"] {
+	box-shadow: var(--layouts-depth-elevated);
+}
+:is([data-layout="app"], [data-layout="chat"]) [data-depth="lifted"] {
+	box-shadow: var(--layouts-depth-lifted);
+}
+
+:is([data-layout="app"], [data-layout="chat"]) [data-neu="outset"] {
+	box-shadow: var(--layouts-neu-outset);
+}
+:is([data-layout="app"], [data-layout="chat"]) [data-neu="inset"] {
+	box-shadow: var(--layouts-neu-inset);
+}
+:is([data-layout="app"], [data-layout="chat"]) [data-neu="thick"] {
+	box-shadow: var(--layouts-neu-thick);
+}
+
+:is([data-layout="app"], [data-layout="chat"]) [data-rim="subtle"] {
+	box-shadow: var(--layouts-rim-subtle);
+}
+:is([data-layout="app"], [data-layout="chat"]) [data-rim="medium"] {
+	box-shadow: var(--layouts-rim-medium);
+}
+:is([data-layout="app"], [data-layout="chat"]) [data-rim="strong"] {
+	box-shadow: var(--layouts-rim-strong);
+}
+
+:is([data-layout="app"], [data-layout="chat"]) [data-text-bevel="emboss"] {
+	text-shadow: var(--layouts-text-emboss);
+}
+:is([data-layout="app"], [data-layout="chat"]) [data-text-bevel="deboss"] {
+	text-shadow: var(--layouts-text-deboss);
+}
+:is([data-layout="app"], [data-layout="chat"]) [data-text-bevel="glow"] {
+	text-shadow: var(--layouts-text-glow-teal);
+}
+
+:is([data-layout="app"], [data-layout="chat"]) :is([data-depth], [data-neu], [data-rim]) {
+	border-radius: var(--radius-lg);
+}
+
+[data-layout="app"] [data-panel="float"] {
+	background: var(--glass-deep);
+	backdrop-filter: blur(var(--blur-md));
+	border: var(--border-width-hairline) solid var(--border-subtle);
+	border-radius: var(--radius-md);
+	box-shadow: var(--layouts-depth-float);
+}
+
+[data-layout="app"] [data-panel="raised"] {
+	background: var(--layouts-glass-smoke);
+	backdrop-filter: blur(var(--blur-lg));
+	border: var(--border-width-hairline) solid var(--border-subtle);
+	border-radius: var(--radius-md);
+	box-shadow: var(--layouts-depth-raised), var(--layouts-edge-top);
+}
+
+[data-layout="app"] [data-panel="elevated"] {
+	background: var(--layouts-glass-frost);
+	backdrop-filter: blur(var(--blur-lg));
+	border: var(--border-width-hairline) solid var(--border-emphasis);
+	border-radius: var(--radius-lg);
+	box-shadow:
+		var(--layouts-depth-elevated), var(--layouts-edge-top-strong), var(--layouts-edge-bottom);
+}
+
+[data-layout="app"] [data-panel="hero"] {
+	background: var(--layouts-glass-frost);
+	backdrop-filter: blur(var(--blur-xl));
+	border: var(--border-width-thin) solid var(--layouts-panel-hero-border);
+	border-radius: var(--radius-lg);
+	box-shadow:
+		var(--layouts-depth-lifted), var(--layouts-rim-strong), var(--layouts-edge-top-strong);
+	transition: all var(--duration-normal) var(--layouts-icon-btn-ease);
+}
+
+[data-layout="app"] [data-panel="hero"]:hover {
+	box-shadow:
+		var(--layouts-depth-lifted), var(--layouts-panel-hero-hover-glow),
+		var(--layouts-edge-top-strong);
+	transform: var(--layouts-panel-lift);
+}

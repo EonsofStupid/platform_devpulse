@@ -319,7 +319,7 @@ const filteredResults = $derived.by(() => {
 		background: var(--surface-base);
 		border: 1px solid var(--border-soft);
 		border-radius: 1rem;
-		box-shadow: var(--shadow-z3);
+		box-shadow: var(--popover-box-shadow);
 		overflow: hidden;
 	}
 
@@ -407,7 +407,7 @@ const filteredResults = $derived.by(() => {
 		transition: all 150ms ease-out;
 	}
 	.format-tab:hover {
-		border-color: var(--border-default);
+		border-color: var(--border-subtle);
 		color: var(--text-secondary);
 	}
 	.format-tab.active {

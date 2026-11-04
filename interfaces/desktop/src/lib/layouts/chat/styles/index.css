@@ -1,0 +1,19 @@
+/**
+ * @file layouts/chat/styles/index.css
+ * @layer layouts
+ *
+ * Chat Window Layout Styles
+ * Consumes ColdLight tokens via var(--*) references.
+ * NO token definitions here - only layout-specific styling.
+ *
+ * The chat's frame, bars, mode rail, bubbles and footer are ColdLight's chat-*
+ * kinds now (their values are the chat tokens), and the window is a native one,
+ * so this keeps what those do not own: the shared depth and common rules, and
+ * the AI response interactions.
+ *
+ * @since 0.1.0
+ */
+
+@import "../../common/styles/index.css";
+@import "../../app/styles/depth.css";
+@import "./interactions.css" layer(components);

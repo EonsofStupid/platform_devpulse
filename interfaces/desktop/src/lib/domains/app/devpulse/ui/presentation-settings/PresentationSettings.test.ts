@@ -26,7 +26,7 @@ it("switches the shipped control and retains technical identity across reloads",
 	const subsystem = {
 		name: "GUARDIAN",
 		state: "ready" as const,
-		latencyMs: 12,
+		latencyUs: 12,
 		message: null,
 		friendlyName: "Quality Check",
 	};

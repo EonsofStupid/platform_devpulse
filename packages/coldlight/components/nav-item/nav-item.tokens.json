@@ -1,0 +1,54 @@
+{
+	"$description": "NavItem's tokens (plan 0006 §0s). The build generates styles/components/kinds/nav-item.css and nav-item.generated.ts from the nav-item group. Values from the owner's design/shortcodes/components/nav-item.css and presets/nav.ts (active fill).",
+	"nav-item": {
+		"$description": "Secondary text at rest, primary on hover and on the current page, which also takes the teal area fill.",
+		"$extensions": {
+			"com.coldlight": {
+				"accepts": [],
+				"defaults": { "size": "md" }
+			}
+		},
+		"base": {
+			"color": { "$value": "{text.secondary}", "$type": "color" },
+			"border-radius": { "$value": "{radius.md}", "$type": "dimension" },
+			"font-weight": { "$value": 500, "$type": "fontWeight" }
+		},
+		"size": {
+			"sm": {
+				"height": { "$value": "2rem", "$type": "dimension" },
+				"padding-inline": { "$value": "0.75rem", "$type": "dimension" },
+				"font-size": { "$value": "0.875rem", "$type": "dimension" }
+			},
+			"md": {
+				"height": { "$value": "2.5rem", "$type": "dimension" },
+				"padding-inline": { "$value": "1rem", "$type": "dimension" },
+				"font-size": { "$value": "0.875rem", "$type": "dimension" }
+			},
+			"lg": {
+				"height": { "$value": "3rem", "$type": "dimension" },
+				"padding-inline": { "$value": "1.5rem", "$type": "dimension" },
+				"font-size": { "$value": "1rem", "$type": "dimension" }
+			}
+		},
+		"state": {
+			"hover": {
+				"color": { "$value": "{text.primary}", "$type": "color" },
+				"background-color": { "$value": "{interaction.hover}", "$type": "color" }
+			},
+			"selected": {
+				"color": { "$value": "{text.primary}", "$type": "color" },
+				"background-color": { "$value": "{accent.teal.fill}", "$type": "color" }
+			},
+			"focus-visible": {
+				"outline-style": { "$value": "solid" },
+				"outline-width": { "$value": "0.125rem", "$type": "dimension" },
+				"outline-color": { "$value": "{border.focus}", "$type": "color" },
+				"outline-offset": { "$value": "0.125rem", "$type": "dimension" }
+			},
+			"disabled": {
+				"opacity": { "$value": 0.5, "$type": "number" },
+				"cursor": { "$value": "not-allowed" }
+			}
+		}
+	}
+}

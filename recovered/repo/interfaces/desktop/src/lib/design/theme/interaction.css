@@ -1,0 +1,10 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+@theme {
+  --interaction-hover: oklch(1.0032 0.0305 28.88 / 0.059);
+  --interaction-active: oklch(1.0032 0.0305 28.88 / 0.102);
+  --interaction-selected: oklch(1.0032 0.0305 28.88 / 0.149);
+  --interaction-disabled: oklch(1.0032 0.0305 28.88 / 0.031);
+}

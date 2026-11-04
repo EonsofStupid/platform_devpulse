@@ -76,7 +76,7 @@ const ROLE_SUMMARY: RoleSummary[] = [
 		accent: "var(--wizard-role-encoder-main)",
 	},
 	{
-		slotId: "vision.encoder",
+		slotId: "vision.embedder",
 		label: "Vision",
 		icon: Image,
 		accent: "var(--wizard-role-encoder-main)",

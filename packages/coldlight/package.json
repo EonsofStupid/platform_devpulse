@@ -11,6 +11,11 @@
 	"type": "module",
 	"exports": {
 		"./index.css": "./index.css",
+		"./actions": {
+			"types": "./actions/index.ts",
+			"svelte": "./actions/index.ts",
+			"default": "./actions/index.ts"
+		},
 		"./behaviors": {
 			"types": "./behaviors/index.ts",
 			"svelte": "./behaviors/index.ts",

@@ -272,6 +272,248 @@ open_folder = "Open the logs folder"
 open_folder_body = "Every day's action log is a file in your DevPulse logs folder."
 
 # ─────────────────────────────────────────────────────────────────────
+# Visual Page Builder — the V icon, its panel, scan and Builder.
+# Its name and lines are under [nav].
+# ─────────────────────────────────────────────────────────────────────
+[vpb]
+# The panel's title bar, tabs and status
+brand_dev = "DEV"
+brand_pulse = "PULSE"
+tab_inspector = "Inspector"
+tab_builder = "Builder"
+status_ready = "Ready"
+status_scanning = "Scanning..."
+status_paused = "Scan paused"
+drag_label = "Drag to move"
+minimize = "Minimize"
+minimize_label = "Minimize to Icon"
+close = "Close"
+close_label = "Close Panel"
+
+# The scan toolbar
+controls_label = "VPB Controls"
+start_scan = "Start scan"
+resume_scan = "Resume scan"
+pause_scan = "Pause scan"
+stop_scan = "Stop scan"
+force_stop = "Force stop"
+float_panel = "Float panel"
+dock_panel = "Dock panel"
+open_workspace = "Full builder"
+toast_scan_resumed = "Scan resumed"
+toast_scan_started = "Scan started - hover over elements"
+toast_scan_paused = "Scan paused - browse freely"
+toast_scan_force_stopped = "Scan force stopped"
+toast_scan_stopped = "Scan stopped"
+toast_docked = "Panel docked"
+toast_floating = "Panel floating - drag to move"
+
+# The V icon and its menu
+icon_menu_label = "VPB Menu"
+icon_title = "Visual Page Builder"
+menu_open = "Open VPB"
+menu_scan = "Enable Scan"
+menu_settings = "Settings"
+toast_restored = "VPB restored"
+toast_scan_enabled = "Scan enabled - Hover to inspect"
+
+# The floating element inspector
+element_title = "Element Inspector"
+close_inspector = "Close inspector"
+drag_inspector = "Drag inspector window"
+row_tag = "Tag"
+row_id = "ID"
+row_classes = "Classes"
+row_file = "File"
+copy_id = "Copy ID"
+copy_classes = "Copy classes"
+copy_all = "Copy All for AI Context"
+toast_copied = "Copied {field}"
+toast_copy_failed = "Failed to copy"
+
+# The Inspector tab
+inspector_heading = "Inspector"
+inspector_mode_title = "Inspector Mode"
+inspector_mode_body = "Hover over elements to scan. Click to inspect."
+no_block = "No block selected"
+no_block_body = "Select a block from the tree or add one from the Builder palette."
+section_recipe = "Recipe"
+section_color = "Color"
+section_surface = "Surface"
+section_frame = "Frame"
+section_depth = "Depth"
+section_motion = "Motion"
+section_panel = "Panel"
+section_slots = "Slots"
+custom_recipe = "{recipe} (custom)"
+axis_default = "Default"
+slot_items = "{count} items"
+color_unavailable = "Unavailable: a block has no colour setting yet. Its recipe and Surface decide its colour."
+panel_unavailable = "Unavailable: a block has no padding or scrolling setting yet."
+copy = "Copy"
+cut = "Cut"
+paste = "Paste"
+delete = "Delete"
+refused = "{kind} is not allowed in {slot} of {parent}"
+
+# The Builder tab
+builder_heading = "Builder"
+block_count = "{count} blocks"
+search_placeholder = "Search blocks..."
+templates_heading = "Templates"
+palette_heading = "Palette"
+tree_heading = "Tree"
+clear = "Clear"
+root_drop = "Drop here to add at the top level"
+tree_problems = "{count} problems with slot rules. Hover to read the first."
+undo = "Undo"
+redo = "Redo"
+save = "Save"
+
+# The devtool page
+devtool_where = "It sits over this window as the V icon at the bottom. Ctrl+Shift+B opens the full builder."
+devtool_needs_advanced = "The Visual Page Builder comes with the Advanced display."
+devtool_needs_advanced_short = "Advanced display is off"
+devtool_turn_on_advanced = "Turn on the Advanced display"
+
+[vpb.categories.shell]
+label = "Shell"
+description = "App chrome and layout structure"
+
+[vpb.categories.surfaces]
+label = "Surfaces"
+description = "Panels, cards, and containers"
+
+[vpb.categories.forms]
+label = "Forms"
+description = "Inputs and form fields"
+
+[vpb.categories.feedback]
+label = "Feedback"
+description = "Alerts, progress and loading"
+
+[vpb.categories.data]
+label = "Data"
+description = "Tables, lists and stats"
+
+[vpb.categories.navigation]
+label = "Navigation"
+description = "Tabs, menus and steps"
+
+[vpb.categories.content]
+label = "Content"
+description = "Text, headings and code"
+
+[vpb.categories.layout]
+label = "Layout"
+description = "Boxes, stacks and grids"
+
+[vpb.categories.overlay]
+label = "Overlay"
+description = "Popovers, tooltips and menus"
+
+[vpb.categories.chat]
+label = "Chat"
+description = "Chat UI components"
+
+[vpb.categories.interactions]
+label = "Interactions"
+description = "Questions and confirmations"
+
+[vpb.categories.widgets]
+label = "Widgets"
+description = "Data display components"
+
+[vpb.kinds."app-shell"]
+label = "App Shell"
+description = "Full application layout shell"
+
+[vpb.kinds."top-bar"]
+label = "Top Bar"
+description = "Horizontal top bar"
+
+[vpb.kinds."side-nav"]
+label = "Side Nav"
+description = "Vertical side navigation"
+
+[vpb.kinds."status-bar"]
+label = "Status Bar"
+description = "Bottom status bar"
+
+[vpb.kinds.dock]
+label = "Dock"
+description = "Icon dock"
+
+[vpb.kinds.panel]
+label = "Panel"
+description = "Container with header, body, and footer slots"
+
+[vpb.kinds.card]
+label = "Card"
+description = "Card container"
+
+[vpb.kinds.modal]
+label = "Modal"
+description = "Modal dialog container"
+
+[vpb.kinds."glass-frame"]
+label = "Glass Frame"
+description = "Glassmorphic container"
+
+[vpb.kinds."input-frame"]
+label = "Input Frame"
+description = "Input wrapper with prefix/suffix"
+
+[vpb.kinds.widget]
+label = "Widget"
+description = "Generic widget container"
+
+[vpb.kinds."stat-meter"]
+label = "Stat Meter"
+description = "Statistic display"
+
+[vpb.kinds.chart]
+label = "Chart"
+description = "Chart visualization"
+
+[vpb.kinds."chat-dock"]
+label = "Chat Dock"
+description = "Chat interface container"
+
+[vpb.kinds."chat-thread"]
+label = "Chat Thread"
+description = "Message thread"
+
+[vpb.kinds."chat-bubble"]
+label = "Chat Bubble"
+description = "Single message bubble"
+
+[vpb.templates."app-shell"]
+label = "App Shell"
+description = "Full application shell with 5-layer structure"
+
+[vpb.templates."glass-panel"]
+label = "Glass Panel"
+description = "Translucent glass panel with backdrop blur"
+
+[vpb.templates."matte-panel"]
+label = "Matte Panel"
+description = "Solid matte panel"
+
+[vpb.templates."glass-card"]
+label = "Glass Card"
+description = "Glass card for content display"
+
+[vpb.templates."chat-dock"]
+label = "Chat Dock"
+description = "Floating chat panel"
+
+[vpb.templates."stat-widget"]
+label = "Stat Widget"
+description = "Single metric display"
+
+
+# ─────────────────────────────────────────────────────────────────────
 # Auth shell — sign-in, sign-up, sign-out, error templates
 # Layman English only. No jargon like "credentials," "session," "JWT."
 # ─────────────────────────────────────────────────────────────────────
@@ -458,11 +700,724 @@ open_council = "Open the Council"
 failed = "The room did not finish: {reason}"
 
 # ─────────────────────────────────────────────────────────────────────
+# Voice Lab — the owner's screens, restored (plan 0009). Their wording.
+# ─────────────────────────────────────────────────────────────────────
+
+[voice_lab]
+tab_tts = "TTS Setup"
+tab_stt = "STT Setup"
+tab_profiles = "Profiles"
+tab_test = "Test Bench"
+dismiss = "Dismiss"
+slot_line = "Slot: {slot}"
+slot_status = "{state} · {runtime} · {loading}"
+slot_not_found = "Slot not found in registry"
+slot_assigned = "Assigned from model registry"
+slot_bundled = "Bundled default configured"
+slot_unassigned = "No model assigned"
+loaded = "Loaded"
+not_loaded = "Not loaded"
+unknown_backend = "Unknown backend"
+unknown_loading = "Unknown loading"
+
+[voice_lab.tts]
+endpoint_unavailable = "Choosing a text-to-speech endpoint is unavailable: DevPulse has no command for it yet. Speech here runs through the {slot} slot."
+runtime_title = "Voice Runtime"
+output_fallback = "Voice Output"
+load_output = "Load voice output"
+conversation_fallback = "Voice Conversation"
+conversation_note = "24/7 voice uses this slot when it is configured; file-based STS in this tab runs through {brain}."
+preview_title = "Voice Preview ({count} loaded from registry)"
+filter_label = "Filter:"
+filter_all = "All"
+filter_female = "Female"
+filter_male = "Male"
+filter_neutral = "Neutral"
+registry_failed = "Failed to load voice registry: {error}"
+no_voices = "No voices are available for the configured TTS slot yet."
+speed = "Speed"
+speed_value = "{speed}x"
+file_title = "Audio File → Speech"
+file_hint = "Upload MP3/WAV/FLAC to transcribe, or run the full speech-to-speech pipeline (STT → brain → TTS)."
+pick_title = "Choose an audio file"
+upload_transcribe = "Upload & Transcribe"
+run_sts = "Run Speech-to-Speech"
+transcript = "Transcript"
+reply = "Reply"
+default_voice = "Default Voice:"
+no_default = "None"
+saving = "Saving..."
+set_default = "Set as Default"
+
+[voice_lab.stt]
+endpoint_unavailable = "Choosing a speech-to-text endpoint is unavailable: DevPulse has no command for it yet. Transcription here runs through the {slot} slot."
+input_fallback = "Voice Input"
+language = "Language:"
+load = "Load voice input"
+mic_title = "Microphone Test"
+mic_detected = "Device: Detected"
+mic_missing = "Device: Not found"
+level = "Level:"
+levels = "Peak: {peak} | Avg: {avg} | Noise floor: {floor}"
+recording = "Recording..."
+test_mic = "Test Microphone"
+vad = "VAD Sensitivity"
+vad_hint = "Lower = more sensitive, triggers on quieter audio"
+save = "Save"
+reset = "Reset"
+settings_note = "Language and VAD sensitivity are saved to your voice settings. Transcription does not read them yet."
+note_title = "Live slot, not a fake profile"
+note_body = "Swap the STT model through slot assignment, then load {slot} here to test the runtime you actually configured."
+ready = "Ready"
+load_now = "Load now"
+
+[[voice_lab.stt.languages]]
+value = "auto"
+label = "Auto-detect"
+
+[[voice_lab.stt.languages]]
+value = "en"
+label = "English"
+
+[[voice_lab.stt.languages]]
+value = "es"
+label = "Spanish"
+
+[[voice_lab.stt.languages]]
+value = "fr"
+label = "French"
+
+[[voice_lab.stt.languages]]
+value = "de"
+label = "German"
+
+[[voice_lab.stt.languages]]
+value = "ja"
+label = "Japanese"
+
+[[voice_lab.stt.languages]]
+value = "zh"
+label = "Chinese"
+
+[[voice_lab.stt.languages]]
+value = "ko"
+label = "Korean"
+
+[[voice_lab.stt.languages]]
+value = "pt"
+label = "Portuguese"
+
+[[voice_lab.stt.languages]]
+value = "ru"
+label = "Russian"
+
+[[voice_lab.stt.languages]]
+value = "ar"
+label = "Arabic"
+
+[voice_lab.profiles]
+title = "Voice Profiles"
+new = "+ New Profile"
+active = "Active"
+summary = "Voice: {voice} | STT quality: {quality}"
+activate = "Activate"
+edit = "Edit"
+delete = "Delete"
+name = "Profile name"
+voice = "Voice"
+quality = "STT quality"
+save = "Save"
+cancel = "Cancel"
+settings_note = "Profiles are saved to your preferences. Speaking and transcribing do not read the active profile yet."
+
+[[voice_lab.profiles.qualities]]
+value = "standard"
+label = "Standard"
+
+[[voice_lab.profiles.qualities]]
+value = "high_quality"
+label = "High quality"
+
+[[voice_lab.profiles.qualities]]
+value = "best"
+label = "Best"
+
+[voice_lab.test]
+tts_title = "TTS Test"
+default_text = "Hello, this is a test of Clyffy's voice system."
+placeholder = "Type something for Clyffy to say..."
+voice_line = "Voice: {voice}"
+speak = "Speak"
+stop = "Stop"
+latency = "Latency: {ms}ms"
+stt_title = "STT Test"
+listening = "Listening..."
+record = "Speak for about 3 seconds"
+transcription = "Transcription:"
+smoke_title = "Pipeline Smoke Test"
+smoke_hint = "Runs the live TTS slot into the live STT slot and reports which stage failed."
+running = "Running..."
+run_smoke = "Run Smoke Test"
+tts_ok = "TTS: OK"
+tts_failed = "TTS: Failed"
+stt_ok = "STT: OK"
+stt_failed = "STT: Failed"
+spoken = "Spoken: {text}"
+transcript = "Transcript: {text}"
+duration = "Duration: {ms}ms"
+
+# ─────────────────────────────────────────────────────────────────────
+# Hubs and boot — the owner's dashboards, status bar, top bar, floating
+# chat and boot views, restored (plan 0009). Their wording.
+# ─────────────────────────────────────────────────────────────────────
+
+[hubs.dashboard]
+tab_overview = "Overview"
+tab_wireless = "Wireless"
+tab_wan_lan = "WAN/LAN"
+uptime = "Uptime"
+cpu = "CPU"
+memory = "Memory"
+network = "Network"
+unavailable = "Unavailable"
+wireless_title = "Wireless Configuration"
+wireless_body = "Wi-Fi settings and mesh network topology."
+wan_lan_title = "Network Configuration"
+wan_lan_body = "WAN gateway, LAN segments, DHCP pools."
+no_backend = "Not available yet. DevPulse does not read this from your computer so far."
+
+[hubs.statusbar]
+clyffy = "Clyffy: {state}"
+cpu = "CPU: {value}%"
+memory = "MEM: {value}"
+
+[hubs.topbar]
+search_placeholder = "OmniSearch..."
+search_unavailable = "Search is not connected yet."
+chat_overlay = "Chat here (Ctrl+Shift+C)"
+
+[hubs.chat_overlay]
+title = "Clyffy"
+placeholder = "Ask Clyffy..."
+loading = "Loading messages..."
+empty = "No messages yet. Start a conversation."
+minimize = "Minimize"
+expand = "Expand"
+close = "Close"
+send = "Send"
+waiting = "Waiting for platform..."
+voice_unavailable = "Voice input is not connected here yet"
+
+[hubs.boot]
+wordmark = "DevPulse"
+status_ready = "Ready"
+status_loading = "Starting up..."
+status_failed = "Failed"
+status_skipped = "Skipped"
+status_waiting = "Waiting"
+message_failed = "Something went wrong..."
+message_ready = "Ready!"
+message_almost = "Almost ready..."
+message_workspace = "Setting up your workspace..."
+message_starting = "Initializing..."
+title = "DevPulse Platform v{version}"
+log_label = "Platform boot"
+section_boot = "--- Platform Boot ---"
+section_ready = "--- Ready ---"
+platform_healthy = "Platform Healthy"
+total = "{elapsed} total"
+errors_detected = "ERRORS DETECTED"
+
+# ─────────────────────────────────────────────────────────────────────
 # Routes — one name per route folder, keyed by its URL path (plan 0008).
 # The desktop builds every menu, dashboard and tile from its route folders
 # and reads names from here; a route without a name, or a name for a path
 # that is not a route, fails its architecture test.
 # ─────────────────────────────────────────────────────────────────────
+
+# ── Setup wizard: the owner's model setup flow, restored (plan 0009) ──
+
+[setup_wizard.shell]
+kicker = "First Run Setup"
+title = "Configure Clyffy and the model pipeline"
+setup_button = "Setup"
+setup_aria = "View current setup"
+close_aria = "Close setup"
+progress_aria = "Setup progress"
+
+[setup_wizard.repair]
+downloading = "Downloading models in background..."
+missing_title = "Some Models Are Missing"
+missing_copy = "These models aren't where we left them. Redownload, pick a different one, or skip."
+missing_badge = "Missing"
+redownload = "Redownload"
+downloading_short = "Downloading..."
+pick_different = "Pick Different"
+skip = "Skip"
+resolved = "All issues resolved."
+continue = "Continue"
+no_source = "No download source found for {slot}. Use Pick Different to choose a local model instead."
+hardware_title = "Your Hardware Changed"
+hardware_copy = "Your GPU is different from last time. Want to re-check your setup?"
+redetect = "Re-detect Hardware"
+keep_current = "Keep Current"
+
+[setup_wizard.validate]
+voice_on = "Enable voice"
+voice_off = "Disable voice"
+voice_unavailable = "TTS model not loaded"
+
+[setup_wizard.slot_card]
+empty = "No model selected. Browse or search to pick one."
+ready = "This model is loaded and ready to use"
+loading = "Loading model into GPU memory — this takes a few seconds"
+warm = "Model is in system RAM, ready to activate quickly"
+failed = "Something went wrong loading this model"
+assigned = "Model selected but not yet loaded into memory"
+
+[setup_wizard.local]
+heading = "Models on this computer"
+intro = "Models on this computer run through a runtime DevPulse keeps supervised. Nothing downloads until you press a button, and you can change any of it later."
+mascot_alt = "Clyffy"
+loading = "Finding the cleanest local model plan."
+status_assigned = "Assigned"
+find_models = "Find Models"
+assign_slots = "Assign slots"
+guided_setup = "Set Up Your AI"
+
+[setup_wizard.preset_card]
+title = "Recommended for your {gpu}"
+cpu_label = "CPU"
+tier = "{tier} tier"
+on_computer = "On your computer"
+download_needed = "Download needed"
+to_download_one = "{count} model to download ({size})"
+to_download_many = "{count} models to download ({size})"
+already_on_disk = "{count} already on disk"
+all_downloaded = "All models already downloaded"
+setting_up = "Setting up..."
+download_and_setup = "Download & Set Up"
+set_up_now = "Set Up Now"
+
+[setup_wizard.models_step]
+guidance = "This page keeps the choices readable: one brain decision, then every kernel role surfaced slot by slot."
+help_tip = "Use the main setup button for the full recommended local-first stack. Customize and Browse stay available if you want to override anything."
+help_button = "Model setup in plain English"
+help_summary = "This page keeps the dev baseline visible slot by slot so you can verify the kernel plan, override it cleanly, and still watch the real queue while setup runs."
+help_points = [
+	"Every slot is visible during dev, even if the active preset only needs some of them immediately.",
+	"Use recommended when you want the cleanest kernel-backed baseline for the current hardware tier.",
+	"Browse opens the in-wizard slot popup for local assignment, importing, and role-by-role overrides.",
+	"Search HuggingFace still feeds the same live kernel queue, registry import path, and slot assignment flow.",
+]
+loading_alt = "Clyffy analyzing hardware"
+loading_title = "Analyzing your {gpu}..."
+hardware_fallback = "hardware"
+loading_copy = "Finding the cleanest local model plan."
+error_title = "Couldn't auto-detect your model plan"
+brain_options = "Brain Options"
+brain_tip = "This is the main coding brain. Larger options generally reason better, but they need more VRAM and take longer to download."
+brain_copy = "Pick the main model first. Everything else below is grouped by what it does for you."
+vram_estimate = "~{size} VRAM"
+active_preset = "Active preset: {name}"
+baseline_kicker = "Dev Baseline"
+baseline_tip = "Every kernel slot is visible during dev. You can browse local models, download the recommendation, or search HuggingFace role by role."
+baseline_copy = "Every slot is surfaced during dev, even when the active preset only needs part of the stack right now."
+guidance_kicker = "Clyffy Guidance"
+guidance_copy = "Use the recommended button for the fastest baseline, then open any slot to browse local files, import a model, or search HuggingFace without leaving setup."
+no_assigned = "No model assigned yet"
+no_preset = "No preset pick yet"
+on_disk = "On disk"
+recommended_size = "Recommended · {size}"
+manual_pick = "Manual pick"
+use_recommended = "Use recommended"
+download_recommended = "Download recommended"
+find_best_fit = "Find best fit"
+browse = "Browse"
+search_hf = "Search HF"
+live_kicker = "Live Setup"
+live_downloads = "Real kernel download state. Bytes, failures, and cancel events land here."
+live_applying = "Applying models that are already on disk."
+live_assigning = "Assigning the recommended models that are already on disk."
+error_real_title = "Setup hit a real error"
+some_failed = "These did not finish: {slots}. Retry, or pick a model for them manually."
+setup_failed = "Setup failed: {message}"
+retry_unavailable = "Retry unavailable for {name} because the slot recommendation is missing."
+slot_updated = "{slot} updated"
+not_in_registry = "Recommended file is marked on disk but was not found in the registry."
+now_recommended = "{slot} now uses the recommended model"
+group_reasoning_title = "Thinking & Routing"
+group_reasoning_subtitle = "Main brains, fast-path routing, and heavy fallback reasoning roles."
+group_observation_title = "Helpers"
+group_observation_subtitle = "Support roles that keep the main coding flow responsive during dev work."
+group_encoder_title = "Search & Vision"
+group_encoder_subtitle = "Retrieval, reranking, screenshot understanding, and image-aware reasoning."
+group_voice_title = "Voice & Wake"
+group_voice_subtitle = "Listening, speaking, live conversation, and wake-word roles."
+
+[setup_wizard.models_step.state_labels]
+ready = "Ready"
+loading = "Loading"
+failed = "Attention"
+assigned = "Assigned"
+empty = "Empty"
+
+[setup_wizard.models_step.slot_tips]
+chat_brain = "The main AI that thinks, writes code, and answers questions. Bigger usually means smarter, but it uses more memory."
+chat_fast = "The fast routing brain handles quick turns, short assistant hops, and low-latency work so the bigger brain stays free for heavier tasks."
+chat_vision = "The vision reasoning slot answers questions about screenshots and images instead of only embedding them for search."
+minion_shared = "A smaller helper AI that handles background tasks so the main brain stays responsive."
+minion_escalation = "A heavier fallback brain that only needs to load when a task is hard enough to justify it."
+rag_embedder = "Turns your code and docs into searchable memory so the assistant can find the right files."
+rag_encoder = "This extra retrieval encoder helps package queries cleanly before vector search runs, which improves memory recall during dev testing."
+rag_reranker = "Re-scores search results so the best match rises to the top instead of relying on raw keyword order."
+vision_embedder = "Lets the assistant understand screenshots and image drops."
+voice_stt = "Speech-to-text. Converts what you say into text the assistant can read."
+voice_tts = "Text-to-speech. Speaks the assistant's replies out loud."
+voice_brain = "Optional dedicated voice brain. If you skip it, spoken conversations fall back to the main brain."
+voice_wake = "Keeps hands-free wake-word activation available without forcing the whole voice stack to stay hot all the time."
+
+[setup_wizard.browse_step]
+back = "Back to Setup"
+title = "Find Models"
+subtitle = "Browse models on your computer first, or search HuggingFace when you need to download new ones."
+help_tip = "Use local models first if they already exist on disk. Use online search when you need to fill missing roles or replace a model."
+help_button = "How this page works"
+help_title = "Browse and assign models"
+help_summary = "This page helps you fill missing roles using either models already on your machine or fresh downloads from HuggingFace."
+help_points = [
+	"Every slot card opens the same in-wizard popup for recommended picks, local browsing, imports, and HuggingFace search.",
+	"On Your Computer stays best for fast dev iteration because it avoids queue time and keeps the stack fully local.",
+	"Search HuggingFace still routes through the real kernel queue and slot assignment flow, not a fake side downloader.",
+	"This page is the manual override path when the preset recommendation is not the exact dev baseline you want.",
+]
+baseline_aria = "Kernel baseline configuration"
+baseline_kicker = "Kernel-Gated Baseline"
+baseline_copy = "{assigned}/{total} roles assigned. Ready means the kernel has the slot hot or on standby, not just selected in the UI."
+hardware_aria = "Hardware summary"
+gpu_free = "{gpu} · {size} free VRAM"
+cpu_only = "CPU-only baseline"
+ram = "{size} RAM"
+disk_free = "{size} free disk"
+recommended = "Recommended"
+manage = "Manage"
+browse = "Browse"
+search_hf = "Search HF"
+tab_local = "On Your Computer"
+tab_online = "Search HuggingFace"
+downloading = "Downloading models..."
+group_empty = "No {group} models found yet."
+download_from_hf = "Download from HuggingFace"
+use_for = "Use for {slot}"
+importing = "Importing - please wait..."
+import = "Import Model from File"
+dismiss = "Dismiss"
+done = "Done"
+no_assigned = "No model assigned yet"
+imported = "Model imported"
+import_failed = "Import failed: {message}"
+assigned_to = "Assigned to {slot}"
+capability_other = "Supporting model role"
+group_reasoning_title = "Thinking"
+group_reasoning_desc = "Brain and helper models for coding and reasoning"
+group_encoder_title = "Understanding"
+group_encoder_desc = "Search, ranking, and vision models"
+group_voice_title = "Voice"
+group_voice_desc = "Speech recognition and spoken replies"
+group_observation_title = "Helpers"
+group_observation_desc = "Background and support tasks"
+
+[setup_wizard.browse_step.state_labels]
+ready = "Ready"
+loading = "Loading"
+failed = "Failed"
+assigned = "Assigned"
+empty = "Not set"
+
+[setup_wizard.browse_step.capabilities]
+
+[setup_wizard.browse_step.capabilities.TextGeneration]
+label = "Chat & Thinking"
+desc = "Powers the main coding brain and helpers"
+
+[setup_wizard.browse_step.capabilities.Embedding]
+label = "Memory Search"
+desc = "Turns code into searchable memory"
+
+[setup_wizard.browse_step.capabilities.Reranking]
+label = "Quality Filter"
+desc = "Picks the best search results"
+
+[setup_wizard.browse_step.capabilities.VisionEmbedding]
+label = "Screen Reader"
+desc = "Understands screenshots and images"
+
+[setup_wizard.browse_step.capabilities.VisionLanguage]
+label = "Vision Reasoning"
+desc = "Answers questions about screenshots and images"
+
+[setup_wizard.browse_step.capabilities.SpeechToText]
+label = "Voice Input"
+desc = "Converts speech into text"
+
+[setup_wizard.browse_step.capabilities.TextToSpeech]
+label = "Voice Output"
+desc = "Speaks replies out loud"
+
+[setup_wizard.swap_popup]
+manage_aria = "Manage {slot}"
+kicker = "Clyffy Config"
+what_does = "What does {slot} do?"
+close = "Close"
+knowledge_drop = "Knowledge Drop"
+callout_recommended = "Pick the preset-backed option when you want the fastest clean baseline for this slot."
+callout_local = "Assign a local file when you want zero network delay and a fast dev loop."
+callout_search = "Search here when the preset is not enough or you want a different file family for this role."
+drops_recommended = [
+	"{slot} gets its quick-pick from the active hardware preset, not from a front-end-only default.",
+	"If the file is already on disk, the kernel can assign it immediately without downloading it again.",
+]
+drops_local = [
+	"Local assignment is the fastest dev path because it stays offline and skips queue time entirely.",
+	"Fit badges compare the model's VRAM estimate against your current free VRAM, not a hardcoded guess.",
+]
+drops_search = [
+	"Search downloads still use the real kernel queue, registry import, and slot assignment path you see in setup.",
+	"Use a HuggingFace token when you need private repos, gated access, or higher request limits.",
+]
+source_aria = "Model source for this slot"
+tab_recommended = "Quick Pick"
+tab_local = "On Your Computer"
+tab_search = "Search HuggingFace"
+preset_title = "Preset-backed recommendation"
+preset_copy = "This follows the kernel preset and the current hardware tier."
+preset_tip_label = "What is a preset-backed recommendation?"
+rec_meta = "{size} · ~{vram} VRAM · {device}"
+rec_on_disk = "Already on disk. The kernel can assign it immediately."
+rec_download = "Needs a real download. The live setup queue will track the bundle and import."
+working = "Working..."
+use_recommended = "Use Recommended"
+download_recommended = "Download Recommended"
+no_pick_title = "No preset pick for this slot yet"
+no_pick_copy = "Use local browse or HuggingFace search to fill this role manually."
+browse_local = "Browse local"
+search_online = "Search online"
+local_title = "Compatible local models"
+local_copy = "Assign something from disk or import a new file into this slot."
+free_vram = "{size} free VRAM"
+importing = "Importing..."
+import_file = "Import file"
+no_local_title = "No compatible local models yet"
+no_local_copy = "Import one from disk or switch to HuggingFace search for a fresh download."
+import_from_file = "Import from file"
+local_meta = "{size} · {vram} VRAM"
+fits = "Fits"
+tight_fit = "Tight fit"
+assigned = "Assigned"
+best_local_fit = "Best local fit"
+search_title = "Search and download"
+search_copy = "Downloads still go through the real kernel queue, registry import, and slot assignment path."
+token_tip_label = "Why would I add a HuggingFace token?"
+open_browser = "Open full browser"
+done = "Done"
+not_in_registry = "Recommended file is marked on disk but is not in the registry yet."
+
+[setup_wizard.resources]
+title = "Resource Allocation"
+gpu_vram = "GPU VRAM"
+segment = "{slot}: {size}"
+over_budget = "Over budget by {size} — some models will use CPU"
+no_gpu = "No GPU detected. All models run on CPU."
+ram = "RAM"
+ram_free = "{free} free / {total}"
+disk = "Disk"
+disk_free = "{size} free"
+
+[setup_wizard.model_browser]
+title = "Model Browser"
+close = "Close model browser"
+search_placeholder = "Search HuggingFace for GGUF models..."
+slot_label = "Slot:"
+format_label = "Format:"
+format_gguf = "GGUF only"
+format_safetensors = "SafeTensors only (search lists GGUF files for now)"
+format_all = "All formats"
+fits_only = "Fits GPU only"
+recommended_for = "Recommended for {mode}"
+download_aria = "Download {name}"
+get = "Get"
+searching = "Searching..."
+results = "HuggingFace Results ({count})"
+no_results = "No GGUF models found for \"{query}\""
+local_heading = "Local / Import"
+import_aria = "Import model from disk"
+import_path = "Import from path..."
+symlink_aria = "Create symlink to model"
+symlink = "Create Symlink..."
+fit_green = "Fits GPU"
+fit_yellow = "Tight"
+fit_red = "Won't fit"
+fit_gray = "CPU"
+
+[setup_wizard.loader_step]
+title = "Set Up Your AI Models"
+intro = "Assign models to each capability. Models on your disk are auto-detected."
+gpu_free = "Your GPU ({gpu}) has {size} VRAM free."
+no_gpu = "No GPU detected — models will run on CPU."
+back = "Back"
+continue = "Continue"
+
+[setup_wizard.assignment]
+format_unknown = "Unknown"
+hw_gpu = "{gpu} · {free} VRAM free / {total}"
+hw_cpu = "CPU only · No GPU detected"
+hw_ram = "{size} RAM"
+hw_disk = "{size} disk free"
+auto_aria = "Review auto-configuration recommendations"
+auto_button = "Auto-Configure for {tier} tier"
+review_aria = "Review and download recommended models"
+review_button = "Review Recommendations"
+browse_aria = "Browse HuggingFace and import models"
+browse_button = "Model Browser"
+active_count = "{count} active: {names}"
+suggested_on_disk = "Suggested: {name} ({size}) — already on disk"
+suggested_download = "Suggested: {name} ({size}) — download needed"
+device_aria = "GPU or CPU for {name}: the model loader decides"
+device_gpu = "GPU"
+device_cpu = "CPU"
+status_ready = "Ready"
+status_loading = "Loading"
+status_failed = "Failed"
+status_assigned = "Assigned"
+status_empty = "Not Set Up"
+found_one = "Found {count} compatible model on your disk"
+found_many = "Found {count} compatible models on your disk"
+use_for_aria = "Use {file} for {name}"
+use_file = "Use {file}"
+detail_aria = "View details for {file}"
+delete_aria = "Delete {file} from disk"
+context = "Context: {size}"
+context_aria = "Context length for {name}: not adjustable yet"
+tokens = "{count} tokens"
+recommended = "Recommended: {name}"
+rec_cpu = "{size} · ~{vram} VRAM · CPU recommended"
+rec_gpu = "{size} · ~{vram} VRAM · GPU recommended"
+low_disk = "Low disk space! Need {need}, only {free} free."
+download_aria = "Download {name} for {slot}"
+download = "Download"
+no_model = "No model found for {name}. Assign one below or download from HuggingFace."
+cancel_download_aria = "Cancel download"
+cancel = "Cancel"
+retry_aria = "Retry loading {name}"
+retry = "Retry"
+change_aria = "Change model for {name}"
+pick_aria = "Pick model for {name}"
+change = "Change"
+pick = "Pick Model"
+load_aria = "Load {name} into memory"
+load = "Load"
+unload_aria = "Unload {name} from memory"
+unload = "Unload"
+configure_aria = "Configure {name} settings"
+configure = "Configure"
+import_aria = "Import model file from disk for {name}"
+compatible = "Compatible models ({count})"
+all = "All"
+no_format = "No {format} models on disk. Try a different format tab."
+none_compatible = "No compatible models on disk. Download one from HuggingFace below."
+assign_aria = "Assign {file} to {name}"
+vram = "{size} VRAM"
+waiting = "Waiting for platform to start..."
+summary = "{models} models on disk · {assigned}/{total} capabilities configured"
+close_dialog = "Close dialog"
+too_large_title = "Model Too Large for GPU"
+too_large_copy = "{file} needs ~{need} VRAM but you only have {free} free. It will run on CPU instead. This works but inference is slower."
+cancel_load_aria = "Cancel loading"
+load_anyway = "Load on CPU"
+delete_title = "Delete Model"
+delete_copy = "Permanently delete {file} ({size}) from disk? This cannot be undone. You'll need to download it again."
+cancel_delete_aria = "Cancel delete"
+delete_confirm = "Delete Permanently"
+close_detail = "Close detail overlay"
+detail_format = "Format"
+detail_architecture = "Architecture"
+detail_quantization = "Quantization"
+detail_file_size = "File Size"
+detail_vram = "VRAM Estimate"
+detail_context = "Context Length"
+detail_fit = "Hardware Fit"
+detail_compatible = "Compatible With"
+detail_id = "Model ID"
+delete_detail = "Delete from Disk"
+review_title = "Auto-Configure Review"
+review_copy = "Here's what I recommend for your {tier} hardware ({gpu}, {vram} VRAM). Review each item, then approve."
+already_assigned = "Already assigned: {file}"
+will_assign_on_disk = "Will assign: {name} ({size}) — already on disk"
+will_assign_download = "Will assign: {name} ({size}) — needs download"
+no_recommendation = "No recommendation — skip"
+will_download = "Will download: {size} ({count} models)"
+on_disk_one = "{count} model already on disk"
+on_disk_many = "{count} models already on disk"
+cancel_auto_aria = "Cancel auto-configure"
+approve = "Approve & Configure"
+
+[setup_wizard.assignment.capabilities]
+
+[setup_wizard.assignment.capabilities."chat.brain"]
+label = "Brain"
+friendly_name = "Main AI"
+desc = "Talks to you, writes code, answers questions"
+
+[setup_wizard.assignment.capabilities."minion.shared"]
+label = "Quick Helper"
+friendly_name = "Helper"
+desc = "Fast background tasks — summarizing, formatting"
+
+[setup_wizard.assignment.capabilities."rag.embedder"]
+label = "Search Engine"
+friendly_name = "Embedder"
+desc = "Turns your docs into searchable vectors"
+
+[setup_wizard.assignment.capabilities."voice.stt"]
+label = "Ears (Speech-to-Text)"
+friendly_name = "STT"
+desc = "Converts your voice into text"
+
+[setup_wizard.assignment.capabilities."voice.tts"]
+label = "Voice (Text-to-Speech)"
+friendly_name = "TTS"
+desc = "Speaks AI responses out loud"
+
+[setup_wizard.assignment.capabilities."vision.embedder"]
+label = "Eyes (Vision)"
+friendly_name = "Vision"
+desc = "Understands screenshots and diagrams"
+
+[setup_wizard.assignment.tips]
+ready_active = "{name} is active and ready"
+ready_assigned = "{name} assigned but not loaded yet"
+ready_empty = "{name} needs a model"
+auto = "Shows you exactly what models will be assigned to each capability. You review and approve before anything happens."
+review = "Shows you each recommended model with size, VRAM usage, and download status. You approve before any download starts."
+device_unavailable = "Choosing GPU or CPU per slot is not available yet. The model loader picks the device when it loads the model."
+detail = "Click to see full model details — size, architecture, quantization, VRAM usage, and actions"
+delete = "Delete this model from disk permanently"
+fit_green = "Fits comfortably in your GPU memory. You'll have room for other models too."
+fit_yellow = "Tight fit — it'll work but may slow other models sharing the GPU."
+fit_red = "Too large for GPU. Will fall back to CPU which is slower but still works."
+fit_gray = "Assign a model to check if it fits your hardware."
+context_unavailable = "adjusting how much conversation the model remembers is not available yet."
+download = "Download {name} from HuggingFace and automatically assign it to {slot}"
+change = "Switch to a different model from your disk"
+pick = "Browse compatible models on your disk"
+load = "Load {name} into memory so it's ready to use"
+unload = "Remove from memory to free up {size}"
+configure = "Open {name} settings — language, voice profile, mic test, advanced options"
+import = "Import a model file from your disk for {name}"
+gguf = "Single file format. Best for local inference. Easy to load/unload."
+safetensors = "Multi-shard format. Used for larger models. All shards must be present."
+
+# ── Setup wizard end ──
 
 [nav."/"]
 label = "DevPulse"
@@ -522,6 +1477,39 @@ label = "Clyffy"
 label = "Model Loader"
 blurb = "Your brain, vision, voice and memory models."
 
+[nav."/voice-lab"]
+label = "Voice Lab"
+blurb = "Configure voices, test microphone, manage voice profiles."
+description = "Configure voices, test microphone, manage voice profiles."
+
+[nav."/model-loader/models"]
+label = "Set Up Your AI"
+blurb = "Recommended models for this computer, one brain decision and every role slot by slot."
+
+[nav."/model-loader/browse"]
+label = "Find Models"
+blurb = "Browse models on your computer or search HuggingFace."
+
+[nav."/model-loader/customize"]
+label = "Customize Models"
+blurb = "Change individual AI models, role by role."
+
+[nav."/model-loader/assign"]
+label = "Set Up Your AI Models"
+blurb = "Assign, load and remove models for each capability, with resources alongside."
+
+[nav."/model-loader/activate"]
+label = "Test Chat"
+blurb = "Verify the brain responds before finishing setup."
+
+[nav."/model-loader/profile"]
+label = "First Run Setup"
+blurb = "Who you are, your project, and the guided setup from the start."
+
+[nav."/model-loader/complete"]
+label = "Ready!"
+blurb = "Review and launch."
+
 [nav."/cortex"]
 label = "Cortex"
 blurb = "Clyffy's eyes, ears, mouth, sparkles and brain, set up on one screen."
@@ -564,6 +1552,9 @@ label = "Observability"
 
 [nav."/devtools/system/ide"]
 label = "IDE"
+
+[nav."/devtools/system/design"]
+label = "Design"
 
 [nav."/devtools/clyffy/ears"]
 label = "Ears"
@@ -645,6 +1636,11 @@ description = "Live tail of today's action log"
 label = "DevForge"
 blurb = "Embedded IDE host. REH server, extensions, update channel."
 description = "Code Editor · REH Server"
+
+[nav."/devtools/system/design/vpb"]
+label = "Visual Page Builder"
+blurb = "Scan any element on screen. Build pages from blocks."
+description = "Inspect · Builder · Drag and drop"
 
 [nav."/devtools/clyffy/ears/stt"]
 label = "Speech-to-Text"

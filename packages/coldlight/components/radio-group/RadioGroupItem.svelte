@@ -29,7 +29,7 @@ const radioAttrs = $derived(ctx.hook.getRadio(value, disabled));
 	{...radioAttrs as any}
 	{...rest}
 	class={cn(
-		"inline-flex items-center justify-center size-5 rounded-full border-2 cursor-pointer",
+		"inline-flex items-center justify-center size-5 rounded-full border-2 border-current cursor-pointer",
 		"focus-visible:outline-2 focus-visible:outline-offset-2",
 		"disabled:pointer-events-none disabled:opacity-50",
 		className)}

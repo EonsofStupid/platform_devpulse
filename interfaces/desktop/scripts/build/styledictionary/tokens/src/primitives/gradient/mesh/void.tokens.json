@@ -8,11 +8,11 @@
 						"color": {
 							"colorSpace": "oklch",
 							"components": [
-								0.12,
-								0.01,
-								224
+								0.2077,
+								0.0398,
+								265.75
 							],
-							"hex": "#030608"
+							"hex": "#0f172a"
 						},
 						"position": 0
 					},
@@ -20,17 +20,17 @@
 						"color": {
 							"colorSpace": "oklch",
 							"components": [
-								0.06,
-								0.005,
-								224
+								0.1363,
+								0.0364,
+								259.2
 							],
-							"hex": "#000101"
+							"hex": "#020817"
 						},
 						"position": 1
 					}
 				],
 				"$type": "gradient",
-				"$description": "Void — deep dark descent, subtle hue shift.",
+				"$description": "Void — the owner's rgba(15, 23, 42) down to his hsl(222 84% 5%).",
 				"$extensions": {
 					"com.devpulse.coldlight": {
 						"gradient": {

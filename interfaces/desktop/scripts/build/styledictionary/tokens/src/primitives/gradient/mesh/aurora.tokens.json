@@ -9,10 +9,10 @@
 							"colorSpace": "oklch",
 							"components": [
 								0.55,
-								0.08,
-								173
+								0.156,
+								183
 							],
-							"hex": "#37816d"
+							"hex": "#188377"
 						},
 						"position": 0
 					},
@@ -33,10 +33,10 @@
 							"colorSpace": "oklch",
 							"components": [
 								0.45,
-								0.12,
-								280
+								0.2,
+								302
 							],
-							"hex": "#4a4b96"
+							"hex": "#6c26ae"
 						},
 						"position": 1
 					}

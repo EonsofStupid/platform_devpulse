@@ -1,0 +1,78 @@
+/**
+ * @file layouts/common/styles/typography.css
+ * @layer layouts
+ *
+ * Typography Utilities
+ * Text treatments, bevels, and effects.
+ * Colour, size and truncation are ColdLight Text's props and data attributes,
+ * so the owner's [data-size], [data-text] and [data-truncate] rules are not
+ * global selectors any more: components carry those attributes for themselves.
+ *
+ * @since 0.1.0
+ */
+
+/* ============================================
+   TEXT BEVEL EFFECTS
+   ============================================ */
+
+/* Emboss - raised text */
+[data-text-effect="emboss"] {
+	text-shadow: var(--layouts-text-emboss);
+}
+
+/* Deboss - pressed text */
+[data-text-effect="deboss"] {
+	text-shadow: var(--layouts-text-deboss);
+}
+
+/* Chisel - hard edge */
+[data-text-effect="chisel"] {
+	text-shadow: var(--layouts-text-chisel);
+}
+
+/* Pillow - soft rounded */
+[data-text-effect="pillow"] {
+	text-shadow: var(--layouts-text-pillow);
+}
+
+/* ============================================
+   TEXT GLOW EFFECTS
+   ============================================ */
+
+[data-text-glow="teal"] {
+	text-shadow: var(--layouts-text-glow-teal);
+}
+
+[data-text-glow="purple"] {
+	text-shadow: var(--layouts-text-glow-purple);
+}
+
+[data-text-glow="ember"] {
+	text-shadow: var(--layouts-text-glow-ember);
+}
+
+[data-text-glow="cyber"] {
+	text-shadow: var(--layouts-text-glow-cyber);
+}
+
+/* Frost glow (subtle white) */
+[data-text-glow="frost"] {
+	text-shadow: var(--layouts-text-glow-frost);
+}
+
+/* ============================================
+   SELECTION STYLES
+   ============================================ */
+
+::selection {
+	background: var(--layouts-text-selection);
+	color: var(--text-primary);
+}
+
+[data-selection="purple"]::selection {
+	background: var(--layouts-text-selection-purple);
+}
+
+[data-selection="ember"]::selection {
+	background: var(--layouts-text-selection-ember);
+}

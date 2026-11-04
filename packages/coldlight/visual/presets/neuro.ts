@@ -15,7 +15,7 @@ export const neuroElevated: PresetDefinition = {
 	label: "Neuro Elevated",
 	description: "Raised neumorphic surface — carved out of the void with teal accent glow",
 	axes: {
-		backgroundColor: "oklch(0.18 0.015 240)",
+		backgroundColor: "oklch(0.259 0.03 240)",
 		backgroundBlur: "0",
 		shadow: [
 			{ offsetX: "0", offsetY: "0.25rem", blur: "1rem", spread: "0", color: "oklch(0 0 0 / 0.5)" },
@@ -107,7 +107,7 @@ export const neuroElevated: PresetDefinition = {
 					inset: true,
 				},
 			],
-			backgroundColor: "oklch(0.16 0.015 240)",
+			backgroundColor: "oklch(0.247 0.03 240)",
 		},
 		disabled: { opacity: 0.45, color: "oklch(0.6 0.005 224)" },
 	},
@@ -120,7 +120,7 @@ export const neuroDeep: PresetDefinition = {
 	label: "Neuro Deep",
 	description: "Deeply recessed surface — sunken into the void with heavy inset shadows",
 	axes: {
-		backgroundColor: "oklch(0.12 0.012 240)",
+		backgroundColor: "oklch(0.221 0.03 240)",
 		backgroundBlur: "0",
 		shadow: [
 			{
@@ -164,8 +164,8 @@ export const neuroDeep: PresetDefinition = {
 		opacity: 1,
 	},
 	states: {
-		hover: { backgroundColor: "oklch(0.14 0.014 240)" },
-		active: { backgroundColor: "oklch(0.1 0.01 240)" },
+		hover: { backgroundColor: "oklch(0.234 0.03 240)" },
+		active: { backgroundColor: "oklch(0.208 0.03 240)" },
 		disabled: { opacity: 0.4, color: "oklch(0.55 0.005 224)" },
 	},
 };
@@ -177,7 +177,7 @@ export const neuroMinimal: PresetDefinition = {
 	label: "Neuro Minimal",
 	description: "Subtle neumorphic — barely raised, whisper shadows, restrained",
 	axes: {
-		backgroundColor: "oklch(0.16 0.01 240)",
+		backgroundColor: "oklch(0.247 0.03 240)",
 		backgroundBlur: "0",
 		shadow: [
 			{
@@ -212,8 +212,8 @@ export const neuroMinimal: PresetDefinition = {
 		opacity: 1,
 	},
 	states: {
-		hover: { backgroundColor: "oklch(0.18 0.012 240)" },
-		active: { backgroundColor: "oklch(0.14 0.008 240)" },
+		hover: { backgroundColor: "oklch(0.259 0.03 240)" },
+		active: { backgroundColor: "oklch(0.234 0.03 240)" },
 		disabled: { opacity: 0.4, color: "oklch(0.55 0.005 224)" },
 	},
 };
@@ -225,7 +225,7 @@ export const neuroSolid: PresetDefinition = {
 	label: "Neuro Solid",
 	description: "Dense neumorphic — opaque surface, heavy shadows, no translucency",
 	axes: {
-		backgroundColor: "oklch(0.2 0.018 240)",
+		backgroundColor: "oklch(0.272 0.03 240)",
 		backgroundBlur: "0",
 		shadow: [
 			{
@@ -294,7 +294,7 @@ export const neuroSolid: PresetDefinition = {
 				},
 			],
 		},
-		active: { backgroundColor: "oklch(0.18 0.016 240)" },
+		active: { backgroundColor: "oklch(0.259 0.03 240)" },
 		disabled: { opacity: 0.4, color: "oklch(0.6 0.005 224)" },
 	},
 };
@@ -306,7 +306,7 @@ export const neuroGlow: PresetDefinition = {
 	label: "Neuro Glow",
 	description: "Neumorphic with teal emission — glowing borders and accent shadow layers",
 	axes: {
-		backgroundColor: "oklch(0.16 0.02 220)",
+		backgroundColor: "oklch(0.247 0.03 220)",
 		backgroundBlur: "0",
 		shadow: [
 			{ offsetX: "0", offsetY: "0.25rem", blur: "1rem", spread: "0", color: "oklch(0 0 0 / 0.45)" },
@@ -389,7 +389,7 @@ export const neuroGlow: PresetDefinition = {
 			border: { color: "oklch(0.75 0.18 180 / 0.5)" },
 		},
 		active: {
-			backgroundColor: "oklch(0.14 0.025 220)",
+			backgroundColor: "oklch(0.234 0.03 220)",
 			border: { color: "oklch(0.8 0.2 180 / 0.6)" },
 		},
 		disabled: { opacity: 0.35, animation: "none", color: "oklch(0.5 0.02 180)" },
@@ -403,7 +403,7 @@ export const neuroMuted: PresetDefinition = {
 	label: "Neuro Muted",
 	description: "Desaturated neumorphic — dimmed surface for secondary/disabled states",
 	axes: {
-		backgroundColor: "oklch(0.14 0.005 240)",
+		backgroundColor: "oklch(0.234 0.03 240)",
 		backgroundBlur: "0",
 		shadow: [
 			{
@@ -438,7 +438,7 @@ export const neuroMuted: PresetDefinition = {
 		opacity: 0.8,
 	},
 	states: {
-		hover: { backgroundColor: "oklch(0.16 0.008 240)", opacity: 0.9 },
+		hover: { backgroundColor: "oklch(0.247 0.03 240)", opacity: 0.9 },
 		disabled: { opacity: 0.3, color: "oklch(0.45 0.003 224)" },
 	},
 };

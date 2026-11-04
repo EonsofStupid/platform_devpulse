@@ -30,8 +30,10 @@ import {
 	RotateCcw,
 	Send,
 	Volume2,
+	VolumeX,
 	X,
 } from "lucide-svelte";
+import { copyState } from "$lib/sys/copy/index.js";
 import { logInfo } from "$lib/sys/logger.js";
 import { modelsState } from "../../../data-access/models.state.svelte.js";
 import {
@@ -45,6 +47,9 @@ import WizardInfoPopup from "../components/WizardInfoPopup.svelte";
 let showWhyInfo = $state(false);
 
 const overlayState = setupWizardOverlayState;
+const voiceText = $derived(copyState.catalog?.setup_wizard.validate ?? null);
+const ttsStatus = $derived(modelsState.statuses["voice.tts"]);
+const ttsReady = $derived(ttsStatus ? isInferenceReady(ttsStatus) : false);
 
 interface PipelineStepMeta {
 	id: PipelineStepId;
@@ -356,6 +361,26 @@ function handleBack(): void {
 				onkeydown={handleKeydown}
 				disabled={!brainReady || overlayState.testChatSending}
 			/>
+			{#if voiceText}
+				<Button
+					variant={overlayState.testChatVoice ? "secondary" : "ghost"}
+					size="md"
+					disabled={!ttsReady}
+					title={ttsReady
+						? overlayState.testChatVoice
+							? voiceText.voice_off
+							: voiceText.voice_on
+						: voiceText.voice_unavailable}
+					aria-label={ttsReady
+						? overlayState.testChatVoice
+							? voiceText.voice_off
+							: voiceText.voice_on
+						: voiceText.voice_unavailable}
+					onclick={() => (overlayState.testChatVoice = !overlayState.testChatVoice)}
+				>
+					{#if overlayState.testChatVoice}<Volume2 size={14} />{:else}<VolumeX size={14} />{/if}
+				</Button>
+			{/if}
 			<Button variant="primary" size="md" onclick={handleSend} disabled={!canSend}>
 				<Send size={14} />
 				Send

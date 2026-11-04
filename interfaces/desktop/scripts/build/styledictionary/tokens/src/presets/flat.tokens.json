@@ -14,7 +14,7 @@
 	"preset": {
 		"flat-elevated": {
 			"background-color": {
-				"$value": "oklch(0.35 0.04 220)",
+				"$value": "oklch(0.368 0.04 220)",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -101,21 +101,21 @@
 		"flat-elevated-hover": {
 			"$description": "flat-elevated hover overrides",
 			"background-color": {
-				"$value": "oklch(0.38 0.045 220)",
+				"$value": "oklch(0.387 0.045 220)",
 				"$type": "color"
 			}
 		},
 		"flat-elevated-active": {
 			"$description": "flat-elevated active overrides",
 			"background-color": {
-				"$value": "oklch(0.32 0.035 220)",
+				"$value": "oklch(0.349 0.035 220)",
 				"$type": "color"
 			}
 		},
 		"flat-elevated-disabled": {
 			"$description": "flat-elevated disabled overrides",
 			"background-color": {
-				"$value": "oklch(0.25 0.01 220)",
+				"$value": "oklch(0.304 0.03 220)",
 				"$type": "color"
 			},
 			"color": {
@@ -129,7 +129,7 @@
 		},
 		"flat-deep": {
 			"background-color": {
-				"$value": "oklch(0.15 0.02 240)",
+				"$value": "oklch(0.24 0.03 240)",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -216,21 +216,21 @@
 		"flat-deep-hover": {
 			"$description": "flat-deep hover overrides",
 			"background-color": {
-				"$value": "oklch(0.18 0.022 240)",
+				"$value": "oklch(0.259 0.03 240)",
 				"$type": "color"
 			}
 		},
 		"flat-deep-active": {
 			"$description": "flat-deep active overrides",
 			"background-color": {
-				"$value": "oklch(0.12 0.018 240)",
+				"$value": "oklch(0.221 0.03 240)",
 				"$type": "color"
 			}
 		},
 		"flat-deep-disabled": {
 			"$description": "flat-deep disabled overrides",
 			"background-color": {
-				"$value": "oklch(0.12 0.005 240)",
+				"$value": "oklch(0.221 0.03 240)",
 				"$type": "color"
 			},
 			"color": {
@@ -331,14 +331,14 @@
 		"flat-minimal-hover": {
 			"$description": "flat-minimal hover overrides",
 			"background-color": {
-				"$value": "oklch(0.3 0.01 220 / 0.08)",
+				"$value": "oklch(0.336 0.03 220 / 0.08)",
 				"$type": "color"
 			}
 		},
 		"flat-minimal-active": {
 			"$description": "flat-minimal active overrides",
 			"background-color": {
-				"$value": "oklch(0.25 0.008 220 / 0.12)",
+				"$value": "oklch(0.304 0.03 220 / 0.12)",
 				"$type": "color"
 			}
 		},
@@ -355,7 +355,7 @@
 		},
 		"flat-solid": {
 			"background-color": {
-				"$value": "oklch(0.25 0.03 220)",
+				"$value": "oklch(0.304 0.03 220)",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -442,7 +442,7 @@
 		"flat-solid-hover": {
 			"$description": "flat-solid hover overrides",
 			"background-color": {
-				"$value": "oklch(0.28 0.033 220)",
+				"$value": "oklch(0.323 0.033 220)",
 				"$type": "color"
 			},
 			"border-color": {
@@ -453,14 +453,14 @@
 		"flat-solid-active": {
 			"$description": "flat-solid active overrides",
 			"background-color": {
-				"$value": "oklch(0.22 0.027 220)",
+				"$value": "oklch(0.285 0.03 220)",
 				"$type": "color"
 			}
 		},
 		"flat-solid-disabled": {
 			"$description": "flat-solid disabled overrides",
 			"background-color": {
-				"$value": "oklch(0.18 0.008 220)",
+				"$value": "oklch(0.259 0.03 220)",
 				"$type": "color"
 			},
 			"color": {
@@ -478,7 +478,7 @@
 		},
 		"flat-glow": {
 			"background-color": {
-				"$value": "oklch(0.25 0.06 180)",
+				"$value": "oklch(0.304 0.06 180)",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -565,21 +565,21 @@
 		"flat-glow-hover": {
 			"$description": "flat-glow hover overrides",
 			"background-color": {
-				"$value": "oklch(0.28 0.065 180)",
+				"$value": "oklch(0.323 0.065 180)",
 				"$type": "color"
 			}
 		},
 		"flat-glow-active": {
 			"$description": "flat-glow active overrides",
 			"background-color": {
-				"$value": "oklch(0.22 0.055 180)",
+				"$value": "oklch(0.285 0.055 180)",
 				"$type": "color"
 			}
 		},
 		"flat-glow-disabled": {
 			"$description": "flat-glow disabled overrides",
 			"background-color": {
-				"$value": "oklch(0.18 0.015 180)",
+				"$value": "oklch(0.259 0.03 180)",
 				"$type": "color"
 			},
 			"color": {
@@ -593,7 +593,7 @@
 		},
 		"flat-muted": {
 			"background-color": {
-				"$value": "oklch(0.18 0.005 220)",
+				"$value": "oklch(0.259 0.03 220)",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -605,7 +605,7 @@
 				"$type": "shadow"
 			},
 			"color": {
-				"$value": "oklch(0.55 0.005 220)",
+				"$value": "oklch(0.68 0.005 220)",
 				"$type": "color"
 			},
 			"border-color": {
@@ -680,7 +680,7 @@
 		"flat-muted-hover": {
 			"$description": "flat-muted hover overrides",
 			"background-color": {
-				"$value": "oklch(0.2 0.007 220)",
+				"$value": "oklch(0.272 0.03 220)",
 				"$type": "color"
 			},
 			"opacity": {
@@ -691,7 +691,7 @@
 		"flat-muted-active": {
 			"$description": "flat-muted active overrides",
 			"background-color": {
-				"$value": "oklch(0.16 0.004 220)",
+				"$value": "oklch(0.247 0.03 220)",
 				"$type": "color"
 			},
 			"opacity": {
@@ -702,7 +702,7 @@
 		"flat-muted-disabled": {
 			"$description": "flat-muted disabled overrides",
 			"background-color": {
-				"$value": "oklch(0.15 0.003 220)",
+				"$value": "oklch(0.24 0.03 220)",
 				"$type": "color"
 			},
 			"color": {

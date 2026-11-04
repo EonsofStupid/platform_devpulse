@@ -22,16 +22,16 @@
 		"muted": {
 			"$value": {
 				"colorSpace": "oklch",
-				"components": [0.5, 0.02, 220],
-				"hex": "#57666b"
+				"components": [0.63, 0.03, 257],
+				"hex": "#7e8a9c"
 			},
 			"$description": "Placeholder, disabled-adjacent, low-priority."
 		},
 		"disabled": {
 			"$value": {
 				"colorSpace": "oklch",
-				"components": [0.35, 0.01, 220],
-				"hex": "#353c3e"
+				"components": [0.48, 0.02, 257],
+				"hex": "#575e69"
 			},
 			"$description": "Disabled state text."
 		},
@@ -46,10 +46,10 @@
 		"inverse": {
 			"$value": {
 				"colorSpace": "oklch",
-				"components": [0.1, 0.01, 220],
-				"hex": "#010405"
+				"components": [0.1363, 0.0364, 259.2],
+				"hex": "#020817"
 			},
-			"$description": "Text on light backgrounds — near-black for maximum contrast."
+			"$description": "Text on bright fills — the owner's deepest navy, hsl(222 84% 5%), never black."
 		},
 		"link": {
 			"$value": {

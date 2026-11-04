@@ -1,0 +1,41 @@
+/**
+ * @file vpb-grid.css
+ * @layer vpb
+ * @description VPB Panel Shell - where it sits and the Glass Box around it
+ */
+
+/* The Shell - The draggable, positioning container */
+[data-kind="vpb"][data-slot="root"] {
+	z-index: var(--vpb-z-panel);
+	max-height: 80vh;
+
+	/* Appearance - The Glass Box */
+	background: var(--vpb-panel-bg);
+	border: var(--border-width-thin) solid var(--vpb-panel-border);
+	border-radius: var(--radius-xl);
+	box-shadow: var(--vpb-shadow);
+	backdrop-filter: var(--vpb-blur);
+	-webkit-backdrop-filter: var(--vpb-blur);
+
+	/* Typography */
+	font-family: var(--font-sans);
+	font-size: var(--font-size-sm);
+	color: var(--vpb-text-primary);
+}
+
+/* DOCKED STATE */
+[data-kind="vpb"][data-slot="root"][data-mode="docked"] {
+	right: var(--space-6);
+	bottom: var(--space-6);
+}
+
+/* Scanning: the panel glows while a scan runs */
+[data-kind="vpb"][data-slot="root"][data-state="scanning"] {
+	border-color: var(--vpb-cyber-gradient);
+}
+
+/* Dragging State */
+[data-kind="vpb"][data-slot="root"][data-dragging="true"] {
+	opacity: 0.9;
+	cursor: grabbing;
+}

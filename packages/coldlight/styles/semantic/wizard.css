@@ -16,11 +16,11 @@
   --wizard-role-voice-main: oklch(0.7123 0.1775 12.65); /** Coral — voice / STT / TTS. */
   --wizard-role-voice-glow: oklch(0.72 0.16 10 / 0.4); /** Voice glow emission. */
   --wizard-role-voice-fill: oklch(0.72 0.16 10 / 0.08); /** Voice subtle background fill. */
-  --wizard-surface-base: oklch(0.1625 0.0143 258.36); /** Wizard page background — deep void. */
-  --wizard-surface-card: oklch(0.12 0.015 220 / 0.8); /** Wizard card / glass-deep. */
-  --wizard-surface-card-raised: oklch(0.15 0.01 220 / 0.6); /** Wizard raised card / glass-smoke. */
-  --wizard-surface-overlay: oklch(0.1 0.02 220 / 0.9); /** Wizard modal overlay. */
-  --wizard-surface-inset: oklch(0.1430 0.0152 255.23); /** Wizard input / inset background. */
+  --wizard-surface-base: oklch(0.2077 0.0398 265.75); /** Wizard page background — deep void. */
+  --wizard-surface-card: oklch(0.2795 0.0368 260.03 / 0.8); /** Wizard card / glass-deep. */
+  --wizard-surface-card-raised: oklch(0.3717 0.0392 257.29 / 0.6); /** Wizard raised card / glass-smoke. */
+  --wizard-surface-overlay: oklch(0.2077 0.0398 265.75 / 0.95); /** Wizard modal overlay. */
+  --wizard-surface-inset: oklch(0.2138 0.0545 262.67); /** Wizard input / inset background. */
   --wizard-text-primary: oklch(0.9540 0.0063 255.48); /** Wizard heading / primary text. */
   --wizard-text-secondary: oklch(0.6723 0.0300 248.27); /** Wizard supporting text. */
   --wizard-text-muted: oklch(0.4856 0.0292 257.68); /** Wizard hint / disabled text. */

@@ -1,0 +1,105 @@
+/**
+ * @file vpb-builder.css
+ * @layer vpb
+ * @description The Builder and Inspector tabs: sections, the block tree. Their
+ * original markup carried these as colour utilities; Tailwind is layout only
+ * now, so the colours are tokens here.
+ * @since 1.0.0
+ */
+
+[data-kind="vpb"] .vpb-section,
+[data-kind="vpb"] .vpb-section__heading,
+[data-kind="vpb"] .vpb-section__footer {
+	padding: var(--space-2) var(--space-3);
+	border-bottom: var(--border-width-thin) solid var(--vpb-btn-border);
+}
+
+[data-kind="vpb"] .vpb-section__heading {
+	font-weight: 700;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+	color: var(--vpb-text-secondary);
+}
+
+[data-kind="vpb"] .vpb-section__footer {
+	border-top: var(--border-width-thin) solid var(--vpb-btn-border);
+	border-bottom: none;
+}
+
+[data-kind="vpb"] .vpb-section__dot {
+	width: var(--space-2);
+	height: var(--space-2);
+	border-radius: var(--radius-full);
+}
+
+[data-kind="vpb"] .vpb-section__dot[data-tone="inspector"] {
+	background: var(--accent-teal-main);
+}
+
+[data-kind="vpb"] .vpb-section__dot[data-tone="builder"] {
+	background: var(--accent-purple-main);
+}
+
+[data-kind="vpb"] .vpb-section__title {
+	font-weight: 700;
+	color: var(--vpb-text-secondary);
+}
+
+[data-kind="vpb"] .vpb-section__label {
+	flex-shrink: 0;
+	min-width: calc(var(--space-9) * 2);
+	font-weight: 500;
+	color: var(--vpb-text-muted);
+}
+
+[data-kind="vpb"] .vpb-section__meta {
+	color: var(--vpb-text-muted);
+}
+
+[data-kind="vpb"] .vpb-section__meta[data-state="warning"] {
+	color: var(--vpb-action-pause);
+}
+
+/* Collapsible section and category headers */
+[data-kind="vpb"] .vpb-section__toggle {
+	padding: var(--space-1) var(--space-3);
+	border-radius: var(--radius-sm);
+	font-weight: 500;
+	color: var(--vpb-text-secondary);
+	cursor: pointer;
+	transition: background-color var(--vpb-transition-fast);
+}
+
+[data-kind="vpb"] .vpb-section__toggle:hover {
+	background: var(--vpb-surface-hover);
+}
+
+[data-kind="vpb"] .vpb-section__chevron {
+	color: var(--vpb-text-muted);
+	transition: transform var(--vpb-transition-fast);
+}
+
+[data-kind="vpb"] .vpb-section__toggle[data-state="open"] .vpb-section__chevron {
+	transform: rotate(90deg);
+}
+
+/* The block tree */
+[data-kind="vpb"] [data-selected="true"] {
+	background: var(--interaction-selected);
+	color: var(--vpb-text-primary);
+}
+
+[data-kind="vpb"] .vpb-tree__slot {
+	padding: var(--space-1) var(--space-2);
+	border-radius: var(--radius-sm);
+	background: var(--vpb-surface-sunken);
+	color: var(--vpb-text-muted);
+}
+
+[data-kind="vpb"] button.vpb-tree__slot {
+	cursor: pointer;
+}
+
+[data-kind="vpb"] .vpb-tree__slot[data-state="ready"] {
+	color: var(--vpb-text-primary);
+}

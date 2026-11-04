@@ -16,7 +16,7 @@ export const flatElevated: PresetDefinition = {
 	label: "Flat Elevated",
 	description: "Bright flat — solid color fill, no depth, clean edges",
 	axes: {
-		backgroundColor: "oklch(0.35 0.04 220)",
+		backgroundColor: "oklch(0.368 0.04 220)",
 		backgroundBlur: "0",
 		shadow: [],
 		border: { width: "0", style: "none", color: "transparent" },
@@ -36,13 +36,13 @@ export const flatElevated: PresetDefinition = {
 	},
 	states: {
 		hover: {
-			backgroundColor: "oklch(0.38 0.045 220)",
+			backgroundColor: "oklch(0.387 0.045 220)",
 		},
 		active: {
-			backgroundColor: "oklch(0.32 0.035 220)",
+			backgroundColor: "oklch(0.349 0.035 220)",
 		},
 		disabled: {
-			backgroundColor: "oklch(0.25 0.01 220)",
+			backgroundColor: "oklch(0.304 0.03 220)",
 			opacity: 0.4,
 			color: "oklch(0.65 0.005 220)",
 		},
@@ -56,7 +56,7 @@ export const flatDeep: PresetDefinition = {
 	label: "Flat Deep",
 	description: "Dark flat — deep solid color, no frills, reading-focused",
 	axes: {
-		backgroundColor: "oklch(0.15 0.02 240)",
+		backgroundColor: "oklch(0.24 0.03 240)",
 		backgroundBlur: "0",
 		shadow: [],
 		border: { width: "0", style: "none", color: "transparent" },
@@ -76,13 +76,13 @@ export const flatDeep: PresetDefinition = {
 	},
 	states: {
 		hover: {
-			backgroundColor: "oklch(0.18 0.022 240)",
+			backgroundColor: "oklch(0.259 0.03 240)",
 		},
 		active: {
-			backgroundColor: "oklch(0.12 0.018 240)",
+			backgroundColor: "oklch(0.221 0.03 240)",
 		},
 		disabled: {
-			backgroundColor: "oklch(0.12 0.005 240)",
+			backgroundColor: "oklch(0.221 0.03 240)",
 			opacity: 0.4,
 			color: "oklch(0.55 0.005 220)",
 		},
@@ -116,10 +116,10 @@ export const flatMinimal: PresetDefinition = {
 	},
 	states: {
 		hover: {
-			backgroundColor: "oklch(0.3 0.01 220 / 0.08)",
+			backgroundColor: "oklch(0.336 0.03 220 / 0.08)",
 		},
 		active: {
-			backgroundColor: "oklch(0.25 0.008 220 / 0.12)",
+			backgroundColor: "oklch(0.304 0.03 220 / 0.12)",
 		},
 		disabled: {
 			opacity: 0.35,
@@ -135,7 +135,7 @@ export const flatSolid: PresetDefinition = {
 	label: "Flat Solid",
 	description: "Dense flat — opaque fill, strong color, no transparency",
 	axes: {
-		backgroundColor: "oklch(0.25 0.03 220)",
+		backgroundColor: "oklch(0.304 0.03 220)",
 		backgroundBlur: "0",
 		shadow: [],
 		border: { width: "0.0625rem", style: "solid", color: "oklch(0.4 0.02 220 / 0.3)" },
@@ -155,14 +155,14 @@ export const flatSolid: PresetDefinition = {
 	},
 	states: {
 		hover: {
-			backgroundColor: "oklch(0.28 0.033 220)",
+			backgroundColor: "oklch(0.323 0.033 220)",
 			border: { color: "oklch(0.45 0.025 220 / 0.38)" },
 		},
 		active: {
-			backgroundColor: "oklch(0.22 0.027 220)",
+			backgroundColor: "oklch(0.285 0.03 220)",
 		},
 		disabled: {
-			backgroundColor: "oklch(0.18 0.008 220)",
+			backgroundColor: "oklch(0.259 0.03 220)",
 			opacity: 0.4,
 			border: { color: "oklch(0.3 0.005 220 / 0.15)" },
 			color: "oklch(0.6 0.005 220)",
@@ -177,7 +177,7 @@ export const flatGlow: PresetDefinition = {
 	label: "Flat Glow",
 	description: "Flat with accent color — tinted fill, no depth but colorful",
 	axes: {
-		backgroundColor: "oklch(0.25 0.06 180)",
+		backgroundColor: "oklch(0.304 0.06 180)",
 		backgroundBlur: "0",
 		shadow: [],
 		border: { width: "0", style: "none", color: "transparent" },
@@ -197,13 +197,13 @@ export const flatGlow: PresetDefinition = {
 	},
 	states: {
 		hover: {
-			backgroundColor: "oklch(0.28 0.065 180)",
+			backgroundColor: "oklch(0.323 0.065 180)",
 		},
 		active: {
-			backgroundColor: "oklch(0.22 0.055 180)",
+			backgroundColor: "oklch(0.285 0.055 180)",
 		},
 		disabled: {
-			backgroundColor: "oklch(0.18 0.015 180)",
+			backgroundColor: "oklch(0.259 0.03 180)",
 			opacity: 0.4,
 			color: "oklch(0.6 0.01 180)",
 		},
@@ -217,7 +217,7 @@ export const flatMuted: PresetDefinition = {
 	label: "Flat Muted",
 	description: "Dimmed flat — faded background for disabled/secondary states",
 	axes: {
-		backgroundColor: "oklch(0.18 0.005 220)",
+		backgroundColor: "oklch(0.259 0.03 220)",
 		backgroundBlur: "0",
 		shadow: [],
 		border: { width: "0", style: "none", color: "transparent" },
@@ -237,15 +237,15 @@ export const flatMuted: PresetDefinition = {
 	},
 	states: {
 		hover: {
-			backgroundColor: "oklch(0.2 0.007 220)",
+			backgroundColor: "oklch(0.272 0.03 220)",
 			opacity: 0.7,
 		},
 		active: {
-			backgroundColor: "oklch(0.16 0.004 220)",
+			backgroundColor: "oklch(0.247 0.03 220)",
 			opacity: 0.55,
 		},
 		disabled: {
-			backgroundColor: "oklch(0.15 0.003 220)",
+			backgroundColor: "oklch(0.24 0.03 220)",
 			opacity: 0.3,
 			color: "oklch(0.4 0.003 220)",
 		},

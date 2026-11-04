@@ -7,10 +7,10 @@
 					"colorSpace": "oklch",
 					"components": [
 						0.97,
-						0.1,
+						0.02,
 						160
 					],
-					"hex": "#ddffeb"
+					"hex": "#eafaf0"
 				},
 				"$description": "cyber 50 — lightness 0.97."
 			},
@@ -19,10 +19,10 @@
 					"colorSpace": "oklch",
 					"components": [
 						0.89,
-						0.1,
+						0.0551,
 						160
 					],
-					"hex": "#9ff0c4"
+					"hex": "#bce7ce"
 				},
 				"$description": "cyber 100 — lightness 0.89."
 			},
@@ -31,10 +31,10 @@
 					"colorSpace": "oklch",
 					"components": [
 						0.81,
-						0.1,
+						0.092,
 						160
 					],
-					"hex": "#85d5ab"
+					"hex": "#8bd4ad"
 				},
 				"$description": "cyber 200 — lightness 0.81."
 			},
@@ -43,10 +43,10 @@
 					"colorSpace": "oklch",
 					"components": [
 						0.73,
-						0.1,
+						0.124,
 						160
 					],
-					"hex": "#6bbb92"
+					"hex": "#56bf8d"
 				},
 				"$description": "cyber 300 — lightness 0.73."
 			},
@@ -55,10 +55,10 @@
 					"colorSpace": "oklch",
 					"components": [
 						0.65,
-						0.1,
+						0.1561,
 						160
 					],
-					"hex": "#52a27a"
+					"hex": "#1ca971"
 				},
 				"$description": "cyber 400 — lightness 0.65."
 			},
@@ -67,10 +67,10 @@
 					"colorSpace": "oklch",
 					"components": [
 						0.55,
-						0.1,
+						0.18,
 						160
 					],
-					"hex": "#31835d"
+					"hex": "#168659"
 				},
 				"$description": "cyber 500 — lightness 0.55."
 			},
@@ -79,10 +79,10 @@
 					"colorSpace": "oklch",
 					"components": [
 						0.46,
-						0.1,
+						0.1519,
 						160
 					],
-					"hex": "#0c6944"
+					"hex": "#0d6944"
 				},
 				"$description": "cyber 600 — lightness 0.46."
 			},
@@ -91,10 +91,10 @@
 					"colorSpace": "oklch",
 					"components": [
 						0.37,
-						0.1,
+						0.119,
 						160
 					],
-					"hex": "#054c30"
+					"hex": "#0b4c31"
 				},
 				"$description": "cyber 700 — lightness 0.37."
 			},
@@ -103,10 +103,10 @@
 					"colorSpace": "oklch",
 					"components": [
 						0.28,
-						0.1,
+						0.085,
 						160
 					],
-					"hex": "#05321f"
+					"hex": "#01321e"
 				},
 				"$description": "cyber 800 — lightness 0.28."
 			},
@@ -115,10 +115,10 @@
 					"colorSpace": "oklch",
 					"components": [
 						0.19,
-						0.1,
+						0.05,
 						160
 					],
-					"hex": "#02190e"
+					"hex": "#01190d"
 				},
 				"$description": "cyber 900 — lightness 0.19."
 			},
@@ -127,7 +127,7 @@
 					"colorSpace": "oklch",
 					"components": [
 						0.12,
-						0.1,
+						0.0301,
 						160
 					],
 					"hex": "#000803"

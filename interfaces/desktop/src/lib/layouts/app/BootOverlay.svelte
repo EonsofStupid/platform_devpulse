@@ -3,7 +3,8 @@
   @module @devpulse/layouts/app/BootOverlay
 
   Full-viewport overlay during platform boot.
-  Subsystem progress (narrow centered column).
+  Dual-mode boot progress: the owner's FriendlyBootView in the simple display,
+  TechnicalBootView in the advanced one (the display setting picks, not the build).
   Fades out and unmounts once the platform is ready and the first models
   readiness snapshot has arrived.
   No timeout dismissal — core services must complete or fail visibly.
@@ -21,17 +22,16 @@
 }
 -->
 <script lang="ts">
-import { Badge, type BadgeVariant } from "@devpulse/coldlight/components/badge";
+import { Button } from "@devpulse/coldlight/components/button";
 import { DynamicBackground } from "@devpulse/coldlight/components/dynamic-background";
-import { Progress } from "@devpulse/coldlight/components/progress";
 import { Text } from "@devpulse/coldlight/components/text";
-import { box, cn, hstack, stack } from "@devpulse/coldlight/utils";
+import { box, cn, stack } from "@devpulse/coldlight/utils";
 import { presentationState } from "$lib/domains/app/devpulse/index.js";
 import { LoadingContentCard } from "$lib/domains/clyffy/index.js";
-import { getIcon } from "$lib/sys/generated/terminology-icons.js";
 import { logError, logInfo } from "$lib/sys/logger.js";
-import type { SubsystemState } from "$lib/sys/runes/platformState.svelte.js";
 import { platformState } from "$lib/sys/runes/platformState.svelte.js";
+import FriendlyBootView from "./FriendlyBootView.svelte";
+import TechnicalBootView from "./TechnicalBootView.svelte";
 
 let visible = $state(true);
 let fading = $state(false);
@@ -55,36 +55,6 @@ async function openLogsFolder() {
 const subsystems = $derived(platformState.subsystemList());
 const bootComplete = $derived(platformState.isReady);
 const hasSubsystemFailure = $derived(platformState.hasSubsystemFailure);
-
-function stateToVariant(state: SubsystemState): BadgeVariant {
-	switch (state) {
-		case "ready":
-			return "positive";
-		case "loading":
-			return "informative";
-		case "failed":
-			return "negative";
-		case "skipped":
-			return "neutral";
-		case "pending":
-			return "neutral";
-	}
-}
-
-function stateToLabel(state: SubsystemState, latencyMs: number | null): string {
-	switch (state) {
-		case "pending":
-			return "";
-		case "loading":
-			return "...";
-		case "ready":
-			return latencyMs !== null ? `${latencyMs}ms` : "ok";
-		case "skipped":
-			return "disabled";
-		case "failed":
-			return "failed";
-	}
-}
 
 // Boot is silent on model loading. The platform reports ready, the
 // BootOverlay fades, the dashboard renders the registry contents
@@ -133,99 +103,41 @@ $effect(() => {
 		animated
 	/>
 
-	<!-- Narrow centered column (400px) for the subsystem list. -->
+	<!-- Centered column: narrow for the friendly view, wide for the terminal log. -->
 	<div class={cn(
 		stack({ gap: "6", align: "center" }),
 		"overflow-y-auto scrollbar-thin pointer-events-auto",
-		"min-w-[320px] max-w-[400px] max-h-[85vh] p-8",
+		"w-full max-h-[85vh] p-8",
+		presentationState.advanced ? "max-w-3xl" : "max-w-md",
 		"transition-all duration-300 ease-out",
 	)}>
 		{#if bootFailureMessage}
-			<div
-				class={cn(
-					stack({ gap: "4", align: "start" }),
-					"w-full rounded-md border border-[var(--accent-red-main,oklch(0.62_0.22_25))] bg-[color-mix(in_oklch,var(--accent-red-main,oklch(0.62_0.22_25))_18%,var(--color-void-base,oklch(0.08_0.01_220)))] p-4",
-				)}
-				role="alert"
-			>
+			<div class={cn(stack({ gap: "4", align: "start" }), "w-full p-4")} data-slot="boot-failure" role="alert">
 				<Text size="lg" weight="bold">Boot failed</Text>
 				<Text size="sm" color="secondary">
 					DevPulse background services could not start. Details below;
 					the full log is in the logs folder.
 				</Text>
-				<pre
-					class="w-full overflow-auto whitespace-pre-wrap break-words rounded bg-[var(--color-void-base,oklch(0.08_0.01_220))] p-2 text-xs opacity-80"
-				>{bootFailureMessage}</pre>
-				<button
-					type="button"
-					class="pointer-events-auto rounded border border-[var(--accent-teal-main)] bg-[color-mix(in_oklch,var(--accent-teal-main)_18%,transparent)] px-3 py-1.5 text-xs hover:bg-[color-mix(in_oklch,var(--accent-teal-main)_28%,transparent)]"
-					onclick={openLogsFolder}
-				>
+				<pre class="w-full overflow-auto whitespace-pre-wrap break-words p-2" data-slot="boot-failure-detail">{bootFailureMessage}</pre>
+				<Button variant="secondary" size="sm" class="pointer-events-auto" onclick={openLogsFolder}>
 					Open logs folder
-				</button>
-			</div>
-		{:else}
-			<!-- Wordmark -->
-			<div class={stack({ gap: "4", align: "center" })}>
-				<Text size="lg" weight="bold">DevPulse</Text>
-				<div class={hstack({ gap: "8", align: "center", justify: "center" })}>
-					<span
-						class="inline-block w-1.5 h-1.5 rounded-full bg-[var(--accent-teal-main)] shrink-0 animate-pulse"
-					></span>
-					<Text size="xs" color="muted">{platformState.bootStepLabel}</Text>
-				</div>
+				</Button>
 			</div>
 		{/if}
 
 		<!-- Subsystem progress always visible during boot -->
-			<div class={cn(stack({ gap: "8" }), "w-full")}>
-				{#each subsystems as sub (sub.name)}
-					{@const Icon = getIcon(sub.name)}
-					{@const label = stateToLabel(sub.state, sub.latencyMs)}
-					<div
-						class={cn(
-							box({ paddingX: "12", paddingY: "6" }),
-							"rounded-md",
-							sub.state === "skipped" && "opacity-50",
-						)}
-						data-kind="box"
-						data-slot="root"
-					>
-						<div class={hstack({ gap: "12", align: "center" })}>
-							<Badge
-								variant={stateToVariant(sub.state)}
-								size="sm"
-								decorative
-								class="h-2 w-2 min-w-0 p-0"
-							>
-								&ZeroWidthSpace;
-							</Badge>
-							{#if Icon}
-								{@const IconComponent = Icon}
-								<IconComponent size={14} class="shrink-0 text-text-muted" />
-							{/if}
-							<Text size="sm" color={sub.state === "skipped" ? "muted" : "secondary"} class="flex-1">
-								{presentationState.label(sub.name)}
-							</Text>
-							{#if label}
-								<Text size="xs" color="muted">{label}</Text>
-							{/if}
-						</div>
-					</div>
-				{/each}
+		{#if presentationState.advanced}
+			<TechnicalBootView />
+		{:else}
+			<FriendlyBootView />
+		{/if}
 
-				{#if subsystems.length === 0}
-					<Text size="xs" color="muted">Waiting for engine to start...</Text>
-				{/if}
+		{#if !bootFailureMessage}
+			<div class="flex items-center justify-center gap-2">
+				<span class="inline-block h-1.5 w-1.5 shrink-0 animate-pulse rounded-full" data-slot="boot-pulse"></span>
+				<Text size="sm" color="muted">{platformState.bootStepLabel}</Text>
 			</div>
-
-			<!-- Progress bar -->
-			<Progress
-				value={platformState.progress}
-				max={100}
-				size="sm"
-				class="w-full"
-			/>
+		{/if}
 
 			<!-- Elapsed time -->
 			{#if platformState.isBooting}
@@ -244,10 +156,10 @@ $effect(() => {
 				<div
 					class={cn(
 						box({ paddingX: "12", paddingY: "8" }),
-						"w-full rounded-md border border-[var(--signal-error)]/25 bg-[var(--signal-error)]/8",
+						"w-full",
 					)}
 					data-kind="box"
-					data-slot="root"
+					data-slot="boot-failures"
 				>
 					<Text size="sm" weight="semibold" color="accent" class="mb-2">
 						Core service failed — fix and restart the app
@@ -271,3 +183,28 @@ $effect(() => {
 	</div>
 </div>
 {/if}
+
+<style>
+	[data-slot="boot-failure"] {
+		border: var(--border-width-hairline) solid var(--signal-error);
+		border-radius: var(--radius-md);
+		background: color-mix(in oklch, var(--signal-error) 18%, var(--color-void-base));
+	}
+
+	[data-slot="boot-failure-detail"] {
+		border-radius: var(--radius-sm);
+		background: var(--color-void-base);
+		font-size: var(--font-size-sm);
+		opacity: 0.8;
+	}
+
+	[data-slot="boot-failures"] {
+		border: var(--border-width-hairline) solid color-mix(in oklch, var(--signal-error) 25%, transparent);
+		border-radius: var(--radius-md);
+		background: color-mix(in oklch, var(--signal-error) 8%, transparent);
+	}
+
+	[data-slot="boot-pulse"] {
+		background: var(--accent-teal-main);
+	}
+</style>

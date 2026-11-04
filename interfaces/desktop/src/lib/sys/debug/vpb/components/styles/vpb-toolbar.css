@@ -1,0 +1,83 @@
+/**
+ * @file vpb-toolbar.css
+ * @layer vpb
+ * @description VPB Toolbar - Play/Pause/Stop with proper action colors
+ * @since 1.0.0
+ */
+
+/* =================================================================
+   Base Button
+   ================================================================= */
+
+[data-kind="vpb"] .vpb-btn {
+	width: var(--space-8);
+	height: var(--space-8);
+	padding: 0;
+
+	border: var(--border-width-thin) solid var(--vpb-btn-border);
+	border-radius: var(--radius-sm);
+	background: var(--vpb-btn-bg);
+
+	color: var(--vpb-text-secondary);
+
+	transition: all var(--vpb-transition-fast);
+}
+
+[data-kind="vpb"] .vpb-btn:hover:not(:disabled) {
+	background: var(--vpb-btn-hover);
+	border-color: var(--vpb-panel-border);
+	color: var(--vpb-text-primary);
+}
+
+[data-kind="vpb"] .vpb-btn:active:not(:disabled) {
+	transform: scale(0.95);
+}
+
+[data-kind="vpb"] .vpb-btn:disabled {
+	opacity: var(--opacity-40);
+	cursor: not-allowed;
+}
+
+/* =================================================================
+   Action Variants - Play/Pause/Stop
+   ================================================================= */
+
+[data-kind="vpb"] .vpb-btn--play:hover:not(:disabled) {
+	color: var(--vpb-action-play);
+	border-color: var(--vpb-action-play);
+}
+
+[data-kind="vpb"] .vpb-btn--pause:hover:not(:disabled) {
+	color: var(--vpb-action-pause);
+	border-color: var(--vpb-action-pause);
+}
+
+[data-kind="vpb"] .vpb-btn--stop:hover:not(:disabled) {
+	color: var(--vpb-action-stop);
+	border-color: var(--vpb-action-stop);
+}
+
+/* ACTIVE state - when scan is running */
+[data-kind="vpb"] .vpb-btn--play[data-active="true"] {
+	background: var(--vpb-cyber-fill);
+	color: var(--vpb-action-play);
+	border-color: var(--vpb-action-play);
+	opacity: 1;
+}
+
+/* =================================================================
+   Separator
+   ================================================================= */
+
+[data-kind="vpb"] .vpb-toolbar__separator {
+	height: var(--space-6);
+	margin: 0 var(--space-1);
+}
+
+/* =================================================================
+   Button Group
+   ================================================================= */
+
+[data-kind="vpb"] .vpb-btn-group {
+	gap: var(--space-1);
+}

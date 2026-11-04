@@ -4,7 +4,7 @@
 
 @layer tokens.semantic {
   :root {
-  --primary-main: var(--accent-blue-main); /** Primary lead — bound to brand blue (hue 240). */
+  --primary-main: var(--color-brand-blue-500); /** Primary lead — brand blue (hue 240), stop 500: light labels hold their contrast on it, which they do not on the owner's brighter #3ea4ea (accent.blue.main). */
   --primary-glow: var(--accent-blue-glow); /** Primary lead glow. */
   --primary-fill: var(--accent-blue-fill); /** Primary lead area fill. */
   --primary-fg: var(--text-primary); /** Foreground / on-primary text. */
@@ -16,9 +16,9 @@
   --primary-deep-glow: var(--accent-azure-glow); /** Primary deep glow. */
   --primary-deep-fill: var(--accent-azure-fill); /** Primary deep area fill. */
   --primary-deep-fg: var(--text-primary); /** Foreground / on-primary-deep text. */
-  --secondary-main: var(--accent-ember-main); /** Secondary indicator — bound to ember. */
-  --secondary-glow: var(--accent-ember-glow); /** Secondary glow. */
-  --secondary-fill: var(--accent-ember-fill); /** Secondary area fill. */
+  --secondary-main: var(--accent-purple-main); /** Secondary indicator — bound to purple. */
+  --secondary-glow: var(--accent-purple-glow); /** Secondary glow. */
+  --secondary-fill: var(--accent-purple-fill); /** Secondary area fill. */
   --secondary-fg: var(--text-primary); /** Foreground / on-secondary text. */
   --danger-main: var(--signal-error); /** Danger indicator — bound to signal.error. */
   --danger-fg: var(--text-primary); /** Foreground / on-danger text. */

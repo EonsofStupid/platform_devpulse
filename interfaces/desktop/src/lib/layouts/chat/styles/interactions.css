@@ -1,0 +1,306 @@
+/**
+ * @file layouts/chat/styles/interactions.css
+ * @layer layouts
+ *
+ * AI Response Interaction Components
+ * Beautiful, accessible components for AI to populate user responses.
+ * Consumes ColdLight tokens - no definitions here.
+ *
+ * Components:
+ * - MultipleChoice
+ * - TrueFalse
+ * - FillBlank
+ * - Confirmation
+ *
+ * @since 0.1.0
+ */
+
+/* ============================================
+   BASE INTERACTION CONTAINER
+   ============================================ */
+
+[data-interaction] {
+	background: var(--layouts-glass-smoke);
+	border: var(--border-width-hairline) solid var(--layouts-glass-btn-border);
+	border-radius: var(--radius-md);
+	padding: var(--space-2);
+	margin: var(--space-1) 0;
+	box-shadow: var(--layouts-choice-shadow);
+}
+
+[data-interaction] > header {
+	font-size: var(--font-size-sm);
+	font-weight: 500;
+	color: var(--text-primary);
+	margin-bottom: var(--space-2);
+}
+
+/* ============================================
+   MULTIPLE CHOICE
+   ============================================ */
+
+[data-interaction="multiple-choice"] [data-slot="options"] {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-1);
+}
+
+[data-interaction="multiple-choice"] [data-slot="option"] {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--space-2);
+	padding: var(--space-1) var(--space-2);
+	border-radius: var(--radius-sm);
+	cursor: pointer;
+	transition: all var(--duration-fast) var(--layouts-icon-btn-ease);
+}
+
+[data-interaction="multiple-choice"] [data-slot="option"]:hover {
+	background: var(--layouts-glass-frost);
+}
+
+[data-interaction="multiple-choice"] [data-slot="option"][data-state="selected"] {
+	background: var(--layouts-choice-selected);
+	border: var(--border-width-hairline) solid var(--layouts-choice-selected-border);
+}
+
+/* Radio/Checkbox indicator */
+[data-interaction="multiple-choice"] [data-slot="indicator"] {
+	width: var(--space-4);
+	height: var(--space-4);
+	border-radius: var(--radius-full);
+	border: var(--border-width-thin) solid var(--layouts-glass-btn-border);
+	background: var(--layouts-glass-input-bg);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	margin-top: var(--border-width-thin);
+	transition: all var(--duration-fast) var(--layouts-icon-btn-ease);
+}
+
+[data-interaction="multiple-choice"][data-multi-select="true"] [data-slot="indicator"] {
+	border-radius: var(--radius-sm);
+}
+
+[data-interaction="multiple-choice"]
+	[data-slot="option"][data-state="selected"]
+	[data-slot="indicator"] {
+	border-color: var(--layouts-choice-indicator);
+	background: var(--layouts-choice-indicator-fill);
+	box-shadow: var(--layouts-choice-indicator-glow);
+}
+
+[data-interaction="multiple-choice"]
+	[data-slot="option"][data-state="selected"]
+	[data-slot="indicator"]::after {
+	content: "";
+	width: var(--space-2);
+	height: var(--space-2);
+	border-radius: var(--radius-full);
+	background: var(--text-primary);
+}
+
+[data-interaction="multiple-choice"][data-multi-select="true"]
+	[data-slot="option"][data-state="selected"]
+	[data-slot="indicator"]::after {
+	width: 0.625rem;
+	height: 0.375rem;
+	border-radius: 0;
+	background: transparent;
+	border-left: var(--border-width-thin) solid var(--text-primary);
+	border-bottom: var(--border-width-thin) solid var(--text-primary);
+	transform: rotate(-45deg);
+	margin-bottom: var(--border-width-thin);
+}
+
+/* Option content */
+[data-interaction="multiple-choice"] [data-slot="option-content"] {
+	display: flex;
+	flex-direction: column;
+	gap: var(--radius-xs);
+}
+
+[data-interaction="multiple-choice"] [data-slot="option-label"] {
+	color: var(--text-primary);
+	font-size: var(--font-size-sm);
+}
+
+[data-interaction="multiple-choice"] [data-slot="option-description"] {
+	color: var(--text-muted);
+	font-size: var(--font-size-sm);
+}
+
+/* ============================================
+   TRUE/FALSE
+   ============================================ */
+
+[data-interaction="true-false"] [data-slot="buttons"] {
+	display: flex;
+	gap: var(--space-2);
+}
+
+[data-interaction="true-false"] [data-slot="buttons"] button {
+	flex: 1;
+	padding: var(--space-1) var(--space-3);
+	border-radius: var(--radius-md);
+	border: var(--border-width-hairline) solid var(--layouts-glass-btn-border);
+	background: var(--layouts-glass-input-bg);
+	color: var(--text-secondary);
+	font-size: var(--font-size-sm);
+	font-weight: 500;
+	cursor: pointer;
+	transition: all var(--duration-fast) var(--layouts-icon-btn-ease);
+	box-shadow: var(--layouts-choice-bevel);
+}
+
+[data-interaction="true-false"] [data-slot="buttons"] button:hover {
+	background: var(--layouts-glass-smoke);
+	border-color: var(--layouts-glass-btn-border-hover);
+}
+
+[data-interaction="true-false"]
+	[data-slot="buttons"]
+	button[data-value="true"][data-state="selected"] {
+	background: var(--layouts-choice-yes);
+	border-color: var(--layouts-choice-yes-border);
+	color: var(--text-primary);
+	box-shadow: var(--layouts-choice-yes-glow);
+}
+
+[data-interaction="true-false"]
+	[data-slot="buttons"]
+	button[data-value="false"][data-state="selected"] {
+	background: var(--layouts-choice-no);
+	border-color: var(--layouts-choice-no-border);
+	color: var(--text-primary);
+	box-shadow: var(--layouts-choice-no-glow);
+}
+
+/* ============================================
+   FILL IN THE BLANK
+   ============================================ */
+
+[data-interaction="fill-blank"] [data-slot="fields"] {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-2);
+}
+
+[data-interaction="fill-blank"] [data-slot="field"] {
+	display: flex;
+	flex-direction: column;
+	gap: var(--radius-xs);
+}
+
+[data-interaction="fill-blank"] [data-slot="field"] label {
+	color: var(--text-secondary);
+	font-size: var(--font-size-sm);
+}
+
+[data-interaction="fill-blank"] [data-slot="field"] input,
+[data-interaction="fill-blank"] [data-slot="field"] select {
+	padding: var(--space-1) var(--space-2);
+	border-radius: var(--radius-sm);
+	border: var(--border-width-hairline) solid var(--layouts-glass-input-border);
+	background: var(--layouts-glass-input-bg);
+	color: var(--text-primary);
+	font-family: var(--font-sans);
+	font-size: var(--font-size-sm);
+	box-shadow: var(--layouts-glass-input-well);
+	transition: all var(--duration-fast) var(--layouts-icon-btn-ease);
+}
+
+[data-interaction="fill-blank"] [data-slot="field"] input:focus,
+[data-interaction="fill-blank"] [data-slot="field"] select:focus {
+	outline: none;
+	border-color: var(--layouts-glass-input-border-focus);
+	box-shadow: 0 0 var(--space-2) var(--layouts-glass-input-glow-focus);
+}
+
+[data-interaction="fill-blank"] [data-slot="field"] select {
+	appearance: none;
+	background-image: var(--layouts-choice-select-arrow);
+	background-position:
+		calc(100% - 0.75rem) center,
+		calc(100% - 0.5rem) center;
+	background-size: 0.25rem 0.25rem;
+	background-repeat: no-repeat;
+	padding-right: var(--space-7);
+}
+
+/* ============================================
+   CONFIRMATION
+   ============================================ */
+
+[data-interaction="confirmation"] [data-slot="message"] {
+	color: var(--text-secondary);
+	font-size: var(--font-size-sm);
+	margin-bottom: var(--space-2);
+}
+
+[data-interaction="confirmation"] [data-slot="actions"] {
+	display: flex;
+	justify-content: flex-end;
+	gap: var(--space-1);
+}
+
+[data-interaction="confirmation"] [data-slot="actions"] button {
+	padding: var(--space-1) var(--space-3);
+	border-radius: var(--radius-md);
+	border: var(--border-width-hairline) solid var(--layouts-glass-btn-border);
+	font-size: var(--font-size-sm);
+	font-weight: 500;
+	cursor: pointer;
+	transition: all var(--duration-fast) var(--layouts-icon-btn-ease);
+}
+
+[data-interaction="confirmation"] [data-slot="actions"] button[data-action="cancel"] {
+	background: var(--layouts-glass-smoke);
+	color: var(--text-secondary);
+}
+
+[data-interaction="confirmation"] [data-slot="actions"] button[data-action="cancel"]:hover {
+	background: var(--layouts-glass-frost);
+}
+
+[data-interaction="confirmation"] [data-slot="actions"] button[data-action="confirm"] {
+	background: var(--layouts-glass-btn-bg-primary);
+	border-color: var(--layouts-glass-btn-border-primary);
+	color: var(--text-primary);
+}
+
+[data-interaction="confirmation"] [data-slot="actions"] button[data-action="confirm"]:hover {
+	background: var(--layouts-glass-btn-bg-primary-hover);
+	box-shadow: 0 0 var(--space-3) var(--layouts-glass-btn-glow-hover);
+}
+
+/* Destructive variant */
+[data-interaction="confirmation"][data-variant="destructive"]
+	[data-slot="actions"]
+	button[data-action="confirm"] {
+	background: var(--layouts-choice-no);
+	border-color: var(--layouts-choice-no-border);
+}
+
+[data-interaction="confirmation"][data-variant="destructive"]
+	[data-slot="actions"]
+	button[data-action="confirm"]:hover {
+	background: var(--layouts-choice-no-hover);
+	box-shadow: var(--layouts-choice-no-glow);
+}
+
+/* Success variant */
+[data-interaction="confirmation"][data-variant="success"]
+	[data-slot="actions"]
+	button[data-action="confirm"] {
+	background: var(--layouts-choice-yes);
+	border-color: var(--layouts-choice-yes-border);
+}
+
+[data-interaction="confirmation"][data-variant="success"]
+	[data-slot="actions"]
+	button[data-action="confirm"]:hover {
+	background: var(--layouts-choice-yes-hover);
+	box-shadow: var(--layouts-choice-yes-glow);
+}

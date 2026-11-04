@@ -55,21 +55,23 @@ const tier = $derived(hardwareState.tier);
 
 /** Layman-friendly tier label (matches the kernel enum). */
 const tierLabel = $derived(
-	tier === "High"
-		? "High"
-		: tier === "JessePrimary"
-			? "Jesse Primary"
-			: tier === "Mid"
-				? "Mid"
-				: tier === "Floor"
-					? "Floor"
-					: tier === "Minimal"
-						? "Minimal"
-						: "CPU Only",
+	tier === "Ultra"
+		? "Ultra"
+		: tier === "High"
+			? "High"
+			: tier === "JessePrimary"
+				? "Jesse Primary"
+				: tier === "Mid"
+					? "Mid"
+					: tier === "Floor"
+						? "Floor"
+						: tier === "Minimal"
+							? "Minimal"
+							: "CPU Only",
 );
 
 const tierDescription = $derived(
-	tier === "High"
+	tier === "Ultra" || tier === "High"
 		? "Full model stack. All slots GPU-accelerated."
 		: tier === "JessePrimary" || tier === "Mid"
 			? "Partial offload. Brain on GPU, helpers on CPU."
@@ -77,7 +79,11 @@ const tierDescription = $derived(
 );
 
 const tierTone = $derived(
-	tier === "High" ? "positive" : tier === "JessePrimary" || tier === "Mid" ? "neutral" : "neutral",
+	tier === "Ultra" || tier === "High"
+		? "positive"
+		: tier === "JessePrimary" || tier === "Mid"
+			? "neutral"
+			: "neutral",
 );
 
 interface SpecRow {

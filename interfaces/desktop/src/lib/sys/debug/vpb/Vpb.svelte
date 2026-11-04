@@ -26,7 +26,8 @@ $effect(() => {
 		vpbConnection.init();
 		// Untracked: the options landing must not re-run this and reload the autosave.
 		void untrack(() => vpbVisual.init());
-		const saved = loadAutoSave();
+		// What the panel's Builder tab built and has not saved stays.
+		const saved = untrack(() => vpbDocument.dirty) ? null : loadAutoSave();
 		if (saved) {
 			try {
 				vpbDocument.load(saved);

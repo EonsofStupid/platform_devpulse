@@ -102,13 +102,13 @@ function handleOverlayClick(event: MouseEvent): void {
 		flex-direction: column;
 		gap: 0.75rem;
 		border-radius: 1.25rem;
-		border: var(--border-preset-default-width) solid color-mix(in oklch, var(--accent-cyan-main) 24%, var(--border-subtle));
+		border: var(--border-width-thin) solid color-mix(in oklch, var(--accent-cyan-main) 24%, var(--border-subtle));
 		background:
 			linear-gradient(145deg, color-mix(in oklch, var(--accent-cyan-fill) 14%, transparent), transparent 42%),
 			linear-gradient(330deg, color-mix(in oklch, var(--accent-purple-fill) 12%, transparent), transparent 46%),
 			var(--surface-base, #0c1220);
 		padding: 1.125rem;
-		box-shadow: var(--shadow-z4);
+		box-shadow: var(--dialog-box-shadow);
 	}
 
 	.popup-head {
@@ -148,7 +148,7 @@ function handleOverlayClick(event: MouseEvent): void {
 		background:
 			linear-gradient(135deg, color-mix(in oklch, var(--accent-cyan-fill) 88%, transparent), transparent 62%),
 			var(--glass-deep);
-		border: var(--border-preset-default-width) solid color-mix(in oklch, var(--accent-cyan-main) 22%, transparent);
+		border: var(--border-width-thin) solid color-mix(in oklch, var(--accent-cyan-main) 22%, transparent);
 	}
 
 	.popup-points {
@@ -165,8 +165,8 @@ function handleOverlayClick(event: MouseEvent): void {
 	.popup-point {
 		padding: 0.75rem 0.875rem;
 		border-radius: 0.875rem;
-		background: color-mix(in oklch, var(--glass-elevated) 84%, transparent);
-		border: var(--border-preset-default-width) solid var(--border-subtle);
+		background: color-mix(in oklch, var(--glass-standard) 84%, transparent);
+		border: var(--border-width-thin) solid var(--border-subtle);
 	}
 
 	.popup-actions {

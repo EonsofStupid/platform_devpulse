@@ -1,0 +1,156 @@
+/**
+ * @file vpb-overlay.css
+ * @layer vpb
+ * @description VPB Scan Overlay - Gradient BORDER with TINTED interior
+ * @since 1.0.0
+ */
+
+/* =================================================================
+   Overlay Container - Full viewport
+   ================================================================= */
+
+.vpb-overlay[data-kind="vpb"] {
+	position: fixed;
+	inset: 0;
+	z-index: var(--vpb-z-overlay);
+	pointer-events: none;
+}
+
+/* =================================================================
+   ACTIVE Scan Mode - Gradient border + tinted interior
+   ================================================================= */
+
+.vpb-overlay--active[data-kind="vpb"] {
+	pointer-events: auto;
+	cursor: crosshair;
+
+	/* The scan colour marks the window's edge */
+	border: var(--border-width-medium) solid var(--vpb-cyber-gradient);
+	border-radius: var(--radius-xs);
+
+	/* TINTED INTERIOR - VISIBLE cyber tint (highlighter effect) */
+	background: var(--vpb-cyber-fill);
+}
+
+/* =================================================================
+   Element Highlight - On hover during scan
+   ================================================================= */
+
+[data-kind="vpb"] .vpb-highlight {
+	position: fixed;
+	pointer-events: none;
+
+	/* Cyber gradient border */
+	border: var(--border-width-medium) solid var(--vpb-cyber-gradient);
+	border-radius: var(--radius-xs);
+
+	/* HIGHLIGHTER FILL - visible tint inside */
+	background: var(--accent-cyber-glow);
+
+	transition: all var(--vpb-transition-fast);
+}
+
+/* Pulsing animation */
+[data-kind="vpb"] .vpb-highlight--pulse {
+	animation: vpb-pulse var(--duration-glacial) ease-in-out infinite;
+}
+
+@keyframes vpb-pulse {
+	0%,
+	100% {
+		opacity: 0.75;
+	}
+
+	50% {
+		opacity: 1;
+	}
+}
+
+/* =================================================================
+   Scan Tooltip - Follows the highlight
+   ================================================================= */
+
+[data-kind="vpb"] .vpb-tooltip {
+	position: fixed;
+
+	padding: var(--space-2) var(--space-3);
+	min-width: calc(var(--space-9) * 4);
+
+	/* Glass effect */
+	background: var(--vpb-panel-bg);
+	backdrop-filter: var(--vpb-blur);
+	-webkit-backdrop-filter: var(--vpb-blur);
+
+	/* Cyber border */
+	border: var(--border-width-thin) solid var(--vpb-cyber-gradient);
+	border-radius: var(--radius-md);
+
+	box-shadow: var(--vpb-shadow);
+
+	/* Typography */
+	font-family: var(--font-mono);
+	font-size: var(--font-size-sm);
+	color: var(--vpb-text-primary);
+
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-1);
+	pointer-events: none;
+}
+
+[data-kind="vpb"] .vpb-tooltip__header {
+	display: flex;
+	align-items: center;
+	gap: var(--space-2);
+	font-weight: 700;
+}
+
+[data-kind="vpb"] .vpb-tooltip__tag {
+	color: var(--vpb-cyber-gradient);
+}
+
+[data-kind="vpb"] .vpb-tooltip__id {
+	color: var(--vpb-action-pause);
+}
+
+[data-kind="vpb"] .vpb-tooltip__classes {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--space-1);
+}
+
+[data-kind="vpb"] .vpb-tooltip__class {
+	color: var(--vpb-text-secondary);
+}
+
+[data-kind="vpb"] .vpb-tooltip__source {
+	display: flex;
+	padding-top: var(--space-1);
+	border-top: var(--border-width-thin) solid var(--vpb-panel-border);
+	color: var(--vpb-text-muted);
+}
+
+[data-kind="vpb"] .vpb-tooltip__dims {
+	color: var(--vpb-text-muted);
+	white-space: nowrap;
+}
+
+/* Tooltip arrow */
+[data-kind="vpb"] .vpb-tooltip::after {
+	content: "";
+	position: absolute;
+	bottom: calc(var(--space-2) * -0.75);
+	left: 50%;
+	transform: translateX(-50%);
+
+	border-left: calc(var(--space-2) * 0.75) solid transparent;
+	border-right: calc(var(--space-2) * 0.75) solid transparent;
+	border-top: calc(var(--space-2) * 0.75) solid var(--vpb-cyber-gradient);
+}
+
+[data-kind="vpb"] .vpb-tooltip--below::after {
+	bottom: auto;
+	top: calc(var(--space-2) * -0.75);
+	border-top: none;
+	border-bottom: calc(var(--space-2) * 0.75) solid var(--vpb-cyber-gradient);
+}

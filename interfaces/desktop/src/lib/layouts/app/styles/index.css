@@ -1,0 +1,19 @@
+/**
+ * @file layouts/app/styles/index.css
+ * @layer layouts
+ *
+ * App Shell Layout Styles
+ * Consumes ColdLight tokens via var(--*) references. The values live in
+ * scripts/build/styledictionary/tokens/src/semantic/layout/layouts.tokens.json.
+ *
+ * Unlayered, like the shell backdrops and scrollbars in app.css, so these
+ * rules win over the ColdLight kinds and Tailwind for the properties they set.
+ * The grid itself is Frame.svelte: shell.css's grid became the 6-zone Frame.
+ *
+ * @since 0.1.0
+ */
+
+@import "../../common/styles/index.css";
+@import "./surfaces.css";
+@import "./depth.css";
+@import "./layout.css";

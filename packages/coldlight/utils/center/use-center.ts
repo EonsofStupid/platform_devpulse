@@ -11,6 +11,8 @@ import type { CenterProps } from "./center.types.js";
 export function center(props: CenterProps = {}): string {
 	return cn(
 		"mx-auto",
+		props.content === "block" && "flex items-center justify-center",
+		props.content === "inline" && "inline-flex items-center justify-center",
 		props.maxWidth !== undefined && `max-w-[var(--size-${props.maxWidth})]`,
 		props.gutters !== undefined && `px-${props.gutters}`,
 		props.padding !== undefined && `p-${props.padding}`,

@@ -10,6 +10,7 @@ import { Button } from "@devpulse/coldlight/components/button";
 import { Spinner } from "@devpulse/coldlight/components/spinner";
 import { Text } from "@devpulse/coldlight/components/text";
 import { Check, FolderSearch, Search, X } from "lucide-svelte";
+import { copyState } from "$lib/sys/copy/index.js";
 import { hardwareState } from "../../../data-access/hardware.state.svelte.js";
 import { modelsState } from "../../../data-access/models.state.svelte.js";
 import type { ModelInfo, SlotInfo } from "../../../util/models.types.js";
@@ -52,6 +53,17 @@ const statusText = $derived.by(() => {
 	return "Assigned";
 });
 
+const statusTips = $derived(copyState.catalog?.setup_wizard.slot_card ?? null);
+const statusTip = $derived.by(() => {
+	if (!statusTips) return undefined;
+	if (!model) return statusTips.empty;
+	if (ready) return statusTips.ready;
+	if (status?.type === "loading") return statusTips.loading;
+	if (status?.type === "warm") return statusTips.warm;
+	if (status?.type === "failed") return statusTips.failed;
+	return statusTips.assigned;
+});
+
 const statusTone = $derived.by((): "positive" | "negative" | "informative" | "neutral" => {
 	if (ready) return "positive";
 	if (status?.type === "failed") return "negative";
@@ -77,7 +89,7 @@ const statusTone = $derived.by((): "positive" | "negative" | "informative" | "ne
 			{/if}
 		</div>
 
-		<div class="card-status">
+		<div class="card-status" title={statusTip}>
 			<Badge variant={statusTone} size="sm">
 				{#if ready}<Check size={10} />{/if}
 				{#if status?.type === "loading"}<Spinner size="xs" />{/if}
@@ -115,7 +127,7 @@ const statusTone = $derived.by((): "positive" | "negative" | "informative" | "ne
 		transition: border-color 150ms ease-out;
 	}
 	.slot-card:hover {
-		border-color: var(--border-default);
+		border-color: var(--border-subtle);
 	}
 
 	.card-body {

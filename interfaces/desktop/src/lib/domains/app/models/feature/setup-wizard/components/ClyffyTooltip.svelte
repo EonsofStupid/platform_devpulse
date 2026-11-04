@@ -95,7 +95,7 @@ const ariaLabel = $derived(label ?? `Learn about ${String(copyKey).replace(/_/g,
 		color: var(--text-secondary, #8b9bb8);
 		border-radius: 999px;
 		cursor: help;
-		transition: color var(--motion-duration-fast, 150ms);
+		transition: color var(--duration-fast, 150ms);
 	}
 	.clyffy-tip-trigger:hover,
 	.clyffy-tip-trigger:focus-visible {

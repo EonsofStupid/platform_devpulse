@@ -5,6 +5,8 @@ export interface UseMenuProps {
 	onOpenChange?: (open: boolean) => void;
 	onSelect?: (value: string) => void;
 	"aria-label"?: string;
+	/** No trigger button (a context menu): the content names itself through aria-label alone. */
+	triggerless?: boolean;
 }
 
 export type MenuTriggerAttrs = HTMLButtonAttributes & {
@@ -42,7 +44,7 @@ export interface UseMenuReturn {
 	readonly trigger: MenuTriggerAttrs;
 	readonly content: MenuContentAttrs;
 	readonly separator: MenuSeparatorAttrs;
-	getItem(value: string, options?: { disabled?: boolean }): MenuItemAttrs;
+	getItem(value: string, options?: { disabled?: boolean; onSelect?: () => void }): MenuItemAttrs;
 	getGroup(label: string): MenuGroupAttrs;
 	attachContent: (node: HTMLElement) => { destroy(): void };
 }

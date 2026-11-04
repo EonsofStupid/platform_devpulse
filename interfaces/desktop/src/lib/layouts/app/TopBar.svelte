@@ -19,10 +19,11 @@
 import { Avatar } from "@devpulse/coldlight/components/avatar";
 import { Badge } from "@devpulse/coldlight/components/badge";
 import { Button } from "@devpulse/coldlight/components/button";
+import { Text } from "@devpulse/coldlight/components/text";
 import { TextField as Input } from "@devpulse/coldlight/components/text-field";
 import { Parasite } from "@devpulse/coldlight/plugins/parasite";
-import { cn, hstack } from "@devpulse/coldlight/utils";
-import { Bell, Menu, MessageCircle, Search } from "lucide-svelte";
+import { hstack } from "@devpulse/coldlight/utils";
+import { Bell, Menu, MessageCircle, Search, Sparkles } from "lucide-svelte";
 import { onboardingState } from "$lib/domains/app/onboarding/index.js";
 import { ProjectSwitcher } from "$lib/domains/app/projects/index.js";
 import { ClyffyStatusOrb } from "$lib/domains/clyffy/index.js";
@@ -34,6 +35,7 @@ import { globalState } from "$lib/sys/runes/global.svelte";
 
 let searchOpen = $state(false);
 let searchQuery = $state("");
+const text = $derived(copyState.catalog?.hubs.topbar);
 
 function toggleSearch(): void {
 	searchOpen = !searchOpen;
@@ -86,6 +88,7 @@ function onKey(e: KeyboardEvent): void {
 		<div class="flex items-center gap-2" style:font-family="var(--font-display)">
 			<Parasite size="sm" />
 		</div>
+		<Badge variant="neutral" size="sm">{globalState.current_domain.toUpperCase()}</Badge>
 		<!-- Active-project pill — next to brand so "what am I working on"
 		     is the first thing the user sees after the app identity. -->
 		<ProjectSwitcher />
@@ -120,6 +123,18 @@ function onKey(e: KeyboardEvent): void {
 			<MessageCircle size={16} />
 		</Button>
 
+		<Button
+			variant="ghost"
+			size="sm"
+			class="h-9 w-9 rounded-full"
+			title={text?.chat_overlay}
+			aria-label={text?.chat_overlay}
+			aria-pressed={globalState.chat_overlay_open}
+			onclick={() => globalState.toggleChatOverlay()}
+		>
+			<Sparkles size={16} />
+		</Button>
+
 		{#if tools}
 			{@const ToolsIcon = tools.nav.icon}
 			<Button variant="ghost" size="sm" class="h-9 w-9 rounded-full" title={toolsLabel} aria-label={toolsLabel} onclick={openTools}>
@@ -130,15 +145,16 @@ function onKey(e: KeyboardEvent): void {
 		{/if}
 
 		{#if searchOpen}
-			<div class={cn("absolute right-4 top-16 z-50 rounded-lg border p-2")} style="background: var(--background-color); border-color: var(--border-color);">
+			<div class="absolute right-4 top-full z-50 mt-2 p-3" data-slot="search" data-focus-container>
 				<Input
 					size="sm"
-					class="w-64"
+					class="w-full"
 					type="text"
 					value={searchQuery}
-					oninput={(e) => { searchQuery = (e.currentTarget as HTMLInputElement).value; }}
-					placeholder="Search..."
+					onValueChange={(next) => { searchQuery = next; }}
+					placeholder={text?.search_placeholder}
 				/>
+				<Text size="sm" color="muted" class="mt-2 block">{text?.search_unavailable}</Text>
 			</div>
 		{/if}
 

@@ -2,23 +2,46 @@
   @file DevPulseDashboard — DevPulse domain dashboard.
   Rendered by (app)/devpulse/+page.svelte.
   Cyberpunk HUD dashboard with gauges, charts, and glass panels.
-  Matches DASHBOARD-REFERENCE-01.
+  Matches DASHBOARD-REFERENCE-01. The Overview / Wireless / WAN/LAN tabs and the
+  System Overview stat cards are the owner's HomeDashboard, on live values.
 -->
 <script lang="ts">
 import { Widget } from "@devpulse/coldlight/blocks/widgets";
 import { Badge } from "@devpulse/coldlight/components/badge";
 import { Button } from "@devpulse/coldlight/components/button";
+import { Callout } from "@devpulse/coldlight/components/callout";
 import { Card } from "@devpulse/coldlight/components/card";
 import { DynamicBackground } from "@devpulse/coldlight/components/dynamic-background";
 import { RadialGauge } from "@devpulse/coldlight/components/radial-gauge";
 import { SparkLine } from "@devpulse/coldlight/components/spark-line";
+import { Stat } from "@devpulse/coldlight/components/stat";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@devpulse/coldlight/components/tabs";
 import { Text } from "@devpulse/coldlight/components/text";
 import { cn, hstack, stack } from "@devpulse/coldlight/utils";
-import { Activity, BarChart3, FolderGit2, Gauge, HeartPulse, TrendingUp } from "lucide-svelte";
+import {
+	Activity,
+	BarChart3,
+	FolderGit2,
+	Gauge,
+	HeartPulse,
+	Network,
+	TrendingUp,
+	Wifi,
+} from "lucide-svelte";
 import { devpulseState } from "$lib/domains/app/devpulse/index.js";
-import { GpuUtilGauge, hardwareState, VramGauge } from "$lib/domains/app/models/index.js";
+import { formatMb, GpuUtilGauge, hardwareState, VramGauge } from "$lib/domains/app/models/index.js";
 import { groupHealthSubsystems } from "$lib/layouts/app/StatusBar.types.js";
+import { copyState } from "$lib/sys/copy/index.js";
 import { platformState } from "$lib/sys/runes/platformState.svelte.js";
+
+const text = $derived(copyState.catalog?.hubs.dashboard);
+
+let activeTab = $state("overview");
+const tabs = $derived([
+	{ id: "overview", label: text?.tab_overview },
+	{ id: "wireless", label: text?.tab_wireless },
+	{ id: "wan-lan", label: text?.tab_wan_lan },
+]);
 
 const langColors: Record<string, string> = {
 	TypeScript: "teal",
@@ -78,13 +101,22 @@ $effect(() => {
 	     the shell-wide cosmic layer in Frame.svelte stays as the base. -->
 	<DynamicBackground variant="devpulse" animated />
 
+	<Tabs value={activeTab} onValueChange={(next) => { activeTab = next; }} class="relative">
+	<TabsList class="mb-4">
+		{#each tabs as tab (tab.id)}
+			<TabsTrigger value={tab.id}>{tab.label}</TabsTrigger>
+		{/each}
+	</TabsList>
+
+	<TabsContent value="overview">
 	<div class="relative grid grid-cols-12 gap-4 auto-rows-min">
 	<!-- Row 1: Gauges + Stats -->
-	<div class="col-span-12 lg:col-span-4">
+	<div class="col-span-12 lg:col-span-4" data-depth="lifted">
 		<Widget
 			title="Clyffy Control"
 			icon={Gauge}
 			surface="glass" variant="deep"
+			class="h-full"
 		>
 			<div class="flex items-center justify-center py-4">
 				<RadialGauge
@@ -100,12 +132,30 @@ $effect(() => {
 		</Widget>
 	</div>
 
-	<div class="col-span-12 lg:col-span-4">
+	<div class="col-span-12 lg:col-span-4" data-depth="raised">
 		<Widget
 			title="System Overview"
 			icon={Activity}
 			surface="glass" variant="minimal"
+			class="h-full"
 		>
+			<div class="grid grid-cols-2 gap-4 pb-2">
+				<Stat label={text?.uptime} value={platformState.uptimeFormatted} size="sm" accent="teal" />
+				<Stat
+					label={text?.cpu}
+					value={hardwareState.cpuUsagePercent === null ? "--" : Math.round(hardwareState.cpuUsagePercent)}
+					unit={hardwareState.cpuUsagePercent === null ? "" : "%"}
+					size="sm"
+					accent="teal"
+				/>
+				<Stat
+					label={text?.memory}
+					value={hardwareState.ramUsedMb === null ? "--" : formatMb(hardwareState.ramUsedMb)}
+					size="sm"
+					accent="teal"
+				/>
+				<Stat label={text?.network} value={text?.unavailable} size="sm" accent="frost" />
+			</div>
 			<div class="flex items-center justify-center gap-6 py-2">
 				<RadialGauge
 					value={ramUsedGb}
@@ -121,25 +171,26 @@ $effect(() => {
 		</Widget>
 	</div>
 
-	<div class="col-span-12 lg:col-span-4">
+	<div class="col-span-12 lg:col-span-4" data-neu="outset">
 		<Widget
 			title="Developer Stats"
 			icon={TrendingUp}
 			surface="neuro" variant="elevated"
+			class="h-full"
 		>
 			<div class={stack({ gap: "3" })}>
 				<div class={hstack({ justify: "between", align: "baseline" })}>
 					<div class={stack({ gap: "1" })}>
 						<Text size="xs" preset="default">Projects</Text>
-						<Text size="xl" weight="bold" preset="default" class="tabular-nums font-display drop-shadow-[0_0_0.5rem_var(--accent-teal-glow)]">{devpulseState.data.user.totalProjects}</Text>
+						<Text size="xl" weight="bold" preset="default" class="tabular-nums font-display" data-text-glow="teal">{devpulseState.data.user.totalProjects}</Text>
 					</div>
 					<div class={stack({ gap: "1" })}>
 						<Text size="xs" preset="default">Messages</Text>
-						<Text size="xl" weight="bold" preset="default" class="tabular-nums font-display drop-shadow-[0_0_0.5rem_var(--accent-teal-glow)]">{devpulseState.data.user.totalMessages}</Text>
+						<Text size="xl" weight="bold" preset="default" class="tabular-nums font-display" data-text-glow="teal">{devpulseState.data.user.totalMessages}</Text>
 					</div>
 					<div class={stack({ gap: "1" })}>
 						<Text size="xs" preset="default">Sessions</Text>
-						<Text size="xl" weight="bold" preset="default" class="tabular-nums font-display drop-shadow-[0_0_0.5rem_var(--accent-teal-glow)]">{devpulseState.data.user.totalSessions}</Text>
+						<Text size="xl" weight="bold" preset="default" class="tabular-nums font-display" data-text-glow="teal">{devpulseState.data.user.totalSessions}</Text>
 					</div>
 				</div>
 				<Card surface="neuro" variant="deep" class="flex items-center gap-2 px-3 py-2">
@@ -151,11 +202,12 @@ $effect(() => {
 	</div>
 
 	<!-- Row 1.5: AI Model Gauges -->
-	<div class="col-span-12">
+	<div class="col-span-12" data-depth="float">
 		<Widget
 			title="AI Models"
 			icon={Gauge}
 			surface="glass" variant="minimal"
+			class="h-full"
 		>
 			<div class="flex items-center justify-center gap-8 py-2">
 				<VramGauge
@@ -177,11 +229,12 @@ $effect(() => {
 	</div>
 
 	<!-- Row 2: Charts -->
-	<div class="col-span-12 lg:col-span-8">
+	<div class="col-span-12 lg:col-span-8" data-depth="elevated">
 		<Widget
 			title="Activity Timeline"
 			icon={BarChart3}
 			surface="glass" variant="deep"
+			class="h-full"
 		>
 			<div class={stack({ gap: "3" })}>
 				<SparkLine
@@ -223,11 +276,12 @@ $effect(() => {
 		</Widget>
 	</div>
 
-	<div class="col-span-12 lg:col-span-4">
+	<div class="col-span-12 lg:col-span-4" data-rim="subtle">
 		<Widget
 			title="Store Health"
 			icon={HeartPulse}
 			surface="neuro" variant="deep"
+			class="h-full"
 		>
 			<div class={stack({ gap: "3" })}>
 				{#if platformState.health && healthGroups.length > 0}
@@ -269,11 +323,12 @@ $effect(() => {
 	</div>
 
 	<!-- Row 3: Recent Projects -->
-	<div class="col-span-12">
+	<div class="col-span-12" data-depth="raised">
 		<Widget
 			title="Recent Projects"
 			icon={FolderGit2}
 			surface="neuro" variant="minimal"
+			class="h-full"
 			tabs={[
 				{ id: "all", label: "All" },
 				{ id: "active", label: "Active" },
@@ -302,5 +357,30 @@ $effect(() => {
 		</Widget>
 	</div>
 	</div>
+	</TabsContent>
+
+	<!-- No backend reads Wi-Fi or the network yet: the screens stay and say so. -->
+	<TabsContent value="wireless">
+		<div data-depth="raised">
+		<Widget title={text?.wireless_title} icon={Wifi} surface="glass" variant="deep">
+			<div class={stack({ gap: "3" })}>
+				<Text as="p" size="sm" color="muted">{text?.wireless_body}</Text>
+				<Callout variant="info"><Text size="sm">{text?.no_backend}</Text></Callout>
+			</div>
+		</Widget>
+		</div>
+	</TabsContent>
+
+	<TabsContent value="wan-lan">
+		<div data-depth="raised">
+		<Widget title={text?.wan_lan_title} icon={Network} surface="glass" variant="deep">
+			<div class={stack({ gap: "3" })}>
+				<Text as="p" size="sm" color="muted">{text?.wan_lan_body}</Text>
+				<Callout variant="info"><Text size="sm">{text?.no_backend}</Text></Callout>
+			</div>
+		</Widget>
+		</div>
+	</TabsContent>
+	</Tabs>
 </div>
 {/if}

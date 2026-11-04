@@ -31,6 +31,34 @@ ColdLight produces interfaces with:
 
 ---
 
+## The owner's palette
+
+The owner's words: "NEVER USE BLACK USE DARKS BUT TEALS PURPLES BLUES ALL DARK DARK DARK OR SLATE",
+and on gradients: use them sparingly, "DO NOT GO FULL RAINBOW TASTEFULLY USED IT CAN BE INCREDIBLY
+STUNNING". The tokens hold these values (authored OKLCH, with the hex beside them).
+
+| Token | Value | Source |
+|---|---|---|
+| `glass.void`, `color.void.base` | `rgba(15, 23, 42, 0.97)` | his void: dark blue-slate |
+| `glass.deep` | `rgba(30, 41, 59, 0.95)` | his deep |
+| `glass.smoke` | `rgba(30, 41, 59, 0.7)` | his glass panel |
+| `glass.standard` | `hsl(222 48% 11% / 0.7)` | his pulseos panel |
+| `glass.light` | `hsl(220 22% 23% / 0.7)` | his cyber panel |
+| `matte.dark` / `medium` / `light` | `hsl(220 64% 12%)`, `#1e293b`, `#334155` | his cyber deep and matte solid |
+| `color.void.950`, `overlay.scrim` | `hsl(222 84% 5%)` | his deepest navy, the floor |
+| `accent.teal.main` | `rgba(65, 240, 219, 1)` | "Primary teal" |
+| `accent.pink.main` | `rgba(255, 10, 190, 1)` | "Secondary pink" |
+| `accent.purple.main` | `rgba(147, 51, 234, 1)` | "Tertiary purple" |
+| `accent.lime.main` | `hsl(125 100% 59%)` | his lime |
+| `accent.amber.main` | `hsl(38 95% 55%)` | his amber |
+| `accent.cyan` `green` `hotpink` `coral` `blue` `salmon` `gold` | `#17deef` `#29b468` `#f8397a` `#fc6b83` `#3ea4ea` `#f16971` `#d6d232` | the brand colours he gave later |
+
+`primary` defaults to blue, editable in the visual editor (his words: "It should just be primary and
+then default blue"). A surface darker than L 0.17 in OKLCH, or a dark with chroma under 0.03, is a
+black by another name: lift it. Shadows may stay `oklch(0 0 0 / …)`; his own bevels are.
+
+---
+
 ## SVG Filter System
 
 Location: `svg/filters/`

@@ -23,6 +23,7 @@ import { clyffyStatus } from "$lib/domains/clyffy/index.js";
 import { findTerm } from "$lib/sys/generated/terminology.js";
 import { getIcon } from "$lib/sys/generated/terminology-icons.js";
 import type { SubsystemInfo } from "$lib/sys/runes/platformState.svelte.js";
+import { formatLatency } from "./boot-format.js";
 
 interface Props {
 	subsystem: SubsystemInfo;
@@ -42,11 +43,7 @@ const variant = $derived(
 const triggerLabel = $derived(presentationState.label(subsystem.name));
 
 const latencyText = $derived(
-	subsystem.latencyMs === null
-		? null
-		: subsystem.latencyMs >= 1000
-			? `${Math.round(subsystem.latencyMs / 1000)}ms`
-			: `${subsystem.latencyMs}ms`,
+	subsystem.latencyUs === null ? null : formatLatency(subsystem.latencyUs),
 );
 
 /**

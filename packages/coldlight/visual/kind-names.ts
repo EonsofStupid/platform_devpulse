@@ -16,10 +16,12 @@ export type KindName =
 	| "color-field"
 	| "color-slider"
 	| "combobox"
+	| "context-menu"
 	| "data-table"
 	| "description-list"
 	| "dialog"
 	| "dot"
+	| "dropdown-menu"
 	| "empty-state"
 	| "field"
 	| "form"
@@ -37,8 +39,10 @@ export type KindName =
 	| "menu"
 	| "meter"
 	| "notification-center"
+	| "nav-item"
 	| "number-field"
 	| "pagination"
+	| "panel"
 	| "popover"
 	| "progress"
 	| "prose"
@@ -83,10 +87,12 @@ export const KIND_NAMES: readonly KindName[] = [
 	"color-field",
 	"color-slider",
 	"combobox",
+	"context-menu",
 	"data-table",
 	"description-list",
 	"dialog",
 	"dot",
+	"dropdown-menu",
 	"empty-state",
 	"field",
 	"form",
@@ -104,8 +110,10 @@ export const KIND_NAMES: readonly KindName[] = [
 	"menu",
 	"meter",
 	"notification-center",
+	"nav-item",
 	"number-field",
 	"pagination",
+	"panel",
 	"popover",
 	"progress",
 	"prose",

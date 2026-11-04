@@ -1,0 +1,81 @@
+/**
+ * @file layouts/common/styles/focus.css
+ * @layer layouts
+ *
+ * Focus States & Accessibility
+ * Consistent focus indicators across layouts.
+ * The skip link is ColdLight's skip-link kind.
+ *
+ * @since 0.1.0
+ */
+
+/* ============================================
+   FOCUS RING (visible on keyboard focus)
+   ============================================ */
+
+/* Default focus ring */
+:focus-visible {
+	outline: var(--border-width-thin) solid var(--border-focus);
+	outline-offset: var(--outline-offset-md);
+}
+
+/* Subtle focus (for dark backgrounds) */
+[data-focus="subtle"]:focus-visible {
+	outline: var(--border-width-hairline) solid var(--color-teal-500);
+	outline-offset: var(--outline-offset-sm);
+}
+
+/* Glow focus */
+[data-focus="glow"]:focus-visible {
+	outline: none;
+	box-shadow: var(--layouts-focus-glow-teal);
+}
+
+/* Inset focus (for inputs) */
+[data-focus="inset"]:focus-visible {
+	outline: none;
+	border-color: var(--layouts-glass-input-border-focus);
+	box-shadow: var(--layouts-focus-inset);
+}
+
+/* No visible focus (use sparingly) */
+[data-focus="none"]:focus-visible {
+	outline: none;
+}
+
+/* ============================================
+   FOCUS-WITHIN CONTAINERS
+   ============================================ */
+
+[data-focus-container]:focus-within {
+	border-color: var(--layouts-glass-btn-border-hover);
+	box-shadow: var(--layouts-focus-container);
+}
+
+/* ============================================
+   ACCENT FOCUS VARIANTS
+   ============================================ */
+
+[data-focus-accent="purple"]:focus-visible {
+	outline-color: var(--color-purple-400);
+}
+
+[data-focus-accent="purple"][data-focus="glow"]:focus-visible {
+	box-shadow: var(--layouts-focus-glow-purple);
+}
+
+[data-focus-accent="ember"]:focus-visible {
+	outline-color: var(--color-ember-400);
+}
+
+[data-focus-accent="ember"][data-focus="glow"]:focus-visible {
+	box-shadow: var(--layouts-focus-glow-ember);
+}
+
+[data-focus-accent="cyber"]:focus-visible {
+	outline-color: var(--color-cyber-400);
+}
+
+[data-focus-accent="cyber"][data-focus="glow"]:focus-visible {
+	box-shadow: var(--layouts-focus-glow-cyber);
+}

@@ -14,7 +14,7 @@
 	"preset": {
 		"glass-elevated": {
 			"background-color": {
-				"$value": "oklch(0.25 0.02 220 / 0.4)",
+				"$value": "oklch(0.304 0.03 220 / 0.4)",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -101,7 +101,7 @@
 		"glass-elevated-hover": {
 			"$description": "glass-elevated hover overrides",
 			"background-color": {
-				"$value": "oklch(0.28 0.025 220 / 0.45)",
+				"$value": "oklch(0.323 0.03 220 / 0.45)",
 				"$type": "color"
 			},
 			"box-shadow": {
@@ -116,7 +116,7 @@
 		"glass-elevated-active": {
 			"$description": "glass-elevated active overrides",
 			"background-color": {
-				"$value": "oklch(0.22 0.018 220 / 0.5)",
+				"$value": "oklch(0.285 0.03 220 / 0.5)",
 				"$type": "color"
 			},
 			"box-shadow": {
@@ -127,7 +127,7 @@
 		"glass-elevated-disabled": {
 			"$description": "glass-elevated disabled overrides",
 			"background-color": {
-				"$value": "oklch(0.2 0.005 220 / 0.2)",
+				"$value": "oklch(0.272 0.03 220 / 0.2)",
 				"$type": "color"
 			},
 			"opacity": {
@@ -145,7 +145,7 @@
 		},
 		"glass-deep": {
 			"background-color": {
-				"$value": "oklch(0.12 0.025 220 / 0.6)",
+				"$value": "oklch(0.221 0.03 220 / 0.6)",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -232,7 +232,7 @@
 		"glass-deep-hover": {
 			"$description": "glass-deep hover overrides",
 			"background-color": {
-				"$value": "oklch(0.15 0.03 220 / 0.65)",
+				"$value": "oklch(0.24 0.03 220 / 0.65)",
 				"$type": "color"
 			},
 			"box-shadow": {
@@ -247,7 +247,7 @@
 		"glass-deep-active": {
 			"$description": "glass-deep active overrides",
 			"background-color": {
-				"$value": "oklch(0.1 0.02 220 / 0.7)",
+				"$value": "oklch(0.208 0.03 220 / 0.7)",
 				"$type": "color"
 			},
 			"box-shadow": {
@@ -258,7 +258,7 @@
 		"glass-deep-disabled": {
 			"$description": "glass-deep disabled overrides",
 			"background-color": {
-				"$value": "oklch(0.12 0.005 220 / 0.3)",
+				"$value": "oklch(0.221 0.03 220 / 0.3)",
 				"$type": "color"
 			},
 			"opacity": {
@@ -272,7 +272,7 @@
 		},
 		"glass-minimal": {
 			"background-color": {
-				"$value": "oklch(0.3 0.01 220 / 0.15)",
+				"$value": "oklch(0.336 0.03 220 / 0.15)",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -359,7 +359,7 @@
 		"glass-minimal-hover": {
 			"$description": "glass-minimal hover overrides",
 			"background-color": {
-				"$value": "oklch(0.33 0.015 220 / 0.2)",
+				"$value": "oklch(0.355 0.03 220 / 0.2)",
 				"$type": "color"
 			},
 			"border-color": {
@@ -370,14 +370,14 @@
 		"glass-minimal-active": {
 			"$description": "glass-minimal active overrides",
 			"background-color": {
-				"$value": "oklch(0.27 0.008 220 / 0.22)",
+				"$value": "oklch(0.317 0.03 220 / 0.22)",
 				"$type": "color"
 			}
 		},
 		"glass-minimal-disabled": {
 			"$description": "glass-minimal disabled overrides",
 			"background-color": {
-				"$value": "oklch(0.25 0.005 220 / 0.08)",
+				"$value": "oklch(0.304 0.03 220 / 0.08)",
 				"$type": "color"
 			},
 			"color": {
@@ -391,7 +391,7 @@
 		},
 		"glass-solid": {
 			"background-color": {
-				"$value": "oklch(0.18 0.02 220 / 0.85)",
+				"$value": "oklch(0.259 0.03 220 / 0.85)",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -478,7 +478,7 @@
 		"glass-solid-hover": {
 			"$description": "glass-solid hover overrides",
 			"background-color": {
-				"$value": "oklch(0.2 0.025 220 / 0.88)",
+				"$value": "oklch(0.272 0.03 220 / 0.88)",
 				"$type": "color"
 			},
 			"box-shadow": {
@@ -493,7 +493,7 @@
 		"glass-solid-active": {
 			"$description": "glass-solid active overrides",
 			"background-color": {
-				"$value": "oklch(0.16 0.018 220 / 0.9)",
+				"$value": "oklch(0.247 0.03 220 / 0.9)",
 				"$type": "color"
 			},
 			"box-shadow": {
@@ -504,7 +504,7 @@
 		"glass-solid-disabled": {
 			"$description": "glass-solid disabled overrides",
 			"background-color": {
-				"$value": "oklch(0.15 0.005 220 / 0.5)",
+				"$value": "oklch(0.24 0.03 220 / 0.5)",
 				"$type": "color"
 			},
 			"opacity": {
@@ -518,7 +518,7 @@
 		},
 		"glass-glow": {
 			"background-color": {
-				"$value": "oklch(0.18 0.04 190 / 0.35)",
+				"$value": "oklch(0.259 0.04 190 / 0.35)",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -605,7 +605,7 @@
 		"glass-glow-hover": {
 			"$description": "glass-glow hover overrides",
 			"background-color": {
-				"$value": "oklch(0.2 0.05 190 / 0.4)",
+				"$value": "oklch(0.272 0.05 190 / 0.4)",
 				"$type": "color"
 			},
 			"box-shadow": {
@@ -620,7 +620,7 @@
 		"glass-glow-active": {
 			"$description": "glass-glow active overrides",
 			"background-color": {
-				"$value": "oklch(0.15 0.035 190 / 0.45)",
+				"$value": "oklch(0.24 0.035 190 / 0.45)",
 				"$type": "color"
 			},
 			"box-shadow": {
@@ -631,7 +631,7 @@
 		"glass-glow-disabled": {
 			"$description": "glass-glow disabled overrides",
 			"background-color": {
-				"$value": "oklch(0.15 0.01 190 / 0.2)",
+				"$value": "oklch(0.24 0.03 190 / 0.2)",
 				"$type": "color"
 			},
 			"opacity": {
@@ -649,7 +649,7 @@
 		},
 		"glass-muted": {
 			"background-color": {
-				"$value": "oklch(0.2 0.005 220 / 0.2)",
+				"$value": "oklch(0.272 0.03 220 / 0.2)",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -661,7 +661,7 @@
 				"$type": "shadow"
 			},
 			"color": {
-				"$value": "oklch(0.6 0.005 220)",
+				"$value": "oklch(0.64 0.005 220)",
 				"$type": "color"
 			},
 			"border-color": {
@@ -736,7 +736,7 @@
 		"glass-muted-hover": {
 			"$description": "glass-muted hover overrides",
 			"background-color": {
-				"$value": "oklch(0.22 0.008 220 / 0.25)",
+				"$value": "oklch(0.285 0.03 220 / 0.25)",
 				"$type": "color"
 			},
 			"opacity": {
@@ -751,7 +751,7 @@
 		"glass-muted-active": {
 			"$description": "glass-muted active overrides",
 			"background-color": {
-				"$value": "oklch(0.18 0.004 220 / 0.25)",
+				"$value": "oklch(0.259 0.03 220 / 0.25)",
 				"$type": "color"
 			},
 			"opacity": {
@@ -762,7 +762,7 @@
 		"glass-muted-disabled": {
 			"$description": "glass-muted disabled overrides",
 			"background-color": {
-				"$value": "oklch(0.18 0.003 220 / 0.1)",
+				"$value": "oklch(0.259 0.03 220 / 0.1)",
 				"$type": "color"
 			},
 			"color": {

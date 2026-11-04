@@ -16,7 +16,7 @@ export const glassElevated: PresetDefinition = {
 	label: "Glass Elevated",
 	description: "Raised frosted glass — bright blur, teal-tinted border, floating",
 	axes: {
-		backgroundColor: "oklch(0.25 0.02 220 / 0.4)",
+		backgroundColor: "oklch(0.304 0.03 220 / 0.4)",
 		backgroundBlur: "1rem",
 		shadow: [
 			{
@@ -56,7 +56,7 @@ export const glassElevated: PresetDefinition = {
 	},
 	states: {
 		hover: {
-			backgroundColor: "oklch(0.28 0.025 220 / 0.45)",
+			backgroundColor: "oklch(0.323 0.03 220 / 0.45)",
 			shadow: [
 				{
 					offsetX: "0",
@@ -76,7 +76,7 @@ export const glassElevated: PresetDefinition = {
 			border: { color: "oklch(0.85 0.1 180 / 0.3)" },
 		},
 		active: {
-			backgroundColor: "oklch(0.22 0.018 220 / 0.5)",
+			backgroundColor: "oklch(0.285 0.03 220 / 0.5)",
 			shadow: [
 				{
 					offsetX: "0",
@@ -88,7 +88,7 @@ export const glassElevated: PresetDefinition = {
 			],
 		},
 		disabled: {
-			backgroundColor: "oklch(0.2 0.005 220 / 0.2)",
+			backgroundColor: "oklch(0.272 0.03 220 / 0.2)",
 			opacity: 0.4,
 			border: { color: "oklch(0.5 0.02 220 / 0.1)" },
 			animation: "none",
@@ -103,7 +103,7 @@ export const glassDeep: PresetDefinition = {
 	label: "Glass Deep",
 	description: "Deep frosted glass — heavy blur, dark tint, submerged look",
 	axes: {
-		backgroundColor: "oklch(0.12 0.025 220 / 0.6)",
+		backgroundColor: "oklch(0.221 0.03 220 / 0.6)",
 		backgroundBlur: "1.5rem",
 		shadow: [
 			{ offsetX: "0", offsetY: "0.25rem", blur: "1rem", spread: "0", color: "oklch(0 0 0 / 0.5)" },
@@ -133,7 +133,7 @@ export const glassDeep: PresetDefinition = {
 	},
 	states: {
 		hover: {
-			backgroundColor: "oklch(0.15 0.03 220 / 0.65)",
+			backgroundColor: "oklch(0.24 0.03 220 / 0.65)",
 			shadow: [
 				{
 					offsetX: "0",
@@ -154,7 +154,7 @@ export const glassDeep: PresetDefinition = {
 			border: { color: "oklch(0.55 0.07 200 / 0.22)" },
 		},
 		active: {
-			backgroundColor: "oklch(0.1 0.02 220 / 0.7)",
+			backgroundColor: "oklch(0.208 0.03 220 / 0.7)",
 			shadow: [
 				{
 					offsetX: "0",
@@ -166,7 +166,7 @@ export const glassDeep: PresetDefinition = {
 			],
 		},
 		disabled: {
-			backgroundColor: "oklch(0.12 0.005 220 / 0.3)",
+			backgroundColor: "oklch(0.221 0.03 220 / 0.3)",
 			opacity: 0.35,
 			border: { color: "oklch(0.4 0.01 220 / 0.08)" },
 		},
@@ -180,7 +180,7 @@ export const glassMinimal: PresetDefinition = {
 	label: "Glass Minimal",
 	description: "Whisper glass — barely visible surface, light blur, nearly transparent",
 	axes: {
-		backgroundColor: "oklch(0.3 0.01 220 / 0.15)",
+		backgroundColor: "oklch(0.336 0.03 220 / 0.15)",
 		backgroundBlur: "0.5rem",
 		shadow: [],
 		border: { width: "0.0625rem", style: "solid", color: "oklch(1 0 0 / 0.08)" },
@@ -200,14 +200,14 @@ export const glassMinimal: PresetDefinition = {
 	},
 	states: {
 		hover: {
-			backgroundColor: "oklch(0.33 0.015 220 / 0.2)",
+			backgroundColor: "oklch(0.355 0.03 220 / 0.2)",
 			border: { color: "oklch(1 0 0 / 0.14)" },
 		},
 		active: {
-			backgroundColor: "oklch(0.27 0.008 220 / 0.22)",
+			backgroundColor: "oklch(0.317 0.03 220 / 0.22)",
 		},
 		disabled: {
-			backgroundColor: "oklch(0.25 0.005 220 / 0.08)",
+			backgroundColor: "oklch(0.304 0.03 220 / 0.08)",
 			opacity: 0.35,
 			color: "oklch(0.6 0.005 220)",
 		},
@@ -221,7 +221,7 @@ export const glassSolid: PresetDefinition = {
 	label: "Glass Solid",
 	description: "Opaque glass — frosted texture but no see-through, dense blur",
 	axes: {
-		backgroundColor: "oklch(0.18 0.02 220 / 0.85)",
+		backgroundColor: "oklch(0.259 0.03 220 / 0.85)",
 		backgroundBlur: "2rem",
 		shadow: [
 			{
@@ -249,7 +249,7 @@ export const glassSolid: PresetDefinition = {
 	},
 	states: {
 		hover: {
-			backgroundColor: "oklch(0.2 0.025 220 / 0.88)",
+			backgroundColor: "oklch(0.272 0.03 220 / 0.88)",
 			shadow: [
 				{
 					offsetX: "0",
@@ -262,7 +262,7 @@ export const glassSolid: PresetDefinition = {
 			border: { color: "oklch(0.65 0.06 200 / 0.28)" },
 		},
 		active: {
-			backgroundColor: "oklch(0.16 0.018 220 / 0.9)",
+			backgroundColor: "oklch(0.247 0.03 220 / 0.9)",
 			shadow: [
 				{
 					offsetX: "0",
@@ -274,7 +274,7 @@ export const glassSolid: PresetDefinition = {
 			],
 		},
 		disabled: {
-			backgroundColor: "oklch(0.15 0.005 220 / 0.5)",
+			backgroundColor: "oklch(0.24 0.03 220 / 0.5)",
 			opacity: 0.4,
 			border: { color: "oklch(0.4 0.01 220 / 0.1)" },
 		},
@@ -288,7 +288,7 @@ export const glassGlow: PresetDefinition = {
 	label: "Glass Glow",
 	description: "Glowing glass — teal emission through frosted surface, ethereal",
 	axes: {
-		backgroundColor: "oklch(0.18 0.04 190 / 0.35)",
+		backgroundColor: "oklch(0.259 0.04 190 / 0.35)",
 		backgroundBlur: "1rem",
 		shadow: [
 			{ offsetX: "0", offsetY: "0.25rem", blur: "1rem", spread: "0", color: "oklch(0 0 0 / 0.4)" },
@@ -329,7 +329,7 @@ export const glassGlow: PresetDefinition = {
 	},
 	states: {
 		hover: {
-			backgroundColor: "oklch(0.2 0.05 190 / 0.4)",
+			backgroundColor: "oklch(0.272 0.05 190 / 0.4)",
 			shadow: [
 				{
 					offsetX: "0",
@@ -356,7 +356,7 @@ export const glassGlow: PresetDefinition = {
 			border: { color: "oklch(0.75 0.18 180 / 0.4)" },
 		},
 		active: {
-			backgroundColor: "oklch(0.15 0.035 190 / 0.45)",
+			backgroundColor: "oklch(0.24 0.035 190 / 0.45)",
 			shadow: [
 				{
 					offsetX: "0",
@@ -375,7 +375,7 @@ export const glassGlow: PresetDefinition = {
 			],
 		},
 		disabled: {
-			backgroundColor: "oklch(0.15 0.01 190 / 0.2)",
+			backgroundColor: "oklch(0.24 0.03 190 / 0.2)",
 			opacity: 0.35,
 			border: { color: "oklch(0.5 0.03 180 / 0.1)" },
 			animation: "none",
@@ -390,7 +390,7 @@ export const glassMuted: PresetDefinition = {
 	label: "Glass Muted",
 	description: "Dimmed glass — faded frost for disabled/secondary states",
 	axes: {
-		backgroundColor: "oklch(0.2 0.005 220 / 0.2)",
+		backgroundColor: "oklch(0.272 0.03 220 / 0.2)",
 		backgroundBlur: "0.375rem",
 		shadow: [],
 		border: { width: "0.0625rem", style: "solid", color: "oklch(0.5 0.005 220 / 0.1)" },
@@ -410,16 +410,16 @@ export const glassMuted: PresetDefinition = {
 	},
 	states: {
 		hover: {
-			backgroundColor: "oklch(0.22 0.008 220 / 0.25)",
+			backgroundColor: "oklch(0.285 0.03 220 / 0.25)",
 			border: { color: "oklch(0.55 0.008 220 / 0.15)" },
 			opacity: 0.8,
 		},
 		active: {
-			backgroundColor: "oklch(0.18 0.004 220 / 0.25)",
+			backgroundColor: "oklch(0.259 0.03 220 / 0.25)",
 			opacity: 0.65,
 		},
 		disabled: {
-			backgroundColor: "oklch(0.18 0.003 220 / 0.1)",
+			backgroundColor: "oklch(0.259 0.03 220 / 0.1)",
 			opacity: 0.3,
 			color: "oklch(0.45 0.003 220)",
 		},

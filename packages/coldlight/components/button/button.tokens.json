@@ -79,8 +79,8 @@
 			"secondary": {
 				"$description": "Neuro Minimal, lifted and squared off for an action.",
 				"$extends": "{preset.neuro-minimal}",
-				"background-color": { "$value": "oklch(0.2 0.01 240)", "$type": "color" },
-				"border-color": { "$value": "oklch(0.3 0.01 240)", "$type": "color" },
+				"background-color": { "$value": "{matte.medium}", "$type": "color" },
+				"border-color": { "$value": "{matte.light}", "$type": "color" },
 				"box-shadow": { "$value": "0 0 0.5rem 0 oklch(0 0 0 / 0.3)", "$type": "shadow" },
 				"color": { "$value": "oklch(0.8 0.01 240)", "$type": "color" },
 				"transition-duration": { "$value": "150ms", "$type": "duration" },

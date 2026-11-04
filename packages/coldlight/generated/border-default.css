@@ -1,0 +1,19 @@
+/**
+ * The default border colour.
+ *
+ * Tailwind 4's preflight leaves every border at currentColor, so an input or
+ * trigger with the `border` utility and no colour of its own (TextField,
+ * Textarea, SearchField, NumberField, SelectTrigger) drew its border in the
+ * text colour: near white. Here the default is the owner's teal-tinted border.
+ * A border colour set by a kind, a preset or a utility still wins: those sit
+ * in later layers.
+ */
+@layer base {
+	*,
+	::after,
+	::before,
+	::backdrop,
+	::file-selector-button {
+		border-color: var(--border-soft, currentColor);
+	}
+}

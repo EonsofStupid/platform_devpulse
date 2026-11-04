@@ -1,0 +1,30 @@
+/**
+ * @file vpb/components/styles/index.css
+ * @layer vpb
+ * @description VPB Styles Index - Single import point
+ * @since 1.0.0
+ *
+ * Every rule is scoped under the panel's own `[data-kind="vpb"]` roots: the
+ * full-window builder (`Vpb.svelte`) has its own `.vpb-shell`, `.vpb-toolbar`
+ * and `.vpb-inspector`, and these must not reach them.
+ */
+
+/* VPB tokens: names over ColdLight tokens */
+@import "./vpb-tokens.css";
+/* VPB Component Styles */
+@import "./vpb-grid.css";
+/* Panel Layout (Glass Box) */
+@import "./vpb-panel.css";
+/* Panel sections and status */
+@import "./vpb-tabs.css";
+/* Tabs & Controls */
+@import "./vpb-toolbar.css";
+/* Toolbar Buttons */
+@import "./vpb-inspector.css";
+/* Floating Window */
+@import "./vpb-overlay.css";
+/* Scan Overlay */
+@import "./vpb-icon.css";
+/* Minimized Icon */
+@import "./vpb-builder.css";
+/* Builder and Inspector tabs */

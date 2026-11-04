@@ -1,0 +1,192 @@
+/**
+ * @file layouts/app/styles/layout.css
+ * @layer layouts
+ *
+ * Deep glass + complex bevel + neon edges on the shell's controls: the owner's
+ * icon button contract, status pill, search overlay and scrollbars, now reading
+ * ColdLight tokens instead of the temporary hard-coded values this file began
+ * with. Its grid, void and circuit grid became Frame.svelte and app.css; its
+ * CSS-only tooltips became ColdLight's Tooltip kind.
+ */
+
+/* ---------- Icon Buttons (mouse tracked, see icon-glow.ts) ---------- */
+[data-layout="app"]
+	> :is([data-slot="topbar"], [data-slot="sidebar"])
+	[data-kind="button"]:not([aria-current="page"]) {
+	position: relative;
+	overflow: hidden;
+	background: var(--layouts-icon-btn-fill);
+	border: var(--border-width-hairline) solid var(--layouts-icon-btn-border);
+	box-shadow: var(--layouts-icon-btn-shadow);
+	backdrop-filter: var(--layouts-icon-btn-filter);
+	transition:
+		transform var(--layouts-icon-btn-speed) var(--layouts-icon-btn-ease),
+		border-color var(--layouts-icon-btn-speed) ease,
+		box-shadow var(--layouts-icon-btn-speed) ease;
+}
+
+[data-layout="app"]
+	> :is([data-slot="topbar"], [data-slot="sidebar"])
+	[data-kind="button"]:not([aria-current="page"])::before {
+	content: "";
+	position: absolute;
+	inset: -40%;
+	pointer-events: none;
+	opacity: 0;
+	background: var(--layouts-icon-btn-halo);
+	transition: opacity var(--layouts-icon-btn-speed) ease;
+}
+
+[data-layout="app"]
+	> :is([data-slot="topbar"], [data-slot="sidebar"])
+	[data-kind="button"]:not([aria-current="page"])::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	background: var(--layouts-icon-btn-sheen);
+	opacity: 0.35;
+}
+
+[data-layout="app"]
+	> :is([data-slot="topbar"], [data-slot="sidebar"])
+	[data-kind="button"]:not([aria-current="page"]):hover {
+	transform: var(--layouts-icon-btn-swell);
+	border-color: var(--layouts-icon-btn-border-hover);
+	box-shadow: var(--layouts-icon-btn-shadow-hover);
+}
+
+[data-layout="app"]
+	> :is([data-slot="topbar"], [data-slot="sidebar"])
+	[data-kind="button"]:not([aria-current="page"]):hover::before {
+	opacity: 1;
+}
+
+[data-layout="app"]
+	> :is([data-slot="topbar"], [data-slot="sidebar"])
+	[data-kind="button"]:not([aria-current="page"]):active {
+	transform: var(--layouts-icon-btn-press);
+	box-shadow: var(--layouts-icon-btn-shadow-active);
+}
+
+[data-layout="app"]
+	> :is([data-slot="topbar"], [data-slot="sidebar"])
+	[data-kind="button"]:focus-visible {
+	outline: var(--border-width-thin) solid var(--layouts-icon-btn-focus);
+	outline-offset: var(--outline-offset-md);
+}
+
+[data-layout="app"] > :is([data-slot="topbar"], [data-slot="sidebar"]) [data-kind="button"] > svg {
+	position: relative;
+	z-index: 1;
+	color: var(--layouts-icon-btn-glyph);
+	transition:
+		filter var(--layouts-icon-btn-speed) ease,
+		color var(--layouts-icon-btn-speed) ease;
+}
+
+[data-layout="app"]
+	> :is([data-slot="topbar"], [data-slot="sidebar"])
+	[data-kind="button"]:hover
+	> svg {
+	color: var(--layouts-icon-btn-glyph-hover);
+	filter: var(--layouts-icon-btn-glyph-glow);
+}
+
+/* The active hub keeps its primary fill and gains the owner's teal edge and glow. */
+[data-layout="app"] > [data-slot="sidebar"] [data-kind="button"][aria-current="page"] {
+	border: var(--border-width-hairline) solid var(--layouts-panel-hero-border);
+	box-shadow: var(--layouts-rim-subtle), var(--layouts-edge-top-strong);
+}
+
+/* ---------- Search Overlay ---------- */
+[data-layout="app"] [data-slot="search"] {
+	width: var(--layouts-search-width);
+	border-radius: var(--radius-xl);
+	background: var(--layouts-search-fill);
+	border: var(--border-width-hairline) solid var(--layouts-search-border);
+	box-shadow: var(--layouts-search-shadow);
+	backdrop-filter: var(--layouts-search-filter);
+	transform-origin: top right;
+	animation: var(--layouts-search-pop);
+}
+
+[data-layout="app"] [data-slot="search"] input {
+	background: var(--layouts-search-input-fill);
+	border-color: var(--layouts-search-input-border);
+	box-shadow: var(--layouts-search-input-shadow);
+	transition:
+		border-color var(--duration-fast) ease,
+		box-shadow var(--duration-fast) ease;
+}
+
+[data-layout="app"] [data-slot="search"] input::placeholder {
+	color: var(--layouts-search-placeholder);
+}
+
+[data-layout="app"] [data-slot="search"] input:focus {
+	border-color: var(--layouts-search-input-border-focus);
+	box-shadow: var(--layouts-search-input-shadow-focus);
+}
+
+@keyframes layouts-pop-in {
+	from {
+		opacity: 0;
+		transform: translateY(-0.5rem) scale(0.96);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+}
+
+/* ---------- Status pill ---------- */
+[data-layout="app"] > [data-slot="statusbar"] [data-kind="badge"][data-variant="neutral"] {
+	background: var(--layouts-status-pill-fill);
+	border-color: var(--layouts-status-pill-border);
+	box-shadow: var(--layouts-status-pill-shadow);
+	color: var(--layouts-status-pill-text);
+}
+
+/* ---------- Scrollbars (content + sidebar) ---------- */
+[data-layout="app"] > [data-slot="content"]::-webkit-scrollbar {
+	width: var(--layouts-scrollbar-width-content);
+}
+[data-layout="app"] > [data-slot="content"]::-webkit-scrollbar-track {
+	background: var(--layouts-scrollbar-track);
+	border-left: var(--border-width-hairline) solid var(--layouts-scrollbar-track-edge);
+}
+[data-layout="app"] > [data-slot="content"]::-webkit-scrollbar-thumb {
+	border-radius: var(--radius-lg);
+	background: var(--layouts-scrollbar-thumb);
+	border: var(--border-width-hairline) solid var(--layouts-scrollbar-thumb-edge);
+	box-shadow: var(--layouts-scrollbar-thumb-glow);
+}
+[data-layout="app"] > [data-slot="content"]::-webkit-scrollbar-thumb:hover {
+	box-shadow: var(--layouts-scrollbar-thumb-glow-hover);
+}
+
+[data-layout="app"] > [data-slot="sidebar"]::-webkit-scrollbar {
+	width: var(--layouts-scrollbar-width-default);
+}
+[data-layout="app"] > [data-slot="sidebar"]::-webkit-scrollbar-track {
+	background: transparent;
+}
+[data-layout="app"] > [data-slot="sidebar"]::-webkit-scrollbar-thumb {
+	border-radius: var(--radius-lg);
+	background: var(--layouts-scrollbar-rail-thumb);
+	box-shadow: var(--layouts-scrollbar-rail-thumb-glow);
+}
+[data-layout="app"] > [data-slot="sidebar"]::-webkit-scrollbar-thumb:hover {
+	background: var(--layouts-scrollbar-rail-thumb-hover);
+	box-shadow: var(--layouts-scrollbar-rail-thumb-glow-hover);
+}
+
+/* ---------- Motion safety ---------- */
+@media (prefers-reduced-motion: reduce) {
+	[data-layout="app"] > :is([data-slot="topbar"], [data-slot="sidebar"]) [data-kind="button"],
+	[data-layout="app"] [data-slot="search"] {
+		transition: none;
+		animation: none;
+	}
+}

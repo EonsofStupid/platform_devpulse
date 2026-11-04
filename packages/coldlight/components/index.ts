@@ -75,6 +75,85 @@ export {
 } from "./stat/index.js";
 
 // ============================================
+// NAVIGATION + MENUS
+// ============================================
+
+export {
+	Breadcrumbs,
+	BreadcrumbsItem,
+	type BreadcrumbsItemProps,
+	BreadcrumbsLink,
+	type BreadcrumbsLinkProps,
+	BreadcrumbsList,
+	type BreadcrumbsListProps,
+	BreadcrumbsPage,
+	type BreadcrumbsPageProps,
+	type BreadcrumbsProps,
+	BreadcrumbsSeparator,
+	type BreadcrumbsSeparatorProps,
+	type BreadcrumbsSize,
+} from "./breadcrumbs/index.js";
+export {
+	ContextMenu,
+	ContextMenuContent,
+	type ContextMenuContentProps,
+	ContextMenuGroup,
+	type ContextMenuGroupProps,
+	ContextMenuItem,
+	type ContextMenuItemProps,
+	ContextMenuLabel,
+	type ContextMenuLabelProps,
+	type ContextMenuProps,
+	ContextMenuSeparator,
+	type ContextMenuSeparatorProps,
+	type ContextMenuSize,
+	ContextMenuTrigger,
+	type ContextMenuTriggerProps,
+	type ContextMenuVariant,
+} from "./context-menu/index.js";
+export {
+	DropdownMenu,
+	DropdownMenuContent,
+	type DropdownMenuContentProps,
+	DropdownMenuGroup,
+	type DropdownMenuGroupProps,
+	DropdownMenuItem,
+	type DropdownMenuItemProps,
+	DropdownMenuLabel,
+	type DropdownMenuLabelProps,
+	type DropdownMenuProps,
+	DropdownMenuSeparator,
+	type DropdownMenuSeparatorProps,
+	type DropdownMenuSize,
+	DropdownMenuTrigger,
+	type DropdownMenuTriggerProps,
+	type DropdownMenuVariant,
+} from "./dropdown-menu/index.js";
+export {
+	NavItem,
+	type NavItemComponentProps,
+	type NavItemSize,
+} from "./nav-item/index.js";
+
+// ============================================
+// LAYOUT
+// ============================================
+
+export {
+	Panel,
+	PanelBody,
+	type PanelBodyProps,
+	PanelFooter,
+	type PanelFooterProps,
+	PanelHeader,
+	type PanelHeaderProps,
+	type PanelPadding,
+	type PanelProps,
+	type PanelTone,
+	type PanelVariant,
+} from "./panel/index.js";
+
+// ============================================
 // FORM
 // ============================================
 

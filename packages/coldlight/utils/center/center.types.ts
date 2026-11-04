@@ -14,4 +14,6 @@ export interface CenterProps {
 	padding?: SpaceToken;
 	/** Horizontal gutters (left/right padding) via --space-{token}. */
 	gutters?: SpaceToken;
+	/** Also centre what it holds on both axes: a flex box, or an inline one (the old Center kind). */
+	content?: "block" | "inline";
 }

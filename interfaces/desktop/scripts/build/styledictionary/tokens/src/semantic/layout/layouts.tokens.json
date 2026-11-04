@@ -1,0 +1,235 @@
+{
+	"$description": "The owner's shell depth, glass and interaction values, moved from lib/layouts/{app,chat,common}/styles (px to rem, otherwise as written). Values are CSS shorthand strings because several are text-shadows, multi-stop backgrounds or filters, which the DTCG shadow and gradient objects cannot state. Rules that read them live in lib/layouts/{app,chat,common}/styles. Never true black: the darkest values are deep blue, teal and purple.",
+	"layouts": {
+		"$description": "Shell layout values.",
+		"content": {
+			"max-width": {
+				"$type": "dimension",
+				"$value": { "value": 100, "unit": "rem" },
+				"$description": "The page column inside the shell, centred on wide windows (the owner's Viewport). 1600 px."
+			}
+		},
+		"depth": {
+			"$type": "shadow",
+			"$description": "Multi-layer depth, from app/styles/depth.css.",
+			"ambient": { "$value": "0 0 5rem -1.25rem oklch(3% 0.02 280 / 0.25)" },
+			"key": { "$value": "-0.25rem 0.5rem 1.5rem -0.25rem oklch(2% 0.015 280 / 0.45)" },
+			"fill": { "$value": "0.125rem 0.25rem 1rem -0.125rem oklch(5% 0.02 195 / 0.2)" },
+			"contact": { "$value": "0 0.125rem 0.25rem -0.0625rem oklch(1% 0.01 200 / 0.6)" },
+			"rim": { "$value": "0 -0.0625rem 0.75rem 0.125rem oklch(15% 0.08 195 / 0.15)" },
+			"float": { "$value": "{layouts.depth.ambient}, {layouts.depth.contact}" },
+			"raised": { "$value": "{layouts.depth.ambient}, {layouts.depth.key}, {layouts.depth.contact}" },
+			"elevated": { "$value": "{layouts.depth.ambient}, {layouts.depth.key}, {layouts.depth.fill}, {layouts.depth.contact}" },
+			"lifted": { "$value": "{layouts.depth.ambient}, {layouts.depth.key}, {layouts.depth.fill}, {layouts.depth.contact}, {layouts.depth.rim}" }
+		},
+		"neu": {
+			"$type": "shadow",
+			"$description": "Neumorphic pairs, from app/styles/depth.css.",
+			"light": { "$value": "-0.375rem -0.375rem 1rem oklch(25% 0.04 195 / 0.35)" },
+			"shadow": { "$value": "0.375rem 0.375rem 1rem oklch(2% 0.02 280 / 0.5)" },
+			"inner-light": { "$value": "inset -0.1875rem -0.1875rem 0.5rem oklch(18% 0.03 195 / 0.25)" },
+			"inner-shadow": { "$value": "inset 0.1875rem 0.1875rem 0.5rem oklch(1% 0.015 280 / 0.4)" },
+			"thick-light": { "$value": "-0.5rem -0.5rem 1.5rem oklch(22% 0.04 195 / 0.4)" },
+			"thick-shadow": { "$value": "0.5rem 0.5rem 1.5rem oklch(1% 0.02 280 / 0.55)" },
+			"outset": { "$value": "{layouts.neu.light}, {layouts.neu.shadow}" },
+			"inset": { "$value": "{layouts.neu.inner-light}, {layouts.neu.inner-shadow}" },
+			"thick": { "$value": "{layouts.neu.thick-light}, {layouts.neu.thick-shadow}" }
+		},
+		"rim": {
+			"$type": "shadow",
+			"$description": "Rim lights, from app/styles/depth.css.",
+			"subtle": { "$value": "0 0 0.5rem 0.0625rem oklch(65% 0.12 195 / 0.3)" },
+			"medium": { "$value": "0 0 0.75rem 0.125rem oklch(70% 0.15 195 / 0.45)" },
+			"strong": { "$value": "0 0 1rem 0.125rem oklch(75% 0.18 195 / 0.6)" }
+		},
+		"edge": {
+			"$type": "shadow",
+			"$description": "Single inset edge lights, from app/styles/depth.css and surfaces.css.",
+			"top": { "$value": "inset 0 0.0625rem 0 oklch(80% 0.06 195 / 0.3)" },
+			"top-strong": { "$value": "inset 0 0.0625rem 0 oklch(90% 0.08 195 / 0.5)" },
+			"bottom": { "$value": "inset 0 -0.0625rem 0 oklch(15% 0.04 280 / 0.5)" }
+		},
+		"panel": {
+			"$description": "Panel skins, from app/styles/depth.css.",
+			"hero-border": { "$type": "color", "$value": "{color.teal.500}" },
+			"hero-hover-glow": { "$type": "shadow", "$value": "0 0 1.5rem oklch(60% 0.18 195 / 0.5), 0 0 3rem oklch(55% 0.15 195 / 0.25)" },
+			"lift": { "$value": "translateY(-0.125rem)", "$description": "The hero panel's lift on hover." }
+		},
+		"text": {
+			"$description": "Text shadows, from common/styles/typography.css and app/styles/depth.css.",
+			"emboss": { "$value": "0 0.0625rem 0 oklch(40% 0.04 195 / 0.5), 0 -0.0625rem 0.0625rem oklch(2% 0.02 280 / 0.7)" },
+			"deboss": { "$value": "0 -0.0625rem 0 oklch(30% 0.03 195 / 0.4), 0 0.0625rem 0.0625rem oklch(1% 0.015 280 / 0.6)" },
+			"chisel": { "$value": "0.0625rem 0.0625rem 0 oklch(50% 0.05 195 / 0.6), -0.0625rem -0.0625rem 0 oklch(1% 0.02 280 / 0.8)" },
+			"pillow": { "$value": "-0.0625rem -0.0625rem 0.125rem oklch(35% 0.04 195 / 0.4), 0.0625rem 0.0625rem 0.125rem oklch(2% 0.02 280 / 0.5)" },
+			"glow-teal": { "$value": "0 0 0.25rem oklch(70% 0.18 195 / 0.8), 0 0 0.75rem oklch(60% 0.15 195 / 0.5), 0 0 1.5rem oklch(50% 0.12 195 / 0.3)" },
+			"glow-purple": { "$value": "0 0 0.25rem oklch(65% 0.2 280 / 0.8), 0 0 0.75rem oklch(55% 0.18 280 / 0.5), 0 0 1.5rem oklch(45% 0.15 280 / 0.3)" },
+			"glow-ember": { "$value": "0 0 0.25rem oklch(70% 0.22 35 / 0.8), 0 0 0.75rem oklch(60% 0.2 35 / 0.5), 0 0 1.5rem oklch(50% 0.18 35 / 0.3)" },
+			"glow-cyber": { "$value": "0 0 0.25rem oklch(91% 0.16 127 / 0.9), 0 0 0.75rem oklch(85% 0.14 127 / 0.6), 0 0 1.5rem oklch(80% 0.12 127 / 0.3), 0 0 3rem oklch(75% 0.1 127 / 0.15)" },
+			"glow-frost": { "$value": "0 0 0.25rem oklch(95% 0.02 210 / 0.6), 0 0 0.75rem oklch(90% 0.03 210 / 0.3), 0 0 1.5rem oklch(85% 0.04 210 / 0.15)" },
+			"selection": { "$type": "color", "$value": "oklch(55% 0.18 195 / 0.4)" },
+			"selection-purple": { "$type": "color", "$value": "oklch(55% 0.22 280 / 0.4)" },
+			"selection-ember": { "$type": "color", "$value": "oklch(60% 0.22 35 / 0.4)" }
+		},
+		"frame": {
+			"$description": "The shell's outer frame, from app/styles/shell.css.",
+			"border": { "$type": "color", "$value": "oklch(0.4 0.13 180 / 0.25)" },
+			"border-width": { "$type": "dimension", "$value": { "value": 0.25, "unit": "rem" }, "$description": "4 px." },
+			"shadow": { "$type": "shadow", "$value": "inset 0.125rem 0.125rem 0.25rem oklch(0.8 0.06 195 / 0.15), inset -0.125rem -0.125rem 0.25rem oklch(0.05 0.02 280 / 0.4), 0 0 2.5rem oklch(0.55 0.15 195 / 0.1), 0 0.5rem 2rem oklch(0.02 0.01 280 / 0.5)" }
+		},
+		"glass": {
+			"$description": "Deep glass, from app/styles/layout.css; the fills below the shell regions come from the --dp-glass fallbacks in chat and common styles.",
+			"fill": { "$value": "linear-gradient(180deg, oklch(0.2 0.04 240 / 0.86) 0%, oklch(0.16 0.04 240 / 0.82) 100%)" },
+			"filter": { "$value": "blur(1.375rem) saturate(180%)" },
+			"smoke": { "$type": "color", "$value": "oklch(15% 0.03 200 / 0.82)" },
+			"frost": { "$type": "color", "$value": "oklch(25% 0.02 210 / 0.75)" },
+			"void": { "$type": "color", "$value": "oklch(6% 0.02 195 / 0.92)" },
+			"input-bg": { "$type": "color", "$value": "oklch(8% 0.02 200 / 0.8)" },
+			"input-border": { "$type": "color", "$value": "oklch(40% 0.08 195 / 0.3)" },
+			"input-border-focus": { "$type": "color", "$value": "oklch(60% 0.15 195 / 0.6)" },
+			"input-glow-focus": { "$type": "color", "$value": "oklch(60% 0.15 195 / 0.3)" },
+			"input-well": { "$type": "shadow", "$value": "inset 0.125rem 0.125rem 0.25rem oklch(5% 0.02 200 / 0.6), inset -0.0625rem -0.0625rem 0.125rem oklch(25% 0.03 200 / 0.3)" },
+			"btn-border": { "$type": "color", "$value": "oklch(50% 0.1 195 / 0.3)" },
+			"btn-border-hover": { "$type": "color", "$value": "oklch(60% 0.15 195 / 0.5)" },
+			"btn-bg-primary": { "$type": "color", "$value": "oklch(45% 0.15 195 / 0.8)" },
+			"btn-border-primary": { "$type": "color", "$value": "oklch(60% 0.18 195 / 0.6)" },
+			"btn-bg-primary-hover": { "$type": "color", "$value": "oklch(50% 0.18 195 / 0.9)" },
+			"btn-glow-hover": { "$type": "color", "$value": "oklch(60% 0.15 195 / 0.3)" },
+			"bevel-light": { "$type": "color", "$value": "oklch(80% 0.06 195 / 0.3)" },
+			"bevel-dark": { "$type": "color", "$value": "oklch(15% 0.04 280 / 0.5)" }
+		},
+		"topbar": {
+			"$description": "Top bar skin, from app/styles/layout.css.",
+			"border": { "$type": "color", "$value": "oklch(0.74 0.18 195 / 0.38)" },
+			"shadow": { "$type": "shadow", "$value": "inset 0 0.0625rem 0 oklch(0.98 0.01 260 / 0.16), inset 0 0.125rem 0 oklch(0.78 0.18 195 / 0.08), inset 0 -0.0625rem 0 oklch(0.1 0.03 240 / 0.7), 0 0 1.625rem oklch(0.78 0.18 195 / 0.18), 0 0.375rem 1.75rem oklch(0.08 0.02 240 / 0.55)" },
+			"sheen": { "$value": "linear-gradient(90deg, oklch(0.78 0.18 195 / 0.1) 0%, oklch(0.78 0.18 195 / 0.06) 32%, oklch(0.72 0.22 330 / 0.05) 70%, oklch(0.72 0.22 330 / 0.09) 100%)", "$description": "The liquid sheen across the bar." },
+			"sheen-glow": { "$value": "radial-gradient(closest-side at 30% 50%, oklch(0.78 0.18 195 / 0.14) 0%, transparent 65%), radial-gradient(closest-side at 70% 50%, oklch(0.72 0.22 330 / 0.12) 0%, transparent 65%)", "$description": "The teal and pink pools under the sheen." }
+		},
+		"sidebar": {
+			"$description": "Sidebar skin, from app/styles/layout.css.",
+			"fill": { "$value": "linear-gradient(180deg, oklch(0.14 0.03 240 / 0.92) 0%, oklch(0.12 0.03 240 / 0.9) 100%)" },
+			"border": { "$type": "color", "$value": "oklch(0.74 0.18 195 / 0.3)" },
+			"shadow": { "$type": "shadow", "$value": "inset -0.375rem 0 1.125rem oklch(0.08 0.02 240 / 0.6), inset 0.125rem 0 0 oklch(0.98 0.01 260 / 0.04), 0.375rem 0 1.375rem oklch(0.78 0.18 195 / 0.1)" },
+			"wash": { "$value": "linear-gradient(180deg, oklch(0.78 0.18 195 / 0.05) 0%, transparent 35%, transparent 70%, oklch(0.72 0.22 330 / 0.04) 100%)", "$description": "Teal at the head of the rail, pink at the foot." }
+		},
+		"well": {
+			"$type": "shadow",
+			"$description": "The content area's recess, from app/styles/layout.css.",
+			"shadow": { "$value": "inset 0.3125rem 0.3125rem 1.125rem oklch(0.06 0.02 240 / 0.62), inset -0.125rem -0.125rem 0.625rem oklch(0.98 0.01 260 / 0.03), inset 0 0 3rem oklch(0.06 0.02 240 / 0.55)" }
+		},
+		"statusbar": {
+			"$description": "Status bar skin, from app/styles/layout.css.",
+			"border": { "$type": "color", "$value": "oklch(0.74 0.18 195 / 0.34)" },
+			"shadow": { "$type": "shadow", "$value": "inset 0 0.0625rem 0 oklch(0.78 0.18 195 / 0.1), inset 0 -0.0625rem 0 oklch(0.08 0.02 240 / 0.68), 0 -0.125rem 1.125rem oklch(0.78 0.18 195 / 0.12), 0 -0.375rem 1.875rem oklch(0.78 0.18 195 / 0.06)" }
+		},
+		"icon-btn": {
+			"$description": "Icon button in the top bar and rail, from app/styles/layout.css: a subtle swell on hover and a gradual return (the owner's icon contract).",
+			"fill": { "$value": "linear-gradient(180deg, oklch(0.2 0.04 240 / 0.85) 0%, oklch(0.16 0.04 240 / 0.8) 100%)" },
+			"border": { "$type": "color", "$value": "oklch(0.74 0.18 195 / 0.22)" },
+			"border-hover": { "$type": "color", "$value": "oklch(0.78 0.18 195 / 0.45)" },
+			"filter": { "$value": "blur(1rem) saturate(160%)" },
+			"shadow": { "$type": "shadow", "$value": "inset 0.0625rem 0.0625rem 0 oklch(0.98 0.01 260 / 0.12), inset -0.0625rem -0.0625rem 0 oklch(0.08 0.02 240 / 0.4), 0 0 0.625rem oklch(0.78 0.18 195 / 0.1), 0 0.25rem 0.875rem oklch(0.08 0.02 240 / 0.45)" },
+			"shadow-hover": { "$type": "shadow", "$value": "inset 0.0625rem 0.0625rem 0 oklch(0.98 0.01 260 / 0.14), inset -0.0625rem -0.0625rem 0 oklch(0.08 0.02 240 / 0.34), 0 0 1.125rem oklch(0.78 0.18 195 / 0.22), 0 0 2.625rem oklch(0.72 0.22 330 / 0.1), 0 0.5rem 1.25rem oklch(0.08 0.02 240 / 0.55)" },
+			"shadow-active": { "$type": "shadow", "$value": "inset 0.125rem 0.125rem 0.5rem oklch(0.06 0.02 240 / 0.55), inset -0.0625rem -0.0625rem 0 oklch(0.98 0.01 260 / 0.06), 0 0 0.625rem oklch(0.78 0.18 195 / 0.12)" },
+			"focus": { "$type": "color", "$value": "oklch(0.82 0.18 195 / 0.55)" },
+			"glyph": { "$type": "color", "$value": "oklch(0.94 0.01 260 / 0.92)" },
+			"glyph-hover": { "$type": "color", "$value": "oklch(0.92 0.05 200 / 0.98)" },
+			"glyph-glow": { "$value": "drop-shadow(0 0 0.4375rem oklch(0.82 0.18 195 / 0.55))" },
+			"halo": { "$value": "radial-gradient(13.75rem 11.25rem at var(--mx, 50%) var(--my, 50%), oklch(0.82 0.18 195 / 0.22) 0%, transparent 65%)", "$description": "Follows the pointer: --mx and --my are set by the shell's icon-glow action." },
+			"sheen": { "$value": "linear-gradient(135deg, transparent 0%, oklch(0.92 0.02 260 / 0.1) 35%, transparent 60%)" },
+			"swell": { "$value": "translateY(-0.0625rem) scale(1.05)", "$description": "On hover." },
+			"press": { "$value": "translateY(0) scale(0.98)", "$description": "While pressed." },
+			"ease": { "$value": "cubic-bezier(0.33, 1, 0.68, 1)" },
+			"speed": { "$value": "180ms" }
+		},
+		"status": {
+			"$description": "Status pill and dot, from app/styles/layout.css.",
+			"pill-fill": { "$value": "linear-gradient(180deg, oklch(0.18 0.04 240 / 0.72) 0%, oklch(0.14 0.04 240 / 0.68) 100%)" },
+			"pill-border": { "$type": "color", "$value": "oklch(0.78 0.18 195 / 0.18)" },
+			"pill-shadow": { "$type": "shadow", "$value": "inset 0 0.0625rem 0 oklch(0.98 0.01 260 / 0.08), inset 0 -0.0625rem 0 oklch(0.06 0.02 240 / 0.55), 0 0 0.875rem oklch(0.78 0.18 195 / 0.1)" },
+			"pill-text": { "$type": "color", "$value": "oklch(0.92 0.01 260 / 0.88)" },
+			"dot-glow": { "$type": "shadow", "$value": "0 0 0.625rem oklch(0.82 0.18 195 / 0.35), 0 0 1.125rem oklch(0.82 0.18 195 / 0.18)" }
+		},
+		"search": {
+			"$description": "The search overlay, from app/styles/layout.css.",
+			"width": { "$value": "min(22.5rem, 70vw)" },
+			"fill": { "$value": "linear-gradient(180deg, oklch(0.16 0.04 240 / 0.92) 0%, oklch(0.13 0.04 240 / 0.9) 100%)" },
+			"border": { "$type": "color", "$value": "oklch(0.78 0.18 195 / 0.32)" },
+			"shadow": { "$type": "shadow", "$value": "inset 0 0.0625rem 0 oklch(0.98 0.01 260 / 0.1), inset 0 -0.0625rem 0 oklch(0.06 0.02 240 / 0.62), 0 0 1.875rem oklch(0.78 0.18 195 / 0.16), 0 0.875rem 2.375rem oklch(0.06 0.02 240 / 0.6)" },
+			"filter": { "$value": "blur(1.5rem) saturate(190%)" },
+			"pop": { "$value": "layouts-pop-in 160ms cubic-bezier(0.33, 1, 0.68, 1)" },
+			"input-fill": { "$value": "linear-gradient(180deg, oklch(0.12 0.03 240 / 0.92) 0%, oklch(0.11 0.03 240 / 0.9) 100%)" },
+			"input-border": { "$type": "color", "$value": "oklch(0.78 0.18 195 / 0.2)" },
+			"input-border-focus": { "$type": "color", "$value": "oklch(0.82 0.18 195 / 0.55)" },
+			"input-shadow": { "$type": "shadow", "$value": "inset 0.125rem 0.125rem 0.625rem oklch(0.06 0.02 240 / 0.55), inset -0.0625rem -0.0625rem 0 oklch(0.98 0.01 260 / 0.04)" },
+			"input-shadow-focus": { "$type": "shadow", "$value": "inset 0.125rem 0.125rem 0.625rem oklch(0.06 0.02 240 / 0.55), inset -0.0625rem -0.0625rem 0 oklch(0.98 0.01 260 / 0.05), 0 0 1.125rem oklch(0.82 0.18 195 / 0.22)" },
+			"placeholder": { "$type": "color", "$value": "oklch(0.7 0.02 250 / 0.55)" }
+		},
+		"scrollbar": {
+			"$description": "Scrollbars, from app/styles/layout.css and common/styles/scrollbars.css.",
+			"width-thin": { "$type": "dimension", "$value": { "value": 0.25, "unit": "rem" }, "$description": "4 px." },
+			"width-default": { "$type": "dimension", "$value": { "value": 0.375, "unit": "rem" }, "$description": "6 px." },
+			"width-content": { "$type": "dimension", "$value": { "value": 0.5625, "unit": "rem" }, "$description": "9 px." },
+			"width-wide": { "$type": "dimension", "$value": { "value": 0.625, "unit": "rem" }, "$description": "10 px." },
+			"track": { "$type": "color", "$value": "oklch(0.1 0.03 240 / 0.85)" },
+			"track-edge": { "$type": "color", "$value": "oklch(0.78 0.18 195 / 0.1)" },
+			"thumb": { "$value": "linear-gradient(180deg, oklch(0.78 0.18 195 / 0.55) 0%, oklch(0.7 0.22 300 / 0.42) 50%, oklch(0.78 0.18 195 / 0.55) 100%)" },
+			"thumb-edge": { "$type": "color", "$value": "oklch(0.78 0.18 195 / 0.26)" },
+			"thumb-glow": { "$type": "shadow", "$value": "0 0 0.75rem oklch(0.78 0.18 195 / 0.22)" },
+			"thumb-glow-hover": { "$type": "shadow", "$value": "0 0 1.125rem oklch(0.78 0.18 195 / 0.34)" },
+			"rail-thumb": { "$type": "color", "$value": "oklch(0.78 0.18 195 / 0.32)" },
+			"rail-thumb-glow": { "$type": "shadow", "$value": "0 0 0.625rem oklch(0.78 0.18 195 / 0.16)" },
+			"rail-thumb-hover": { "$type": "color", "$value": "oklch(0.78 0.18 195 / 0.46)" },
+			"rail-thumb-glow-hover": { "$type": "shadow", "$value": "0 0 0.875rem oklch(0.78 0.18 195 / 0.26)" },
+			"gutter-shadow": { "$type": "shadow", "$value": "inset 0.0625rem 0.0625rem 0.125rem oklch(1% 0.01 280 / 0.4)" },
+			"overlay-thumb": { "$type": "color", "$value": "oklch(50% 0.1 195 / 0.6)" },
+			"overlay-thumb-rest": { "$type": "color", "$value": "oklch(50% 0.1 195 / 0)" }
+		},
+		"focus": {
+			"$type": "shadow",
+			"$description": "Focus glows, from common/styles/focus.css.",
+			"glow-teal": { "$value": "0 0 0 0.125rem oklch(55% 0.18 195), 0 0 0.75rem oklch(55% 0.18 195 / 0.5), 0 0 1.5rem oklch(65% 0.16 195 / 0.25)" },
+			"glow-purple": { "$value": "0 0 0 0.125rem oklch(55% 0.22 280), 0 0 0.75rem oklch(55% 0.22 280 / 0.5), 0 0 1.5rem oklch(65% 0.2 280 / 0.25)" },
+			"glow-ember": { "$value": "0 0 0 0.125rem oklch(60% 0.22 35), 0 0 0.75rem oklch(60% 0.22 35 / 0.5), 0 0 1.5rem oklch(68% 0.2 35 / 0.25)" },
+			"glow-cyber": { "$value": "0 0 0 0.125rem oklch(91% 0.16 127), 0 0 0.75rem oklch(91% 0.16 127 / 0.5), 0 0 1.5rem oklch(85% 0.14 127 / 0.25)" },
+			"inset": { "$value": "0 0 0 0.0625rem oklch(55% 0.18 195), inset 0 0 0.5rem oklch(55% 0.18 195 / 0.2)" },
+			"container": { "$value": "0 0 1rem oklch(55% 0.18 195 / 0.3)" }
+		},
+		"animate": {
+			"$description": "Animation shimmer and glow keyframe values, from common/styles/keyframes.css.",
+			"shimmer": { "$value": "linear-gradient(90deg, transparent 0%, oklch(80% 0.02 195 / 0.1) 50%, transparent 100%)" },
+			"glow-teal-rest": { "$type": "shadow", "$value": "0 0 0.75rem oklch(55% 0.18 195 / 0.5)" },
+			"glow-teal-peak": { "$type": "shadow", "$value": "0 0 1.5rem oklch(60% 0.18 195 / 0.7)" },
+			"glow-purple-rest": { "$type": "shadow", "$value": "0 0 0.75rem oklch(55% 0.22 280 / 0.5)" },
+			"glow-purple-peak": { "$type": "shadow", "$value": "0 0 1.5rem oklch(60% 0.22 280 / 0.7)" },
+			"glow-ember-rest": { "$type": "shadow", "$value": "0 0 0.75rem oklch(60% 0.22 35 / 0.5)" },
+			"glow-ember-peak": { "$type": "shadow", "$value": "0 0 1.5rem oklch(65% 0.22 35 / 0.7)" },
+			"glow-cyber-rest": { "$type": "shadow", "$value": "0 0 0.75rem oklch(91% 0.16 127 / 0.5)" },
+			"glow-cyber-peak": { "$type": "shadow", "$value": "0 0 1.5rem oklch(91% 0.16 127 / 0.7)" }
+		},
+		"choice": {
+			"$description": "AI response interactions (multiple choice, true/false, fill in the blank, confirmation), from chat/styles/interactions.css.",
+			"shadow": { "$type": "shadow", "$value": "inset 0.0625rem 0.0625rem 0 oklch(80% 0.06 195 / 0.3), inset -0.0625rem -0.0625rem 0 oklch(15% 0.04 280 / 0.5), 0 0.125rem 0.5rem oklch(5% 0.02 280 / 0.3)" },
+			"bevel": { "$type": "shadow", "$value": "inset 0.0625rem 0.0625rem 0 oklch(80% 0.06 195 / 0.3), inset -0.0625rem -0.0625rem 0 oklch(15% 0.04 280 / 0.5)" },
+			"selected": { "$type": "color", "$value": "oklch(45% 0.15 195 / 0.3)" },
+			"selected-border": { "$type": "color", "$value": "oklch(55% 0.18 195)" },
+			"indicator": { "$type": "color", "$value": "oklch(65% 0.16 195)" },
+			"indicator-fill": { "$type": "color", "$value": "oklch(55% 0.18 195)" },
+			"indicator-glow": { "$type": "shadow", "$value": "0 0 0.5rem oklch(55% 0.18 195)" },
+			"yes": { "$type": "color", "$value": "oklch(45% 0.18 127 / 0.8)" },
+			"yes-border": { "$type": "color", "$value": "oklch(60% 0.2 127 / 0.6)" },
+			"yes-glow": { "$type": "shadow", "$value": "0 0 0.75rem oklch(55% 0.18 127 / 0.4)" },
+			"yes-hover": { "$type": "color", "$value": "oklch(50% 0.2 127 / 0.9)" },
+			"no": { "$type": "color", "$value": "oklch(50% 0.2 35 / 0.8)" },
+			"no-border": { "$type": "color", "$value": "oklch(60% 0.22 35 / 0.6)" },
+			"no-glow": { "$type": "shadow", "$value": "0 0 0.75rem oklch(55% 0.2 35 / 0.4)" },
+			"no-hover": { "$type": "color", "$value": "oklch(55% 0.22 35 / 0.9)" },
+			"select-arrow": { "$value": "linear-gradient(45deg, transparent 50%, oklch(90% 0.08 195) 50%), linear-gradient(135deg, oklch(90% 0.08 195) 50%, transparent 50%)", "$description": "The select's arrow, drawn without an image." }
+		},
+		"chat-overlay": {
+			"$description": "The floating chat panel in the main window (the owner's ChatOverlay).",
+			"width": { "$type": "dimension", "$value": { "value": 26.25, "unit": "rem" }, "$description": "420 px." },
+			"height": { "$type": "dimension", "$value": { "value": 32.5, "unit": "rem" }, "$description": "520 px." },
+			"bubble-max": { "$value": "85%" }
+		}
+	}
+}

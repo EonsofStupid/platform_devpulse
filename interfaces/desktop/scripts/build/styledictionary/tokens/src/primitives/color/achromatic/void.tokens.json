@@ -7,10 +7,10 @@
 					"colorSpace": "oklch",
 					"components": [
 						0.97,
-						0.01,
-						220
+						0.0398,
+						265.75
 					],
-					"hex": "#eef7fa"
+					"hex": "#f1f5ff"
 				},
 				"$description": "void 50 — lightness 0.97."
 			},
@@ -19,10 +19,10 @@
 					"colorSpace": "oklch",
 					"components": [
 						0.89,
-						0.01,
-						220
+						0.0398,
+						265.75
 					],
-					"hex": "#d4dcdf"
+					"hex": "#cedbf6"
 				},
 				"$description": "void 100 — lightness 0.89."
 			},
@@ -31,10 +31,10 @@
 					"colorSpace": "oklch",
 					"components": [
 						0.81,
-						0.01,
-						220
+						0.0398,
+						265.75
 					],
-					"hex": "#bac2c5"
+					"hex": "#b5c1db"
 				},
 				"$description": "void 200 — lightness 0.81."
 			},
@@ -43,10 +43,10 @@
 					"colorSpace": "oklch",
 					"components": [
 						0.73,
-						0.01,
-						220
+						0.0398,
+						265.75
 					],
-					"hex": "#a1a9ac"
+					"hex": "#9ca8c2"
 				},
 				"$description": "void 300 — lightness 0.73."
 			},
@@ -55,10 +55,10 @@
 					"colorSpace": "oklch",
 					"components": [
 						0.65,
-						0.01,
-						220
+						0.0398,
+						265.75
 					],
-					"hex": "#899193"
+					"hex": "#848fa8"
 				},
 				"$description": "void 400 — lightness 0.65."
 			},
@@ -67,10 +67,10 @@
 					"colorSpace": "oklch",
 					"components": [
 						0.55,
-						0.01,
-						220
+						0.0398,
+						265.75
 					],
-					"hex": "#6b7376"
+					"hex": "#677189"
 				},
 				"$description": "void 500 — lightness 0.55."
 			},
@@ -79,10 +79,10 @@
 					"colorSpace": "oklch",
 					"components": [
 						0.46,
-						0.01,
-						220
+						0.0398,
+						265.75
 					],
-					"hex": "#52595c"
+					"hex": "#4d586f"
 				},
 				"$description": "void 600 — lightness 0.46."
 			},
@@ -91,10 +91,10 @@
 					"colorSpace": "oklch",
 					"components": [
 						0.37,
-						0.01,
-						220
+						0.0398,
+						265.75
 					],
-					"hex": "#3a4143"
+					"hex": "#363f55"
 				},
 				"$description": "void 700 — lightness 0.37."
 			},
@@ -103,10 +103,10 @@
 					"colorSpace": "oklch",
 					"components": [
 						0.28,
-						0.01,
-						220
+						0.0398,
+						265.75
 					],
-					"hex": "#242a2c"
+					"hex": "#1f283d"
 				},
 				"$description": "void 800 — lightness 0.28."
 			},
@@ -115,10 +115,10 @@
 					"colorSpace": "oklch",
 					"components": [
 						0.19,
-						0.01,
-						220
+						0.0398,
+						265.75
 					],
-					"hex": "#0f1517"
+					"hex": "#0b1326"
 				},
 				"$description": "void 900 — lightness 0.19."
 			},
@@ -126,27 +126,27 @@
 				"$value": {
 					"colorSpace": "oklch",
 					"components": [
-						0.12,
-						0.01,
-						220
+						0.1363,
+						0.0364,
+						259.2
 					],
-					"hex": "#030608"
+					"hex": "#020817"
 				},
-				"$description": "void 950 — lightness 0.12."
+				"$description": "void 950 — the owner's deepest navy, hsl(222 84% 5%)."
 			},
 			"$type": "color",
-			"$description": "Ultra-low-chroma dark scale plus a base anchor. Deepest app backgrounds and void surfaces.",
+			"$description": "The owner's dark blue-slate scale plus a base anchor. App backgrounds and void surfaces; never a black.",
 			"base": {
 				"$value": {
 					"colorSpace": "oklch",
 					"components": [
-						0.08,
-						0.01,
-						220
+						0.2077,
+						0.0398,
+						265.75
 					],
-					"hex": "#000203"
+					"hex": "#0f172a"
 				},
-				"$description": "Void base — deepest app background anchor."
+				"$description": "Void base — the owner's void, rgba(15, 23, 42): the app background."
 			}
 		}
 	}

@@ -14,7 +14,7 @@
 	"preset": {
 		"stark-elevated": {
 			"background-color": {
-				"$value": "oklch(0.1 0.015 250)",
+				"$value": "oklch(0.208 0.03 250)",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -101,7 +101,7 @@
 		"stark-elevated-hover": {
 			"$description": "stark-elevated hover overrides",
 			"background-color": {
-				"$value": "oklch(0.13 0.018 250)",
+				"$value": "oklch(0.228 0.03 250)",
 				"$type": "color"
 			},
 			"box-shadow": {
@@ -116,7 +116,7 @@
 		"stark-elevated-active": {
 			"$description": "stark-elevated active overrides",
 			"background-color": {
-				"$value": "oklch(0.08 0.012 250)",
+				"$value": "oklch(0.196 0.03 250)",
 				"$type": "color"
 			},
 			"box-shadow": {
@@ -131,7 +131,7 @@
 		"stark-elevated-disabled": {
 			"$description": "stark-elevated disabled overrides",
 			"background-color": {
-				"$value": "oklch(0.08 0.004 250)",
+				"$value": "oklch(0.196 0.03 250)",
 				"$type": "color"
 			},
 			"color": {
@@ -149,7 +149,7 @@
 		},
 		"stark-deep": {
 			"background-color": {
-				"$value": "oklch(0.06 0.01 260)",
+				"$value": "oklch(0.183 0.03 260)",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -236,7 +236,7 @@
 		"stark-deep-hover": {
 			"$description": "stark-deep hover overrides",
 			"background-color": {
-				"$value": "oklch(0.09 0.013 260)",
+				"$value": "oklch(0.202 0.03 260)",
 				"$type": "color"
 			},
 			"box-shadow": {
@@ -251,7 +251,7 @@
 		"stark-deep-active": {
 			"$description": "stark-deep active overrides",
 			"background-color": {
-				"$value": "oklch(0.04 0.008 260)",
+				"$value": "oklch(0.17 0.03 260)",
 				"$type": "color"
 			},
 			"box-shadow": {
@@ -266,7 +266,7 @@
 		"stark-deep-disabled": {
 			"$description": "stark-deep disabled overrides",
 			"background-color": {
-				"$value": "oklch(0.05 0.003 260)",
+				"$value": "oklch(0.176 0.03 260)",
 				"$type": "color"
 			},
 			"color": {
@@ -284,7 +284,7 @@
 		},
 		"stark-minimal": {
 			"background-color": {
-				"$value": "oklch(0.1 0.008 250)",
+				"$value": "oklch(0.208 0.03 250)",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -371,7 +371,7 @@
 		"stark-minimal-hover": {
 			"$description": "stark-minimal hover overrides",
 			"background-color": {
-				"$value": "oklch(0.13 0.01 250)",
+				"$value": "oklch(0.228 0.03 250)",
 				"$type": "color"
 			},
 			"border-color": {
@@ -382,7 +382,7 @@
 		"stark-minimal-active": {
 			"$description": "stark-minimal active overrides",
 			"background-color": {
-				"$value": "oklch(0.08 0.006 250)",
+				"$value": "oklch(0.196 0.03 250)",
 				"$type": "color"
 			},
 			"border-color": {
@@ -393,7 +393,7 @@
 		"stark-minimal-disabled": {
 			"$description": "stark-minimal disabled overrides",
 			"background-color": {
-				"$value": "oklch(0.08 0.003 250)",
+				"$value": "oklch(0.196 0.03 250)",
 				"$type": "color"
 			},
 			"color": {
@@ -411,7 +411,7 @@
 		},
 		"stark-solid": {
 			"background-color": {
-				"$value": "oklch(0.14 0.02 260)",
+				"$value": "oklch(0.234 0.03 260)",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -498,7 +498,7 @@
 		"stark-solid-hover": {
 			"$description": "stark-solid hover overrides",
 			"background-color": {
-				"$value": "oklch(0.17 0.023 260)",
+				"$value": "oklch(0.253 0.03 260)",
 				"$type": "color"
 			},
 			"box-shadow": {
@@ -513,7 +513,7 @@
 		"stark-solid-active": {
 			"$description": "stark-solid active overrides",
 			"background-color": {
-				"$value": "oklch(0.11 0.018 260)",
+				"$value": "oklch(0.215 0.03 260)",
 				"$type": "color"
 			},
 			"box-shadow": {
@@ -528,7 +528,7 @@
 		"stark-solid-disabled": {
 			"$description": "stark-solid disabled overrides",
 			"background-color": {
-				"$value": "oklch(0.1 0.005 260)",
+				"$value": "oklch(0.208 0.03 260)",
 				"$type": "color"
 			},
 			"color": {
@@ -546,7 +546,7 @@
 		},
 		"stark-glow": {
 			"background-color": {
-				"$value": "oklch(0.12 0.03 25)",
+				"$value": "oklch(0.221 0.03 25)",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -633,7 +633,7 @@
 		"stark-glow-hover": {
 			"$description": "stark-glow hover overrides",
 			"background-color": {
-				"$value": "oklch(0.15 0.035 25)",
+				"$value": "oklch(0.24 0.035 25)",
 				"$type": "color"
 			},
 			"box-shadow": {
@@ -648,7 +648,7 @@
 		"stark-glow-active": {
 			"$description": "stark-glow active overrides",
 			"background-color": {
-				"$value": "oklch(0.1 0.025 25)",
+				"$value": "oklch(0.208 0.03 25)",
 				"$type": "color"
 			},
 			"box-shadow": {
@@ -663,7 +663,7 @@
 		"stark-glow-disabled": {
 			"$description": "stark-glow disabled overrides",
 			"background-color": {
-				"$value": "oklch(0.08 0.008 25)",
+				"$value": "oklch(0.196 0.03 25)",
 				"$type": "color"
 			},
 			"color": {
@@ -685,7 +685,7 @@
 		},
 		"stark-muted": {
 			"background-color": {
-				"$value": "oklch(0.1 0.005 250)",
+				"$value": "oklch(0.208 0.03 250)",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -772,7 +772,7 @@
 		"stark-muted-hover": {
 			"$description": "stark-muted hover overrides",
 			"background-color": {
-				"$value": "oklch(0.12 0.007 250)",
+				"$value": "oklch(0.221 0.03 250)",
 				"$type": "color"
 			},
 			"opacity": {
@@ -787,7 +787,7 @@
 		"stark-muted-active": {
 			"$description": "stark-muted active overrides",
 			"background-color": {
-				"$value": "oklch(0.08 0.004 250)",
+				"$value": "oklch(0.196 0.03 250)",
 				"$type": "color"
 			},
 			"opacity": {
@@ -798,7 +798,7 @@
 		"stark-muted-disabled": {
 			"$description": "stark-muted disabled overrides",
 			"background-color": {
-				"$value": "oklch(0.08 0.003 250)",
+				"$value": "oklch(0.196 0.03 250)",
 				"$type": "color"
 			},
 			"color": {

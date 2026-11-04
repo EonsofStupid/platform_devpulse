@@ -8,6 +8,7 @@
  */
 
 import { BLOCK_CATEGORIES, type BlockCategory } from "@devpulse/coldlight/blocks";
+import { kindsInCategory } from "../registry/vpb-kinds.js";
 import { recipesForKind, type VpbRecipe } from "../registry/vpb-recipes.js";
 
 class VpbPaletteState {
@@ -19,7 +20,7 @@ class VpbPaletteState {
 	}
 
 	get kindsInCategory(): readonly string[] {
-		return BLOCK_CATEGORIES[this.activeCategory] ?? [];
+		return kindsInCategory(this.activeCategory);
 	}
 
 	get filteredKinds(): string[] {

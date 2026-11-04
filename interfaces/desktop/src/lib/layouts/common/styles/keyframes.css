@@ -1,0 +1,247 @@
+/**
+ * @file layouts/common/styles/keyframes.css
+ * @layer layouts
+ *
+ * Shared Animation Keyframes
+ * Reusable animations across layouts. pulse, spin, bounce, fade-in, shimmer and
+ * pulse-glow already ship with Tailwind and ColdLight's generated keyframes, so
+ * these are the owner's that were not there, under the [data-animate] switch.
+ *
+ * @since 0.1.0
+ */
+
+/* ============================================
+   PULSE ANIMATIONS
+   ============================================ */
+
+@keyframes pulse-scale {
+	0%,
+	100% {
+		opacity: 0.4;
+		transform: scale(0.8);
+	}
+	50% {
+		opacity: 1;
+		transform: scale(1.2);
+	}
+}
+
+/* ============================================
+   FADE ANIMATIONS
+   ============================================ */
+
+@keyframes fade-out {
+	from {
+		opacity: 1;
+	}
+	to {
+		opacity: 0;
+	}
+}
+
+@keyframes fade-in-up {
+	from {
+		opacity: 0;
+		transform: translateY(0.5rem);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes fade-in-down {
+	from {
+		opacity: 0;
+		transform: translateY(-0.5rem);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes fade-in-scale {
+	from {
+		opacity: 0;
+		transform: scale(0.95);
+	}
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
+/* ============================================
+   SLIDE ANIMATIONS
+   ============================================ */
+
+@keyframes slide-in-right {
+	from {
+		transform: translateX(100%);
+	}
+	to {
+		transform: translateX(0);
+	}
+}
+
+@keyframes slide-in-left {
+	from {
+		transform: translateX(-100%);
+	}
+	to {
+		transform: translateX(0);
+	}
+}
+
+@keyframes slide-in-up {
+	from {
+		transform: translateY(100%);
+	}
+	to {
+		transform: translateY(0);
+	}
+}
+
+@keyframes slide-in-down {
+	from {
+		transform: translateY(-100%);
+	}
+	to {
+		transform: translateY(0);
+	}
+}
+
+/* ============================================
+   GLOW ANIMATIONS
+   ============================================ */
+
+@keyframes glow-teal {
+	0%,
+	100% {
+		box-shadow: var(--layouts-animate-glow-teal-rest);
+	}
+	50% {
+		box-shadow: var(--layouts-animate-glow-teal-peak);
+	}
+}
+
+@keyframes glow-purple {
+	0%,
+	100% {
+		box-shadow: var(--layouts-animate-glow-purple-rest);
+	}
+	50% {
+		box-shadow: var(--layouts-animate-glow-purple-peak);
+	}
+}
+
+@keyframes glow-ember {
+	0%,
+	100% {
+		box-shadow: var(--layouts-animate-glow-ember-rest);
+	}
+	50% {
+		box-shadow: var(--layouts-animate-glow-ember-peak);
+	}
+}
+
+@keyframes glow-cyber {
+	0%,
+	100% {
+		box-shadow: var(--layouts-animate-glow-cyber-rest);
+	}
+	50% {
+		box-shadow: var(--layouts-animate-glow-cyber-peak);
+	}
+}
+
+/* ============================================
+   RIPPLE ANIMATION
+   ============================================ */
+
+@keyframes ripple {
+	to {
+		transform: scale(4);
+		opacity: 0;
+	}
+}
+
+/* ============================================
+   BOUNCE ANIMATIONS
+   ============================================ */
+
+@keyframes bounce-subtle {
+	0%,
+	100% {
+		transform: translateY(0);
+	}
+	50% {
+		transform: translateY(-0.25rem);
+	}
+}
+
+/* ============================================
+   ANIMATION UTILITY CLASSES
+   ============================================ */
+
+[data-animate="pulse"] {
+	animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+[data-animate="pulse-scale"] {
+	animation: pulse-scale 1.2s ease-in-out infinite;
+}
+
+[data-animate="fade-in"] {
+	animation: fade-in 200ms ease-out;
+}
+
+[data-animate="fade-in-up"] {
+	animation: fade-in-up 300ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-animate="fade-in-scale"] {
+	animation: fade-in-scale 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-animate="glow-teal"] {
+	animation: glow-teal 2s ease-in-out infinite;
+}
+
+[data-animate="glow-purple"] {
+	animation: glow-purple 2s ease-in-out infinite;
+}
+
+[data-animate="glow-cyber"] {
+	animation: glow-cyber 1.5s ease-in-out infinite;
+}
+
+[data-animate="spin-slow"] {
+	animation: cl-spin 3s linear infinite;
+}
+
+[data-animate="bounce"] {
+	animation: bounce 1s infinite;
+}
+
+[data-animate="shimmer"] {
+	background: var(--layouts-animate-shimmer);
+	background-size: 200% 100%;
+	animation: cl-shimmer 2s infinite;
+}
+
+/* ============================================
+   REDUCED MOTION
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms;
+		animation-iteration-count: 1;
+		transition-duration: 0.01ms;
+		scroll-behavior: auto;
+	}
+}

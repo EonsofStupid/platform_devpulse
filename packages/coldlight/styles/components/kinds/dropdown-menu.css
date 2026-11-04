@@ -1,0 +1,193 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+[data-kind="dropdown-menu"][data-slot="content"] {
+	--dropdown-menu-border-style: solid;
+	--dropdown-menu-border-width: 0.0625rem;
+	--dropdown-menu-border-radius: var(--radius-md);
+	--dropdown-menu-min-width: 8rem;
+	border-style: var(--dropdown-menu-border-style);
+	border-width: var(--dropdown-menu-border-width);
+	border-radius: var(--dropdown-menu-border-radius);
+	min-width: var(--dropdown-menu-min-width);
+	background-color: var(--dropdown-menu-background-color);
+	box-shadow: var(--dropdown-menu-box-shadow);
+	color: var(--dropdown-menu-color);
+	border-color: var(--dropdown-menu-border-color);
+	opacity: var(--dropdown-menu-opacity);
+	animation: var(--dropdown-menu-animation);
+	transition-duration: var(--dropdown-menu-transition-duration);
+	transition-timing-function: var(--dropdown-menu-transition-timing-function);
+	background-image: var(--dropdown-menu-gradient);
+	font-family: var(--dropdown-menu-font-family);
+	font-weight: var(--dropdown-menu-font-weight);
+	letter-spacing: var(--dropdown-menu-letter-spacing);
+	line-height: var(--dropdown-menu-line-height);
+	padding: var(--dropdown-menu-padding);
+	font-size: var(--dropdown-menu-font-size);
+}
+
+[data-kind="dropdown-menu"][data-slot="content"][data-variant="elevated"] {
+	--dropdown-menu-background-color: var(--surface-role-elevated-background-color);
+	--dropdown-menu-box-shadow: var(--surface-role-elevated-box-shadow);
+	--dropdown-menu-color: var(--surface-role-elevated-color);
+	--dropdown-menu-border-color: var(--surface-role-elevated-border-color);
+	--dropdown-menu-opacity: var(--surface-role-elevated-opacity);
+	--dropdown-menu-animation: var(--surface-role-elevated-animation);
+	--dropdown-menu-transition-duration: var(--surface-role-elevated-transition-duration);
+	--dropdown-menu-transition-timing-function: var(--surface-role-elevated-transition-timing-function);
+	--dropdown-menu-gradient: var(--surface-role-elevated-gradient);
+	--dropdown-menu-font-family: var(--surface-role-elevated-font-family);
+	--dropdown-menu-font-weight: var(--surface-role-elevated-font-weight);
+	--dropdown-menu-letter-spacing: var(--surface-role-elevated-letter-spacing);
+	--dropdown-menu-line-height: var(--surface-role-elevated-line-height);
+}
+
+[data-kind="dropdown-menu"][data-slot="content"][data-variant="deep"] {
+	--dropdown-menu-background-color: var(--surface-role-deep-background-color);
+	--dropdown-menu-box-shadow: var(--surface-role-deep-box-shadow);
+	--dropdown-menu-color: var(--surface-role-deep-color);
+	--dropdown-menu-border-color: var(--surface-role-deep-border-color);
+	--dropdown-menu-opacity: var(--surface-role-deep-opacity);
+	--dropdown-menu-animation: var(--surface-role-deep-animation);
+	--dropdown-menu-transition-duration: var(--surface-role-deep-transition-duration);
+	--dropdown-menu-transition-timing-function: var(--surface-role-deep-transition-timing-function);
+	--dropdown-menu-gradient: var(--surface-role-deep-gradient);
+	--dropdown-menu-font-family: var(--surface-role-deep-font-family);
+	--dropdown-menu-font-weight: var(--surface-role-deep-font-weight);
+	--dropdown-menu-letter-spacing: var(--surface-role-deep-letter-spacing);
+	--dropdown-menu-line-height: var(--surface-role-deep-line-height);
+}
+
+[data-kind="dropdown-menu"][data-slot="content"][data-variant="minimal"] {
+	--dropdown-menu-background-color: var(--surface-role-minimal-background-color);
+	--dropdown-menu-box-shadow: var(--surface-role-minimal-box-shadow);
+	--dropdown-menu-color: var(--surface-role-minimal-color);
+	--dropdown-menu-border-color: var(--surface-role-minimal-border-color);
+	--dropdown-menu-opacity: var(--surface-role-minimal-opacity);
+	--dropdown-menu-animation: var(--surface-role-minimal-animation);
+	--dropdown-menu-transition-duration: var(--surface-role-minimal-transition-duration);
+	--dropdown-menu-transition-timing-function: var(--surface-role-minimal-transition-timing-function);
+	--dropdown-menu-gradient: var(--surface-role-minimal-gradient);
+	--dropdown-menu-font-family: var(--surface-role-minimal-font-family);
+	--dropdown-menu-font-weight: var(--surface-role-minimal-font-weight);
+	--dropdown-menu-letter-spacing: var(--surface-role-minimal-letter-spacing);
+	--dropdown-menu-line-height: var(--surface-role-minimal-line-height);
+}
+
+[data-kind="dropdown-menu"][data-slot="content"][data-variant="solid"] {
+	--dropdown-menu-background-color: var(--surface-role-solid-background-color);
+	--dropdown-menu-box-shadow: var(--surface-role-solid-box-shadow);
+	--dropdown-menu-color: var(--surface-role-solid-color);
+	--dropdown-menu-border-color: var(--surface-role-solid-border-color);
+	--dropdown-menu-opacity: var(--surface-role-solid-opacity);
+	--dropdown-menu-animation: var(--surface-role-solid-animation);
+	--dropdown-menu-transition-duration: var(--surface-role-solid-transition-duration);
+	--dropdown-menu-transition-timing-function: var(--surface-role-solid-transition-timing-function);
+	--dropdown-menu-gradient: var(--surface-role-solid-gradient);
+	--dropdown-menu-font-family: var(--surface-role-solid-font-family);
+	--dropdown-menu-font-weight: var(--surface-role-solid-font-weight);
+	--dropdown-menu-letter-spacing: var(--surface-role-solid-letter-spacing);
+	--dropdown-menu-line-height: var(--surface-role-solid-line-height);
+}
+
+[data-kind="dropdown-menu"][data-slot="content"][data-variant="glow"] {
+	--dropdown-menu-background-color: var(--surface-role-glow-background-color);
+	--dropdown-menu-box-shadow: var(--surface-role-glow-box-shadow);
+	--dropdown-menu-color: var(--surface-role-glow-color);
+	--dropdown-menu-border-color: var(--surface-role-glow-border-color);
+	--dropdown-menu-opacity: var(--surface-role-glow-opacity);
+	--dropdown-menu-animation: var(--surface-role-glow-animation);
+	--dropdown-menu-transition-duration: var(--surface-role-glow-transition-duration);
+	--dropdown-menu-transition-timing-function: var(--surface-role-glow-transition-timing-function);
+	--dropdown-menu-gradient: var(--surface-role-glow-gradient);
+	--dropdown-menu-font-family: var(--surface-role-glow-font-family);
+	--dropdown-menu-font-weight: var(--surface-role-glow-font-weight);
+	--dropdown-menu-letter-spacing: var(--surface-role-glow-letter-spacing);
+	--dropdown-menu-line-height: var(--surface-role-glow-line-height);
+}
+
+[data-kind="dropdown-menu"][data-slot="content"][data-variant="muted"] {
+	--dropdown-menu-background-color: var(--surface-role-muted-background-color);
+	--dropdown-menu-box-shadow: var(--surface-role-muted-box-shadow);
+	--dropdown-menu-color: var(--surface-role-muted-color);
+	--dropdown-menu-border-color: var(--surface-role-muted-border-color);
+	--dropdown-menu-opacity: var(--surface-role-muted-opacity);
+	--dropdown-menu-animation: var(--surface-role-muted-animation);
+	--dropdown-menu-transition-duration: var(--surface-role-muted-transition-duration);
+	--dropdown-menu-transition-timing-function: var(--surface-role-muted-transition-timing-function);
+	--dropdown-menu-gradient: var(--surface-role-muted-gradient);
+	--dropdown-menu-font-family: var(--surface-role-muted-font-family);
+	--dropdown-menu-font-weight: var(--surface-role-muted-font-weight);
+	--dropdown-menu-letter-spacing: var(--surface-role-muted-letter-spacing);
+	--dropdown-menu-line-height: var(--surface-role-muted-line-height);
+}
+
+[data-kind="dropdown-menu"][data-slot="content"][data-size="sm"] {
+	--dropdown-menu-padding: 0.75rem;
+	--dropdown-menu-font-size: 0.875rem;
+}
+
+[data-kind="dropdown-menu"][data-slot="content"][data-size="md"] {
+	--dropdown-menu-padding: 1rem;
+	--dropdown-menu-font-size: 0.875rem;
+}
+
+[data-kind="dropdown-menu"][data-slot="content"][data-size="lg"] {
+	--dropdown-menu-padding: 1.5rem;
+	--dropdown-menu-font-size: 1rem;
+}
+
+[data-kind="dropdown-menu"][data-slot="trigger"] {
+	--dropdown-menu-trigger-cursor: pointer;
+	cursor: var(--dropdown-menu-trigger-cursor);
+}
+
+[data-kind="dropdown-menu"][data-slot="item"] {
+	--dropdown-menu-item-cursor: default;
+	cursor: var(--dropdown-menu-item-cursor);
+	--dropdown-menu-item-border-radius: var(--radius-sm);
+	border-radius: var(--dropdown-menu-item-border-radius);
+	--dropdown-menu-item-padding: var(--space-1) var(--space-2);
+	padding: var(--dropdown-menu-item-padding);
+	--dropdown-menu-item-color: var(--text-primary);
+	color: var(--dropdown-menu-item-color);
+}
+
+[data-kind="dropdown-menu"][data-slot="separator"] {
+	--dropdown-menu-separator-height: 0.0625rem;
+	height: var(--dropdown-menu-separator-height);
+	--dropdown-menu-separator-margin: var(--space-1);
+	margin: var(--dropdown-menu-separator-margin);
+	--dropdown-menu-separator-background-color: var(--interaction-hover);
+	background-color: var(--dropdown-menu-separator-background-color);
+}
+
+[data-kind="dropdown-menu"][data-slot="group-label"] {
+	--dropdown-menu-group-label-padding: var(--space-1) var(--space-2);
+	padding: var(--dropdown-menu-group-label-padding);
+	--dropdown-menu-group-label-font-weight: 600;
+	font-weight: var(--dropdown-menu-group-label-font-weight);
+	--dropdown-menu-group-label-color: var(--text-primary);
+	color: var(--dropdown-menu-group-label-color);
+}
+
+[data-kind="dropdown-menu"][data-slot="item"]:hover {
+	--dropdown-menu-item-background-color: var(--interaction-hover);
+	background-color: var(--dropdown-menu-item-background-color);
+}
+
+[data-kind="dropdown-menu"][data-slot="item"]:focus-visible {
+	--dropdown-menu-item-background-color: var(--interaction-active);
+	background-color: var(--dropdown-menu-item-background-color);
+	--dropdown-menu-item-outline-style: none;
+	outline-style: var(--dropdown-menu-item-outline-style);
+}
+
+[data-kind="dropdown-menu"][data-slot="item"]:is(:disabled, [data-disabled], [aria-disabled="true"]) {
+	--dropdown-menu-item-opacity: 0.5;
+	opacity: var(--dropdown-menu-item-opacity);
+	--dropdown-menu-item-cursor: not-allowed;
+	cursor: var(--dropdown-menu-item-cursor);
+}

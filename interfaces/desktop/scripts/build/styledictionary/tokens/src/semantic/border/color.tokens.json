@@ -12,9 +12,9 @@
 		"subtle": {
 			"$value": {
 				"colorSpace": "oklch",
-				"components": [0.4256, 0.0453, 163.89],
+				"components": [0.4, 0.13, 180],
 				"alpha": 0.22,
-				"hex": "#375748"
+				"hex": "#0a5449"
 			},
 			"$description": "Default container border — teal tint at low alpha.",
 			"$extensions": {
@@ -26,14 +26,14 @@
 		"strong": {
 			"$value": {
 				"colorSpace": "oklch",
-				"components": [0.5133, 0.0547, 163.65],
-				"alpha": 0.302,
-				"hex": "#49715e"
+				"components": [0.55, 0.18, 180],
+				"alpha": 0.5,
+				"hex": "#138374"
 			},
-			"$description": "Emphasised container border — teal tint at higher alpha.",
+			"$description": "Emphasised container border — the owner's emphasis, teal at 0.50.",
 			"$extensions": {
 				"com.devpulse.coldlight": {
-					"cssExpression": "oklch(from var(--color-teal-600) l c h / 0.30)"
+					"cssExpression": "oklch(from var(--color-teal-500) l c h / 0.50)"
 				}
 			}
 		},
@@ -44,8 +44,8 @@
 		"divider": {
 			"$value": {
 				"colorSpace": "oklch",
-				"components": [1.0032, 0.0305, 28.88],
-				"alpha": 0.059,
+				"components": [1, 0, 0],
+				"alpha": 0.06,
 				"hex": "#ffffff"
 			},
 			"$description": "Section separator — luminance edge at near-zero alpha."
@@ -53,11 +53,20 @@
 		"soft": {
 			"$value": {
 				"colorSpace": "oklch",
-				"components": [0.5133, 0.0547, 163.65],
+				"components": [0.48, 0.16, 180],
 				"alpha": 0.3,
-				"hex": "#49715e"
+				"hex": "#086d5f"
 			},
-			"$description": "Soft container border — teal tint at moderate alpha. Alias-equivalent to `strong` at the same opacity."
+			"$description": "Soft container border — teal tint at moderate alpha."
+		},
+		"divider-faint": {
+			"$value": {
+				"colorSpace": "oklch",
+				"components": [1, 0, 0],
+				"alpha": 0.04,
+				"hex": "#ffffff"
+			},
+			"$description": "Fainter section separator."
 		},
 		"emphasis": {
 			"$value": "{border.strong}",

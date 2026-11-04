@@ -7214,6 +7214,10 @@ layout: LayoutCopy;
  */
 devtools: DevtoolsCopy; 
 /**
+ * The Visual Page Builder.
+ */
+vpb: VpbCopy; 
+/**
  * The chat.
  */
 chat: ChatCopy; 
@@ -7226,6 +7230,18 @@ memory: MemoryCopy;
  * model-loader wizard copy; auth is not AI, so its text is the engine's).
  */
 auth: AuthCopy; 
+/**
+ * The Voice Lab.
+ */
+voice_lab: VoiceLabCopy; 
+/**
+ * The owner's hubs and boot experience.
+ */
+hubs: HubsCopy; 
+/**
+ * The model setup flow.
+ */
+setup_wizard: SetupWizardCopy; 
 /**
  * Route names, keyed by the URL path the route folders give
  * (`/devtools/system/datastores/turso`). The desktop's architecture
@@ -9581,6 +9597,238 @@ wsl: WslReport | null;
  * Virtualization (Windows only).
  */
 virtualization: VirtualizationReport | null }
+/**
+ * The boot views, friendly and technical.
+ */
+export type HubsBootCopy = { 
+/**
+ * The name at the top of the friendly view.
+ */
+wordmark: string; 
+/**
+ * A step that finished.
+ */
+status_ready: string; 
+/**
+ * A step that is running.
+ */
+status_loading: string; 
+/**
+ * A step that failed.
+ */
+status_failed: string; 
+/**
+ * A step that was skipped.
+ */
+status_skipped: string; 
+/**
+ * A step that has not started.
+ */
+status_waiting: string; 
+/**
+ * Bottom message: something failed.
+ */
+message_failed: string; 
+/**
+ * Bottom message: done.
+ */
+message_ready: string; 
+/**
+ * Bottom message: from 75%.
+ */
+message_almost: string; 
+/**
+ * Bottom message: from 50%.
+ */
+message_workspace: string; 
+/**
+ * Bottom message: before 50%.
+ */
+message_starting: string; 
+/**
+ * Technical view banner; `{version}` is filled in.
+ */
+title: string; 
+/**
+ * The boot log's accessible name.
+ */
+log_label: string; 
+/**
+ * Log heading while booting.
+ */
+section_boot: string; 
+/**
+ * Log heading when ready.
+ */
+section_ready: string; 
+/**
+ * Log line when ready.
+ */
+platform_healthy: string; 
+/**
+ * `{elapsed}` spent across the steps.
+ */
+total: string; 
+/**
+ * Technical view footer when a step failed.
+ */
+errors_detected: string }
+/**
+ * The floating chat panel in the main window.
+ */
+export type HubsChatOverlayCopy = { 
+/**
+ * Panel title, and the name on answers without an agent's name.
+ */
+title: string; 
+/**
+ * The message field's placeholder.
+ */
+placeholder: string; 
+/**
+ * Shown while messages load.
+ */
+loading: string; 
+/**
+ * Shown when there are no messages.
+ */
+empty: string; 
+/**
+ * Minimize button.
+ */
+minimize: string; 
+/**
+ * Expand button.
+ */
+expand: string; 
+/**
+ * Close button.
+ */
+close: string; 
+/**
+ * Send button.
+ */
+send: string; 
+/**
+ * Send button before the platform is ready.
+ */
+waiting: string; 
+/**
+ * The voice button, which has nothing behind it here yet.
+ */
+voice_unavailable: string }
+/**
+ * The owner's hubs and boot experience, restored (plan 0009).
+ */
+export type HubsCopy = { 
+/**
+ * The `DevPulse` hub dashboard.
+ */
+dashboard: HubsDashboardCopy; 
+/**
+ * The status bar.
+ */
+statusbar: HubsStatusBarCopy; 
+/**
+ * The top bar.
+ */
+topbar: HubsTopBarCopy; 
+/**
+ * The floating chat panel.
+ */
+chat_overlay: HubsChatOverlayCopy; 
+/**
+ * The boot views.
+ */
+boot: HubsBootCopy }
+/**
+ * The `DevPulse` hub dashboard: the owner's tabs and system stats.
+ */
+export type HubsDashboardCopy = { 
+/**
+ * Overview tab.
+ */
+tab_overview: string; 
+/**
+ * Wireless tab.
+ */
+tab_wireless: string; 
+/**
+ * WAN/LAN tab.
+ */
+tab_wan_lan: string; 
+/**
+ * Uptime stat.
+ */
+uptime: string; 
+/**
+ * CPU stat.
+ */
+cpu: string; 
+/**
+ * Memory stat.
+ */
+memory: string; 
+/**
+ * Network stat.
+ */
+network: string; 
+/**
+ * A value no backend supplies yet.
+ */
+unavailable: string; 
+/**
+ * Wireless tab heading.
+ */
+wireless_title: string; 
+/**
+ * What the Wireless tab is for.
+ */
+wireless_body: string; 
+/**
+ * WAN/LAN tab heading.
+ */
+wan_lan_title: string; 
+/**
+ * What the WAN/LAN tab is for.
+ */
+wan_lan_body: string; 
+/**
+ * Says plainly that a tab has nothing behind it yet.
+ */
+no_backend: string }
+/**
+ * The status bar's added zones. `{state}` and `{value}` are filled in.
+ */
+export type HubsStatusBarCopy = { 
+/**
+ * "Clyffy: {state}".
+ */
+clyffy: string; 
+/**
+ * "CPU: {value}%".
+ */
+cpu: string; 
+/**
+ * "MEM: {value}".
+ */
+memory: string }
+/**
+ * The top bar's search and floating chat button.
+ */
+export type HubsTopBarCopy = { 
+/**
+ * The search field's placeholder.
+ */
+search_placeholder: string; 
+/**
+ * Says that search has nothing behind it yet.
+ */
+search_unavailable: string; 
+/**
+ * The button that opens the floating chat panel.
+ */
+chat_overlay: string }
 /**
  * Identity of the local assistant.
  * 
@@ -14332,6 +14580,1538 @@ runtime_state: ServiceRuntimeState;
  */
 observation: ServiceObservation }
 /**
+ * Setup wizard text: assignment.
+ */
+export type SetupWizardAssignmentCopy = { 
+/**
+ * Text: format unknown.
+ */
+format_unknown: string; 
+/**
+ * Text: hw gpu.
+ */
+hw_gpu: string; 
+/**
+ * Text: hw cpu.
+ */
+hw_cpu: string; 
+/**
+ * Text: hw ram.
+ */
+hw_ram: string; 
+/**
+ * Text: hw disk.
+ */
+hw_disk: string; 
+/**
+ * Text: auto aria.
+ */
+auto_aria: string; 
+/**
+ * Text: auto button.
+ */
+auto_button: string; 
+/**
+ * Text: review aria.
+ */
+review_aria: string; 
+/**
+ * Text: review button.
+ */
+review_button: string; 
+/**
+ * Text: browse aria.
+ */
+browse_aria: string; 
+/**
+ * Text: browse button.
+ */
+browse_button: string; 
+/**
+ * Text: active count.
+ */
+active_count: string; 
+/**
+ * Text: suggested on disk.
+ */
+suggested_on_disk: string; 
+/**
+ * Text: suggested download.
+ */
+suggested_download: string; 
+/**
+ * Text: device aria.
+ */
+device_aria: string; 
+/**
+ * Text: device gpu.
+ */
+device_gpu: string; 
+/**
+ * Text: device cpu.
+ */
+device_cpu: string; 
+/**
+ * Text: status ready.
+ */
+status_ready: string; 
+/**
+ * Text: status loading.
+ */
+status_loading: string; 
+/**
+ * Text: status failed.
+ */
+status_failed: string; 
+/**
+ * Text: status assigned.
+ */
+status_assigned: string; 
+/**
+ * Text: status empty.
+ */
+status_empty: string; 
+/**
+ * Text: found one.
+ */
+found_one: string; 
+/**
+ * Text: found many.
+ */
+found_many: string; 
+/**
+ * Text: use for aria.
+ */
+use_for_aria: string; 
+/**
+ * Text: use file.
+ */
+use_file: string; 
+/**
+ * Text: detail aria.
+ */
+detail_aria: string; 
+/**
+ * Text: delete aria.
+ */
+delete_aria: string; 
+/**
+ * Text: context.
+ */
+context: string; 
+/**
+ * Text: context aria.
+ */
+context_aria: string; 
+/**
+ * Text: tokens.
+ */
+tokens: string; 
+/**
+ * Text: recommended.
+ */
+recommended: string; 
+/**
+ * Text: rec cpu.
+ */
+rec_cpu: string; 
+/**
+ * Text: rec gpu.
+ */
+rec_gpu: string; 
+/**
+ * Text: low disk.
+ */
+low_disk: string; 
+/**
+ * Text: download aria.
+ */
+download_aria: string; 
+/**
+ * Text: download.
+ */
+download: string; 
+/**
+ * Text: no model.
+ */
+no_model: string; 
+/**
+ * Text: cancel download aria.
+ */
+cancel_download_aria: string; 
+/**
+ * Text: cancel.
+ */
+cancel: string; 
+/**
+ * Text: retry aria.
+ */
+retry_aria: string; 
+/**
+ * Text: retry.
+ */
+retry: string; 
+/**
+ * Text: change aria.
+ */
+change_aria: string; 
+/**
+ * Text: pick aria.
+ */
+pick_aria: string; 
+/**
+ * Text: change.
+ */
+change: string; 
+/**
+ * Text: pick.
+ */
+pick: string; 
+/**
+ * Text: load aria.
+ */
+load_aria: string; 
+/**
+ * Text: load.
+ */
+load: string; 
+/**
+ * Text: unload aria.
+ */
+unload_aria: string; 
+/**
+ * Text: unload.
+ */
+unload: string; 
+/**
+ * Text: configure aria.
+ */
+configure_aria: string; 
+/**
+ * Text: configure.
+ */
+configure: string; 
+/**
+ * Text: import aria.
+ */
+import_aria: string; 
+/**
+ * Text: compatible.
+ */
+compatible: string; 
+/**
+ * Text: all.
+ */
+all: string; 
+/**
+ * Text: no format.
+ */
+no_format: string; 
+/**
+ * Text: none compatible.
+ */
+none_compatible: string; 
+/**
+ * Text: assign aria.
+ */
+assign_aria: string; 
+/**
+ * Text: vram.
+ */
+vram: string; 
+/**
+ * Text: waiting.
+ */
+waiting: string; 
+/**
+ * Text: summary.
+ */
+summary: string; 
+/**
+ * Text: close dialog.
+ */
+close_dialog: string; 
+/**
+ * Text: too large title.
+ */
+too_large_title: string; 
+/**
+ * Text: too large copy.
+ */
+too_large_copy: string; 
+/**
+ * Text: cancel load aria.
+ */
+cancel_load_aria: string; 
+/**
+ * Text: load anyway.
+ */
+load_anyway: string; 
+/**
+ * Text: delete title.
+ */
+delete_title: string; 
+/**
+ * Text: delete copy.
+ */
+delete_copy: string; 
+/**
+ * Text: cancel delete aria.
+ */
+cancel_delete_aria: string; 
+/**
+ * Text: delete confirm.
+ */
+delete_confirm: string; 
+/**
+ * Text: close detail.
+ */
+close_detail: string; 
+/**
+ * Text: detail format.
+ */
+detail_format: string; 
+/**
+ * Text: detail architecture.
+ */
+detail_architecture: string; 
+/**
+ * Text: detail quantization.
+ */
+detail_quantization: string; 
+/**
+ * Text: detail file size.
+ */
+detail_file_size: string; 
+/**
+ * Text: detail vram.
+ */
+detail_vram: string; 
+/**
+ * Text: detail context.
+ */
+detail_context: string; 
+/**
+ * Text: detail fit.
+ */
+detail_fit: string; 
+/**
+ * Text: detail compatible.
+ */
+detail_compatible: string; 
+/**
+ * Text: detail id.
+ */
+detail_id: string; 
+/**
+ * Text: delete detail.
+ */
+delete_detail: string; 
+/**
+ * Text: review title.
+ */
+review_title: string; 
+/**
+ * Text: review copy.
+ */
+review_copy: string; 
+/**
+ * Text: already assigned.
+ */
+already_assigned: string; 
+/**
+ * Text: will assign on disk.
+ */
+will_assign_on_disk: string; 
+/**
+ * Text: will assign download.
+ */
+will_assign_download: string; 
+/**
+ * Text: no recommendation.
+ */
+no_recommendation: string; 
+/**
+ * Text: will download.
+ */
+will_download: string; 
+/**
+ * Text: on disk one.
+ */
+on_disk_one: string; 
+/**
+ * Text: on disk many.
+ */
+on_disk_many: string; 
+/**
+ * Text: cancel auto aria.
+ */
+cancel_auto_aria: string; 
+/**
+ * Text: approve.
+ */
+approve: string; 
+/**
+ * Text by key: capabilities.
+ */
+capabilities: Partial<{ [key in string]: SetupWizardSlotWordsCopy }>; 
+/**
+ * Text: tips.
+ */
+tips: SetupWizardAssignmentTipsCopy }
+/**
+ * Setup wizard text: tips.
+ */
+export type SetupWizardAssignmentTipsCopy = { 
+/**
+ * Text: ready active.
+ */
+ready_active: string; 
+/**
+ * Text: ready assigned.
+ */
+ready_assigned: string; 
+/**
+ * Text: ready empty.
+ */
+ready_empty: string; 
+/**
+ * Text: auto.
+ */
+auto: string; 
+/**
+ * Text: review.
+ */
+review: string; 
+/**
+ * Text: device unavailable.
+ */
+device_unavailable: string; 
+/**
+ * Text: detail.
+ */
+detail: string; 
+/**
+ * Text: delete.
+ */
+delete: string; 
+/**
+ * Text: fit green.
+ */
+fit_green: string; 
+/**
+ * Text: fit yellow.
+ */
+fit_yellow: string; 
+/**
+ * Text: fit red.
+ */
+fit_red: string; 
+/**
+ * Text: fit gray.
+ */
+fit_gray: string; 
+/**
+ * Text: context unavailable.
+ */
+context_unavailable: string; 
+/**
+ * Text: download.
+ */
+download: string; 
+/**
+ * Text: change.
+ */
+change: string; 
+/**
+ * Text: pick.
+ */
+pick: string; 
+/**
+ * Text: load.
+ */
+load: string; 
+/**
+ * Text: unload.
+ */
+unload: string; 
+/**
+ * Text: configure.
+ */
+configure: string; 
+/**
+ * Text: import.
+ */
+import: string; 
+/**
+ * Text: gguf.
+ */
+gguf: string; 
+/**
+ * Text: safetensors.
+ */
+safetensors: string }
+/**
+ * Setup wizard text: browse step.
+ */
+export type SetupWizardBrowseStepCopy = { 
+/**
+ * Text: back.
+ */
+back: string; 
+/**
+ * Text: title.
+ */
+title: string; 
+/**
+ * Text: subtitle.
+ */
+subtitle: string; 
+/**
+ * Text: help tip.
+ */
+help_tip: string; 
+/**
+ * Text: help button.
+ */
+help_button: string; 
+/**
+ * Text: help title.
+ */
+help_title: string; 
+/**
+ * Text: help summary.
+ */
+help_summary: string; 
+/**
+ * Text, one per point: help points.
+ */
+help_points: string[]; 
+/**
+ * Text: baseline aria.
+ */
+baseline_aria: string; 
+/**
+ * Text: baseline kicker.
+ */
+baseline_kicker: string; 
+/**
+ * Text: baseline copy.
+ */
+baseline_copy: string; 
+/**
+ * Text: hardware aria.
+ */
+hardware_aria: string; 
+/**
+ * Text: gpu free.
+ */
+gpu_free: string; 
+/**
+ * Text: cpu only.
+ */
+cpu_only: string; 
+/**
+ * Text: ram.
+ */
+ram: string; 
+/**
+ * Text: disk free.
+ */
+disk_free: string; 
+/**
+ * Text: recommended.
+ */
+recommended: string; 
+/**
+ * Text: manage.
+ */
+manage: string; 
+/**
+ * Text: browse.
+ */
+browse: string; 
+/**
+ * Text: search hf.
+ */
+search_hf: string; 
+/**
+ * Text: tab local.
+ */
+tab_local: string; 
+/**
+ * Text: tab online.
+ */
+tab_online: string; 
+/**
+ * Text: downloading.
+ */
+downloading: string; 
+/**
+ * Text: group empty.
+ */
+group_empty: string; 
+/**
+ * Text: download from hf.
+ */
+download_from_hf: string; 
+/**
+ * Text: use for.
+ */
+use_for: string; 
+/**
+ * Text: importing.
+ */
+importing: string; 
+/**
+ * Text: import.
+ */
+import: string; 
+/**
+ * Text: dismiss.
+ */
+dismiss: string; 
+/**
+ * Text: done.
+ */
+done: string; 
+/**
+ * Text: no assigned.
+ */
+no_assigned: string; 
+/**
+ * Text: imported.
+ */
+imported: string; 
+/**
+ * Text: import failed.
+ */
+import_failed: string; 
+/**
+ * Text: assigned to.
+ */
+assigned_to: string; 
+/**
+ * Text: capability other.
+ */
+capability_other: string; 
+/**
+ * Text: group reasoning title.
+ */
+group_reasoning_title: string; 
+/**
+ * Text: group reasoning desc.
+ */
+group_reasoning_desc: string; 
+/**
+ * Text: group encoder title.
+ */
+group_encoder_title: string; 
+/**
+ * Text: group encoder desc.
+ */
+group_encoder_desc: string; 
+/**
+ * Text: group voice title.
+ */
+group_voice_title: string; 
+/**
+ * Text: group voice desc.
+ */
+group_voice_desc: string; 
+/**
+ * Text: group observation title.
+ */
+group_observation_title: string; 
+/**
+ * Text: group observation desc.
+ */
+group_observation_desc: string; 
+/**
+ * Text by key: state labels.
+ */
+state_labels: Partial<{ [key in string]: string }>; 
+/**
+ * Text by key: capabilities.
+ */
+capabilities: Partial<{ [key in string]: SetupWizardCapabilityCopy }> }
+/**
+ * Setup wizard text for one kind of model.
+ */
+export type SetupWizardCapabilityCopy = { 
+/**
+ * Its layman name.
+ */
+label: string; 
+/**
+ * What it does.
+ */
+desc: string }
+/**
+ * The model setup flow (restored from the owner's wizard, plan 0009).
+ */
+export type SetupWizardCopy = { 
+/**
+ * Text: shell.
+ */
+shell: SetupWizardShellCopy; 
+/**
+ * Text: repair.
+ */
+repair: SetupWizardRepairCopy; 
+/**
+ * Text: validate.
+ */
+validate: SetupWizardValidateCopy; 
+/**
+ * Text: slot card.
+ */
+slot_card: SetupWizardSlotCardCopy; 
+/**
+ * Text: local.
+ */
+local: SetupWizardLocalCopy; 
+/**
+ * Text: preset card.
+ */
+preset_card: SetupWizardPresetCardCopy; 
+/**
+ * Text: models step.
+ */
+models_step: SetupWizardModelsStepCopy; 
+/**
+ * Text: browse step.
+ */
+browse_step: SetupWizardBrowseStepCopy; 
+/**
+ * Text: swap popup.
+ */
+swap_popup: SetupWizardSwapPopupCopy; 
+/**
+ * Text: resources.
+ */
+resources: SetupWizardResourcesCopy; 
+/**
+ * Text: model browser.
+ */
+model_browser: SetupWizardModelBrowserCopy; 
+/**
+ * Text: loader step.
+ */
+loader_step: SetupWizardLoaderStepCopy; 
+/**
+ * Text: assignment.
+ */
+assignment: SetupWizardAssignmentCopy }
+/**
+ * Setup wizard text: loader step.
+ */
+export type SetupWizardLoaderStepCopy = { 
+/**
+ * Text: title.
+ */
+title: string; 
+/**
+ * Text: intro.
+ */
+intro: string; 
+/**
+ * Text: gpu free.
+ */
+gpu_free: string; 
+/**
+ * Text: no gpu.
+ */
+no_gpu: string; 
+/**
+ * Text: back.
+ */
+back: string; 
+/**
+ * Text: continue.
+ */
+continue: string }
+/**
+ * Setup wizard text: local.
+ */
+export type SetupWizardLocalCopy = { 
+/**
+ * Text: heading.
+ */
+heading: string; 
+/**
+ * Text: intro.
+ */
+intro: string; 
+/**
+ * Text: mascot alt.
+ */
+mascot_alt: string; 
+/**
+ * Text: loading.
+ */
+loading: string; 
+/**
+ * Text: status assigned.
+ */
+status_assigned: string; 
+/**
+ * Text: find models.
+ */
+find_models: string; 
+/**
+ * Text: assign slots.
+ */
+assign_slots: string; 
+/**
+ * Text: guided setup.
+ */
+guided_setup: string }
+/**
+ * Setup wizard text: model browser.
+ */
+export type SetupWizardModelBrowserCopy = { 
+/**
+ * Text: title.
+ */
+title: string; 
+/**
+ * Text: close.
+ */
+close: string; 
+/**
+ * Text: search placeholder.
+ */
+search_placeholder: string; 
+/**
+ * Text: slot label.
+ */
+slot_label: string; 
+/**
+ * Text: format label.
+ */
+format_label: string; 
+/**
+ * Text: format gguf.
+ */
+format_gguf: string; 
+/**
+ * Text: format safetensors.
+ */
+format_safetensors: string; 
+/**
+ * Text: format all.
+ */
+format_all: string; 
+/**
+ * Text: fits only.
+ */
+fits_only: string; 
+/**
+ * Text: recommended for.
+ */
+recommended_for: string; 
+/**
+ * Text: download aria.
+ */
+download_aria: string; 
+/**
+ * Text: get.
+ */
+get: string; 
+/**
+ * Text: searching.
+ */
+searching: string; 
+/**
+ * Text: results.
+ */
+results: string; 
+/**
+ * Text: no results.
+ */
+no_results: string; 
+/**
+ * Text: local heading.
+ */
+local_heading: string; 
+/**
+ * Text: import aria.
+ */
+import_aria: string; 
+/**
+ * Text: import path.
+ */
+import_path: string; 
+/**
+ * Text: symlink aria.
+ */
+symlink_aria: string; 
+/**
+ * Text: symlink.
+ */
+symlink: string; 
+/**
+ * Text: fit green.
+ */
+fit_green: string; 
+/**
+ * Text: fit yellow.
+ */
+fit_yellow: string; 
+/**
+ * Text: fit red.
+ */
+fit_red: string; 
+/**
+ * Text: fit gray.
+ */
+fit_gray: string }
+/**
+ * Setup wizard text: models step.
+ */
+export type SetupWizardModelsStepCopy = { 
+/**
+ * Text: guidance.
+ */
+guidance: string; 
+/**
+ * Text: help tip.
+ */
+help_tip: string; 
+/**
+ * Text: help button.
+ */
+help_button: string; 
+/**
+ * Text: help summary.
+ */
+help_summary: string; 
+/**
+ * Text, one per point: help points.
+ */
+help_points: string[]; 
+/**
+ * Text: loading alt.
+ */
+loading_alt: string; 
+/**
+ * Text: loading title.
+ */
+loading_title: string; 
+/**
+ * Text: hardware fallback.
+ */
+hardware_fallback: string; 
+/**
+ * Text: loading copy.
+ */
+loading_copy: string; 
+/**
+ * Text: error title.
+ */
+error_title: string; 
+/**
+ * Text: brain options.
+ */
+brain_options: string; 
+/**
+ * Text: brain tip.
+ */
+brain_tip: string; 
+/**
+ * Text: brain copy.
+ */
+brain_copy: string; 
+/**
+ * Text: vram estimate.
+ */
+vram_estimate: string; 
+/**
+ * Text: active preset.
+ */
+active_preset: string; 
+/**
+ * Text: baseline kicker.
+ */
+baseline_kicker: string; 
+/**
+ * Text: baseline tip.
+ */
+baseline_tip: string; 
+/**
+ * Text: baseline copy.
+ */
+baseline_copy: string; 
+/**
+ * Text: guidance kicker.
+ */
+guidance_kicker: string; 
+/**
+ * Text: guidance copy.
+ */
+guidance_copy: string; 
+/**
+ * Text: no assigned.
+ */
+no_assigned: string; 
+/**
+ * Text: no preset.
+ */
+no_preset: string; 
+/**
+ * Text: on disk.
+ */
+on_disk: string; 
+/**
+ * Text: recommended size.
+ */
+recommended_size: string; 
+/**
+ * Text: manual pick.
+ */
+manual_pick: string; 
+/**
+ * Text: use recommended.
+ */
+use_recommended: string; 
+/**
+ * Text: download recommended.
+ */
+download_recommended: string; 
+/**
+ * Text: find best fit.
+ */
+find_best_fit: string; 
+/**
+ * Text: browse.
+ */
+browse: string; 
+/**
+ * Text: search hf.
+ */
+search_hf: string; 
+/**
+ * Text: live kicker.
+ */
+live_kicker: string; 
+/**
+ * Text: live downloads.
+ */
+live_downloads: string; 
+/**
+ * Text: live applying.
+ */
+live_applying: string; 
+/**
+ * Text: live assigning.
+ */
+live_assigning: string; 
+/**
+ * Text: error real title.
+ */
+error_real_title: string; 
+/**
+ * Text: some failed.
+ */
+some_failed: string; 
+/**
+ * Text: setup failed.
+ */
+setup_failed: string; 
+/**
+ * Text: retry unavailable.
+ */
+retry_unavailable: string; 
+/**
+ * Text: slot updated.
+ */
+slot_updated: string; 
+/**
+ * Text: not in registry.
+ */
+not_in_registry: string; 
+/**
+ * Text: now recommended.
+ */
+now_recommended: string; 
+/**
+ * Text: group reasoning title.
+ */
+group_reasoning_title: string; 
+/**
+ * Text: group reasoning subtitle.
+ */
+group_reasoning_subtitle: string; 
+/**
+ * Text: group observation title.
+ */
+group_observation_title: string; 
+/**
+ * Text: group observation subtitle.
+ */
+group_observation_subtitle: string; 
+/**
+ * Text: group encoder title.
+ */
+group_encoder_title: string; 
+/**
+ * Text: group encoder subtitle.
+ */
+group_encoder_subtitle: string; 
+/**
+ * Text: group voice title.
+ */
+group_voice_title: string; 
+/**
+ * Text: group voice subtitle.
+ */
+group_voice_subtitle: string; 
+/**
+ * Text by key: state labels.
+ */
+state_labels: Partial<{ [key in string]: string }>; 
+/**
+ * Text by key: slot tips.
+ */
+slot_tips: Partial<{ [key in string]: string }> }
+/**
+ * Setup wizard text: preset card.
+ */
+export type SetupWizardPresetCardCopy = { 
+/**
+ * Text: title.
+ */
+title: string; 
+/**
+ * Text: cpu label.
+ */
+cpu_label: string; 
+/**
+ * Text: tier.
+ */
+tier: string; 
+/**
+ * Text: on computer.
+ */
+on_computer: string; 
+/**
+ * Text: download needed.
+ */
+download_needed: string; 
+/**
+ * Text: to download one.
+ */
+to_download_one: string; 
+/**
+ * Text: to download many.
+ */
+to_download_many: string; 
+/**
+ * Text: already on disk.
+ */
+already_on_disk: string; 
+/**
+ * Text: all downloaded.
+ */
+all_downloaded: string; 
+/**
+ * Text: setting up.
+ */
+setting_up: string; 
+/**
+ * Text: download and setup.
+ */
+download_and_setup: string; 
+/**
+ * Text: set up now.
+ */
+set_up_now: string }
+/**
+ * Setup wizard text: repair.
+ */
+export type SetupWizardRepairCopy = { 
+/**
+ * Text: downloading.
+ */
+downloading: string; 
+/**
+ * Text: missing title.
+ */
+missing_title: string; 
+/**
+ * Text: missing copy.
+ */
+missing_copy: string; 
+/**
+ * Text: missing badge.
+ */
+missing_badge: string; 
+/**
+ * Text: redownload.
+ */
+redownload: string; 
+/**
+ * Text: downloading short.
+ */
+downloading_short: string; 
+/**
+ * Text: pick different.
+ */
+pick_different: string; 
+/**
+ * Text: skip.
+ */
+skip: string; 
+/**
+ * Text: resolved.
+ */
+resolved: string; 
+/**
+ * Text: continue.
+ */
+continue: string; 
+/**
+ * Text: no source.
+ */
+no_source: string; 
+/**
+ * Text: hardware title.
+ */
+hardware_title: string; 
+/**
+ * Text: hardware copy.
+ */
+hardware_copy: string; 
+/**
+ * Text: redetect.
+ */
+redetect: string; 
+/**
+ * Text: keep current.
+ */
+keep_current: string }
+/**
+ * Setup wizard text: resources.
+ */
+export type SetupWizardResourcesCopy = { 
+/**
+ * Text: title.
+ */
+title: string; 
+/**
+ * Text: gpu vram.
+ */
+gpu_vram: string; 
+/**
+ * Text: segment.
+ */
+segment: string; 
+/**
+ * Text: over budget.
+ */
+over_budget: string; 
+/**
+ * Text: no gpu.
+ */
+no_gpu: string; 
+/**
+ * Text: ram.
+ */
+ram: string; 
+/**
+ * Text: ram free.
+ */
+ram_free: string; 
+/**
+ * Text: disk.
+ */
+disk: string; 
+/**
+ * Text: disk free.
+ */
+disk_free: string }
+/**
+ * Setup wizard text: shell.
+ */
+export type SetupWizardShellCopy = { 
+/**
+ * Text: kicker.
+ */
+kicker: string; 
+/**
+ * Text: title.
+ */
+title: string; 
+/**
+ * Text: setup button.
+ */
+setup_button: string; 
+/**
+ * Text: setup aria.
+ */
+setup_aria: string; 
+/**
+ * Text: close aria.
+ */
+close_aria: string; 
+/**
+ * Text: progress aria.
+ */
+progress_aria: string }
+/**
+ * Setup wizard text: slot card.
+ */
+export type SetupWizardSlotCardCopy = { 
+/**
+ * Text: empty.
+ */
+empty: string; 
+/**
+ * Text: ready.
+ */
+ready: string; 
+/**
+ * Text: loading.
+ */
+loading: string; 
+/**
+ * Text: warm.
+ */
+warm: string; 
+/**
+ * Text: failed.
+ */
+failed: string; 
+/**
+ * Text: assigned.
+ */
+assigned: string }
+/**
+ * Setup wizard text for one slot.
+ */
+export type SetupWizardSlotWordsCopy = { 
+/**
+ * Its layman name.
+ */
+label: string; 
+/**
+ * Its short name in sentences.
+ */
+friendly_name: string; 
+/**
+ * What it does.
+ */
+desc: string }
+/**
+ * Setup wizard text: swap popup.
+ */
+export type SetupWizardSwapPopupCopy = { 
+/**
+ * Text: manage aria.
+ */
+manage_aria: string; 
+/**
+ * Text: kicker.
+ */
+kicker: string; 
+/**
+ * Text: what does.
+ */
+what_does: string; 
+/**
+ * Text: close.
+ */
+close: string; 
+/**
+ * Text: knowledge drop.
+ */
+knowledge_drop: string; 
+/**
+ * Text: callout recommended.
+ */
+callout_recommended: string; 
+/**
+ * Text: callout local.
+ */
+callout_local: string; 
+/**
+ * Text: callout search.
+ */
+callout_search: string; 
+/**
+ * Text, one per point: drops recommended.
+ */
+drops_recommended: string[]; 
+/**
+ * Text, one per point: drops local.
+ */
+drops_local: string[]; 
+/**
+ * Text, one per point: drops search.
+ */
+drops_search: string[]; 
+/**
+ * Text: source aria.
+ */
+source_aria: string; 
+/**
+ * Text: tab recommended.
+ */
+tab_recommended: string; 
+/**
+ * Text: tab local.
+ */
+tab_local: string; 
+/**
+ * Text: tab search.
+ */
+tab_search: string; 
+/**
+ * Text: preset title.
+ */
+preset_title: string; 
+/**
+ * Text: preset copy.
+ */
+preset_copy: string; 
+/**
+ * Text: preset tip label.
+ */
+preset_tip_label: string; 
+/**
+ * Text: rec meta.
+ */
+rec_meta: string; 
+/**
+ * Text: rec on disk.
+ */
+rec_on_disk: string; 
+/**
+ * Text: rec download.
+ */
+rec_download: string; 
+/**
+ * Text: working.
+ */
+working: string; 
+/**
+ * Text: use recommended.
+ */
+use_recommended: string; 
+/**
+ * Text: download recommended.
+ */
+download_recommended: string; 
+/**
+ * Text: no pick title.
+ */
+no_pick_title: string; 
+/**
+ * Text: no pick copy.
+ */
+no_pick_copy: string; 
+/**
+ * Text: browse local.
+ */
+browse_local: string; 
+/**
+ * Text: search online.
+ */
+search_online: string; 
+/**
+ * Text: local title.
+ */
+local_title: string; 
+/**
+ * Text: local copy.
+ */
+local_copy: string; 
+/**
+ * Text: free vram.
+ */
+free_vram: string; 
+/**
+ * Text: importing.
+ */
+importing: string; 
+/**
+ * Text: import file.
+ */
+import_file: string; 
+/**
+ * Text: no local title.
+ */
+no_local_title: string; 
+/**
+ * Text: no local copy.
+ */
+no_local_copy: string; 
+/**
+ * Text: import from file.
+ */
+import_from_file: string; 
+/**
+ * Text: local meta.
+ */
+local_meta: string; 
+/**
+ * Text: fits.
+ */
+fits: string; 
+/**
+ * Text: tight fit.
+ */
+tight_fit: string; 
+/**
+ * Text: assigned.
+ */
+assigned: string; 
+/**
+ * Text: best local fit.
+ */
+best_local_fit: string; 
+/**
+ * Text: search title.
+ */
+search_title: string; 
+/**
+ * Text: search copy.
+ */
+search_copy: string; 
+/**
+ * Text: token tip label.
+ */
+token_tip_label: string; 
+/**
+ * Text: open browser.
+ */
+open_browser: string; 
+/**
+ * Text: done.
+ */
+done: string; 
+/**
+ * Text: not in registry.
+ */
+not_in_registry: string }
+/**
+ * Setup wizard text: validate.
+ */
+export type SetupWizardValidateCopy = { 
+/**
+ * Text: voice on.
+ */
+voice_on: string; 
+/**
+ * Text: voice off.
+ */
+voice_off: string; 
+/**
+ * Text: voice unavailable.
+ */
+voice_unavailable: string }
+/**
  * Whether the `sherpa` cargo feature was enabled at compile time.
  * The devtool uses this to render a "not available in this build"
  * banner when the user opens the page on a default build.
@@ -16094,6 +17874,450 @@ sample_text: string;
  */
 description: string }
 /**
+ * The Voice Lab.
+ */
+export type VoiceLabCopy = { 
+/**
+ * Tab: TTS Setup.
+ */
+tab_tts: string; 
+/**
+ * Tab: STT Setup.
+ */
+tab_stt: string; 
+/**
+ * Tab: Profiles.
+ */
+tab_profiles: string; 
+/**
+ * Tab: Test Bench.
+ */
+tab_test: string; 
+/**
+ * Button that clears an error.
+ */
+dismiss: string; 
+/**
+ * A slot's identity. Placeholder `{slot}`.
+ */
+slot_line: string; 
+/**
+ * A slot's state. Placeholders `{state}`, `{runtime}`, `{loading}`.
+ */
+slot_status: string; 
+/**
+ * The slot is not in the registry.
+ */
+slot_not_found: string; 
+/**
+ * The slot has a model you assigned.
+ */
+slot_assigned: string; 
+/**
+ * The slot has a bundled default.
+ */
+slot_bundled: string; 
+/**
+ * The slot has no model.
+ */
+slot_unassigned: string; 
+/**
+ * The slot is loaded.
+ */
+loaded: string; 
+/**
+ * The slot is not loaded.
+ */
+not_loaded: string; 
+/**
+ * The slot names no backend.
+ */
+unknown_backend: string; 
+/**
+ * The slot names no loading strategy.
+ */
+unknown_loading: string; 
+/**
+ * The TTS Setup tab.
+ */
+tts: VoiceLabTtsCopy; 
+/**
+ * The STT Setup tab.
+ */
+stt: VoiceLabSttCopy; 
+/**
+ * The Profiles tab.
+ */
+profiles: VoiceLabProfilesCopy; 
+/**
+ * The Test Bench tab.
+ */
+test: VoiceLabTestCopy }
+/**
+ * One choice in a Voice Lab list.
+ */
+export type VoiceLabOptionCopy = { 
+/**
+ * What is saved.
+ */
+value: string; 
+/**
+ * What you see.
+ */
+label: string }
+/**
+ * Voice Lab: the Profiles tab.
+ */
+export type VoiceLabProfilesCopy = { 
+/**
+ * Heading.
+ */
+title: string; 
+/**
+ * Button that starts a new profile.
+ */
+new: string; 
+/**
+ * Marks the active profile.
+ */
+active: string; 
+/**
+ * One profile's settings. Placeholders `{voice}`, `{quality}`.
+ */
+summary: string; 
+/**
+ * Button that activates a profile.
+ */
+activate: string; 
+/**
+ * Button that edits a profile.
+ */
+edit: string; 
+/**
+ * Button that deletes a profile.
+ */
+delete: string; 
+/**
+ * Label of the name field.
+ */
+name: string; 
+/**
+ * Label of the voice list.
+ */
+voice: string; 
+/**
+ * Label of the quality list.
+ */
+quality: string; 
+/**
+ * Button that saves the profile being edited.
+ */
+save: string; 
+/**
+ * Button that drops the profile being edited.
+ */
+cancel: string; 
+/**
+ * What a profile does today.
+ */
+settings_note: string; 
+/**
+ * The STT qualities you can pick.
+ */
+qualities: VoiceLabOptionCopy[] }
+/**
+ * Voice Lab: the STT Setup tab.
+ */
+export type VoiceLabSttCopy = { 
+/**
+ * Why no speech-to-text endpoint can be chosen. Placeholder `{slot}`.
+ */
+endpoint_unavailable: string; 
+/**
+ * The input slot's name when the registry has none.
+ */
+input_fallback: string; 
+/**
+ * Label of the language list.
+ */
+language: string; 
+/**
+ * Button that loads the input slot.
+ */
+load: string; 
+/**
+ * Heading of the microphone card.
+ */
+mic_title: string; 
+/**
+ * A microphone answered.
+ */
+mic_detected: string; 
+/**
+ * No microphone answered.
+ */
+mic_missing: string; 
+/**
+ * Label of the level meter.
+ */
+level: string; 
+/**
+ * The measured levels. Placeholders `{peak}`, `{avg}`, `{floor}`.
+ */
+levels: string; 
+/**
+ * While the microphone records.
+ */
+recording: string; 
+/**
+ * Button that tests the microphone.
+ */
+test_mic: string; 
+/**
+ * Label of the VAD slider.
+ */
+vad: string; 
+/**
+ * What the VAD slider does.
+ */
+vad_hint: string; 
+/**
+ * Button that saves the settings.
+ */
+save: string; 
+/**
+ * Button that discards unsaved settings.
+ */
+reset: string; 
+/**
+ * What saving the settings does today.
+ */
+settings_note: string; 
+/**
+ * Heading of the runtime note.
+ */
+note_title: string; 
+/**
+ * The runtime note. Placeholder `{slot}`.
+ */
+note_body: string; 
+/**
+ * The note's button once loaded.
+ */
+ready: string; 
+/**
+ * The note's button before loading.
+ */
+load_now: string; 
+/**
+ * The languages you can pick.
+ */
+languages: VoiceLabOptionCopy[] }
+/**
+ * Voice Lab: the Test Bench tab.
+ */
+export type VoiceLabTestCopy = { 
+/**
+ * Heading of the speech test.
+ */
+tts_title: string; 
+/**
+ * The line it starts with.
+ */
+default_text: string; 
+/**
+ * Placeholder of the text box.
+ */
+placeholder: string; 
+/**
+ * The voice in use. Placeholder `{voice}`.
+ */
+voice_line: string; 
+/**
+ * Button that speaks.
+ */
+speak: string; 
+/**
+ * Button that stops speaking.
+ */
+stop: string; 
+/**
+ * How long it took. Placeholder `{ms}`.
+ */
+latency: string; 
+/**
+ * Heading of the transcription test.
+ */
+stt_title: string; 
+/**
+ * While the microphone listens.
+ */
+listening: string; 
+/**
+ * Button that records and transcribes.
+ */
+record: string; 
+/**
+ * Label over the transcription.
+ */
+transcription: string; 
+/**
+ * Heading of the smoke test.
+ */
+smoke_title: string; 
+/**
+ * What the smoke test does.
+ */
+smoke_hint: string; 
+/**
+ * While the smoke test runs.
+ */
+running: string; 
+/**
+ * Button that runs the smoke test.
+ */
+run_smoke: string; 
+/**
+ * The speech stage worked.
+ */
+tts_ok: string; 
+/**
+ * The speech stage failed.
+ */
+tts_failed: string; 
+/**
+ * The transcription stage worked.
+ */
+stt_ok: string; 
+/**
+ * The transcription stage failed.
+ */
+stt_failed: string; 
+/**
+ * The line spoken. Placeholder `{text}`.
+ */
+spoken: string; 
+/**
+ * The line heard. Placeholder `{text}`.
+ */
+transcript: string; 
+/**
+ * How long the round trip took. Placeholder `{ms}`.
+ */
+duration: string }
+/**
+ * Voice Lab: the TTS Setup tab.
+ */
+export type VoiceLabTtsCopy = { 
+/**
+ * Why no text-to-speech endpoint can be chosen. Placeholder `{slot}`.
+ */
+endpoint_unavailable: string; 
+/**
+ * Heading over the slot cards.
+ */
+runtime_title: string; 
+/**
+ * The output slot's name when the registry has none.
+ */
+output_fallback: string; 
+/**
+ * Button that loads the output slot.
+ */
+load_output: string; 
+/**
+ * The conversation slot's name when the registry has none.
+ */
+conversation_fallback: string; 
+/**
+ * What the conversation slot is for. Placeholder `{brain}`.
+ */
+conversation_note: string; 
+/**
+ * Heading over the voices. Placeholder `{count}`.
+ */
+preview_title: string; 
+/**
+ * Label of the voice filter.
+ */
+filter_label: string; 
+/**
+ * Filter: every voice.
+ */
+filter_all: string; 
+/**
+ * Filter: female voices.
+ */
+filter_female: string; 
+/**
+ * Filter: male voices.
+ */
+filter_male: string; 
+/**
+ * Filter: neutral voices.
+ */
+filter_neutral: string; 
+/**
+ * The voice registry did not load. Placeholder `{error}`.
+ */
+registry_failed: string; 
+/**
+ * The registry is empty.
+ */
+no_voices: string; 
+/**
+ * Label of the speed slider.
+ */
+speed: string; 
+/**
+ * The speed shown beside the slider. Placeholder `{speed}`.
+ */
+speed_value: string; 
+/**
+ * Heading of the audio file card.
+ */
+file_title: string; 
+/**
+ * What the audio file card does.
+ */
+file_hint: string; 
+/**
+ * Title of the native file picker.
+ */
+pick_title: string; 
+/**
+ * Button: pick a file and transcribe it.
+ */
+upload_transcribe: string; 
+/**
+ * Button: pick a file and run speech-to-speech on it.
+ */
+run_sts: string; 
+/**
+ * Heading of the transcript result.
+ */
+transcript: string; 
+/**
+ * Heading of the reply result.
+ */
+reply: string; 
+/**
+ * Label before the default voice.
+ */
+default_voice: string; 
+/**
+ * Shown when no default voice is set.
+ */
+no_default: string; 
+/**
+ * While the default voice saves.
+ */
+saving: string; 
+/**
+ * Button that saves the default voice.
+ */
+set_default: string }
+/**
  * Voice profile — saved user configuration.
  */
 export type VoiceProfile = { 
@@ -16246,6 +18470,379 @@ default_voice: string;
  * Persisted default speech speed. Clamped at write-time to [0.5, 2.0].
  */
 default_speed: number }
+/**
+ * The Visual Page Builder: the V icon, its panel, scan and Builder (its
+ * name and lines are `nav`).
+ */
+export type VpbCopy = { 
+/**
+ * The wordmark's first half.
+ */
+brand_dev: string; 
+/**
+ * The wordmark's accented half.
+ */
+brand_pulse: string; 
+/**
+ * The Inspector tab.
+ */
+tab_inspector: string; 
+/**
+ * The Builder tab.
+ */
+tab_builder: string; 
+/**
+ * Status while no scan runs.
+ */
+status_ready: string; 
+/**
+ * Status while a scan runs.
+ */
+status_scanning: string; 
+/**
+ * Status while a scan is paused.
+ */
+status_paused: string; 
+/**
+ * The floating panel's drag handle.
+ */
+drag_label: string; 
+/**
+ * Minimize button.
+ */
+minimize: string; 
+/**
+ * Minimize button, for screen readers.
+ */
+minimize_label: string; 
+/**
+ * Close button.
+ */
+close: string; 
+/**
+ * Close button, for screen readers.
+ */
+close_label: string; 
+/**
+ * The toolbar, for screen readers.
+ */
+controls_label: string; 
+/**
+ * Play button.
+ */
+start_scan: string; 
+/**
+ * Play button while paused.
+ */
+resume_scan: string; 
+/**
+ * Pause button.
+ */
+pause_scan: string; 
+/**
+ * Stop button.
+ */
+stop_scan: string; 
+/**
+ * Stop button after one press.
+ */
+force_stop: string; 
+/**
+ * Detach the panel.
+ */
+float_panel: string; 
+/**
+ * Dock the panel.
+ */
+dock_panel: string; 
+/**
+ * Opens the full-window builder.
+ */
+open_workspace: string; 
+/**
+ * Toast.
+ */
+toast_scan_resumed: string; 
+/**
+ * Toast.
+ */
+toast_scan_started: string; 
+/**
+ * Toast.
+ */
+toast_scan_paused: string; 
+/**
+ * Toast.
+ */
+toast_scan_force_stopped: string; 
+/**
+ * Toast.
+ */
+toast_scan_stopped: string; 
+/**
+ * Toast.
+ */
+toast_docked: string; 
+/**
+ * Toast.
+ */
+toast_floating: string; 
+/**
+ * The V icon, for screen readers.
+ */
+icon_menu_label: string; 
+/**
+ * The V icon's hover text.
+ */
+icon_title: string; 
+/**
+ * Menu: open the panel.
+ */
+menu_open: string; 
+/**
+ * Menu: open the panel and start a scan.
+ */
+menu_scan: string; 
+/**
+ * Menu: settings (not built yet, shown disabled).
+ */
+menu_settings: string; 
+/**
+ * Toast.
+ */
+toast_restored: string; 
+/**
+ * Toast.
+ */
+toast_scan_enabled: string; 
+/**
+ * Its title.
+ */
+element_title: string; 
+/**
+ * Close button.
+ */
+close_inspector: string; 
+/**
+ * Its drag handle.
+ */
+drag_inspector: string; 
+/**
+ * Row label.
+ */
+row_tag: string; 
+/**
+ * Row label.
+ */
+row_id: string; 
+/**
+ * Row label.
+ */
+row_classes: string; 
+/**
+ * Row label.
+ */
+row_file: string; 
+/**
+ * Copy button.
+ */
+copy_id: string; 
+/**
+ * Copy button.
+ */
+copy_classes: string; 
+/**
+ * Copies the element as AI context.
+ */
+copy_all: string; 
+/**
+ * Toast; `{field}` is what was copied.
+ */
+toast_copied: string; 
+/**
+ * Toast.
+ */
+toast_copy_failed: string; 
+/**
+ * Its heading.
+ */
+inspector_heading: string; 
+/**
+ * Empty state: heading about scanning.
+ */
+inspector_mode_title: string; 
+/**
+ * Empty state: how a scan works.
+ */
+inspector_mode_body: string; 
+/**
+ * Empty state: heading.
+ */
+no_block: string; 
+/**
+ * Empty state: what to do.
+ */
+no_block_body: string; 
+/**
+ * Section heading.
+ */
+section_recipe: string; 
+/**
+ * Section heading.
+ */
+section_color: string; 
+/**
+ * Section heading.
+ */
+section_surface: string; 
+/**
+ * Section heading.
+ */
+section_frame: string; 
+/**
+ * Section heading.
+ */
+section_depth: string; 
+/**
+ * Section heading.
+ */
+section_motion: string; 
+/**
+ * Section heading.
+ */
+section_panel: string; 
+/**
+ * Section heading.
+ */
+section_slots: string; 
+/**
+ * A recipe outside the list.
+ */
+custom_recipe: string; 
+/**
+ * A setting left at its default.
+ */
+axis_default: string; 
+/**
+ * How many blocks a slot holds.
+ */
+slot_items: string; 
+/**
+ * Says the Color section cannot edit anything.
+ */
+color_unavailable: string; 
+/**
+ * Says the Panel section cannot edit anything.
+ */
+panel_unavailable: string; 
+/**
+ * Footer button.
+ */
+copy: string; 
+/**
+ * Footer button.
+ */
+cut: string; 
+/**
+ * Footer button.
+ */
+paste: string; 
+/**
+ * Footer button.
+ */
+delete: string; 
+/**
+ * Toast when a slot refuses a block.
+ */
+refused: string; 
+/**
+ * Its heading.
+ */
+builder_heading: string; 
+/**
+ * How many top-level blocks the document has.
+ */
+block_count: string; 
+/**
+ * The palette search.
+ */
+search_placeholder: string; 
+/**
+ * Section heading.
+ */
+templates_heading: string; 
+/**
+ * Section heading.
+ */
+palette_heading: string; 
+/**
+ * Section heading.
+ */
+tree_heading: string; 
+/**
+ * Empties the tree.
+ */
+clear: string; 
+/**
+ * The tree's top-level drop zone.
+ */
+root_drop: string; 
+/**
+ * A loaded document breaks slot rules.
+ */
+tree_problems: string; 
+/**
+ * Footer button.
+ */
+undo: string; 
+/**
+ * Footer button.
+ */
+redo: string; 
+/**
+ * Footer button.
+ */
+save: string; 
+/**
+ * Where to find it.
+ */
+devtool_where: string; 
+/**
+ * Shown on the Simple display.
+ */
+devtool_needs_advanced: string; 
+/**
+ * Health label on the Simple display.
+ */
+devtool_needs_advanced_short: string; 
+/**
+ * Switches the display.
+ */
+devtool_turn_on_advanced: string; 
+/**
+ * Palette categories, by `ColdLight` category id.
+ */
+categories: Partial<{ [key in string]: VpbEntryCopy }>; 
+/**
+ * Block kinds, by kind id.
+ */
+kinds: Partial<{ [key in string]: VpbEntryCopy }>; 
+/**
+ * Block templates, by template id.
+ */
+templates: Partial<{ [key in string]: VpbEntryCopy }> }
+/**
+ * A palette category's, block kind's or template's name and line.
+ */
+export type VpbEntryCopy = { 
+/**
+ * Its name.
+ */
+label: string; 
+/**
+ * One line about it.
+ */
+description: string }
 /**
  * VRAM budget plan — per-slot VRAM allocation breakdown.
  */

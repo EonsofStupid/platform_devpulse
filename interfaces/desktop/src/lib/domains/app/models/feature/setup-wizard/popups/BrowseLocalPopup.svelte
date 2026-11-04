@@ -262,7 +262,7 @@ function handleKeydown(e: KeyboardEvent): void {
 		background: var(--surface-base);
 		border: 1px solid var(--border-soft);
 		border-radius: 1rem;
-		box-shadow: var(--shadow-z3);
+		box-shadow: var(--popover-box-shadow);
 		overflow: hidden;
 	}
 
@@ -334,7 +334,7 @@ function handleKeydown(e: KeyboardEvent): void {
 		transition: all 150ms ease-out;
 	}
 	.format-tab:hover {
-		border-color: var(--border-default);
+		border-color: var(--border-subtle);
 		color: var(--text-secondary);
 	}
 	.format-tab.active {
@@ -388,7 +388,7 @@ function handleKeydown(e: KeyboardEvent): void {
 		transition: border-color 150ms ease-out;
 	}
 	.model-row:hover {
-		border-color: var(--border-default);
+		border-color: var(--border-subtle);
 	}
 
 	.model-info {

@@ -3,8 +3,8 @@
  */
 
 @theme {
-  --overlay-scrim: oklch(0.0971 0.0114 185.78 / 0.4);
-  --overlay-scrim-heavy: oklch(0.0971 0.0114 185.78 / 0.6);
-  --overlay-bg: oklch(0.0971 0.0114 185.78 / 0.4);
-  --overlay-bg-heavy: oklch(0.0971 0.0114 185.78 / 0.6);
+  --overlay-scrim: oklch(0.1363 0.0364 259.2 / 0.4);
+  --overlay-scrim-heavy: oklch(0.1363 0.0364 259.2 / 0.6);
+  --overlay-bg: oklch(0.1363 0.0364 259.2 / 0.4);
+  --overlay-bg-heavy: oklch(0.1363 0.0364 259.2 / 0.6);
 }

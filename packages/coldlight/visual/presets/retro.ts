@@ -16,7 +16,7 @@ export const retroElevated: PresetDefinition = {
 	label: "Retro Elevated",
 	description: "Raised retro widget — thick double border, CRT glow, bold color",
 	axes: {
-		backgroundColor: "oklch(0.25 0.08 280)",
+		backgroundColor: "oklch(0.304 0.08 280)",
 		backgroundBlur: "0",
 		shadow: [
 			{
@@ -56,7 +56,7 @@ export const retroElevated: PresetDefinition = {
 	},
 	states: {
 		hover: {
-			backgroundColor: "oklch(0.3 0.1 280)",
+			backgroundColor: "oklch(0.336 0.1 280)",
 			shadow: [
 				{
 					offsetX: "0.1875rem",
@@ -76,7 +76,7 @@ export const retroElevated: PresetDefinition = {
 			border: { color: "oklch(0.85 0.2 300)" },
 		},
 		active: {
-			backgroundColor: "oklch(0.2 0.06 280)",
+			backgroundColor: "oklch(0.272 0.06 280)",
 			shadow: [
 				{
 					offsetX: "0.0625rem",
@@ -98,7 +98,7 @@ export const retroDeep: PresetDefinition = {
 	label: "Retro Deep",
 	description: "Inset retro — sunken pixel well, terminal green on black",
 	axes: {
-		backgroundColor: "oklch(0.08 0.02 150)",
+		backgroundColor: "oklch(0.196 0.03 150)",
 		backgroundBlur: "0",
 		shadow: [
 			{
@@ -140,7 +140,7 @@ export const retroDeep: PresetDefinition = {
 	},
 	states: {
 		hover: { color: "oklch(0.9 0.25 150)", border: { color: "oklch(0.7 0.25 150)" } },
-		active: { backgroundColor: "oklch(0.06 0.025 150)" },
+		active: { backgroundColor: "oklch(0.183 0.03 150)" },
 		disabled: { opacity: 0.35, animation: "none", color: "oklch(0.4 0.08 150)" },
 	},
 };
@@ -152,7 +152,7 @@ export const retroMinimal: PresetDefinition = {
 	label: "Retro Minimal",
 	description: "Clean pixel — single solid border, flat color, no shadows",
 	axes: {
-		backgroundColor: "oklch(0.2 0.03 260)",
+		backgroundColor: "oklch(0.272 0.03 260)",
 		backgroundBlur: "0",
 		shadow: [],
 		border: { width: "0.125rem", style: "solid", color: "oklch(0.6 0.1 260)" },
@@ -171,8 +171,8 @@ export const retroMinimal: PresetDefinition = {
 		opacity: 1,
 	},
 	states: {
-		hover: { backgroundColor: "oklch(0.25 0.04 260)", border: { color: "oklch(0.7 0.12 260)" } },
-		active: { backgroundColor: "oklch(0.15 0.02 260)" },
+		hover: { backgroundColor: "oklch(0.304 0.04 260)", border: { color: "oklch(0.7 0.12 260)" } },
+		active: { backgroundColor: "oklch(0.24 0.03 260)" },
 		disabled: { opacity: 0.4, color: "oklch(0.5 0.02 260)" },
 	},
 };
@@ -235,7 +235,7 @@ export const retroSolid: PresetDefinition = {
 				},
 			],
 		},
-		disabled: { opacity: 0.4, backgroundColor: "oklch(0.3 0.05 160)" },
+		disabled: { opacity: 0.4, backgroundColor: "oklch(0.336 0.05 160)" },
 	},
 };
 
@@ -246,7 +246,7 @@ export const retroGlow: PresetDefinition = {
 	label: "Retro Glow",
 	description: "Neon CRT — glowing text, buzzing border, scanline energy",
 	axes: {
-		backgroundColor: "oklch(0.06 0.01 280)",
+		backgroundColor: "oklch(0.183 0.03 280)",
 		backgroundBlur: "0",
 		shadow: [
 			{
@@ -319,7 +319,7 @@ export const retroGlow: PresetDefinition = {
 			color: "oklch(0.95 0.25 330)",
 			border: { color: "oklch(0.85 0.28 330)" },
 		},
-		active: { backgroundColor: "oklch(0.1 0.03 330)" },
+		active: { backgroundColor: "oklch(0.208 0.03 330)" },
 		disabled: { opacity: 0.3, animation: "none", color: "oklch(0.4 0.05 330)" },
 	},
 };
@@ -331,7 +331,7 @@ export const retroMuted: PresetDefinition = {
 	label: "Retro Muted",
 	description: "Faded retro — desaturated CRT, ghosted pixels, worn terminal",
 	axes: {
-		backgroundColor: "oklch(0.15 0.01 200)",
+		backgroundColor: "oklch(0.24 0.03 200)",
 		backgroundBlur: "0",
 		shadow: [
 			{

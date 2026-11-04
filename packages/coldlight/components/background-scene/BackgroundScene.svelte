@@ -230,10 +230,10 @@ const m = $derived(renderForge({ kind: "background-scene", preset: "default" }))
 	.bg-chrome-flow {
 		background: linear-gradient(
 			135deg,
-			oklch(0.15 0.05 var(--bg-hue)) 0%,
-			oklch(0.1 0.08 calc(var(--bg-hue) + 40)) 33%,
-			oklch(0.12 0.06 calc(var(--bg-hue) + 80)) 66%,
-			oklch(0.08 0.04 calc(var(--bg-hue) + 120)) 100%
+			oklch(0.241 0.05 var(--bg-hue)) 0%,
+			oklch(0.208 0.08 calc(var(--bg-hue) + 40)) 33%,
+			oklch(0.221 0.06 calc(var(--bg-hue) + 80)) 66%,
+			oklch(0.196 0.04 calc(var(--bg-hue) + 120)) 100%
 		);
 		background-size: 300% 300%;
 		animation: mesh-flow var(--bg-dur) ease-in-out infinite;
@@ -256,8 +256,8 @@ const m = $derived(renderForge({ kind: "background-scene", preset: "default" }))
 	.bg-cosmic-galaxy {
 		background: radial-gradient(
 			ellipse at 50% 50%,
-			oklch(0.06 0.04 var(--bg-hue)) 0%,
-			oklch(0.03 0.02 var(--bg-hue)) 100%
+			oklch(0.183 0.04 var(--bg-hue)) 0%,
+			oklch(0.17 0.03 var(--bg-hue)) 100%
 		);
 	}
 	.bg-cosmic-galaxy > div {

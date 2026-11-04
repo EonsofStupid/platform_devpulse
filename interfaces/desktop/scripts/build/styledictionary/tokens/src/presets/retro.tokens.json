@@ -14,7 +14,7 @@
 	"preset": {
 		"retro-elevated": {
 			"background-color": {
-				"$value": "oklch(0.25 0.08 280)",
+				"$value": "oklch(0.304 0.08 280)",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -101,7 +101,7 @@
 		"retro-elevated-hover": {
 			"$description": "retro-elevated hover overrides",
 			"background-color": {
-				"$value": "oklch(0.3 0.1 280)",
+				"$value": "oklch(0.336 0.1 280)",
 				"$type": "color"
 			},
 			"box-shadow": {
@@ -116,7 +116,7 @@
 		"retro-elevated-active": {
 			"$description": "retro-elevated active overrides",
 			"background-color": {
-				"$value": "oklch(0.2 0.06 280)",
+				"$value": "oklch(0.272 0.06 280)",
 				"$type": "color"
 			},
 			"box-shadow": {
@@ -141,7 +141,7 @@
 		},
 		"retro-deep": {
 			"background-color": {
-				"$value": "oklch(0.08 0.02 150)",
+				"$value": "oklch(0.196 0.03 150)",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -239,7 +239,7 @@
 		"retro-deep-active": {
 			"$description": "retro-deep active overrides",
 			"background-color": {
-				"$value": "oklch(0.06 0.025 150)",
+				"$value": "oklch(0.183 0.03 150)",
 				"$type": "color"
 			}
 		},
@@ -260,7 +260,7 @@
 		},
 		"retro-minimal": {
 			"background-color": {
-				"$value": "oklch(0.2 0.03 260)",
+				"$value": "oklch(0.272 0.03 260)",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -347,7 +347,7 @@
 		"retro-minimal-hover": {
 			"$description": "retro-minimal hover overrides",
 			"background-color": {
-				"$value": "oklch(0.25 0.04 260)",
+				"$value": "oklch(0.304 0.04 260)",
 				"$type": "color"
 			},
 			"border-color": {
@@ -358,7 +358,7 @@
 		"retro-minimal-active": {
 			"$description": "retro-minimal active overrides",
 			"background-color": {
-				"$value": "oklch(0.15 0.02 260)",
+				"$value": "oklch(0.24 0.03 260)",
 				"$type": "color"
 			}
 		},
@@ -484,7 +484,7 @@
 		"retro-solid-disabled": {
 			"$description": "retro-solid disabled overrides",
 			"background-color": {
-				"$value": "oklch(0.3 0.05 160)",
+				"$value": "oklch(0.336 0.05 160)",
 				"$type": "color"
 			},
 			"opacity": {
@@ -494,7 +494,7 @@
 		},
 		"retro-glow": {
 			"background-color": {
-				"$value": "oklch(0.06 0.01 280)",
+				"$value": "oklch(0.183 0.03 280)",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -596,7 +596,7 @@
 		"retro-glow-active": {
 			"$description": "retro-glow active overrides",
 			"background-color": {
-				"$value": "oklch(0.1 0.03 330)",
+				"$value": "oklch(0.208 0.03 330)",
 				"$type": "color"
 			}
 		},
@@ -617,7 +617,7 @@
 		},
 		"retro-muted": {
 			"background-color": {
-				"$value": "oklch(0.15 0.01 200)",
+				"$value": "oklch(0.24 0.03 200)",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -629,7 +629,7 @@
 				"$type": "shadow"
 			},
 			"color": {
-				"$value": "oklch(0.55 0.02 200)",
+				"$value": "oklch(0.68 0.02 200)",
 				"$type": "color"
 			},
 			"border-color": {

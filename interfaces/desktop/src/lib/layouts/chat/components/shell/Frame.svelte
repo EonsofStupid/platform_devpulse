@@ -10,6 +10,7 @@
   Layout chrome only — message stream + composer live inside `ChatRoot` on the route.
 -->
 <script lang="ts">
+import "../../styles/index.css";
 import { Button } from "@devpulse/coldlight/components/button";
 import { ChatDashboard } from "@devpulse/coldlight/components/chat-dashboard";
 import { ChatFrame } from "@devpulse/coldlight/components/chat-frame";

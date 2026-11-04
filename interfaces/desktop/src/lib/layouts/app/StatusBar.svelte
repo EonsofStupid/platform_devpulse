@@ -5,7 +5,8 @@
 
   Status bar with progressive boot display.
   During boot: shows per-subsystem status with latencies and icons.
-  After boot: shows connection status, uptime, version.
+  After boot: shows connection status, Clyffy, CPU and memory (the owner's
+  zone-left and zone-right), uptime, version.
   Advanced: raw tech labels (Turso, SurrealDB, DuckDB, Moka).
   Simple: friendly labels (Data Store, Cortex, Analytics Engine, Memory Cache).
 
@@ -37,12 +38,13 @@ import {
 	isInferenceReady,
 	modelsState,
 } from "$lib/domains/app/models/index.js";
+import { clyffyStatus } from "$lib/domains/clyffy/index.js";
+import { copyState, fill } from "$lib/sys/copy/index.js";
 import { platformState } from "$lib/sys/runes/platformState.svelte.js";
 import { groupSubsystems } from "./StatusBar.types.js";
 import SubsystemBadge from "./SubsystemBadge.svelte";
 
-const APP_VERSION = "0.1.0";
-
+const text = $derived(copyState.catalog?.hubs.statusbar);
 const subsystems = $derived(platformState.subsystemList());
 const brainStatus = $derived(modelsState.statuses["chat.brain"]);
 const brainLoaded = $derived(brainStatus !== undefined && isInferenceReady(brainStatus));
@@ -123,6 +125,9 @@ $effect(() => hardwareState.subscribe("statusbar"));
 				></span>
 				<Text size="xs" color="secondary">Brain: {brainLoaded ? "ON" : "OFF"}</Text>
 			</Badge>
+			<Badge variant="neutral" size="sm">
+				<Text size="xs" color="muted">{fill(text?.clyffy ?? "", { state: clyffyStatus.mood })}</Text>
+			</Badge>
 			{#if hardwareState.hasGpu}
 				<Badge variant="neutral" size="sm">
 					<Text size="xs" color="muted">VRAM: {formatMb(hardwareState.vramUsedMb ?? 0)}/{formatMb(hardwareState.vramTotalMb ?? 0)}</Text>
@@ -141,12 +146,24 @@ $effect(() => hardwareState.subscribe("statusbar"));
 		</div>
 
 		<div class={hstack({ gap: "2", align: "center" })}>
+			{#if hardwareState.cpuUsagePercent !== null}
+				<Badge variant="neutral" size="sm">
+					<Text size="xs" color="muted">{fill(text?.cpu ?? "", { value: Math.round(hardwareState.cpuUsagePercent) })}</Text>
+				</Badge>
+			{/if}
+			{#if hardwareState.ramUsedMb !== null}
+				<Badge variant="neutral" size="sm">
+					<Text size="xs" color="muted">{fill(text?.memory ?? "", { value: formatMb(hardwareState.ramUsedMb) })}</Text>
+				</Badge>
+			{/if}
 			<Badge variant="neutral" size="sm">
 				<Text size="xs" color="muted">Uptime: {platformState.uptimeFormatted}</Text>
 			</Badge>
-			<Badge variant="neutral" size="sm">
-				<Text size="xs" color="muted">v{APP_VERSION}</Text>
-			</Badge>
+			{#if platformState.appVersion}
+				<Badge variant="neutral" size="sm">
+					<Text size="xs" color="muted">v{platformState.appVersion}</Text>
+				</Badge>
+			{/if}
 		</div>
 	{/if}
 </div>

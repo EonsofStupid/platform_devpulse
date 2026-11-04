@@ -7,9 +7,9 @@
 			"$value": {
 				"color": {
 					"colorSpace": "oklch",
-					"components": [0.586, 0.0624, 164.59],
+					"components": [0.55, 0.18, 180],
 					"alpha": 0.6,
-					"hex": "#588873"
+					"hex": "#138374"
 				},
 				"offsetX": { "value": 0, "unit": "rem" },
 				"offsetY": { "value": 0, "unit": "rem" },
@@ -22,9 +22,9 @@
 			"$value": {
 				"color": {
 					"colorSpace": "oklch",
-					"components": [0.586, 0.0624, 164.59],
+					"components": [0.55, 0.18, 180],
 					"alpha": 0.6,
-					"hex": "#588873"
+					"hex": "#138374"
 				},
 				"offsetX": { "value": 0, "unit": "rem" },
 				"offsetY": { "value": 0, "unit": "rem" },

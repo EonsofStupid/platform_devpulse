@@ -18,6 +18,9 @@ import {
 	StickyNote,
 	Video,
 } from "lucide-svelte";
+import { copyState } from "$lib/sys/copy/index.js";
+
+const unavailable = $derived(copyState.catalog?.hubs.dashboard.unavailable);
 </script>
 
 <div class="grid grid-cols-12 gap-4" data-page="wiredfront-dashboard">
@@ -36,15 +39,15 @@ import {
 			<div class={stack({ gap: "2" })}>
 				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">Total Files</Text>
-					<Text>0</Text>
+					<Text color="muted">{unavailable}</Text>
 				</div>
 				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">Storage Used</Text>
-					<Text>0 MB</Text>
+					<Text color="muted">{unavailable}</Text>
 				</div>
 				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">Captures Today</Text>
-					<Text>0</Text>
+					<Text color="muted">{unavailable}</Text>
 				</div>
 			</div>
 		</Widget>
@@ -140,7 +143,7 @@ import {
 			<div class={stack({ gap: "2" })}>
 				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">Status</Text>
-					<Badge variant="neutral" size="sm">Offline</Badge>
+					<Badge variant="neutral" size="sm">{unavailable}</Badge>
 				</div>
 				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">Viewers</Text>
@@ -178,11 +181,11 @@ import {
 			<div class={stack({ gap: "2" })}>
 				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">Recordings</Text>
-					<Text>0</Text>
+					<Text color="muted">{unavailable}</Text>
 				</div>
 				<div class={hstack({ justify: "between" })}>
 					<Text color="secondary">Transcriptions</Text>
-					<Text>0</Text>
+					<Text color="muted">{unavailable}</Text>
 				</div>
 			</div>
 		</Widget>

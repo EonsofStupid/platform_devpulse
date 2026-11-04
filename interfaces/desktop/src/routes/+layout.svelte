@@ -7,6 +7,7 @@ import { SvgFilters } from "@devpulse/coldlight/svg/filters";
 import { invoke } from "@tauri-apps/api/core";
 import { onMount } from "svelte";
 import { Toaster } from "svelte-sonner";
+import { presentationState } from "$lib/domains/app/devpulse/index.js";
 import { bootstrapDownloadBridge, ModelDownloaderOverlay } from "$lib/domains/app/models/index.js";
 import { projectsState } from "$lib/domains/app/projects/index.js";
 import { updatesState } from "$lib/domains/app/updates/index.js";
@@ -15,13 +16,20 @@ import { clyffyStatus } from "$lib/domains/clyffy/index.js";
 import BootOverlay from "$lib/layouts/app/BootOverlay.svelte";
 import { startMainNavigation } from "$lib/sys/bindings/window/index.js";
 import { copyState } from "$lib/sys/copy/index.js";
-import { HfTokenPanel } from "$lib/sys/debug/index.js";
+import { HfTokenPanel, loadVisualPageBuilder } from "$lib/sys/debug/index.js";
 import ErrorOverlay from "$lib/sys/ErrorOverlay.svelte";
 import { fatalErrorState, setFatal } from "$lib/sys/fatal-error.svelte.js";
 import { installGlobalHandlers, logError, logInfo } from "$lib/sys/logger.js";
 import { platformState } from "$lib/sys/runes/platformState.svelte.js";
 
 let { children } = $props();
+
+// The Visual Page Builder comes with the Advanced display, in development and
+// release; the Simple display never loads it.
+const visualPageBuilder = $derived(presentationState.advanced ? loadVisualPageBuilder() : null);
+$effect(() => {
+	visualPageBuilder?.catch((e) => logError("layout", `Visual Page Builder FAILED to load: ${e}`));
+});
 
 onMount(() => {
 	// Splash handoff: BootOverlay is already in the DOM by the time onMount
@@ -191,6 +199,11 @@ onMount(() => {
 	-->
 	{#if authState.phase !== "pending"}
 		{@render children()}
+		{#if visualPageBuilder}
+			{#await visualPageBuilder then { VPBFrame }}
+				<VPBFrame />
+			{/await}
+		{/if}
 	{/if}
 
 	{#snippet failed(error, reset)}

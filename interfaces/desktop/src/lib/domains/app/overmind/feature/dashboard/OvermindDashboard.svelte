@@ -11,9 +11,14 @@ import { Heading } from "@devpulse/coldlight/components/heading";
 import { Text } from "@devpulse/coldlight/components/text";
 import { hstack, stack } from "@devpulse/coldlight/utils";
 import { Activity, FlaskConical, FlaskRound, Network } from "lucide-svelte";
+import { copyState } from "$lib/sys/copy/index.js";
 import { hrefOf, routeAt, routeCopy } from "$lib/sys/routing/index.js";
+import { platformState } from "$lib/sys/runes/platformState.svelte.js";
 
 const agenthub = routeAt("/overmind/agenthub");
+const text = $derived(copyState.catalog?.hubs.dashboard);
+const engine = $derived(platformState.connectionStatus);
+const modelLoader = $derived(platformState.subsystemStatus("Model Loader"));
 </script>
 
 <div class="grid grid-cols-12 gap-4" data-page="overmind-dashboard">
@@ -57,15 +62,15 @@ const agenthub = routeAt("/overmind/agenthub");
 				<div class={stack({ gap: "2" })}>
 					<div class={hstack({ justify: "between" })}>
 						<Text color="secondary">Engine</Text>
-						<Badge variant="positive" size="sm">Online</Badge>
+						<Badge variant={engine === "online" ? "positive" : engine === "offline" ? "negative" : "neutral"} size="sm">{engine}</Badge>
 					</div>
 					<div class={hstack({ justify: "between" })}>
 						<Text color="secondary">Signal Router</Text>
-						<Badge variant="positive" size="sm">Active</Badge>
+						<Badge variant="neutral" size="sm">{text?.unavailable}</Badge>
 					</div>
 					<div class={hstack({ justify: "between" })}>
 						<Text color="secondary">Model Loader</Text>
-						<Badge variant="positive" size="sm">Ready</Badge>
+						<Badge variant={modelLoader?.state === "ready" ? "positive" : modelLoader?.state === "failed" ? "negative" : "neutral"} size="sm">{modelLoader?.state ?? text?.unavailable}</Badge>
 					</div>
 				</div>
 			</Widget>

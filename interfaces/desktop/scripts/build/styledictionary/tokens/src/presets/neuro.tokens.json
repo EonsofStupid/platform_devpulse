@@ -14,7 +14,7 @@
 	"preset": {
 		"neuro-elevated": {
 			"background-color": {
-				"$value": "oklch(0.18 0.015 240)",
+				"$value": "oklch(0.259 0.03 240)",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -112,7 +112,7 @@
 		"neuro-elevated-active": {
 			"$description": "neuro-elevated active overrides",
 			"background-color": {
-				"$value": "oklch(0.16 0.015 240)",
+				"$value": "oklch(0.247 0.03 240)",
 				"$type": "color"
 			},
 			"box-shadow": {
@@ -133,7 +133,7 @@
 		},
 		"neuro-deep": {
 			"background-color": {
-				"$value": "oklch(0.12 0.012 240)",
+				"$value": "oklch(0.221 0.03 240)",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -220,14 +220,14 @@
 		"neuro-deep-hover": {
 			"$description": "neuro-deep hover overrides",
 			"background-color": {
-				"$value": "oklch(0.14 0.014 240)",
+				"$value": "oklch(0.234 0.03 240)",
 				"$type": "color"
 			}
 		},
 		"neuro-deep-active": {
 			"$description": "neuro-deep active overrides",
 			"background-color": {
-				"$value": "oklch(0.1 0.01 240)",
+				"$value": "oklch(0.208 0.03 240)",
 				"$type": "color"
 			}
 		},
@@ -244,7 +244,7 @@
 		},
 		"neuro-minimal": {
 			"background-color": {
-				"$value": "oklch(0.16 0.01 240)",
+				"$value": "oklch(0.247 0.03 240)",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -331,14 +331,14 @@
 		"neuro-minimal-hover": {
 			"$description": "neuro-minimal hover overrides",
 			"background-color": {
-				"$value": "oklch(0.18 0.012 240)",
+				"$value": "oklch(0.259 0.03 240)",
 				"$type": "color"
 			}
 		},
 		"neuro-minimal-active": {
 			"$description": "neuro-minimal active overrides",
 			"background-color": {
-				"$value": "oklch(0.14 0.008 240)",
+				"$value": "oklch(0.234 0.03 240)",
 				"$type": "color"
 			}
 		},
@@ -355,7 +355,7 @@
 		},
 		"neuro-solid": {
 			"background-color": {
-				"$value": "oklch(0.2 0.018 240)",
+				"$value": "oklch(0.272 0.03 240)",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -449,7 +449,7 @@
 		"neuro-solid-active": {
 			"$description": "neuro-solid active overrides",
 			"background-color": {
-				"$value": "oklch(0.18 0.016 240)",
+				"$value": "oklch(0.259 0.03 240)",
 				"$type": "color"
 			}
 		},
@@ -466,7 +466,7 @@
 		},
 		"neuro-glow": {
 			"background-color": {
-				"$value": "oklch(0.16 0.02 220)",
+				"$value": "oklch(0.247 0.03 220)",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -564,7 +564,7 @@
 		"neuro-glow-active": {
 			"$description": "neuro-glow active overrides",
 			"background-color": {
-				"$value": "oklch(0.14 0.025 220)",
+				"$value": "oklch(0.234 0.03 220)",
 				"$type": "color"
 			},
 			"border-color": {
@@ -589,7 +589,7 @@
 		},
 		"neuro-muted": {
 			"background-color": {
-				"$value": "oklch(0.14 0.005 240)",
+				"$value": "oklch(0.234 0.03 240)",
 				"$type": "color"
 			},
 			"border-radius": {
@@ -676,7 +676,7 @@
 		"neuro-muted-hover": {
 			"$description": "neuro-muted hover overrides",
 			"background-color": {
-				"$value": "oklch(0.16 0.008 240)",
+				"$value": "oklch(0.247 0.03 240)",
 				"$type": "color"
 			},
 			"opacity": {

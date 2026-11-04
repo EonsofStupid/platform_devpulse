@@ -60,6 +60,8 @@ pub async fn open_window(app: tauri::AppHandle, role: WindowRole) -> Result<Wind
         .inner_size(width, height)
         .decorations(role.decorations())
         .transparent(role.transparent())
+        // HTML5 drag and drop (the page builder, file drops) needs the native handler off.
+        .disable_drag_drop_handler()
         .build()
         .map_err(|e| e.to_string())?;
 

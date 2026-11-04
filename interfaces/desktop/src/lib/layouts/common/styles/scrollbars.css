@@ -1,0 +1,106 @@
+/**
+ * @file layouts/common/styles/scrollbars.css
+ * @layer layouts
+ *
+ * Custom Scrollbar Styles
+ * Consistent scrollbar appearance across layouts. The default look for every
+ * scroller is in app.css (--scrollbar-* tokens); these are the owner's variants.
+ *
+ * @since 0.1.0
+ */
+
+/* ============================================
+   BASE SCROLLBAR
+   ============================================ */
+
+/* Thin scrollbar */
+[data-scrollbar="thin"]::-webkit-scrollbar {
+	width: var(--layouts-scrollbar-width-thin);
+	height: var(--layouts-scrollbar-width-thin);
+}
+
+/* Default scrollbar */
+[data-scrollbar="default"]::-webkit-scrollbar {
+	width: var(--layouts-scrollbar-width-default);
+	height: var(--layouts-scrollbar-width-default);
+}
+
+/* Wide scrollbar */
+[data-scrollbar="wide"]::-webkit-scrollbar {
+	width: var(--layouts-scrollbar-width-wide);
+	height: var(--layouts-scrollbar-width-wide);
+}
+
+/* ============================================
+   SCROLLBAR TRACK
+   ============================================ */
+
+[data-scrollbar-track="visible"]::-webkit-scrollbar-track {
+	background: var(--color-void-900);
+	border-radius: var(--radius-xs);
+}
+
+[data-scrollbar-track="gutter"]::-webkit-scrollbar-track {
+	background: var(--layouts-glass-void);
+	box-shadow: var(--layouts-scrollbar-gutter-shadow);
+}
+
+/* ============================================
+   SCROLLBAR THUMB
+   ============================================ */
+
+/* Accent variants */
+[data-scrollbar-accent="teal"]::-webkit-scrollbar-thumb {
+	background: var(--color-teal-700);
+}
+
+[data-scrollbar-accent="teal"]::-webkit-scrollbar-thumb:hover {
+	background: var(--color-teal-600);
+}
+
+[data-scrollbar-accent="purple"]::-webkit-scrollbar-thumb {
+	background: var(--color-purple-700);
+}
+
+[data-scrollbar-accent="purple"]::-webkit-scrollbar-thumb:hover {
+	background: var(--color-purple-600);
+}
+
+[data-scrollbar-accent="ember"]::-webkit-scrollbar-thumb {
+	background: var(--color-ember-700);
+}
+
+[data-scrollbar-accent="ember"]::-webkit-scrollbar-thumb:hover {
+	background: var(--color-ember-600);
+}
+
+/* ============================================
+   OVERLAY SCROLLBAR (auto-hide)
+   ============================================ */
+
+[data-scrollbar="overlay"] {
+	overflow: auto;
+}
+
+[data-scrollbar="overlay"]::-webkit-scrollbar {
+	width: var(--space-2);
+	background: transparent;
+}
+
+[data-scrollbar="overlay"]::-webkit-scrollbar-thumb {
+	background: var(--layouts-scrollbar-overlay-thumb-rest);
+	border-radius: var(--radius-sm);
+	border: var(--border-width-thin) solid transparent;
+	background-clip: content-box;
+	transition: background var(--duration-fast) ease;
+}
+
+[data-scrollbar="overlay"]:hover::-webkit-scrollbar-thumb {
+	background: var(--layouts-scrollbar-overlay-thumb);
+	background-clip: content-box;
+}
+
+[data-scrollbar="overlay"]::-webkit-scrollbar-thumb:hover {
+	background: var(--color-teal-500);
+	background-clip: content-box;
+}

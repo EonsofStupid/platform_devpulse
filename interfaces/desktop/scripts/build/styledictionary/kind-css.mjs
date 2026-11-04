@@ -20,6 +20,9 @@
  *   <kind>.part.<slot>.tone.<name>.<property>
  *                                        that part with [data-tone="<name>"] (e.g. a log line's
  *                                        level); the same custom properties, set per tone
+ *   <kind>.part.<slot>.state.<state>.<property>
+ *                                        that part in a state (e.g. a menu item on hover); the same
+ *                                        custom properties, set under the state's selector
  *
  * Token names are CSS property names; `gradient` means `background-image`.
  * Each becomes the kind's custom property `--<kind>-<property>`, set by its
@@ -125,8 +128,13 @@ function selectorOf(sel, kind, token, attribute = 'data-kind') {
 		const part = `[${attribute}="${kind}"][data-slot="${name}"]`;
 		if (token.path.length === 4) return part;
 		if (token.path.length === 6 && token.path[3] === 'tone') return `${part}[data-tone="${token.path[4]}"]`;
+		if (token.path.length === 6 && token.path[3] === 'state') {
+			const state = token.path[4];
+			if (!(state in STATE_SELECTORS)) throw new Error(`${kind}: unknown state "${state}" on part "${name}"`);
+			return `${part}${STATE_SELECTORS[state]}`;
+		}
 		throw new Error(
-			`${token.path.join('.')}: a part token sits at <kind>.part.<slot>.<property> or <kind>.part.<slot>.tone.<name>.<property>`,
+			`${token.path.join('.')}: a part token sits at <kind>.part.<slot>.<property>, <kind>.part.<slot>.tone.<name>.<property> or <kind>.part.<slot>.state.<state>.<property>`,
 		);
 	}
 	const expected = section === 'base' ? 3 : 4;
@@ -202,9 +210,13 @@ export function kindCss(dictionary, kind, meta, group, scope) {
 	const partRules = new Map();
 	for (const section of SECTIONS) {
 		if (section === 'part') {
-			// A part's own values first, then its tones, which refine them.
+			// A part's own values first, then its tones, then its states, each refining the last.
 			const parts = tokens.filter((t) => t.path[1] === 'part');
-			const ordered = [...parts.filter((t) => t.path[3] !== 'tone'), ...parts.filter((t) => t.path[3] === 'tone')];
+			const ordered = [
+				...parts.filter((t) => t.path[3] !== 'tone' && t.path[3] !== 'state'),
+				...parts.filter((t) => t.path[3] === 'tone'),
+				...parts.filter((t) => t.path[3] === 'state'),
+			];
 			for (const token of ordered) {
 				const selector = selectorOf(sel, kind, token, attribute);
 				const slot = token.path[2];
@@ -271,9 +283,12 @@ export function readKindFile(path, kind) {
 	for (const slot of keys(group.part)) {
 		for (const key of keys(group.part[slot])) {
 			const node = group.part[slot][key];
-			if (key !== 'tone' && !(node && typeof node === 'object' && '$value' in node)) {
-				throw new Error(`${path}: part "${slot}": unknown group "${key}" (a part holds properties and "tone")`);
+			if (key !== 'tone' && key !== 'state' && !(node && typeof node === 'object' && '$value' in node)) {
+				throw new Error(`${path}: part "${slot}": unknown group "${key}" (a part holds properties, "tone" and "state")`);
 			}
+		}
+		for (const state of keys(group.part[slot]?.state)) {
+			if (!(state in STATE_SELECTORS)) throw new Error(`${path}: part "${slot}": unknown state "${state}"`);
 		}
 	}
 	return { group, meta: group.$extensions?.[EXT] ?? {} };

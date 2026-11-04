@@ -30,6 +30,17 @@ export const ColorTokens = [
 	"void-950",
 	"void-base",
 	"white",
+	"brand-amber-50",
+	"brand-amber-100",
+	"brand-amber-200",
+	"brand-amber-300",
+	"brand-amber-400",
+	"brand-amber-500",
+	"brand-amber-600",
+	"brand-amber-700",
+	"brand-amber-800",
+	"brand-amber-900",
+	"brand-amber-950",
 	"brand-azure-50",
 	"brand-azure-100",
 	"brand-azure-200",
@@ -118,6 +129,28 @@ export const ColorTokens = [
 	"brand-hotpink-800",
 	"brand-hotpink-900",
 	"brand-hotpink-950",
+	"brand-lime-50",
+	"brand-lime-100",
+	"brand-lime-200",
+	"brand-lime-300",
+	"brand-lime-400",
+	"brand-lime-500",
+	"brand-lime-600",
+	"brand-lime-700",
+	"brand-lime-800",
+	"brand-lime-900",
+	"brand-lime-950",
+	"brand-pink-50",
+	"brand-pink-100",
+	"brand-pink-200",
+	"brand-pink-300",
+	"brand-pink-400",
+	"brand-pink-500",
+	"brand-pink-600",
+	"brand-pink-700",
+	"brand-pink-800",
+	"brand-pink-900",
+	"brand-pink-950",
 	"brand-salmon-50",
 	"brand-salmon-100",
 	"brand-salmon-200",
@@ -477,6 +510,17 @@ export type ColorCSSVar =
 	| "--color-void-950"
 	| "--color-void-base"
 	| "--color-white"
+	| "--color-brand-amber-50"
+	| "--color-brand-amber-100"
+	| "--color-brand-amber-200"
+	| "--color-brand-amber-300"
+	| "--color-brand-amber-400"
+	| "--color-brand-amber-500"
+	| "--color-brand-amber-600"
+	| "--color-brand-amber-700"
+	| "--color-brand-amber-800"
+	| "--color-brand-amber-900"
+	| "--color-brand-amber-950"
 	| "--color-brand-azure-50"
 	| "--color-brand-azure-100"
 	| "--color-brand-azure-200"
@@ -565,6 +609,28 @@ export type ColorCSSVar =
 	| "--color-brand-hotpink-800"
 	| "--color-brand-hotpink-900"
 	| "--color-brand-hotpink-950"
+	| "--color-brand-lime-50"
+	| "--color-brand-lime-100"
+	| "--color-brand-lime-200"
+	| "--color-brand-lime-300"
+	| "--color-brand-lime-400"
+	| "--color-brand-lime-500"
+	| "--color-brand-lime-600"
+	| "--color-brand-lime-700"
+	| "--color-brand-lime-800"
+	| "--color-brand-lime-900"
+	| "--color-brand-lime-950"
+	| "--color-brand-pink-50"
+	| "--color-brand-pink-100"
+	| "--color-brand-pink-200"
+	| "--color-brand-pink-300"
+	| "--color-brand-pink-400"
+	| "--color-brand-pink-500"
+	| "--color-brand-pink-600"
+	| "--color-brand-pink-700"
+	| "--color-brand-pink-800"
+	| "--color-brand-pink-900"
+	| "--color-brand-pink-950"
 	| "--color-brand-salmon-50"
 	| "--color-brand-salmon-100"
 	| "--color-brand-salmon-200"
@@ -926,6 +992,19 @@ export type ColorRecord = {
 		base: string;
 	};
 	white: string;
+	"brand-amber": {
+		"50": string;
+		"100": string;
+		"200": string;
+		"300": string;
+		"400": string;
+		"500": string;
+		"600": string;
+		"700": string;
+		"800": string;
+		"900": string;
+		"950": string;
+	};
 	"brand-azure": {
 		"50": string;
 		"100": string;
@@ -1018,6 +1097,32 @@ export type ColorRecord = {
 		"950": string;
 	};
 	"brand-hotpink": {
+		"50": string;
+		"100": string;
+		"200": string;
+		"300": string;
+		"400": string;
+		"500": string;
+		"600": string;
+		"700": string;
+		"800": string;
+		"900": string;
+		"950": string;
+	};
+	"brand-lime": {
+		"50": string;
+		"100": string;
+		"200": string;
+		"300": string;
+		"400": string;
+		"500": string;
+		"600": string;
+		"700": string;
+		"800": string;
+		"900": string;
+		"950": string;
+	};
+	"brand-pink": {
 		"50": string;
 		"100": string;
 		"200": string;

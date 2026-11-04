@@ -1,0 +1,20 @@
+/**
+ * @file layouts/common/styles/index.css
+ * @layer layouts
+ *
+ * Shared Layout Styles
+ * Common patterns used across app and chat layouts.
+ * Consumes ColdLight tokens via var(--*) references.
+ *
+ * The focus defaults sit in Tailwind's base layer so a component's own focus
+ * treatment still wins. Scrollbars are unlayered because the ones in app.css are.
+ *
+ * @since 0.1.0
+ */
+
+@layer theme, base, components, utilities;
+
+@import "./scrollbars.css";
+@import "./focus.css" layer(base);
+@import "./typography.css" layer(components);
+@import "./keyframes.css" layer(components);

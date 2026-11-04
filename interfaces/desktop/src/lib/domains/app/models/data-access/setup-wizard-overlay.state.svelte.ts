@@ -159,6 +159,8 @@ class SetupWizardOverlayState {
 	testChatInput = $state("");
 	testChatSending = $state(false);
 	testChatSkipped = $state(false);
+	/** Speak Clyffy's replies in the test chat (needs the voice model loaded). */
+	testChatVoice = $state(false);
 
 	// ── Validate view — full pipeline test (5-step) ──────────
 	pipelineSteps = $state<PipelineStep[]>([...DEFAULT_PIPELINE_STEPS]);
@@ -533,6 +535,13 @@ class SetupWizardOverlayState {
 				...this.testChatMessages,
 				{ role: "assistant", content: result.data, timestamp: Date.now() },
 			];
+			if (this.testChatVoice) {
+				// A voice failure never fails the chat test; it is logged.
+				const spoken = await commands.speak(result.data, null, "voice.tts", null);
+				if (spoken.status === "error") {
+					logWarn(LOG_TARGET, `sendTestMessage() voice failed: ${spoken.error}`);
+				}
+			}
 			logInfo(
 				LOG_TARGET,
 				`sendTestMessage() DONE — exchanges=${this.testChatExchanges}/${REQUIRED_EXCHANGES}`,

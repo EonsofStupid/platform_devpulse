@@ -195,11 +195,30 @@ test('a part takes tones: each sets the custom properties of that part under [da
 	assert.match(toneOnly, /\[data-slot="level"\]\[data-tone="muted"\] \{\n\t--log-level-opacity: 0\.7;\n\topacity: var\(--log-level-opacity\);\n\}/, 'a property only a tone sets is read in that tone');
 });
 
-test('a part token at any other depth throws', () => {
-	const group = { part: { level: { state: { hover: { color: { $value: 'red' } } } } } };
+test('a part takes states: each sets the custom properties of that part under the state', () => {
+	const css = kindCss(
+		dictionary([
+			token('menu.part.item.background-color', 'transparent'),
+			token('menu.part.item.state.hover.background-color', 'blue'),
+			token('menu.part.item.state.disabled.opacity', '0.5'),
+		]),
+		'menu',
+		{ slot: 'content', accepts: ['surface'] },
+		{ part: { item: { 'background-color': { $value: 'transparent' }, state: { hover: {}, disabled: {} } } } },
+	);
+	assert.match(css, /\[data-kind="menu"\]\[data-slot="item"\]:hover \{\n\t--menu-item-background-color: blue;\n\tbackground-color: var\(--menu-item-background-color\);\n\}/);
+	assert.match(css, /\[data-kind="menu"\]\[data-slot="item"\]:is\(:disabled, \[data-disabled\], \[aria-disabled="true"\]\) \{\n\t--menu-item-opacity: 0\.5;/);
 	assert.throws(
-		() => kindCss(dictionary([token('log.part.level.state.hover.color', 'red')]), 'log', {}, group),
-		/a part token sits at <kind>\.part\.<slot>\.<property> or <kind>\.part\.<slot>\.tone\.<name>\.<property>/,
+		() => kindCss(dictionary([token('menu.part.item.state.dancing.opacity', '1')]), 'menu', { accepts: [] }, {}),
+		/unknown state "dancing" on part "item"/,
+	);
+});
+
+test('a part token at any other depth throws', () => {
+	const group = { part: { level: { other: { hover: { color: { $value: 'red' } } } } } };
+	assert.throws(
+		() => kindCss(dictionary([token('log.part.level.other.hover.color', 'red')]), 'log', {}, group),
+		/a part token sits at <kind>\.part\.<slot>\.<property>, <kind>\.part\.<slot>\.tone\.<name>\.<property> or <kind>\.part\.<slot>\.state\.<state>\.<property>/,
 	);
 });
 
@@ -224,7 +243,7 @@ test('readKindFile reads the kind group and rejects unknown sections and states'
 	assert.throws(() => readKindFile(write('state.json', { chip: { state: { hovered: {} } } }), 'chip'), /unknown state "hovered"/);
 	assert.throws(
 		() => readKindFile(write('part.json', { log: { part: { level: { tones: { error: {} } } } } }), 'log'),
-		/part "level": unknown group "tones" \(a part holds properties and "tone"\)/,
+		/part "level": unknown group "tones" \(a part holds properties, "tone" and "state"\)/,
 	);
 });
 

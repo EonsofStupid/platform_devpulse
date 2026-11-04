@@ -4,12 +4,12 @@
 		"$type": "color",
 		"$description": "Scrollbar thumb colours.",
 		"thumb": {
-			"$value": { "colorSpace": "oklch", "components": [1.0032, 0.0305, 28.88], "alpha": 0.122, "hex": "#ffffff" },
-			"$description": "Resting thumb fill."
+			"$value": { "colorSpace": "oklch", "components": [0.8643, 0.1406, 183.02], "alpha": 0.4, "hex": "#41f0db" },
+			"$description": "Resting thumb — the owner's rgba(65, 240, 219, 0.4)."
 		},
 		"thumb-hover": {
-			"$value": { "colorSpace": "oklch", "components": [1.0032, 0.0305, 28.88], "alpha": 0.2, "hex": "#ffffff" },
-			"$description": "Thumb fill on hover."
+			"$value": { "colorSpace": "oklch", "components": [0.8643, 0.1406, 183.02], "alpha": 0.6, "hex": "#41f0db" },
+			"$description": "Thumb on hover — the owner's rgba(65, 240, 219, 0.6)."
 		}
 	},
 	"scrollbar-size": {

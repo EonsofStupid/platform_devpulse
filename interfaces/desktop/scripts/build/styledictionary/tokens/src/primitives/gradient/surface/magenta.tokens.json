@@ -8,11 +8,11 @@
 						"color": {
 							"colorSpace": "oklch",
 							"components": [
-								0.13,
-								0.03,
+								0.25,
+								0.04,
 								330
 							],
-							"hex": "#0e040d"
+							"hex": "#2c1a2b"
 						},
 						"position": 0
 					},
@@ -20,11 +20,11 @@
 						"color": {
 							"colorSpace": "oklch",
 							"components": [
-								0.07,
-								0.03,
+								0.19,
+								0.04,
 								330
 							],
-							"hex": "#030003"
+							"hex": "#1e0d1c"
 						},
 						"position": 1
 					}

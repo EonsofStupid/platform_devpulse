@@ -1,0 +1,45 @@
+{
+	"$description": "Breadcrumbs' tokens (plan 0006 §0s). The build generates styles/components/kinds/breadcrumbs.css and breadcrumbs.generated.ts from the breadcrumbs group. Values from the owner's design/shortcodes/components/breadcrumb.css; minimum text-sm (rule 28).",
+	"breadcrumbs": {
+		"$description": "Styles the trail. The current page reads as primary text through its link's tone.",
+		"$extensions": {
+			"com.coldlight": {
+				"slot": "root",
+				"accepts": ["text"],
+				"defaults": { "size": "md" }
+			}
+		},
+		"base": {
+			"color": { "$value": "{text.muted}", "$type": "color" }
+		},
+		"size": {
+			"sm": { "font-size": { "$value": "0.875rem", "$type": "dimension" } },
+			"md": { "font-size": { "$value": "0.875rem", "$type": "dimension" } },
+			"lg": { "font-size": { "$value": "1rem", "$type": "dimension" } }
+		},
+		"part": {
+			"link": {
+				"color": { "$value": "{text.secondary}", "$type": "color" },
+				"tone": {
+					"current": {
+						"color": { "$value": "{text.primary}", "$type": "color" }
+					}
+				},
+				"state": {
+					"hover": {
+						"color": { "$value": "{text.primary}", "$type": "color" }
+					},
+					"focus-visible": {
+						"outline-style": { "$value": "solid" },
+						"outline-width": { "$value": "0.125rem", "$type": "dimension" },
+						"outline-color": { "$value": "{border.focus}", "$type": "color" },
+						"outline-offset": { "$value": "0.125rem", "$type": "dimension" }
+					}
+				}
+			},
+			"separator": {
+				"color": { "$value": "{text.muted}", "$type": "color" }
+			}
+		}
+	}
+}
