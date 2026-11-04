@@ -18,8 +18,8 @@ import {
 	type HealthBadge,
 	ScopedLogPanel,
 	ServiceDevtoolShell,
-} from "$lib/devtools/index.js";
-import { ollamaSidecarState } from "$lib/domains/infra/ollama/index.js";
+} from "#lib/devtools/index.js";
+import { ollamaSidecarState } from "#lib/domains/infra/ollama/index.js";
 
 // ── Mount: prime status + config on first render ──────────
 // Use `onMount`, NOT `$effect`. Each `loadXxx()` flips a `*Loading`

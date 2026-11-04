@@ -3,10 +3,10 @@
 	@route /devtools/system/datastores/turso
 
 	Mounts the Turso devtool feature component. All logic + IPC live in
-	`$lib/devtools/system/datastores/turso/`.
+	`#lib/devtools/system/datastores/turso//index.js`.
 -->
 <script lang="ts">
-import { TursoDevtool } from "$lib/devtools/system/datastores/turso/index.js";
+import { TursoDevtool } from "#lib/devtools/system/datastores/turso/index.js";
 </script>
 
 <TursoDevtool />

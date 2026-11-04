@@ -4,12 +4,12 @@
 
 @layer tokens.primitives {
   :root {
-  --duration-snap: 50ms; /** Instant feedback — micro-interactions. */
-  --duration-fast: 150ms; /** Quick — most UI transitions. */
-  --duration-normal: 250ms; /** Default — standard transition speed. */
-  --duration-smooth: 400ms; /** Smooth — emphasised transitions, drawer open. */
-  --duration-glacial: 700ms; /** Slow — dramatic entrances. */
-  --duration-moderate: 3000ms; /** Ambient — looping background animations. */
+  --duration-snap: 0.05s; /** Instant feedback — micro-interactions. */
+  --duration-fast: 0.15s; /** Quick — most UI transitions. */
+  --duration-normal: 0.25s; /** Default — standard transition speed. */
+  --duration-smooth: 0.4s; /** Smooth — emphasised transitions, drawer open. */
+  --duration-glacial: 0.7s; /** Slow — dramatic entrances. */
+  --duration-moderate: 3s; /** Ambient — looping background animations. */
   --easing-linear: cubic-bezier(0, 0, 1, 1); /** Linear — no easing. */
   --easing-ease-in: cubic-bezier(0.4, 0, 1, 1); /** Ease in — accelerate from rest. */
   --easing-ease-out: cubic-bezier(0, 0, 0.2, 1); /** Ease out — decelerate to rest. */
@@ -21,22 +21,22 @@
   --animation-shimmer: 8s; /** Shimmer loading placeholder — linear infinite. */
   --animation-drift: 8s; /** Drifting background parallax — infinite ambient. */
   --animation-pulse: 3s; /** Pulse — infinite attention indicator. */
-  --animation-fade-in: 300ms; /** Fade in on mount — one-shot forwards. */
-  --animation-slide-up: 300ms; /** Slide up on mount — one-shot forwards. */
-  --animation-slide-down: 300ms; /** Slide down on mount — one-shot forwards. */
-  --animation-scale-in: 250ms; /** Scale in on mount — one-shot forwards. */
-  --animation-grow: 300ms; /** Grow transition — ColdLight variant of scale-in. */
-  --animation-shrink: 200ms; /** Shrink transition — ColdLight variant of scale-out. */
-  --animation-shake: 400ms; /** Shake — one-shot error feedback. */
+  --animation-fade-in: 0.3s; /** Fade in on mount — one-shot forwards. */
+  --animation-slide-up: 0.3s; /** Slide up on mount — one-shot forwards. */
+  --animation-slide-down: 0.3s; /** Slide down on mount — one-shot forwards. */
+  --animation-scale-in: 0.25s; /** Scale in on mount — one-shot forwards. */
+  --animation-grow: 0.3s; /** Grow transition — ColdLight variant of scale-in. */
+  --animation-shrink: 0.2s; /** Shrink transition — ColdLight variant of scale-out. */
+  --animation-shake: 0.4s; /** Shake — one-shot error feedback. */
   --animation-spin: 1s; /** Spin — infinite rotation (loading spinners). */
   --animation-float: 6s; /** Float — infinite subtle levitation. */
-  --animation-flip: 600ms; /** Flip — one-shot card flip. */
-  --animation-presence-breathe: 3200ms; /** Presence orb — gentle idle breathing, brightness+scale. */
-  --animation-presence-pulse: 1400ms; /** Presence orb — working pulse, strong scale. */
-  --animation-presence-think: 2400ms; /** Presence orb — thinking, rotate+hue-shift. */
-  --animation-presence-listen: 1600ms; /** Presence orb — listening, squash/stretch attentive. */
-  --animation-presence-rest: 6000ms; /** Presence orb — resting, slow desaturated breathing. */
-  --animation-presence-halo: 3200ms; /** Presence orb — outer halo breathing, pairs with any core. */
-  --animation-presence-alert: 900ms; /** Presence orb — alert, fast asymmetric pulse. */
+  --animation-flip: 0.6s; /** Flip — one-shot card flip. */
+  --animation-presence-breathe: 3.2s; /** Presence orb — gentle idle breathing, brightness+scale. */
+  --animation-presence-pulse: 1.4s; /** Presence orb — working pulse, strong scale. */
+  --animation-presence-think: 2.4s; /** Presence orb — thinking, rotate+hue-shift. */
+  --animation-presence-listen: 1.6s; /** Presence orb — listening, squash/stretch attentive. */
+  --animation-presence-rest: 6s; /** Presence orb — resting, slow desaturated breathing. */
+  --animation-presence-halo: 3.2s; /** Presence orb — outer halo breathing, pairs with any core. */
+  --animation-presence-alert: 0.9s; /** Presence orb — alert, fast asymmetric pulse. */
   }
 }

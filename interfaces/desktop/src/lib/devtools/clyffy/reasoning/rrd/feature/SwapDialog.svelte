@@ -40,8 +40,8 @@ import { Button } from "@devpulse/coldlight/components/button";
 import { Spinner } from "@devpulse/coldlight/components/spinner";
 import { Text } from "@devpulse/coldlight/components/text";
 import { CheckCircle2, FileWarning, RotateCw, Upload, X } from "lucide-svelte";
-import { laymanFor } from "$lib/sys/data-access/rrd/phase-labels.js";
-import { rrdState } from "$lib/sys/data-access/rrd/rrd.state.svelte.js";
+import { laymanFor } from "#lib/sys/data-access/rrd/phase-labels.js";
+import { rrdState } from "#lib/sys/data-access/rrd/rrd.state.svelte.js";
 import { type SwapReport, swapEncoderWeights } from "../data-access/swap.svc.js";
 
 interface Props {

@@ -4,13 +4,13 @@
  * Command completion must not replace newer provider state from another window.
  */
 import { expect, test, vi } from "vitest";
-import type { ProvidersState, SaveConnection } from "$lib/sys/generated/bindings.js";
+import type { ProvidersState, SaveConnection } from "#lib/sys/generated/bindings.js";
 
 const mocks = vi.hoisted(() => ({
 	handlers: new Map<string, (state: ProvidersState) => void>(),
 	save: vi.fn(),
 }));
-vi.mock("$lib/sys/events/signal-fabric.js", () => ({
+vi.mock("#lib/sys/events/signal-fabric.js", () => ({
 	signalFabric: {
 		on: (kind: string, handler: (state: ProvidersState) => void) => {
 			mocks.handlers.set(kind, handler);

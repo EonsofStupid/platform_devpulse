@@ -29,7 +29,8 @@ use devpulse_engine::signals::{
     ChatRole, ContextChunk, ContextPayload, Delivery, GovernanceEvent, GovernancePayload,
     InferencePayload, ModelsReadiness, SignalKind, SignalVariant, SystemPayload, SystemStatus,
 };
-use specta_typescript::{BigIntExportBehavior, Typescript};
+use specta::{Format as _, Types};
+use specta_typescript::Typescript;
 use strum::IntoEnumIterator;
 
 /// One representative payload per kind. Exhaustive on purpose: a new kind
@@ -308,8 +309,19 @@ fn wire_samples_are_stable() {
 
 #[test]
 fn typescript_shape_is_stable() {
-    let ts = specta_typescript::export::<SignalVariant>(
-        &Typescript::default().bigint(BigIntExportBehavior::Number),
+    let types = Types::default().register::<SignalVariant>();
+    let types = specta_serde::Format
+        .map_types(&types)
+        .expect("SignalVariant follows its serde attributes");
+    let variant = types
+        .into_unsorted_iter()
+        .find(|ndt| ndt.name == "SignalVariant")
+        .expect("SignalVariant is registered");
+    let ts = specta_typescript::primitives::export(
+        &Typescript::default(),
+        &types,
+        std::iter::once(variant),
+        "",
     )
     .expect("SignalVariant exports to TypeScript");
     insta::assert_snapshot!(ts);

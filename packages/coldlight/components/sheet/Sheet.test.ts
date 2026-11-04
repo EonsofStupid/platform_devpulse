@@ -13,7 +13,7 @@ import Sheet from "./Sheet.svelte";
 
 describe("Sheet component", () => {
 	it("renders trigger button with ARIA attributes", async () => {
-		const screen = render(Sheet, {
+		const screen = await render(Sheet, {
 			props: { label: "Settings panel" },
 		});
 
@@ -26,7 +26,7 @@ describe("Sheet component", () => {
 	});
 
 	it("does not render content when closed", async () => {
-		const screen = render(Sheet, {
+		const screen = await render(Sheet, {
 			props: { label: "Settings panel" },
 		});
 
@@ -35,7 +35,7 @@ describe("Sheet component", () => {
 	});
 
 	it("renders content when open", async () => {
-		const screen = render(Sheet, {
+		const screen = await render(Sheet, {
 			props: { label: "Settings panel", open: true },
 		});
 
@@ -48,7 +48,7 @@ describe("Sheet component", () => {
 	});
 
 	it("renders overlay when open", async () => {
-		const screen = render(Sheet, {
+		const screen = await render(Sheet, {
 			props: { label: "Settings panel", open: true },
 		});
 
@@ -59,7 +59,7 @@ describe("Sheet component", () => {
 	});
 
 	it("renders close button when open", async () => {
-		const screen = render(Sheet, {
+		const screen = await render(Sheet, {
 			props: { label: "Settings panel", open: true },
 		});
 
@@ -69,7 +69,7 @@ describe("Sheet component", () => {
 	});
 
 	it("applies side data attribute", async () => {
-		const screen = render(Sheet, {
+		const screen = await render(Sheet, {
 			props: { label: "Settings", open: true, side: "left" },
 		});
 
@@ -78,7 +78,7 @@ describe("Sheet component", () => {
 	});
 
 	it("applies composition content classes with size and side", async () => {
-		const screen = render(Sheet, {
+		const screen = await render(Sheet, {
 			props: { label: "Settings", open: true, size: "lg", side: "right" },
 		});
 
@@ -88,7 +88,7 @@ describe("Sheet component", () => {
 	});
 
 	it("merges custom className on content", async () => {
-		const screen = render(Sheet, {
+		const screen = await render(Sheet, {
 			props: { label: "Settings", open: true, class: "custom-class" },
 		});
 

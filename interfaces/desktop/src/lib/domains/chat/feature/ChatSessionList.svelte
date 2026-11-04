@@ -6,8 +6,8 @@
 import { Button } from "@devpulse/coldlight/components/button";
 import { Card } from "@devpulse/coldlight/components/card";
 import { Text } from "@devpulse/coldlight/components/text";
-import { projectsState } from "$lib/domains/app/projects/index.js";
-import { copyState } from "$lib/sys/copy/index.js";
+import { projectsState } from "#lib/domains/app/projects/index.js";
+import { copyState } from "#lib/sys/copy/index.js";
 import { chatState } from "../data-access/chat.state.svelte.js";
 import { roomsState } from "../data-access/rooms.state.svelte.js";
 import { sessionsState } from "../data-access/sessions.state.svelte.js";

@@ -15,7 +15,7 @@
 import { Spinner } from "@devpulse/coldlight/components/spinner";
 import { Text } from "@devpulse/coldlight/components/text";
 import { X } from "lucide-svelte";
-import { installState } from "$lib/sys/activity-hud/install.state.svelte.js";
+import { installState } from "#lib/sys/activity-hud/install.state.svelte.js";
 import { getSlotLabel } from "../../util/slots.js";
 
 const active = $derived(installState.list.filter((i) => i.status === "running"));

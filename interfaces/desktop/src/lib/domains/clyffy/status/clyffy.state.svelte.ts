@@ -18,7 +18,7 @@
  * Usage (root layout):
  * ```svelte
  * <script>
- *   import { clyffyStatus } from '$lib/domains/clyffy/status/clyffy.state.svelte.js';
+ *   import { clyffyStatus } from '#lib/domains/clyffy/status/clyffy.state.svelte.js';
  *   import { onDestroy } from 'svelte';
  *   const stop = clyffyStatus.start();
  *   onDestroy(stop);
@@ -28,15 +28,15 @@
  * Usage (readers):
  * ```svelte
  * <script>
- *   import { clyffyStatus } from '$lib/domains/clyffy/status/clyffy.state.svelte.js';
+ *   import { clyffyStatus } from '#lib/domains/clyffy/status/clyffy.state.svelte.js';
  * </script>
  * <p>{clyffyStatus.mood}</p>
  * ```
  */
 
-import { commands } from "$lib/sys/generated/bindings.js";
-import { logError, logInfo } from "$lib/sys/logger.js";
-import { inferenceEvents, modelEvents } from "$lib/sys/streams/tauri-event.svelte.js";
+import { commands } from "#lib/sys/generated/bindings.js";
+import { logError, logInfo } from "#lib/sys/logger.js";
+import { inferenceEvents, modelEvents } from "#lib/sys/streams/tauri-event.svelte.js";
 
 /** Clyffy's current disposition, layman-safe. */
 export type ClyffyMood =

@@ -8,7 +8,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { parse } from "smol-toml";
 import { describe, expect, it } from "vitest";
-import { type RouteNode, routeTree } from "$lib/sys/routing/route-manifest.js";
+import { type RouteNode, routeTree } from "#lib/sys/routing/route-manifest.js";
 
 const COPY = join(__dirname, "../../../../systems/devpulse-engine/config/copy.default.toml");
 

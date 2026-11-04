@@ -14,9 +14,9 @@
 -->
 <script lang="ts">
 import { Check, ChevronDown, FolderOpen, Plus } from "lucide-svelte";
-import { pickDirectory } from "$lib/sys/bindings/models/index.js";
-import { commands } from "$lib/sys/generated/bindings.js";
-import { logError, logInfo } from "$lib/sys/logger.js";
+import { pickDirectory } from "#lib/sys/bindings/models/index.js";
+import { commands } from "#lib/sys/generated/bindings.js";
+import { logError, logInfo } from "#lib/sys/logger.js";
 import { projectsState } from "../data-access/projects.state.svelte.js";
 
 let open = $state(false);

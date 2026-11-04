@@ -17,7 +17,7 @@
 import { Button } from "@devpulse/coldlight/components/button";
 import { Check, Copy, ScanSearch, X } from "lucide-svelte";
 import { toast } from "svelte-sonner";
-import { copyState, fill } from "$lib/sys/copy/index.js";
+import { copyState, fill } from "#lib/sys/copy/index.js";
 import { formatForAI, type ParsedElement, parseElement } from "./logic/element-parser.js";
 import { scan } from "./state.svelte.js";
 

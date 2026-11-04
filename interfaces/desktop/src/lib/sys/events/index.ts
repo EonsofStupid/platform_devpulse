@@ -4,7 +4,7 @@
  *       hooks).
  *
  * Importers:
- *   import { capabilityChannel } from "$lib/sys/events";
+ *   import { capabilityChannel } from "#lib/sys/events/index.js";
  */
 
 export {

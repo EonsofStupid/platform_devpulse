@@ -8,7 +8,7 @@
  * keeps Rust's message in `error`.
  */
 
-import { signalFabric } from "$lib/sys/events/signal-fabric.js";
+import { signalFabric } from "#lib/sys/events/signal-fabric.js";
 import type { OnboardingState } from "../util/onboarding.types.js";
 import * as intents from "./onboarding.service.js";
 

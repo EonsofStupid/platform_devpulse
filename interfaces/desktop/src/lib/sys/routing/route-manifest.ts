@@ -12,8 +12,11 @@
  * nothing names a route by hand.
  */
 
-import type { Pathname, RouteId } from "$app/types";
+import type { Path, RouteId } from "$app/types";
 import type { RouteNav } from "./route-nav.js";
+
+/** A page's URL path: SvelteKit's generated `Path` with its leading slash, `/` at the root. */
+export type RoutePath = `/${Path}`;
 
 /** Every page in the app. Lazy: only the keys are read here. */
 const PAGES = import.meta.glob("/src/routes/**/+page.svelte");
@@ -32,7 +35,7 @@ const LAYOUT_MODULES = import.meta.glob<RouteModule>("/src/routes/**/+layout.ts"
 /** One folder of the route tree. */
 export interface RouteNode {
 	/** URL path, groups removed: `/devtools/system/datastores/turso`. */
-	path: Pathname;
+	path: RoutePath;
 	/** SvelteKit route id, groups kept: `/(devtools)/devtools/system/datastores/turso`. */
 	routeId: RouteId;
 	/** Last path segment (`turso`); empty for the root. */
@@ -103,9 +106,9 @@ function buildTree(): RouteIndex {
 		if (existing) return existing;
 		const path = pathOf(routeId);
 		const created: RouteNode = {
-			// Built from the same folders SvelteKit generates `Pathname` and
+			// Built from the same folders SvelteKit generates `Path` and
 			// `RouteId` from, so these strings are members of those unions.
-			path: path as Pathname,
+			path: path as RoutePath,
 			routeId: routeId as RouteId,
 			segment: path === "/" ? "" : path.slice(path.lastIndexOf("/") + 1),
 			hasPage: false,
@@ -136,7 +139,9 @@ function buildTree(): RouteIndex {
 	const byPath = new Map<string, RouteNode>();
 	const visit = (n: RouteNode): void => {
 		n.children.sort(compareNodes);
-		byPath.set(n.path, n);
+		// Two route groups can share a path (`(app)/model-loader` holds the page,
+		// `(setup)/model-loader` only sub-pages). The path means the page.
+		if (n.hasPage || !byPath.has(n.path)) byPath.set(n.path, n);
 		for (const c of n.children) visit(c);
 	};
 	visit(root);

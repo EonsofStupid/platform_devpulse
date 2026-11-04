@@ -33,13 +33,13 @@ import {
 	type HealthBadge,
 	ScopedLogPanel,
 	ServiceDevtoolShell,
-} from "$lib/devtools/index.js";
+} from "#lib/devtools/index.js";
 import type {
 	ProjectDbHealth,
 	ProjectDbQueryResult,
 	ProjectDbTableInfo,
-} from "$lib/sys/generated/bindings.js";
-import { commands } from "$lib/sys/generated/bindings.js";
+} from "#lib/sys/generated/bindings.js";
+import { commands } from "#lib/sys/generated/bindings.js";
 
 // ── State ──────────────────────────────────────────────────
 let projectId = $state("default");

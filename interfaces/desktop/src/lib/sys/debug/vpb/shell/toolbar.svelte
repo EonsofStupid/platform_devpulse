@@ -7,8 +7,8 @@
 -->
 <script lang="ts">
 import { StatusDot } from "@devpulse/coldlight/components/status-dot";
-import { updatesState } from "$lib/domains/app/updates/index.js";
-import { copyState } from "$lib/sys/copy/index.js";
+import { updatesState } from "#lib/domains/app/updates/index.js";
+import { copyState } from "#lib/sys/copy/index.js";
 import { vpb } from "../state/vpb.svelte.js";
 
 const text = $derived(copyState.catalog?.vpb);

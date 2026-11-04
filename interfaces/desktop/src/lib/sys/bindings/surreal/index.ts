@@ -31,7 +31,7 @@
  * - Kernel consumer: `kernel/devpulse-clyffy/src/cortex/persistence/surreal/`
  */
 
-import { commands } from "$lib/sys/generated/bindings.js";
+import { commands } from "#lib/sys/generated/bindings.js";
 
 // ── Sidecar lifecycle ────────────────────────────────────────────
 //
@@ -91,4 +91,4 @@ export type {
 	SurrealHealth,
 	SurrealStatus,
 	SurrealUserConfig,
-} from "$lib/sys/generated/bindings.js";
+} from "#lib/sys/generated/bindings.js";

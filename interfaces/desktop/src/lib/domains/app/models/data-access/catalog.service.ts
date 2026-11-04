@@ -6,8 +6,8 @@
  * No hardcoded model repos in frontend code.
  */
 
-import type { CatalogEntry } from "$lib/sys/generated/bindings.js";
-import { commands } from "$lib/sys/generated/bindings.js";
+import type { CatalogEntry } from "#lib/sys/generated/bindings.js";
+import { commands } from "#lib/sys/generated/bindings.js";
 
 /** Cached catalog entries. */
 let catalogCache: CatalogEntry[] | null = null;

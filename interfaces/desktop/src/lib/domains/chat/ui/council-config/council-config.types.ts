@@ -1,5 +1,5 @@
 import type { Snippet } from "svelte";
-import type { AgentChatCopy } from "$lib/sys/generated/bindings.js";
+import type { AgentChatCopy } from "#lib/sys/generated/bindings.js";
 
 /** One line of what a seat is told. */
 export interface CouncilCostarLine {

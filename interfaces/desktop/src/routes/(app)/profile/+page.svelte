@@ -11,7 +11,7 @@
 	the time SvelteKit renders us, the user is signed in.
 -->
 <script lang="ts">
-import { EmbedderPicker } from "$lib/domains/profile/index.js";
+import { EmbedderPicker } from "#lib/domains/profile/index.js";
 </script>
 
 <EmbedderPicker />

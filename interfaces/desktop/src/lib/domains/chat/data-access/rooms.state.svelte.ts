@@ -5,8 +5,8 @@
  * @module @devpulse/domains/chat/data-access/rooms.state.svelte
  */
 
-import { agenthubState } from "$lib/domains/agenthub/index.js";
-import { projectsState } from "$lib/domains/app/projects/index.js";
+import { agenthubState } from "#lib/domains/agenthub/index.js";
+import { projectsState } from "#lib/domains/app/projects/index.js";
 import type {
 	Issue,
 	Library,
@@ -15,8 +15,8 @@ import type {
 	RoomSpec,
 	RoomStreamed,
 	RoomThread,
-} from "$lib/sys/generated/bindings.js";
-import { logError } from "$lib/sys/logger.js";
+} from "#lib/sys/generated/bindings.js";
+import { logError } from "#lib/sys/logger.js";
 import {
 	draftPlaces,
 	type PlaceDraft,

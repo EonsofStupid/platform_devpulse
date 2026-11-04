@@ -24,7 +24,7 @@ import * as Alert from "@devpulse/coldlight/components/alert";
 import type { BadgeVariant } from "@devpulse/coldlight/components/badge";
 import { Badge } from "@devpulse/coldlight/components/badge";
 import { Text } from "@devpulse/coldlight/components/text";
-import type { CommandError, ErrorKind } from "$lib/sys/generated/bindings.js";
+import type { CommandError, ErrorKind } from "#lib/sys/generated/bindings.js";
 
 interface Props {
 	/** Discriminated `CommandError`, a bare string, or null (renders nothing). */

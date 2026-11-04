@@ -23,7 +23,7 @@ export type {
 	SlotInfo,
 	VectorHealthReport,
 	VectorSearchResult,
-} from "$lib/sys/generated/bindings.js";
+} from "#lib/sys/generated/bindings.js";
 
 // ── Domain-only types ───────────────────────────────────────
 

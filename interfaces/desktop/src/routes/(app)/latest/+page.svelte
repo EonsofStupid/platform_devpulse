@@ -22,10 +22,10 @@ import { Widget } from "@devpulse/coldlight/blocks/widgets";
 import { Text } from "@devpulse/coldlight/components/text";
 import { stack } from "@devpulse/coldlight/utils";
 import { onMount } from "svelte";
-import { CommunityFeedList, communityState } from "$lib/domains/app/community/index.js";
-import { KnowledgeDeck, syncKnowledgeFromRemote } from "$lib/domains/app/knowledge/index.js";
-import { LatestUpdateCard, updatesState } from "$lib/domains/app/updates/index.js";
-import { hrefOf, routeAt, routeCopy, routeHere } from "$lib/sys/routing/index.js";
+import { CommunityFeedList, communityState } from "#lib/domains/app/community/index.js";
+import { KnowledgeDeck, syncKnowledgeFromRemote } from "#lib/domains/app/knowledge/index.js";
+import { LatestUpdateCard, updatesState } from "#lib/domains/app/updates/index.js";
+import { hrefOf, routeAt, routeCopy, routeHere } from "#lib/sys/routing/index.js";
 
 const here = $derived(routeHere());
 const heading = $derived(here ? routeCopy(here) : undefined);

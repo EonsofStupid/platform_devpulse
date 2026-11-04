@@ -12,7 +12,7 @@ import { Card } from "@devpulse/coldlight/components/card";
 import { Slider } from "@devpulse/coldlight/components/slider";
 import { Text } from "@devpulse/coldlight/components/text";
 import { Settings2 } from "lucide-svelte";
-import { rroState } from "$lib/sys/data-access/rro/rro.state.svelte.js";
+import { rroState } from "#lib/sys/data-access/rro/rro.state.svelte.js";
 import { CapabilityHeader, ErrorCallout } from "../../ui/index.js";
 import { formatField } from "../../util/rro.format.js";
 import { RRO_STATE_NARRATIONS } from "../../util/rro.narrations.js";

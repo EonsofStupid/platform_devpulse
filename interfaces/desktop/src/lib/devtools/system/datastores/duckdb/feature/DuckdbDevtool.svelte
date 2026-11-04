@@ -16,10 +16,10 @@ import { Spinner } from "@devpulse/coldlight/components/spinner";
 import { Text } from "@devpulse/coldlight/components/text";
 import { BarChart3, Hammer, Play, RefreshCw, Table2, Terminal } from "lucide-svelte";
 import { onMount } from "svelte";
-import { type ExtraTab, type HealthBadge, ServiceDevtoolShell } from "$lib/devtools/index.js";
-import { EmptyStatePoster, StoreHeroCard } from "$lib/devtools/system/datastores/_shared/index.js";
-import { duckdbState } from "$lib/domains/infra/duckdb/index.js";
-import { commands, type ScopedLogEntry } from "$lib/sys/generated/bindings.js";
+import { type ExtraTab, type HealthBadge, ServiceDevtoolShell } from "#lib/devtools/index.js";
+import { EmptyStatePoster, StoreHeroCard } from "#lib/devtools/system/datastores/_shared/index.js";
+import { duckdbState } from "#lib/domains/infra/duckdb/index.js";
+import { commands, type ScopedLogEntry } from "#lib/sys/generated/bindings.js";
 import DuckdbHero from "./DuckdbHero.svelte";
 
 let logEntries = $state<ScopedLogEntry[]>([]);

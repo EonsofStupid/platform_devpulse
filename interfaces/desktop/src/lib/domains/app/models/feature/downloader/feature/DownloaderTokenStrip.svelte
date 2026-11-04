@@ -22,7 +22,7 @@
 <script lang="ts">
 import { cn } from "@devpulse/coldlight/utils";
 import { Check, Key } from "lucide-svelte";
-import type { DownloaderCopy } from "$lib/sys/generated/bindings.js";
+import type { DownloaderCopy } from "#lib/sys/generated/bindings.js";
 import { modelDownloaderState } from "../data-access/downloader.state.svelte.js";
 
 interface Props {

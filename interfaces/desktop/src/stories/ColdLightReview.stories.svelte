@@ -1,6 +1,6 @@
 <script module>
 import { defineMeta } from "@storybook/addon-svelte-csf";
-import { UiDemoDashboard } from "$lib/domains/app/ui-demo/index.js";
+import { UiDemoDashboard } from "#lib/domains/app/ui-demo/index.js";
 
 const { Story } = defineMeta({
 	title: "ColdLight/Composition review",

@@ -18,7 +18,7 @@ export type {
 	OllamaHealthState,
 	OllamaModel,
 	OllamaStatus,
-} from "$lib/sys/bindings/ollama/index.js";
+} from "#lib/sys/bindings/ollama/index.js";
 export { ollamaSidecarState } from "./data-access/sidecar.state.svelte.js";
 export {
 	ollamaConfig,

@@ -1,5 +1,4 @@
 # Vitest browser-mode output (CI writes screenshots and traces on failure)
-__screenshots__/
+.vitest/
 __traces__/
-.vitest-attachments/
 coverage/

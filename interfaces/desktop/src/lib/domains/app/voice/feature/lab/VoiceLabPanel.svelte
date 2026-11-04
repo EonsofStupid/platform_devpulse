@@ -7,7 +7,7 @@ import { Button } from "@devpulse/coldlight/components/button";
 import { Card } from "@devpulse/coldlight/components/card";
 import { InlineMessage } from "@devpulse/coldlight/components/inline-message";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@devpulse/coldlight/components/tabs";
-import { copyState } from "$lib/sys/copy/index.js";
+import { copyState } from "#lib/sys/copy/index.js";
 import { voiceState } from "../../data-access/voice.state.svelte.js";
 import type { VoiceLabTab } from "../../util/voice.contract.js";
 import SttSetup from "./SttSetup.svelte";

@@ -19,12 +19,12 @@ import {
 import { StatusDot } from "@devpulse/coldlight/components/status-dot";
 import { Text } from "@devpulse/coldlight/components/text";
 import { TextField } from "@devpulse/coldlight/components/text-field";
-import { fill } from "$lib/sys/copy/index.js";
+import { fill } from "#lib/sys/copy/index.js";
 import type {
 	ConnectionCredential,
 	ProviderId,
 	SavedConnection,
-} from "$lib/sys/generated/bindings.js";
+} from "#lib/sys/generated/bindings.js";
 import EndpointTextTest from "./EndpointTextTest.svelte";
 import type { EndpointConnectionsProps } from "./endpoint-connections.types.js";
 

@@ -1,8 +1,8 @@
 <!-- @feature Endpoint chat actions use saved kernel connection identities. -->
 <script lang="ts">
-import { projectsState } from "$lib/domains/app/projects/index.js";
-import { providersState } from "$lib/domains/app/providers/index.js";
-import { copyState } from "$lib/sys/copy/index.js";
+import { projectsState } from "#lib/domains/app/projects/index.js";
+import { providersState } from "#lib/domains/app/providers/index.js";
+import { copyState } from "#lib/sys/copy/index.js";
 import { chatState } from "../data-access/chat.state.svelte.js";
 import { EndpointPicker } from "../ui/endpoint-picker/index.js";
 

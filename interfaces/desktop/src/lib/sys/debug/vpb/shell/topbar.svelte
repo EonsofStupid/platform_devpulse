@@ -9,7 +9,7 @@
 <script lang="ts">
 import { Button } from "@devpulse/coldlight/components/button";
 import { GripVertical, Minus, X } from "lucide-svelte";
-import { copyState } from "$lib/sys/copy/index.js";
+import { copyState } from "#lib/sys/copy/index.js";
 import { vpb } from "../state/vpb.svelte.js";
 
 const text = $derived(copyState.catalog?.vpb);

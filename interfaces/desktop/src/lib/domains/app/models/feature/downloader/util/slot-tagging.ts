@@ -13,7 +13,7 @@
  * tags are purely a UI affordance to skip the "what is this?" friction.
  */
 
-import type { HfSearchResultInfo } from "$lib/sys/generated/bindings.js";
+import type { HfSearchResultInfo } from "#lib/sys/generated/bindings.js";
 import type { SuggestedSlotTag, TagConfidence } from "./downloader.types.js";
 
 interface Heuristic {

@@ -6,7 +6,7 @@
  * with no page of its own (a devtools tier or bucket), in its `+layout.ts`:
  *
  * ```ts
- * import type { RouteNav } from "$lib/sys/routing/index.js";
+ * import type { RouteNav } from "#lib/sys/routing/index.js";
  * export const _nav: RouteNav = { icon: Database, order: 10 };
  * ```
  *

@@ -17,8 +17,8 @@ import { Spinner } from "@devpulse/coldlight/components/spinner";
 import { Text } from "@devpulse/coldlight/components/text";
 import { Mic, Play, RefreshCw, StopCircle, Trash2 } from "lucide-svelte";
 import { onMount } from "svelte";
-import { type HealthBadge, ServiceDevtoolShell } from "$lib/devtools/index.js";
-import { sherpaState } from "$lib/domains/infra/sherpa/index.js";
+import { type HealthBadge, ServiceDevtoolShell } from "#lib/devtools/index.js";
+import { sherpaState } from "#lib/domains/infra/sherpa/index.js";
 
 // ── Mic-stream plumbing ──────────────────────────────────
 let audioCtx: AudioContext | null = null;

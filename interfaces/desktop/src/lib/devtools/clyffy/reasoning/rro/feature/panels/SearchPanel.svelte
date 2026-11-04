@@ -17,7 +17,7 @@ import {
 import { Text } from "@devpulse/coldlight/components/text";
 import { TextField } from "@devpulse/coldlight/components/text-field";
 import { Search } from "lucide-svelte";
-import { rroState } from "$lib/sys/data-access/rro/rro.state.svelte.js";
+import { rroState } from "#lib/sys/data-access/rro/rro.state.svelte.js";
 import { CapabilityHeader, ErrorCallout } from "../../ui/index.js";
 import { bucketBgClass, formatMs, scoreBuckets, scoreVariant } from "../../util/rro.format.js";
 

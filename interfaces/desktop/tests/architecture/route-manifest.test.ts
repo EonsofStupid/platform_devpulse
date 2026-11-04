@@ -15,7 +15,7 @@ import {
 	pagesUnder,
 	type RouteNode,
 	routeTree,
-} from "$lib/sys/routing/route-manifest.js";
+} from "#lib/sys/routing/route-manifest.js";
 
 const ROUTES = join(__dirname, "../../src/routes");
 

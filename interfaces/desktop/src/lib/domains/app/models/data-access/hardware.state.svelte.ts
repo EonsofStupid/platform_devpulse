@@ -16,16 +16,16 @@
  * Typical use inside a component:
  *
  * ```svelte
- * import { hardwareState } from "$lib/domains/app/models/index.js";
+ * import { hardwareState } from "#lib/domains/app/models/index.js";
  * $effect(() => hardwareState.subscribe("VramBar"));
  * ```
  *
  * The `$effect` cleanup auto-detaches when the component unmounts.
  */
 
-import { signalFabric } from "$lib/sys/events/signal-fabric.js";
-import { commands, type HardwareInfo, type HardwareMetrics } from "$lib/sys/generated/bindings.js";
-import { logDebug, logError, logInfo } from "$lib/sys/logger.js";
+import { signalFabric } from "#lib/sys/events/signal-fabric.js";
+import { commands, type HardwareInfo, type HardwareMetrics } from "#lib/sys/generated/bindings.js";
+import { logDebug, logError, logInfo } from "#lib/sys/logger.js";
 import { calculateFit, type FitIndicator, type HardwareTier } from "../util/models.types.js";
 import { fetchHardwareMetrics } from "./hardware.service.js";
 

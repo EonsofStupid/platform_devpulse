@@ -7,7 +7,7 @@
  * `createBlockNode` writes) or a preset from ColdLight's library. Presets
  * fit every kind, so every kind offers the same list after its default.
  *
- * Replaces the per-kind recipe registry (`$lib/design/recipes`, deleted in
+ * Replaces the per-kind recipe registry (`#lib/design/recipes`, deleted in
  * 0020c1f4); its recipes were per-kind style variants, which presets are now.
  */
 

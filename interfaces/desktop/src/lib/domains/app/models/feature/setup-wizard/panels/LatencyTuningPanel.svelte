@@ -17,8 +17,8 @@
 import { Heading } from "@devpulse/coldlight/components/heading";
 import { Text } from "@devpulse/coldlight/components/text";
 import { ChevronDown, ChevronUp, Clock, Settings, Zap } from "lucide-svelte";
-import type { InferenceProvider } from "$lib/sys/generated/bindings.js";
-import { logInfo } from "$lib/sys/logger.js";
+import type { InferenceProvider } from "#lib/sys/generated/bindings.js";
+import { logInfo } from "#lib/sys/logger.js";
 import { setupWizardOverlayState } from "../../../data-access/setup-wizard-overlay.state.svelte.js";
 
 const LOG_TARGET = "wizard.latency";

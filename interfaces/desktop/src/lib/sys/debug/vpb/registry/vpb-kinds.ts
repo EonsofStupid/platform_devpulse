@@ -7,7 +7,7 @@
  * defines slots where children can be placed, and a slot can limit which
  * kinds it takes.
  *
- * Restored from the VPB taxonomy (`$lib/design/taxonomy/vpb/kinds.ts` and
+ * Restored from the VPB taxonomy (`#lib/design/taxonomy/vpb/kinds.ts` and
  * `slots.ts`), which sat under the design folder before ColdLight moved out.
  * Kind ids are ColdLight's kebab-case now (`appShell` is `app-shell`), since
  * those are what `renderForge` and `BLOCK_CATEGORIES` read. Names and

@@ -3,14 +3,14 @@
  * @module @devpulse/layouts/app/StatusBar
  *
  * Subsystem grouping helpers for StatusBar and Dashboard health displays.
- * Classification logic lives in `$lib/sys/generated/service-manifest.ts`,
+ * Classification logic lives in `#lib/sys/generated/service-manifest.ts`,
  * which mirrors `BOOT_STEP_MANIFEST` in the Rust engine — a `cargo test`
  * enforces the two stay in sync.
  */
 
-import type { SubsystemHealth } from "$lib/sys/generated/health.types.js";
-import { classifyStep, type SubsystemGroupKind } from "$lib/sys/generated/service-manifest.js";
-import type { SubsystemInfo } from "$lib/sys/runes/platformState.svelte.js";
+import type { SubsystemHealth } from "#lib/sys/generated/health.types.js";
+import { classifyStep, type SubsystemGroupKind } from "#lib/sys/generated/service-manifest.js";
+import type { SubsystemInfo } from "#lib/sys/runes/platformState.svelte.js";
 
 export type { SubsystemGroupKind };
 

@@ -22,19 +22,19 @@ import Table from "./Table.svelte";
 
 describe("table component — structural attributes", () => {
 	test("renders a <table> element with role='table'", async () => {
-		const { getByRole } = render(Table);
+		const { getByRole } = await render(Table);
 		const table = getByRole("table");
 		expect(table).toBeTruthy();
 	});
 
 	test("has data-kind='table'", async () => {
-		const { getByRole } = render(Table);
+		const { getByRole } = await render(Table);
 		const table = getByRole("table");
 		await expect.element(table).toHaveAttribute("data-kind", "table");
 	});
 
 	test("has data-slot='root'", async () => {
-		const { getByRole } = render(Table);
+		const { getByRole } = await render(Table);
 		const table = getByRole("table");
 		await expect.element(table).toHaveAttribute("data-slot", "root");
 	});
@@ -46,13 +46,13 @@ describe("table component — structural attributes", () => {
 
 describe("table component — ARIA attributes", () => {
 	test("has role='table'", async () => {
-		const { getByRole } = render(Table);
+		const { getByRole } = await render(Table);
 		const table = getByRole("table");
 		await expect.element(table).toHaveAttribute("role", "table");
 	});
 
 	test("passes aria-label when label prop provided", async () => {
-		const { getByRole } = render(Table, { props: { label: "User data" } });
+		const { getByRole } = await render(Table, { props: { label: "User data" } });
 		const table = getByRole("table");
 		await expect.element(table).toHaveAttribute("aria-label", "User data");
 	});
@@ -64,13 +64,13 @@ describe("table component — ARIA attributes", () => {
 
 describe("table component — composition classes", () => {
 	test("applies composition classes for default variant", async () => {
-		const { getByRole } = render(Table);
+		const { getByRole } = await render(Table);
 		const table = getByRole("table");
 		await expect.element(table).toHaveClass("w-full");
 	});
 
 	test("passes class prop and merges with composition", async () => {
-		const { getByRole } = render(Table, { props: { class: "custom-table" } });
+		const { getByRole } = await render(Table, { props: { class: "custom-table" } });
 		const table = getByRole("table");
 		await expect.element(table).toHaveClass("custom-table");
 	});
@@ -82,7 +82,7 @@ describe("table component — composition classes", () => {
 
 describe("table component — prop passthrough", () => {
 	test("forwards id attribute", async () => {
-		const { getByRole } = render(Table, { props: { id: "my-table" } });
+		const { getByRole } = await render(Table, { props: { id: "my-table" } });
 		const table = getByRole("table");
 		await expect.element(table).toHaveAttribute("id", "my-table");
 	});

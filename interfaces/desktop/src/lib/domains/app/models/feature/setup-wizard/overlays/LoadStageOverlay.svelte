@@ -12,7 +12,7 @@
 -->
 <script lang="ts">
 import { Text } from "@devpulse/coldlight/components/text";
-import { logInfo } from "$lib/sys/logger.js";
+import { logInfo } from "#lib/sys/logger.js";
 import { modelsState } from "../../../data-access/models.state.svelte.js";
 import type { LoadingStage, ModelStatus } from "../../../util/models.types.js";
 

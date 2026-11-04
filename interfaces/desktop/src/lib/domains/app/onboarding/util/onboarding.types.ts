@@ -8,4 +8,4 @@ export type {
 	OnboardingStatus,
 	Requirement,
 	Stage,
-} from "$lib/sys/bindings/onboarding/index.js";
+} from "#lib/sys/bindings/onboarding/index.js";

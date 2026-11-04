@@ -8,13 +8,13 @@ import {
 	isInferenceReady,
 	modelsState,
 	onInferenceToken,
-} from "$lib/domains/app/models/index.js";
-import { projectsState } from "$lib/domains/app/projects/index.js";
-import { providersState } from "$lib/domains/app/providers/index.js";
-import { copyState } from "$lib/sys/copy/index.js";
-import type { ChatMessage, SavedConnection, TextTarget } from "$lib/sys/generated/bindings.js";
-import { logError } from "$lib/sys/logger.js";
-import { globalState } from "$lib/sys/runes/global.svelte.js";
+} from "#lib/domains/app/models/index.js";
+import { projectsState } from "#lib/domains/app/projects/index.js";
+import { providersState } from "#lib/domains/app/providers/index.js";
+import { copyState } from "#lib/sys/copy/index.js";
+import type { ChatMessage, SavedConnection, TextTarget } from "#lib/sys/generated/bindings.js";
+import { logError } from "#lib/sys/logger.js";
+import { globalState } from "#lib/sys/runes/global.svelte.js";
 import type { ChatMode } from "../util/chat.types.js";
 import { splitContractBlock, toBlockMessage } from "../util/format.js";
 import { findRole, placeKey } from "../util/room-seating.js";

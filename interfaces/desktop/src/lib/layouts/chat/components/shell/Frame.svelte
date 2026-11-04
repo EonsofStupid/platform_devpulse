@@ -17,9 +17,9 @@ import { ChatFrame } from "@devpulse/coldlight/components/chat-frame";
 import { ChatTopBar } from "@devpulse/coldlight/components/chat-topbar";
 import { Brain, Cpu } from "lucide-svelte";
 import type { Snippet } from "svelte";
-import { openWindow, type WindowRole } from "$lib/sys/bindings/window/index.js";
-import { logError } from "$lib/sys/logger.js";
-import { globalState } from "$lib/sys/runes/global.svelte.js";
+import { openWindow, type WindowRole } from "#lib/sys/bindings/window/index.js";
+import { logError } from "#lib/sys/logger.js";
+import { globalState } from "#lib/sys/runes/global.svelte.js";
 
 interface Props {
 	children: Snippet;

@@ -9,7 +9,7 @@
  */
 import { flushSync } from "svelte";
 import { expect, it, vi } from "vitest";
-import type { HardwareMetrics, Signal } from "$lib/sys/generated/bindings.js";
+import type { HardwareMetrics, Signal } from "#lib/sys/generated/bindings.js";
 
 const metrics: HardwareMetrics = {
 	cpu_name: "Fixture CPU",
@@ -35,7 +35,7 @@ const mocks = vi.hoisted(() => ({
 	snapshot: vi.fn(),
 }));
 
-vi.mock("$lib/sys/generated/bindings.js", () => ({
+vi.mock("#lib/sys/generated/bindings.js", () => ({
 	commands: {
 		setSignalInterest: vi.fn().mockResolvedValue(undefined),
 		getSignalState: mocks.snapshot,
@@ -44,7 +44,7 @@ vi.mock("$lib/sys/generated/bindings.js", () => ({
 	events: { signalBroadcast: { listen: vi.fn().mockResolvedValue(() => {}) } },
 }));
 vi.mock("./hardware.service.js", () => ({ fetchHardwareMetrics: mocks.fetch }));
-vi.mock("$lib/sys/logger.js", () => ({
+vi.mock("#lib/sys/logger.js", () => ({
 	logDebug: (_target: string, message: string) => {
 		if (message.startsWith("attached")) mocks.attached.push(message);
 	},

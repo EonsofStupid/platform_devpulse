@@ -16,7 +16,7 @@ export type {
 	TelemetryPipelineInfo,
 	TelemetryRowCounts,
 	TelemetrySessionFile,
-} from "$lib/sys/generated/bindings.js";
+} from "#lib/sys/generated/bindings.js";
 
 // ── Domain-only types ───────────────────────────────────────
 
@@ -28,7 +28,7 @@ export type SpanFilter = {
 
 /** A span tree node for waterfall rendering. */
 export type SpanTreeNode = {
-	row: import("$lib/sys/generated/bindings.js").SpanTraceRow;
+	row: import("#lib/sys/generated/bindings.js").SpanTraceRow;
 	children: SpanTreeNode[];
 	depth: number;
 };
@@ -36,7 +36,7 @@ export type SpanTreeNode = {
 /** Lane group for UI display (GPU / CPU / Storage). */
 export type LaneGroup = {
 	label: string;
-	lanes: import("$lib/sys/generated/bindings.js").LaneToggle[];
+	lanes: import("#lib/sys/generated/bindings.js").LaneToggle[];
 };
 
 /** Active tab in the telemetry devtool. */
@@ -90,7 +90,7 @@ export function formatUptime(ms: number): string {
 
 /** Build a span tree from a flat list of spans. */
 export function buildSpanTree(
-	spans: import("$lib/sys/generated/bindings.js").SpanTraceRow[],
+	spans: import("#lib/sys/generated/bindings.js").SpanTraceRow[],
 ): SpanTreeNode[] {
 	const byId = new Map<number, SpanTreeNode>();
 	const roots: SpanTreeNode[] = [];
@@ -234,7 +234,7 @@ export function laneCategory(lane: string): LaneCategory {
 
 /** Group lanes by category for the UI. */
 export function groupLanes(
-	lanes: import("$lib/sys/generated/bindings.js").LaneToggle[],
+	lanes: import("#lib/sys/generated/bindings.js").LaneToggle[],
 ): LaneGroup[] {
 	const byCategory: Record<LaneCategory, typeof lanes> = {
 		thinking: [],

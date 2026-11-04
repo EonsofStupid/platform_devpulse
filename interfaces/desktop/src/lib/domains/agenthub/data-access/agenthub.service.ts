@@ -1,7 +1,7 @@
 /** @file Typed AgentHub execution observations. */
 
-import type { AgentHubChanged } from "$lib/sys/generated/bindings.js";
-import { commands, events } from "$lib/sys/generated/bindings.js";
+import type { AgentHubChanged } from "#lib/sys/generated/bindings.js";
+import { commands, events } from "#lib/sys/generated/bindings.js";
 
 export async function snapshot() {
 	const result = await commands.agenthubLive();
@@ -20,7 +20,7 @@ export async function sessions() {
 }
 
 export async function transcript(
-	providerId: import("$lib/sys/generated/bindings.js").ProviderId,
+	providerId: import("#lib/sys/generated/bindings.js").ProviderId,
 	locator: string,
 	cursor: string | null,
 ) {

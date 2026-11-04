@@ -32,12 +32,12 @@ import {
 	type HealthBadge,
 	type LogTargetPreset,
 	ServiceDevtoolShell,
-} from "$lib/devtools/index.js";
-import { modelsState } from "$lib/domains/app/models/index.js";
-import { ClyffyLoadingBlock } from "$lib/domains/clyffy/index.js";
-import { capabilityChannel } from "$lib/sys/events/index.js";
-import { commands } from "$lib/sys/generated/bindings.js";
-import { logInfo } from "$lib/sys/logger.js";
+} from "#lib/devtools/index.js";
+import { modelsState } from "#lib/domains/app/models/index.js";
+import { ClyffyLoadingBlock } from "#lib/domains/clyffy/index.js";
+import { capabilityChannel } from "#lib/sys/events/index.js";
+import { commands } from "#lib/sys/generated/bindings.js";
+import { logInfo } from "#lib/sys/logger.js";
 
 const SLOT_ID = "vision.embedder";
 

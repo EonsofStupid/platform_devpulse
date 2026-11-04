@@ -3,8 +3,8 @@
  * @description Clyffy umbrella status (system health roll-up).
  */
 
-import { commands } from "$lib/sys/generated/bindings.js";
+import { commands } from "#lib/sys/generated/bindings.js";
 
 export const getStatus = commands.getStatus;
 
-export type { HealthStatus, SystemHealth } from "$lib/sys/generated/bindings.js";
+export type { HealthStatus, SystemHealth } from "#lib/sys/generated/bindings.js";

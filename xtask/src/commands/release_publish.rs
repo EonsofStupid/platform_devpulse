@@ -240,11 +240,18 @@ fn sign_zip(ws: &Workspace, zip: &Path, private_key: &str) -> Result<PathBuf> {
 
 #[cfg(test)]
 mod credential_tests {
+    use anyhow::Context;
+
     #[test]
     fn standalone_release_tool_has_a_native_credential_backend() -> anyhow::Result<()> {
         // Construction only; never read or modify the signing key or OS vault.
-        let entry = keyring::Entry::new("devpulse-release-backend-test", "unused")?;
-        assert!(!entry.get_credential().is::<keyring::mock::MockCredential>());
+        let _entry = keyring::Entry::new("devpulse-release-backend-test", "unused")?;
+        let store = keyring_core::get_default_store().context("no default credential store")?;
+        assert!(!store.vendor().starts_with("Mock store"));
+        assert!(matches!(
+            store.persistence(),
+            keyring_core::CredentialPersistence::UntilDelete
+        ));
         Ok(())
     }
 }

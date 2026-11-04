@@ -21,7 +21,7 @@ import type {
 	HardwareCopy,
 	ProfileCopy,
 	TierDisplay,
-} from "$lib/sys/generated/bindings.js";
+} from "#lib/sys/generated/bindings.js";
 
 /**
  * One row of the kernel's `AutoConfig.recommendations` JSON. Mirrors

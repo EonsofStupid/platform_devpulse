@@ -31,9 +31,9 @@ import {
 	X,
 	Zap,
 } from "lucide-svelte";
-import { copyState, fill } from "$lib/sys/copy/index.js";
-import type { ModelInfo } from "$lib/sys/generated/bindings.js";
-import { logError } from "$lib/sys/logger.js";
+import { copyState, fill } from "#lib/sys/copy/index.js";
+import type { ModelInfo } from "#lib/sys/generated/bindings.js";
+import { logError } from "#lib/sys/logger.js";
 import { hardwareState } from "../../../data-access/hardware.state.svelte.js";
 import { modelsState } from "../../../data-access/models.state.svelte.js";
 import { deleteModel } from "../../../data-access/slots.service.js";

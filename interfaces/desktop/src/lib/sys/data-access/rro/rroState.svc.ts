@@ -16,9 +16,9 @@ import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import type {
 	RroDepth,
 	RroStateSnapshot,
-} from "$lib/devtools/clyffy/reasoning/rro/util/rro.types.js";
-import { commands } from "$lib/sys/generated/bindings.js";
-import { withRetry } from "$lib/sys/retry.js";
+} from "#lib/devtools/clyffy/reasoning/rro/util/rro.types.js";
+import { commands } from "#lib/sys/generated/bindings.js";
+import { withRetry } from "#lib/sys/retry.js";
 import { trace } from "./rro.trace.js";
 
 const EVENT_NAME = "platform:rro-state-changed";

@@ -13,7 +13,7 @@ import ScrollArea from "./ScrollArea.svelte";
 
 describe("ScrollArea component", () => {
 	it("renders root with data-kind attribute", async () => {
-		const screen = render(ScrollArea, {
+		const screen = await render(ScrollArea, {
 			props: { label: "Scrollable content" },
 		});
 
@@ -22,7 +22,7 @@ describe("ScrollArea component", () => {
 	});
 
 	it("renders viewport with role=region and aria-label", async () => {
-		const screen = render(ScrollArea, {
+		const screen = await render(ScrollArea, {
 			props: { label: "Scrollable content" },
 		});
 
@@ -34,7 +34,7 @@ describe("ScrollArea component", () => {
 	});
 
 	it("renders scrollbar with role=scrollbar and ARIA attributes", async () => {
-		const screen = render(ScrollArea, {
+		const screen = await render(ScrollArea, {
 			props: { label: "Content" },
 		});
 
@@ -46,7 +46,7 @@ describe("ScrollArea component", () => {
 	});
 
 	it("renders thumb element", async () => {
-		const screen = render(ScrollArea, {
+		const screen = await render(ScrollArea, {
 			props: { label: "Content" },
 		});
 
@@ -56,7 +56,7 @@ describe("ScrollArea component", () => {
 	});
 
 	it("applies horizontal orientation", async () => {
-		const screen = render(ScrollArea, {
+		const screen = await render(ScrollArea, {
 			props: { label: "Content", orientation: "horizontal" },
 		});
 
@@ -66,7 +66,7 @@ describe("ScrollArea component", () => {
 	});
 
 	it("applies composition classes", async () => {
-		const screen = render(ScrollArea, {
+		const screen = await render(ScrollArea, {
 			props: { label: "Content" },
 		});
 
@@ -76,7 +76,7 @@ describe("ScrollArea component", () => {
 	});
 
 	it("merges custom className on root", async () => {
-		const screen = render(ScrollArea, {
+		const screen = await render(ScrollArea, {
 			props: { label: "Content", class: "custom-class" },
 		});
 

@@ -30,7 +30,7 @@ function referencesResolve(element: Element): boolean {
 
 describe("field — linkage", () => {
 	test("the label names the control; the group is labelled by it", async () => {
-		const { container, getByRole } = render(Field, {
+		const { container, getByRole } = await render(Field, {
 			props: { label: "Email", children: control },
 		});
 		// Both the group and the input are named by the label (spec); the input is the textbox.
@@ -41,7 +41,7 @@ describe("field — linkage", () => {
 	});
 
 	test("the description describes the control", async () => {
-		const { getByRole, getByText } = render(Field, {
+		const { getByRole, getByText } = await render(Field, {
 			props: { label: "Email", description: "We never share it", children: control },
 		});
 		const input = getByRole("textbox", { name: "Email" });
@@ -50,7 +50,7 @@ describe("field — linkage", () => {
 	});
 
 	test("invalid: the error replaces the description, as an alert", async () => {
-		const { getByRole, getByText } = render(Field, {
+		const { getByRole, getByText } = await render(Field, {
 			props: {
 				label: "Email",
 				description: "We never share it",
@@ -68,7 +68,7 @@ describe("field — linkage", () => {
 	});
 
 	test("without a label or description nothing points at them", async () => {
-		const { container } = render(Field, { props: { children: control } });
+		const { container } = await render(Field, { props: { children: control } });
 		const root = locatePart(container, "field");
 		await expect.element(root).not.toHaveAttribute("aria-labelledby");
 		const input = locatePart(container, "field", "control");

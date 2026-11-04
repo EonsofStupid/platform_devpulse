@@ -3,7 +3,7 @@
  * @description Tracing-lane config, span queries, baselines, session files.
  */
 
-import { commands } from "$lib/sys/generated/bindings.js";
+import { commands } from "#lib/sys/generated/bindings.js";
 
 export const getLaneConfig = commands.getLaneConfig;
 export const setLaneConfig = commands.setLaneConfig;
@@ -24,4 +24,4 @@ export type {
 	TelemetryPipelineInfo,
 	TelemetryRowCounts,
 	TelemetrySessionFile,
-} from "$lib/sys/generated/bindings.js";
+} from "#lib/sys/generated/bindings.js";

@@ -12,11 +12,11 @@
 import { Heading } from "@devpulse/coldlight/components/heading";
 import { Text } from "@devpulse/coldlight/components/text";
 import { cn, container, stack } from "@devpulse/coldlight/utils";
+import { LocalModelSetup } from "#lib/domains/app/models/index.js";
+import { YourProviders } from "#lib/domains/app/providers/index.js";
+import { copyState } from "#lib/sys/copy/index.js";
+import { hrefOf, routeAt, routeCopy, routeHere } from "#lib/sys/routing/index.js";
 import { goto } from "$app/navigation";
-import { LocalModelSetup } from "$lib/domains/app/models/index.js";
-import { YourProviders } from "$lib/domains/app/providers/index.js";
-import { copyState } from "$lib/sys/copy/index.js";
-import { hrefOf, routeAt, routeCopy, routeHere } from "$lib/sys/routing/index.js";
 
 const here = $derived(routeHere());
 const name = $derived(here ? routeCopy(here)?.label : undefined);

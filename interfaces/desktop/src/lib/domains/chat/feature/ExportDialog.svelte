@@ -4,7 +4,7 @@
 <script lang="ts">
 import { Button } from "@devpulse/coldlight/components/button";
 import { Text } from "@devpulse/coldlight/components/text";
-import type { ExportFormat } from "$lib/sys/generated/bindings.js";
+import type { ExportFormat } from "#lib/sys/generated/bindings.js";
 import * as exportService from "../data-access/export.service.js";
 
 interface Props {

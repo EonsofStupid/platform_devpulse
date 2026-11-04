@@ -12,7 +12,7 @@ import { Spinner } from "@devpulse/coldlight/components/spinner";
 import { Text } from "@devpulse/coldlight/components/text";
 import { Download, X } from "lucide-svelte";
 import { onMount } from "svelte";
-import { cancelDownload } from "$lib/domains/app/models/index.js";
+import { cancelDownload } from "#lib/domains/app/models/index.js";
 import { type ActiveDownload, downloadState } from "./download.state.svelte.js";
 import { installState } from "./install.state.svelte.js";
 

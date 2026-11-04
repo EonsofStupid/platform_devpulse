@@ -39737,85 +39737,39 @@
 		"extensions": {},
 		"tokens": [
 			{
-				"name": "border-rise-subtle-color-color-space",
+				"name": "border-rise-subtle-color",
 				"path": [
 					"borderRise",
 					"subtle",
-					"color",
-					"colorSpace"
+					"color"
 				],
-				"cssVar": "--border-rise-subtle-color-color-space",
-				"value": "oklch",
-				"type": "colorSpace",
+				"cssVar": "--border-rise-subtle-color",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						1.0032,
+						0.0305,
+						28.88
+					],
+					"alpha": 0.059,
+					"hex": "#ffffff"
+				},
+				"type": "color",
 				"extensions": null
 			},
 			{
-				"name": "border-rise-subtle-color-components",
+				"name": "border-rise-subtle-width",
 				"path": [
 					"borderRise",
 					"subtle",
-					"color",
-					"components"
+					"width"
 				],
-				"cssVar": "--border-rise-subtle-color-components",
-				"value": [
-					1.0032,
-					0.0305,
-					28.88
-				],
-				"type": "components",
-				"extensions": null
-			},
-			{
-				"name": "border-rise-subtle-color-alpha",
-				"path": [
-					"borderRise",
-					"subtle",
-					"color",
-					"alpha"
-				],
-				"cssVar": "--border-rise-subtle-color-alpha",
-				"value": 0.059,
-				"type": "alpha",
-				"extensions": null
-			},
-			{
-				"name": "border-rise-subtle-color-hex",
-				"path": [
-					"borderRise",
-					"subtle",
-					"color",
-					"hex"
-				],
-				"cssVar": "--border-rise-subtle-color-hex",
-				"value": "#ffffff",
-				"type": "hex",
-				"extensions": null
-			},
-			{
-				"name": "border-rise-subtle-width-value",
-				"path": [
-					"borderRise",
-					"subtle",
-					"width",
-					"value"
-				],
-				"cssVar": "--border-rise-subtle-width-value",
-				"value": 0.0625,
-				"type": "value",
-				"extensions": null
-			},
-			{
-				"name": "border-rise-subtle-width-unit",
-				"path": [
-					"borderRise",
-					"subtle",
-					"width",
-					"unit"
-				],
-				"cssVar": "--border-rise-subtle-width-unit",
-				"value": "rem",
-				"type": "unit",
+				"cssVar": "--border-rise-subtle-width",
+				"value": {
+					"value": 0.0625,
+					"unit": "rem"
+				},
+				"type": "dimension",
 				"extensions": null
 			},
 			{
@@ -39831,85 +39785,39 @@
 				"extensions": null
 			},
 			{
-				"name": "border-rise-soft-color-color-space",
+				"name": "border-rise-soft-color",
 				"path": [
 					"borderRise",
 					"soft",
-					"color",
-					"colorSpace"
+					"color"
 				],
-				"cssVar": "--border-rise-soft-color-color-space",
-				"value": "oklch",
-				"type": "colorSpace",
+				"cssVar": "--border-rise-soft-color",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						1.0032,
+						0.0305,
+						28.88
+					],
+					"alpha": 0.102,
+					"hex": "#ffffff"
+				},
+				"type": "color",
 				"extensions": null
 			},
 			{
-				"name": "border-rise-soft-color-components",
+				"name": "border-rise-soft-width",
 				"path": [
 					"borderRise",
 					"soft",
-					"color",
-					"components"
+					"width"
 				],
-				"cssVar": "--border-rise-soft-color-components",
-				"value": [
-					1.0032,
-					0.0305,
-					28.88
-				],
-				"type": "components",
-				"extensions": null
-			},
-			{
-				"name": "border-rise-soft-color-alpha",
-				"path": [
-					"borderRise",
-					"soft",
-					"color",
-					"alpha"
-				],
-				"cssVar": "--border-rise-soft-color-alpha",
-				"value": 0.102,
-				"type": "alpha",
-				"extensions": null
-			},
-			{
-				"name": "border-rise-soft-color-hex",
-				"path": [
-					"borderRise",
-					"soft",
-					"color",
-					"hex"
-				],
-				"cssVar": "--border-rise-soft-color-hex",
-				"value": "#ffffff",
-				"type": "hex",
-				"extensions": null
-			},
-			{
-				"name": "border-rise-soft-width-value",
-				"path": [
-					"borderRise",
-					"soft",
-					"width",
-					"value"
-				],
-				"cssVar": "--border-rise-soft-width-value",
-				"value": 0.0625,
-				"type": "value",
-				"extensions": null
-			},
-			{
-				"name": "border-rise-soft-width-unit",
-				"path": [
-					"borderRise",
-					"soft",
-					"width",
-					"unit"
-				],
-				"cssVar": "--border-rise-soft-width-unit",
-				"value": "rem",
-				"type": "unit",
+				"cssVar": "--border-rise-soft-width",
+				"value": {
+					"value": 0.0625,
+					"unit": "rem"
+				},
+				"type": "dimension",
 				"extensions": null
 			},
 			{
@@ -39925,85 +39833,39 @@
 				"extensions": null
 			},
 			{
-				"name": "border-rise-strong-color-color-space",
+				"name": "border-rise-strong-color",
 				"path": [
 					"borderRise",
 					"strong",
-					"color",
-					"colorSpace"
+					"color"
 				],
-				"cssVar": "--border-rise-strong-color-color-space",
-				"value": "oklch",
-				"type": "colorSpace",
+				"cssVar": "--border-rise-strong-color",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						1.0032,
+						0.0305,
+						28.88
+					],
+					"alpha": 0.161,
+					"hex": "#ffffff"
+				},
+				"type": "color",
 				"extensions": null
 			},
 			{
-				"name": "border-rise-strong-color-components",
+				"name": "border-rise-strong-width",
 				"path": [
 					"borderRise",
 					"strong",
-					"color",
-					"components"
+					"width"
 				],
-				"cssVar": "--border-rise-strong-color-components",
-				"value": [
-					1.0032,
-					0.0305,
-					28.88
-				],
-				"type": "components",
-				"extensions": null
-			},
-			{
-				"name": "border-rise-strong-color-alpha",
-				"path": [
-					"borderRise",
-					"strong",
-					"color",
-					"alpha"
-				],
-				"cssVar": "--border-rise-strong-color-alpha",
-				"value": 0.161,
-				"type": "alpha",
-				"extensions": null
-			},
-			{
-				"name": "border-rise-strong-color-hex",
-				"path": [
-					"borderRise",
-					"strong",
-					"color",
-					"hex"
-				],
-				"cssVar": "--border-rise-strong-color-hex",
-				"value": "#ffffff",
-				"type": "hex",
-				"extensions": null
-			},
-			{
-				"name": "border-rise-strong-width-value",
-				"path": [
-					"borderRise",
-					"strong",
-					"width",
-					"value"
-				],
-				"cssVar": "--border-rise-strong-width-value",
-				"value": 0.0625,
-				"type": "value",
-				"extensions": null
-			},
-			{
-				"name": "border-rise-strong-width-unit",
-				"path": [
-					"borderRise",
-					"strong",
-					"width",
-					"unit"
-				],
-				"cssVar": "--border-rise-strong-width-unit",
-				"value": "rem",
-				"type": "unit",
+				"cssVar": "--border-rise-strong-width",
+				"value": {
+					"value": 0.0625,
+					"unit": "rem"
+				},
+				"type": "dimension",
 				"extensions": null
 			},
 			{
@@ -40024,85 +39886,39 @@
 		"extensions": {},
 		"tokens": [
 			{
-				"name": "border-preset-default-color-color-space",
+				"name": "border-preset-default-color",
 				"path": [
 					"borderPreset",
 					"default",
-					"color",
-					"colorSpace"
+					"color"
 				],
-				"cssVar": "--border-preset-default-color-color-space",
-				"value": "oklch",
-				"type": "colorSpace",
+				"cssVar": "--border-preset-default-color",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.4,
+						0.13,
+						180
+					],
+					"alpha": 0.22,
+					"hex": "#0a5449"
+				},
+				"type": "color",
 				"extensions": null
 			},
 			{
-				"name": "border-preset-default-color-components",
+				"name": "border-preset-default-width",
 				"path": [
 					"borderPreset",
 					"default",
-					"color",
-					"components"
+					"width"
 				],
-				"cssVar": "--border-preset-default-color-components",
-				"value": [
-					0.4,
-					0.13,
-					180
-				],
-				"type": "components",
-				"extensions": null
-			},
-			{
-				"name": "border-preset-default-color-alpha",
-				"path": [
-					"borderPreset",
-					"default",
-					"color",
-					"alpha"
-				],
-				"cssVar": "--border-preset-default-color-alpha",
-				"value": 0.22,
-				"type": "alpha",
-				"extensions": null
-			},
-			{
-				"name": "border-preset-default-color-hex",
-				"path": [
-					"borderPreset",
-					"default",
-					"color",
-					"hex"
-				],
-				"cssVar": "--border-preset-default-color-hex",
-				"value": "#0a5449",
-				"type": "hex",
-				"extensions": null
-			},
-			{
-				"name": "border-preset-default-width-value",
-				"path": [
-					"borderPreset",
-					"default",
-					"width",
-					"value"
-				],
-				"cssVar": "--border-preset-default-width-value",
-				"value": 0.0625,
-				"type": "value",
-				"extensions": null
-			},
-			{
-				"name": "border-preset-default-width-unit",
-				"path": [
-					"borderPreset",
-					"default",
-					"width",
-					"unit"
-				],
-				"cssVar": "--border-preset-default-width-unit",
-				"value": "rem",
-				"type": "unit",
+				"cssVar": "--border-preset-default-width",
+				"value": {
+					"value": 0.0625,
+					"unit": "rem"
+				},
+				"type": "dimension",
 				"extensions": null
 			},
 			{
@@ -40118,85 +39934,39 @@
 				"extensions": null
 			},
 			{
-				"name": "border-preset-strong-color-color-space",
+				"name": "border-preset-strong-color",
 				"path": [
 					"borderPreset",
 					"strong",
-					"color",
-					"colorSpace"
+					"color"
 				],
-				"cssVar": "--border-preset-strong-color-color-space",
-				"value": "oklch",
-				"type": "colorSpace",
+				"cssVar": "--border-preset-strong-color",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.55,
+						0.18,
+						180
+					],
+					"alpha": 0.5,
+					"hex": "#138374"
+				},
+				"type": "color",
 				"extensions": null
 			},
 			{
-				"name": "border-preset-strong-color-components",
+				"name": "border-preset-strong-width",
 				"path": [
 					"borderPreset",
 					"strong",
-					"color",
-					"components"
+					"width"
 				],
-				"cssVar": "--border-preset-strong-color-components",
-				"value": [
-					0.55,
-					0.18,
-					180
-				],
-				"type": "components",
-				"extensions": null
-			},
-			{
-				"name": "border-preset-strong-color-alpha",
-				"path": [
-					"borderPreset",
-					"strong",
-					"color",
-					"alpha"
-				],
-				"cssVar": "--border-preset-strong-color-alpha",
-				"value": 0.5,
-				"type": "alpha",
-				"extensions": null
-			},
-			{
-				"name": "border-preset-strong-color-hex",
-				"path": [
-					"borderPreset",
-					"strong",
-					"color",
-					"hex"
-				],
-				"cssVar": "--border-preset-strong-color-hex",
-				"value": "#138374",
-				"type": "hex",
-				"extensions": null
-			},
-			{
-				"name": "border-preset-strong-width-value",
-				"path": [
-					"borderPreset",
-					"strong",
-					"width",
-					"value"
-				],
-				"cssVar": "--border-preset-strong-width-value",
-				"value": 0.0625,
-				"type": "value",
-				"extensions": null
-			},
-			{
-				"name": "border-preset-strong-width-unit",
-				"path": [
-					"borderPreset",
-					"strong",
-					"width",
-					"unit"
-				],
-				"cssVar": "--border-preset-strong-width-unit",
-				"value": "rem",
-				"type": "unit",
+				"cssVar": "--border-preset-strong-width",
+				"value": {
+					"value": 0.0625,
+					"unit": "rem"
+				},
+				"type": "dimension",
 				"extensions": null
 			},
 			{
@@ -40212,72 +39982,38 @@
 				"extensions": null
 			},
 			{
-				"name": "border-preset-focus-color-color-space",
+				"name": "border-preset-focus-color",
 				"path": [
 					"borderPreset",
 					"focus",
-					"color",
-					"colorSpace"
+					"color"
 				],
-				"cssVar": "--border-preset-focus-color-color-space",
-				"value": "oklch",
-				"type": "colorSpace",
+				"cssVar": "--border-preset-focus-color",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						0.65,
+						0.1561,
+						183
+					],
+					"hex": "#0ea596"
+				},
+				"type": "color",
 				"extensions": null
 			},
 			{
-				"name": "border-preset-focus-color-components",
+				"name": "border-preset-focus-width",
 				"path": [
 					"borderPreset",
 					"focus",
-					"color",
-					"components"
+					"width"
 				],
-				"cssVar": "--border-preset-focus-color-components",
-				"value": [
-					0.65,
-					0.1561,
-					183
-				],
-				"type": "components",
-				"extensions": null
-			},
-			{
-				"name": "border-preset-focus-color-hex",
-				"path": [
-					"borderPreset",
-					"focus",
-					"color",
-					"hex"
-				],
-				"cssVar": "--border-preset-focus-color-hex",
-				"value": "#0ea596",
-				"type": "hex",
-				"extensions": null
-			},
-			{
-				"name": "border-preset-focus-width-value",
-				"path": [
-					"borderPreset",
-					"focus",
-					"width",
-					"value"
-				],
-				"cssVar": "--border-preset-focus-width-value",
-				"value": 0.125,
-				"type": "value",
-				"extensions": null
-			},
-			{
-				"name": "border-preset-focus-width-unit",
-				"path": [
-					"borderPreset",
-					"focus",
-					"width",
-					"unit"
-				],
-				"cssVar": "--border-preset-focus-width-unit",
-				"value": "rem",
-				"type": "unit",
+				"cssVar": "--border-preset-focus-width",
+				"value": {
+					"value": 0.125,
+					"unit": "rem"
+				},
+				"type": "dimension",
 				"extensions": null
 			},
 			{
@@ -40293,85 +40029,39 @@
 				"extensions": null
 			},
 			{
-				"name": "border-preset-divider-color-color-space",
+				"name": "border-preset-divider-color",
 				"path": [
 					"borderPreset",
 					"divider",
-					"color",
-					"colorSpace"
+					"color"
 				],
-				"cssVar": "--border-preset-divider-color-color-space",
-				"value": "oklch",
-				"type": "colorSpace",
+				"cssVar": "--border-preset-divider-color",
+				"value": {
+					"colorSpace": "oklch",
+					"components": [
+						1,
+						0,
+						0
+					],
+					"alpha": 0.06,
+					"hex": "#ffffff"
+				},
+				"type": "color",
 				"extensions": null
 			},
 			{
-				"name": "border-preset-divider-color-components",
+				"name": "border-preset-divider-width",
 				"path": [
 					"borderPreset",
 					"divider",
-					"color",
-					"components"
+					"width"
 				],
-				"cssVar": "--border-preset-divider-color-components",
-				"value": [
-					1,
-					0,
-					0
-				],
-				"type": "components",
-				"extensions": null
-			},
-			{
-				"name": "border-preset-divider-color-alpha",
-				"path": [
-					"borderPreset",
-					"divider",
-					"color",
-					"alpha"
-				],
-				"cssVar": "--border-preset-divider-color-alpha",
-				"value": 0.06,
-				"type": "alpha",
-				"extensions": null
-			},
-			{
-				"name": "border-preset-divider-color-hex",
-				"path": [
-					"borderPreset",
-					"divider",
-					"color",
-					"hex"
-				],
-				"cssVar": "--border-preset-divider-color-hex",
-				"value": "#ffffff",
-				"type": "hex",
-				"extensions": null
-			},
-			{
-				"name": "border-preset-divider-width-value",
-				"path": [
-					"borderPreset",
-					"divider",
-					"width",
-					"value"
-				],
-				"cssVar": "--border-preset-divider-width-value",
-				"value": 0.0625,
-				"type": "value",
-				"extensions": null
-			},
-			{
-				"name": "border-preset-divider-width-unit",
-				"path": [
-					"borderPreset",
-					"divider",
-					"width",
-					"unit"
-				],
-				"cssVar": "--border-preset-divider-width-unit",
-				"value": "rem",
-				"type": "unit",
+				"cssVar": "--border-preset-divider-width",
+				"value": {
+					"value": 0.0625,
+					"unit": "rem"
+				},
+				"type": "dimension",
 				"extensions": null
 			},
 			{
@@ -40392,55 +40082,33 @@
 		"extensions": {},
 		"tokens": [
 			{
-				"name": "transition-fade-duration-value",
+				"name": "transition-fade-duration",
 				"path": [
 					"transition",
 					"fade",
-					"duration",
-					"value"
+					"duration"
 				],
-				"cssVar": "--transition-fade-duration-value",
-				"value": 150,
-				"type": "value",
+				"cssVar": "--transition-fade-duration",
+				"value": {
+					"value": 150,
+					"unit": "ms"
+				},
+				"type": "duration",
 				"extensions": null
 			},
 			{
-				"name": "transition-fade-duration-unit",
+				"name": "transition-fade-delay",
 				"path": [
 					"transition",
 					"fade",
-					"duration",
-					"unit"
+					"delay"
 				],
-				"cssVar": "--transition-fade-duration-unit",
-				"value": "ms",
-				"type": "unit",
-				"extensions": null
-			},
-			{
-				"name": "transition-fade-delay-value",
-				"path": [
-					"transition",
-					"fade",
-					"delay",
-					"value"
-				],
-				"cssVar": "--transition-fade-delay-value",
-				"value": 0,
-				"type": "value",
-				"extensions": null
-			},
-			{
-				"name": "transition-fade-delay-unit",
-				"path": [
-					"transition",
-					"fade",
-					"delay",
-					"unit"
-				],
-				"cssVar": "--transition-fade-delay-unit",
-				"value": "ms",
-				"type": "unit",
+				"cssVar": "--transition-fade-delay",
+				"value": {
+					"value": 0,
+					"unit": "ms"
+				},
+				"type": "duration",
 				"extensions": null
 			},
 			{
@@ -40461,55 +40129,33 @@
 				"extensions": null
 			},
 			{
-				"name": "transition-color-duration-value",
+				"name": "transition-color-duration",
 				"path": [
 					"transition",
 					"color",
-					"duration",
-					"value"
+					"duration"
 				],
-				"cssVar": "--transition-color-duration-value",
-				"value": 150,
-				"type": "value",
+				"cssVar": "--transition-color-duration",
+				"value": {
+					"value": 150,
+					"unit": "ms"
+				},
+				"type": "duration",
 				"extensions": null
 			},
 			{
-				"name": "transition-color-duration-unit",
+				"name": "transition-color-delay",
 				"path": [
 					"transition",
 					"color",
-					"duration",
-					"unit"
+					"delay"
 				],
-				"cssVar": "--transition-color-duration-unit",
-				"value": "ms",
-				"type": "unit",
-				"extensions": null
-			},
-			{
-				"name": "transition-color-delay-value",
-				"path": [
-					"transition",
-					"color",
-					"delay",
-					"value"
-				],
-				"cssVar": "--transition-color-delay-value",
-				"value": 0,
-				"type": "value",
-				"extensions": null
-			},
-			{
-				"name": "transition-color-delay-unit",
-				"path": [
-					"transition",
-					"color",
-					"delay",
-					"unit"
-				],
-				"cssVar": "--transition-color-delay-unit",
-				"value": "ms",
-				"type": "unit",
+				"cssVar": "--transition-color-delay",
+				"value": {
+					"value": 0,
+					"unit": "ms"
+				},
+				"type": "duration",
 				"extensions": null
 			},
 			{
@@ -40530,55 +40176,33 @@
 				"extensions": null
 			},
 			{
-				"name": "transition-expand-duration-value",
+				"name": "transition-expand-duration",
 				"path": [
 					"transition",
 					"expand",
-					"duration",
-					"value"
+					"duration"
 				],
-				"cssVar": "--transition-expand-duration-value",
-				"value": 250,
-				"type": "value",
+				"cssVar": "--transition-expand-duration",
+				"value": {
+					"value": 250,
+					"unit": "ms"
+				},
+				"type": "duration",
 				"extensions": null
 			},
 			{
-				"name": "transition-expand-duration-unit",
+				"name": "transition-expand-delay",
 				"path": [
 					"transition",
 					"expand",
-					"duration",
-					"unit"
+					"delay"
 				],
-				"cssVar": "--transition-expand-duration-unit",
-				"value": "ms",
-				"type": "unit",
-				"extensions": null
-			},
-			{
-				"name": "transition-expand-delay-value",
-				"path": [
-					"transition",
-					"expand",
-					"delay",
-					"value"
-				],
-				"cssVar": "--transition-expand-delay-value",
-				"value": 0,
-				"type": "value",
-				"extensions": null
-			},
-			{
-				"name": "transition-expand-delay-unit",
-				"path": [
-					"transition",
-					"expand",
-					"delay",
-					"unit"
-				],
-				"cssVar": "--transition-expand-delay-unit",
-				"value": "ms",
-				"type": "unit",
+				"cssVar": "--transition-expand-delay",
+				"value": {
+					"value": 0,
+					"unit": "ms"
+				},
+				"type": "duration",
 				"extensions": null
 			},
 			{
@@ -40599,55 +40223,33 @@
 				"extensions": null
 			},
 			{
-				"name": "transition-slide-duration-value",
+				"name": "transition-slide-duration",
 				"path": [
 					"transition",
 					"slide",
-					"duration",
-					"value"
+					"duration"
 				],
-				"cssVar": "--transition-slide-duration-value",
-				"value": 200,
-				"type": "value",
+				"cssVar": "--transition-slide-duration",
+				"value": {
+					"value": 200,
+					"unit": "ms"
+				},
+				"type": "duration",
 				"extensions": null
 			},
 			{
-				"name": "transition-slide-duration-unit",
+				"name": "transition-slide-delay",
 				"path": [
 					"transition",
 					"slide",
-					"duration",
-					"unit"
+					"delay"
 				],
-				"cssVar": "--transition-slide-duration-unit",
-				"value": "ms",
-				"type": "unit",
-				"extensions": null
-			},
-			{
-				"name": "transition-slide-delay-value",
-				"path": [
-					"transition",
-					"slide",
-					"delay",
-					"value"
-				],
-				"cssVar": "--transition-slide-delay-value",
-				"value": 0,
-				"type": "value",
-				"extensions": null
-			},
-			{
-				"name": "transition-slide-delay-unit",
-				"path": [
-					"transition",
-					"slide",
-					"delay",
-					"unit"
-				],
-				"cssVar": "--transition-slide-delay-unit",
-				"value": "ms",
-				"type": "unit",
+				"cssVar": "--transition-slide-delay",
+				"value": {
+					"value": 0,
+					"unit": "ms"
+				},
+				"type": "duration",
 				"extensions": null
 			},
 			{
@@ -40668,55 +40270,33 @@
 				"extensions": null
 			},
 			{
-				"name": "transition-scale-duration-value",
+				"name": "transition-scale-duration",
 				"path": [
 					"transition",
 					"scale",
-					"duration",
-					"value"
+					"duration"
 				],
-				"cssVar": "--transition-scale-duration-value",
-				"value": 150,
-				"type": "value",
+				"cssVar": "--transition-scale-duration",
+				"value": {
+					"value": 150,
+					"unit": "ms"
+				},
+				"type": "duration",
 				"extensions": null
 			},
 			{
-				"name": "transition-scale-duration-unit",
+				"name": "transition-scale-delay",
 				"path": [
 					"transition",
 					"scale",
-					"duration",
-					"unit"
+					"delay"
 				],
-				"cssVar": "--transition-scale-duration-unit",
-				"value": "ms",
-				"type": "unit",
-				"extensions": null
-			},
-			{
-				"name": "transition-scale-delay-value",
-				"path": [
-					"transition",
-					"scale",
-					"delay",
-					"value"
-				],
-				"cssVar": "--transition-scale-delay-value",
-				"value": 0,
-				"type": "value",
-				"extensions": null
-			},
-			{
-				"name": "transition-scale-delay-unit",
-				"path": [
-					"transition",
-					"scale",
-					"delay",
-					"unit"
-				],
-				"cssVar": "--transition-scale-delay-unit",
-				"value": "ms",
-				"type": "unit",
+				"cssVar": "--transition-scale-delay",
+				"value": {
+					"value": 0,
+					"unit": "ms"
+				},
+				"type": "duration",
 				"extensions": null
 			},
 			{
@@ -40737,55 +40317,33 @@
 				"extensions": null
 			},
 			{
-				"name": "transition-shadow-duration-value",
+				"name": "transition-shadow-duration",
 				"path": [
 					"transition",
 					"shadow",
-					"duration",
-					"value"
+					"duration"
 				],
-				"cssVar": "--transition-shadow-duration-value",
-				"value": 200,
-				"type": "value",
+				"cssVar": "--transition-shadow-duration",
+				"value": {
+					"value": 200,
+					"unit": "ms"
+				},
+				"type": "duration",
 				"extensions": null
 			},
 			{
-				"name": "transition-shadow-duration-unit",
+				"name": "transition-shadow-delay",
 				"path": [
 					"transition",
 					"shadow",
-					"duration",
-					"unit"
+					"delay"
 				],
-				"cssVar": "--transition-shadow-duration-unit",
-				"value": "ms",
-				"type": "unit",
-				"extensions": null
-			},
-			{
-				"name": "transition-shadow-delay-value",
-				"path": [
-					"transition",
-					"shadow",
-					"delay",
-					"value"
-				],
-				"cssVar": "--transition-shadow-delay-value",
-				"value": 0,
-				"type": "value",
-				"extensions": null
-			},
-			{
-				"name": "transition-shadow-delay-unit",
-				"path": [
-					"transition",
-					"shadow",
-					"delay",
-					"unit"
-				],
-				"cssVar": "--transition-shadow-delay-unit",
-				"value": "ms",
-				"type": "unit",
+				"cssVar": "--transition-shadow-delay",
+				"value": {
+					"value": 0,
+					"unit": "ms"
+				},
+				"type": "duration",
 				"extensions": null
 			},
 			{
@@ -40806,55 +40364,33 @@
 				"extensions": null
 			},
 			{
-				"name": "transition-all-fast-duration-value",
+				"name": "transition-all-fast-duration",
 				"path": [
 					"transition",
 					"all-fast",
-					"duration",
-					"value"
+					"duration"
 				],
-				"cssVar": "--transition-all-fast-duration-value",
-				"value": 150,
-				"type": "value",
+				"cssVar": "--transition-all-fast-duration",
+				"value": {
+					"value": 150,
+					"unit": "ms"
+				},
+				"type": "duration",
 				"extensions": null
 			},
 			{
-				"name": "transition-all-fast-duration-unit",
+				"name": "transition-all-fast-delay",
 				"path": [
 					"transition",
 					"all-fast",
-					"duration",
-					"unit"
+					"delay"
 				],
-				"cssVar": "--transition-all-fast-duration-unit",
-				"value": "ms",
-				"type": "unit",
-				"extensions": null
-			},
-			{
-				"name": "transition-all-fast-delay-value",
-				"path": [
-					"transition",
-					"all-fast",
-					"delay",
-					"value"
-				],
-				"cssVar": "--transition-all-fast-delay-value",
-				"value": 0,
-				"type": "value",
-				"extensions": null
-			},
-			{
-				"name": "transition-all-fast-delay-unit",
-				"path": [
-					"transition",
-					"all-fast",
-					"delay",
-					"unit"
-				],
-				"cssVar": "--transition-all-fast-delay-unit",
-				"value": "ms",
-				"type": "unit",
+				"cssVar": "--transition-all-fast-delay",
+				"value": {
+					"value": 0,
+					"unit": "ms"
+				},
+				"type": "duration",
 				"extensions": null
 			},
 			{
@@ -40875,55 +40411,33 @@
 				"extensions": null
 			},
 			{
-				"name": "transition-all-normal-duration-value",
+				"name": "transition-all-normal-duration",
 				"path": [
 					"transition",
 					"all-normal",
-					"duration",
-					"value"
+					"duration"
 				],
-				"cssVar": "--transition-all-normal-duration-value",
-				"value": 250,
-				"type": "value",
+				"cssVar": "--transition-all-normal-duration",
+				"value": {
+					"value": 250,
+					"unit": "ms"
+				},
+				"type": "duration",
 				"extensions": null
 			},
 			{
-				"name": "transition-all-normal-duration-unit",
+				"name": "transition-all-normal-delay",
 				"path": [
 					"transition",
 					"all-normal",
-					"duration",
-					"unit"
+					"delay"
 				],
-				"cssVar": "--transition-all-normal-duration-unit",
-				"value": "ms",
-				"type": "unit",
-				"extensions": null
-			},
-			{
-				"name": "transition-all-normal-delay-value",
-				"path": [
-					"transition",
-					"all-normal",
-					"delay",
-					"value"
-				],
-				"cssVar": "--transition-all-normal-delay-value",
-				"value": 0,
-				"type": "value",
-				"extensions": null
-			},
-			{
-				"name": "transition-all-normal-delay-unit",
-				"path": [
-					"transition",
-					"all-normal",
-					"delay",
-					"unit"
-				],
-				"cssVar": "--transition-all-normal-delay-unit",
-				"value": "ms",
-				"type": "unit",
+				"cssVar": "--transition-all-normal-delay",
+				"value": {
+					"value": 0,
+					"unit": "ms"
+				},
+				"type": "duration",
 				"extensions": null
 			},
 			{
@@ -40944,55 +40458,33 @@
 				"extensions": null
 			},
 			{
-				"name": "transition-spring-duration-value",
+				"name": "transition-spring-duration",
 				"path": [
 					"transition",
 					"spring",
-					"duration",
-					"value"
+					"duration"
 				],
-				"cssVar": "--transition-spring-duration-value",
-				"value": 250,
-				"type": "value",
+				"cssVar": "--transition-spring-duration",
+				"value": {
+					"value": 250,
+					"unit": "ms"
+				},
+				"type": "duration",
 				"extensions": null
 			},
 			{
-				"name": "transition-spring-duration-unit",
+				"name": "transition-spring-delay",
 				"path": [
 					"transition",
 					"spring",
-					"duration",
-					"unit"
+					"delay"
 				],
-				"cssVar": "--transition-spring-duration-unit",
-				"value": "ms",
-				"type": "unit",
-				"extensions": null
-			},
-			{
-				"name": "transition-spring-delay-value",
-				"path": [
-					"transition",
-					"spring",
-					"delay",
-					"value"
-				],
-				"cssVar": "--transition-spring-delay-value",
-				"value": 0,
-				"type": "value",
-				"extensions": null
-			},
-			{
-				"name": "transition-spring-delay-unit",
-				"path": [
-					"transition",
-					"spring",
-					"delay",
-					"unit"
-				],
-				"cssVar": "--transition-spring-delay-unit",
-				"value": "ms",
-				"type": "unit",
+				"cssVar": "--transition-spring-delay",
+				"value": {
+					"value": 0,
+					"unit": "ms"
+				},
+				"type": "duration",
 				"extensions": null
 			},
 			{
@@ -41013,55 +40505,33 @@
 				"extensions": null
 			},
 			{
-				"name": "transition-none-duration-value",
+				"name": "transition-none-duration",
 				"path": [
 					"transition",
 					"none",
-					"duration",
-					"value"
+					"duration"
 				],
-				"cssVar": "--transition-none-duration-value",
-				"value": 0,
-				"type": "value",
+				"cssVar": "--transition-none-duration",
+				"value": {
+					"value": 0,
+					"unit": "ms"
+				},
+				"type": "duration",
 				"extensions": null
 			},
 			{
-				"name": "transition-none-duration-unit",
+				"name": "transition-none-delay",
 				"path": [
 					"transition",
 					"none",
-					"duration",
-					"unit"
+					"delay"
 				],
-				"cssVar": "--transition-none-duration-unit",
-				"value": "ms",
-				"type": "unit",
-				"extensions": null
-			},
-			{
-				"name": "transition-none-delay-value",
-				"path": [
-					"transition",
-					"none",
-					"delay",
-					"value"
-				],
-				"cssVar": "--transition-none-delay-value",
-				"value": 0,
-				"type": "value",
-				"extensions": null
-			},
-			{
-				"name": "transition-none-delay-unit",
-				"path": [
-					"transition",
-					"none",
-					"delay",
-					"unit"
-				],
-				"cssVar": "--transition-none-delay-unit",
-				"value": "ms",
-				"type": "unit",
+				"cssVar": "--transition-none-delay",
+				"value": {
+					"value": 0,
+					"unit": "ms"
+				},
+				"type": "duration",
 				"extensions": null
 			},
 			{
@@ -41087,29 +40557,18 @@
 		"extensions": {},
 		"tokens": [
 			{
-				"name": "text-style-display-lg-font-size-value",
+				"name": "text-style-display-lg-font-size",
 				"path": [
 					"textStyle",
 					"display-lg",
-					"fontSize",
-					"value"
+					"fontSize"
 				],
-				"cssVar": "--text-style-display-lg-font-size-value",
-				"value": 2,
-				"type": "value",
-				"extensions": null
-			},
-			{
-				"name": "text-style-display-lg-font-size-unit",
-				"path": [
-					"textStyle",
-					"display-lg",
-					"fontSize",
-					"unit"
-				],
-				"cssVar": "--text-style-display-lg-font-size-unit",
-				"value": "rem",
-				"type": "unit",
+				"cssVar": "--text-style-display-lg-font-size",
+				"value": {
+					"value": 2,
+					"unit": "rem"
+				},
+				"type": "dimension",
 				"extensions": null
 			},
 			{
@@ -41153,55 +40612,33 @@
 				"extensions": null
 			},
 			{
-				"name": "text-style-display-lg-letter-spacing-value",
+				"name": "text-style-display-lg-letter-spacing",
 				"path": [
 					"textStyle",
 					"display-lg",
-					"letterSpacing",
-					"value"
+					"letterSpacing"
 				],
-				"cssVar": "--text-style-display-lg-letter-spacing-value",
-				"value": 0.02,
-				"type": "value",
+				"cssVar": "--text-style-display-lg-letter-spacing",
+				"value": {
+					"value": 0.02,
+					"unit": "em"
+				},
+				"type": "dimension",
 				"extensions": null
 			},
 			{
-				"name": "text-style-display-lg-letter-spacing-unit",
-				"path": [
-					"textStyle",
-					"display-lg",
-					"letterSpacing",
-					"unit"
-				],
-				"cssVar": "--text-style-display-lg-letter-spacing-unit",
-				"value": "em",
-				"type": "unit",
-				"extensions": null
-			},
-			{
-				"name": "text-style-display-sm-font-size-value",
+				"name": "text-style-display-sm-font-size",
 				"path": [
 					"textStyle",
 					"display-sm",
-					"fontSize",
-					"value"
+					"fontSize"
 				],
-				"cssVar": "--text-style-display-sm-font-size-value",
-				"value": 1.5,
-				"type": "value",
-				"extensions": null
-			},
-			{
-				"name": "text-style-display-sm-font-size-unit",
-				"path": [
-					"textStyle",
-					"display-sm",
-					"fontSize",
-					"unit"
-				],
-				"cssVar": "--text-style-display-sm-font-size-unit",
-				"value": "rem",
-				"type": "unit",
+				"cssVar": "--text-style-display-sm-font-size",
+				"value": {
+					"value": 1.5,
+					"unit": "rem"
+				},
+				"type": "dimension",
 				"extensions": null
 			},
 			{
@@ -41245,55 +40682,33 @@
 				"extensions": null
 			},
 			{
-				"name": "text-style-display-sm-letter-spacing-value",
+				"name": "text-style-display-sm-letter-spacing",
 				"path": [
 					"textStyle",
 					"display-sm",
-					"letterSpacing",
-					"value"
+					"letterSpacing"
 				],
-				"cssVar": "--text-style-display-sm-letter-spacing-value",
-				"value": 0.01,
-				"type": "value",
+				"cssVar": "--text-style-display-sm-letter-spacing",
+				"value": {
+					"value": 0.01,
+					"unit": "em"
+				},
+				"type": "dimension",
 				"extensions": null
 			},
 			{
-				"name": "text-style-display-sm-letter-spacing-unit",
-				"path": [
-					"textStyle",
-					"display-sm",
-					"letterSpacing",
-					"unit"
-				],
-				"cssVar": "--text-style-display-sm-letter-spacing-unit",
-				"value": "em",
-				"type": "unit",
-				"extensions": null
-			},
-			{
-				"name": "text-style-heading-lg-font-size-value",
+				"name": "text-style-heading-lg-font-size",
 				"path": [
 					"textStyle",
 					"heading-lg",
-					"fontSize",
-					"value"
+					"fontSize"
 				],
-				"cssVar": "--text-style-heading-lg-font-size-value",
-				"value": 1.25,
-				"type": "value",
-				"extensions": null
-			},
-			{
-				"name": "text-style-heading-lg-font-size-unit",
-				"path": [
-					"textStyle",
-					"heading-lg",
-					"fontSize",
-					"unit"
-				],
-				"cssVar": "--text-style-heading-lg-font-size-unit",
-				"value": "rem",
-				"type": "unit",
+				"cssVar": "--text-style-heading-lg-font-size",
+				"value": {
+					"value": 1.25,
+					"unit": "rem"
+				},
+				"type": "dimension",
 				"extensions": null
 			},
 			{
@@ -41337,55 +40752,33 @@
 				"extensions": null
 			},
 			{
-				"name": "text-style-heading-lg-letter-spacing-value",
+				"name": "text-style-heading-lg-letter-spacing",
 				"path": [
 					"textStyle",
 					"heading-lg",
-					"letterSpacing",
-					"value"
+					"letterSpacing"
 				],
-				"cssVar": "--text-style-heading-lg-letter-spacing-value",
-				"value": -0.01,
-				"type": "value",
+				"cssVar": "--text-style-heading-lg-letter-spacing",
+				"value": {
+					"value": -0.01,
+					"unit": "em"
+				},
+				"type": "dimension",
 				"extensions": null
 			},
 			{
-				"name": "text-style-heading-lg-letter-spacing-unit",
-				"path": [
-					"textStyle",
-					"heading-lg",
-					"letterSpacing",
-					"unit"
-				],
-				"cssVar": "--text-style-heading-lg-letter-spacing-unit",
-				"value": "em",
-				"type": "unit",
-				"extensions": null
-			},
-			{
-				"name": "text-style-heading-sm-font-size-value",
+				"name": "text-style-heading-sm-font-size",
 				"path": [
 					"textStyle",
 					"heading-sm",
-					"fontSize",
-					"value"
+					"fontSize"
 				],
-				"cssVar": "--text-style-heading-sm-font-size-value",
-				"value": 1,
-				"type": "value",
-				"extensions": null
-			},
-			{
-				"name": "text-style-heading-sm-font-size-unit",
-				"path": [
-					"textStyle",
-					"heading-sm",
-					"fontSize",
-					"unit"
-				],
-				"cssVar": "--text-style-heading-sm-font-size-unit",
-				"value": "rem",
-				"type": "unit",
+				"cssVar": "--text-style-heading-sm-font-size",
+				"value": {
+					"value": 1,
+					"unit": "rem"
+				},
+				"type": "dimension",
 				"extensions": null
 			},
 			{
@@ -41429,55 +40822,33 @@
 				"extensions": null
 			},
 			{
-				"name": "text-style-heading-sm-letter-spacing-value",
+				"name": "text-style-heading-sm-letter-spacing",
 				"path": [
 					"textStyle",
 					"heading-sm",
-					"letterSpacing",
-					"value"
+					"letterSpacing"
 				],
-				"cssVar": "--text-style-heading-sm-letter-spacing-value",
-				"value": -0.005,
-				"type": "value",
+				"cssVar": "--text-style-heading-sm-letter-spacing",
+				"value": {
+					"value": -0.005,
+					"unit": "em"
+				},
+				"type": "dimension",
 				"extensions": null
 			},
 			{
-				"name": "text-style-heading-sm-letter-spacing-unit",
-				"path": [
-					"textStyle",
-					"heading-sm",
-					"letterSpacing",
-					"unit"
-				],
-				"cssVar": "--text-style-heading-sm-letter-spacing-unit",
-				"value": "em",
-				"type": "unit",
-				"extensions": null
-			},
-			{
-				"name": "text-style-body-font-size-value",
+				"name": "text-style-body-font-size",
 				"path": [
 					"textStyle",
 					"body",
-					"fontSize",
-					"value"
+					"fontSize"
 				],
-				"cssVar": "--text-style-body-font-size-value",
-				"value": 0.875,
-				"type": "value",
-				"extensions": null
-			},
-			{
-				"name": "text-style-body-font-size-unit",
-				"path": [
-					"textStyle",
-					"body",
-					"fontSize",
-					"unit"
-				],
-				"cssVar": "--text-style-body-font-size-unit",
-				"value": "rem",
-				"type": "unit",
+				"cssVar": "--text-style-body-font-size",
+				"value": {
+					"value": 0.875,
+					"unit": "rem"
+				},
+				"type": "dimension",
 				"extensions": null
 			},
 			{
@@ -41521,55 +40892,33 @@
 				"extensions": null
 			},
 			{
-				"name": "text-style-body-letter-spacing-value",
+				"name": "text-style-body-letter-spacing",
 				"path": [
 					"textStyle",
 					"body",
-					"letterSpacing",
-					"value"
+					"letterSpacing"
 				],
-				"cssVar": "--text-style-body-letter-spacing-value",
-				"value": 0,
-				"type": "value",
+				"cssVar": "--text-style-body-letter-spacing",
+				"value": {
+					"value": 0,
+					"unit": "em"
+				},
+				"type": "dimension",
 				"extensions": null
 			},
 			{
-				"name": "text-style-body-letter-spacing-unit",
-				"path": [
-					"textStyle",
-					"body",
-					"letterSpacing",
-					"unit"
-				],
-				"cssVar": "--text-style-body-letter-spacing-unit",
-				"value": "em",
-				"type": "unit",
-				"extensions": null
-			},
-			{
-				"name": "text-style-body-sm-font-size-value",
+				"name": "text-style-body-sm-font-size",
 				"path": [
 					"textStyle",
 					"body-sm",
-					"fontSize",
-					"value"
+					"fontSize"
 				],
-				"cssVar": "--text-style-body-sm-font-size-value",
-				"value": 0.8125,
-				"type": "value",
-				"extensions": null
-			},
-			{
-				"name": "text-style-body-sm-font-size-unit",
-				"path": [
-					"textStyle",
-					"body-sm",
-					"fontSize",
-					"unit"
-				],
-				"cssVar": "--text-style-body-sm-font-size-unit",
-				"value": "rem",
-				"type": "unit",
+				"cssVar": "--text-style-body-sm-font-size",
+				"value": {
+					"value": 0.8125,
+					"unit": "rem"
+				},
+				"type": "dimension",
 				"extensions": null
 			},
 			{
@@ -41613,55 +40962,33 @@
 				"extensions": null
 			},
 			{
-				"name": "text-style-body-sm-letter-spacing-value",
+				"name": "text-style-body-sm-letter-spacing",
 				"path": [
 					"textStyle",
 					"body-sm",
-					"letterSpacing",
-					"value"
+					"letterSpacing"
 				],
-				"cssVar": "--text-style-body-sm-letter-spacing-value",
-				"value": 0,
-				"type": "value",
+				"cssVar": "--text-style-body-sm-letter-spacing",
+				"value": {
+					"value": 0,
+					"unit": "em"
+				},
+				"type": "dimension",
 				"extensions": null
 			},
 			{
-				"name": "text-style-body-sm-letter-spacing-unit",
-				"path": [
-					"textStyle",
-					"body-sm",
-					"letterSpacing",
-					"unit"
-				],
-				"cssVar": "--text-style-body-sm-letter-spacing-unit",
-				"value": "em",
-				"type": "unit",
-				"extensions": null
-			},
-			{
-				"name": "text-style-caption-font-size-value",
+				"name": "text-style-caption-font-size",
 				"path": [
 					"textStyle",
 					"caption",
-					"fontSize",
-					"value"
+					"fontSize"
 				],
-				"cssVar": "--text-style-caption-font-size-value",
-				"value": 0.75,
-				"type": "value",
-				"extensions": null
-			},
-			{
-				"name": "text-style-caption-font-size-unit",
-				"path": [
-					"textStyle",
-					"caption",
-					"fontSize",
-					"unit"
-				],
-				"cssVar": "--text-style-caption-font-size-unit",
-				"value": "rem",
-				"type": "unit",
+				"cssVar": "--text-style-caption-font-size",
+				"value": {
+					"value": 0.75,
+					"unit": "rem"
+				},
+				"type": "dimension",
 				"extensions": null
 			},
 			{
@@ -41705,55 +41032,33 @@
 				"extensions": null
 			},
 			{
-				"name": "text-style-caption-letter-spacing-value",
+				"name": "text-style-caption-letter-spacing",
 				"path": [
 					"textStyle",
 					"caption",
-					"letterSpacing",
-					"value"
+					"letterSpacing"
 				],
-				"cssVar": "--text-style-caption-letter-spacing-value",
-				"value": 0.01,
-				"type": "value",
+				"cssVar": "--text-style-caption-letter-spacing",
+				"value": {
+					"value": 0.01,
+					"unit": "em"
+				},
+				"type": "dimension",
 				"extensions": null
 			},
 			{
-				"name": "text-style-caption-letter-spacing-unit",
-				"path": [
-					"textStyle",
-					"caption",
-					"letterSpacing",
-					"unit"
-				],
-				"cssVar": "--text-style-caption-letter-spacing-unit",
-				"value": "em",
-				"type": "unit",
-				"extensions": null
-			},
-			{
-				"name": "text-style-overline-font-size-value",
+				"name": "text-style-overline-font-size",
 				"path": [
 					"textStyle",
 					"overline",
-					"fontSize",
-					"value"
+					"fontSize"
 				],
-				"cssVar": "--text-style-overline-font-size-value",
-				"value": 0.6875,
-				"type": "value",
-				"extensions": null
-			},
-			{
-				"name": "text-style-overline-font-size-unit",
-				"path": [
-					"textStyle",
-					"overline",
-					"fontSize",
-					"unit"
-				],
-				"cssVar": "--text-style-overline-font-size-unit",
-				"value": "rem",
-				"type": "unit",
+				"cssVar": "--text-style-overline-font-size",
+				"value": {
+					"value": 0.6875,
+					"unit": "rem"
+				},
+				"type": "dimension",
 				"extensions": null
 			},
 			{
@@ -41797,55 +41102,33 @@
 				"extensions": null
 			},
 			{
-				"name": "text-style-overline-letter-spacing-value",
+				"name": "text-style-overline-letter-spacing",
 				"path": [
 					"textStyle",
 					"overline",
-					"letterSpacing",
-					"value"
+					"letterSpacing"
 				],
-				"cssVar": "--text-style-overline-letter-spacing-value",
-				"value": 0.08,
-				"type": "value",
+				"cssVar": "--text-style-overline-letter-spacing",
+				"value": {
+					"value": 0.08,
+					"unit": "em"
+				},
+				"type": "dimension",
 				"extensions": null
 			},
 			{
-				"name": "text-style-overline-letter-spacing-unit",
-				"path": [
-					"textStyle",
-					"overline",
-					"letterSpacing",
-					"unit"
-				],
-				"cssVar": "--text-style-overline-letter-spacing-unit",
-				"value": "em",
-				"type": "unit",
-				"extensions": null
-			},
-			{
-				"name": "text-style-code-font-size-value",
+				"name": "text-style-code-font-size",
 				"path": [
 					"textStyle",
 					"code",
-					"fontSize",
-					"value"
+					"fontSize"
 				],
-				"cssVar": "--text-style-code-font-size-value",
-				"value": 0.8125,
-				"type": "value",
-				"extensions": null
-			},
-			{
-				"name": "text-style-code-font-size-unit",
-				"path": [
-					"textStyle",
-					"code",
-					"fontSize",
-					"unit"
-				],
-				"cssVar": "--text-style-code-font-size-unit",
-				"value": "rem",
-				"type": "unit",
+				"cssVar": "--text-style-code-font-size",
+				"value": {
+					"value": 0.8125,
+					"unit": "rem"
+				},
+				"type": "dimension",
 				"extensions": null
 			},
 			{
@@ -41889,55 +41172,33 @@
 				"extensions": null
 			},
 			{
-				"name": "text-style-code-letter-spacing-value",
+				"name": "text-style-code-letter-spacing",
 				"path": [
 					"textStyle",
 					"code",
-					"letterSpacing",
-					"value"
+					"letterSpacing"
 				],
-				"cssVar": "--text-style-code-letter-spacing-value",
-				"value": 0,
-				"type": "value",
+				"cssVar": "--text-style-code-letter-spacing",
+				"value": {
+					"value": 0,
+					"unit": "em"
+				},
+				"type": "dimension",
 				"extensions": null
 			},
 			{
-				"name": "text-style-code-letter-spacing-unit",
-				"path": [
-					"textStyle",
-					"code",
-					"letterSpacing",
-					"unit"
-				],
-				"cssVar": "--text-style-code-letter-spacing-unit",
-				"value": "em",
-				"type": "unit",
-				"extensions": null
-			},
-			{
-				"name": "text-style-stat-font-size-value",
+				"name": "text-style-stat-font-size",
 				"path": [
 					"textStyle",
 					"stat",
-					"fontSize",
-					"value"
+					"fontSize"
 				],
-				"cssVar": "--text-style-stat-font-size-value",
-				"value": 1.5,
-				"type": "value",
-				"extensions": null
-			},
-			{
-				"name": "text-style-stat-font-size-unit",
-				"path": [
-					"textStyle",
-					"stat",
-					"fontSize",
-					"unit"
-				],
-				"cssVar": "--text-style-stat-font-size-unit",
-				"value": "rem",
-				"type": "unit",
+				"cssVar": "--text-style-stat-font-size",
+				"value": {
+					"value": 1.5,
+					"unit": "rem"
+				},
+				"type": "dimension",
 				"extensions": null
 			},
 			{
@@ -41981,29 +41242,18 @@
 				"extensions": null
 			},
 			{
-				"name": "text-style-stat-letter-spacing-value",
+				"name": "text-style-stat-letter-spacing",
 				"path": [
 					"textStyle",
 					"stat",
-					"letterSpacing",
-					"value"
+					"letterSpacing"
 				],
-				"cssVar": "--text-style-stat-letter-spacing-value",
-				"value": 0.02,
-				"type": "value",
-				"extensions": null
-			},
-			{
-				"name": "text-style-stat-letter-spacing-unit",
-				"path": [
-					"textStyle",
-					"stat",
-					"letterSpacing",
-					"unit"
-				],
-				"cssVar": "--text-style-stat-letter-spacing-unit",
-				"value": "em",
-				"type": "unit",
+				"cssVar": "--text-style-stat-letter-spacing",
+				"value": {
+					"value": 0.02,
+					"unit": "em"
+				},
+				"type": "dimension",
 				"extensions": null
 			}
 		]

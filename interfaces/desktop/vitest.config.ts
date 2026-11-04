@@ -2,7 +2,7 @@
  * @file vitest.config.ts
  * @package devpulse-desktop
  *
- * Vitest 4 configuration — browser mode (Chromium via Playwright).
+ * Vitest 5 configuration — browser mode (Chromium via Playwright).
  *
  * Node 24 minimum. Svelte 5 runes. Zero stores.
  *
@@ -11,7 +11,7 @@
  *
  * ```mermaid
  * flowchart LR
- *   Test[*.test.ts] --> Vitest[Vitest 4]
+ *   Test[*.test.ts] --> Vitest[Vitest 5]
  *   Vitest --> Browser[Chromium via Playwright]
  *   Browser --> DOM[Real DOM]
  *   Vitest --> Coverage[V8 Coverage]
@@ -19,30 +19,30 @@
  * ```
  */
 
-import path, { resolve } from "node:path";
+import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { storybookTest } from "@storybook/addon-vitest/vitest-plugin";
 import { sveltekit } from "@sveltejs/kit/vite";
 import tailwindcss from "@tailwindcss/vite";
 import { playwright } from "@vitest/browser-playwright";
 import { defineConfig } from "vitest/config";
+import { sveltekitOptions } from "./vite.config.ts";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const isCI = !!process.env.CI;
 export default defineConfig({
 	// App imports use SvelteKit's $app/* modules as well as Svelte runes.
-	plugins: [tailwindcss(), sveltekit()],
+	plugins: [tailwindcss(), sveltekit(sveltekitOptions)],
 	// Pre-bundled so Vite does not re-optimize and reload a test mid-run when a test first imports it.
 	optimizeDeps: {
 		include: ["@tauri-apps/api/webviewWindow", "@tauri-apps/api/window"],
 	},
-	resolve: {
-		alias: {
-			$lib: resolve(__dirname, "./src/lib"),
-		},
-	},
 	test: {
-		// V8 coverage — AST-aware remapping (Vitest 4 default)
+		// No pinned port: Vitest takes the next free one (see ColdLight's vitest.config.ts).
+		api: {
+			host: "127.0.0.1",
+		},
+		// V8 coverage — AST-aware remapping
 		coverage: {
 			provider: "v8",
 			enabled: isCI,
@@ -71,10 +71,8 @@ export default defineConfig({
 						trace: isCI ? "retain-on-failure" : "off",
 						// Screenshot on test failure in CI
 						screenshotFailures: isCI,
-						// No pinned port: Vitest takes the next free one (see ColdLight's vitest.config.ts).
-						api: {
-							host: "127.0.0.1",
-						},
+						// Migrating these tests to Vitest 5's exact text matching takes a suite run.
+						locators: { exact: false },
 					},
 				},
 			},

@@ -2,7 +2,7 @@
  * @file vitest.config.ts
  * @package @devpulse/coldlight
  *
- * ColdLight's component tests — Vitest 4 browser mode (Chromium via Playwright).
+ * ColdLight's component tests — Vitest 5 browser mode (Chromium via Playwright).
  *
  * Dev:  headed browser, no coverage, no traces
  * CI:   headless, coverage v8, traces on failure, screenshot on failure
@@ -22,7 +22,12 @@ export default defineConfig({
 		include: ["**/*.test.{js,ts}"],
 		exclude: ["**/node_modules/**", ".cowlevel/**"],
 		setupFiles: ["vitest-browser-svelte"],
-		// V8 coverage — AST-aware remapping (Vitest 4 default)
+		// No pinned port: Vitest takes the next free one. A pinned start inside a range the
+		// OS refuses (51205–54179 on the dev machine) scanned ~3000 ports before starting.
+		api: {
+			host: "127.0.0.1",
+		},
+		// V8 coverage — AST-aware remapping
 		coverage: {
 			provider: "v8",
 			enabled: isCI,
@@ -41,11 +46,8 @@ export default defineConfig({
 			trace: isCI ? "retain-on-failure" : "off",
 			// Screenshot on test failure in CI
 			screenshotFailures: isCI,
-			// No pinned port: Vitest takes the next free one. A pinned start inside a range the
-			// OS refuses (51205–54179 on the dev machine) scanned ~3000 ports before starting.
-			api: {
-				host: "127.0.0.1",
-			},
+			// Migrating these tests to Vitest 5's exact text matching takes a suite run.
+			locators: { exact: false },
 		},
 	},
 });

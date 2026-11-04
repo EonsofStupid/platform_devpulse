@@ -3,7 +3,7 @@
  * @description DuckDB analytics store devtool surface.
  */
 
-import { commands } from "$lib/sys/generated/bindings.js";
+import { commands } from "#lib/sys/generated/bindings.js";
 
 export const duckdbHealth = commands.duckdbHealth;
 export const duckdbListTables = commands.duckdbListTables;
@@ -13,4 +13,4 @@ export type {
 	DuckDbHealth,
 	DuckDbQueryResult,
 	DuckDbTableInfo,
-} from "$lib/sys/generated/bindings.js";
+} from "#lib/sys/generated/bindings.js";

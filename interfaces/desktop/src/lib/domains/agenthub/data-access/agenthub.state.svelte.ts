@@ -1,5 +1,5 @@
 /** @file Retained runtime snapshots, shared by chat and the forthcoming board. */
-import type { LiveSnapshot } from "$lib/sys/generated/bindings.js";
+import type { LiveSnapshot } from "#lib/sys/generated/bindings.js";
 import * as service from "./agenthub.service.js";
 
 export class AgentHubStore {

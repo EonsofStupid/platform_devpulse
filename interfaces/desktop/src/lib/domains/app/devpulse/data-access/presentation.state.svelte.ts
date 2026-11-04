@@ -1,4 +1,4 @@
-import { type PresentationMode, resolveLabel } from "$lib/sys/generated/terminology.js";
+import { type PresentationMode, resolveLabel } from "#lib/sys/generated/terminology.js";
 
 export const PRESENTATION_KEY = "devpulse.presentation.mode";
 

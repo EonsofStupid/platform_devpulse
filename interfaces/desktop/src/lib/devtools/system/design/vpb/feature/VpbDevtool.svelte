@@ -10,11 +10,11 @@
 <script lang="ts">
 import { Button } from "@devpulse/coldlight/components/button";
 import { Text } from "@devpulse/coldlight/components/text";
-import type { HealthBadge } from "$lib/devtools/index.js";
-import { ServiceDevtoolShell } from "$lib/devtools/index.js";
-import { presentationState } from "$lib/domains/app/devpulse/index.js";
-import { copyState, fill } from "$lib/sys/copy/index.js";
-import { vpb, vpbDocument } from "$lib/sys/debug/vpb/state/index.js";
+import type { HealthBadge } from "#lib/devtools/index.js";
+import { ServiceDevtoolShell } from "#lib/devtools/index.js";
+import { presentationState } from "#lib/domains/app/devpulse/index.js";
+import { copyState, fill } from "#lib/sys/copy/index.js";
+import { vpb, vpbDocument } from "#lib/sys/debug/vpb/state/index.js";
 
 const text = $derived(copyState.catalog?.vpb);
 const tree = $derived(vpbDocument.document.root);

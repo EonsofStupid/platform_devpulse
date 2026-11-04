@@ -7,7 +7,7 @@ export type {
 	DuckDbHealth,
 	DuckDbQueryResult,
 	DuckDbTableInfo,
-} from "$lib/sys/generated/bindings.js";
+} from "#lib/sys/generated/bindings.js";
 
 /** Devtool tab identifiers. */
 export type DuckDbTab = "health" | "tables" | "console";

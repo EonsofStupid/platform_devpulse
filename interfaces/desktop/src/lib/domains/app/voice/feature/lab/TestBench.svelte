@@ -9,7 +9,7 @@ import { InlineMessage } from "@devpulse/coldlight/components/inline-message";
 import { Text } from "@devpulse/coldlight/components/text";
 import { Textarea } from "@devpulse/coldlight/components/textarea";
 import { Mic, Play, Square } from "lucide-svelte";
-import { fill } from "$lib/sys/copy/index.js";
+import { fill } from "#lib/sys/copy/index.js";
 import {
 	ensureSlotLoaded,
 	runSmokeTest,

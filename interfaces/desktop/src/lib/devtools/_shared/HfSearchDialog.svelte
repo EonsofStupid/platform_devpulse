@@ -27,7 +27,7 @@ import { Badge } from "@devpulse/coldlight/components/badge";
 import { Spinner } from "@devpulse/coldlight/components/spinner";
 import { Text } from "@devpulse/coldlight/components/text";
 import { Search, X } from "lucide-svelte";
-import { type HfSearchResultInfo, searchHuggingface } from "$lib/sys/bindings/models/index.js";
+import { type HfSearchResultInfo, searchHuggingface } from "#lib/sys/bindings/models/index.js";
 import RepoDownloadButton from "./RepoDownloadButton.svelte";
 
 interface Props {

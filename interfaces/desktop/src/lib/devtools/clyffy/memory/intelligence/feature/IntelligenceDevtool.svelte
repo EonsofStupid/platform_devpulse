@@ -17,7 +17,7 @@ import { Text } from "@devpulse/coldlight/components/text";
 import { invoke } from "@tauri-apps/api/core";
 import { Database, HardDrive, RefreshCw, Sparkles } from "lucide-svelte";
 import { onMount } from "svelte";
-import { type HealthBadge, ScopedLogPanel, ServiceDevtoolShell } from "$lib/devtools/index.js";
+import { type HealthBadge, ScopedLogPanel, ServiceDevtoolShell } from "#lib/devtools/index.js";
 import IntelligenceMemoryStream from "./IntelligenceMemoryStream.svelte";
 
 // ─── Local DTOs (mirror Rust commands::intelligence::*) ───
@@ -25,7 +25,7 @@ import IntelligenceMemoryStream from "./IntelligenceMemoryStream.svelte";
 // Inline interfaces avoid the regen-bindings dependency so the
 // devtool compiles independently of the next `cargo xtask
 // regen-bindings` run. Migrate to
-// `$lib/sys/generated/bindings.js` once regen has run.
+// `#lib/sys/generated/bindings.js` once regen has run.
 interface IntelStatus {
 	connector_kind: string;
 	embedding_dim: number;

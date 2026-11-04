@@ -9,7 +9,7 @@ import { Text } from "@devpulse/coldlight/components/text";
 import { hstack } from "@devpulse/coldlight/utils/hstack";
 import { stack } from "@devpulse/coldlight/utils/stack";
 import { Check, ChevronDown, HardDrive, Info } from "lucide-svelte";
-import type { ModelInfo } from "$lib/sys/generated/bindings.js";
+import type { ModelInfo } from "#lib/sys/generated/bindings.js";
 import { hardwareState } from "../../data-access/hardware.state.svelte.js";
 import {
 	calculateFit,

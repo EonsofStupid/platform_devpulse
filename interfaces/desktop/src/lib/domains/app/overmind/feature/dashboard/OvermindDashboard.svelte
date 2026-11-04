@@ -11,9 +11,9 @@ import { Heading } from "@devpulse/coldlight/components/heading";
 import { Text } from "@devpulse/coldlight/components/text";
 import { hstack, stack } from "@devpulse/coldlight/utils";
 import { Activity, FlaskConical, FlaskRound, Network } from "lucide-svelte";
-import { copyState } from "$lib/sys/copy/index.js";
-import { hrefOf, routeAt, routeCopy } from "$lib/sys/routing/index.js";
-import { platformState } from "$lib/sys/runes/platformState.svelte.js";
+import { copyState } from "#lib/sys/copy/index.js";
+import { hrefOf, routeAt, routeCopy } from "#lib/sys/routing/index.js";
+import { platformState } from "#lib/sys/runes/platformState.svelte.js";
 
 const agenthub = routeAt("/overmind/agenthub");
 const text = $derived(copyState.catalog?.hubs.dashboard);

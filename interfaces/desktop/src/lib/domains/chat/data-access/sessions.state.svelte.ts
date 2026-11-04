@@ -3,7 +3,7 @@
  * @module @devpulse/domains/chat/data-access/sessions.state.svelte
  */
 
-import type { ChatSession } from "$lib/sys/generated/bindings.js";
+import type { ChatSession } from "#lib/sys/generated/bindings.js";
 import * as chatService from "./chat.service.js";
 
 class SessionsState {

@@ -6,7 +6,7 @@
  * `Error` carrying Rust's message, for the caller to show.
  */
 
-import { formatLoadError } from "$lib/domains/app/models/index.js";
+import { formatLoadError } from "#lib/domains/app/models/index.js";
 import {
 	commands,
 	type MicTestResult,
@@ -19,7 +19,7 @@ import {
 	type VoiceStatusInfo,
 	type VoiceSttConfig,
 	type VoiceTtsConfig,
-} from "$lib/sys/generated/bindings.js";
+} from "#lib/sys/generated/bindings.js";
 
 function take<T>(result: Result<T, string>): T {
 	if (result.status === "error") throw new Error(result.error);

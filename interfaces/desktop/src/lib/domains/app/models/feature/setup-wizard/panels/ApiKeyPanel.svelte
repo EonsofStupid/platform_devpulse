@@ -19,9 +19,9 @@ import { Heading } from "@devpulse/coldlight/components/heading";
 import { Spinner } from "@devpulse/coldlight/components/spinner";
 import { Text } from "@devpulse/coldlight/components/text";
 import { Check, Eye, EyeOff, Key, Plus, Shield, Trash2, X } from "lucide-svelte";
-import { withAction } from "$lib/sys/action-bus.svelte.js";
-import { type ApiKeyStatus, commands, type ProviderId } from "$lib/sys/generated/bindings.js";
-import { logError, logInfo } from "$lib/sys/logger.js";
+import { withAction } from "#lib/sys/action-bus.svelte.js";
+import { type ApiKeyStatus, commands, type ProviderId } from "#lib/sys/generated/bindings.js";
+import { logError, logInfo } from "#lib/sys/logger.js";
 
 const LOG_TARGET = "wizard.api-keys";
 

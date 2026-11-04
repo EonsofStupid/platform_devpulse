@@ -13,7 +13,7 @@
  * reads the registry at runtime.
  */
 
-import type { SlotInfo, VoiceLabCopy } from "$lib/sys/generated/bindings.js";
+import type { SlotInfo, VoiceLabCopy } from "#lib/sys/generated/bindings.js";
 
 export type {
 	MicTestResult,
@@ -24,7 +24,7 @@ export type {
 	VoiceProfile,
 	VoiceSmokeReport,
 	VoiceStatusInfo,
-} from "$lib/sys/generated/bindings.js";
+} from "#lib/sys/generated/bindings.js";
 
 /** Voice Lab tab identifiers. */
 export type VoiceLabTab = "tts" | "stt" | "profiles" | "test";

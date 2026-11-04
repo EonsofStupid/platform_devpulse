@@ -3,7 +3,7 @@
  * @module @devpulse/domains/chat/data-access/export.service
  */
 
-import type { ExportFormat } from "$lib/sys/generated/bindings.js";
+import type { ExportFormat } from "#lib/sys/generated/bindings.js";
 import { exportAllSessions, exportSession, pickSaveFile } from "./chat.service.js";
 
 export async function exportCurrentSessionToDisk(

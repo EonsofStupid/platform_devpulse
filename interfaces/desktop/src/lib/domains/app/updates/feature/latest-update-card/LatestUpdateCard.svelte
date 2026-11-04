@@ -51,7 +51,7 @@ const lastCheckedAt = $derived(updatesState.lastCheckedAt);
 
 const downloadPercent = $derived.by(() => {
 	const p = updatesState.progress;
-	if (!p || !p.totalBytes || p.totalBytes <= 0) return null;
+	if (!p?.totalBytes || p.totalBytes <= 0) return null;
 	return Math.min(100, Math.round((p.downloadedBytes / p.totalBytes) * 100));
 });
 

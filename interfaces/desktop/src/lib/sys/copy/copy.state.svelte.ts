@@ -7,8 +7,8 @@
  * was not used, so the UI can show it.
  */
 
-import { type CopyCatalog, getCopy } from "$lib/sys/bindings/copy/index.js";
-import { logError } from "$lib/sys/logger.js";
+import { type CopyCatalog, getCopy } from "#lib/sys/bindings/copy/index.js";
+import { logError } from "#lib/sys/logger.js";
 
 class CopyState {
 	catalog = $state<CopyCatalog | null>(null);

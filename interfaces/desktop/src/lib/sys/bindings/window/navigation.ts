@@ -1,9 +1,9 @@
 /** Cross-window links stay in their owning shell; never replace the chat webview. */
 import { emit, emitTo, listen, type UnlistenFn } from "@tauri-apps/api/event";
 import { getCurrentWindow } from "@tauri-apps/api/window";
+import { commands } from "#lib/sys/generated/bindings.js";
+import { findRoute, hrefOf, type RouteNode } from "#lib/sys/routing/index.js";
 import { goto } from "$app/navigation";
-import { commands } from "$lib/sys/generated/bindings.js";
-import { findRoute, hrefOf, type RouteNode } from "$lib/sys/routing/index.js";
 
 const REQUEST = "devpulse:navigate-main";
 const RESPONSE = "devpulse:navigate-main-result";

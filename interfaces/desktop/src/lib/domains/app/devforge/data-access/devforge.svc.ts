@@ -3,8 +3,8 @@
  * @module @devpulse/domains/app/devforge/data-access/devforge
  */
 
-import { commands } from "$lib/sys/generated/bindings.js";
-import { logError, logInfo } from "$lib/sys/logger.js";
+import { commands } from "#lib/sys/generated/bindings.js";
+import { logError, logInfo } from "#lib/sys/logger.js";
 import type { DevforgeBootstrapStatus } from "../util/devforge.types.js";
 
 export async function getDevforgeStatus(): Promise<DevforgeBootstrapStatus> {

@@ -13,7 +13,7 @@ import Toolbar from "./Toolbar.svelte";
 
 describe("Toolbar component", () => {
 	it("renders with data-kind and role attributes", async () => {
-		const screen = render(Toolbar, {
+		const screen = await render(Toolbar, {
 			props: { label: "Actions" },
 		});
 
@@ -24,7 +24,7 @@ describe("Toolbar component", () => {
 	});
 
 	it("applies composition classes for size", async () => {
-		const screen = render(Toolbar, {
+		const screen = await render(Toolbar, {
 			props: { label: "Actions", size: "sm" },
 		});
 
@@ -34,7 +34,7 @@ describe("Toolbar component", () => {
 	});
 
 	it("applies horizontal orientation by default", async () => {
-		const screen = render(Toolbar, {
+		const screen = await render(Toolbar, {
 			props: { label: "Actions" },
 		});
 
@@ -44,7 +44,7 @@ describe("Toolbar component", () => {
 	});
 
 	it("applies vertical orientation when set", async () => {
-		const screen = render(Toolbar, {
+		const screen = await render(Toolbar, {
 			props: { label: "Actions", orientation: "vertical" },
 		});
 
@@ -53,7 +53,7 @@ describe("Toolbar component", () => {
 	});
 
 	it("applies disabled state", async () => {
-		const screen = render(Toolbar, {
+		const screen = await render(Toolbar, {
 			props: { label: "Actions", disabled: true },
 		});
 
@@ -62,7 +62,7 @@ describe("Toolbar component", () => {
 	});
 
 	it("merges custom className", async () => {
-		const screen = render(Toolbar, {
+		const screen = await render(Toolbar, {
 			props: { label: "Actions", class: "custom-class" },
 		});
 

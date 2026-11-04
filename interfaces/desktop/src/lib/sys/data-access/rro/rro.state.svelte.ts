@@ -10,12 +10,12 @@
  * multiple times (results update, errors captured per-slice).
  *
  * Routes never touch this directly — they import it via
- * `$lib/domains/sys/rro/index.js`.
+ * `#lib/domains/sys/rro/index.js`.
  */
 
 import type { UnlistenFn } from "@tauri-apps/api/event";
-import { describeError } from "$lib/devtools/clyffy/reasoning/rro/util/rro.format.js";
-import { getPreset } from "$lib/devtools/clyffy/reasoning/rro/util/rro.presets.js";
+import { describeError } from "#lib/devtools/clyffy/reasoning/rro/util/rro.format.js";
+import { getPreset } from "#lib/devtools/clyffy/reasoning/rro/util/rro.presets.js";
 import type {
 	CollectionInfo,
 	GraphHealthAll,
@@ -28,9 +28,9 @@ import type {
 	SlotInfo,
 	VectorHealthReport,
 	VectorSearchResult,
-} from "$lib/devtools/clyffy/reasoning/rro/util/rro.types.js";
-import { withAction } from "$lib/sys/action-bus.svelte.js";
-import { logInfo } from "$lib/sys/logger.js";
+} from "#lib/devtools/clyffy/reasoning/rro/util/rro.types.js";
+import { withAction } from "#lib/sys/action-bus.svelte.js";
+import { logInfo } from "#lib/sys/logger.js";
 import * as BrainSvc from "./brain.svc.js";
 import * as EncoderSvc from "./encoder.svc.js";
 import * as RroSvc from "./rro.svc.js";
@@ -124,7 +124,7 @@ class RroState {
 		try {
 			await withAction("rro.loadConfig", "Loading search tuning…", async () => {
 				// Prefer persisted preference over runtime default.
-				const { getPreference } = await import("$lib/sys/generated/bindings.js").then(
+				const { getPreference } = await import("#lib/sys/generated/bindings.js").then(
 					(m) => m.commands,
 				);
 				const persisted = await getPreference(PERSIST_KEY);
@@ -304,7 +304,7 @@ class RroState {
 
 	// ── Persistence ─────────────────────────────────────────
 	private async persistConfig(config: RetrievalConfig): Promise<void> {
-		const { commands } = await import("$lib/sys/generated/bindings.js");
+		const { commands } = await import("#lib/sys/generated/bindings.js");
 		const r = await commands.setPreference(PERSIST_KEY, JSON.stringify(config));
 		if (r.status === "error") {
 			logInfo("rro.state", `persistConfig failed: ${r.error}`);

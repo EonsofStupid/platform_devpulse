@@ -6,7 +6,7 @@
 import { Spinner } from "@devpulse/coldlight/components/spinner";
 import { cssVarString, renderForge } from "@devpulse/coldlight/renderforge";
 import { onDestroy } from "svelte";
-import { commands } from "$lib/sys/generated/bindings.js";
+import { commands } from "#lib/sys/generated/bindings.js";
 import { actionBus } from "../action-bus.svelte.js";
 import type { ActionId } from "../action-ids.js";
 import { knowledgeLinesForAction } from "./knowledge-drops.js";

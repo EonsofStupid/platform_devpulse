@@ -5,7 +5,7 @@
 	             click accepts; ↑/↓ move; Esc dismisses.
 -->
 <script lang="ts">
-import type { Suggestion } from "$lib/sys/generated/bindings.js";
+import type { Suggestion } from "#lib/sys/generated/bindings.js";
 import { suggestState } from "../data-access/suggest.state.svelte.js";
 
 let {

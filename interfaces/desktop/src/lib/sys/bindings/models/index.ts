@@ -8,7 +8,7 @@
  * single-file is fine until then since the surface is mostly flat.
  */
 
-import { commands } from "$lib/sys/generated/bindings.js";
+import { commands } from "#lib/sys/generated/bindings.js";
 
 // ── Hardware + scan + slots ─────────────────────────────────────
 export const getHardwareMetrics = commands.getHardwareMetrics;
@@ -142,4 +142,4 @@ export type {
 	VramBudgetInfo,
 	WakeConfig,
 	WizardCopy,
-} from "$lib/sys/generated/bindings.js";
+} from "#lib/sys/generated/bindings.js";

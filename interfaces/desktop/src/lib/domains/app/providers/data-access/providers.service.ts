@@ -6,7 +6,7 @@
  * @module @devpulse/domains/app/providers/data-access/providers.service
  */
 
-import type { Result } from "$lib/sys/bindings/_shared/index.js";
+import type { Result } from "#lib/sys/bindings/_shared/index.js";
 import {
 	type ProviderAction,
 	type ProviderId,
@@ -19,9 +19,9 @@ import {
 	providersCheck,
 	providersCheckSignedIn,
 	providersRunAction,
-} from "$lib/sys/bindings/providers/index.js";
-import type { ConnectionOption, SaveConnection } from "$lib/sys/generated/bindings.js";
-import { logError } from "$lib/sys/logger.js";
+} from "#lib/sys/bindings/providers/index.js";
+import type { ConnectionOption, SaveConnection } from "#lib/sys/generated/bindings.js";
+import { logError } from "#lib/sys/logger.js";
 
 async function unwrap<T>(name: string, call: Promise<Result<T, string>>): Promise<T> {
 	const result = await call;

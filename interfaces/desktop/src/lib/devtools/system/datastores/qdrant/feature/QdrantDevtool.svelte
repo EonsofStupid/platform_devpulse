@@ -25,17 +25,17 @@ import { Spinner } from "@devpulse/coldlight/components/spinner";
 import { Text } from "@devpulse/coldlight/components/text";
 import { ArrowUpRight, Boxes, Database, RefreshCw } from "lucide-svelte";
 import { onMount } from "svelte";
-import { resolve } from "$app/paths";
 import {
 	type ExtraTab,
 	type HealthBadge,
 	ScopedLogPanel,
 	ServiceDevtoolShell,
-} from "$lib/devtools/index.js";
-import { rroState } from "$lib/sys/data-access/rro/rro.state.svelte.js";
+} from "#lib/devtools/index.js";
+import { rroState } from "#lib/sys/data-access/rro/rro.state.svelte.js";
+import { resolve } from "$app/paths";
 
 /** The devtool that uses this store as its vector half (checked against the route folders). */
-const consumerHref = resolve("/devtools/clyffy/reasoning/rro");
+const consumerHref = resolve("devtools/clyffy/reasoning/rro");
 
 onMount(() => {
 	if (!rroState.health && !rroState.healthLoading) {

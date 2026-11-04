@@ -14,7 +14,7 @@ import { Text } from "@devpulse/coldlight/components/text";
 import { invoke } from "@tauri-apps/api/core";
 import { RefreshCw } from "lucide-svelte";
 import { onMount } from "svelte";
-import { type HealthBadge, ScopedLogPanel, ServiceDevtoolShell } from "$lib/devtools/index.js";
+import { type HealthBadge, ScopedLogPanel, ServiceDevtoolShell } from "#lib/devtools/index.js";
 
 // Local type — replaced by the generated binding on the next
 // `cargo xtask run-dev` (tauri-specta regenerates bindings.ts).

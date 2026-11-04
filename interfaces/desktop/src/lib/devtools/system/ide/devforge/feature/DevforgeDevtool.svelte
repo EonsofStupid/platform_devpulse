@@ -17,8 +17,8 @@ import {
 	type HealthBadge,
 	ScopedLogPanel,
 	ServiceDevtoolShell,
-} from "$lib/devtools/index.js";
-import { devforgeState } from "$lib/domains/app/devforge/index.js";
+} from "#lib/devtools/index.js";
+import { devforgeState } from "#lib/domains/app/devforge/index.js";
 
 const extraTabs: ExtraTab[] = [{ id: "projects", label: "Projects", Icon: FolderOpen }];
 

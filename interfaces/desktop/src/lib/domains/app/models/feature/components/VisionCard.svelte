@@ -11,7 +11,7 @@ import { cssVarString, renderForge } from "@devpulse/coldlight/renderforge";
 import { hstack } from "@devpulse/coldlight/utils/hstack";
 import { stack } from "@devpulse/coldlight/utils/stack";
 import { Download, Eye, Power, PowerOff, Sparkles, X } from "lucide-svelte";
-import { logInfo } from "$lib/sys/logger.js";
+import { logInfo } from "#lib/sys/logger.js";
 import { hardwareState } from "../../data-access/hardware.state.svelte.js";
 import { modelsState } from "../../data-access/models.state.svelte.js";
 import { narrationState } from "../../data-access/narration.state.svelte.js";
@@ -52,7 +52,7 @@ const recIsActive = $derived(
 
 $effect(() => {
 	const rec = visionRec;
-	if (!rec || !rec.alreadyDownloaded) return;
+	if (!rec?.alreadyDownloaded) return;
 	if (visionState.committedModelId || visionState.pendingModelId) return;
 	const model = modelsState.models.find((m) => m.filename === rec.file);
 	if (model && visionState.selectedModelId !== model.id) {

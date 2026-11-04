@@ -11,7 +11,7 @@
  * older payload after a newer one already landed.
  */
 
-import type { CommandError } from "$lib/sys/generated/bindings.js";
+import type { CommandError } from "#lib/sys/generated/bindings.js";
 import { type SpectaThunk, toCommandError } from "./_shared.js";
 
 export interface TauriQueryOptions {

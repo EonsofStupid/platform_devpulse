@@ -8,14 +8,14 @@
  *
  * The shell-level Copy / Export pattern is locked in
  * [project_devtool_standard.md]; the `CapturePayload` shape lives in
- * `$lib/devtools/_shared/types.ts`. RroDevtool now uses
+ * `#lib/devtools/_shared/types.ts`. RroDevtool now uses
  * `ServiceDevtoolShell`, so this function receives the shell's tab id —
  * one of the standard `status / config / logs / actions / debug` ids
  * OR an `extraTabs` id (`search`, `collections`).
  */
 
-import type { CapturePayload } from "$lib/devtools/index.js";
-import { rroState } from "$lib/sys/data-access/rro/rro.state.svelte.js";
+import type { CapturePayload } from "#lib/devtools/index.js";
+import { rroState } from "#lib/sys/data-access/rro/rro.state.svelte.js";
 
 /** Pretty-print JSON with stable indentation for diff-friendly captures. */
 function asJson(value: unknown): string {

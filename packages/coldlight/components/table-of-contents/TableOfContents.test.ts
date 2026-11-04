@@ -21,31 +21,31 @@ import TableOfContents from "./TableOfContents.svelte";
 
 describe("table-of-contents component -- ARIA", () => {
 	test("renders a <nav> element with role='navigation'", async () => {
-		const { getByRole } = render(TableOfContents);
+		const { getByRole } = await render(TableOfContents);
 		const nav = getByRole("navigation");
 		expect(nav).toBeTruthy();
 	});
 
 	test("has aria-label='Table of contents' by default", async () => {
-		const { getByRole } = render(TableOfContents);
+		const { getByRole } = await render(TableOfContents);
 		const nav = getByRole("navigation");
 		await expect.element(nav).toHaveAttribute("aria-label", "Table of contents");
 	});
 
 	test("applies custom aria-label from prop", async () => {
-		const { getByRole } = render(TableOfContents, { props: { label: "On this page" } });
+		const { getByRole } = await render(TableOfContents, { props: { label: "On this page" } });
 		const nav = getByRole("navigation");
 		await expect.element(nav).toHaveAttribute("aria-label", "On this page");
 	});
 
 	test("has data-kind='table-of-contents'", async () => {
-		const { getByRole } = render(TableOfContents);
+		const { getByRole } = await render(TableOfContents);
 		const nav = getByRole("navigation");
 		await expect.element(nav).toHaveAttribute("data-kind", "table-of-contents");
 	});
 
 	test("has data-slot='root'", async () => {
-		const { getByRole } = render(TableOfContents);
+		const { getByRole } = await render(TableOfContents);
 		const nav = getByRole("navigation");
 		await expect.element(nav).toHaveAttribute("data-slot", "root");
 	});
@@ -57,7 +57,7 @@ describe("table-of-contents component -- ARIA", () => {
 
 describe("table-of-contents component -- composition", () => {
 	test("passes class prop to element", async () => {
-		const { getByRole } = render(TableOfContents, { props: { class: "test-class" } });
+		const { getByRole } = await render(TableOfContents, { props: { class: "test-class" } });
 		const nav = getByRole("navigation");
 		await expect.element(nav).toHaveClass("test-class");
 	});

@@ -1,5 +1,6 @@
 {
-	"$schema": "https://biomejs.dev/schemas/2.4.0/schema.json",
+	"root": false,
+	"$schema": "https://biomejs.dev/schemas/2.6.5/schema.json",
 	"extends": "//",
 	"overrides": [
 		{
@@ -24,8 +25,8 @@
 									},
 									{
 										"group": [
-											"$lib/design/recipes/*",
-											"$lib/design/recipes/**",
+											"#lib/design/recipes/*",
+											"#lib/design/recipes/**",
 											"@devpulse/coldlight/recipes/*",
 											"@devpulse/coldlight/recipes/**"
 										],
@@ -62,7 +63,7 @@
 			"includes": ["src/lib/sys/debug/vpb/**"],
 			"linter": {
 				"rules": {
-					"nursery": {
+					"style": {
 						"noHexColors": "off"
 					}
 				}

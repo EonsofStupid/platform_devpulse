@@ -6,7 +6,7 @@
  * Bundled JSON is the fallback — works offline.
  */
 
-import { logInfo, logWarn } from "$lib/sys/logger.js";
+import { logInfo, logWarn } from "#lib/sys/logger.js";
 
 /** Root content structure matching wizard-content.json. */
 export interface WizardContent {

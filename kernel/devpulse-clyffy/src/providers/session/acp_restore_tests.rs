@@ -2,12 +2,11 @@
 #![expect(clippy::expect_used, reason = "protocol fixture assertions")]
 
 use super::*;
-use agent_client_protocol::schema::v1::RequestId;
-use agent_client_protocol::{Channel, RawJsonRpcMessage, TransportBatch, TransportFrame};
+use agent_client_protocol::{Channel, RawJsonRpcId, RawJsonRpcMessage, TransportFrame};
 use futures::StreamExt;
 use serde_json::{Value, json};
 
-async fn request(peer: &mut Channel, method: &str) -> (RequestId, Value) {
+async fn request(peer: &mut Channel, method: &str) -> (RawJsonRpcId, Value) {
     let Some(TransportFrame::Single(RawJsonRpcMessage::Request(request))) = peer.rx.next().await
     else {
         panic!("expected {method}");
@@ -20,11 +19,11 @@ async fn request(peer: &mut Channel, method: &str) -> (RequestId, Value) {
 }
 
 fn send(peer: &Channel, messages: Vec<RawJsonRpcMessage>) {
-    peer.tx
-        .unbounded_send(TransportFrame::Batch(
-            TransportBatch::from_messages(messages).expect("nonempty batch"),
-        ))
-        .expect("connected peer");
+    for message in messages {
+        peer.tx
+            .unbounded_send(TransportFrame::Single(message))
+            .expect("connected peer");
+    }
 }
 
 fn text_update(text: &str) -> RawJsonRpcMessage {
@@ -99,7 +98,7 @@ async fn restoration(capabilities: Value, method: Option<&str>, refused: bool) {
     let (transport, peer) = Channel::duplex();
     let should_fail = method.is_none() || refused;
     let client = Client
-        .builder()
+        .v1()
         .connect_with(transport, async move |connection| {
             let result = open_session(
                 &connection,
@@ -123,8 +122,8 @@ async fn restoration(capabilities: Value, method: Option<&str>, refused: bool) {
             let (events, mut received) = mpsc::unbounded_channel();
             loop {
                 match session.read_update().await? {
-                    SessionMessage::SessionMessage(dispatch) => forward(dispatch, &events).await,
-                    SessionMessage::StopReason(_) => break,
+                    SessionMessage::Message(dispatch) => forward(dispatch, &events).await,
+                    SessionMessage::PromptResponse(_) => break,
                     _ => {}
                 }
             }
@@ -160,7 +159,7 @@ async fn offered_on(capabilities: Value, resume: Option<&'static str>, method: &
     };
     let (transport, mut peer) = Channel::duplex();
     let client = Client
-        .builder()
+        .v1()
         .connect_with(transport, async move |connection| {
             let opened = open_session(
                 &connection,
@@ -212,6 +211,103 @@ fn the_offer() -> Value {
             {"name": "DEVPULSE_MEMORY_TOKEN", "value": "session-token"},
         ],
     }])
+}
+
+/// An agent that opens a session, refuses the first prompt with `refusal` and
+/// answers the second.
+async fn refusing_peer(mut peer: Channel, refusal: agent_client_protocol::Error) {
+    let (id, _) = request(&mut peer, "initialize").await;
+    send(
+        &peer,
+        vec![RawJsonRpcMessage::response(
+            id,
+            Ok(json!({"protocolVersion":1, "agentCapabilities":{}, "authMethods":[]})),
+        )],
+    );
+    let (id, _) = request(&mut peer, "session/new").await;
+    send(
+        &peer,
+        vec![RawJsonRpcMessage::response(
+            id,
+            Ok(json!({"sessionId":"saved-thread"})),
+        )],
+    );
+    let (id, _) = request(&mut peer, "session/prompt").await;
+    send(&peer, vec![RawJsonRpcMessage::response(id, Err(refusal))]);
+    let (id, _) = request(&mut peer, "session/prompt").await;
+    send(
+        &peer,
+        vec![RawJsonRpcMessage::response(
+            id,
+            Ok(json!({"stopReason":"end_turn"})),
+        )],
+    );
+    while peer.rx.next().await.is_some() {}
+}
+
+/// Two turns on one session; the events of each, in order.
+async fn two_turns(refusal: agent_client_protocol::Error) -> [Vec<AgentEvent>; 2] {
+    let (transport, peer) = Channel::duplex();
+    let client = Client
+        .v1()
+        .connect_with(transport, async move |connection| {
+            let mut session =
+                open_session(&connection, Path::new("C:/workspace"), None, Vec::new()).await?;
+            let control = session.connection().clone();
+            let id = session.session_id().clone();
+            let shared = Shared::default();
+            let (_open, mut commands) = mpsc::unbounded_channel();
+            let mut turns = Vec::new();
+            for _ in 0..2 {
+                let (events, mut received) = mpsc::unbounded_channel();
+                session.send_prompt("continue")?;
+                let closing =
+                    run_turn(&mut session, &control, &id, &events, &mut commands, &shared).await;
+                assert!(!closing, "a refused prompt must not close the conversation");
+                drop(events);
+                let mut turn = Vec::new();
+                while let Some(event) = received.recv().await {
+                    turn.push(event);
+                }
+                turns.push(turn);
+            }
+            Ok(turns)
+        });
+    tokio::time::timeout(Duration::from_secs(10), async {
+        let (result, ()) = tokio::join!(client, refusing_peer(peer, refusal));
+        let turns: Vec<Vec<AgentEvent>> = result.expect("connection");
+        turns.try_into().expect("two turns")
+    })
+    .await
+    .expect("protocol test deadline")
+}
+
+fn ended() -> AgentEvent {
+    AgentEvent::TurnEnded {
+        stop: "end_turn".into(),
+    }
+}
+
+#[tokio::test]
+async fn a_refused_prompt_fails_its_turn_and_the_session_stays_open() {
+    let [refused, next] =
+        two_turns(agent_client_protocol::Error::invalid_params().data("too long")).await;
+    let [AgentEvent::Failed { message }] = refused.as_slice() else {
+        panic!("expected one failure, got {refused:?}");
+    };
+    assert!(message.contains("too long"), "{message}");
+    assert!(!message.contains("Sign in"), "{message}");
+    assert_eq!(next, vec![ended()]);
+}
+
+#[tokio::test]
+async fn a_prompt_refused_for_login_says_to_sign_in() {
+    let [refused, next] = two_turns(agent_client_protocol::Error::auth_required()).await;
+    let [AgentEvent::Failed { message }] = refused.as_slice() else {
+        panic!("expected one failure, got {refused:?}");
+    };
+    assert!(message.starts_with("Sign in first"), "{message}");
+    assert_eq!(next, vec![ended()]);
 }
 
 #[tokio::test]

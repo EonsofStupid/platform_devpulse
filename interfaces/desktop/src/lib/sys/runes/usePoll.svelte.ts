@@ -13,7 +13,7 @@
  * registered `$effect` cleans up on unmount.
  */
 
-import type { CommandError } from "$lib/sys/generated/bindings.js";
+import type { CommandError } from "#lib/sys/generated/bindings.js";
 import type { SpectaThunk } from "./_shared.js";
 import { TauriQuery, type TauriQueryOptions } from "./useTauriQuery.svelte.js";
 

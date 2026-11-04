@@ -2,7 +2,7 @@
  * @file notes-toggle.types.ts
  * @module @devpulse/domains/chat/ui/notes-toggle
  */
-import type { AgentChatCopy } from "$lib/sys/generated/bindings.js";
+import type { AgentChatCopy } from "#lib/sys/generated/bindings.js";
 
 export interface NotesToggleProps {
 	copy: AgentChatCopy;

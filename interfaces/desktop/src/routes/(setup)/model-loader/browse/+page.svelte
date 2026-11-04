@@ -7,9 +7,9 @@
   tab, and the slot popup. The domain's SearchBrowseStep owns all of it.
 -->
 <script lang="ts">
+import { SearchBrowseStep } from "#lib/domains/app/models/index.js";
+import { hrefOf, routeAt } from "#lib/sys/routing/index.js";
 import { goto } from "$app/navigation";
-import { SearchBrowseStep } from "$lib/domains/app/models/index.js";
-import { hrefOf, routeAt } from "$lib/sys/routing/index.js";
 
 const models = routeAt("/model-loader/models");
 

@@ -21,9 +21,9 @@ import { Text } from "@devpulse/coldlight/components/text";
 import { gridLayout, stack } from "@devpulse/coldlight/utils";
 import { RefreshCcw } from "lucide-svelte";
 import { onMount } from "svelte";
-import { CommunityFeedList, communityState } from "$lib/domains/app/community/index.js";
-import { devpulseState } from "$lib/domains/app/devpulse/index.js";
-import { routeCopy, routeHere } from "$lib/sys/routing/index.js";
+import { CommunityFeedList, communityState } from "#lib/domains/app/community/index.js";
+import { devpulseState } from "#lib/domains/app/devpulse/index.js";
+import { routeCopy, routeHere } from "#lib/sys/routing/index.js";
 
 const here = $derived(routeHere());
 const heading = $derived(here ? routeCopy(here) : undefined);

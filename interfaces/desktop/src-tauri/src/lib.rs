@@ -114,6 +114,15 @@ pub fn run_mcp_stdio() {
 #[allow(clippy::too_many_lines)]
 pub fn build_specta_builder() -> Builder<tauri::Wry> {
     Builder::<tauri::Wry>::new()
+        // Rust's 64-bit integers cross IPC as JSON numbers: the UI reads `number`.
+        .dangerously_cast_bigints_to_number()
+        // Floats stay `number` too, with no runtime transform and no other
+        // semantic type. The UI's types have always read them this way.
+        .semantic_types(
+            specta_typescript::semantic::Configuration::empty().enable_lossless_floats(),
+        )
+        // One shape per type, in both directions.
+        .disable_serde_phases()
         .commands(collect_commands![
             commands::chat::pick_save_file,
             commands::chat::send_message,

@@ -3,7 +3,7 @@
  * @description DevForge code-editor surface — lifecycle + project management.
  */
 
-import { commands } from "$lib/sys/generated/bindings.js";
+import { commands } from "#lib/sys/generated/bindings.js";
 
 export const devforgeStart = commands.devforgeStart;
 export const devforgeStop = commands.devforgeStop;
@@ -24,4 +24,4 @@ export type {
 	DevforgeHealth,
 	DevforgeHealthState,
 	RehStatus,
-} from "$lib/sys/generated/bindings.js";
+} from "#lib/sys/generated/bindings.js";

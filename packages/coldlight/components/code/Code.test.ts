@@ -21,25 +21,25 @@ import InlineCode from "./InlineCode.svelte";
 
 describe("inline code — structural", () => {
 	test("renders with data-kind='code'", async () => {
-		const { container } = render(InlineCode);
+		const { container } = await render(InlineCode);
 		const el = container.querySelector("[data-kind='code']");
 		expect(el).toBeTruthy();
 	});
 
 	test("has data-slot='inline'", async () => {
-		const { container } = render(InlineCode);
+		const { container } = await render(InlineCode);
 		const el = container.querySelector("[data-kind='code']");
 		await expect.element(el as HTMLElement).toHaveAttribute("data-slot", "inline");
 	});
 
 	test("renders as <code> element", async () => {
-		const { container } = render(InlineCode);
+		const { container } = await render(InlineCode);
 		const el = container.querySelector("[data-kind='code']") as HTMLElement;
 		expect(el.tagName.toLowerCase()).toBe("code");
 	});
 
 	test("merges custom class", async () => {
-		const { container } = render(InlineCode, { props: { class: "my-code" } });
+		const { container } = await render(InlineCode, { props: { class: "my-code" } });
 		const el = container.querySelector("[data-kind='code']") as HTMLElement;
 		await expect.element(el).toHaveClass("my-code");
 	});

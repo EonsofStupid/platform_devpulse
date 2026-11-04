@@ -8,7 +8,7 @@
  * from anywhere to surface the dialog.
  *
  * Re-exported up one more level via
- * `$lib/domains/app/models/index.ts` so importers reach for
+ * `#lib/domains/app/models/index.ts` so importers reach for
  * `@/domains/app/models` not this deep path.
  */
 

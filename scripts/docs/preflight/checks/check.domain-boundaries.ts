@@ -2,13 +2,13 @@
  * @file preflight/checks/check.domain-boundaries.ts
  * @description Verify domain API boundaries are respected
  *
- * RULE (SvelteKit 2 + Svelte 5 Best Practices):
+ * RULE (SvelteKit 3 + Svelte 5 Best Practices):
  *   - Pages ONLY exist in src/routes/ (file-based routing)
- *   - $lib/domains/ contains business logic, NOT pages
+ *   - #lib/domains/ contains business logic, NOT pages
  *   - Routes can import from:
- *     - $lib/domains/{namespace}/{domain}/index.ts (public API)
- *     - $lib/domains/{namespace}/{domain}/features/** (feature components)
- *     - $lib/sys/* (system utilities)
+ *     - #lib/domains/{namespace}/{domain}/index.ts (public API)
+ *     - #lib/domains/{namespace}/{domain}/features/** (feature components)
+ *     - #lib/sys/* (system utilities)
  *     - @devpulse/coldlight/* (design system)
  *     - $app/* (SvelteKit)
  *     - svelte/* (Svelte core)
@@ -24,15 +24,15 @@ import type { Check, CheckContext, CheckResult } from '../types.js';
 /** Allowed import patterns for route files */
 const ALLOWED_IMPORTS = [
   // Domain public APIs
-  /^\$lib\/domains\/[^/]+\/[^/]+\/index(\.js|\.ts)?$/,
-  /^\$lib\/domains\/[^/]+\/[^/]+$/,  // Implicit index.ts
+  /^#lib\/domains\/[^/]+\/[^/]+\/index(\.js|\.ts)?$/,
+  /^#lib\/domains\/[^/]+\/index(\.js|\.ts)?$/,  // A flat domain: #lib/domains/{domain}/index.js
 
   // Feature components (widgets, modals, forms - NOT pages)
-  /^\$lib\/domains\/.*\/features\//,
+  /^#lib\/domains\/.*\/features\//,
 
   // System layer
-  /^\$lib\/sys\//,
-  /^\$lib\/layouts\//,
+  /^#lib\/sys\//,
+  /^#lib\/layouts\//,
 
   // SvelteKit
   /^\$app\//,
@@ -52,15 +52,15 @@ const ALLOWED_IMPORTS = [
 /** Forbidden import patterns - things that should NOT exist or be imported */
 const FORBIDDEN_IMPORTS = [
   // Pages in lib/domains is WRONG - pages belong in routes/
-  /^\$lib\/domains\/.*\/pages\//,
+  /^#lib\/domains\/.*\/pages\//,
   // Direct state imports (should go through index.ts)
-  /^\$lib\/domains\/.*\/state\//,
+  /^#lib\/domains\/.*\/state\//,
   // Direct service imports (should go through index.ts)
-  /^\$lib\/domains\/.*\/services\//,
+  /^#lib\/domains\/.*\/services\//,
   // Direct contract imports from domains
-  /^\$lib\/domains\/.*\/contracts\//,
+  /^#lib\/domains\/.*\/contracts\//,
   // Direct utils imports from domains
-  /^\$lib\/domains\/.*\/utils\//,
+  /^#lib\/domains\/.*\/utils\//,
 ];
 
 function isRouteFile(filePath: string): boolean {
@@ -115,7 +115,7 @@ function isForbiddenImport(importPath: string): { forbidden: boolean; reason?: s
   for (const pattern of FORBIDDEN_IMPORTS) {
     if (pattern.test(importPath)) {
       if (importPath.includes('/pages/')) {
-        return { forbidden: true, reason: 'Pages belong in src/routes/, not $lib/domains/. Move page to routes/' };
+        return { forbidden: true, reason: 'Pages belong in src/routes/, not #lib/domains/. Move page to routes/' };
       }
       if (importPath.includes('/state/')) {
         return { forbidden: true, reason: 'State should be accessed through domain index.ts' };
@@ -157,7 +157,7 @@ function checkImports(imports: string[], filePath: string): CheckResult[] {
     // Then check if it matches allowed patterns
     if (!isAllowedImport(importPath)) {
       // Check if it's a domain import that should use index.ts
-      if (importPath.startsWith('$lib/domains/')) {
+      if (importPath.startsWith('#lib/domains/')) {
         results.push({
           checkId: 'domain-boundaries',
           status: 'fail',

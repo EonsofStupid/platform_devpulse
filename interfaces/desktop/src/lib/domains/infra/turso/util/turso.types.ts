@@ -4,7 +4,7 @@
  * @module @devpulse/domains/infra/turso/util/turso.types
  */
 
-import type { Affinity, Cell } from "$lib/sys/bindings/sys/relational/index.js";
+import type { Affinity, Cell } from "#lib/sys/bindings/sys/relational/index.js";
 
 export type {
 	Affinity,
@@ -18,7 +18,7 @@ export type {
 	TableSummary,
 	TursoDatabase,
 	TursoHealth,
-} from "$lib/sys/bindings/sys/relational/index.js";
+} from "#lib/sys/bindings/sys/relational/index.js";
 
 /** Rows shown per page in the table editor. */
 export const PAGE_SIZE = 50;

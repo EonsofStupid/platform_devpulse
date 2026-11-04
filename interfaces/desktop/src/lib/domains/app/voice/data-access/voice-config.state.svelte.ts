@@ -7,8 +7,8 @@
  * mount these, mutate them, and call `save()` on commit.
  */
 
-import type { VoiceSttConfig, VoiceTtsConfig } from "$lib/sys/generated/bindings.js";
-import { logError, logInfo } from "$lib/sys/logger.js";
+import type { VoiceSttConfig, VoiceTtsConfig } from "#lib/sys/generated/bindings.js";
+import { logError, logInfo } from "#lib/sys/logger.js";
 import * as service from "./voice.service.js";
 
 class VoiceTtsConfigState {

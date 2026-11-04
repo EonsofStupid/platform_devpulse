@@ -6,7 +6,7 @@
 export type {
 	VoiceSttConfig as VoiceSttConfigDto,
 	VoiceTtsConfig as VoiceTtsConfigDto,
-} from "$lib/sys/generated/bindings.js";
+} from "#lib/sys/generated/bindings.js";
 export * from "./data-access/voice.service.js";
 export { voiceState } from "./data-access/voice.state.svelte.js";
 export {

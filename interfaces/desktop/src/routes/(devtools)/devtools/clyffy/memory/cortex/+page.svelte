@@ -3,7 +3,7 @@
 	@route /devtools/clyffy/memory/cortex
 -->
 <script lang="ts">
-import { CortexDevtool } from "$lib/devtools/clyffy/memory/cortex/index.js";
+import { CortexDevtool } from "#lib/devtools/clyffy/memory/cortex/index.js";
 </script>
 
 <CortexDevtool />

@@ -6,12 +6,12 @@ import { Heading } from "@devpulse/coldlight/components/heading";
 import { SearchField } from "@devpulse/coldlight/components/search-field";
 import { StatusDot } from "@devpulse/coldlight/components/status-dot";
 import { Text } from "@devpulse/coldlight/components/text";
+import { projectsState } from "#lib/domains/app/projects/index.js";
+import { providersState } from "#lib/domains/app/providers/index.js";
+import { openWindow } from "#lib/sys/bindings/window/index.js";
+import type { ProviderId } from "#lib/sys/generated/bindings.js";
+import { hrefOf, routeAt, routeCopy } from "#lib/sys/routing/index.js";
 import { page } from "$app/state";
-import { projectsState } from "$lib/domains/app/projects/index.js";
-import { providersState } from "$lib/domains/app/providers/index.js";
-import { openWindow } from "$lib/sys/bindings/window/index.js";
-import type { ProviderId } from "$lib/sys/generated/bindings.js";
-import { hrefOf, routeAt, routeCopy } from "$lib/sys/routing/index.js";
 import { agenthubState } from "../data-access/agenthub.state.svelte.js";
 import {
 	historyState,

@@ -13,9 +13,9 @@
  *   - `activate_voice_profile`  → mark exclusive `active`
  */
 
-import type { VoiceProfile } from "$lib/devtools/_shared/voice-contracts.js";
-import { commands } from "$lib/sys/generated/bindings.js";
-import { logError, logInfo } from "$lib/sys/logger.js";
+import type { VoiceProfile } from "#lib/devtools/_shared/voice-contracts.js";
+import { commands } from "#lib/sys/generated/bindings.js";
+import { logError, logInfo } from "#lib/sys/logger.js";
 
 class ProfilesState {
 	profiles = $state<VoiceProfile[]>([]);

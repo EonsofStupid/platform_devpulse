@@ -25,8 +25,8 @@ import { Heading } from "@devpulse/coldlight/components/heading";
 import { Text } from "@devpulse/coldlight/components/text";
 import { TextField } from "@devpulse/coldlight/components/text-field";
 import { Lock, Mail, Settings } from "lucide-svelte";
-import { copyState } from "$lib/sys/copy/index.js";
-import { type AuthCopy, commands } from "$lib/sys/generated/bindings.js";
+import { copyState } from "#lib/sys/copy/index.js";
+import { type AuthCopy, commands } from "#lib/sys/generated/bindings.js";
 import { authState } from "../index.js";
 
 interface Props {

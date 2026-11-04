@@ -3,10 +3,10 @@
 	@route /devtools/clyffy/reasoning/rrd
 
 	Mounts the RRD devtool feature component. All logic + IPC live in
-	`$lib/devtools/clyffy/reasoning/rrd/`.
+	`#lib/devtools/clyffy/reasoning/rrd//index.js`.
 -->
 <script lang="ts">
-import { RrdDevtool } from "$lib/devtools/clyffy/reasoning/rrd/index.js";
+import { RrdDevtool } from "#lib/devtools/clyffy/reasoning/rrd/index.js";
 </script>
 
 <RrdDevtool />

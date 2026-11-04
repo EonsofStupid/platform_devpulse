@@ -9,7 +9,7 @@ import {
 	type MemoryNote,
 	type MemorySave,
 	type MemorySending,
-} from "$lib/sys/generated/bindings.js";
+} from "#lib/sys/generated/bindings.js";
 
 /** Your own notes (`projectId` null) or one project's, newest first. */
 export async function notes(projectId: string | null): Promise<MemoryNote[]> {

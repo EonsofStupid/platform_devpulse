@@ -28,7 +28,7 @@
     }
 -->
 <script lang="ts">
-import { copyState } from "$lib/sys/copy/index.js";
+import { copyState } from "#lib/sys/copy/index.js";
 import { modelsState } from "../../../data-access/models.state.svelte.js";
 import type { SlotId } from "../../../util/models.types.js";
 import { isInferenceReady } from "../../../util/models.types.js";

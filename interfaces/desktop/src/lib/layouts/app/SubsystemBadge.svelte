@@ -18,11 +18,11 @@ import { Badge } from "@devpulse/coldlight/components/badge";
 import { Text } from "@devpulse/coldlight/components/text";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@devpulse/coldlight/components/tooltip";
 import { hstack, stack } from "@devpulse/coldlight/utils";
-import { presentationState } from "$lib/domains/app/devpulse/index.js";
-import { clyffyStatus } from "$lib/domains/clyffy/index.js";
-import { findTerm } from "$lib/sys/generated/terminology.js";
-import { getIcon } from "$lib/sys/generated/terminology-icons.js";
-import type { SubsystemInfo } from "$lib/sys/runes/platformState.svelte.js";
+import { presentationState } from "#lib/domains/app/devpulse/index.js";
+import { clyffyStatus } from "#lib/domains/clyffy/index.js";
+import { findTerm } from "#lib/sys/generated/terminology.js";
+import { getIcon } from "#lib/sys/generated/terminology-icons.js";
+import type { SubsystemInfo } from "#lib/sys/runes/platformState.svelte.js";
 import { formatLatency } from "./boot-format.js";
 
 interface Props {

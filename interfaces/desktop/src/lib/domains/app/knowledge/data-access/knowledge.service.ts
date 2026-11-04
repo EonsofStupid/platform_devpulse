@@ -7,7 +7,7 @@
  */
 
 import { invoke } from "@tauri-apps/api/core";
-import { logError, logInfo } from "$lib/sys/logger.js";
+import { logError, logInfo } from "#lib/sys/logger.js";
 import type {
 	KnowledgeEntry,
 	KnowledgeEntryRaw,

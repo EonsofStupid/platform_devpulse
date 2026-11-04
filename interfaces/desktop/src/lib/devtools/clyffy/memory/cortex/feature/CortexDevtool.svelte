@@ -12,7 +12,7 @@
 <script lang="ts">
 import { Text } from "@devpulse/coldlight/components/text";
 import { Brain, GitBranch, Search, Zap } from "lucide-svelte";
-import { type HealthBadge, ServiceDevtoolShell } from "$lib/devtools/index.js";
+import { type HealthBadge, ServiceDevtoolShell } from "#lib/devtools/index.js";
 
 const badge: HealthBadge = {
 	state: "stopped",

@@ -10,9 +10,9 @@
  * `wizardState` mirrors as authoritative over IPC results.
  */
 
-import { withAction } from "$lib/sys/action-bus.svelte.js";
-import { commands, type WizardCopy as GeneratedWizardCopy } from "$lib/sys/generated/bindings.js";
-import { logError, logInfo } from "$lib/sys/logger.js";
+import { withAction } from "#lib/sys/action-bus.svelte.js";
+import { commands, type WizardCopy as GeneratedWizardCopy } from "#lib/sys/generated/bindings.js";
+import { logError, logInfo } from "#lib/sys/logger.js";
 import {
 	autoConfigureHardware,
 	cancelDownload,

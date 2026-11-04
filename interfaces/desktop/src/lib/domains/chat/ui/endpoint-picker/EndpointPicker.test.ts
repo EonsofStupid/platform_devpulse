@@ -36,7 +36,7 @@ function props(): EndpointPickerProps {
 }
 it("requires explicit choices and sends their unchanged saved identity only on Start", async () => {
 	const p = props();
-	const screen = render(EndpointPicker, { props: p });
+	const screen = await render(EndpointPicker, { props: p });
 	expect(p.onStart).not.toHaveBeenCalled();
 	await expect.element(screen.getByRole("button", { name: "Start chat" })).toBeDisabled();
 	await screen.getByRole("combobox", { name: "Connection", exact: true }).click();
@@ -51,7 +51,7 @@ it("requires explicit choices and sends their unchanged saved identity only on S
 it("shows setup guidance and cannot start without advertised models", async () => {
 	const p = props();
 	p.connections = [];
-	const screen = render(EndpointPicker, { props: p });
+	const screen = await render(EndpointPicker, { props: p });
 	await expect.element(screen.getByText("Check models in Your AI")).toBeVisible();
 	await expect.element(screen.getByRole("button", { name: "Start chat" })).toBeDisabled();
 	expect(p.onStart).not.toHaveBeenCalled();

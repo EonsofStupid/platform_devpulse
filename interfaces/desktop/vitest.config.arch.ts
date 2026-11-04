@@ -8,18 +8,19 @@
  *
  * The route manifest imports every route's `+page.ts` / `+layout.ts`. Those
  * import lucide icons (Svelte components) and SvelteKit modules (`$app/paths`),
- * so the config runs SvelteKit's own Vite plugin (Svelte compiler, `$lib`,
- * `$app/*`), and `lucide-svelte` is transformed by Vite instead of loaded raw
- * by Node.
+ * so the config runs SvelteKit's own Vite plugin (Svelte compiler, `$app/*`;
+ * `#lib` resolves through package.json `imports`), and `lucide-svelte` is
+ * transformed by Vite instead of loaded raw by Node.
  *
  * Usage: pnpm test:arch
  */
 
 import { sveltekit } from "@sveltejs/kit/vite";
 import { defineConfig } from "vitest/config";
+import { sveltekitOptions } from "./vite.config.ts";
 
 export default defineConfig({
-	plugins: [sveltekit()],
+	plugins: [sveltekit(sveltekitOptions)],
 	test: {
 		include: ["tests/architecture/**/*.test.ts"],
 		server: { deps: { inline: ["lucide-svelte"] } },

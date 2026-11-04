@@ -29,7 +29,7 @@ nokhwa = { version = "0.10", features = ["input-msmf"], optional = true }
 image = "0.25"
 
 # GPU rendering (Phase 2)
-wgpu = { version = "24", optional = true }
+wgpu = { version = "30.0.1", optional = true }
 
 # Telemetry — supplies TracedSender/TracedReceiver (replaces raw flume)
 # and `spawn_blocking` that preserves the current tracing span.
@@ -41,10 +41,11 @@ chrono = { workspace = true }
 # Audio file decode for voice-loop ingest (Whisper STT + Qwen3-TTS
 # reference clips). rodio's Decoder delegates to symphonia/minimp3 for
 # format support — wrapping it here keeps the dep transitive elsewhere.
-rodio = "0.19"
+rodio = { workspace = true }
 
 [dev-dependencies]
 tokio-test = "0.4"
+tempfile = "3"
 
 [lints]
 workspace = true

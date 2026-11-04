@@ -11,7 +11,6 @@
 <script lang="ts">
 import { InlineMessage } from "@devpulse/coldlight/components/inline-message";
 import { Spinner } from "@devpulse/coldlight/components/spinner";
-import { goto } from "$app/navigation";
 import {
 	type AutoConfig,
 	fetchRecommendations,
@@ -21,10 +20,11 @@ import {
 	ModelsStep,
 	selectPreset,
 	type WizardCopyData,
-} from "$lib/domains/app/models/index.js";
-import { logError, logInfo } from "$lib/sys/logger.js";
-import { hrefOf, routeAt } from "$lib/sys/routing/index.js";
-import { platformState } from "$lib/sys/runes/platformState.svelte.js";
+} from "#lib/domains/app/models/index.js";
+import { logError, logInfo } from "#lib/sys/logger.js";
+import { hrefOf, routeAt } from "#lib/sys/routing/index.js";
+import { platformState } from "#lib/sys/runes/platformState.svelte.js";
+import { goto } from "$app/navigation";
 
 const browse = routeAt("/model-loader/browse");
 const customize = routeAt("/model-loader/customize");
@@ -78,7 +78,7 @@ async function handleTierSwitch(tier: HardwareTier): Promise<void> {
 }
 
 function open(node: ReturnType<typeof routeAt>): void {
-	if (node) void goto(hrefOf(node), { noScroll: true });
+	if (node) void goto(hrefOf(node), { reset: false });
 }
 </script>
 

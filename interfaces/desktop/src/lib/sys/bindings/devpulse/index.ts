@@ -3,7 +3,7 @@
  * @description Top-level DevPulse dashboard + user profile/preferences.
  */
 
-import { commands } from "$lib/sys/generated/bindings.js";
+import { commands } from "#lib/sys/generated/bindings.js";
 
 export const fetchDashboard = commands.fetchDashboard;
 export const fetchUserProfile = commands.fetchUserProfile;
@@ -17,4 +17,4 @@ export type {
 	MessageStats,
 	UserPreferences,
 	UserProfile,
-} from "$lib/sys/generated/bindings.js";
+} from "#lib/sys/generated/bindings.js";

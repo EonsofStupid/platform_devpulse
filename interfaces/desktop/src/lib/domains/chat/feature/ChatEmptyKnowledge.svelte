@@ -9,7 +9,7 @@
 	its `empty` snippet: ColdLight imports nothing from the app.
 -->
 <script lang="ts">
-import { KnowledgeDeck } from "$lib/domains/app/knowledge/index.js";
+import { KnowledgeDeck } from "#lib/domains/app/knowledge/index.js";
 
 // Empty-state context frame — pushed onto knowledgeContext when
 // the thread is empty so KnowledgeDeck pulls the chat-tagged

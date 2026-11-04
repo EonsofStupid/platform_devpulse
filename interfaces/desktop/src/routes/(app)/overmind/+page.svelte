@@ -5,7 +5,7 @@
   See docs/platform/Desktop.md §2.3 — routes compose feature/ via index.ts.
 -->
 <script lang="ts">
-import { OvermindDashboard } from "$lib/domains/app/overmind/index.js";
+import { OvermindDashboard } from "#lib/domains/app/overmind/index.js";
 </script>
 
 <OvermindDashboard />

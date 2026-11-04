@@ -18,16 +18,16 @@
 
 import { getVersion } from "@tauri-apps/api/app";
 import { invoke } from "@tauri-apps/api/core";
-import { signalFabric } from "$lib/sys/events/signal-fabric.js";
+import { signalFabric } from "#lib/sys/events/signal-fabric.js";
 import type {
 	BootStatus,
 	InitEvent,
 	InitStatus,
 	ModelsReadiness,
-} from "$lib/sys/generated/bindings.js";
-import type { SystemHealth } from "$lib/sys/generated/health.types.js";
-import { resolveLabel } from "$lib/sys/generated/terminology.js";
-import { logDebug, logError, logInfo, logWarn, markIpcReady } from "$lib/sys/logger.js";
+} from "#lib/sys/generated/bindings.js";
+import type { SystemHealth } from "#lib/sys/generated/health.types.js";
+import { resolveLabel } from "#lib/sys/generated/terminology.js";
+import { logDebug, logError, logInfo, logWarn, markIpcReady } from "#lib/sys/logger.js";
 
 export type BootPhase = "initializing" | "ready" | "failed";
 export type SubsystemState = "pending" | "loading" | "ready" | "skipped" | "failed";

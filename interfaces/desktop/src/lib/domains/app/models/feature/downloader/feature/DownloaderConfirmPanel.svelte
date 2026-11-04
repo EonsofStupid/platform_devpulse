@@ -26,7 +26,7 @@
 -->
 <script lang="ts">
 import { cn } from "@devpulse/coldlight/utils";
-import type { DownloaderCopy, RepoFile } from "$lib/sys/generated/bindings.js";
+import type { DownloaderCopy, RepoFile } from "#lib/sys/generated/bindings.js";
 import { getSlotLabel, ROLE_FRAMES } from "../../../index.js";
 import { formatBytes, formatMb } from "../../../util/format.js";
 import { modelDownloaderState } from "../data-access/downloader.state.svelte.js";

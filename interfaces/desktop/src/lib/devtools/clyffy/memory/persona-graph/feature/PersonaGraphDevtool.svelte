@@ -29,8 +29,8 @@ import {
 	formatLatencyUs,
 	KNOWLEDGE_TABLES,
 	rroState,
-} from "$lib/devtools/clyffy/reasoning/rro/index.js";
-import { type HealthBadge, ScopedLogPanel, ServiceDevtoolShell } from "$lib/devtools/index.js";
+} from "#lib/devtools/clyffy/reasoning/rro/index.js";
+import { type HealthBadge, ScopedLogPanel, ServiceDevtoolShell } from "#lib/devtools/index.js";
 
 onMount(() => {
 	if (!rroState.brainHealth && !rroState.brainLoading) {

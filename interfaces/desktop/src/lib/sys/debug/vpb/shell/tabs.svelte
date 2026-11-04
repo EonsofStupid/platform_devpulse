@@ -7,7 +7,7 @@
 -->
 <script lang="ts">
 import { TabsList, TabsTrigger } from "@devpulse/coldlight/components/tabs";
-import { copyState } from "$lib/sys/copy/index.js";
+import { copyState } from "#lib/sys/copy/index.js";
 
 const text = $derived(copyState.catalog?.vpb);
 </script>

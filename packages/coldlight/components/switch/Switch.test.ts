@@ -22,8 +22,8 @@ import type { SwitchProps } from "./types.js";
 // =============================================================================
 
 describe("switch component — on and off read differently", () => {
-	function drawn(checked: boolean, props: Partial<SwitchProps> = {}) {
-		const screen = render(Switch, { checked, "aria-label": "Setting", ...props });
+	async function drawn(checked: boolean, props: Partial<SwitchProps> = {}) {
+		const screen = await render(Switch, { checked, "aria-label": "Setting", ...props });
 		const track = screen.container.querySelector('[role="switch"]') as HTMLElement;
 		const thumb = track.querySelector('[data-slot="thumb"]') as HTMLElement;
 		return { track, thumb };
@@ -34,8 +34,8 @@ describe("switch component — on and off read differently", () => {
 	// Where the thumb lands is Tailwind, which this package's tests do not compile;
 	// the app checks it in domains/app/memory/ui/memory-notes/switch-layout.test.ts.
 	test("the track changes colour", async () => {
-		const off = drawn(false);
-		const on = drawn(true);
+		const off = await drawn(false);
+		const on = await drawn(true);
 		await settled();
 		expect(getComputedStyle(on.track).backgroundColor).not.toBe(
 			getComputedStyle(off.track).backgroundColor,
@@ -44,7 +44,7 @@ describe("switch component — on and off read differently", () => {
 
 	test("the thumb has its own colour on both tracks", async () => {
 		for (const checked of [false, true]) {
-			const { track, thumb } = drawn(checked);
+			const { track, thumb } = await drawn(checked);
 			await settled();
 			expect(getComputedStyle(thumb).backgroundColor).not.toBe(
 				getComputedStyle(track).backgroundColor,
@@ -54,11 +54,11 @@ describe("switch component — on and off read differently", () => {
 	});
 
 	test("off comes from the family and its role, on from the primary role whatever they are", async () => {
-		const off = drawn(false, { surface: "glass", variant: "deep" });
+		const off = await drawn(false, { surface: "glass", variant: "deep" });
 		expect(off.track.dataset.surface).toBe("glass");
 		expect(off.track.dataset.variant).toBe("deep");
-		const glass = drawn(true, { surface: "glass", variant: "deep" });
-		const stark = drawn(true, { surface: "stark", variant: "glow" });
+		const glass = await drawn(true, { surface: "glass", variant: "deep" });
+		const stark = await drawn(true, { surface: "stark", variant: "glow" });
 		await settled();
 		expect(getComputedStyle(glass.track).backgroundColor).toBe(
 			getComputedStyle(stark.track).backgroundColor,
@@ -73,31 +73,31 @@ describe("switch component — on and off read differently", () => {
 
 describe("switch component — ARIA", () => {
 	test("has role='switch'", async () => {
-		const { getByRole } = render(Switch);
+		const { getByRole } = await render(Switch);
 		const el = getByRole("switch");
 		expect(el).toBeTruthy();
 	});
 
 	test("aria-checked is 'false' by default", async () => {
-		const { getByRole } = render(Switch);
+		const { getByRole } = await render(Switch);
 		const el = getByRole("switch");
 		await expect.element(el).toHaveAttribute("aria-checked", "false");
 	});
 
 	test("aria-checked is 'true' when checked", async () => {
-		const { getByRole } = render(Switch, { props: { checked: true } });
+		const { getByRole } = await render(Switch, { props: { checked: true } });
 		const el = getByRole("switch");
 		await expect.element(el).toHaveAttribute("aria-checked", "true");
 	});
 
 	test("aria-disabled is set when disabled", async () => {
-		const { getByRole } = render(Switch, { props: { disabled: true } });
+		const { getByRole } = await render(Switch, { props: { disabled: true } });
 		const el = getByRole("switch");
 		await expect.element(el).toHaveAttribute("aria-disabled", "true");
 	});
 
 	test("aria-disabled is not emitted when not disabled", async () => {
-		const { getByRole } = render(Switch);
+		const { getByRole } = await render(Switch);
 		const el = getByRole("switch");
 		await expect.element(el).not.toHaveAttribute("aria-disabled");
 	});
@@ -109,19 +109,19 @@ describe("switch component — ARIA", () => {
 
 describe("switch component — data-state", () => {
 	test("data-state is 'unchecked' by default", async () => {
-		const { getByRole } = render(Switch);
+		const { getByRole } = await render(Switch);
 		const el = getByRole("switch");
 		await expect.element(el).toHaveAttribute("data-state", "unchecked");
 	});
 
 	test("data-state is 'checked' when checked", async () => {
-		const { getByRole } = render(Switch, { props: { checked: true } });
+		const { getByRole } = await render(Switch, { props: { checked: true } });
 		const el = getByRole("switch");
 		await expect.element(el).toHaveAttribute("data-state", "checked");
 	});
 
 	test("disabled is its own attribute; data-state stays checked/unchecked", async () => {
-		const { getByRole } = render(Switch, { props: { disabled: true } });
+		const { getByRole } = await render(Switch, { props: { disabled: true } });
 		const el = getByRole("switch");
 		await expect.element(el).toHaveAttribute("data-disabled", "");
 		await expect.element(el).toHaveAttribute("aria-disabled", "true");
@@ -136,7 +136,9 @@ describe("switch component — data-state", () => {
 describe("switch component — controlled and uncontrolled state", () => {
 	test("uncontrolled: starts from defaultChecked and toggles itself", async () => {
 		const onCheckedChange = vi.fn();
-		const { getByRole } = render(Switch, { props: { defaultChecked: true, onCheckedChange } });
+		const { getByRole } = await render(Switch, {
+			props: { defaultChecked: true, onCheckedChange },
+		});
 		const el = getByRole("switch");
 		await expect.element(el).toHaveAttribute("aria-checked", "true");
 		await el.click();
@@ -146,7 +148,9 @@ describe("switch component — controlled and uncontrolled state", () => {
 
 	test("controlled: follows checked; a click only asks the owner", async () => {
 		const onCheckedChange = vi.fn();
-		const { getByRole, rerender } = render(Switch, { props: { checked: false, onCheckedChange } });
+		const { getByRole, rerender } = await render(Switch, {
+			props: { checked: false, onCheckedChange },
+		});
 		const el = getByRole("switch");
 		await el.click();
 		expect(onCheckedChange).toHaveBeenCalledWith(true);
@@ -162,7 +166,7 @@ describe("switch component — controlled and uncontrolled state", () => {
 
 describe("switch component — thumb", () => {
 	test("renders a thumb element with aria-hidden", async () => {
-		const { container } = render(Switch);
+		const { container } = await render(Switch);
 		const thumb = container.querySelector("[data-slot='thumb']");
 		expect(thumb).toBeTruthy();
 		// biome-ignore lint/style/noNonNullAssertion: test assertion — thumb element verified truthy above
@@ -176,14 +180,14 @@ describe("switch component — thumb", () => {
 
 describe("switch component — composition", () => {
 	test("applies composition base classes", async () => {
-		const { getByRole } = render(Switch);
+		const { getByRole } = await render(Switch);
 		const el = getByRole("switch");
 		await expect.element(el).toHaveClass("inline-flex");
 		await expect.element(el).toHaveClass("items-center");
 	});
 
 	test("merges custom class prop", async () => {
-		const { getByRole } = render(Switch, { props: { class: "my-custom" } });
+		const { getByRole } = await render(Switch, { props: { class: "my-custom" } });
 		const el = getByRole("switch");
 		await expect.element(el).toHaveClass("my-custom");
 	});
@@ -196,7 +200,7 @@ describe("switch component — composition", () => {
 describe("switch component — events", () => {
 	test("a caller's onclick runs alongside the switch, not instead of it", async () => {
 		const onclick = vi.fn();
-		const { getByRole } = render(Switch, { props: { onclick } });
+		const { getByRole } = await render(Switch, { props: { onclick } });
 		const el = getByRole("switch");
 		await el.click();
 		expect(onclick).toHaveBeenCalledOnce();
@@ -205,7 +209,7 @@ describe("switch component — events", () => {
 
 	test("disabled: a caller's onclick does not run", async () => {
 		const onclick = vi.fn();
-		const { getByRole } = render(Switch, { props: { disabled: true, onclick } });
+		const { getByRole } = await render(Switch, { props: { disabled: true, onclick } });
 		(getByRole("switch").element() as HTMLElement).click();
 		expect(onclick).not.toHaveBeenCalled();
 	});

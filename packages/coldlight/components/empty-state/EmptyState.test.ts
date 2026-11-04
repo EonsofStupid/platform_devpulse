@@ -21,7 +21,7 @@ import { EmptyState } from "./index.js";
 
 describe("empty-state component — ARIA", () => {
 	test("has role='status'", async () => {
-		const { getByRole } = render(EmptyState);
+		const { getByRole } = await render(EmptyState);
 		const el = getByRole("status");
 		expect(el).toBeTruthy();
 	});
@@ -33,7 +33,7 @@ describe("empty-state component — ARIA", () => {
 
 describe("empty-state component — composition", () => {
 	test("applies composition base classes", async () => {
-		const { getByRole } = render(EmptyState);
+		const { getByRole } = await render(EmptyState);
 		const el = getByRole("status");
 		await expect.element(el).toHaveClass("flex");
 		await expect.element(el).toHaveClass("flex-col");
@@ -41,25 +41,25 @@ describe("empty-state component — composition", () => {
 	});
 
 	test("applies md size by default", async () => {
-		const { getByRole } = render(EmptyState);
+		const { getByRole } = await render(EmptyState);
 		const el = getByRole("status");
 		await expect.element(el).toHaveClass("p-8");
 	});
 
 	test("applies sm size variant", async () => {
-		const { getByRole } = render(EmptyState, { props: { size: "sm" } });
+		const { getByRole } = await render(EmptyState, { props: { size: "sm" } });
 		const el = getByRole("status");
 		await expect.element(el).toHaveClass("p-6");
 	});
 
 	test("applies lg size variant", async () => {
-		const { getByRole } = render(EmptyState, { props: { size: "lg" } });
+		const { getByRole } = await render(EmptyState, { props: { size: "lg" } });
 		const el = getByRole("status");
 		await expect.element(el).toHaveClass("p-12");
 	});
 
 	test("merges custom class prop", async () => {
-		const { getByRole } = render(EmptyState, { props: { class: "my-custom" } });
+		const { getByRole } = await render(EmptyState, { props: { class: "my-custom" } });
 		const el = getByRole("status");
 		await expect.element(el).toHaveClass("my-custom");
 	});

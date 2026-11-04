@@ -1,6 +1,6 @@
 /** @file Snapshot-driven chat keeps failed output and targets actions by session. */
 import { beforeEach, expect, it, vi } from "vitest";
-import type { LiveConversation, LiveSnapshot } from "$lib/sys/generated/bindings.js";
+import type { LiveConversation, LiveSnapshot } from "#lib/sys/generated/bindings.js";
 
 const mocks = vi.hoisted(() => ({
 	prompt: vi.fn(),
@@ -8,12 +8,12 @@ const mocks = vi.hoisted(() => ({
 	cancel: vi.fn(),
 	current: null as LiveSnapshot | null,
 }));
-vi.mock("$lib/domains/app/projects/index.js", () => ({ projectsState: { activeProjectId: "p" } }));
-vi.mock("$lib/sys/logger.js", async (importOriginal) => ({
-	...(await importOriginal<typeof import("$lib/sys/logger.js")>()),
+vi.mock("#lib/domains/app/projects/index.js", () => ({ projectsState: { activeProjectId: "p" } }));
+vi.mock("#lib/sys/logger.js", async (importOriginal) => ({
+	...(await importOriginal<typeof import("#lib/sys/logger.js")>()),
 	logError: vi.fn(),
 }));
-vi.mock("$lib/sys/generated/bindings.js", () => ({
+vi.mock("#lib/sys/generated/bindings.js", () => ({
 	commands: {
 		agentPrompt: mocks.prompt,
 		agentAnswer: mocks.answer,
@@ -23,7 +23,7 @@ vi.mock("$lib/sys/generated/bindings.js", () => ({
 	events: { agentHubChanged: { listen: async () => () => {} } },
 }));
 
-import { agenthubState } from "$lib/domains/agenthub/index.js";
+import { agenthubState } from "#lib/domains/agenthub/index.js";
 import { agentsState } from "./agents.state.svelte.js";
 
 function turn(sessionId: string, error: string | null = null): LiveConversation {

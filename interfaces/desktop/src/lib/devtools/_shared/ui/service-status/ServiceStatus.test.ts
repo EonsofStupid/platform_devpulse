@@ -1,6 +1,6 @@
 import { expect, it } from "vitest";
 import { render } from "vitest-browser-svelte";
-import type { ServiceStatusSnapshot } from "$lib/sys/generated/bindings.js";
+import type { ServiceStatusSnapshot } from "#lib/sys/generated/bindings.js";
 import ServiceStatus from "./ServiceStatus.svelte";
 
 function snapshot(): ServiceStatusSnapshot {
@@ -28,8 +28,8 @@ function snapshot(): ServiceStatusSnapshot {
 	};
 }
 
-it("keeps connected presence distinct from verified capability readiness", () => {
-	const { container } = render(ServiceStatus, { service: snapshot() });
+it("keeps connected presence distinct from verified capability readiness", async () => {
+	const { container } = await render(ServiceStatus, { service: snapshot() });
 	expect(container.textContent).toContain("Present");
 	expect(container.textContent).toContain("system.agenthub");
 	expect(container.textContent).toContain("Protocol handshake");
@@ -45,7 +45,7 @@ it("replaces successful probe status with the actual failure on refresh", async 
 		evidence: "service-probe",
 		issue: null,
 	};
-	const { container, rerender } = render(ServiceStatus, { service });
+	const { container, rerender } = await render(ServiceStatus, { service });
 	expect(container.textContent).toContain("Service check passed");
 	await rerender({
 		service: {

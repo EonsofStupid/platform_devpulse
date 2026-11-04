@@ -7,7 +7,7 @@
  */
 
 import { invoke } from "@tauri-apps/api/core";
-import type { StsPipelineResult } from "$lib/devtools/_shared/voice-contracts.js";
+import type { StsPipelineResult } from "#lib/devtools/_shared/voice-contracts.js";
 
 /**
  * Run audio file → STT → brain → TTS → playback. Returns transcript,

@@ -6,7 +6,7 @@ import FailedTurn from "./FailedTurn.svelte";
 
 it("shows the error and exact stream copy without issuing actions until dismissal", async () => {
 	const onDismiss = vi.fn();
-	const { getByRole, getByText } = render(FailedTurn, {
+	const { getByRole, getByText } = await render(FailedTurn, {
 		props: {
 			title: "Retained answer",
 			note: "Copy before closing",
@@ -16,7 +16,7 @@ it("shows the error and exact stream copy without issuing actions until dismissa
 			onDismiss,
 		},
 	});
-	await expect.element(getByRole("alert")).toHaveTextContent("History write failed");
+	await expect.element(getByRole("alert")).toMatchTextContent("History write failed");
 	expect(getByText("First line\nSecond line").element().textContent).toBe(
 		"First line\nSecond line",
 	);

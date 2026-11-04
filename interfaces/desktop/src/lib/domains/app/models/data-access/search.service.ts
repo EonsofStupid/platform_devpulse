@@ -6,10 +6,10 @@
  * HARD FAIL — no mock data. Errors surface to UI.
  */
 
-import { commands, type HfSearchResultInfo } from "$lib/sys/generated/bindings.js";
-import { logError, logInfo } from "$lib/sys/logger.js";
+import { commands, type HfSearchResultInfo } from "#lib/sys/generated/bindings.js";
+import { logError, logInfo } from "#lib/sys/logger.js";
 
-export type { HfFileInfoItem, HfSearchResultInfo } from "$lib/sys/generated/bindings.js";
+export type { HfFileInfoItem, HfSearchResultInfo } from "#lib/sys/generated/bindings.js";
 
 /** Search HuggingFace for GGUF models. */
 export async function searchHuggingFace(

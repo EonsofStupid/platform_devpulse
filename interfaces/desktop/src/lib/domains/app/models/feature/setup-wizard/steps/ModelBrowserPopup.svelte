@@ -13,7 +13,7 @@ import { Button } from "@devpulse/coldlight/components/button";
 import { Text } from "@devpulse/coldlight/components/text";
 import { box, cn, hstack, stack } from "@devpulse/coldlight/utils";
 import { Download, FolderOpen, Link, Search, X } from "lucide-svelte";
-import { copyState, fill } from "$lib/sys/copy/index.js";
+import { copyState, fill } from "#lib/sys/copy/index.js";
 import { hardwareState } from "../../../data-access/hardware.state.svelte.js";
 import { modelsState } from "../../../data-access/models.state.svelte.js";
 import { searchState } from "../../../data-access/search.state.svelte.js";

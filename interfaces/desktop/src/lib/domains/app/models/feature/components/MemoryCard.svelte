@@ -11,7 +11,7 @@ import { cssVarString, renderForge } from "@devpulse/coldlight/renderforge";
 import { hstack } from "@devpulse/coldlight/utils/hstack";
 import { stack } from "@devpulse/coldlight/utils/stack";
 import { Brain, Download, Sparkles, X } from "lucide-svelte";
-import { logInfo } from "$lib/sys/logger.js";
+import { logInfo } from "#lib/sys/logger.js";
 import { memoryCardState } from "../../data-access/memory-card.state.svelte.js";
 import { modelsState } from "../../data-access/models.state.svelte.js";
 import { narrationState } from "../../data-access/narration.state.svelte.js";
@@ -62,7 +62,7 @@ $effect(() => {
 		[embedderRec, memoryState.embedderSlotId] as const,
 		[rerankerRec, memoryState.rerankerSlotId] as const,
 	]) {
-		if (!rec || !rec.alreadyDownloaded) continue;
+		if (!rec?.alreadyDownloaded) continue;
 		if (memoryState.committedModelId(slot) || memoryState.pendingModelId(slot)) continue;
 		const model = modelsState.models.find((m) => m.filename === rec.file);
 		if (model && memoryState.selectedModelId(slot) !== model.id) {

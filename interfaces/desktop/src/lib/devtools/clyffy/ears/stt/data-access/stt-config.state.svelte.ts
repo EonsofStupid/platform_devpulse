@@ -7,9 +7,9 @@
  * `config` vs `draft`. Pattern matches `project_user_config_pattern`.
  */
 
-import type { VoiceSttConfig } from "$lib/devtools/_shared/voice-contracts.js";
-import { commands } from "$lib/sys/generated/bindings.js";
-import { logError, logInfo } from "$lib/sys/logger.js";
+import type { VoiceSttConfig } from "#lib/devtools/_shared/voice-contracts.js";
+import { commands } from "#lib/sys/generated/bindings.js";
+import { logError, logInfo } from "#lib/sys/logger.js";
 
 class SttConfigState {
 	config = $state<VoiceSttConfig | null>(null);

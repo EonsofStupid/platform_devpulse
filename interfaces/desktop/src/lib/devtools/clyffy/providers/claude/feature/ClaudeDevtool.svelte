@@ -46,11 +46,11 @@ import {
 	type HealthBadge,
 	type LogTargetPreset,
 	ServiceDevtoolShell,
-} from "$lib/devtools/index.js";
-import { ClyffyLoadingBlock } from "$lib/domains/clyffy/index.js";
-import { type ClaudeInstall, type ClaudeTarget, commands } from "$lib/sys/generated/bindings.js";
-import { logError, logInfo } from "$lib/sys/logger.js";
-import { okQuery, PolledQuery } from "$lib/sys/runes/index.js";
+} from "#lib/devtools/index.js";
+import { ClyffyLoadingBlock } from "#lib/domains/clyffy/index.js";
+import { type ClaudeInstall, type ClaudeTarget, commands } from "#lib/sys/generated/bindings.js";
+import { logError, logInfo } from "#lib/sys/logger.js";
+import { okQuery, PolledQuery } from "#lib/sys/runes/index.js";
 
 // ── Polling — MCP status (5s interval, visibility-aware) ─
 const mcpPoll = new PolledQuery(

@@ -9,8 +9,8 @@
 <script lang="ts">
 import { Heading } from "@devpulse/coldlight/components/heading";
 import { Text } from "@devpulse/coldlight/components/text";
-import { ContainersSetup } from "$lib/domains/app/containers/index.js";
-import type { ContainersCopy } from "$lib/sys/bindings/copy/index.js";
+import { ContainersSetup } from "#lib/domains/app/containers/index.js";
+import type { ContainersCopy } from "#lib/sys/bindings/copy/index.js";
 
 let { copy }: { copy: ContainersCopy } = $props();
 </script>

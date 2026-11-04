@@ -26,7 +26,7 @@
  * - Kernel adapter: `kernel/devpulse-clyffy/src/cortex/persistence/ollama.rs`
  */
 
-import { commands } from "$lib/sys/generated/bindings.js";
+import { commands } from "#lib/sys/generated/bindings.js";
 
 // ── Lifecycle ────────────────────────────────────────────────────
 
@@ -69,4 +69,4 @@ export type {
 	OllamaHealthState,
 	OllamaModel,
 	OllamaStatus,
-} from "$lib/sys/generated/bindings.js";
+} from "#lib/sys/generated/bindings.js";

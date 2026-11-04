@@ -6,9 +6,9 @@
 	endpoint chat. Clyffy's own conversation has none to choose yet.
 -->
 <script lang="ts">
-import { openMainPage } from "$lib/sys/bindings/window/index.js";
-import { copyState } from "$lib/sys/copy/index.js";
-import { routeAt } from "$lib/sys/routing/index.js";
+import { openMainPage } from "#lib/sys/bindings/window/index.js";
+import { copyState } from "#lib/sys/copy/index.js";
+import { routeAt } from "#lib/sys/routing/index.js";
 import { agentsState } from "../data-access/agents.state.svelte.js";
 import { chatState } from "../data-access/chat.state.svelte.js";
 import { notesState } from "../data-access/notes.state.svelte.js";

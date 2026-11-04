@@ -24,8 +24,8 @@ import {
 	ollamaStart as ollamaStartCmd,
 	ollamaStatus as ollamaStatusCmd,
 	ollamaStop as ollamaStopCmd,
-} from "$lib/sys/bindings/ollama/index.js";
-import { logError, logInfo } from "$lib/sys/logger.js";
+} from "#lib/sys/bindings/ollama/index.js";
+import { logError, logInfo } from "#lib/sys/logger.js";
 
 const TAG = "ollama.sidecar.svc";
 

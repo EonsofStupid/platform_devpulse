@@ -17,7 +17,7 @@ import {
 	ProjectReferences,
 	ProjectSwitcher,
 	projectsState,
-} from "$lib/domains/app/projects/index.js";
+} from "#lib/domains/app/projects/index.js";
 </script>
 
 <div class={stack({ gap: "4" })} data-page="devpulse-projects">

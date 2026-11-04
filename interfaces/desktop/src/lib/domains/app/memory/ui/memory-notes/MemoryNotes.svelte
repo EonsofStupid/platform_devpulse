@@ -16,8 +16,8 @@ import { Switch } from "@devpulse/coldlight/components/switch";
 import { Text } from "@devpulse/coldlight/components/text";
 import { TextField } from "@devpulse/coldlight/components/text-field";
 import { Textarea } from "@devpulse/coldlight/components/textarea";
-import { fill } from "$lib/sys/copy/index.js";
-import type { MemoryNote } from "$lib/sys/generated/bindings.js";
+import { fill } from "#lib/sys/copy/index.js";
+import type { MemoryNote } from "#lib/sys/generated/bindings.js";
 import type { MemoryNotesProps } from "./memory-notes.types.js";
 
 let { copy, notes, busy, onSave, onInclude, onRemove }: MemoryNotesProps = $props();

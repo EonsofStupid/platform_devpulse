@@ -19,17 +19,17 @@ import { Spinner } from "@devpulse/coldlight/components/spinner";
 import { Text } from "@devpulse/coldlight/components/text";
 import { Check, Ear, FileAudio, Mic, Play, PowerOff } from "lucide-svelte";
 import { onMount } from "svelte";
-import type { MicTestResult } from "$lib/devtools/_shared/voice-contracts.js";
+import type { MicTestResult } from "#lib/devtools/_shared/voice-contracts.js";
 import {
 	DevtoolLogsTab,
 	type HealthBadge,
 	type LogTargetPreset,
 	ServiceDevtoolShell,
-} from "$lib/devtools/index.js";
-import { modelsState } from "$lib/domains/app/models/index.js";
-import { ClyffyLoadingBlock } from "$lib/domains/clyffy/index.js";
-import { capabilityChannel } from "$lib/sys/events/index.js";
-import { logInfo } from "$lib/sys/logger.js";
+} from "#lib/devtools/index.js";
+import { modelsState } from "#lib/domains/app/models/index.js";
+import { ClyffyLoadingBlock } from "#lib/domains/clyffy/index.js";
+import { capabilityChannel } from "#lib/sys/events/index.js";
+import { logInfo } from "#lib/sys/logger.js";
 import { testMicrophone, transcribeAudio, transcribeAudioFile } from "../data-access/stt.svc.js";
 import { sttConfigState } from "../data-access/stt-config.state.svelte.js";
 

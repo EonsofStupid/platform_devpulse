@@ -26,18 +26,18 @@
 	only switches which view file mounts.
 -->
 <script lang="ts">
-import { goto } from "$app/navigation";
-import { resolve } from "$app/paths";
-import { KnowledgeDeck } from "$lib/domains/app/knowledge/index.js";
-import { installState } from "$lib/sys/activity-hud/install.state.svelte.js";
+import { KnowledgeDeck } from "#lib/domains/app/knowledge/index.js";
+import { installState } from "#lib/sys/activity-hud/install.state.svelte.js";
 import {
 	autoConfigure,
 	getTierDisplay,
 	getWizardCopy,
 	installToSlot,
-} from "$lib/sys/bindings/models/index.js";
-import type { TierDisplay, WizardCopy } from "$lib/sys/generated/bindings.js";
-import { platformState } from "$lib/sys/runes/platformState.svelte.js";
+} from "#lib/sys/bindings/models/index.js";
+import type { TierDisplay, WizardCopy } from "#lib/sys/generated/bindings.js";
+import { platformState } from "#lib/sys/runes/platformState.svelte.js";
+import { goto } from "$app/navigation";
+import { resolve } from "$app/paths";
 import { hardwareState } from "../../data-access/hardware.state.svelte.js";
 import ClyffyCollabView from "./feature/views/ClyffyCollabView.svelte";
 import CompleteView from "./feature/views/CompleteView.svelte";
@@ -440,7 +440,7 @@ async function skipToSlotOrchestrator() {
 	busy = true;
 	try {
 		await wizardState.finish();
-		await goto(resolve("/devtools/runtimes/orchestrator/slots"));
+		await goto(resolve("devtools/runtimes/orchestrator/slots"));
 	} catch (e) {
 		copyError = `Couldn't skip wizard: ${(e as Error).message}`;
 	} finally {

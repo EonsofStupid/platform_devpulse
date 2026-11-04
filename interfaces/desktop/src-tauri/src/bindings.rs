@@ -13,8 +13,13 @@
 
 use std::path::{Path, PathBuf};
 
-use specta_typescript::{BigIntExportBehavior, Typescript};
+use specta_typescript::Typescript;
 use tauri_specta::Builder;
+
+/// What a fallible command resolves to, named for the UI's own wrappers around
+/// commands. tauri-specta spells this shape out at each command, without a name.
+const RESULT_TYPE: &str =
+    "export type Result<T, E> = { status: \"ok\"; data: T } | { status: \"error\"; error: E };";
 
 /// `interfaces/desktop/src/lib/sys/generated/bindings.ts`, resolved from this
 /// crate's manifest directory at compile time (independent of the cwd).
@@ -29,9 +34,18 @@ pub fn bindings_path() -> PathBuf {
 ///
 /// Returns the exporter's message when a type cannot be rendered.
 pub fn render(builder: &Builder<tauri::Wry>) -> Result<String, String> {
-    let rendered = builder
-        .export_str(Typescript::default().bigint(BigIntExportBehavior::Number))
-        .map_err(|e| e.to_string())?;
+    // tauri-specta only exports to a path. Rendering must not touch the real
+    // file: the caller writes it only when the text changed.
+    let draft = std::env::temp_dir().join(format!("devpulse-bindings-{}.ts", std::process::id()));
+    let exported = builder
+        .export(Typescript::default().with_raw(RESULT_TYPE), &draft)
+        .map_err(|e| e.to_string());
+    let rendered = exported.and_then(|()| {
+        std::fs::read_to_string(&draft).map_err(|e| format!("{}: {e}", draft.display()))
+    });
+    let removed = std::fs::remove_file(&draft);
+    let rendered = rendered?;
+    removed.map_err(|e| format!("{}: {e}", draft.display()))?;
     Ok(strip_unused_tauri_channel_import(rendered))
 }
 
@@ -61,9 +75,10 @@ pub fn refresh_dev(builder: &Builder<tauri::Wry>) {
     }
 }
 
-/// tauri-specta emits `Channel as TAURI_CHANNEL` in the import block whether
-/// or not any command takes a channel; Vite then warns "imported but never
-/// used". Drop the import when the import line is the only reference.
+/// tauri-specta before rc.24 emitted `Channel as TAURI_CHANNEL` in the import
+/// block whether or not any command took a channel; Vite then warned "imported
+/// but never used". This dropped the import when it was the only reference.
+/// Current tauri-specta imports `Channel` only when used, so this finds nothing.
 fn strip_unused_tauri_channel_import(content: String) -> String {
     const IMPORT_LINE: &str = "\tChannel as TAURI_CHANNEL,\n";
     if content.matches("TAURI_CHANNEL").count() == 1 {

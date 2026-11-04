@@ -7,8 +7,8 @@
  * HARD FAIL — no mock data. Errors surface to UI.
  */
 
-import { commands, type ModelInfo } from "$lib/sys/generated/bindings.js";
-import { logError, logInfo } from "$lib/sys/logger.js";
+import { commands, type ModelInfo } from "#lib/sys/generated/bindings.js";
+import { logError, logInfo } from "#lib/sys/logger.js";
 
 /** Unwrap a specta Result or throw. */
 function unwrap<T>(result: { status: "ok"; data: T } | { status: "error"; error: string }): T {

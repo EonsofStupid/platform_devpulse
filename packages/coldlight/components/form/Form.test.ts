@@ -4,7 +4,7 @@ import Form from "./Form.svelte";
 
 describe("form component — ARIA", () => {
 	test("renders a <form> element", async () => {
-		const { container } = render(Form, {
+		const { container } = await render(Form, {
 			label: "User registration",
 		});
 		const form = container.querySelector("form");
@@ -12,7 +12,7 @@ describe("form component — ARIA", () => {
 	});
 
 	test("renders aria-label from label prop", async () => {
-		const { container } = render(Form, {
+		const { container } = await render(Form, {
 			label: "Login form",
 		});
 		const form = container.querySelector("form");
@@ -20,7 +20,7 @@ describe("form component — ARIA", () => {
 	});
 
 	test("renders data-state='pending' when pending", async () => {
-		const { container } = render(Form, {
+		const { container } = await render(Form, {
 			pending: true,
 			label: "Test",
 		});
@@ -29,7 +29,7 @@ describe("form component — ARIA", () => {
 	});
 
 	test("renders aria-busy when pending", async () => {
-		const { container } = render(Form, {
+		const { container } = await render(Form, {
 			pending: true,
 			label: "Test",
 		});
@@ -38,7 +38,7 @@ describe("form component — ARIA", () => {
 	});
 
 	test("renders data-disabled when disabled", async () => {
-		const { container } = render(Form, {
+		const { container } = await render(Form, {
 			disabled: true,
 			label: "Test",
 		});
@@ -49,7 +49,7 @@ describe("form component — ARIA", () => {
 
 describe("form component — composition", () => {
 	test("applies composition base classes", async () => {
-		const { container } = render(Form, {
+		const { container } = await render(Form, {
 			label: "Test",
 		});
 		const form = container.querySelector("form");
@@ -58,7 +58,7 @@ describe("form component — composition", () => {
 	});
 
 	test("applies size variant classes", async () => {
-		const { container } = render(Form, {
+		const { container } = await render(Form, {
 			size: "lg",
 			label: "Test",
 		});

@@ -7,7 +7,7 @@
 import "@devpulse/coldlight/index.css";
 import { beforeEach, expect, test, vi } from "vitest";
 import { render } from "vitest-browser-svelte";
-import type { MemoryCopy, MemoryNote } from "$lib/sys/generated/bindings.js";
+import type { MemoryCopy, MemoryNote } from "#lib/sys/generated/bindings.js";
 
 const mocks = vi.hoisted(() => ({
 	notes: vi.fn(),
@@ -17,7 +17,7 @@ const mocks = vi.hoisted(() => ({
 	remove: vi.fn(),
 }));
 vi.mock("../data-access/memory.service.js", () => mocks);
-vi.mock("$lib/domains/app/projects/index.js", () => ({
+vi.mock("#lib/domains/app/projects/index.js", () => ({
 	projectsState: {
 		ready: true,
 		activeProjectId: "alpha",
@@ -94,7 +94,7 @@ beforeEach(() => {
 });
 
 test("the page renders your notes and the active project's, reading each once", async () => {
-	const screen = render(YourMemory, { copy });
+	const screen = await render(YourMemory, { copy });
 	await expect.element(screen.getByText("your note", { exact: true })).toBeVisible();
 	await expect.element(screen.getByText("alpha note", { exact: true })).toBeVisible();
 	// Give a loop time to show itself: it would keep reading.
@@ -104,7 +104,7 @@ test("the page renders your notes and the active project's, reading each once", 
 });
 
 test("a saved note in the project appears and is written to that project", async () => {
-	const screen = render(YourMemory, { copy });
+	const screen = await render(YourMemory, { copy });
 	await expect.element(screen.getByText("alpha note", { exact: true })).toBeVisible();
 	mocks.save.mockResolvedValueOnce({ kind: "saved", note: note("alpha", "new note") });
 	mocks.notes.mockImplementation(async (projectId: string | null) =>
@@ -126,7 +126,7 @@ test("the page shows what goes to your agents, for the project shown", async () 
 		used: 120,
 		limit: 8000,
 	});
-	const screen = render(YourMemory, { copy });
+	const screen = await render(YourMemory, { copy });
 	const panel = screen.getByRole("region", { name: "What your agents get" });
 	await expect.element(panel.getByText("120 of 8000 characters.")).toBeVisible();
 	await expect.element(panel.getByText("Too long to fit: too long.")).toBeVisible();
@@ -138,13 +138,13 @@ test("the page shows what goes to your agents, for the project shown", async () 
 });
 
 test("when nothing goes, the page says how to include a note", async () => {
-	const screen = render(YourMemory, { copy });
+	const screen = await render(YourMemory, { copy });
 	const panel = screen.getByRole("region", { name: "What your agents get" });
 	await expect.element(panel.getByText("Nothing goes automatically yet.")).toBeVisible();
 });
 
 test("memory that did not start says so instead of an empty page", async () => {
 	mocks.notes.mockRejectedValue(new Error("Memory is not available"));
-	const screen = render(YourMemory, { copy });
+	const screen = await render(YourMemory, { copy });
 	await expect.element(screen.getByText("Memory isn't available")).toBeVisible();
 });

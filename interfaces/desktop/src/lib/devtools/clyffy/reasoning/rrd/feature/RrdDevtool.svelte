@@ -19,9 +19,9 @@ import { Button } from "@devpulse/coldlight/components/button";
 import { Text } from "@devpulse/coldlight/components/text";
 import { Activity, Trash2, Upload } from "lucide-svelte";
 import { onMount } from "svelte";
-import { type HealthBadge, ScopedLogPanel, ServiceDevtoolShell } from "$lib/devtools/index.js";
-import { laymanFor } from "$lib/sys/data-access/rrd/phase-labels.js";
-import { rrdState } from "$lib/sys/data-access/rrd/rrd.state.svelte.js";
+import { type HealthBadge, ScopedLogPanel, ServiceDevtoolShell } from "#lib/devtools/index.js";
+import { laymanFor } from "#lib/sys/data-access/rrd/phase-labels.js";
+import { rrdState } from "#lib/sys/data-access/rrd/rrd.state.svelte.js";
 import { ReasoningTopology } from "../../_shared/index.js";
 import SwapDialog from "./SwapDialog.svelte";
 

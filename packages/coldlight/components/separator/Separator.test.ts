@@ -22,19 +22,19 @@ import Separator from "./Separator.svelte";
 
 describe("separator component — structural attributes", () => {
 	test("renders an <hr> element with role='separator'", async () => {
-		const { getByRole } = render(Separator);
+		const { getByRole } = await render(Separator);
 		const separator = getByRole("separator");
 		expect(separator).toBeTruthy();
 	});
 
 	test("has data-kind='separator'", async () => {
-		const { getByRole } = render(Separator);
+		const { getByRole } = await render(Separator);
 		const separator = getByRole("separator");
 		await expect.element(separator).toHaveAttribute("data-kind", "separator");
 	});
 
 	test("has data-slot='root'", async () => {
-		const { getByRole } = render(Separator);
+		const { getByRole } = await render(Separator);
 		const separator = getByRole("separator");
 		await expect.element(separator).toHaveAttribute("data-slot", "root");
 	});
@@ -46,32 +46,32 @@ describe("separator component — structural attributes", () => {
 
 describe("separator component — ARIA attributes", () => {
 	test("has role='separator' by default (non-decorative)", async () => {
-		const { getByRole } = render(Separator);
+		const { getByRole } = await render(Separator);
 		const separator = getByRole("separator");
 		await expect.element(separator).toHaveAttribute("role", "separator");
 	});
 
 	test("has aria-orientation='horizontal' by default", async () => {
-		const { getByRole } = render(Separator);
+		const { getByRole } = await render(Separator);
 		const separator = getByRole("separator");
 		await expect.element(separator).toHaveAttribute("aria-orientation", "horizontal");
 	});
 
 	test("has aria-orientation='vertical' when orientation='vertical'", async () => {
-		const { getByRole } = render(Separator, { props: { orientation: "vertical" } });
+		const { getByRole } = await render(Separator, { props: { orientation: "vertical" } });
 		const separator = getByRole("separator");
 		await expect.element(separator).toHaveAttribute("aria-orientation", "vertical");
 	});
 
 	test("has role='none' when decorative", async () => {
-		const { container } = render(Separator, { props: { decorative: true } });
+		const { container } = await render(Separator, { props: { decorative: true } });
 		const hr = container.querySelector("hr");
 		// biome-ignore lint/style/noNonNullAssertion: test assertion — hr element always rendered
 		await expect.element(hr!).toHaveAttribute("role", "none");
 	});
 
 	test("has aria-hidden='true' when decorative", async () => {
-		const { container } = render(Separator, { props: { decorative: true } });
+		const { container } = await render(Separator, { props: { decorative: true } });
 		const hr = container.querySelector("hr");
 		// biome-ignore lint/style/noNonNullAssertion: test assertion — hr element always rendered
 		await expect.element(hr!).toHaveAttribute("aria-hidden", "true");
@@ -84,13 +84,13 @@ describe("separator component — ARIA attributes", () => {
 
 describe("separator component — data-orientation", () => {
 	test("has data-orientation='horizontal' by default", async () => {
-		const { getByRole } = render(Separator);
+		const { getByRole } = await render(Separator);
 		const separator = getByRole("separator");
 		await expect.element(separator).toHaveAttribute("data-orientation", "horizontal");
 	});
 
 	test("has data-orientation='vertical' when vertical", async () => {
-		const { getByRole } = render(Separator, { props: { orientation: "vertical" } });
+		const { getByRole } = await render(Separator, { props: { orientation: "vertical" } });
 		const separator = getByRole("separator");
 		await expect.element(separator).toHaveAttribute("data-orientation", "vertical");
 	});
@@ -102,13 +102,13 @@ describe("separator component — data-orientation", () => {
 
 describe("separator component — prop passthrough", () => {
 	test("forwards id attribute", async () => {
-		const { getByRole } = render(Separator, { props: { id: "my-separator" } });
+		const { getByRole } = await render(Separator, { props: { id: "my-separator" } });
 		const separator = getByRole("separator");
 		await expect.element(separator).toHaveAttribute("id", "my-separator");
 	});
 
 	test("passes class prop", async () => {
-		const { getByRole } = render(Separator, { props: { class: "custom-sep" } });
+		const { getByRole } = await render(Separator, { props: { class: "custom-sep" } });
 		const separator = getByRole("separator");
 		await expect.element(separator).toHaveClass("custom-sep");
 	});

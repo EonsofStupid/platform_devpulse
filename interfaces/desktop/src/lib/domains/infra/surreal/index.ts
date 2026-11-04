@@ -22,7 +22,7 @@ export type {
 	SurrealHealth,
 	SurrealStatus,
 	SurrealUserConfig,
-} from "$lib/sys/bindings/surreal/index.js";
+} from "#lib/sys/bindings/surreal/index.js";
 export { surrealSidecarState } from "./data-access/sidecar.state.svelte.js";
 export {
 	surrealConfigLoad,

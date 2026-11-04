@@ -9,7 +9,7 @@
 <script lang="ts">
 import { EmptyState } from "@devpulse/coldlight/components/empty-state";
 import { Text } from "@devpulse/coldlight/components/text";
-import { copyState } from "$lib/sys/copy/index.js";
+import { copyState } from "#lib/sys/copy/index.js";
 import ServiceDevtoolShell from "./ServiceDevtoolShell.svelte";
 
 const text = $derived(copyState.catalog?.devtools);

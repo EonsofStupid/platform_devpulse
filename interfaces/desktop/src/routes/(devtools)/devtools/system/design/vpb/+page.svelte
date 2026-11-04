@@ -3,10 +3,10 @@
 	@route /devtools/system/design/vpb
 
 	Mounts the Visual Page Builder devtool feature component. All logic lives in
-	`$lib/devtools/system/design/vpb/`.
+	`#lib/devtools/system/design/vpb//index.js`.
 -->
 <script lang="ts">
-import { VpbDevtool } from "$lib/devtools/system/design/vpb/index.js";
+import { VpbDevtool } from "#lib/devtools/system/design/vpb/index.js";
 </script>
 
 <VpbDevtool />

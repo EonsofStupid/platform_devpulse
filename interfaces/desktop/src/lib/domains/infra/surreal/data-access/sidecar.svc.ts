@@ -19,8 +19,8 @@ import {
 	surrealConfigSave as surrealConfigSaveCmd,
 	surrealHealth as surrealHealthCmd,
 	surrealStatus as surrealStatusCmd,
-} from "$lib/sys/bindings/surreal/index.js";
-import { logError, logInfo } from "$lib/sys/logger.js";
+} from "#lib/sys/bindings/surreal/index.js";
+import { logError, logInfo } from "#lib/sys/logger.js";
 
 const TAG = "surreal.sidecar.svc";
 

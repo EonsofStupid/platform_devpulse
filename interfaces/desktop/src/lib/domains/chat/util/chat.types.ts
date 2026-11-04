@@ -3,9 +3,9 @@
  * @module @devpulse/domains/chat/util/chat.types
  */
 
-import type { Outcome } from "$lib/sys/generated/bindings.js";
+import type { Outcome } from "#lib/sys/generated/bindings.js";
 
-export type { ChatMessage } from "$lib/sys/generated/bindings.js";
+export type { ChatMessage } from "#lib/sys/generated/bindings.js";
 
 /** Block-level message for `MessageBubble` / legacy `ChatThread` bridge */
 export interface BlockChatMessage {

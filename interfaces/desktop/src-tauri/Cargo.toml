@@ -36,7 +36,7 @@ tauri-build = { version = "2.5.5", features = [] }
 tauri = { version = "2.10.2", features = ["specta", "devtools"] }
 specta = { workspace = true }
 specta-typescript = { workspace = true }
-tauri-specta = { version = "=2.0.0-rc.21", features = ["derive", "typescript"] }
+tauri-specta = { version = "=2.0.0-rc.26", features = ["derive", "typescript"] }
 tauri-plugin-shell = "2.3.5"
 tauri-plugin-single-instance = "2.4.0"
 tauri-plugin-global-shortcut = "2"
@@ -64,7 +64,7 @@ arc-swap = { workspace = true }
 rfd = "0.17.2"
 sysinfo = { workspace = true }
 keyring = { workspace = true }
-rodio = "0.19"
+rodio = { workspace = true }
 # DevForge sidecar — REH web server lifecycle
 portpicker = "0.1"
 rand = { workspace = true }

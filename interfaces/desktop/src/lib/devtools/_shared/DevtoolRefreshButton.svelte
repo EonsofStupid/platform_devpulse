@@ -3,7 +3,7 @@
 	@domain platform/_shared
 
 	Refresh button bound to a `TauriQuery` or `PolledQuery` instance from
-	`$lib/sys/runes`. Spinner-while-loading; the icon flips to a warning
+	`#lib/sys/runes/index.js`. Spinner-while-loading; the icon flips to a warning
 	tone when the query carries an error so a stale UI never looks healthy.
 
 	# Usage
@@ -17,7 +17,7 @@
 import { Button } from "@devpulse/coldlight/components/button";
 import { Spinner } from "@devpulse/coldlight/components/spinner";
 import { AlertTriangle, RefreshCw } from "lucide-svelte";
-import type { PolledQuery, TauriQuery } from "$lib/sys/runes/index.js";
+import type { PolledQuery, TauriQuery } from "#lib/sys/runes/index.js";
 
 type AnyQuery = TauriQuery<unknown, unknown> | PolledQuery<unknown, unknown>;
 

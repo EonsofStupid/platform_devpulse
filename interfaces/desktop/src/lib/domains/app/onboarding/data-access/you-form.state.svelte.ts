@@ -8,7 +8,7 @@
  * to Rust; when it is saved, first run continues (Rust checks the gate).
  */
 
-import type { FieldError, FormView } from "$lib/sys/bindings/onboarding/index.js";
+import type { FieldError, FormView } from "#lib/sys/bindings/onboarding/index.js";
 import { pickFolder, readYouForm, submitYouForm } from "./onboarding.service.js";
 import { onboardingState } from "./onboarding.state.svelte.js";
 import { repoScan } from "./repo-scan.state.svelte.js";

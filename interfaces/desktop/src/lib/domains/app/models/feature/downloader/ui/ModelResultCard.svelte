@@ -20,7 +20,7 @@
 <script lang="ts">
 import { cn } from "@devpulse/coldlight/utils";
 import { Download as DownloadIcon, Heart } from "lucide-svelte";
-import type { HfSearchResultInfo } from "$lib/sys/generated/bindings.js";
+import type { HfSearchResultInfo } from "#lib/sys/generated/bindings.js";
 import { getSlotLabel } from "../../../util/slots.js";
 import type { SuggestedSlotTag } from "../util/downloader.types.js";
 import { topSuggestion } from "../util/slot-tagging.js";

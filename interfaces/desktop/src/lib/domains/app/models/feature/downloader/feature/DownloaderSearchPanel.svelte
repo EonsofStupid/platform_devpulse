@@ -21,7 +21,7 @@
 <script lang="ts">
 import { cn } from "@devpulse/coldlight/utils";
 import { Search } from "lucide-svelte";
-import type { DownloaderCopy, HfSearchResultInfo } from "$lib/sys/generated/bindings.js";
+import type { DownloaderCopy, HfSearchResultInfo } from "#lib/sys/generated/bindings.js";
 import { modelDownloaderState } from "../data-access/downloader.state.svelte.js";
 import { ModelResultCard } from "../ui/index.js";
 

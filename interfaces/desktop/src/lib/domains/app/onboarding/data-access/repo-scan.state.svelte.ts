@@ -8,7 +8,7 @@
  * results.
  */
 
-import type { FoundRepo, RegisterResult } from "$lib/sys/bindings/onboarding/index.js";
+import type { FoundRepo, RegisterResult } from "#lib/sys/bindings/onboarding/index.js";
 import { registerProjects, scanProjects } from "./onboarding.service.js";
 
 const message = (e: unknown): string => (e instanceof Error ? e.message : String(e));

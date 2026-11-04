@@ -3,8 +3,8 @@
  * @module @devpulse/domains/infra/duckdb/data-access/duckdb
  */
 
-import { commands } from "$lib/sys/generated/bindings.js";
-import { logError, logInfo } from "$lib/sys/logger.js";
+import { commands } from "#lib/sys/generated/bindings.js";
+import { logError, logInfo } from "#lib/sys/logger.js";
 import type { DuckDbHealth, DuckDbQueryResult, DuckDbTableInfo } from "../util/duckdb.types.js";
 
 export async function duckdbHealth(): Promise<DuckDbHealth> {

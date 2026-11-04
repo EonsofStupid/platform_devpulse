@@ -1,5 +1,5 @@
 /** @file Catalog and read-only paging over the single AgentHub runtime. */
-import type { FoundEvent, FoundSession, FoundSessions } from "$lib/sys/generated/bindings.js";
+import type { FoundEvent, FoundSession, FoundSessions } from "#lib/sys/generated/bindings.js";
 import * as service from "./agenthub.service.js";
 
 export const sessionKey = (session: Pick<FoundSession, "providerId" | "locator">) =>

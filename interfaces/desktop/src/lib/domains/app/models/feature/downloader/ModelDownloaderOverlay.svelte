@@ -43,11 +43,11 @@
 import { cn } from "@devpulse/coldlight/utils";
 import { CheckCircle, X } from "lucide-svelte";
 import { onMount, tick } from "svelte";
-import { downloadState } from "$lib/sys/activity-hud/download.state.svelte.js";
-import { installState } from "$lib/sys/activity-hud/install.state.svelte.js";
-import { getWizardCopy } from "$lib/sys/bindings/models/index.js";
-import type { DownloaderCopy, WizardCopy } from "$lib/sys/generated/bindings.js";
-import { logError } from "$lib/sys/logger.js";
+import { downloadState } from "#lib/sys/activity-hud/download.state.svelte.js";
+import { installState } from "#lib/sys/activity-hud/install.state.svelte.js";
+import { getWizardCopy } from "#lib/sys/bindings/models/index.js";
+import type { DownloaderCopy, WizardCopy } from "#lib/sys/generated/bindings.js";
+import { logError } from "#lib/sys/logger.js";
 import { modelDownloaderState } from "./data-access/index.js";
 import {
 	DownloaderConfirmPanel,

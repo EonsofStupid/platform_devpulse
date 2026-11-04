@@ -1,4 +1,4 @@
-import type { PermissionChoice } from "$lib/sys/generated/bindings.js";
+import type { PermissionChoice } from "#lib/sys/generated/bindings.js";
 
 /** Presentation contract shared by live chat and the component review fixture. */
 export interface AgentTurnProps {

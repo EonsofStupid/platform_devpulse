@@ -3,7 +3,7 @@
 	@route /devtools/runtimes/inference/llama-cpp
 -->
 <script lang="ts">
-import { LlamaCppDevtool } from "$lib/devtools/runtimes/inference/llama-cpp/index.js";
+import { LlamaCppDevtool } from "#lib/devtools/runtimes/inference/llama-cpp/index.js";
 </script>
 
 <LlamaCppDevtool />

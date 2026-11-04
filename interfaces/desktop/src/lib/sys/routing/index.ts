@@ -13,6 +13,7 @@ export {
 	pagesUnder,
 	parentOf,
 	type RouteNode,
+	type RoutePath,
 	routeExports,
 	routeTree,
 	topLevelOf,

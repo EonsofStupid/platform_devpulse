@@ -13,7 +13,7 @@ import Sidebar from "./Sidebar.svelte";
 
 describe("Sidebar component", () => {
 	it("renders with role=navigation and data-kind", async () => {
-		const screen = render(Sidebar, {
+		const screen = await render(Sidebar, {
 			props: { label: "Main navigation" },
 		});
 
@@ -24,7 +24,7 @@ describe("Sidebar component", () => {
 	});
 
 	it("applies expanded state by default", async () => {
-		const screen = render(Sidebar, {
+		const screen = await render(Sidebar, {
 			props: { label: "Nav" },
 		});
 
@@ -33,7 +33,7 @@ describe("Sidebar component", () => {
 	});
 
 	it("applies collapsed state when expanded=false", async () => {
-		const screen = render(Sidebar, {
+		const screen = await render(Sidebar, {
 			props: { label: "Nav", expanded: false },
 		});
 
@@ -42,7 +42,7 @@ describe("Sidebar component", () => {
 	});
 
 	it("applies composition classes for size", async () => {
-		const screen = render(Sidebar, {
+		const screen = await render(Sidebar, {
 			props: { label: "Nav", size: "lg" },
 		});
 
@@ -51,7 +51,7 @@ describe("Sidebar component", () => {
 	});
 
 	it("applies collapsed width when not expanded", async () => {
-		const screen = render(Sidebar, {
+		const screen = await render(Sidebar, {
 			props: { label: "Nav", expanded: false },
 		});
 
@@ -60,7 +60,7 @@ describe("Sidebar component", () => {
 	});
 
 	it("renders content slot", async () => {
-		const screen = render(Sidebar, {
+		const screen = await render(Sidebar, {
 			props: { label: "Nav" },
 		});
 
@@ -70,7 +70,7 @@ describe("Sidebar component", () => {
 	});
 
 	it("merges custom className", async () => {
-		const screen = render(Sidebar, {
+		const screen = await render(Sidebar, {
 			props: { label: "Nav", class: "custom-class" },
 		});
 

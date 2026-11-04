@@ -5,7 +5,7 @@
   See docs/platform/Desktop.md §2.3 — routes compose feature/ via index.ts.
 -->
 <script lang="ts">
-import { DevForgeDashboard } from "$lib/domains/app/devforge/index.js";
+import { DevForgeDashboard } from "#lib/domains/app/devforge/index.js";
 </script>
 
 <DevForgeDashboard />

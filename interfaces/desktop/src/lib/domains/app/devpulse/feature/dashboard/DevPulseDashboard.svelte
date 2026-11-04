@@ -28,11 +28,11 @@ import {
 	TrendingUp,
 	Wifi,
 } from "lucide-svelte";
-import { devpulseState } from "$lib/domains/app/devpulse/index.js";
-import { formatMb, GpuUtilGauge, hardwareState, VramGauge } from "$lib/domains/app/models/index.js";
-import { groupHealthSubsystems } from "$lib/layouts/app/StatusBar.types.js";
-import { copyState } from "$lib/sys/copy/index.js";
-import { platformState } from "$lib/sys/runes/platformState.svelte.js";
+import { devpulseState } from "#lib/domains/app/devpulse/index.js";
+import { formatMb, GpuUtilGauge, hardwareState, VramGauge } from "#lib/domains/app/models/index.js";
+import { groupHealthSubsystems } from "#lib/layouts/app/StatusBar.types.js";
+import { copyState } from "#lib/sys/copy/index.js";
+import { platformState } from "#lib/sys/runes/platformState.svelte.js";
 
 const text = $derived(copyState.catalog?.hubs.dashboard);
 

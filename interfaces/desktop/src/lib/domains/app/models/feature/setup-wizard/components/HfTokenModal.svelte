@@ -37,8 +37,8 @@ import { Button } from "@devpulse/coldlight/components/button";
 import { Heading } from "@devpulse/coldlight/components/heading";
 import { Text } from "@devpulse/coldlight/components/text";
 import { Check, Copy, ExternalLink, Eye, EyeOff, X } from "lucide-svelte";
-import { withAction } from "$lib/sys/action-bus.svelte.js";
-import { commands } from "$lib/sys/generated/bindings.js";
+import { withAction } from "#lib/sys/action-bus.svelte.js";
+import { commands } from "#lib/sys/generated/bindings.js";
 
 import type { HfTokenCopy } from "../wizard.types.js";
 

@@ -12,9 +12,9 @@
  */
 
 import { invoke } from "@tauri-apps/api/core";
-import { withAction } from "$lib/sys/action-bus.svelte.js";
-import { commands, type EscalationTier, type RoutingConfig } from "$lib/sys/generated/bindings.js";
-import { logError, logInfo, logWarn } from "$lib/sys/logger.js";
+import { withAction } from "#lib/sys/action-bus.svelte.js";
+import { commands, type EscalationTier, type RoutingConfig } from "#lib/sys/generated/bindings.js";
+import { logError, logInfo, logWarn } from "#lib/sys/logger.js";
 import type { AutoConfig } from "../util/models.types.js";
 import { modelsState } from "./models.state.svelte.js";
 import { setupSessionState } from "./setup-session.state.svelte.js";
@@ -29,7 +29,7 @@ export type {
 	InferenceProvider,
 	LatencyConfig,
 	RoutingConfig,
-} from "$lib/sys/generated/bindings.js";
+} from "#lib/sys/generated/bindings.js";
 
 interface HfTokenCopy {
 	title: string;

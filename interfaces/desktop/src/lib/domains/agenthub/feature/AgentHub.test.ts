@@ -3,7 +3,7 @@ import { expect, it, vi } from "vitest";
 import { page } from "vitest/browser";
 import { render } from "vitest-browser-svelte";
 import "../../../../app.css";
-import type { FoundSession } from "$lib/sys/generated/bindings.js";
+import type { FoundSession } from "#lib/sys/generated/bindings.js";
 
 const mocks = vi.hoisted(() => ({ sessions: vi.fn(), transcript: vi.fn(), openWindow: vi.fn() }));
 vi.mock("$app/state", () => ({
@@ -31,10 +31,10 @@ vi.mock("../data-access/agenthub.state.svelte.js", () => ({
 		},
 	},
 }));
-vi.mock("$lib/domains/app/projects/index.js", () => ({
+vi.mock("#lib/domains/app/projects/index.js", () => ({
 	projectsState: { ready: true, projects: [{ id: "project", name: "DevPulse" }] },
 }));
-vi.mock("$lib/domains/app/providers/index.js", () => ({
+vi.mock("#lib/domains/app/providers/index.js", () => ({
 	providersState: {
 		start: () => () => {},
 		current: {
@@ -47,8 +47,8 @@ vi.mock("$lib/domains/app/providers/index.js", () => ({
 		},
 	},
 }));
-vi.mock("$lib/sys/bindings/window/index.js", () => ({ openWindow: mocks.openWindow }));
-vi.mock("$lib/sys/routing/index.js", () => ({
+vi.mock("#lib/sys/bindings/window/index.js", () => ({ openWindow: mocks.openWindow }));
+vi.mock("#lib/sys/routing/index.js", () => ({
 	routeAt: (path: string) => ({ path }),
 	hrefOf: (node: { path: string }) => node.path,
 	routeCopy: () => ({ label: "AgentHub" }),
@@ -126,7 +126,7 @@ it("browses a parent and child, reads older messages, filters providers and open
 	);
 	mocks.openWindow.mockResolvedValue({ status: "ok", data: {} });
 	await page.viewport(1440, 900);
-	const { container } = render(AgentHub);
+	const { container } = await render(AgentHub);
 	await expect.element(page.getByText("Conversation from chat", { exact: true })).toBeVisible();
 	// Give the feature the same bounded content slot as the app shell.
 	container.style.height = "860px";

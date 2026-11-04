@@ -21,37 +21,37 @@ import SkipLink from "./SkipLink.svelte";
 
 describe("skip-link component -- ARIA", () => {
 	test("renders an <a> element with role='link'", async () => {
-		const { getByRole } = render(SkipLink);
+		const { getByRole } = await render(SkipLink);
 		const link = getByRole("link");
 		expect(link).toBeTruthy();
 	});
 
 	test("has href='#main-content' by default", async () => {
-		const { getByRole } = render(SkipLink);
+		const { getByRole } = await render(SkipLink);
 		const link = getByRole("link");
 		await expect.element(link).toHaveAttribute("href", "#main-content");
 	});
 
 	test("applies custom href from prop", async () => {
-		const { getByRole } = render(SkipLink, { props: { href: "#content" } });
+		const { getByRole } = await render(SkipLink, { props: { href: "#content" } });
 		const link = getByRole("link");
 		await expect.element(link).toHaveAttribute("href", "#content");
 	});
 
 	test("has aria-label with default text", async () => {
-		const { getByRole } = render(SkipLink);
+		const { getByRole } = await render(SkipLink);
 		const link = getByRole("link");
 		await expect.element(link).toHaveAttribute("aria-label", "Skip to main content");
 	});
 
 	test("has data-kind='skip-link'", async () => {
-		const { getByRole } = render(SkipLink);
+		const { getByRole } = await render(SkipLink);
 		const link = getByRole("link");
 		await expect.element(link).toHaveAttribute("data-kind", "skip-link");
 	});
 
 	test("has data-slot='root'", async () => {
-		const { getByRole } = render(SkipLink);
+		const { getByRole } = await render(SkipLink);
 		const link = getByRole("link");
 		await expect.element(link).toHaveAttribute("data-slot", "root");
 	});
@@ -63,9 +63,9 @@ describe("skip-link component -- ARIA", () => {
 
 describe("skip-link component -- default text", () => {
 	test("renders default label text when no children", async () => {
-		const { getByRole } = render(SkipLink);
+		const { getByRole } = await render(SkipLink);
 		const link = getByRole("link");
-		await expect.element(link).toHaveTextContent("Skip to main content");
+		await expect.element(link).toMatchTextContent("Skip to main content");
 	});
 });
 
@@ -75,7 +75,7 @@ describe("skip-link component -- default text", () => {
 
 describe("skip-link component -- composition", () => {
 	test("passes class prop to element", async () => {
-		const { getByRole } = render(SkipLink, { props: { class: "test-class" } });
+		const { getByRole } = await render(SkipLink, { props: { class: "test-class" } });
 		const link = getByRole("link");
 		await expect.element(link).toHaveClass("test-class");
 	});

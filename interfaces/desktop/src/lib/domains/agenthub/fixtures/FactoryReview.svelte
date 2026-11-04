@@ -68,7 +68,7 @@ function policy(next: Supervision) {
 	void focusDetail();
 }
 function decide(decision: "accept" | "changes", revision: number, note: string) {
-	if (!selected || selected.stage !== "Review" || selected.revision !== revision) {
+	if (selected?.stage !== "Review" || selected.revision !== revision) {
 		message = "This proposal changed. Open its current revision before deciding.";
 		return;
 	}

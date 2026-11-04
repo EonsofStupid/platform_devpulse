@@ -11,9 +11,9 @@
 -->
 <script lang="ts">
 import { onMount } from "svelte";
+import { SetupWizardOverlay, wizardState } from "#lib/domains/app/models/index.js";
+import { hrefOf, routeAt } from "#lib/sys/routing/index.js";
 import { goto } from "$app/navigation";
-import { SetupWizardOverlay, wizardState } from "$lib/domains/app/models/index.js";
-import { hrefOf, routeAt } from "$lib/sys/routing/index.js";
 
 const modelLoader = routeAt("/model-loader");
 let opened = $state(false);
@@ -28,7 +28,7 @@ onMount(() => {
 // Done closes the wizard; this page has nothing else to show.
 $effect(() => {
 	if (opened && !wizardState.isOpen && modelLoader) {
-		void goto(hrefOf(modelLoader), { replaceState: true });
+		void goto(hrefOf(modelLoader), { replace: true });
 	}
 });
 </script>

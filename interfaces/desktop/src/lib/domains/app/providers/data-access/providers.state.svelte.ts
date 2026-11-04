@@ -21,9 +21,9 @@ import type {
 	ProviderAction,
 	ProviderId,
 	ProvidersState,
-} from "$lib/sys/bindings/providers/index.js";
-import { signalFabric } from "$lib/sys/events/signal-fabric.js";
-import type { ConnectionOption, SaveConnection } from "$lib/sys/generated/bindings.js";
+} from "#lib/sys/bindings/providers/index.js";
+import { signalFabric } from "#lib/sys/events/signal-fabric.js";
+import type { ConnectionOption, SaveConnection } from "#lib/sys/generated/bindings.js";
 import {
 	check,
 	checkConnection,

@@ -20,8 +20,8 @@ import { Text } from "@devpulse/coldlight/components/text";
 import { cn, hstack, stack } from "@devpulse/coldlight/utils";
 import { Activity, FolderOpen, Play, Power, RefreshCw, ServerCog, Terminal } from "lucide-svelte";
 import { onMount } from "svelte";
-import { devforgeState } from "$lib/domains/app/devforge/index.js";
-import { commands } from "$lib/sys/generated/bindings.js";
+import { devforgeState } from "#lib/domains/app/devforge/index.js";
+import { commands } from "#lib/sys/generated/bindings.js";
 
 interface LifecycleEvent {
 	timestamp: string;

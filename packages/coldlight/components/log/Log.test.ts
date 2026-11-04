@@ -20,7 +20,7 @@ const lines: LogLine[] = [
 
 describe("log — ARIA", () => {
 	test("a named log region the keyboard can scroll", async () => {
-		const { getByRole } = render(Log, { props: { lines, label: "Today's actions" } });
+		const { getByRole } = await render(Log, { props: { lines, label: "Today's actions" } });
 		const region = getByRole("log", { name: "Today's actions" });
 		await expect.element(region).toBeInTheDocument();
 		await expect.element(region).toHaveAttribute("tabindex", "0");
@@ -28,14 +28,14 @@ describe("log — ARIA", () => {
 	});
 
 	test("a visible heading can name it", async () => {
-		const { getByRole } = render(Log, { props: { lines, "aria-labelledby": "log-title" } });
+		const { getByRole } = await render(Log, { props: { lines, "aria-labelledby": "log-title" } });
 		await expect.element(getByRole("log")).toHaveAttribute("aria-labelledby", "log-title");
 	});
 });
 
 describe("log — lines", () => {
 	test("each entry is a list item, oldest first, with only the parts it has", async () => {
-		const { container } = render(Log, { props: { lines, label: "Log" } });
+		const { container } = await render(Log, { props: { lines, label: "Log" } });
 		const items = container.querySelectorAll('[data-kind="log"][data-slot="line"]');
 		expect(items.length).toBe(3);
 		expect(items[0].tagName).toBe("LI");
@@ -48,8 +48,8 @@ describe("log — lines", () => {
 		await expect.element(locatePart(container, "log", "list")).toBeInTheDocument();
 	});
 
-	test("a level is drawn with its tone", () => {
-		const { container } = render(Log, { props: { lines, label: "Log" } });
+	test("a level is drawn with its tone", async () => {
+		const { container } = await render(Log, { props: { lines, label: "Log" } });
 		const levels = container.querySelectorAll('[data-kind="log"][data-slot="level"]');
 		expect(levels[0].getAttribute("data-tone")).toBe("info");
 		expect(levels[1].getAttribute("data-tone")).toBe("error");
@@ -65,7 +65,7 @@ describe("log — lines", () => {
 
 describe("log — empty", () => {
 	test("with no lines it shows the empty snippet instead of the list", async () => {
-		const { container, getByText } = render(Log, {
+		const { container, getByText } = await render(Log, {
 			props: { lines: [], label: "Log", empty: snippetOf("<p>No actions yet</p>") },
 		});
 		await expect.element(getByText("No actions yet")).toBeInTheDocument();
@@ -75,7 +75,7 @@ describe("log — empty", () => {
 
 describe("log — look", () => {
 	test("its panel takes the kind's default variant, and a family when given", async () => {
-		const { getByRole, rerender } = render(Log, { props: { lines, label: "Log" } });
+		const { getByRole, rerender } = await render(Log, { props: { lines, label: "Log" } });
 		await expect.element(getByRole("log")).toHaveAttribute("data-variant", "elevated");
 		await rerender({ variant: "deep", surface: "glass" });
 		await expect.element(getByRole("log")).toHaveAttribute("data-variant", "deep");
@@ -83,7 +83,7 @@ describe("log — look", () => {
 	});
 
 	test("the caller's attributes reach the region", async () => {
-		const { getByRole } = render(Log, {
+		const { getByRole } = await render(Log, {
 			props: { lines, label: "Log", id: "action-log", class: "h-64", "data-testid": "log" },
 		});
 		const region = getByRole("log");
@@ -100,7 +100,7 @@ describe("log — following", () => {
 		// ColdLight's test runner compiles no Tailwind, so the region's scrolling
 		// (`overflow-y-auto` in the app) is given inline; what is tested is that
 		// the component wires following to its root.
-		const { getByRole, rerender } = render(Log, {
+		const { getByRole, rerender } = await render(Log, {
 			props: { lines: many(3), label: "Log", style: "height: 60px; overflow-y: auto" },
 		});
 		await rerender({ lines: many(60) });

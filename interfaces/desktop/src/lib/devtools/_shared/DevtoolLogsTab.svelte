@@ -39,8 +39,8 @@ import { Tabs, TabsList, TabsTrigger } from "@devpulse/coldlight/components/tabs
 import { Text } from "@devpulse/coldlight/components/text";
 import { ScrollText } from "lucide-svelte";
 import { untrack } from "svelte";
-import { commands, type ScopedLogEntry } from "$lib/sys/generated/bindings.js";
-import { TauriQuery } from "$lib/sys/runes/index.js";
+import { commands, type ScopedLogEntry } from "#lib/sys/generated/bindings.js";
+import { TauriQuery } from "#lib/sys/runes/index.js";
 import CommandErrorAlert from "./CommandErrorAlert.svelte";
 import DevtoolRefreshButton from "./DevtoolRefreshButton.svelte";
 

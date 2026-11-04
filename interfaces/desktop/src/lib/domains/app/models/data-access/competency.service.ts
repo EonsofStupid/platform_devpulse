@@ -10,7 +10,7 @@
  * Persists to preferences.json via Tauri IPC.
  */
 
-import { commands } from "$lib/sys/generated/bindings.js";
+import { commands } from "#lib/sys/generated/bindings.js";
 import type { CompetencyLevel } from "../util/terminology.js";
 
 const PREF_KEY = "competency_level";

@@ -7,9 +7,9 @@ import type {
 	SherpaCompileInfo,
 	SherpaInstalledModel,
 	SherpaSessionInfo,
-} from "$lib/sys/generated/bindings.js";
-import { commands } from "$lib/sys/generated/bindings.js";
-import { logError, logInfo } from "$lib/sys/logger.js";
+} from "#lib/sys/generated/bindings.js";
+import { commands } from "#lib/sys/generated/bindings.js";
+import { logError, logInfo } from "#lib/sys/logger.js";
 
 function unwrap<T>(
 	tag: string,

@@ -3,8 +3,8 @@
  * @description Process-level metrics snapshot.
  */
 
-import { commands } from "$lib/sys/generated/bindings.js";
+import { commands } from "#lib/sys/generated/bindings.js";
 
 export const getProcessMetrics = commands.getProcessMetrics;
 
-export type { ProcessMetrics } from "$lib/sys/generated/bindings.js";
+export type { ProcessMetrics } from "#lib/sys/generated/bindings.js";

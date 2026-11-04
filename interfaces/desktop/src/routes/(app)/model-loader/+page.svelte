@@ -10,9 +10,9 @@
 -->
 <script lang="ts">
 import { Button } from "@devpulse/coldlight/components/button";
+import { ModelLoaderPanel } from "#lib/domains/app/models/index.js";
+import { hrefOf, routeAt, routeCopy } from "#lib/sys/routing/index.js";
 import { goto } from "$app/navigation";
-import { ModelLoaderPanel } from "$lib/domains/app/models/index.js";
-import { hrefOf, routeAt, routeCopy } from "$lib/sys/routing/index.js";
 
 const cortex = routeAt("/cortex");
 const cortexCopy = $derived(cortex ? routeCopy(cortex) : undefined);

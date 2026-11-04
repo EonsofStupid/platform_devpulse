@@ -3,7 +3,7 @@
  * @description Voice surface — TTS / STT / STS pipeline + profiles + smoke.
  */
 
-import { commands } from "$lib/sys/generated/bindings.js";
+import { commands } from "#lib/sys/generated/bindings.js";
 
 // ── Status + speak + listen ─────────────────────────────────────
 export const getVoiceStatus = commands.getVoiceStatus;
@@ -45,4 +45,4 @@ export type {
 	VoiceStatusInfo,
 	VoiceSttConfig,
 	VoiceTtsConfig,
-} from "$lib/sys/generated/bindings.js";
+} from "#lib/sys/generated/bindings.js";

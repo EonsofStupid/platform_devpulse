@@ -26,10 +26,10 @@ import { Button } from "@devpulse/coldlight/components/button";
 import { DynamicBackground } from "@devpulse/coldlight/components/dynamic-background";
 import { Text } from "@devpulse/coldlight/components/text";
 import { box, cn, stack } from "@devpulse/coldlight/utils";
-import { presentationState } from "$lib/domains/app/devpulse/index.js";
-import { LoadingContentCard } from "$lib/domains/clyffy/index.js";
-import { logError, logInfo } from "$lib/sys/logger.js";
-import { platformState } from "$lib/sys/runes/platformState.svelte.js";
+import { presentationState } from "#lib/domains/app/devpulse/index.js";
+import { LoadingContentCard } from "#lib/domains/clyffy/index.js";
+import { logError, logInfo } from "#lib/sys/logger.js";
+import { platformState } from "#lib/sys/runes/platformState.svelte.js";
 import FriendlyBootView from "./FriendlyBootView.svelte";
 import TechnicalBootView from "./TechnicalBootView.svelte";
 
@@ -42,7 +42,7 @@ const bootFailureMessage = $derived(platformState.hasFailed ? platformState.erro
 
 async function openLogsFolder() {
 	try {
-		const { commands } = await import("$lib/sys/generated/bindings.js");
+		const { commands } = await import("#lib/sys/generated/bindings.js");
 		const r = await commands.openActionLogsFolder();
 		if (r.status === "error") {
 			throw new Error(typeof r.error === "string" ? r.error : String(r.error));

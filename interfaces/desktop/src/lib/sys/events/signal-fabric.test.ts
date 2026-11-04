@@ -7,7 +7,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import type { Signal, StateSnapshot } from "$lib/sys/generated/bindings.js";
+import type { Signal, StateSnapshot } from "#lib/sys/generated/bindings.js";
 import { FabricLedger } from "./signal-fabric.js";
 
 function systemEvent(id: string): Signal {

@@ -8,8 +8,8 @@
  * catalog's keys equal to the route tree.
  */
 
-import { copyState } from "$lib/sys/copy/index.js";
-import type { RouteCopy } from "$lib/sys/generated/bindings.js";
+import { copyState } from "#lib/sys/copy/index.js";
+import type { RouteCopy } from "#lib/sys/generated/bindings.js";
 import type { RouteNode } from "./route-manifest.js";
 
 /** The node's name and blurb; `undefined` until the catalog has loaded. */

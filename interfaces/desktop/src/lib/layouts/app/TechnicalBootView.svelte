@@ -8,9 +8,9 @@
 <script lang="ts">
 import { Log, type LogLine } from "@devpulse/coldlight/components/log";
 import { Text } from "@devpulse/coldlight/components/text";
-import { copyState, fill } from "$lib/sys/copy/index.js";
-import type { InitEvent } from "$lib/sys/generated/bindings.js";
-import { platformState } from "$lib/sys/runes/platformState.svelte.js";
+import { copyState, fill } from "#lib/sys/copy/index.js";
+import type { InitEvent } from "#lib/sys/generated/bindings.js";
+import { platformState } from "#lib/sys/runes/platformState.svelte.js";
 import { formatLatency } from "./boot-format.js";
 
 const copy = $derived(copyState.catalog?.hubs.boot);

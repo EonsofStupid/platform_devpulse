@@ -10,7 +10,7 @@
  * (`interfaces/desktop/src-tauri/src/commands/sys/relational.rs`).
  */
 
-import { commands } from "$lib/sys/generated/bindings.js";
+import { commands } from "#lib/sys/generated/bindings.js";
 
 export const tursoHealthAll = commands.tursoHealthAll;
 export const tursoListTables = commands.tursoListTables;
@@ -33,4 +33,4 @@ export type {
 	TableSummary,
 	TursoDatabase,
 	TursoHealth,
-} from "$lib/sys/generated/bindings.js";
+} from "#lib/sys/generated/bindings.js";

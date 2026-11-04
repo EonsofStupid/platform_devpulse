@@ -37,19 +37,19 @@ import {
 	Volume2,
 } from "lucide-svelte";
 import { onMount } from "svelte";
-import type { MicTestResult, VoiceInfo } from "$lib/devtools/_shared/voice-contracts.js";
-import { voiceSelectionState } from "$lib/devtools/_shared/voice-selection.state.svelte.js";
+import type { MicTestResult, VoiceInfo } from "#lib/devtools/_shared/voice-contracts.js";
+import { voiceSelectionState } from "#lib/devtools/_shared/voice-selection.state.svelte.js";
 import {
 	DevtoolLogsTab,
 	type HealthBadge,
 	type LogTargetPreset,
 	ServiceDevtoolShell,
-} from "$lib/devtools/index.js";
-import { modelsState } from "$lib/domains/app/models/index.js";
-import { ClyffyLoadingBlock } from "$lib/domains/clyffy/index.js";
-import { capabilityChannel } from "$lib/sys/events/index.js";
-import { commands, type VoiceSmokeReport } from "$lib/sys/generated/bindings.js";
-import { logInfo } from "$lib/sys/logger.js";
+} from "#lib/devtools/index.js";
+import { modelsState } from "#lib/domains/app/models/index.js";
+import { ClyffyLoadingBlock } from "#lib/domains/clyffy/index.js";
+import { capabilityChannel } from "#lib/sys/events/index.js";
+import { commands, type VoiceSmokeReport } from "#lib/sys/generated/bindings.js";
+import { logInfo } from "#lib/sys/logger.js";
 import { listVoices, previewVoice, speak } from "../../../mouth/tts/data-access/tts.svc.js";
 import { ttsConfigState } from "../../../mouth/tts/data-access/tts-config.state.svelte.js";
 import {

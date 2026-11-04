@@ -21,7 +21,7 @@
  */
 
 import type { AuthChangeEvent, Session, User } from "@supabase/supabase-js";
-import { commands } from "$lib/sys/generated/bindings.js";
+import { commands } from "#lib/sys/generated/bindings.js";
 import { getSupabaseClient, resetSupabaseClient } from "./supabase.client.js";
 
 /**

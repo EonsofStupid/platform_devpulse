@@ -1,6 +1,6 @@
 /** @file Multiple windows reconstruct live state without replaying token events. */
 import { beforeEach, expect, it, vi } from "vitest";
-import type { AgentHubChanged, LiveSnapshot } from "$lib/sys/generated/bindings.js";
+import type { AgentHubChanged, LiveSnapshot } from "#lib/sys/generated/bindings.js";
 
 const mocks = vi.hoisted(() => ({
 	snapshot: vi.fn(),

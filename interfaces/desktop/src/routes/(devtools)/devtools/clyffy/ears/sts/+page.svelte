@@ -3,7 +3,7 @@
 	@route /devtools/clyffy/ears/sts
 -->
 <script lang="ts">
-import { StsDevtool } from "$lib/devtools/clyffy/ears/sts/index.js";
+import { StsDevtool } from "#lib/devtools/clyffy/ears/sts/index.js";
 </script>
 
 <StsDevtool />

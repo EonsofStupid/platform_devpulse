@@ -26,6 +26,43 @@ work. AI configuration and connection/execution logic belong under `kernel/`,
 with configurable endpoints. Restore functioning consumers directly; do not
 introduce compatibility layers or parallel replacement implementations.
 
+## Restoration batch 1 — where it actually stands, 2026-11-04
+
+Owner, 2026-11-04: "restored to its location but authored properly for endpoints";
+"nothing actually restored nothing actually authored platform aligned". Count by
+files back and reachable, never by tests passed. Preserved is not restored.
+
+Measured with `recovered/repo/SOURCES.tsv`: 954 of 6,069 rows restored, up from 814.
+Of those not restored, about 2,800 have no same-named file at head, so those are the
+ones really gone; the rest are older versions of files that moved. Check `name_at_head`
+before restoring: copying an old version over a newer one destroys work.
+
+Back in `eda9bf93`, rendered once in the real app (16 screens, no uncaught errors),
+nothing exercised beyond loading: Visual Page Builder, Voice Lab, setup flow cards and
+`/model-loader/*`, boot views, chat overlay, depth and surface styling as tokens, home
+dashboard content merged into the newer files, the owner's palette, and ColdLight's
+dropdown-menu, context-menu, breadcrumbs, nav-item, panel and actions.
+
+Not lost, because never real: `OvermindDashboard`, `DevDashboard`, `WiredDashboard`,
+`WiredfrontFrame`, `UIDemoPage` and `MaestroDashboard` never exceeded 812 bytes in any
+commit. `lib/layouts/chat/components/{panels,shell}` are the same.
+
+**Next, in order:**
+- `sys/contracts/**` and `sys/registries/**`, the owner's strict patterns. Reconcile
+  with routes generated from folders (plan 0008) before restoring.
+- ColdLight's `recipes` (160), `presets` (67), `shortcodes` (86), `blueprints` (16),
+  `taxonomy/kinds` (124), `behaviors` (36), `builders` (16): reported as replaced by
+  kind tokens and specs by one agent, not yet reviewed against them by the owner.
+- Engine and kernel staging: `systems/devpulse-engine/src/platform/{services,boot}`,
+  `kernel/model-loader`, `systems/maestro`, `kernel/core`, reauthored for endpoints.
+- `alpha/` (641) and `OLD_PROJECTS_CSS_TSX` (86): source material, not yet surveyed.
+
+**Open for the owner:** exempting `recovered/` from `no-raw-values.mjs`, since
+`design/theme/glow.css`'s original cannot be committed until then and CI's preservation
+check fails on it; and whether primary stays blue (lock #6) or becomes teal.
+**Backend gaps these screens state on screen:** choosing a speech endpoint, network,
+search, Signal Router status.
+
 ## Restoration correction — governing direction, 2026-11-01
 
 ### Persona memory attached to sessions — 2026-11-03

@@ -4,7 +4,7 @@
  */
 
 import { invoke } from "@tauri-apps/api/core";
-import type { VoiceInfo } from "$lib/devtools/_shared/voice-contracts.js";
+import type { VoiceInfo } from "#lib/devtools/_shared/voice-contracts.js";
 
 /** Speak text through the active TTS slot. */
 export async function speak(

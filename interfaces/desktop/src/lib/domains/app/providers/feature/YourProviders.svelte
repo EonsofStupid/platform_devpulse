@@ -26,13 +26,13 @@ import { InlineMessage } from "@devpulse/coldlight/components/inline-message";
 import { Spinner } from "@devpulse/coldlight/components/spinner";
 import { StatusDot } from "@devpulse/coldlight/components/status-dot";
 import { Text } from "@devpulse/coldlight/components/text";
-import type { YourAiCopy } from "$lib/sys/bindings/copy/index.js";
-import { fill } from "$lib/sys/copy/index.js";
+import type { YourAiCopy } from "#lib/sys/bindings/copy/index.js";
+import { fill } from "#lib/sys/copy/index.js";
 import type {
 	ProviderAction,
 	ProviderActionRun,
 	ProviderReport,
-} from "$lib/sys/generated/bindings.js";
+} from "#lib/sys/generated/bindings.js";
 import { providersState } from "../data-access/providers.state.svelte.js";
 import EndpointConnections from "../ui/endpoint-connections/EndpointConnections.svelte";
 import SignInSteps from "../ui/sign-in-steps/SignInSteps.svelte";

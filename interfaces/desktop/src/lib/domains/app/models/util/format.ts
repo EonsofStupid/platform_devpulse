@@ -7,7 +7,7 @@
  * load errors) the same way everywhere.
  */
 
-import type { LoadError } from "$lib/sys/generated/bindings.js";
+import type { LoadError } from "#lib/sys/generated/bindings.js";
 
 /**
  * Format a megabyte count to a human-readable string.

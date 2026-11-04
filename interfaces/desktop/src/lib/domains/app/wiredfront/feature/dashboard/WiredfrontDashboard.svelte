@@ -18,7 +18,7 @@ import {
 	StickyNote,
 	Video,
 } from "lucide-svelte";
-import { copyState } from "$lib/sys/copy/index.js";
+import { copyState } from "#lib/sys/copy/index.js";
 
 const unavailable = $derived(copyState.catalog?.hubs.dashboard.unavailable);
 </script>

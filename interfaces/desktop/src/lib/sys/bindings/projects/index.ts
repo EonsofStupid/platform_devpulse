@@ -3,7 +3,7 @@
  * @description Project CRUD + active-project + cross-references.
  */
 
-import { commands } from "$lib/sys/generated/bindings.js";
+import { commands } from "#lib/sys/generated/bindings.js";
 
 export const createProject = commands.createProject;
 export const listProjects = commands.listProjects;
@@ -23,4 +23,4 @@ export type {
 	Project,
 	ProjectReference,
 	ProjectRow,
-} from "$lib/sys/generated/bindings.js";
+} from "#lib/sys/generated/bindings.js";

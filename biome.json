@@ -1,5 +1,5 @@
 {
-	"$schema": "https://biomejs.dev/schemas/2.4.0/schema.json",
+	"$schema": "https://biomejs.dev/schemas/2.6.5/schema.json",
 	"plugins": [
 		"./scripts/biome/gritql/no-raw-colors.grit",
 		"./scripts/biome/gritql/no-raw-colors-bg.grit",
@@ -16,13 +16,10 @@
 	"linter": {
 		"enabled": true,
 		"rules": {
-			"recommended": true,
+			"preset": "recommended",
 			"correctness": {
 				"noUnusedVariables": "error",
 				"noUnusedImports": "error"
-			},
-			"nursery": {
-				"noHexColors": "error"
 			},
 			"suspicious": {
 				"noExplicitAny": "error",
@@ -34,6 +31,7 @@
 				}
 			},
 			"style": {
+				"noHexColors": "error",
 				"useImportType": "error",
 				"useConst": "error",
 				"useFilenamingConvention": {
@@ -73,6 +71,11 @@
 	"css": {
 		"parser": {
 			"tailwindDirectives": true
+		}
+	},
+	"markdown": {
+		"formatter": {
+			"enabled": false
 		}
 	},
 	"overrides": [

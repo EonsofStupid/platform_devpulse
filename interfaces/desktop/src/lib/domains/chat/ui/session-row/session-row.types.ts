@@ -1,4 +1,4 @@
-import type { ChatSession } from "$lib/sys/generated/bindings.js";
+import type { ChatSession } from "#lib/sys/generated/bindings.js";
 
 /** Display data only; selecting a session remains the feature's responsibility. */
 export interface SessionRowProps {

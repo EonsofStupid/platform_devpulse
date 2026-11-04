@@ -8,7 +8,7 @@
  * `PolledQuery` paces the reads (it pauses while the window is hidden).
  */
 
-import type { ActionLogTail, CommandError, Result } from "$lib/sys/generated/bindings.js";
+import type { ActionLogTail, CommandError, Result } from "#lib/sys/generated/bindings.js";
 import { tailActionLog } from "./action-log.service.js";
 
 /** How often the devtool reads new lines: the cadence the page has always tailed at. */

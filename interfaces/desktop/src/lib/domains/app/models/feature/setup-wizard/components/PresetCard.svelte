@@ -9,7 +9,7 @@
 import { Button } from "@devpulse/coldlight/components/button";
 import { Spinner } from "@devpulse/coldlight/components/spinner";
 import { Check, Download } from "lucide-svelte";
-import { copyState, fill } from "$lib/sys/copy/index.js";
+import { copyState, fill } from "#lib/sys/copy/index.js";
 import { hardwareState } from "../../../data-access/hardware.state.svelte.js";
 import { formatMb } from "../../../util/models.types.js";
 import { wizardState } from "../wizard.state.svelte.js";

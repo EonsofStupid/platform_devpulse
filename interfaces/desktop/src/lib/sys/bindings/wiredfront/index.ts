@@ -3,6 +3,6 @@
  * @description WiredFront peer connection surface (currently a stub).
  */
 
-import { commands } from "$lib/sys/generated/bindings.js";
+import { commands } from "#lib/sys/generated/bindings.js";
 
 export const connectPeer = commands.connectPeer;

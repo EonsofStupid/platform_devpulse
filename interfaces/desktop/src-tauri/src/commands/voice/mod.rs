@@ -210,26 +210,24 @@ pub async fn speak(
 
     // Play audio via rodio on a blocking thread
     devpulse_telemetry::spawn_blocking(move || {
-        use rodio::{OutputStream, Sink, Source};
-        let (_stream, stream_handle) =
-            OutputStream::try_default().map_err(|e| format!("Audio output failed: {e}"))?;
-        let sink = Sink::try_new(&stream_handle).map_err(|e| format!("Audio sink failed: {e}"))?;
+        use rodio::Source;
+        let source = playback_source(samples.channels, samples.sample_rate, samples.data)?;
+        let device = open_speakers()?;
+        let player = rodio::Player::connect_new(device.mixer());
 
-        let source =
-            rodio::buffer::SamplesBuffer::new(samples.channels, samples.sample_rate, samples.data);
         tracing::debug!(
-            channels = source.channels(),
-            sample_rate = source.sample_rate(),
+            channels = source.channels().get(),
+            sample_rate = source.sample_rate().get(),
             "Playing TTS audio via rodio"
         );
-        sink.set_speed(tts_speed);
-        sink.append(source);
+        player.set_speed(tts_speed);
+        player.append(source);
 
         // Poll for stop request instead of blocking forever
-        while !sink.empty() {
+        while !player.empty() {
             if stop_flag.load(Ordering::SeqCst) {
                 tracing::info!("speak() — stop requested, halting playback");
-                sink.stop();
+                player.stop();
                 break;
             }
             std::thread::sleep(std::time::Duration::from_millis(50));
@@ -243,6 +241,32 @@ pub async fn speak(
 
     playback.playing.store(false, Ordering::SeqCst);
     Ok(())
+}
+
+/// Synthesized audio as something rodio can play.
+fn playback_source(
+    channels: u16,
+    sample_rate: u32,
+    data: Vec<f32>,
+) -> Result<rodio::buffer::SamplesBuffer, String> {
+    let channels =
+        std::num::NonZero::new(channels).ok_or("Synthesized audio reports no channels")?;
+    let sample_rate =
+        std::num::NonZero::new(sample_rate).ok_or("Synthesized audio reports no sample rate")?;
+    Ok(rodio::buffer::SamplesBuffer::new(
+        channels,
+        sample_rate,
+        data,
+    ))
+}
+
+/// The default speakers, for one utterance. Playback stops when this is dropped.
+fn open_speakers() -> Result<rodio::MixerDeviceSink, String> {
+    let mut device = rodio::DeviceSinkBuilder::open_default_sink()
+        .map_err(|e| format!("Audio output failed: {e}"))?;
+    // Closing after each utterance is expected; don't print rodio's notice.
+    device.log_on_drop(false);
+    Ok(device)
 }
 
 /// Stop current speech.
@@ -446,7 +470,7 @@ fn capture_mic_samples(
         .default_input_config()
         .map_err(|e| format!("Failed to get mic config: {e}"))?;
 
-    let sample_rate = supported.sample_rate().0;
+    let sample_rate = supported.sample_rate();
     let channels = supported.channels() as usize;
     let total_samples = (duration_secs * sample_rate as f32) as usize * channels;
 
@@ -484,7 +508,7 @@ fn capture_mic_samples(
 
     let stream = device
         .build_input_stream(
-            &stream_config,
+            stream_config,
             move |data: &[f32], _: &rodio::cpal::InputCallbackInfo| {
                 let Ok(mut buf) = buf_clone.lock() else {
                     tracing::error!("Mic buffer mutex poisoned — dropping audio frame");
@@ -1018,17 +1042,15 @@ pub async fn run_sts_pipeline(
 
     // Stage 4: Playback — reuse the same rodio path as speak()
     devpulse_telemetry::spawn_blocking(move || {
-        use rodio::{OutputStream, Sink};
-        let (_stream, stream_handle) =
-            OutputStream::try_default().map_err(|e| format!("Audio output failed: {e}"))?;
-        let sink = Sink::try_new(&stream_handle).map_err(|e| format!("Audio sink failed: {e}"))?;
-        let source = rodio::buffer::SamplesBuffer::new(
+        let source = playback_source(
             tts_samples.channels,
             tts_samples.sample_rate,
             tts_samples.data,
-        );
-        sink.append(source);
-        sink.sleep_until_end();
+        )?;
+        let device = open_speakers()?;
+        let player = rodio::Player::connect_new(device.mixer());
+        player.append(source);
+        player.sleep_until_end();
         Ok::<(), String>(())
     })
     .await

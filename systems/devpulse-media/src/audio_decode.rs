@@ -1,9 +1,9 @@
 //! Audio file → PCM decoding for the voice loop.
 //!
-//! Wraps `rodio::Decoder` (which delegates to symphonia / minimp3 / etc.
-//! transitively) so callers don't have to drag the rodio dep in directly.
-//! Handles WAV, MP3, FLAC, Vorbis out of the box. Stereo tracks are
-//! downmixed to mono by averaging channels.
+//! Wraps `rodio::Decoder` (which delegates to symphonia transitively) so
+//! callers don't have to drag the rodio dep in directly. Handles WAV, MP3,
+//! FLAC, Vorbis and AAC in MP4 out of the box. Stereo tracks are downmixed to
+//! mono by averaging channels.
 //!
 //! Lifted from `interfaces/desktop/src-tauri/src/commands/voice/mod.rs`
 //! 2026-04-26 so engine layer code (auto-transcribe-on-upload, Qwen3-TTS
@@ -36,8 +36,8 @@
 
 use std::path::Path;
 
-/// Decode an audio file (WAV / MP3 / FLAC / Vorbis) into mono f32 PCM
-/// at the requested sample rate.
+/// Decode an audio file (WAV / MP3 / FLAC / Vorbis / AAC in MP4) into mono f32
+/// PCM at the requested sample rate.
 ///
 /// Returns samples normalised to `[-1.0, 1.0]`.
 ///
@@ -50,13 +50,12 @@ pub fn decode_audio_file_to_pcm(path: &Path, target_rate: u32) -> Result<Vec<f32
 
     let file = std::fs::File::open(path)
         .map_err(|e| format!("Failed to open audio file {}: {e}", path.display()))?;
-    let reader = std::io::BufReader::new(file);
 
-    let decoder = Decoder::new(reader)
+    let decoder = Decoder::try_from(file)
         .map_err(|e| format!("Failed to decode audio file {}: {e}", path.display()))?;
 
-    let source_rate = decoder.sample_rate();
-    let source_channels = decoder.channels() as usize;
+    let source_rate = decoder.sample_rate().get();
+    let source_channels = usize::from(decoder.channels().get());
     tracing::info!(
         path = %path.display(),
         sample_rate = source_rate,
@@ -65,8 +64,8 @@ pub fn decode_audio_file_to_pcm(path: &Path, target_rate: u32) -> Result<Vec<f32
         "Decoding audio file"
     );
 
-    // rodio's Decoder yields i16 samples; convert to f32 in [-1.0, 1.0].
-    let raw: Vec<f32> = decoder.map(|s| f32::from(s) / 32_768.0).collect();
+    // rodio's Decoder yields f32 samples already normalised to [-1.0, 1.0].
+    let raw: Vec<f32> = decoder.collect();
     if raw.is_empty() {
         return Err(format!(
             "Audio file {} decoded to zero samples",
@@ -152,4 +151,69 @@ pub fn decode_to_whisper(path: &Path) -> Result<Vec<f32>, String> {
 /// See [`decode_audio_file_to_pcm`].
 pub fn decode_to_qwen3_tts_reference(path: &Path) -> Result<Vec<f32>, String> {
     decode_audio_file_to_pcm(path, QWEN3_TTS_SAMPLE_RATE)
+}
+
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::unwrap_used, reason = "test assertions")]
+
+    use super::*;
+
+    /// A 16-bit PCM WAV of interleaved `samples`.
+    fn wav(channels: u16, sample_rate: u32, samples: &[i16]) -> Vec<u8> {
+        let data_len = u32::try_from(samples.len() * 2).unwrap();
+        let mut bytes = Vec::new();
+        bytes.extend_from_slice(b"RIFF");
+        bytes.extend_from_slice(&(36 + data_len).to_le_bytes());
+        bytes.extend_from_slice(b"WAVEfmt ");
+        bytes.extend_from_slice(&16u32.to_le_bytes());
+        bytes.extend_from_slice(&1u16.to_le_bytes());
+        bytes.extend_from_slice(&channels.to_le_bytes());
+        bytes.extend_from_slice(&sample_rate.to_le_bytes());
+        bytes.extend_from_slice(&(sample_rate * u32::from(channels) * 2).to_le_bytes());
+        bytes.extend_from_slice(&(channels * 2).to_le_bytes());
+        bytes.extend_from_slice(&16u16.to_le_bytes());
+        bytes.extend_from_slice(b"data");
+        bytes.extend_from_slice(&data_len.to_le_bytes());
+        for sample in samples {
+            bytes.extend_from_slice(&sample.to_le_bytes());
+        }
+        bytes
+    }
+
+    fn decoded(file: &str, bytes: &[u8], target_rate: u32) -> Vec<f32> {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join(file);
+        std::fs::write(&path, bytes).unwrap();
+        decode_audio_file_to_pcm(&path, target_rate).unwrap()
+    }
+
+    #[test]
+    fn decoded_samples_stay_normalised() {
+        let mono = decoded("mono.wav", &wav(1, 16_000, &[16_384, -16_384, 0]), 16_000);
+        assert_eq!(mono.len(), 3);
+        assert!((mono[0] - 0.5).abs() < 0.001, "first sample {}", mono[0]);
+        assert!((mono[1] + 0.5).abs() < 0.001, "second sample {}", mono[1]);
+        assert!(mono[2].abs() < 0.001, "third sample {}", mono[2]);
+    }
+
+    #[test]
+    fn stereo_is_averaged_to_mono() {
+        let mono = decoded(
+            "stereo.wav",
+            &wav(2, 16_000, &[16_384, 0, -16_384, 0]),
+            16_000,
+        );
+        assert_eq!(mono.len(), 2);
+        assert!((mono[0] - 0.25).abs() < 0.001, "first sample {}", mono[0]);
+        assert!((mono[1] + 0.25).abs() < 0.001, "second sample {}", mono[1]);
+    }
+
+    #[test]
+    fn other_rates_are_resampled() {
+        let samples = vec![8_192i16; 1_000];
+        let resampled = decoded("rate.wav", &wav(1, 8_000, &samples), 16_000);
+        assert_eq!(resampled.len(), 2_000);
+        assert!(resampled.iter().all(|s| (s - 0.25).abs() < 0.001));
+    }
 }

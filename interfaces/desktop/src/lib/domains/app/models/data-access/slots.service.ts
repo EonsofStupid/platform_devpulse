@@ -7,9 +7,9 @@
  * HARD FAIL — no mock data. Errors surface to UI.
  */
 
-import { withAction } from "$lib/sys/action-bus.svelte.js";
-import { commands, type LoadError, type SlotInfo } from "$lib/sys/generated/bindings.js";
-import { logError, logInfo } from "$lib/sys/logger.js";
+import { withAction } from "#lib/sys/action-bus.svelte.js";
+import { commands, type LoadError, type SlotInfo } from "#lib/sys/generated/bindings.js";
+import { logError, logInfo } from "#lib/sys/logger.js";
 import { formatLoadError } from "../util/format.js";
 
 /**

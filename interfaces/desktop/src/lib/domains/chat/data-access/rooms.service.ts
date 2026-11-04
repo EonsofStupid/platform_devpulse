@@ -12,7 +12,7 @@ import {
 	type LibraryKind,
 	type RoomStreamed,
 	type RoomThread,
-} from "$lib/sys/generated/bindings.js";
+} from "#lib/sys/generated/bindings.js";
 
 function ok<T>(result: { status: "ok"; data: T } | { status: "error"; error: string }): T {
 	if (result.status === "error") throw new Error(result.error);

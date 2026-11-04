@@ -17,9 +17,9 @@ import {
 	Upload,
 	X,
 } from "lucide-svelte";
-import { copyState, fill } from "$lib/sys/copy/index.js";
-import type { ModelInfo } from "$lib/sys/generated/bindings.js";
-import { logWarn } from "$lib/sys/logger.js";
+import { copyState, fill } from "#lib/sys/copy/index.js";
+import type { ModelInfo } from "#lib/sys/generated/bindings.js";
+import { logWarn } from "#lib/sys/logger.js";
 import { importLocalModel } from "../../../data-access/download.service.js";
 import { hardwareState } from "../../../data-access/hardware.state.svelte.js";
 import { modelsState } from "../../../data-access/models.state.svelte.js";

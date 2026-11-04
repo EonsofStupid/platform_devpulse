@@ -6,7 +6,7 @@ import AgentTurn from "./AgentTurn.svelte";
 it("emits the provider's choice ID, explicit refusal and cancellation", async () => {
 	const onAnswer = vi.fn();
 	const onCancel = vi.fn();
-	const { getByRole, rerender } = render(AgentTurn, {
+	const { getByRole, rerender } = await render(AgentTurn, {
 		props: {
 			message: "Permission requested:",
 			permission: {

@@ -6,7 +6,7 @@
  * each one, writes to Turso and publishes the `onboarding` state signal.
  */
 
-import { commands } from "$lib/sys/generated/bindings.js";
+import { commands } from "#lib/sys/generated/bindings.js";
 
 export const onboardingState = commands.onboardingState;
 export const onboardingNext = commands.onboardingNext;
@@ -34,4 +34,4 @@ export type {
 	RegisterResult,
 	Requirement,
 	Stage,
-} from "$lib/sys/generated/bindings.js";
+} from "#lib/sys/generated/bindings.js";

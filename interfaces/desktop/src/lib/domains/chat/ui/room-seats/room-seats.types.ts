@@ -1,4 +1,4 @@
-import type { AgentChatCopy } from "$lib/sys/generated/bindings.js";
+import type { AgentChatCopy } from "#lib/sys/generated/bindings.js";
 
 export interface RoomSeatView {
 	key: string;

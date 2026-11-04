@@ -59,13 +59,13 @@
 	--button-border-width: 0.0625rem;
 	--button-opacity: 1;
 	--button-animation: none;
-	--button-transition-duration: 150ms;
+	--button-transition-duration: 0.15s;
 	--button-transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
 	--button-gradient: none;
 	--button-font-family: var(--font-sans);
 	--button-font-size: 0.875rem;
 	--button-font-weight: 400;
-	--button-letter-spacing: 0.000625rem;
+	--button-letter-spacing: 0.01em;
 	--button-line-height: 1.5;
 }
 
@@ -78,7 +78,7 @@
 	--button-border-width: 0.0625rem;
 	--button-opacity: 1;
 	--button-animation: none;
-	--button-transition-duration: 150ms;
+	--button-transition-duration: 0.15s;
 	--button-transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
 	--button-gradient: none;
 	--button-font-family: var(--font-sans);
@@ -97,7 +97,7 @@
 	--button-border-width: 0;
 	--button-opacity: 1;
 	--button-animation: none;
-	--button-transition-duration: 150ms;
+	--button-transition-duration: 0.15s;
 	--button-transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
 	--button-gradient: none;
 	--button-font-family: var(--font-sans);
@@ -116,13 +116,13 @@
 	--button-border-width: 0.125rem;
 	--button-opacity: 1;
 	--button-animation: cl-alert-pulse 2s ease-in-out infinite;
-	--button-transition-duration: 120ms;
+	--button-transition-duration: 0.12s;
 	--button-transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
 	--button-gradient: none;
 	--button-font-family: var(--font-sans);
 	--button-font-size: 0.875rem;
 	--button-font-weight: 600;
-	--button-letter-spacing: 0.000625rem;
+	--button-letter-spacing: 0.01em;
 	--button-line-height: 1.4;
 }
 

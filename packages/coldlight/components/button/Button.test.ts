@@ -13,7 +13,7 @@ const label = snippetOf("<span>Save</span>");
 
 describe("button — ARIA and look", () => {
 	test("a plain button: no aria-pressed, no data-state", async () => {
-		const { getByRole } = render(Button, { props: { children: label } });
+		const { getByRole } = await render(Button, { props: { children: label } });
 		const el = getByRole("button", { name: "Save" });
 		await expect.element(el).toBeInTheDocument();
 		await expect.element(el).not.toHaveAttribute("aria-pressed");
@@ -21,7 +21,7 @@ describe("button — ARIA and look", () => {
 	});
 
 	test("its look is attributes: variant and size, no inline style", async () => {
-		const { container } = render(Button, {
+		const { container } = await render(Button, {
 			props: { children: label, variant: "ghost", size: "sm" },
 		});
 		const root = locatePart(container, "button");
@@ -31,7 +31,7 @@ describe("button — ARIA and look", () => {
 	});
 
 	test("disabled and loading mark the root (aria and data attributes)", async () => {
-		const { container, rerender } = render(Button, {
+		const { container, rerender } = await render(Button, {
 			props: { children: label, disabled: true },
 		});
 		const root = locatePart(container, "button");
@@ -44,7 +44,7 @@ describe("button — ARIA and look", () => {
 	});
 
 	test("its id survives prop changes", async () => {
-		const { container, rerender } = render(Button, { props: { children: label } });
+		const { container, rerender } = await render(Button, { props: { children: label } });
 		const root = locatePart(container, "button");
 		const id = root.element().id;
 		await rerender({ loading: true });
@@ -55,7 +55,7 @@ describe("button — ARIA and look", () => {
 describe("button — toggle mode", () => {
 	test("uncontrolled: defaultPressed makes it a toggle that holds its state", async () => {
 		const onPressedChange = vi.fn();
-		const { container } = render(Button, {
+		const { container } = await render(Button, {
 			props: { children: label, defaultPressed: false, onPressedChange },
 		});
 		const root = locatePart(container, "button");
@@ -68,7 +68,7 @@ describe("button — toggle mode", () => {
 
 	test("controlled: follows pressed; a click only asks the owner", async () => {
 		const onPressedChange = vi.fn();
-		const { container, rerender } = render(Button, {
+		const { container, rerender } = await render(Button, {
 			props: { children: label, pressed: true, onPressedChange },
 		});
 		const root = locatePart(container, "button");
@@ -82,7 +82,9 @@ describe("button — toggle mode", () => {
 
 describe("button — events", () => {
 	test("keyboard: Enter toggles a toggle button once", async () => {
-		const { container } = render(Button, { props: { children: label, defaultPressed: false } });
+		const { container } = await render(Button, {
+			props: { children: label, defaultPressed: false },
+		});
 		const root = locatePart(container, "button");
 		(root.element() as HTMLElement).focus();
 		await userEvent.keyboard("{Enter}");
@@ -91,7 +93,7 @@ describe("button — events", () => {
 
 	test("a caller's onclick runs alongside the toggle, not instead of it", async () => {
 		const onclick = vi.fn();
-		const { container } = render(Button, {
+		const { container } = await render(Button, {
 			props: { children: label, defaultPressed: false, onclick },
 		});
 		const root = locatePart(container, "button");
@@ -102,7 +104,9 @@ describe("button — events", () => {
 
 	test("disabled: a caller's onclick does not run", async () => {
 		const onclick = vi.fn();
-		const { container } = render(Button, { props: { children: label, disabled: true, onclick } });
+		const { container } = await render(Button, {
+			props: { children: label, disabled: true, onclick },
+		});
 		const root = locatePart(container, "button");
 		(root.element() as HTMLElement).click();
 		expect(onclick).not.toHaveBeenCalled();

@@ -30,9 +30,9 @@ import {
 	type HealthBadge,
 	type LogTargetPreset,
 	ServiceDevtoolShell,
-} from "$lib/devtools/index.js";
-import { StoreHeroCard } from "$lib/devtools/system/datastores/_shared/index.js";
-import { cellText, type TursoDatabase, tursoState } from "$lib/domains/infra/turso/index.js";
+} from "#lib/devtools/index.js";
+import { StoreHeroCard } from "#lib/devtools/system/datastores/_shared/index.js";
+import { cellText, type TursoDatabase, tursoState } from "#lib/domains/infra/turso/index.js";
 import TursoHero from "./TursoHero.svelte";
 import TursoTableEditor from "./TursoTableEditor.svelte";
 

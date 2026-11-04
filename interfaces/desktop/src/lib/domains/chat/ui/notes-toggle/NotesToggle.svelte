@@ -10,7 +10,7 @@ import { Badge } from "@devpulse/coldlight/components/badge";
 import { Button } from "@devpulse/coldlight/components/button";
 import { InlineMessage } from "@devpulse/coldlight/components/inline-message";
 import { Switch } from "@devpulse/coldlight/components/switch";
-import { fill } from "$lib/sys/copy/index.js";
+import { fill } from "#lib/sys/copy/index.js";
 import type { NotesToggleProps } from "./notes-toggle.types.js";
 
 let { copy, notes, disabled, problem, onChange, onChoose }: NotesToggleProps = $props();

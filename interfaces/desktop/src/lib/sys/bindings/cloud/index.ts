@@ -3,7 +3,7 @@
  * @description Cloud inference (Anthropic API) — provider toggle + chat.
  */
 
-import { commands } from "$lib/sys/generated/bindings.js";
+import { commands } from "#lib/sys/generated/bindings.js";
 
 export const getInferenceProvider = commands.getInferenceProvider;
 export const setInferenceProvider = commands.setInferenceProvider;
@@ -14,4 +14,4 @@ export type {
 	CloudChatResult,
 	CloudMessage,
 	InferenceProvider,
-} from "$lib/sys/generated/bindings.js";
+} from "#lib/sys/generated/bindings.js";

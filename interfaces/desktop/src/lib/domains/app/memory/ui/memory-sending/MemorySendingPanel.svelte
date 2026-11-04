@@ -10,7 +10,7 @@ import { Button } from "@devpulse/coldlight/components/button";
 import { Card } from "@devpulse/coldlight/components/card";
 import { InlineMessage } from "@devpulse/coldlight/components/inline-message";
 import { Text } from "@devpulse/coldlight/components/text";
-import { fill } from "$lib/sys/copy/index.js";
+import { fill } from "#lib/sys/copy/index.js";
 import type { MemorySendingPanelProps } from "./memory-sending.types.js";
 
 let { copy, sending }: MemorySendingPanelProps = $props();

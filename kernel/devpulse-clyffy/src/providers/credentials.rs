@@ -99,13 +99,14 @@ mod tests {
     #[test]
     fn native_backend_is_selected_without_accessing_the_vault() {
         // Construction only: no read, write or delete of any OS credential.
-        let entry = keyring::Entry::new("devpulse-backend-type-test", "unused").unwrap();
-        assert!(!entry.get_credential().is::<keyring::mock::MockCredential>());
+        let _entry = keyring::Entry::new("devpulse-backend-type-test", "unused").unwrap();
+        let store = keyring_core::get_default_store().unwrap();
+        assert!(!store.vendor().starts_with("Mock store"));
+        assert!(matches!(
+            store.persistence(),
+            keyring_core::CredentialPersistence::UntilDelete
+        ));
         #[cfg(target_os = "windows")]
-        assert!(
-            entry
-                .get_credential()
-                .is::<keyring::windows::WinCredential>()
-        );
+        assert!(store.vendor().starts_with("Windows Credential Manager"));
     }
 }

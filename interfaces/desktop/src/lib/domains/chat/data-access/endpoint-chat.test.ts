@@ -1,6 +1,6 @@
 /** Conversation ownership at the frontend IPC boundary, including late responses. */
 import { beforeEach, expect, it, vi } from "vitest";
-import type { ChatMessage, TextTarget } from "$lib/sys/generated/bindings.js";
+import type { ChatMessage, TextTarget } from "#lib/sys/generated/bindings.js";
 
 const mocks = vi.hoisted(() => ({
 	project: { activeProjectId: "p" as string | null },
@@ -15,16 +15,16 @@ const mocks = vi.hoisted(() => ({
 	generateText: vi.fn(),
 	onInferenceToken: vi.fn(),
 }));
-vi.mock("$lib/domains/app/projects/index.js", () => ({ projectsState: mocks.project }));
-vi.mock("$lib/domains/app/providers/index.js", () => ({ providersState: { current: null } }));
-vi.mock("$lib/domains/app/models/index.js", () => ({
+vi.mock("#lib/domains/app/projects/index.js", () => ({ projectsState: mocks.project }));
+vi.mock("#lib/domains/app/providers/index.js", () => ({ providersState: { current: null } }));
+vi.mock("#lib/domains/app/models/index.js", () => ({
 	generateText: mocks.generateText,
 	isInferenceReady: () => true,
 	modelsState: { statuses: { "chat.brain": {} } },
 	onInferenceToken: mocks.onInferenceToken,
 }));
-vi.mock("$lib/sys/logger.js", () => ({ logError: vi.fn(), logInfo: vi.fn() }));
-vi.mock("$lib/sys/runes/global.svelte.js", () => ({ globalState: {} }));
+vi.mock("#lib/sys/logger.js", () => ({ logError: vi.fn(), logInfo: vi.fn() }));
+vi.mock("#lib/sys/runes/global.svelte.js", () => ({ globalState: {} }));
 vi.mock("./agents.state.svelte.js", () => ({ agentsState: { thread: () => null } }));
 vi.mock("./chat.service.js", () => mocks);
 

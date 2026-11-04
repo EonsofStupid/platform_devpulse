@@ -6,8 +6,8 @@
 <script lang="ts">
 import { Button } from "@devpulse/coldlight/components/button";
 import { ArrowLeft, ArrowRight } from "lucide-svelte";
-import { copyState, fill } from "$lib/sys/copy/index.js";
-import { logError } from "$lib/sys/logger.js";
+import { copyState, fill } from "#lib/sys/copy/index.js";
+import { logError } from "#lib/sys/logger.js";
 import { importLocalModel as importModel } from "../../../data-access/download.service.js";
 import { hardwareState } from "../../../data-access/hardware.state.svelte.js";
 import { modelsState } from "../../../data-access/models.state.svelte.js";

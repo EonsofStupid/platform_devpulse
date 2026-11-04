@@ -19,7 +19,7 @@
 -->
 <script lang="ts">
 import { Text } from "@devpulse/coldlight/components/text";
-import { type HealthBadge, ScopedLogPanel, ServiceDevtoolShell } from "$lib/devtools/index.js";
+import { type HealthBadge, ScopedLogPanel, ServiceDevtoolShell } from "#lib/devtools/index.js";
 
 const badge: HealthBadge = {
 	state: "unknown",

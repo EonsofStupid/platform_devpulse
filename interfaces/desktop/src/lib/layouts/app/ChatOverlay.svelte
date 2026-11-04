@@ -17,10 +17,10 @@ import { TextField as Input } from "@devpulse/coldlight/components/text-field";
 import { cn, hstack, stack } from "@devpulse/coldlight/utils";
 import { GripVertical, Mic, Minus, Send, Sparkles, X } from "lucide-svelte";
 import { untrack } from "svelte";
-import { projectsState } from "$lib/domains/app/projects/index.js";
-import { chatState } from "$lib/domains/chat/index.js";
-import { copyState } from "$lib/sys/copy/index.js";
-import { platformState } from "$lib/sys/runes/platformState.svelte.js";
+import { projectsState } from "#lib/domains/app/projects/index.js";
+import { chatState } from "#lib/domains/chat/index.js";
+import { copyState } from "#lib/sys/copy/index.js";
+import { platformState } from "#lib/sys/runes/platformState.svelte.js";
 
 let { open = $bindable(false) }: { open?: boolean } = $props();
 

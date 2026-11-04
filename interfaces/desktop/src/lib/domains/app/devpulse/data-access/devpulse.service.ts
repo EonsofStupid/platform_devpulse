@@ -12,8 +12,8 @@
  */
 
 import { invoke } from "@tauri-apps/api/core";
-import type { DashboardPayload } from "$lib/sys/generated/dashboard.types.js";
-import { logError, logInfo } from "$lib/sys/logger.js";
+import type { DashboardPayload } from "#lib/sys/generated/dashboard.types.js";
+import { logError, logInfo } from "#lib/sys/logger.js";
 import type { DashboardData, RecentProject } from "../util/devpulse.types.js";
 
 /**

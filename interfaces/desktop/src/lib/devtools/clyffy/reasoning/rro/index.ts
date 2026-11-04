@@ -4,7 +4,7 @@
  * Public API for the RRO devtool. Routes and other devtools MUST import
  * from this file only — never reach into `util/`, `feature/`, or `ui/`
  * directly. Data-access (rune state + Tauri IPC services + tracer) lives
- * outside this tree at `$lib/sys/data-access/rro/` and is re-exported here
+ * outside this tree at `#lib/sys/data-access/rro/` and is re-exported here
  * for ergonomics.
  *
  * Layout (Nx library-types per docs/platform/Desktop.md §1.1.1):
@@ -23,8 +23,8 @@
  */
 
 // ── State + services (for other devtools + tests) ──────────
-export { rroState } from "$lib/sys/data-access/rro/rro.state.svelte.js";
-export { isRroDebug, setRroDebug, shouldTrace, trace } from "$lib/sys/data-access/rro/rro.trace.js";
+export { rroState } from "#lib/sys/data-access/rro/rro.state.svelte.js";
+export { isRroDebug, setRroDebug, shouldTrace, trace } from "#lib/sys/data-access/rro/rro.trace.js";
 // ── Top-level feature (this is what routes mount) ──────────
 export { default as RroDevtool } from "./feature/RroDevtool.svelte";
 

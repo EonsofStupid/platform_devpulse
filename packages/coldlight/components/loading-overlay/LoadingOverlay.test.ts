@@ -21,19 +21,19 @@ import LoadingOverlay from "./LoadingOverlay.svelte";
 
 describe("loading-overlay component — ARIA", () => {
 	test("has role='alert'", async () => {
-		const { getByRole } = render(LoadingOverlay, { props: { visible: true } });
+		const { getByRole } = await render(LoadingOverlay, { props: { visible: true } });
 		const el = getByRole("alert");
 		expect(el).toBeTruthy();
 	});
 
 	test("has aria-busy='true' when visible", async () => {
-		const { getByRole } = render(LoadingOverlay, { props: { visible: true } });
+		const { getByRole } = await render(LoadingOverlay, { props: { visible: true } });
 		const el = getByRole("alert");
 		await expect.element(el).toHaveAttribute("aria-busy", "true");
 	});
 
 	test("has aria-label='Loading'", async () => {
-		const { getByRole } = render(LoadingOverlay, { props: { visible: true } });
+		const { getByRole } = await render(LoadingOverlay, { props: { visible: true } });
 		const el = getByRole("alert");
 		await expect.element(el).toHaveAttribute("aria-label", "Loading");
 	});
@@ -45,13 +45,13 @@ describe("loading-overlay component — ARIA", () => {
 
 describe("loading-overlay component — data-state", () => {
 	test("data-state is 'hidden' by default", async () => {
-		const { getByRole } = render(LoadingOverlay);
+		const { getByRole } = await render(LoadingOverlay);
 		const el = getByRole("alert");
 		await expect.element(el).toHaveAttribute("data-state", "hidden");
 	});
 
 	test("data-state is 'visible' when visible is true", async () => {
-		const { getByRole } = render(LoadingOverlay, { props: { visible: true } });
+		const { getByRole } = await render(LoadingOverlay, { props: { visible: true } });
 		const el = getByRole("alert");
 		await expect.element(el).toHaveAttribute("data-state", "visible");
 	});
@@ -63,14 +63,16 @@ describe("loading-overlay component — data-state", () => {
 
 describe("loading-overlay component — composition", () => {
 	test("applies composition base classes", async () => {
-		const { getByRole } = render(LoadingOverlay, { props: { visible: true } });
+		const { getByRole } = await render(LoadingOverlay, { props: { visible: true } });
 		const el = getByRole("alert");
 		await expect.element(el).toHaveClass("absolute");
 		await expect.element(el).toHaveClass("flex");
 	});
 
 	test("merges custom class prop", async () => {
-		const { getByRole } = render(LoadingOverlay, { props: { visible: true, class: "my-custom" } });
+		const { getByRole } = await render(LoadingOverlay, {
+			props: { visible: true, class: "my-custom" },
+		});
 		const el = getByRole("alert");
 		await expect.element(el).toHaveClass("my-custom");
 	});

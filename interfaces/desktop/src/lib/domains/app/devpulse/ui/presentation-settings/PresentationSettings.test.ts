@@ -1,8 +1,8 @@
 import { tick } from "svelte";
 import { afterEach, expect, it, vi } from "vitest";
 import { render } from "vitest-browser-svelte";
-import SubsystemBadge from "$lib/layouts/app/SubsystemBadge.svelte";
-import { findTerm } from "$lib/sys/generated/terminology.js";
+import SubsystemBadge from "#lib/layouts/app/SubsystemBadge.svelte";
+import { findTerm } from "#lib/sys/generated/terminology.js";
 import {
 	PRESENTATION_KEY,
 	PresentationState,
@@ -10,7 +10,7 @@ import {
 } from "../../data-access/presentation.state.svelte.js";
 import PresentationSettings from "./PresentationSettings.svelte";
 
-vi.mock("$lib/domains/clyffy/index.js", () => ({
+vi.mock("#lib/domains/clyffy/index.js", () => ({
 	clyffyStatus: { activity: { text: "" }, mood: "idle" },
 }));
 
@@ -22,7 +22,7 @@ afterEach(() => {
 it("switches the shipped control and retains technical identity across reloads", async () => {
 	presentationState.setMode("simple");
 	const raw = findTerm("GUARDIAN");
-	const { container } = render(PresentationSettings);
+	const { container } = await render(PresentationSettings);
 	const subsystem = {
 		name: "GUARDIAN",
 		state: "ready" as const,
@@ -30,7 +30,7 @@ it("switches the shipped control and retains technical identity across reloads",
 		message: null,
 		friendlyName: "Quality Check",
 	};
-	const badge = render(SubsystemBadge, { props: { subsystem } });
+	const badge = await render(SubsystemBadge, { props: { subsystem } });
 	const buttons = container.querySelectorAll("button");
 	expect(buttons).toHaveLength(2);
 	expect(presentationState.label("GUARDIAN")).toBe("Quality Check");

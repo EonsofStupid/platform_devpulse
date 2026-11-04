@@ -15,8 +15,8 @@ import {
 	SelectTrigger,
 } from "@devpulse/coldlight/components/select";
 import { Text } from "@devpulse/coldlight/components/text";
-import { projectsState } from "$lib/domains/app/projects/index.js";
-import type { MemoryCopy } from "$lib/sys/generated/bindings.js";
+import { projectsState } from "#lib/domains/app/projects/index.js";
+import type { MemoryCopy } from "#lib/sys/generated/bindings.js";
 import { memoryState } from "../data-access/memory.state.svelte.js";
 import { MemoryNotes } from "../ui/memory-notes/index.js";
 import { MemorySendingPanel } from "../ui/memory-sending/index.js";

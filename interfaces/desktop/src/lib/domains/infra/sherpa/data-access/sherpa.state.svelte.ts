@@ -7,7 +7,7 @@
  * surface; backend supports many concurrent sessions).
  */
 
-import type { SherpaCompileInfo, SherpaInstalledModel } from "$lib/sys/generated/bindings.js";
+import type { SherpaCompileInfo, SherpaInstalledModel } from "#lib/sys/generated/bindings.js";
 import {
 	sherpaCompileInfo,
 	sherpaDeleteModel,

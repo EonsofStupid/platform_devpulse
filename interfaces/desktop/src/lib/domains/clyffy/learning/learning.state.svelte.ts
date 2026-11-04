@@ -10,7 +10,7 @@
  *
  * ```svelte
  * <script>
- *   import { loadingContent } from '$lib/domains/clyffy/learning/learning.state.svelte.js';
+ *   import { loadingContent } from '#lib/domains/clyffy/learning/learning.state.svelte.js';
  *   import { onMount, onDestroy } from 'svelte';
  *
  *   onMount(() => loadingContent.start({ rotateEveryMs: 8000 }));
@@ -25,7 +25,7 @@
  * / `stop()` own the rotation timer lifecycle.
  */
 
-import { logInfo } from "$lib/sys/logger.js";
+import { logInfo } from "#lib/sys/logger.js";
 import {
 	allEntries,
 	entriesByKind,

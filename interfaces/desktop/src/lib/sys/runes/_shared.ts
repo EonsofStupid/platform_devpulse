@@ -11,7 +11,7 @@
  *   into a typed `CommandError` so error UIs can switch on `kind`.
  */
 
-import type { CommandError, Result } from "$lib/sys/generated/bindings.js";
+import type { CommandError, Result } from "#lib/sys/generated/bindings.js";
 
 /** Wire-shape of every specta `Result<T, E>` Tauri command. */
 export type SpectaResult<T, E> = Result<T, E>;

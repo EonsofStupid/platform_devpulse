@@ -22,7 +22,7 @@ import Stat from "./Stat.svelte";
 
 describe("stat component — ARIA", () => {
 	test("has role='group'", async () => {
-		const { getByRole } = render(Stat);
+		const { getByRole } = await render(Stat);
 		const el = getByRole("group");
 		expect(el).toBeTruthy();
 	});
@@ -34,7 +34,7 @@ describe("stat component — ARIA", () => {
 
 describe("stat component — prop passthrough", () => {
 	test("merges custom class prop", async () => {
-		const { getByRole } = render(Stat, { props: { class: "my-custom" } });
+		const { getByRole } = await render(Stat, { props: { class: "my-custom" } });
 		const el = getByRole("group");
 		await expect.element(el).toHaveClass("my-custom");
 	});

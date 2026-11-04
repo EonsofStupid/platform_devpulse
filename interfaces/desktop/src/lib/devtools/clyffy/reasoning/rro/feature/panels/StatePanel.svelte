@@ -23,7 +23,7 @@ import { StatusDot, type StatusDotStatus } from "@devpulse/coldlight/components/
 import { Text } from "@devpulse/coldlight/components/text";
 import { TextField } from "@devpulse/coldlight/components/text-field";
 import { Activity, GitFork, Sparkles, Trash } from "lucide-svelte";
-import { rroState } from "$lib/sys/data-access/rro/rro.state.svelte.js";
+import { rroState } from "#lib/sys/data-access/rro/rro.state.svelte.js";
 import { CapabilityHeader, ErrorCallout } from "../../ui/index.js";
 import {
 	proximityGradientClass,

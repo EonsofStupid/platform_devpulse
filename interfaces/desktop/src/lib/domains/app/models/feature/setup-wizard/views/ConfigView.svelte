@@ -28,7 +28,7 @@ import { Button } from "@devpulse/coldlight/components/button";
 import { Spinner } from "@devpulse/coldlight/components/spinner";
 import { Text } from "@devpulse/coldlight/components/text";
 import { Brain, Headphones, Network, Search, Sparkles } from "lucide-svelte";
-import { logInfo } from "$lib/sys/logger.js";
+import { logInfo } from "#lib/sys/logger.js";
 import { hardwareState } from "../../../data-access/hardware.state.svelte.js";
 import { modelsState } from "../../../data-access/models.state.svelte.js";
 import { setupWizardOverlayState } from "../../../data-access/setup-wizard-overlay.state.svelte.js";

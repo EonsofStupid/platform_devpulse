@@ -20,7 +20,7 @@ import { Button } from "@devpulse/coldlight/components/button";
 import { Separator } from "@devpulse/coldlight/components/separator";
 import { Minimize2, Move, Pause, Play, Square } from "lucide-svelte";
 import { toast } from "svelte-sonner";
-import { copyState } from "$lib/sys/copy/index.js";
+import { copyState } from "#lib/sys/copy/index.js";
 import { vpb } from "../state/vpb.svelte.js";
 
 const text = $derived(copyState.catalog?.vpb);

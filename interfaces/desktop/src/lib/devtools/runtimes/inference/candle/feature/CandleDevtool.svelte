@@ -13,7 +13,7 @@ import { Spinner } from "@devpulse/coldlight/components/spinner";
 import { Text } from "@devpulse/coldlight/components/text";
 import { PowerOff, RefreshCw, Send } from "lucide-svelte";
 import { onMount } from "svelte";
-import { type CapturePayload, type HealthBadge, ServiceDevtoolShell } from "$lib/devtools/index.js";
+import { type CapturePayload, type HealthBadge, ServiceDevtoolShell } from "#lib/devtools/index.js";
 import type {
 	BackendMatrix,
 	CandleConfig,
@@ -21,8 +21,8 @@ import type {
 	ScopedLogEntry,
 	SlotInfo,
 	VramBudgetInfo,
-} from "$lib/sys/generated/bindings.js";
-import { commands } from "$lib/sys/generated/bindings.js";
+} from "#lib/sys/generated/bindings.js";
+import { commands } from "#lib/sys/generated/bindings.js";
 
 // ── Slots + models ───────────────────────────────────────
 let slots = $state<SlotInfo[]>([]);

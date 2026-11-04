@@ -13,8 +13,8 @@ import { Spinner } from "@devpulse/coldlight/components/spinner";
 import { Text } from "@devpulse/coldlight/components/text";
 import { TextField } from "@devpulse/coldlight/components/text-field";
 import { ArrowUpRight, Database, Plus, RefreshCw, Trash2 } from "lucide-svelte";
+import { rroState } from "#lib/sys/data-access/rro/rro.state.svelte.js";
 import { resolve } from "$app/paths";
-import { rroState } from "$lib/sys/data-access/rro/rro.state.svelte.js";
 import { CapabilityHeader, ErrorCallout } from "../../ui/index.js";
 
 $effect(() => {
@@ -55,7 +55,7 @@ $effect(() => {
 					<Text size="xs" weight="medium">{rroState.health.storage_path}</Text>
 				</div>
 				<a
-					href={resolve("/devtools/system/datastores/qdrant")}
+					href={resolve("devtools/system/datastores/qdrant")}
 					class="inline-flex items-center gap-1 text-xs hover:text-[var(--accent-service-main)]"
 					title="Open the Qdrant store devtool — health, raw collection inventory, ops"
 				>

@@ -38,7 +38,7 @@
  *   - No multi-step wizard nav — devtool tabs replace it.
  */
 
-import { installState } from "$lib/sys/activity-hud/install.state.svelte.js";
+import { installState } from "#lib/sys/activity-hud/install.state.svelte.js";
 import {
 	autoConfigure,
 	getTierDisplay,
@@ -46,9 +46,9 @@ import {
 	installToSlot,
 	isFirstRun,
 	markSetupComplete,
-} from "$lib/sys/bindings/models/index.js";
-import type { TierDisplay, WizardCopy } from "$lib/sys/generated/bindings.js";
-import { logError, logInfo } from "$lib/sys/logger.js";
+} from "#lib/sys/bindings/models/index.js";
+import type { TierDisplay, WizardCopy } from "#lib/sys/generated/bindings.js";
+import { logError, logInfo } from "#lib/sys/logger.js";
 import type {
 	SlotRecommendation,
 	SlotSaveEntry,

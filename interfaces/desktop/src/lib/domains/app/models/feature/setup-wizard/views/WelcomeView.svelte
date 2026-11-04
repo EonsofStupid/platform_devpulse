@@ -35,8 +35,8 @@ import {
 	Zap,
 } from "lucide-svelte";
 import { toast } from "svelte-sonner";
-import { projectsState } from "$lib/domains/app/projects/index.js";
-import { logError, logInfo } from "$lib/sys/logger.js";
+import { projectsState } from "#lib/domains/app/projects/index.js";
+import { logError, logInfo } from "#lib/sys/logger.js";
 import { hardwareState } from "../../../data-access/hardware.state.svelte.js";
 import { modelsState } from "../../../data-access/models.state.svelte.js";
 import { setupWizardOverlayState } from "../../../data-access/setup-wizard-overlay.state.svelte.js";

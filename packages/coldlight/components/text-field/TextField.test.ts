@@ -11,12 +11,12 @@ import TextField from "./TextField.svelte";
 
 describe("text-field — linkage", () => {
 	test("the label names the input", async () => {
-		const { getByRole } = render(TextField, { props: { label: "Email" } });
+		const { getByRole } = await render(TextField, { props: { label: "Email" } });
 		await expect.element(getByRole("textbox", { name: "Email" })).toBeInTheDocument();
 	});
 
 	test("description, then error, describe the input; the error is a polite alert", async () => {
-		const { getByRole, getByText, rerender } = render(TextField, {
+		const { getByRole, getByText, rerender } = await render(TextField, {
 			props: { label: "Email", description: "We never share it", error: "Enter an email" },
 		});
 		const input = getByRole("textbox", { name: "Email" });
@@ -32,14 +32,14 @@ describe("text-field — linkage", () => {
 	});
 
 	test("without a label nothing points at one; aria-label names the input", async () => {
-		const { getByRole } = render(TextField, { props: { "aria-label": "Search" } });
+		const { getByRole } = await render(TextField, { props: { "aria-label": "Search" } });
 		const input = getByRole("textbox", { name: "Search" });
 		await expect.element(input).not.toHaveAttribute("aria-labelledby");
 		await expect.element(input).not.toHaveAttribute("aria-describedby");
 	});
 
 	test("states are attributes: disabled, read-only, required", async () => {
-		const { container } = render(TextField, {
+		const { container } = await render(TextField, {
 			props: { label: "Name", disabled: true, readonly: true, required: true },
 		});
 		const input = locatePart(container, "text-field", "input");
@@ -52,7 +52,7 @@ describe("text-field — linkage", () => {
 describe("text-field — value", () => {
 	test("uncontrolled: starts from defaultValue and takes typing", async () => {
 		const onValueChange = vi.fn();
-		const { getByRole } = render(TextField, {
+		const { getByRole } = await render(TextField, {
 			props: { label: "Name", defaultValue: "Ada", onValueChange },
 		});
 		const input = getByRole("textbox", { name: "Name" });
@@ -63,7 +63,9 @@ describe("text-field — value", () => {
 	});
 
 	test("controlled: shows value and follows the owner's changes", async () => {
-		const { getByRole, rerender } = render(TextField, { props: { label: "Name", value: "Ada" } });
+		const { getByRole, rerender } = await render(TextField, {
+			props: { label: "Name", value: "Ada" },
+		});
 		const input = getByRole("textbox", { name: "Name" });
 		await expect.element(input).toHaveValue("Ada");
 		await rerender({ value: "Grace" });
@@ -73,7 +75,9 @@ describe("text-field — value", () => {
 	test("a caller's oninput runs alongside the field's", async () => {
 		const oninput = vi.fn();
 		const onValueChange = vi.fn();
-		const { getByRole } = render(TextField, { props: { label: "Name", oninput, onValueChange } });
+		const { getByRole } = await render(TextField, {
+			props: { label: "Name", oninput, onValueChange },
+		});
 		await getByRole("textbox", { name: "Name" }).fill("x");
 		expect(oninput).toHaveBeenCalled();
 		expect(onValueChange).toHaveBeenLastCalledWith("x");

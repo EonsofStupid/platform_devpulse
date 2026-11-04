@@ -1,65 +1,34 @@
 ---
 source: systems/devpulse-engine/tests/signal_contract.rs
-assertion_line: 291
 expression: ts
 ---
-/**
- * The master enum of all signal output types.
- */
+/**  The master enum of all signal output types. */
 export type SignalVariant = 
-/**
- * Chat message (LLM response, user message)
- */
+/**  Chat message (LLM response, user message) */
 { type: "chat"; data: ChatPayload } | 
-/**
- * Analytics event
- */
+/**  Analytics event */
 { type: "analytics"; data: AnalyticsPayload } | 
-/**
- * Retrieved context (RAG)
- */
+/**  Retrieved context (RAG) */
 { type: "context"; data: ContextPayload } | 
-/**
- * Inference metrics
- */
+/**  Inference metrics */
 { type: "inference"; data: InferencePayload } | 
-/**
- * System status change
- */
+/**  System status change */
 { type: "system"; data: SystemPayload } | 
-/**
- * Governance event (lane routing, rate limits, council)
- */
+/**  Governance event (lane routing, rate limits, council) */
 { type: "governance"; data: GovernancePayload } | 
-/**
- * Hardware snapshot (CPU / RAM / GPU / VRAM).
- */
+/**  Hardware snapshot (CPU / RAM / GPU / VRAM). */
 { type: "hardware"; data: HardwareSnapshot } | 
-/**
- * Models readiness (decides whether setup opens).
- */
+/**  Models readiness (decides whether setup opens). */
 { type: "models"; data: ModelsReadiness } | 
-/**
- * Platform boot progress (phase + per-step status).
- */
+/**  Platform boot progress (phase + per-step status). */
 { type: "boot"; data: BootStatus } | 
-/**
- * First run: status, stage, what the stage still needs.
- */
+/**  First run: status, stage, what the stage still needs. */
 { type: "onboarding"; data: OnboardingState } | 
-/**
- * Your live projects and the active one.
- */
+/**  Your live projects and the active one. */
 { type: "projects"; data: ProjectsState } | 
-/**
- * Containers for your projects: what was found, the advice, the step running.
- */
+/**  Containers for your projects: what was found, the advice, the step running. */
 { type: "containers"; data: ContainersState } | 
-/**
- * Your AI providers: installed, versions, signed in, the action running.
- */
+/**  Your AI providers: installed, versions, signed in, the action running. */
 { type: "providers"; data: ProvidersState } | 
-/**
- * The bridge fell behind: windows re-read the state snapshot.
- */
-{ type: "resync" }
+/**  The bridge fell behind: windows re-read the state snapshot. */
+{ type: "resync" };

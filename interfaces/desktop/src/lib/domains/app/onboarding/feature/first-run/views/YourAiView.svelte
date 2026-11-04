@@ -10,11 +10,11 @@
 <script lang="ts">
 import { Heading } from "@devpulse/coldlight/components/heading";
 import { Text } from "@devpulse/coldlight/components/text";
+import { LocalModelSetup } from "#lib/domains/app/models/index.js";
+import { YourProviders } from "#lib/domains/app/providers/index.js";
+import type { YourAiCopy } from "#lib/sys/bindings/copy/index.js";
+import { hrefOf, routeAt } from "#lib/sys/routing/index.js";
 import { goto } from "$app/navigation";
-import { LocalModelSetup } from "$lib/domains/app/models/index.js";
-import { YourProviders } from "$lib/domains/app/providers/index.js";
-import type { YourAiCopy } from "$lib/sys/bindings/copy/index.js";
-import { hrefOf, routeAt } from "$lib/sys/routing/index.js";
 
 let { copy }: { copy: YourAiCopy } = $props();
 

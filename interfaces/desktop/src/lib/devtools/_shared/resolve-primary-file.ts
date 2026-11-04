@@ -25,7 +25,7 @@
 /**
  * Local shape for one repo file entry. Matches the Rust `RepoFile`
  * struct in `commands/models/mod.rs` exactly; swap to the generated
- * `import type { RepoFile } from "$lib/sys/generated/bindings.js"`
+ * `import type { RepoFile } from "#lib/sys/generated/bindings.js"`
  * after the next `cargo xtask run-dev` regenerates specta bindings.
  */
 export interface RepoFile {

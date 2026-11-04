@@ -23,7 +23,7 @@
  */
 
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
-import { log, logError } from "$lib/sys/logger.js";
+import { log, logError } from "#lib/sys/logger.js";
 
 export interface TauriEventStream<T> {
 	/** Register a handler. Returns a cleanup fn — wire into `$effect` return. */

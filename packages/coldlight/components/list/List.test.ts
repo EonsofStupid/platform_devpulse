@@ -22,19 +22,19 @@ import List from "./List.svelte";
 
 describe("list component — structural attributes", () => {
 	test("renders a <ul> element with role='list'", async () => {
-		const { getByRole } = render(List);
+		const { getByRole } = await render(List);
 		const list = getByRole("list");
 		expect(list).toBeTruthy();
 	});
 
 	test("has data-kind='list'", async () => {
-		const { getByRole } = render(List);
+		const { getByRole } = await render(List);
 		const list = getByRole("list");
 		await expect.element(list).toHaveAttribute("data-kind", "list");
 	});
 
 	test("has data-slot='root'", async () => {
-		const { getByRole } = render(List);
+		const { getByRole } = await render(List);
 		const list = getByRole("list");
 		await expect.element(list).toHaveAttribute("data-slot", "root");
 	});
@@ -46,13 +46,13 @@ describe("list component — structural attributes", () => {
 
 describe("list component — ARIA attributes", () => {
 	test("has role='list'", async () => {
-		const { getByRole } = render(List);
+		const { getByRole } = await render(List);
 		const list = getByRole("list");
 		await expect.element(list).toHaveAttribute("role", "list");
 	});
 
 	test("passes aria-label when label prop provided", async () => {
-		const { getByRole } = render(List, { props: { label: "Navigation items" } });
+		const { getByRole } = await render(List, { props: { label: "Navigation items" } });
 		const list = getByRole("list");
 		await expect.element(list).toHaveAttribute("aria-label", "Navigation items");
 	});
@@ -64,19 +64,19 @@ describe("list component — ARIA attributes", () => {
 
 describe("list component — composition classes", () => {
 	test("applies composition classes for default variant", async () => {
-		const { getByRole } = render(List);
+		const { getByRole } = await render(List);
 		const list = getByRole("list");
 		await expect.element(list).toHaveClass("list-none");
 	});
 
 	test("applies disc variant", async () => {
-		const { getByRole } = render(List, { props: { variant: "disc" } });
+		const { getByRole } = await render(List, { props: { variant: "disc" } });
 		const list = getByRole("list");
 		await expect.element(list).toHaveClass("list-disc");
 	});
 
 	test("passes class prop and merges with composition", async () => {
-		const { getByRole } = render(List, { props: { class: "custom-list" } });
+		const { getByRole } = await render(List, { props: { class: "custom-list" } });
 		const list = getByRole("list");
 		await expect.element(list).toHaveClass("custom-list");
 	});
@@ -88,7 +88,7 @@ describe("list component — composition classes", () => {
 
 describe("list component — prop passthrough", () => {
 	test("forwards id attribute", async () => {
-		const { getByRole } = render(List, { props: { id: "my-list" } });
+		const { getByRole } = await render(List, { props: { id: "my-list" } });
 		const list = getByRole("list");
 		await expect.element(list).toHaveAttribute("id", "my-list");
 	});

@@ -10,8 +10,8 @@
 <script lang="ts">
 import { Heading } from "@devpulse/coldlight/components/heading";
 import { Text } from "@devpulse/coldlight/components/text";
-import { VoiceLabPanel } from "$lib/domains/app/voice/index.js";
-import { routeCopy, routeHere } from "$lib/sys/routing/index.js";
+import { VoiceLabPanel } from "#lib/domains/app/voice/index.js";
+import { routeCopy, routeHere } from "#lib/sys/routing/index.js";
 
 const here = $derived(routeHere());
 const heading = $derived(here ? routeCopy(here) : undefined);

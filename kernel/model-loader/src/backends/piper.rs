@@ -10,16 +10,16 @@
 //!
 //! Model file layout (`.userdata/models/voice/piper/{voice}/`):
 //! - `{voice}.onnx` — the VITS weights
-//! - `{voice}.onnx.json` — config used to configure `piper_rs::from_config_path`
+//! - `{voice}.onnx.json` — config handed to `piper_rs::Piper::new`
 //!
 //! The `path` passed to [`PiperTts::load`] is the `.onnx.json` config file —
-//! `piper-rs` resolves the matching `.onnx` weights alongside it.
+//! the matching `.onnx` weights sit alongside it.
 
 use crate::backends::voice::{AudioSamples, TtsBackend};
 use crate::loading::states::{LoadParams, MemoryFootprint};
 use std::path::{Path, PathBuf};
 #[cfg(feature = "piper-backend")]
-use std::sync::{Arc, Mutex};
+use std::sync::Mutex;
 
 /// Piper VITS TTS backend.
 pub struct PiperTts {
@@ -32,10 +32,10 @@ pub struct PiperTts {
     /// Cached output sample rate (read from the model at load time).
     #[cfg_attr(not(feature = "piper-backend"), allow(dead_code))]
     sample_rate: u32,
-    /// Piper synthesizer — arc-cloned because `PiperSpeechSynthesizer::clone_model`
-    /// internally requires an `Arc<dyn PiperModel>`.
+    /// Piper synthesizer. Synthesizing needs exclusive access to its model
+    /// session, so one utterance runs at a time.
     #[cfg(feature = "piper-backend")]
-    synthesizer: Mutex<Option<Arc<piper_rs::synth::PiperSpeechSynthesizer>>>,
+    synthesizer: Mutex<Option<piper_rs::Piper>>,
 }
 
 impl PiperTts {
@@ -73,29 +73,24 @@ impl TtsBackend for PiperTts {
 
         #[cfg(feature = "piper-backend")]
         {
-            use piper_rs::synth::PiperSpeechSynthesizer;
+            // The weights file is the config's name without `.json`.
+            let weights_path = path.with_extension("");
 
-            // piper-rs expects the path to the `.onnx.json` config file; the
-            // weights file is resolved by stripping `.json` from the filename.
-            let model = piper_rs::from_config_path(path)
-                .map_err(|e| anyhow::anyhow!("Failed to load Piper model config: {e:?}"))?;
+            let config_file = std::fs::File::open(path)
+                .map_err(|e| anyhow::anyhow!("Failed to open Piper model config: {e}"))?;
+            let config: piper_rs::ModelConfig = serde_json::from_reader(config_file)
+                .map_err(|e| anyhow::anyhow!("Failed to parse Piper model config: {e}"))?;
+            self.sample_rate = config.audio.sample_rate;
 
-            let audio_info = model
-                .audio_output_info()
-                .map_err(|e| anyhow::anyhow!("Failed to query Piper audio info: {e:?}"))?;
-            self.sample_rate = audio_info.sample_rate as u32;
-
-            let synthesizer = PiperSpeechSynthesizer::new(model)
-                .map_err(|e| anyhow::anyhow!("Failed to build Piper synthesizer: {e:?}"))?;
+            let synthesizer = piper_rs::Piper::new(&weights_path, path)
+                .map_err(|e| anyhow::anyhow!("Failed to load Piper model: {e}"))?;
 
             *self
                 .synthesizer
                 .lock()
                 .map_err(|e| anyhow::anyhow!("Piper synth mutex poisoned: {e}"))? =
-                Some(Arc::new(synthesizer));
+                Some(synthesizer);
 
-            // Resolve `.onnx` weights size: config stem + `.onnx` next to config.
-            let weights_path = path.with_extension("");
             let weights_size = std::fs::metadata(&weights_path)
                 .map(|m| m.len())
                 .unwrap_or(0);
@@ -147,31 +142,19 @@ impl TtsBackend for PiperTts {
 
         let _ = voice; // Piper's voice is baked into the loaded model config.
 
-        let guard = self
+        let mut guard = self
             .synthesizer
             .lock()
             .map_err(|e| anyhow::anyhow!("Piper synth mutex poisoned: {e}"))?;
         let synth = guard
-            .as_ref()
-            .ok_or_else(|| anyhow::anyhow!("Piper synthesizer not initialized"))?
-            .clone();
+            .as_mut()
+            .ok_or_else(|| anyhow::anyhow!("Piper synthesizer not initialized"))?;
+
+        // The voice's own speaker and pace: every tuning value stays the model's.
+        let (pcm, sample_rate) = synth
+            .create(text, false, None, None, None, None)
+            .map_err(|e| anyhow::anyhow!("Piper synthesis failed: {e}"))?;
         drop(guard);
-
-        // Parallel synthesis streams sentence-level Audio chunks back — collect
-        // into a single contiguous f32 PCM buffer.
-        let mut pcm: Vec<f32> = Vec::new();
-        let stream = synth
-            .synthesize_parallel(text.to_string(), None)
-            .map_err(|e| anyhow::anyhow!("Piper synthesize_parallel failed: {e:?}"))?;
-
-        for result in stream {
-            match result {
-                Ok(audio) => {
-                    pcm.extend_from_slice(audio.as_wave_bytes_f32().as_slice());
-                }
-                Err(e) => anyhow::bail!("Piper synthesis error mid-stream: {e:?}"),
-            }
-        }
 
         if pcm.is_empty() {
             anyhow::bail!("Piper produced empty audio for input: {text:?}");
@@ -180,13 +163,13 @@ impl TtsBackend for PiperTts {
         tracing::info!(
             component = "Piper TTS",
             pcm_samples = pcm.len(),
-            duration_secs = pcm.len() as f32 / self.sample_rate as f32,
+            duration_secs = pcm.len() as f32 / sample_rate as f32,
             "Piper synthesis complete"
         );
 
         Ok(AudioSamples {
             data: pcm,
-            sample_rate: self.sample_rate,
+            sample_rate,
             channels: 1,
         })
     }

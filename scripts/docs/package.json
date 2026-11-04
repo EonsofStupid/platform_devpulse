@@ -19,20 +19,20 @@
     "check": "pnpm scan && pnpm validate && pnpm preflight:check"
   },
   "dependencies": {
-    "ts-morph": "^24.0.0",
-    "glob": "^11.0.0",
-    "yaml": "^2.4.0",
-    "ajv": "^8.17.0",
-    "chalk": "^5.3.0",
+    "ts-morph": "^28.0.0",
+    "glob": "^14.0.3",
+    "yaml": "^2.9.1",
+    "ajv": "^8.20.0",
+    "chalk": "^6.0.1",
     "prompts": "^2.4.2",
     "unified": "^11.0.5",
     "remark-parse": "^11.0.0",
-    "unist-util-visit": "^5.0.0"
+    "unist-util-visit": "^5.2.0"
   },
   "devDependencies": {
-    "tsx": "^4.21.0",
-    "typescript": "^5.7.0",
-    "@types/node": "^22.0.0",
+    "tsx": "^4.23.15",
+    "typescript": "^6.0.3",
+    "@types/node": "^26.6.6",
     "@types/prompts": "^2.4.9",
     "@types/mdast": "^4.0.4"
   }

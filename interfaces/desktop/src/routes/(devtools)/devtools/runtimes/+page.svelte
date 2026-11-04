@@ -24,22 +24,22 @@ import { Spinner } from "@devpulse/coldlight/components/spinner";
 import { Text } from "@devpulse/coldlight/components/text";
 import { ExternalLink, RefreshCw, ServerCog } from "lucide-svelte";
 import { onMount } from "svelte";
-import { page } from "$app/state";
 import {
 	type CapturePayload,
 	devtoolForRuntime,
 	devtoolPlace,
 	type HealthBadge,
 	ServiceDevtoolShell,
-} from "$lib/devtools/index.js";
+} from "#lib/devtools/index.js";
 import type {
 	RuntimeFingerprint,
 	RuntimeUpdateInfo,
 	ScopedLogEntry,
-} from "$lib/sys/generated/bindings.js";
-import { commands } from "$lib/sys/generated/bindings.js";
-import { logInfo } from "$lib/sys/logger.js";
-import { hrefOf, type RouteNode, routeCopy } from "$lib/sys/routing/index.js";
+} from "#lib/sys/generated/bindings.js";
+import { commands } from "#lib/sys/generated/bindings.js";
+import { logInfo } from "#lib/sys/logger.js";
+import { hrefOf, type RouteNode, routeCopy } from "#lib/sys/routing/index.js";
+import { page } from "$app/state";
 
 // ── State ──────────────────────────────────────────────────
 let fingerprints = $state<Record<string, RuntimeFingerprint>>({});

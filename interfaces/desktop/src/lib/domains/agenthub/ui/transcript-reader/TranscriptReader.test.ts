@@ -2,7 +2,7 @@ import { expect, it, vi } from "vitest";
 import { page } from "vitest/browser";
 import { render } from "vitest-browser-svelte";
 import "../../../../../app.css";
-import type { FoundSession } from "$lib/sys/generated/bindings.js";
+import type { FoundSession } from "#lib/sys/generated/bindings.js";
 import TranscriptReader from "./TranscriptReader.svelte";
 
 it("renders transcript text safely, pages explicitly and exposes diagnostics only on request", async () => {
@@ -21,7 +21,7 @@ it("renders transcript text safely, pages explicitly and exposes diagnostics onl
 		bytes: 12,
 	};
 	const onOlder = vi.fn();
-	const { container, rerender } = render(TranscriptReader, {
+	const { container, rerender } = await render(TranscriptReader, {
 		props: {
 			session,
 			providerName: "Codex",

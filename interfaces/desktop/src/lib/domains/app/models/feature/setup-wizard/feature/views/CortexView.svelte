@@ -53,7 +53,7 @@ import { Heading } from "@devpulse/coldlight/components/heading";
 import { Spinner } from "@devpulse/coldlight/components/spinner";
 import { Text } from "@devpulse/coldlight/components/text";
 import { BrainCircuit, ChevronRight, Ear, Eye, Mic, Sparkles } from "lucide-svelte";
-import { KnowledgeTermStrip } from "$lib/domains/app/knowledge/index.js";
+import { KnowledgeTermStrip } from "#lib/domains/app/knowledge/index.js";
 import AnatomyConstellation from "../../ui/AnatomyConstellation.svelte";
 import AnatomyTile from "../../ui/AnatomyTile.svelte";
 import type { CortexViewProps, SlotSaveEntryProps } from "../../util/wizard.types.js";

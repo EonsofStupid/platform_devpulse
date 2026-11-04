@@ -1,16 +1,17 @@
 /** @file Chat actions and retained failure copies over AgentHub's runtime snapshots. */
-import { agenthubState } from "$lib/domains/agenthub/index.js";
-import { projectsState } from "$lib/domains/app/projects/index.js";
+import { agenthubState } from "#lib/domains/agenthub/index.js";
+import { projectsState } from "#lib/domains/app/projects/index.js";
 import type {
 	AgentThread,
 	LiveSnapshot,
 	PermissionChoice,
 	ProviderId,
-} from "$lib/sys/generated/bindings.js";
-import { commands } from "$lib/sys/generated/bindings.js";
-import { logError } from "$lib/sys/logger.js";
+} from "#lib/sys/generated/bindings.js";
+import { commands } from "#lib/sys/generated/bindings.js";
+import { logError } from "#lib/sys/logger.js";
 
 export type { AgentThread, PermissionChoice, ProviderId };
+
 const LOG_TARGET = "domains.chat.agents";
 const message = (e: unknown): string => (e instanceof Error ? e.message : String(e));
 
@@ -59,8 +60,7 @@ class AgentsStore {
 	running(sessionId: string | null): RunningTurn | null {
 		const turn = agenthubState.conversation(sessionId);
 		if (
-			!turn ||
-			!turn.providerId ||
+			!turn?.providerId ||
 			turn.activity === "idle" ||
 			turn.projectId !== projectsState.activeProjectId
 		)

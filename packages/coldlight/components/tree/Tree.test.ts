@@ -6,7 +6,7 @@ import { render } from "vitest-browser-svelte";
 import Fixture from "./Tree.fixture.svelte";
 
 test("restores named hierarchy with one tab stop and generated visual selectors", async () => {
-	const screen = render(Fixture, { props: { surface: "glass", variant: "deep" } });
+	const screen = await render(Fixture, { props: { surface: "glass", variant: "deep" } });
 	await expect
 		.element(screen.getByRole("tree", { name: "Workspace" }))
 		.toHaveAttribute("data-surface", "glass");
@@ -23,7 +23,7 @@ test("restores named hierarchy with one tab stop and generated visual selectors"
 });
 
 test("navigates expanded hierarchy; right on a leaf stays put and left returns to parent", async () => {
-	const screen = render(Fixture);
+	const screen = await render(Fixture);
 	const source = screen.getByRole("treeitem", { name: "Source", exact: true });
 	(source.element() as HTMLElement).focus();
 	await userEvent.keyboard("{ArrowRight}{ArrowRight}");
@@ -48,7 +48,7 @@ test("navigates expanded hierarchy; right on a leaf stays put and left returns t
 
 test("single selection replaces the previous key without coupling selection to focus", async () => {
 	const onSelectionChange = vi.fn();
-	const screen = render(Fixture, { props: { selectionMode: "single", onSelectionChange } });
+	const screen = await render(Fixture, { props: { selectionMode: "single", onSelectionChange } });
 	const source = screen.getByRole("treeitem", { name: "Source", exact: true });
 	(source.element() as HTMLElement).focus();
 	await userEvent.keyboard(" ");
@@ -64,7 +64,7 @@ test("single selection replaces the previous key without coupling selection to f
 test("controlled keys ask their owner and update only after the owner supplies new values", async () => {
 	const onExpandedChange = vi.fn();
 	const onSelectionChange = vi.fn();
-	const screen = render(Fixture, {
+	const screen = await render(Fixture, {
 		props: {
 			expandedKeys: new Set<string>(),
 			selectedKeys: new Set<string>(),
@@ -86,7 +86,9 @@ test("controlled keys ask their owner and update only after the owner supplies n
 
 test("a child click never toggles or activates its ancestors", async () => {
 	const onAction = vi.fn();
-	const screen = render(Fixture, { props: { defaultExpandedKeys: new Set(["source"]), onAction } });
+	const screen = await render(Fixture, {
+		props: { defaultExpandedKeys: new Set(["source"]), onAction },
+	});
 	await screen.getByRole("treeitem", { name: "App.ts" }).click();
 	expect(onAction).toHaveBeenCalledExactlyOnceWith("app");
 	await expect
@@ -95,7 +97,7 @@ test("a child click never toggles or activates its ancestors", async () => {
 });
 
 test("multiple selection toggles independent keys; none mode never exposes selection", async () => {
-	const screen = render(Fixture, { props: { selectionMode: "multiple" } });
+	const screen = await render(Fixture, { props: { selectionMode: "multiple" } });
 	await expect.element(screen.getByRole("tree")).toHaveAttribute("aria-multiselectable", "true");
 	const source = screen.getByRole("treeitem", { name: "Source", exact: true });
 	(source.element() as HTMLElement).focus();
@@ -110,7 +112,9 @@ test("multiple selection toggles independent keys; none mode never exposes selec
 
 test("disabled items and a disabled tree cannot activate or change state", async () => {
 	const onAction = vi.fn();
-	const screen = render(Fixture, { props: { defaultExpandedKeys: new Set(["source"]), onAction } });
+	const screen = await render(Fixture, {
+		props: { defaultExpandedKeys: new Set(["source"]), onAction },
+	});
 	await screen.getByRole("treeitem", { name: "Unavailable" }).click({ force: true });
 	expect(onAction).not.toHaveBeenCalled();
 	await screen.rerender({ disabled: true });
@@ -125,7 +129,7 @@ test("disabled items and a disabled tree cannot activate or change state", async
 
 test("custom root ids retain navigation, typeahead and Enter activation", async () => {
 	const onAction = vi.fn();
-	const screen = render(Fixture, { props: { id: "project-tree", onAction } });
+	const screen = await render(Fixture, { props: { id: "project-tree", onAction } });
 	(screen.getByRole("treeitem", { name: "Source", exact: true }).element() as HTMLElement).focus();
 	await userEvent.keyboard("r{Enter}");
 	await expect.element(screen.getByRole("treeitem", { name: "README.md" })).toHaveFocus();

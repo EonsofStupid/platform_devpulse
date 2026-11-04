@@ -155,7 +155,7 @@ export function getAllowedChildItems(parentKind: string, slotName: string): Pale
  */
 export function searchPalette(
 	query: string,
-	describe: (kind: string) => string = () => "",
+	describeKind: (kind: string) => string = () => "",
 ): PaletteItem[] {
 	const q = query.toLowerCase().trim();
 	if (!q) return paletteItems;
@@ -164,7 +164,7 @@ export function searchPalette(
 		(item) =>
 			item.label.toLowerCase().includes(q) ||
 			item.kind.toLowerCase().includes(q) ||
-			describe(item.kind).toLowerCase().includes(q),
+			describeKind(item.kind).toLowerCase().includes(q),
 	);
 }
 

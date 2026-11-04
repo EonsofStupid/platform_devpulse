@@ -4,7 +4,7 @@
  * @module @devpulse/domains/infra/turso/data-access/turso
  */
 
-import type { Result } from "$lib/sys/bindings/_shared/index.js";
+import type { Result } from "#lib/sys/bindings/_shared/index.js";
 import {
 	tursoDeleteRow,
 	tursoHealthAll,
@@ -14,8 +14,8 @@ import {
 	tursoQuery,
 	tursoTableRows,
 	tursoUpdateRow,
-} from "$lib/sys/bindings/sys/relational/index.js";
-import { logError } from "$lib/sys/logger.js";
+} from "#lib/sys/bindings/sys/relational/index.js";
+import { logError } from "#lib/sys/logger.js";
 import type {
 	CellChange,
 	MigrationStatus,

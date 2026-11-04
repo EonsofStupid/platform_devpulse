@@ -8,9 +8,9 @@
  */
 
 import { listen } from "@tauri-apps/api/event";
-import { withAction } from "$lib/sys/action-bus.svelte.js";
-import { commands } from "$lib/sys/generated/bindings.js";
-import { logError, logInfo } from "$lib/sys/logger.js";
+import { withAction } from "#lib/sys/action-bus.svelte.js";
+import { commands } from "#lib/sys/generated/bindings.js";
+import { logError, logInfo } from "#lib/sys/logger.js";
 import type { DownloadProgress } from "../util/models.types.js";
 
 interface WireDownloadProgress {

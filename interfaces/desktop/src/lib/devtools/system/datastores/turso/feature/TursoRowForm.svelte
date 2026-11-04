@@ -27,7 +27,7 @@ import {
 	type CellChange,
 	type Column,
 	type Row,
-} from "$lib/domains/infra/turso/index.js";
+} from "#lib/domains/infra/turso/index.js";
 
 interface Props {
 	table: string;

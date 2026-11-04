@@ -12,7 +12,7 @@ const label = snippetOf("<span>Bold</span>");
 
 describe("toggle — ARIA", () => {
 	test("is a button reporting aria-pressed", async () => {
-		const { getByRole } = render(Toggle, { props: { children: label } });
+		const { getByRole } = await render(Toggle, { props: { children: label } });
 		const el = getByRole("button", { name: "Bold" });
 		await expect.element(el).toBeInTheDocument();
 		await expect.element(el).toHaveAttribute("aria-pressed", "false");
@@ -20,7 +20,7 @@ describe("toggle — ARIA", () => {
 
 	test("disabled: aria-disabled and data-disabled, and a click changes nothing", async () => {
 		const onPressedChange = vi.fn();
-		const { getByRole } = render(Toggle, {
+		const { getByRole } = await render(Toggle, {
 			props: { children: label, disabled: true, onPressedChange },
 		});
 		const el = getByRole("button", { name: "Bold" });
@@ -34,7 +34,7 @@ describe("toggle — ARIA", () => {
 
 describe("toggle — look attributes (plan 0006 §0s)", () => {
 	test("defaults: the elevated role at size md, no inline style", async () => {
-		const { container } = render(Toggle, { props: { children: label } });
+		const { container } = await render(Toggle, { props: { children: label } });
 		const root = locatePart(container, "toggle");
 		await expect.element(root).toHaveAttribute("data-variant", "elevated");
 		await expect.element(root).toHaveAttribute("data-size", "md");
@@ -42,7 +42,7 @@ describe("toggle — look attributes (plan 0006 §0s)", () => {
 	});
 
 	test("surface sets the family for the toggle itself", async () => {
-		const { container } = render(Toggle, {
+		const { container } = await render(Toggle, {
 			props: { children: label, surface: "glass", variant: "deep" },
 		});
 		const root = locatePart(container, "toggle");
@@ -54,7 +54,7 @@ describe("toggle — look attributes (plan 0006 §0s)", () => {
 describe("toggle — controlled and uncontrolled state", () => {
 	test("uncontrolled: starts from defaultPressed and toggles itself", async () => {
 		const onPressedChange = vi.fn();
-		const { container } = render(Toggle, {
+		const { container } = await render(Toggle, {
 			props: { children: label, defaultPressed: true, onPressedChange },
 		});
 		const root = locatePart(container, "toggle");
@@ -67,7 +67,7 @@ describe("toggle — controlled and uncontrolled state", () => {
 
 	test("controlled: follows pressed; a click only asks the owner", async () => {
 		const onPressedChange = vi.fn();
-		const { container, rerender } = render(Toggle, {
+		const { container, rerender } = await render(Toggle, {
 			props: { children: label, pressed: false, onPressedChange },
 		});
 		const root = locatePart(container, "toggle");
@@ -83,7 +83,7 @@ describe("toggle — controlled and uncontrolled state", () => {
 describe("toggle — events", () => {
 	test("a caller's onclick runs alongside the toggle, not instead of it", async () => {
 		const onclick = vi.fn();
-		const { container } = render(Toggle, { props: { children: label, onclick } });
+		const { container } = await render(Toggle, { props: { children: label, onclick } });
 		const root = locatePart(container, "toggle");
 		await root.click();
 		expect(onclick).toHaveBeenCalledOnce();
@@ -92,7 +92,9 @@ describe("toggle — events", () => {
 
 	test("disabled: a caller's onclick does not run", async () => {
 		const onclick = vi.fn();
-		const { container } = render(Toggle, { props: { children: label, disabled: true, onclick } });
+		const { container } = await render(Toggle, {
+			props: { children: label, disabled: true, onclick },
+		});
 		(locatePart(container, "toggle").element() as HTMLElement).click();
 		expect(onclick).not.toHaveBeenCalled();
 	});

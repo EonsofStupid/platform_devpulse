@@ -3,7 +3,7 @@
  * @description Chat IPC facade — sessions, history, exports, reactions.
  */
 
-import { commands } from "$lib/sys/generated/bindings.js";
+import { commands } from "#lib/sys/generated/bindings.js";
 
 export const pickSaveFile = commands.pickSaveFile;
 export const sendMessage = commands.sendMessage;
@@ -16,9 +16,9 @@ export const exportSession = commands.exportSession;
 export const exportAllSessions = commands.exportAllSessions;
 export const postReaction = commands.postReaction;
 
-export type { ChatMessage } from "$lib/sys/bindings/_shared";
+export type { ChatMessage } from "#lib/sys/bindings/_shared/index.js";
 export type {
 	ChatSession,
 	ExportFormat,
 	ExportSummary,
-} from "$lib/sys/generated/bindings.js";
+} from "#lib/sys/generated/bindings.js";

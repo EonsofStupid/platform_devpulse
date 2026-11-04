@@ -3,7 +3,7 @@
  * @description RRO state machine — depth / proximity / gather / purge / fork.
  */
 
-import { commands } from "$lib/sys/generated/bindings.js";
+import { commands } from "#lib/sys/generated/bindings.js";
 
 export const getRroState = commands.getRroState;
 export const setRroDepth = commands.setRroDepth;
@@ -19,4 +19,4 @@ export type {
 	RroState,
 	RroStateSnapshot,
 	RroStateTransition,
-} from "$lib/sys/generated/bindings.js";
+} from "#lib/sys/generated/bindings.js";

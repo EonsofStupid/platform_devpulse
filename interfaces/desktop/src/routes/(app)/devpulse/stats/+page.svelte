@@ -7,8 +7,8 @@
 import { Widget } from "@devpulse/coldlight/blocks/widgets";
 import { Text } from "@devpulse/coldlight/components/text";
 import { gridLayout, hstack, stack } from "@devpulse/coldlight/utils";
-import { devpulseState } from "$lib/domains/app/devpulse/index.js";
-import { copyState } from "$lib/sys/copy/index.js";
+import { devpulseState } from "#lib/domains/app/devpulse/index.js";
+import { copyState } from "#lib/sys/copy/index.js";
 
 const unavailable = $derived(copyState.catalog?.hubs.dashboard.unavailable);
 </script>

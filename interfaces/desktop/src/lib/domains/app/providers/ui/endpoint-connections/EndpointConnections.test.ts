@@ -60,7 +60,7 @@ function props(): EndpointConnectionsProps {
 
 test("saves the user's endpoint and label with explicit credential intent, without probing", async () => {
 	const p = props();
-	const screen = render(EndpointConnections, { props: p });
+	const screen = await render(EndpointConnections, { props: p });
 	await screen.getByRole("button", { name: "Add a connection" }).click();
 	await screen.getByRole("textbox", { name: "Connection name" }).fill("Remote Clyffy");
 	await screen
@@ -98,7 +98,7 @@ test("editing keeps the stable identity and a rejected save keeps the form open"
 			},
 		],
 	};
-	const screen = render(EndpointConnections, { props: p });
+	const screen = await render(EndpointConnections, { props: p });
 	await screen.getByRole("button", { name: "Edit", exact: true }).click();
 	await screen.getByRole("textbox", { name: "Connection name" }).fill("Renamed");
 	await screen.getByRole("button", { name: "Save connection", exact: true }).click();
@@ -128,7 +128,7 @@ test("checking and removing address only the selected connection; removal needs 
 			},
 		],
 	};
-	const screen = render(EndpointConnections, { props: p });
+	const screen = await render(EndpointConnections, { props: p });
 	await screen.getByRole("button", { name: "Check models" }).click();
 	expect(p.onCheck).toHaveBeenCalledExactlyOnceWith("saved");
 	await screen.getByRole("button", { name: "Remove", exact: true }).click();
@@ -141,7 +141,7 @@ test("checking and removing address only the selected connection; removal needs 
 test("an unavailable user store cannot create a pretend saved connection", async () => {
 	const p = props();
 	p.state = null;
-	const screen = render(EndpointConnections, { props: p });
+	const screen = await render(EndpointConnections, { props: p });
 	await expect.element(screen.getByRole("button", { name: "Add a connection" })).toBeDisabled();
 	await expect.element(screen.getByText("Database unavailable")).toBeVisible();
 	expect(p.onSave).not.toHaveBeenCalled();
@@ -150,7 +150,7 @@ test("an unavailable user store cannot create a pretend saved connection", async
 test("a failed save clears the typed secret and keeps the connection draft", async () => {
 	const p = props();
 	p.onSave = vi.fn().mockResolvedValue(false);
-	const screen = render(EndpointConnections, { props: p });
+	const screen = await render(EndpointConnections, { props: p });
 	await screen.getByRole("button", { name: "Add a connection" }).click();
 	await screen.getByRole("textbox", { name: "Connection name" }).fill("Keyed server");
 	await screen.getByRole("combobox", { name: "API key", exact: true }).click();
@@ -192,7 +192,7 @@ test("text testing requires a click and uses the selected connection and model",
 			},
 		],
 	};
-	const screen = render(EndpointConnections, { props: p });
+	const screen = await render(EndpointConnections, { props: p });
 	expect(p.onTest).not.toHaveBeenCalled();
 	await screen.getByRole("combobox", { name: "Model to try: My server" }).click();
 	await screen.getByRole("option", { name: "second", exact: true }).click();
@@ -229,7 +229,7 @@ test("an answer is shown as text, and unsupported protocols have no test action"
 			},
 		],
 	};
-	const screen = render(EndpointConnections, { props: p });
+	const screen = await render(EndpointConnections, { props: p });
 	await expect.element(screen.getByText("<script>fixture</script>", { exact: true })).toBeVisible();
 	await expect
 		.element(screen.getByRole("button", { name: "Try model", exact: true }))

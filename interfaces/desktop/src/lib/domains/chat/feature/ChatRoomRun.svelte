@@ -7,11 +7,11 @@
 -->
 <script lang="ts">
 import { Button } from "@devpulse/coldlight/components/button";
-import { agenthubState } from "$lib/domains/agenthub/index.js";
-import { providersState } from "$lib/domains/app/providers/index.js";
-import { openMainPage } from "$lib/sys/bindings/window/index.js";
-import { copyState, fill } from "$lib/sys/copy/index.js";
-import { routeAt } from "$lib/sys/routing/index.js";
+import { agenthubState } from "#lib/domains/agenthub/index.js";
+import { providersState } from "#lib/domains/app/providers/index.js";
+import { openMainPage } from "#lib/sys/bindings/window/index.js";
+import { copyState, fill } from "#lib/sys/copy/index.js";
+import { routeAt } from "#lib/sys/routing/index.js";
 import { chatState } from "../data-access/chat.state.svelte.js";
 import { roomsState } from "../data-access/rooms.state.svelte.js";
 import { AgentTurn } from "../ui/agent-turn/index.js";

@@ -7,12 +7,12 @@
 <script lang="ts">
 import { Progress } from "@devpulse/coldlight/components/progress";
 import { Text } from "@devpulse/coldlight/components/text";
-import { presentationState } from "$lib/domains/app/devpulse/index.js";
-import { copyState } from "$lib/sys/copy/index.js";
-import { BOOT_STEP_MANIFEST } from "$lib/sys/generated/service-manifest.js";
-import { getIcon } from "$lib/sys/generated/terminology-icons.js";
-import type { SubsystemState } from "$lib/sys/runes/platformState.svelte.js";
-import { platformState } from "$lib/sys/runes/platformState.svelte.js";
+import { presentationState } from "#lib/domains/app/devpulse/index.js";
+import { copyState } from "#lib/sys/copy/index.js";
+import { BOOT_STEP_MANIFEST } from "#lib/sys/generated/service-manifest.js";
+import { getIcon } from "#lib/sys/generated/terminology-icons.js";
+import type { SubsystemState } from "#lib/sys/runes/platformState.svelte.js";
+import { platformState } from "#lib/sys/runes/platformState.svelte.js";
 
 const copy = $derived(copyState.catalog?.hubs.boot);
 

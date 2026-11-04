@@ -1,8 +1,8 @@
-import type { ClientInit, HandleClientError } from "@sveltejs/kit";
-import { logError } from "$lib/sys/logger.js";
+import type { ClientCaughtError, ClientInit, HandleClientError } from "@sveltejs/kit/hooks";
+import { logError } from "#lib/sys/logger.js";
 
 /**
- * SvelteKit 2.x client `init` hook — runs once on app startup in the browser,
+ * SvelteKit client `init` hook — runs once on app startup in the browser,
  * before the first route loads. Required export (the generated `app.js`
  * imports it); Rollup fails the build if it is missing.
  *
@@ -41,19 +41,21 @@ export const init: ClientInit = async () => {
 	});
 };
 
-export const handleError: HandleClientError = ({ error, event, status, message }) => {
-	const err = error as Error;
-	console.error(`[DevPulse] Unhandled error at ${event.url.pathname}:`, err);
+export const handleError: HandleClientError = (caught) => {
+	const { event } = caught;
+	console.error(`[DevPulse] Unhandled error at ${event.url.pathname}:`, caught.error);
 
 	// Forward to the backend JSONL too — `handleError` fires for SvelteKit
 	// navigation/render errors that may not surface through `window.error`.
-	const detail = err
-		? `${err.name}: ${err.message}${err.stack ? `\n${err.stack}` : ""}`
-		: String(error);
-	logError("frontend.svelte-kit", `${event.url.pathname}: ${detail}`);
+	logError("frontend.svelte-kit", `${event.url.pathname}: ${describeCaught(caught)}`);
 
-	return {
-		message: message ?? "Something went wrong",
-		code: status?.toString() ?? "UNKNOWN",
-	};
+	// The message is SvelteKit's safe one: the error's own, or "Internal Error".
+	return { code: caught.kind === "unknown" ? "500" : caught.error.status.toString() };
 };
+
+function describeCaught(caught: ClientCaughtError): string {
+	if (caught.kind !== "unknown") return `${caught.error.status} ${caught.error.message}`;
+	const { error } = caught;
+	if (!(error instanceof Error)) return String(error);
+	return `${error.name}: ${error.message}${error.stack ? `\n${error.stack}` : ""}`;
+}

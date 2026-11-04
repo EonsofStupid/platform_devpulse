@@ -16,7 +16,7 @@ import type {
 	GraphNamespaceStats,
 	GraphPingResult,
 	GraphTableInfo,
-} from "$lib/sys/generated/bindings.js";
+} from "#lib/sys/generated/bindings.js";
 
 export type {
 	GraphHealthAll,

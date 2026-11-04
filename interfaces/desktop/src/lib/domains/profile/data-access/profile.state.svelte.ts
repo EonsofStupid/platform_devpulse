@@ -19,7 +19,7 @@
  * read their phase and lift it into our own state machine.
  */
 
-import { commands } from "$lib/sys/generated/bindings.js";
+import { commands } from "#lib/sys/generated/bindings.js";
 
 /** Seed value — mirrors `kernel/model-loader/config/presets.default.toml:141`
  *  which locks `microsoft/harrier-oss-v1-0.6b` as the default for the

@@ -9,8 +9,8 @@ import { Switch, type SwitchSize } from "@devpulse/coldlight/components/switch";
 import { expect, test } from "vitest";
 import { render } from "vitest-browser-svelte";
 
-function drawn(checked: boolean, size: SwitchSize) {
-	const screen = render(Switch, { checked, size, "aria-label": "Setting" });
+async function drawn(checked: boolean, size: SwitchSize) {
+	const screen = await render(Switch, { checked, size, "aria-label": "Setting" });
 	const track = screen.container.querySelector('[role="switch"]') as HTMLElement;
 	const thumb = track.querySelector('[data-slot="thumb"]') as HTMLElement;
 	return { track, thumb };
@@ -21,8 +21,8 @@ const settled = () => new Promise((resolve) => setTimeout(resolve, 300));
 
 for (const size of ["sm", "md", "lg"] as const) {
 	test(`at ${size}, the thumb starts at one end and slides to the other, inside the track`, async () => {
-		const off = drawn(false, size);
-		const on = drawn(true, size);
+		const off = await drawn(false, size);
+		const on = await drawn(true, size);
 		await settled();
 
 		const leftGap = off.thumb.getBoundingClientRect().left - off.track.getBoundingClientRect().left;

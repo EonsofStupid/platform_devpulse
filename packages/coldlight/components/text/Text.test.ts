@@ -20,31 +20,31 @@ import Text from "./Text.svelte";
 
 describe("text component — structural attributes", () => {
 	test("renders with data-kind='text'", async () => {
-		const { container } = render(Text);
+		const { container } = await render(Text);
 		const el = container.querySelector("[data-kind='text']") as HTMLElement;
 		expect(el).toBeTruthy();
 	});
 
 	test("has data-slot='root'", async () => {
-		const { container } = render(Text);
+		const { container } = await render(Text);
 		const el = container.querySelector("[data-kind='text']") as HTMLElement;
 		await expect.element(el).toHaveAttribute("data-slot", "root");
 	});
 
 	test("renders as <span> by default", async () => {
-		const { container } = render(Text);
+		const { container } = await render(Text);
 		const el = container.querySelector("[data-kind='text']") as HTMLElement;
 		expect(el.tagName.toLowerCase()).toBe("span");
 	});
 
 	test("renders as <p> when as='p'", async () => {
-		const { container } = render(Text, { props: { as: "p" } });
+		const { container } = await render(Text, { props: { as: "p" } });
 		const el = container.querySelector("[data-kind='text']") as HTMLElement;
 		expect(el.tagName.toLowerCase()).toBe("p");
 	});
 
 	test("passes custom class", async () => {
-		const { container } = render(Text, { props: { class: "custom-text" } });
+		const { container } = await render(Text, { props: { class: "custom-text" } });
 		const el = container.querySelector("[data-kind='text']") as HTMLElement;
 		await expect.element(el).toHaveClass("custom-text");
 	});

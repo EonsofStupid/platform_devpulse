@@ -22,9 +22,9 @@
  * before the app ships."
  */
 
-import { installState } from "$lib/sys/activity-hud/install.state.svelte.js";
-import { autoConfigure, installToSlot } from "$lib/sys/bindings/models/index.js";
-import { logError, logInfo } from "$lib/sys/logger.js";
+import { installState } from "#lib/sys/activity-hud/install.state.svelte.js";
+import { autoConfigure, installToSlot } from "#lib/sys/bindings/models/index.js";
+import { logError, logInfo } from "#lib/sys/logger.js";
 
 const LOG_TARGET = "domains.models.baseline";
 

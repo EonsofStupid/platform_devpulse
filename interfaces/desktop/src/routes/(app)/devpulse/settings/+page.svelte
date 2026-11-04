@@ -11,10 +11,10 @@ import { Spinner } from "@devpulse/coldlight/components/spinner";
 import { Text } from "@devpulse/coldlight/components/text";
 import { cn, container, hstack, stack } from "@devpulse/coldlight/utils";
 import { Check, Pencil, X } from "lucide-svelte";
-import { PresentationSettings, profileSettingsState } from "$lib/domains/app/devpulse/index.js";
-import { onboardingState } from "$lib/domains/app/onboarding/index.js";
-import { copyState } from "$lib/sys/copy/index.js";
-import { hrefOf, routeAt, routeCopy } from "$lib/sys/routing/index.js";
+import { PresentationSettings, profileSettingsState } from "#lib/domains/app/devpulse/index.js";
+import { onboardingState } from "#lib/domains/app/onboarding/index.js";
+import { copyState } from "#lib/sys/copy/index.js";
+import { hrefOf, routeAt, routeCopy } from "#lib/sys/routing/index.js";
 
 const settingsState = profileSettingsState;
 const setupCopy = $derived(copyState.catalog?.onboarding.common ?? null);

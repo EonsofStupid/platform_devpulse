@@ -3,7 +3,7 @@
  * @module @devpulse/domains/app/memory/ui/memory-notes
  * One place's notes, and what you can do to them.
  */
-import type { MemoryCopy, MemoryNote, MemorySave } from "$lib/sys/generated/bindings.js";
+import type { MemoryCopy, MemoryNote, MemorySave } from "#lib/sys/generated/bindings.js";
 
 export interface MemoryNotesProps {
 	copy: MemoryCopy;

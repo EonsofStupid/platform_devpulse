@@ -12,8 +12,8 @@
 -->
 <script lang="ts">
 import { FileText, Folder, FolderPlus, Layers, Trash2 } from "lucide-svelte";
-import { pickDirectory } from "$lib/sys/bindings/models/index.js";
-import { logError } from "$lib/sys/logger.js";
+import { pickDirectory } from "#lib/sys/bindings/models/index.js";
+import { logError } from "#lib/sys/logger.js";
 import { projectsState, type ReferenceKind } from "../data-access/projects.state.svelte.js";
 
 let pickingRef = $state(false);

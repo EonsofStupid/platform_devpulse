@@ -19,7 +19,7 @@ import type {
 	SurrealHealth,
 	SurrealStatus,
 	SurrealUserConfig,
-} from "$lib/sys/bindings/surreal/index.js";
+} from "#lib/sys/bindings/surreal/index.js";
 import {
 	surrealConfigLoad,
 	surrealConfigSave,

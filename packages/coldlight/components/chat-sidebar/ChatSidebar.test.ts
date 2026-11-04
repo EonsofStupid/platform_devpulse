@@ -29,20 +29,20 @@ const MODES: ChatSidebarMode[] = [
 
 describe("chat-sidebar — ARIA compliance", () => {
 	test("renders nav element with aria-label='Chat modes'", async () => {
-		const { getByRole } = render(ChatSidebar, { props: { modes: MODES } });
+		const { getByRole } = await render(ChatSidebar, { props: { modes: MODES } });
 		const nav = getByRole("navigation");
 		expect(nav).toBeTruthy();
 		await expect.element(nav).toHaveAttribute("aria-label", "Chat modes");
 	});
 
 	test("renders a button per mode", async () => {
-		const { container } = render(ChatSidebar, { props: { modes: MODES } });
+		const { container } = await render(ChatSidebar, { props: { modes: MODES } });
 		const buttons = container.querySelectorAll("button");
 		expect(buttons.length).toBe(MODES.length);
 	});
 
 	test("active mode button has aria-pressed='true'", async () => {
-		const { container } = render(ChatSidebar, { props: { modes: MODES, mode: "developer" } });
+		const { container } = await render(ChatSidebar, { props: { modes: MODES, mode: "developer" } });
 		const buttons = container.querySelectorAll("button");
 		const devButton = Array.from(buttons).find((b: Element) => b.textContent?.trim() === "DEV");
 		expect(devButton).toBeTruthy();
@@ -56,19 +56,19 @@ describe("chat-sidebar — ARIA compliance", () => {
 
 describe("chat-sidebar — structural attributes", () => {
 	test("has data-kind='chat-sidebar'", async () => {
-		const { getByRole } = render(ChatSidebar, { props: { modes: MODES } });
+		const { getByRole } = await render(ChatSidebar, { props: { modes: MODES } });
 		const nav = getByRole("navigation");
 		await expect.element(nav).toHaveAttribute("data-kind", "chat-sidebar");
 	});
 
 	test("has data-slot='mode-selector'", async () => {
-		const { getByRole } = render(ChatSidebar, { props: { modes: MODES } });
+		const { getByRole } = await render(ChatSidebar, { props: { modes: MODES } });
 		const nav = getByRole("navigation");
 		await expect.element(nav).toHaveAttribute("data-slot", "mode-selector");
 	});
 
 	test("sets data-mode from mode prop", async () => {
-		const { getByRole } = render(ChatSidebar, { props: { modes: MODES, mode: "planning" } });
+		const { getByRole } = await render(ChatSidebar, { props: { modes: MODES, mode: "planning" } });
 		const nav = getByRole("navigation");
 		await expect.element(nav).toHaveAttribute("data-mode", "planning");
 	});

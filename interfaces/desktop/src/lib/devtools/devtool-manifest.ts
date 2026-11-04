@@ -16,7 +16,7 @@ import {
 	type RouteNode,
 	routeExports,
 	topLevelOf,
-} from "$lib/sys/routing/route-manifest.js";
+} from "#lib/sys/routing/route-manifest.js";
 import type { DevtoolNav } from "./devtool-nav.js";
 
 const DEVTOOL_BY_ID = routeExports<DevtoolNav>("_devtool");

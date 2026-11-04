@@ -8,7 +8,7 @@
  */
 
 import { invoke } from "@tauri-apps/api/core";
-import { logError, logInfo } from "$lib/sys/logger.js";
+import { logError, logInfo } from "#lib/sys/logger.js";
 import type { UpdateChannel, UpdateInfo } from "../util/index.js";
 
 interface RawUpdateInfo {

@@ -3,7 +3,7 @@
  * @module @devpulse/domains/app/models/data-access/vision-card-state
  */
 
-import type { ModelInfo } from "$lib/sys/generated/bindings.js";
+import type { ModelInfo } from "#lib/sys/generated/bindings.js";
 import { slotDisplayStatus } from "../util/models.types.js";
 import { getCatalogForSlot } from "./catalog.service.js";
 import { cancelDownload, downloadModel, onDownloadProgress } from "./download.service.js";

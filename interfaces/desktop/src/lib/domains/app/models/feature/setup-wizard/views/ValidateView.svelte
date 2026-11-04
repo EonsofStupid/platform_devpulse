@@ -33,8 +33,8 @@ import {
 	VolumeX,
 	X,
 } from "lucide-svelte";
-import { copyState } from "$lib/sys/copy/index.js";
-import { logInfo } from "$lib/sys/logger.js";
+import { copyState } from "#lib/sys/copy/index.js";
+import { logInfo } from "#lib/sys/logger.js";
 import { modelsState } from "../../../data-access/models.state.svelte.js";
 import {
 	type PipelineStepId,

@@ -15,7 +15,7 @@ import {
 import { Slider } from "@devpulse/coldlight/components/slider";
 import { Text } from "@devpulse/coldlight/components/text";
 import { onMount } from "svelte";
-import { fill } from "$lib/sys/copy/index.js";
+import { fill } from "#lib/sys/copy/index.js";
 import {
 	ensureSlotLoaded,
 	getDefaultVoiceProfile,

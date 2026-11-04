@@ -21,10 +21,10 @@ import {
 	type CapturePayload,
 	CommandErrorAlert,
 	ServiceDevtoolShell,
-} from "$lib/devtools/index.js";
-import { copyState } from "$lib/sys/copy/index.js";
-import type { CommandError } from "$lib/sys/generated/bindings.js";
-import { PolledQuery } from "$lib/sys/runes/index.js";
+} from "#lib/devtools/index.js";
+import { copyState } from "#lib/sys/copy/index.js";
+import type { CommandError } from "#lib/sys/generated/bindings.js";
+import { PolledQuery } from "#lib/sys/runes/index.js";
 import { openActionLogsFolder } from "../data-access/action-log.service.js";
 import { actionLogState, TAIL_INTERVAL_MS } from "../data-access/action-log.state.svelte.js";
 

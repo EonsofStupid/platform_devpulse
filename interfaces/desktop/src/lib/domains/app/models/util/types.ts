@@ -13,7 +13,7 @@ export type {
 	ModelsReadiness,
 	SlotInfo,
 	VramBudgetInfo,
-} from "$lib/sys/generated/bindings.js";
+} from "#lib/sys/generated/bindings.js";
 
 /**
  * Narration record for a single slot — short Clyffy-voice line surfaced

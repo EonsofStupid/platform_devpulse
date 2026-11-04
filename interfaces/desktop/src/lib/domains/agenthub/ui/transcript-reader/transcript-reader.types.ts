@@ -1,4 +1,4 @@
-import type { FoundEvent, FoundSession } from "$lib/sys/generated/bindings.js";
+import type { FoundEvent, FoundSession } from "#lib/sys/generated/bindings.js";
 
 export interface TranscriptReaderProps {
 	session: FoundSession | null;

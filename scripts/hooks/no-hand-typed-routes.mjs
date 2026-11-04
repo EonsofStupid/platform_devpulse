@@ -6,8 +6,8 @@
  * `interfaces/desktop/src/routes` are the only place a route exists.
  *
  * - Lists of routes (menus, dashboards, tiles) come from the route manifest
- *   (`$lib/sys/routing`), which Vite builds from the folders.
- * - A link to one specific page uses `resolve("/path")` from `$app/paths`
+ *   (`#lib/sys/routing`), which Vite builds from the folders.
+ * - A link to one specific page uses `resolve("path")` from `$app/paths`
  *   (typed against SvelteKit's generated route list), or `routeAt("/path")`
  *   when the page's name is wanted too.
  *
@@ -120,8 +120,8 @@ if (violations.length > 0) {
 		`no-hand-typed-routes: ${violations.length} hand-typed route(s)\n` +
 			violations.map((v) => `  ${v}`).join("\n") +
 			"\n\nRoutes are the folders under interfaces/desktop/src/routes (plan 0008).\n" +
-			"  - lists of pages: build them from the route manifest ($lib/sys/routing)\n" +
-			'  - a link to one page: resolve("/path") from $app/paths, or routeAt("/path")\n',
+			"  - lists of pages: build them from the route manifest (#lib/sys/routing)\n" +
+			'  - a link to one page: resolve("path") from $app/paths, or routeAt("/path")\n',
 	);
 	process.exit(1);
 }

@@ -3,7 +3,7 @@
  * @description Per-project Turso devtool surface.
  */
 
-import { commands } from "$lib/sys/generated/bindings.js";
+import { commands } from "#lib/sys/generated/bindings.js";
 
 export const initProjectDb = commands.initProjectDb;
 export const projectDbHealth = commands.projectDbHealth;
@@ -15,4 +15,4 @@ export type {
 	ProjectDbInitResult,
 	ProjectDbQueryResult,
 	ProjectDbTableInfo,
-} from "$lib/sys/generated/bindings.js";
+} from "#lib/sys/generated/bindings.js";

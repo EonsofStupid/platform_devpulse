@@ -21,19 +21,19 @@ import type { ChatFrameProps } from "./types.js";
 
 describe("chat-frame — ARIA compliance", () => {
 	test("renders element with role='dialog'", async () => {
-		const { getByRole } = render(ChatFrame);
+		const { getByRole } = await render(ChatFrame);
 		const frame = getByRole("dialog");
 		expect(frame).toBeTruthy();
 	});
 
 	test("has aria-label='Clyffy Chat'", async () => {
-		const { getByRole } = render(ChatFrame);
+		const { getByRole } = await render(ChatFrame);
 		const frame = getByRole("dialog");
 		await expect.element(frame).toHaveAttribute("aria-label", "Clyffy Chat");
 	});
 
 	test("has aria-modal='false' (non-modal overlay)", async () => {
-		const { getByRole } = render(ChatFrame);
+		const { getByRole } = await render(ChatFrame);
 		const frame = getByRole("dialog");
 		await expect.element(frame).toHaveAttribute("aria-modal", "false");
 	});
@@ -45,19 +45,19 @@ describe("chat-frame — ARIA compliance", () => {
 
 describe("chat-frame — structural attributes", () => {
 	test("has data-kind='chat-frame'", async () => {
-		const { getByRole } = render(ChatFrame);
+		const { getByRole } = await render(ChatFrame);
 		const frame = getByRole("dialog");
 		await expect.element(frame).toHaveAttribute("data-kind", "chat-frame");
 	});
 
 	test("has data-slot='root'", async () => {
-		const { getByRole } = render(ChatFrame);
+		const { getByRole } = await render(ChatFrame);
 		const frame = getByRole("dialog");
 		await expect.element(frame).toHaveAttribute("data-slot", "root");
 	});
 
 	test("has data-layout='chat'", async () => {
-		const { getByRole } = render(ChatFrame);
+		const { getByRole } = await render(ChatFrame);
 		const frame = getByRole("dialog");
 		await expect.element(frame).toHaveAttribute("data-layout", "chat");
 	});
@@ -69,13 +69,13 @@ describe("chat-frame — structural attributes", () => {
 
 describe("chat-frame — state attributes", () => {
 	test("defaults data-state to 'open'", async () => {
-		const { getByRole } = render(ChatFrame);
+		const { getByRole } = await render(ChatFrame);
 		const frame = getByRole("dialog");
 		await expect.element(frame).toHaveAttribute("data-state", "open");
 	});
 
 	test("sets data-state='minimized' when state prop is minimized", async () => {
-		const { getByRole } = render(ChatFrame, {
+		const { getByRole } = await render(ChatFrame, {
 			props: { state: "minimized" } as unknown as ChatFrameProps,
 		});
 		const frame = getByRole("dialog");
@@ -83,7 +83,7 @@ describe("chat-frame — state attributes", () => {
 	});
 
 	test("sets data-engaged from engaged prop", async () => {
-		const { getByRole } = render(ChatFrame, {
+		const { getByRole } = await render(ChatFrame, {
 			props: { engaged: true } as unknown as ChatFrameProps,
 		});
 		const frame = getByRole("dialog");
@@ -91,7 +91,7 @@ describe("chat-frame — state attributes", () => {
 	});
 
 	test("sets data-context-collapsed from contextCollapsed prop", async () => {
-		const { getByRole } = render(ChatFrame, {
+		const { getByRole } = await render(ChatFrame, {
 			props: { contextCollapsed: true } as unknown as ChatFrameProps,
 		});
 		const frame = getByRole("dialog");
@@ -105,14 +105,14 @@ describe("chat-frame — state attributes", () => {
 
 describe("chat-frame — style macro integration", () => {
 	test("has style attribute with -bg", async () => {
-		const { getByRole } = render(ChatFrame);
+		const { getByRole } = await render(ChatFrame);
 		const frame = getByRole("dialog");
 		const style = frame.element().getAttribute("style") ?? "";
 		expect(style).toContain("-bg");
 	});
 
 	test("has data-cl-* family attributes", async () => {
-		const { getByRole } = render(ChatFrame);
+		const { getByRole } = await render(ChatFrame);
 		const frame = getByRole("dialog");
 		const attrs = frame.element().getAttributeNames();
 		const familyAttrs = attrs.filter((a) => a.startsWith("data-cl-"));

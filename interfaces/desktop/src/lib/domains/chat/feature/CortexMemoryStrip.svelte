@@ -3,7 +3,7 @@
 -->
 <script lang="ts">
 import { Text } from "@devpulse/coldlight/components/text";
-import { isInferenceReady, modelsState } from "$lib/domains/app/models/index.js";
+import { isInferenceReady, modelsState } from "#lib/domains/app/models/index.js";
 import { StatusDotNeuron } from "../ui/index.js";
 
 const brain = $derived(modelsState.statuses["chat.brain"]);

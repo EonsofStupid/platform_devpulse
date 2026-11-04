@@ -1,7 +1,7 @@
 <script lang="ts">
 import { Badge } from "@devpulse/coldlight/components/badge";
 import { Text } from "@devpulse/coldlight/components/text";
-import type { ServiceStatusSnapshot } from "$lib/sys/generated/bindings.js";
+import type { ServiceStatusSnapshot } from "#lib/sys/generated/bindings.js";
 import type { ServiceStatusProps } from "./ServiceStatus.types.js";
 
 let { service }: ServiceStatusProps = $props();

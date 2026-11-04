@@ -127,7 +127,7 @@
 		"vite": ">=5.0.0"
 	},
 	"devDependencies": {
-		"@microsoft/api-extractor": "^7.59.4",
+		"@microsoft/api-extractor": "^7.60.1",
 		"@sveltejs/vite-plugin-svelte": "catalog:",
 		"@types/node": "catalog:",
 		"@vitest/browser-playwright": "catalog:",

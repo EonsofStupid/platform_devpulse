@@ -13,7 +13,7 @@
  * on dismiss so the user can pick a different repo without reopening.
  */
 
-import type { HfSearchResultInfo, RepoFile } from "$lib/sys/generated/bindings.js";
+import type { HfSearchResultInfo, RepoFile } from "#lib/sys/generated/bindings.js";
 
 /** Lifecycle phases of the overlay state machine. */
 export type DownloaderPhase =

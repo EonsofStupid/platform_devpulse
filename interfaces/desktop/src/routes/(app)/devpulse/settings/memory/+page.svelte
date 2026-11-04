@@ -10,9 +10,9 @@
 import { Heading } from "@devpulse/coldlight/components/heading";
 import { Text } from "@devpulse/coldlight/components/text";
 import { cn, container, stack } from "@devpulse/coldlight/utils";
-import { YourMemory } from "$lib/domains/app/memory/index.js";
-import { copyState } from "$lib/sys/copy/index.js";
-import { routeCopy, routeHere } from "$lib/sys/routing/index.js";
+import { YourMemory } from "#lib/domains/app/memory/index.js";
+import { copyState } from "#lib/sys/copy/index.js";
+import { routeCopy, routeHere } from "#lib/sys/routing/index.js";
 
 const here = $derived(routeHere());
 const name = $derived(here ? routeCopy(here)?.label : undefined);

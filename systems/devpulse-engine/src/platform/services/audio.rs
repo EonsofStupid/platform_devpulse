@@ -1,6 +1,6 @@
 //! Audio playback service — rodio-backed speaker output.
 //!
-//! Wraps rodio's `OutputStream` + `Sink` for playing PCM audio from TTS.
+//! Wraps rodio's `MixerDeviceSink` + `Player` for playing PCM audio from TTS.
 //! Thread-safe via `devpulse_telemetry::TracedSender` — callers send audio,
 //! service thread plays it. The traced channel preserves the producer's
 //! `OTel` context so spans created during playback chain back to whoever
@@ -10,6 +10,7 @@
 
 use anyhow::Result;
 use devpulse_telemetry::prelude::{TracedReceiver, TracedSender, unbounded};
+use std::num::NonZero;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
 
@@ -84,7 +85,7 @@ pub struct AudioService {
 impl AudioService {
     /// Spawn the audio playback service.
     ///
-    /// Creates a dedicated OS thread that owns the rodio `OutputStream`.
+    /// Creates a dedicated OS thread that owns the rodio `MixerDeviceSink`.
     /// Returns immediately — all interaction is via `AudioHandle`.
     ///
     /// # Errors
@@ -131,8 +132,12 @@ impl Drop for AudioService {
 /// Main loop on the audio playback thread.
 fn audio_thread(rx: &TracedReceiver<AudioCommand>, playing: &Arc<AtomicBool>) {
     // Initialize rodio output — this must happen on this thread
-    let output = match rodio::OutputStream::try_default() {
-        Ok((stream, handle)) => Some((stream, handle)),
+    let output = match rodio::DeviceSinkBuilder::open_default_sink() {
+        Ok(mut device) => {
+            // Stopping here is expected; don't print rodio's stderr notice.
+            device.log_on_drop(false);
+            Some(device)
+        }
         Err(e) => {
             tracing::error!(
                 component = "AudioService",
@@ -143,41 +148,42 @@ fn audio_thread(rx: &TracedReceiver<AudioCommand>, playing: &Arc<AtomicBool>) {
         }
     };
 
-    let sink = output.as_ref().and_then(|(_, handle)| {
-        rodio::Sink::try_new(handle)
-            .map_err(|e| {
-                tracing::error!(
-                    component = "AudioService",
-                    error = %e,
-                    "Failed to create audio sink"
-                );
-            })
-            .ok()
-    });
+    let player = output
+        .as_ref()
+        .map(|device| rodio::Player::connect_new(device.mixer()));
 
     while let Ok(traced) = rx.recv() {
         // Attach the producer's OTel context for the duration of this
-        // command. Spans created below (rodio sink ops, sleep_until_end)
+        // command. Spans created below (rodio player ops, sleep_until_end)
         // become descendants of whoever called `AudioHandle::play`. The
         // guard is `!Send` and stays in this sync scope by design.
         let (cmd, _cx_guard) = traced.attach();
         match cmd {
             AudioCommand::Play(request) => {
-                if let Some(ref sink) = sink {
+                if let Some(ref player) = player {
+                    let (Some(channels), Some(sample_rate)) = (
+                        NonZero::new(request.channels),
+                        NonZero::new(request.sample_rate),
+                    ) else {
+                        tracing::error!(
+                            component = "AudioService",
+                            channels = request.channels,
+                            sample_rate = request.sample_rate,
+                            "Playback requested with no channels or no sample rate"
+                        );
+                        continue;
+                    };
                     playing.store(true, Ordering::Relaxed);
-                    let source = rodio::buffer::SamplesBuffer::new(
-                        request.channels,
-                        request.sample_rate,
-                        request.samples,
-                    );
-                    sink.append(source);
+                    let source =
+                        rodio::buffer::SamplesBuffer::new(channels, sample_rate, request.samples);
+                    player.append(source);
                     tracing::debug!(
                         component = "AudioService",
                         sample_rate = request.sample_rate,
                         "Playing audio"
                     );
                     // Wait for playback to finish
-                    sink.sleep_until_end();
+                    player.sleep_until_end();
                     playing.store(false, Ordering::Relaxed);
                 } else {
                     tracing::warn!(
@@ -187,16 +193,16 @@ fn audio_thread(rx: &TracedReceiver<AudioCommand>, playing: &Arc<AtomicBool>) {
                 }
             }
             AudioCommand::Stop => {
-                if let Some(ref sink) = sink {
-                    sink.stop();
+                if let Some(ref player) = player {
+                    player.stop();
                     playing.store(false, Ordering::Relaxed);
                     tracing::debug!(component = "AudioService", "Playback stopped");
                 }
             }
             AudioCommand::Shutdown => {
                 tracing::info!(component = "AudioService", "Audio thread shutting down");
-                if let Some(ref sink) = sink {
-                    sink.stop();
+                if let Some(ref player) = player {
+                    player.stop();
                 }
                 break;
             }

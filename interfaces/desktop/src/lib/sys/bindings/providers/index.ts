@@ -5,7 +5,7 @@
  * the older multi-vendor validation surface.
  */
 
-import { commands } from "$lib/sys/generated/bindings.js";
+import { commands } from "#lib/sys/generated/bindings.js";
 
 // ── Your AI (plan 0001 R11) ──────────────────────────────────────
 export const providersState = commands.providersState;
@@ -23,7 +23,7 @@ export const listProviderStatus = commands.listProviderStatus;
 export const validateProvider = commands.validateProvider;
 export const listProviderModels = commands.listProviderModels;
 
-export type { CommandError, ProviderId } from "$lib/sys/bindings/_shared";
+export type { CommandError, ProviderId } from "#lib/sys/bindings/_shared/index.js";
 export type {
 	ListModelsRequest,
 	ProviderAction,
@@ -32,4 +32,4 @@ export type {
 	ProviderStatus,
 	ProvidersState,
 	ValidationResult,
-} from "$lib/sys/generated/bindings.js";
+} from "#lib/sys/generated/bindings.js";

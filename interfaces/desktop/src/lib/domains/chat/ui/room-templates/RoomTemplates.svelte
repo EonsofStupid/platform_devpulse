@@ -10,7 +10,7 @@ import { Button } from "@devpulse/coldlight/components/button";
 import { Card } from "@devpulse/coldlight/components/card";
 import { Heading } from "@devpulse/coldlight/components/heading";
 import { Text } from "@devpulse/coldlight/components/text";
-import { fill } from "$lib/sys/copy/index.js";
+import { fill } from "#lib/sys/copy/index.js";
 import type { RoomTemplatesProps } from "./room-templates.types.js";
 
 let { copy, rooms, problem, onPick, onDelete, onBack }: RoomTemplatesProps = $props();

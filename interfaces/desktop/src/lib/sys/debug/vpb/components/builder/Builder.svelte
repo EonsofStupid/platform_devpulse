@@ -16,7 +16,7 @@ import type { BlockNode } from "@devpulse/coldlight/blocks";
 import { Button } from "@devpulse/coldlight/components/button";
 import { SearchField } from "@devpulse/coldlight/components/search-field";
 import { toast } from "svelte-sonner";
-import { copyState, fill } from "$lib/sys/copy/index.js";
+import { copyState, fill } from "#lib/sys/copy/index.js";
 import { saveAutoSave } from "../../persistence/local-storage.js";
 import { getKindSlots } from "../../registry/vpb-kinds.js";
 import { blockDragId, dnd, paletteDragId, parseDragId } from "../../state/dnd.svelte.js";

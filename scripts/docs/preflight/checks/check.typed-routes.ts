@@ -2,7 +2,7 @@
  * @file preflight/checks/check.typed-routes.ts
  * @description Verify no raw string routes - must use typed route helpers
  *
- * RULE: All navigation must use typed routes from $lib/sys/generated/ROUTES.ts
+ * RULE: All navigation must use typed routes from #lib/sys/generated/ROUTES.ts
  * Raw string paths like href="/foo" or goto('/bar') are forbidden.
  *
  * Exceptions:
@@ -120,7 +120,7 @@ function findRawRoutes(content: string, filePath: string): CheckResult[] {
           message: `Raw string route detected: "${match[0].trim()}"`,
           file: filePath,
           line: i + 1,
-          suggestion: 'Use route() helper from $lib/sys/generated/ROUTES',
+          suggestion: 'Use route() helper from #lib/sys/generated/ROUTES',
           autoFixable: false,
         });
       }

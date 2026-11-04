@@ -12,7 +12,7 @@ import { hstack } from "@devpulse/coldlight/utils/hstack";
 import { stack } from "@devpulse/coldlight/utils/stack";
 import { invoke } from "@tauri-apps/api/core";
 import { Download, ExternalLink, Mic, Play, Sparkles, Volume2, X } from "lucide-svelte";
-import { logInfo } from "$lib/sys/logger.js";
+import { logInfo } from "#lib/sys/logger.js";
 import { modelsState } from "../../data-access/models.state.svelte.js";
 import { narrationState } from "../../data-access/narration.state.svelte.js";
 import { setupWizardOverlayState } from "../../data-access/setup-wizard-overlay.state.svelte.js";
@@ -59,7 +59,7 @@ $effect(() => {
 		[sttRec, voiceState.sttSlotId] as const,
 		[ttsRec, voiceState.ttsSlotId] as const,
 	]) {
-		if (!rec || !rec.alreadyDownloaded) continue;
+		if (!rec?.alreadyDownloaded) continue;
 		if (voiceState.committedModelId(slot) || voiceState.pendingModelId(slot)) continue;
 		const model = modelsState.models.find((m) => m.filename === rec.file);
 		if (model && voiceState.selectedModelId(slot) !== model.id) {

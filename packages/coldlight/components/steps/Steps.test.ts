@@ -13,7 +13,7 @@ import Steps from "./Steps.svelte";
 
 describe("Steps component", () => {
 	it("renders with data-kind and role attributes", async () => {
-		const screen = render(Steps, {
+		const screen = await render(Steps, {
 			props: { label: "Setup wizard" },
 		});
 
@@ -24,7 +24,7 @@ describe("Steps component", () => {
 	});
 
 	it("applies composition classes for size", async () => {
-		const screen = render(Steps, {
+		const screen = await render(Steps, {
 			props: { label: "Steps", size: "sm" },
 		});
 
@@ -34,7 +34,7 @@ describe("Steps component", () => {
 	});
 
 	it("applies horizontal orientation by default", async () => {
-		const screen = render(Steps, {
+		const screen = await render(Steps, {
 			props: { label: "Steps" },
 		});
 
@@ -43,7 +43,7 @@ describe("Steps component", () => {
 	});
 
 	it("applies vertical orientation when set", async () => {
-		const screen = render(Steps, {
+		const screen = await render(Steps, {
 			props: { label: "Steps", orientation: "vertical" },
 		});
 
@@ -52,7 +52,7 @@ describe("Steps component", () => {
 	});
 
 	it("applies disabled state", async () => {
-		const screen = render(Steps, {
+		const screen = await render(Steps, {
 			props: { label: "Steps", disabled: true },
 		});
 
@@ -61,7 +61,7 @@ describe("Steps component", () => {
 	});
 
 	it("merges custom className", async () => {
-		const screen = render(Steps, {
+		const screen = await render(Steps, {
 			props: { label: "Steps", class: "custom-class" },
 		});
 

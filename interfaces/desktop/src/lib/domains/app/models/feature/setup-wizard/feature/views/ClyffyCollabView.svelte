@@ -41,7 +41,7 @@ import { Heading } from "@devpulse/coldlight/components/heading";
 import { Spinner } from "@devpulse/coldlight/components/spinner";
 import { Text } from "@devpulse/coldlight/components/text";
 import { Check, ExternalLink, KeyRound, Sparkles } from "lucide-svelte";
-import { commands } from "$lib/sys/generated/bindings.js";
+import { commands } from "#lib/sys/generated/bindings.js";
 import type { ClyffyCollabViewProps } from "../../util/wizard.types.js";
 import OverlayShell from "../OverlayShell.svelte";
 

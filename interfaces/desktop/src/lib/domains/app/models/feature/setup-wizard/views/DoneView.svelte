@@ -23,8 +23,8 @@ import {
 	Sparkles,
 	X,
 } from "lucide-svelte";
-import { type ApiKeyStatus, commands } from "$lib/sys/generated/bindings.js";
-import { logError, logInfo } from "$lib/sys/logger.js";
+import { type ApiKeyStatus, commands } from "#lib/sys/generated/bindings.js";
+import { logError, logInfo } from "#lib/sys/logger.js";
 import { modelsState } from "../../../data-access/models.state.svelte.js";
 import { setupWizardOverlayState } from "../../../data-access/setup-wizard-overlay.state.svelte.js";
 import { isInferenceReady } from "../../../util/models.types.js";

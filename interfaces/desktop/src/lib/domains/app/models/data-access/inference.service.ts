@@ -17,9 +17,9 @@
  */
 
 import { listen } from "@tauri-apps/api/event";
-import { withAction } from "$lib/sys/action-bus.svelte.js";
-import { commands } from "$lib/sys/generated/bindings.js";
-import { logError, logInfo } from "$lib/sys/logger.js";
+import { withAction } from "#lib/sys/action-bus.svelte.js";
+import { commands } from "#lib/sys/generated/bindings.js";
+import { logError, logInfo } from "#lib/sys/logger.js";
 
 function unwrap<T>(result: { status: "ok"; data: T } | { status: "error"; error: string }): T {
 	if (result.status === "ok") return result.data;

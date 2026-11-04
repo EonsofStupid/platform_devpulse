@@ -6,7 +6,7 @@
 import "@devpulse/coldlight/index.css";
 import { expect, test, vi } from "vitest";
 import { render } from "vitest-browser-svelte";
-import type { Outcome, RoomChatCopy } from "$lib/sys/generated/bindings.js";
+import type { Outcome, RoomChatCopy } from "#lib/sys/generated/bindings.js";
 import RoomOutcome from "./RoomOutcome.svelte";
 
 const copy = {
@@ -47,7 +47,7 @@ const outcome = (change: Partial<Outcome>): Outcome => ({
 const placeLabel = (place: string) => `Label of ${place}`;
 
 test("a pick says who, by the name you know them by, and why", async () => {
-	const screen = render(RoomOutcome, { copy, outcome: outcome({ pick }), placeLabel });
+	const screen = await render(RoomOutcome, { copy, outcome: outcome({ pick }), placeLabel });
 	await expect.element(screen.getByText("Finished after 1 rounds.")).toBeVisible();
 	await expect.element(screen.getByText("Picked: Label of answerer-1")).toBeVisible();
 	await expect.element(screen.getByText("Next best: B")).toBeVisible();
@@ -57,9 +57,9 @@ test("a pick says who, by the name you know them by, and why", async () => {
 
 test("no pick says why, and a tie says so", async () => {
 	const none = { ...pick, winner: null, winnerPlace: null, problem: "no candidate answered" };
-	const first = render(RoomOutcome, { copy, outcome: outcome({ pick: none }), placeLabel });
+	const first = await render(RoomOutcome, { copy, outcome: outcome({ pick: none }), placeLabel });
 	await expect.element(first.getByText("Nothing was picked: no candidate answered")).toBeVisible();
-	const second = render(RoomOutcome, {
+	const second = await render(RoomOutcome, {
 		copy,
 		outcome: outcome({ pick: { ...pick, tie: true } }),
 		placeLabel,
@@ -68,7 +68,7 @@ test("no pick says why, and a tie says so", async () => {
 });
 
 test("it says why a room stopped early", async () => {
-	const stable = render(RoomOutcome, {
+	const stable = await render(RoomOutcome, {
 		copy,
 		outcome: outcome({ stopped: "stable", rounds: 2 }),
 		placeLabel,
@@ -80,12 +80,12 @@ test("it says why a room stopped early", async () => {
 
 test("a route says where it went, and a Council can be opened", async () => {
 	const route = { place: "hardware-1", rationale: "It fits", escalate: false, problem: null };
-	const routed = render(RoomOutcome, { copy, outcome: outcome({ route }), placeLabel });
+	const routed = await render(RoomOutcome, { copy, outcome: outcome({ route }), placeLabel });
 	await expect.element(routed.getByText("Sent to Label of hardware-1")).toBeVisible();
 	await expect.element(routed.getByText("It fits")).toBeVisible();
 
 	const onOpenCouncil = vi.fn();
-	const escalated = render(RoomOutcome, {
+	const escalated = await render(RoomOutcome, {
 		copy,
 		outcome: outcome({ route: { ...route, place: null, escalate: true } }),
 		placeLabel,

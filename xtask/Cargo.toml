@@ -37,13 +37,11 @@ walkdir = "2.5"
 # transitive dep of dozens of build.rs scripts in the workspace — the explicit
 # entry just lets xtask use the public `windows_registry` module directly.
 #
-# Held below 1.5 for the whole workspace (one `cc` per lockfile): since cc
-# 1.5.0 (rust-lang/cc-rs#1930) MSVC C++ sources get a separate `-Tp` argument,
-# which sccache does not recognise — it appends `/WX-` after it and cl.exe
-# reads that as a source file (C1083). Upstream: mozilla/sccache#2062 (open
-# as of 2026-10-12). 1.4.7 is the floor `aegis` (via turso) requires. Lift
-# this when sccache handles `-Tp`.
-cc = "~1.4.7"
+# 1.11.0 is the floor: older releases since 1.5.0 pass MSVC C++ sources as a
+# separate `-Tp` argument, which sccache before 0.19 turns into C1083. From
+# 1.11.0 (rust-lang/cc-rs#2063) it is one `-Tp<path>` argument: sccache 0.19
+# caches it and older sccache compiles it uncached.
+cc = "1.11.0"
 # OS keyring read for the auto-updater signing key. Matches the canonical
 # `devpulse:*` keyring entry pattern used by the desktop tier's cloud /
 # credential modules. The release-publish task pulls the Ed25519 private
@@ -55,6 +53,8 @@ keyring = { workspace = true }
 [dev-dependencies]
 # Tempdir fixtures for smoke.rs boot-log parsing tests.
 tempfile = "3"
+# Asks keyring which store it selected, without touching any secret.
+keyring-core = { workspace = true }
 
 [target.'cfg(windows)'.dependencies]
 windows-sys = { workspace = true, features = [

@@ -1,9 +1,10 @@
 {
-	"$schema": "https://biomejs.dev/schemas/2.4.0/schema.json",
+	"root": false,
+	"$schema": "https://biomejs.dev/schemas/2.6.5/schema.json",
 	"extends": "//",
 	"overrides": [
 		{
-			"includes": ["**/coldlight/builders/**/*.ts", "**/coldlight/builders/**/*.svelte.ts"],
+			"includes": ["builders/**/*.ts", "builders/**/*.svelte.ts"],
 			"linter": {
 				"rules": {
 					"style": {
@@ -27,17 +28,10 @@
 			}
 		},
 		{
-			"includes": [
-				"**/coldlight/styles/**",
-				"**/coldlight/css/**",
-				"**/coldlight/theme/**",
-				"**/coldlight/generated/**",
-				"**/coldlight/svg/**",
-				"**/coldlight/plugins/**"
-			],
+			"includes": ["styles/**", "css/**", "theme/**", "generated/**", "svg/**", "plugins/**"],
 			"linter": {
 				"rules": {
-					"nursery": {
+					"style": {
 						"noHexColors": "off"
 					}
 				}
@@ -46,17 +40,17 @@
 	],
 	"files": {
 		"includes": [
-			"!**/coldlight/.cowlevel",
-			"!**/coldlight/style",
-			"!**/coldlight/styles",
-			"!**/coldlight/css",
-			"!**/coldlight/theme",
-			"!**/coldlight/generated",
-			"!**/coldlight/svg",
-			"!**/coldlight/plugins",
-			"!**/coldlight/primitives/_archive",
-			"!**/coldlight/primitives/tanstack/flex-render.svelte",
-			"!**/coldlight/taxonomy/.generated/coldlight.manifest.json"
+			"!.cowlevel",
+			"!style",
+			"!styles",
+			"!css",
+			"!theme",
+			"!generated",
+			"!svg",
+			"!plugins",
+			"!primitives/_archive",
+			"!primitives/tanstack/flex-render.svelte",
+			"!taxonomy/.generated/coldlight.manifest.json"
 		]
 	}
 }

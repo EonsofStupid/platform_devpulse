@@ -5,8 +5,8 @@
 import { Button } from "@devpulse/coldlight/components/button";
 import { ChatFooter } from "@devpulse/coldlight/components/chat-footer";
 import { Text } from "@devpulse/coldlight/components/text";
-import { copyState } from "$lib/sys/copy/index.js";
-import type { Suggestion } from "$lib/sys/generated/bindings.js";
+import { copyState } from "#lib/sys/copy/index.js";
+import type { Suggestion } from "#lib/sys/generated/bindings.js";
 import { agentsState } from "../data-access/agents.state.svelte.js";
 import { chatState } from "../data-access/chat.state.svelte.js";
 import { roomsState } from "../data-access/rooms.state.svelte.js";

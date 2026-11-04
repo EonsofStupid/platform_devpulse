@@ -24,7 +24,7 @@
 
 	```svelte
 	<script lang="ts">
-import { ServiceDevtoolShell } from "$lib/devtools/_shared/index.js";
+import { ServiceDevtoolShell } from "#lib/devtools/_shared/index.js";
 </script>
 
 	<ServiceDevtoolShell
@@ -64,9 +64,9 @@ import { ServiceDevtoolShell } from "$lib/devtools/_shared/index.js";
 	import { Text } from "@devpulse/coldlight/components/text";
 	import { type Snippet, untrack } from "svelte";
 	import { ArrowLeft, Check, Copy, Download } from "lucide-svelte";
+	import { KnowledgeTerm } from "#lib/domains/app/knowledge/index.js";
+	import { hrefOf, routeCopy } from "#lib/sys/routing/index.js";
 	import { page } from "$app/state";
-	import { KnowledgeTerm } from "$lib/domains/app/knowledge/index.js";
-	import { hrefOf, routeCopy } from "$lib/sys/routing/index.js";
 	import { devtoolNav, devtoolPlace } from "../devtool-manifest.js";
 	import {
 			accentToBackdropPalette,

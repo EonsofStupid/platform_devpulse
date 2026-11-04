@@ -8,7 +8,7 @@
  * `invoke()` directly.
  */
 
-import { logInfo } from "$lib/sys/logger.js";
+import { logInfo } from "#lib/sys/logger.js";
 import type { CommunityStatus, FeedItem, FeedKind, SyncResult } from "../util/index.js";
 import {
 	fetchCommunityStatus,

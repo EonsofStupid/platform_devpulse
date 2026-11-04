@@ -3,7 +3,7 @@
  * @module @devpulse/domains/app/onboarding/ui/repo-list
  */
 
-import type { FoundRepo, RegisterResult } from "$lib/sys/bindings/onboarding/index.js";
+import type { FoundRepo, RegisterResult } from "#lib/sys/bindings/onboarding/index.js";
 
 /** Text for the list (from the copy catalog). */
 export interface RepoListText {

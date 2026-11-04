@@ -24,8 +24,8 @@ import {
 	type HealthBadge,
 	ScopedLogPanel,
 	ServiceDevtoolShell,
-} from "$lib/devtools/index.js";
-import { rroState } from "$lib/sys/data-access/rro/rro.state.svelte.js";
+} from "#lib/devtools/index.js";
+import { rroState } from "#lib/sys/data-access/rro/rro.state.svelte.js";
 import { captureForTab } from "../util/rro.capture.js";
 import CollectionsPanel from "./panels/CollectionsPanel.svelte";
 import EncoderPanel from "./panels/EncoderPanel.svelte";

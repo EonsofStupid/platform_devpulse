@@ -3,8 +3,8 @@
  * @module @devpulse/domains/app/models/data-access/model-loader-panel-state
  */
 
-import { commands } from "$lib/sys/generated/bindings.js";
-import { logError, logWarn } from "$lib/sys/logger.js";
+import { commands } from "#lib/sys/generated/bindings.js";
+import { logError, logWarn } from "#lib/sys/logger.js";
 import { competencyTracker } from "./competency.service.js";
 import { downloadModel, importLocalModel } from "./download.service.js";
 import { hardwareState } from "./hardware.state.svelte.js";

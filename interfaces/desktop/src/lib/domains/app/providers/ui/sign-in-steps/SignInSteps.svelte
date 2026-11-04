@@ -18,8 +18,8 @@ import { Heading } from "@devpulse/coldlight/components/heading";
 import { Spinner } from "@devpulse/coldlight/components/spinner";
 import { StatusDot } from "@devpulse/coldlight/components/status-dot";
 import { Text } from "@devpulse/coldlight/components/text";
-import type { YourAiCopy } from "$lib/sys/bindings/copy/index.js";
-import { fill } from "$lib/sys/copy/index.js";
+import type { YourAiCopy } from "#lib/sys/bindings/copy/index.js";
+import { fill } from "#lib/sys/copy/index.js";
 
 interface Props {
 	copy: YourAiCopy;

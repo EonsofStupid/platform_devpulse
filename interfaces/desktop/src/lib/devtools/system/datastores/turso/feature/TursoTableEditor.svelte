@@ -25,7 +25,7 @@ import {
 	PAGE_SIZE,
 	type Row,
 	tursoState,
-} from "$lib/domains/infra/turso/index.js";
+} from "#lib/domains/infra/turso/index.js";
 import TursoRowForm from "./TursoRowForm.svelte";
 
 /** The row open in the sheet: an existing row, or `null` for a new one. */

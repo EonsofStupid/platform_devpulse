@@ -24,9 +24,9 @@ import { Spinner } from "@devpulse/coldlight/components/spinner";
 import { StatusDot } from "@devpulse/coldlight/components/status-dot";
 import { Text } from "@devpulse/coldlight/components/text";
 import { untrack } from "svelte";
-import type { ContainersCopy } from "$lib/sys/bindings/copy/index.js";
-import { fill } from "$lib/sys/copy/index.js";
-import type { EngineReport, Point, Step, StepKind, Usage } from "$lib/sys/generated/bindings.js";
+import type { ContainersCopy } from "#lib/sys/bindings/copy/index.js";
+import { fill } from "#lib/sys/copy/index.js";
+import type { EngineReport, Point, Step, StepKind, Usage } from "#lib/sys/generated/bindings.js";
 import { containersState } from "../data-access/containers.state.svelte.js";
 
 let { copy }: { copy: ContainersCopy } = $props();

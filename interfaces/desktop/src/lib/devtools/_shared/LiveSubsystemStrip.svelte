@@ -25,11 +25,11 @@ import {
 	type SubsystemVerb,
 } from "@devpulse/coldlight/blocks/devtools";
 import { onMount } from "svelte";
+import { isInferenceReady, modelsState } from "#lib/domains/app/models/index.js";
+import { rroState } from "#lib/sys/data-access/rro/rro.state.svelte.js";
+import { hrefOf, type RouteNode, routeAt, routeCopy } from "#lib/sys/routing/index.js";
 import { goto } from "$app/navigation";
 import { resolve } from "$app/paths";
-import { isInferenceReady, modelsState } from "$lib/domains/app/models/index.js";
-import { rroState } from "$lib/sys/data-access/rro/rro.state.svelte.js";
-import { hrefOf, type RouteNode, routeAt, routeCopy } from "$lib/sys/routing/index.js";
 import { devtoolNav } from "../devtool-manifest.js";
 
 onMount(() => {
@@ -202,7 +202,7 @@ function slotVerbs(slotId: string): SubsystemVerb[] {
 				ariaLabel: `Open the model downloader for ${slotId}`,
 				tone: "primary",
 				onclick: () => {
-					void goto(resolve("/devtools/runtimes/orchestrator/slots"));
+					void goto(resolve("devtools/runtimes/orchestrator/slots"));
 				},
 			},
 		];

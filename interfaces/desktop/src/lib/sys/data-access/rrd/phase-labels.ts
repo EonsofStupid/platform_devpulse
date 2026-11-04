@@ -27,7 +27,7 @@
  * `inferTone` mapping moves into the codegen.
  */
 
-import { TERMS, type Term } from "$lib/sys/generated/terminology.js";
+import { TERMS, type Term } from "#lib/sys/generated/terminology.js";
 
 export type PhaseTone = "positive" | "negative" | "informative" | "neutral";
 

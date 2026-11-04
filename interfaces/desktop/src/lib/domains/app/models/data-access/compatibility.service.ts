@@ -13,7 +13,7 @@
  *   advisory notes) or an `Unsupported` result carrying a typed
  *   reason and the alternatives list ordered by tier.
  *
- * Types come from `$lib/sys/generated/bindings.js` — specta is the
+ * Types come from `#lib/sys/generated/bindings.js` — specta is the
  * single source of truth, no hand-authored stubs, no drift. When the
  * kernel registry gains a new architecture or backend, the regen
  * flows through automatically and any breaking change surfaces as a
@@ -27,9 +27,9 @@ import type {
 	BackendMatrix,
 	ModelFormat,
 	Resolution,
-} from "$lib/sys/generated/bindings.js";
-import { commands } from "$lib/sys/generated/bindings.js";
-import { logError, logInfo } from "$lib/sys/logger.js";
+} from "#lib/sys/generated/bindings.js";
+import { commands } from "#lib/sys/generated/bindings.js";
+import { logError, logInfo } from "#lib/sys/logger.js";
 
 export type {
 	Alternative,
@@ -46,7 +46,7 @@ export type {
 	SupportStatus,
 	SupportTier,
 	UnsupportedReason,
-} from "$lib/sys/generated/bindings.js";
+} from "#lib/sys/generated/bindings.js";
 
 /** Unwrap a specta Result or throw with a clear prefix. */
 function unwrap<T>(

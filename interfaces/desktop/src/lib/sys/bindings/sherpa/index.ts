@@ -3,7 +3,7 @@
  * @description Sherpa-onnx STT runtime — sessions + model management.
  */
 
-import { commands } from "$lib/sys/generated/bindings.js";
+import { commands } from "#lib/sys/generated/bindings.js";
 
 export const sherpaCompileInfo = commands.sherpaCompileInfo;
 export const sherpaListModels = commands.sherpaListModels;
@@ -19,4 +19,4 @@ export type {
 	SherpaCompileInfo,
 	SherpaInstalledModel,
 	SherpaSessionInfo,
-} from "$lib/sys/generated/bindings.js";
+} from "#lib/sys/generated/bindings.js";

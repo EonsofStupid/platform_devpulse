@@ -4,7 +4,7 @@
  * What the seating screen offers, and what it hands the kernel.
  */
 import { describe, expect, test } from "vitest";
-import type { Persona, RoleCard, RoomChatCopy, RoomSpec } from "$lib/sys/generated/bindings.js";
+import type { Persona, RoleCard, RoomChatCopy, RoomSpec } from "#lib/sys/generated/bindings.js";
 import {
 	costar,
 	draftPlaces,

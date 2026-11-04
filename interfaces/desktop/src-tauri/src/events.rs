@@ -43,7 +43,7 @@ use tauri_specta::Event;
 ///
 /// The desktop shell subscribes to the engine's `SignalRouter` once and
 /// re-emits every signal whose variant routes to `SinkKind::Broadcast`.
-/// The frontend signal fabric (`$lib/sys/events/signal-fabric.svelte.ts`)
+/// The frontend signal fabric (`#lib/sys/events/signal-fabric.svelte.ts`)
 /// is the single listener and dispatches on `signal.payload.type`.
 #[derive(Debug, Clone, Serialize, Deserialize, Type, Event)]
 pub struct SignalBroadcast {

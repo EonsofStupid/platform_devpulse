@@ -594,9 +594,12 @@ StyleDictionary.registerTransform({
 			if (!Number.isNaN(px)) return `${px / 16}rem`;
 		}
 
-		// Bare number → assume px, convert to rem
-		const num = parseFloat(val);
-		if (!Number.isNaN(num) && num !== 0) return `${num / 16}rem`;
+		// Bare number → assume px, convert to rem. Any other unit (em, %, vh) is
+		// already final: Style Dictionary 5.8 hands composite leaves here as `0.02em`.
+		if (/^-?[\d.]+$/.test(val)) {
+			const num = parseFloat(val);
+			if (num !== 0) return `${num / 16}rem`;
+		}
 
 		// Fallback — return as-is
 		return val;

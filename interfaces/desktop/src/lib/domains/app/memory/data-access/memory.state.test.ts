@@ -5,7 +5,7 @@
  * a refused write must be visible.
  */
 import { beforeEach, expect, test, vi } from "vitest";
-import type { MemoryNote } from "$lib/sys/generated/bindings.js";
+import type { MemoryNote } from "#lib/sys/generated/bindings.js";
 
 const mocks = vi.hoisted(() => ({
 	notes: vi.fn(),

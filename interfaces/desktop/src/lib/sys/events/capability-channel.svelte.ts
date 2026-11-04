@@ -30,7 +30,7 @@
  * @example
  * ```svelte
  * <script lang="ts">
- *   import { capabilityChannel } from "$lib/sys/events";
+ *   import { capabilityChannel } from "#lib/sys/events/index.js";
  *   const tts = capabilityChannel("voice.tts");
  * </script>
  * {#if tts.stage === "loading"}
@@ -44,8 +44,8 @@
  */
 
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
-import type { RuntimeFingerprint } from "$lib/sys/generated/bindings.js";
-import { commands } from "$lib/sys/generated/bindings.js";
+import type { RuntimeFingerprint } from "#lib/sys/generated/bindings.js";
+import { commands } from "#lib/sys/generated/bindings.js";
 
 /**
  * Why a capability rebind happened.

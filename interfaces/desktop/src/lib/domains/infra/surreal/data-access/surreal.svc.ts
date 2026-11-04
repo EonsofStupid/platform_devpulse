@@ -6,8 +6,8 @@
  * Each function throws on error — callers decide how to handle.
  */
 
-import { commands } from "$lib/sys/generated/bindings.js";
-import { logError, logInfo } from "$lib/sys/logger.js";
+import { commands } from "#lib/sys/generated/bindings.js";
+import { logError, logInfo } from "#lib/sys/logger.js";
 import type {
 	GraphHealthAll,
 	GraphKvEntry,

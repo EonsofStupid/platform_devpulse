@@ -12,7 +12,7 @@ import type {
 	OllamaHealth,
 	OllamaModel,
 	OllamaStatus,
-} from "$lib/sys/bindings/ollama/index.js";
+} from "#lib/sys/bindings/ollama/index.js";
 import {
 	ollamaConfig,
 	ollamaDeleteModel,

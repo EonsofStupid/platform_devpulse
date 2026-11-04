@@ -13,18 +13,16 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use agent_client_protocol::schema::ProtocolVersion;
-use agent_client_protocol::schema::v1::{
+use agent_client_protocol::util::MatchDispatch;
+use agent_client_protocol::v1::schema::{
     CancelNotification, ContentBlock, ContentChunk, EnvVariable, Implementation, InitializeRequest,
     LoadSessionRequest, McpServer, McpServerStdio, NewSessionRequest, PermissionOptionKind,
     RequestPermissionOutcome, RequestPermissionRequest, RequestPermissionResponse,
     ResumeSessionRequest, SelectedPermissionOutcome, SessionId, SessionNotification, SessionUpdate,
     StopReason, ToolCallStatus,
 };
-use agent_client_protocol::util::MatchDispatch;
-use agent_client_protocol::{
-    AcpAgent, AcpAgentConfig, ActiveSession, Agent, Client, ConnectionTo, Dispatch, ErrorCode,
-    SessionMessage,
-};
+use agent_client_protocol::v1::{ActiveSession, ConnectionTo, Dispatch, SessionMessage};
+use agent_client_protocol::{AcpAgent, AcpAgentConfig, Agent, Client, ErrorCode};
 use anyhow::{Result, anyhow, bail};
 use futures::FutureExt;
 use tokio::sync::{Mutex, mpsc, oneshot};
@@ -271,7 +269,7 @@ fn response_for(
 }
 
 async fn forward(dispatch: Dispatch, events: &mpsc::UnboundedSender<AgentEvent>) {
-    let handled = MatchDispatch::new(dispatch)
+    let handled = MatchDispatch::new(dispatch.into_raw())
         .if_notification(async |notification: SessionNotification| {
             if let Some(event) = event_for(notification.update) {
                 let _ = events.send(event);
@@ -282,6 +280,15 @@ async fn forward(dispatch: Dispatch, events: &mpsc::UnboundedSender<AgentEvent>)
         .otherwise_ignore();
     if let Err(e) = handled {
         tracing::debug!(target: "providers", error = %e, "an agent update was not understood");
+    }
+}
+
+/// What a protocol error says to you: a login the agent wants is named as one.
+fn failure_message(error: &agent_client_protocol::Error) -> String {
+    if error.code == ErrorCode::AUTH_REQUIRED {
+        format!("Sign in first — the agent says: {error}")
+    } else {
+        error.to_string()
     }
 }
 
@@ -304,9 +311,16 @@ async fn run_turn(
     loop {
         tokio::select! {
             update = session.read_update() => match update {
-                Ok(SessionMessage::SessionMessage(dispatch)) => forward(dispatch, events).await,
-                Ok(SessionMessage::StopReason(stop)) => {
-                    let _ = events.send(AgentEvent::TurnEnded { stop: stop_word(stop) });
+                Ok(SessionMessage::Message(dispatch)) => forward(dispatch, events).await,
+                Ok(SessionMessage::PromptResponse(Ok(response))) => {
+                    let _ = events.send(AgentEvent::TurnEnded {
+                        stop: stop_word(response.stop_reason),
+                    });
+                    return false;
+                }
+                // The agent refused this turn; the session stays open for the next.
+                Ok(SessionMessage::PromptResponse(Err(e))) => {
+                    let _ = events.send(AgentEvent::Failed { message: failure_message(&e) });
                     return false;
                 }
                 Ok(_) => {}
@@ -350,7 +364,7 @@ async fn run(
     let handler_shared = Arc::clone(&shared);
     let session_shared = Arc::clone(&shared);
     let outcome = Client
-        .builder()
+        .v1()
         .on_receive_request(
             async move |request: RequestPermissionRequest,
                         responder,
@@ -403,11 +417,7 @@ async fn run(
         })
         .await;
     if let Err(e) = outcome {
-        let message = if e.code == ErrorCode::AuthRequired {
-            format!("Sign in first — the agent says: {e}")
-        } else {
-            e.to_string()
-        };
+        let message = failure_message(&e);
         tell_ready(&shared, Err(message.clone())).await;
         if let Some(turn) = shared.turn.lock().await.take() {
             let _ = turn.send(AgentEvent::Failed { message });
@@ -449,11 +459,12 @@ async fn open_session(
         .block_task()
         .await?;
     let Some(id) = resume else {
-        return connection
+        return Ok(connection
             .build_session_from(NewSessionRequest::new(cwd).mcp_servers(servers))
             .block_task()
             .start_session()
-            .await;
+            .await?
+            .session);
     };
     let capabilities = initialized.agent_capabilities;
     if capabilities.session_capabilities.resume.is_some() {
@@ -462,7 +473,7 @@ async fn open_session(
             .block_task()
             .start_session()
             .await?
-            .into_session());
+            .session);
     }
     if !capabilities.load_session {
         return Err(agent_client_protocol::Error::invalid_request()
@@ -473,7 +484,7 @@ async fn open_session(
         .block_task()
         .start_session()
         .await?
-        .into_session();
+        .session;
     // ACP requires load replay before its response. The SDK processes that
     // response in order, so all replay is already queued here. Poll only
     // ready updates, without a timeout that could eat the next live turn.
@@ -495,7 +506,7 @@ mod lifecycle_tests;
 mod tests {
     #![allow(clippy::expect_used, clippy::unwrap_used, reason = "test assertions")]
 
-    use agent_client_protocol::schema::v1::{
+    use agent_client_protocol::v1::schema::{
         PermissionOption, TextContent, ToolCall, ToolCallUpdate, ToolCallUpdateFields,
     };
 

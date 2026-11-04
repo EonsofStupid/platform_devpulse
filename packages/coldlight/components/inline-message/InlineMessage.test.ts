@@ -21,13 +21,13 @@ import InlineMessage from "./InlineMessage.svelte";
 
 describe("inline-message component — ARIA", () => {
 	test("has role='status'", async () => {
-		const { getByRole } = render(InlineMessage);
+		const { getByRole } = await render(InlineMessage);
 		const el = getByRole("status");
 		expect(el).toBeTruthy();
 	});
 
 	test("has aria-live='polite'", async () => {
-		const { getByRole } = render(InlineMessage);
+		const { getByRole } = await render(InlineMessage);
 		const el = getByRole("status");
 		await expect.element(el).toHaveAttribute("aria-live", "polite");
 	});
@@ -39,19 +39,19 @@ describe("inline-message component — ARIA", () => {
 
 describe("inline-message component — data-state", () => {
 	test("data-state is 'info' by default", async () => {
-		const { getByRole } = render(InlineMessage);
+		const { getByRole } = await render(InlineMessage);
 		const el = getByRole("status");
 		await expect.element(el).toHaveAttribute("data-state", "info");
 	});
 
 	test("data-state is 'error' when tone is error", async () => {
-		const { getByRole } = render(InlineMessage, { props: { tone: "error" } });
+		const { getByRole } = await render(InlineMessage, { props: { tone: "error" } });
 		const el = getByRole("status");
 		await expect.element(el).toHaveAttribute("data-state", "error");
 	});
 
 	test("data-state is 'help' when tone is help", async () => {
-		const { getByRole } = render(InlineMessage, { props: { tone: "help" } });
+		const { getByRole } = await render(InlineMessage, { props: { tone: "help" } });
 		const el = getByRole("status");
 		await expect.element(el).toHaveAttribute("data-state", "help");
 	});
@@ -63,13 +63,13 @@ describe("inline-message component — data-state", () => {
 
 describe("inline-message component — composition", () => {
 	test("applies composition base classes", async () => {
-		const { getByRole } = render(InlineMessage);
+		const { getByRole } = await render(InlineMessage);
 		const el = getByRole("status");
 		await expect.element(el).toHaveClass("inline-flex");
 	});
 
 	test("merges custom class prop", async () => {
-		const { getByRole } = render(InlineMessage, { props: { class: "my-custom" } });
+		const { getByRole } = await render(InlineMessage, { props: { class: "my-custom" } });
 		const el = getByRole("status");
 		await expect.element(el).toHaveClass("my-custom");
 	});

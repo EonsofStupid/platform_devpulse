@@ -1,5 +1,5 @@
 <script lang="ts">
-import { ChatShell } from "$lib/layouts/chat";
+import { ChatShell } from "#lib/layouts/chat/index.js";
 
 let { children } = $props();
 </script>

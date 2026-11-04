@@ -5,10 +5,10 @@
  * All vector-store IPC lives here. Each function:
  *  - throws on error (callers decide how to handle)
  *  - is named after the operation, not the Tauri command
- *  - composes with withAction() + withRetry() from $lib/sys
+ *  - composes with withAction() + withRetry() from #lib/sys
  *  - emits traces via rro.trace
  *
- * NEVER import feature/ or ui/. NEVER reach into $lib/domains/*.
+ * NEVER import feature/ or ui/. NEVER reach into #lib/domains/*.
  */
 
 import type {
@@ -16,9 +16,9 @@ import type {
 	RetrievalParamMeta,
 	VectorHealthReport,
 	VectorSearchResult,
-} from "$lib/devtools/clyffy/reasoning/rro/util/rro.types.js";
-import { commands } from "$lib/sys/generated/bindings.js";
-import { withRetry } from "$lib/sys/retry.js";
+} from "#lib/devtools/clyffy/reasoning/rro/util/rro.types.js";
+import { commands } from "#lib/sys/generated/bindings.js";
+import { withRetry } from "#lib/sys/retry.js";
 import { trace } from "./rro.trace.js";
 
 // ── Config ──────────────────────────────────────────────────

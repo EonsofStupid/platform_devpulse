@@ -605,12 +605,15 @@ mod merge_tests {
 
     #[test]
     fn vcvars_can_add_to_your_path_and_cannot_lose_it() {
-        let join = |dirs: &[&str]| std::env::join_paths(dirs).unwrap();
+        let join = |dirs: &[&str]| std::env::join_paths(dirs).expect("test paths join");
         let dirs = keep_inherited_path(
             &join(&["msvc", "C:/Node", "system"]),
             &join(&["c:/node", "mine", "system"]),
         );
-        let names: Vec<_> = dirs.iter().map(|dir| dir.to_str().unwrap()).collect();
+        let names: Vec<_> = dirs
+            .iter()
+            .map(|dir| dir.to_str().expect("test paths are text"))
+            .collect();
         assert_eq!(names, ["msvc", "C:/Node", "system", "mine"]);
     }
 
@@ -2022,7 +2025,7 @@ fn apply_cc_rs_fallback(target: &str) -> bool {
         "  [env] MSVC cl.exe = {} (resolved via cc::windows_registry, target {target})",
         cl_path.display()
     );
-    for (key, value) in tool.env() {
+    for (key, value) in tool.get_envs() {
         let key_str = key.to_string_lossy();
         if key_str.eq_ignore_ascii_case("PATH") {
             let entries = value

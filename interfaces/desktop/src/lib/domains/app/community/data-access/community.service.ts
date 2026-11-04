@@ -8,7 +8,7 @@
  */
 
 import { invoke } from "@tauri-apps/api/core";
-import { logError, logInfo } from "$lib/sys/logger.js";
+import { logError, logInfo } from "#lib/sys/logger.js";
 import type { CommunityStatus, FeedItem, FeedKind, SyncResult } from "../util/index.js";
 
 /** Read recent feed items from the local cache. */

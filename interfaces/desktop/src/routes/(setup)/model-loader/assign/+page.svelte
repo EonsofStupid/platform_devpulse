@@ -8,9 +8,9 @@
   Loader, where the voice settings live.
 -->
 <script lang="ts">
+import { ModelLoaderStep, modelsState } from "#lib/domains/app/models/index.js";
+import { hrefOf, routeAt } from "#lib/sys/routing/index.js";
 import { goto } from "$app/navigation";
-import { ModelLoaderStep, modelsState } from "$lib/domains/app/models/index.js";
-import { hrefOf, routeAt } from "$lib/sys/routing/index.js";
 
 const models = routeAt("/model-loader/models");
 const activate = routeAt("/model-loader/activate");

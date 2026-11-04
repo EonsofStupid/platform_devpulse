@@ -3,7 +3,7 @@
  * @module @devpulse/domains/app/models/data-access/brain-card-state
  */
 
-import type { CatalogOption, ModelInfo } from "$lib/sys/generated/bindings.js";
+import type { CatalogOption, ModelInfo } from "#lib/sys/generated/bindings.js";
 import { getCatalogForSlot } from "./catalog.service.js";
 import { cancelDownload, downloadModel, onDownloadProgress } from "./download.service.js";
 import { modelsState } from "./models.state.svelte.js";

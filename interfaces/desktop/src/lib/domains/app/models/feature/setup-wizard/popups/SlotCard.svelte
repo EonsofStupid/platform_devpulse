@@ -10,7 +10,7 @@ import { Button } from "@devpulse/coldlight/components/button";
 import { Spinner } from "@devpulse/coldlight/components/spinner";
 import { Text } from "@devpulse/coldlight/components/text";
 import { Check, FolderSearch, Search, X } from "lucide-svelte";
-import { copyState } from "$lib/sys/copy/index.js";
+import { copyState } from "#lib/sys/copy/index.js";
 import { hardwareState } from "../../../data-access/hardware.state.svelte.js";
 import { modelsState } from "../../../data-access/models.state.svelte.js";
 import type { ModelInfo, SlotInfo } from "../../../util/models.types.js";

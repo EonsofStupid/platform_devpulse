@@ -6,8 +6,8 @@
  * @module @devpulse/domains/app/onboarding/data-access/onboarding.service
  */
 
-import type { CommandError, Result } from "$lib/sys/bindings/_shared/index.js";
-import { pickDirectory } from "$lib/sys/bindings/models/index.js";
+import type { CommandError, Result } from "#lib/sys/bindings/_shared/index.js";
+import { pickDirectory } from "#lib/sys/bindings/models/index.js";
 import {
 	type FormOutcome,
 	type FormView,
@@ -22,8 +22,8 @@ import {
 	onboardingYouForm,
 	onboardingYouSubmit,
 	type RegisterResult,
-} from "$lib/sys/bindings/onboarding/index.js";
-import { logError } from "$lib/sys/logger.js";
+} from "#lib/sys/bindings/onboarding/index.js";
+import { logError } from "#lib/sys/logger.js";
 import type { OnboardingState } from "../util/onboarding.types.js";
 
 /**

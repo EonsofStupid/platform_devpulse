@@ -234,7 +234,7 @@ impl SherpaStreamingService {
             config.enable_endpoint = true;
             config.decoding_method = Some("greedy_search".into());
             let r = sherpa_onnx::OnlineRecognizer::create(&config)
-                .map_err(|e| anyhow!("OnlineRecognizer::create failed: {e}"))?;
+                .ok_or_else(|| anyhow!("sherpa could not create a recognizer for {model_id}"))?;
             let arc = std::sync::Arc::new(r);
             inner
                 .recognizers
@@ -292,7 +292,7 @@ impl SherpaStreamingService {
         let result = session
             .recognizer
             .get_result(&session.stream)
-            .map_err(|e| anyhow!("get_result failed: {e}"))?;
+            .ok_or_else(|| anyhow!("sherpa gave no result for session {session_id}"))?;
         session.text = result.text.clone();
         Ok(session.text.clone())
     }
@@ -327,7 +327,7 @@ impl SherpaStreamingService {
         let result = session
             .recognizer
             .get_result(&session.stream)
-            .map_err(|e| anyhow!("get_result failed: {e}"))?;
+            .ok_or_else(|| anyhow!("sherpa gave no result for session {session_id}"))?;
         session.text = result.text.clone();
         Ok(session.text.clone())
     }

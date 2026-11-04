@@ -26,9 +26,9 @@ import { Heading } from "@devpulse/coldlight/components/heading";
 import { Spinner } from "@devpulse/coldlight/components/spinner";
 import { Text } from "@devpulse/coldlight/components/text";
 import { CheckCircle, Mic, PlayCircle, Trash2, Upload, Volume2 } from "lucide-svelte";
-import { withAction } from "$lib/sys/action-bus.svelte.js";
-import { commands, type VoiceInfo } from "$lib/sys/generated/bindings.js";
-import { logError, logInfo } from "$lib/sys/logger.js";
+import { withAction } from "#lib/sys/action-bus.svelte.js";
+import { commands, type VoiceInfo } from "#lib/sys/generated/bindings.js";
+import { logError, logInfo } from "#lib/sys/logger.js";
 
 const LOG_TARGET = "wizard.voice-lab";
 const TTS_SLOT = "voice.tts";

@@ -4,8 +4,8 @@ import { render } from "vitest-browser-svelte";
 import ChatAgentPicker from "./ChatAgentPicker.svelte";
 
 const start = vi.hoisted(() => vi.fn().mockResolvedValue(null));
-vi.mock("$lib/domains/app/projects/index.js", () => ({ projectsState: { activeProjectId: "p" } }));
-vi.mock("$lib/domains/app/providers/index.js", () => ({
+vi.mock("#lib/domains/app/projects/index.js", () => ({ projectsState: { activeProjectId: "p" } }));
+vi.mock("#lib/domains/app/providers/index.js", () => ({
 	providersState: {
 		start: () => () => {},
 		current: {
@@ -38,7 +38,7 @@ vi.mock("$lib/domains/app/providers/index.js", () => ({
 		},
 	},
 }));
-vi.mock("$lib/sys/copy/index.js", () => ({
+vi.mock("#lib/sys/copy/index.js", () => ({
 	copyState: {
 		catalog: {
 			chat: { agents: { new_thread: "New thread", none_ready: "No agent ready" } },
@@ -60,7 +60,7 @@ vi.mock("../data-access/chat.state.svelte.js", () => ({ chatState: {} }));
 vi.mock("../data-access/sessions.state.svelte.js", () => ({ sessionsState: {} }));
 
 it("blocks missing prerequisites and selects only the kernel-approved provider", async () => {
-	const view = render(ChatAgentPicker);
+	const view = await render(ChatAgentPicker);
 	await view.getByRole("combobox").click();
 	await expect
 		.element(view.getByRole("option", { name: "Codex — Install connector" }))

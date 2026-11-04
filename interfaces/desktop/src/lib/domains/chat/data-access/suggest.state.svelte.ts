@@ -4,9 +4,9 @@
  * @module @devpulse/domains/chat/data-access/suggest.state.svelte
  */
 
-import { withAction } from "$lib/sys/action-bus.svelte.js";
-import { commands, type Suggestion } from "$lib/sys/generated/bindings.js";
-import { logError } from "$lib/sys/logger.js";
+import { withAction } from "#lib/sys/action-bus.svelte.js";
+import { commands, type Suggestion } from "#lib/sys/generated/bindings.js";
+import { logError } from "#lib/sys/logger.js";
 
 /**
  * Debounce window between the last keystroke and the embedder call.

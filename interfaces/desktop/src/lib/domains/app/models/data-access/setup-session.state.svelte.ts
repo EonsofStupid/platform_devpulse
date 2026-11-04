@@ -3,7 +3,7 @@
  * @module @devpulse/domains/app/models/data-access/setup-session-state
  */
 
-import { logInfo } from "$lib/sys/logger.js";
+import { logInfo } from "#lib/sys/logger.js";
 import { modelsState } from "./models.state.svelte.js";
 
 class SetupSessionState {

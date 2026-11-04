@@ -26,9 +26,9 @@ import {
 	swapSlotModel as swapSlotModelCmd,
 	unloadSlot as unloadSlotCmd,
 	warmSlot as warmSlotCmd,
-} from "$lib/sys/bindings/models/index.js";
-import { signalFabric } from "$lib/sys/events/signal-fabric.js";
-import type { ModelInfo, SlotInfo } from "$lib/sys/generated/bindings.js";
+} from "#lib/sys/bindings/models/index.js";
+import { signalFabric } from "#lib/sys/events/signal-fabric.js";
+import type { ModelInfo, SlotInfo } from "#lib/sys/generated/bindings.js";
 import type { ModelStatus } from "../util/models.types.js";
 
 class ModelsState {

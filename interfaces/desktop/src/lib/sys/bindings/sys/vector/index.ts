@@ -3,7 +3,7 @@
  * @description Vector store (RRO retrieval) — config, health, collections.
  */
 
-import { commands } from "$lib/sys/generated/bindings.js";
+import { commands } from "#lib/sys/generated/bindings.js";
 
 export const getVectorConfig = commands.getVectorConfig;
 export const setVectorConfig = commands.setVectorConfig;
@@ -19,4 +19,4 @@ export type {
 	RetrievalParamMeta,
 	VectorHealthReport,
 	VectorSearchResult,
-} from "$lib/sys/generated/bindings.js";
+} from "#lib/sys/generated/bindings.js";

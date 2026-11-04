@@ -1,6 +1,6 @@
 /** @file Selected chat and project retain ownership of asynchronous loads. */
 import { beforeEach, expect, it, vi } from "vitest";
-import type { AgentThread, ChatMessage } from "$lib/sys/generated/bindings.js";
+import type { AgentThread, ChatMessage } from "#lib/sys/generated/bindings.js";
 
 const mocks = vi.hoisted(() => ({
 	project: { activeProjectId: "project-a" as string | null },
@@ -8,24 +8,24 @@ const mocks = vi.hoisted(() => ({
 	agentThreads: vi.fn(),
 }));
 
-vi.mock("$lib/domains/app/projects/index.js", () => ({ projectsState: mocks.project }));
-vi.mock("$lib/domains/app/providers/index.js", () => ({ providersState: { current: null } }));
-vi.mock("$lib/domains/app/models/index.js", () => ({
+vi.mock("#lib/domains/app/projects/index.js", () => ({ projectsState: mocks.project }));
+vi.mock("#lib/domains/app/providers/index.js", () => ({ providersState: { current: null } }));
+vi.mock("#lib/domains/app/models/index.js", () => ({
 	generateText: vi.fn(),
 	isInferenceReady: vi.fn(),
 	modelsState: { statuses: {} },
 	onInferenceToken: vi.fn(),
 }));
-vi.mock("$lib/sys/generated/bindings.js", () => ({
+vi.mock("#lib/sys/generated/bindings.js", () => ({
 	commands: { agentThreads: mocks.agentThreads },
 	events: {},
 }));
-vi.mock("$lib/sys/logger.js", async (importOriginal) => ({
-	...(await importOriginal<typeof import("$lib/sys/logger.js")>()),
+vi.mock("#lib/sys/logger.js", async (importOriginal) => ({
+	...(await importOriginal<typeof import("#lib/sys/logger.js")>()),
 	logError: vi.fn(),
 	logInfo: vi.fn(),
 }));
-vi.mock("$lib/sys/runes/global.svelte.js", () => ({ globalState: {} }));
+vi.mock("#lib/sys/runes/global.svelte.js", () => ({ globalState: {} }));
 vi.mock("../util/format.js", () => ({ toBlockMessage: vi.fn() }));
 vi.mock("./chat.service.js", () => ({
 	loadRecent: mocks.loadRecent,

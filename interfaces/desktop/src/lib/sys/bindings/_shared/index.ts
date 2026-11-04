@@ -13,4 +13,4 @@ export type {
 	CommandError,
 	ProviderId,
 	Result,
-} from "$lib/sys/generated/bindings.js";
+} from "#lib/sys/generated/bindings.js";

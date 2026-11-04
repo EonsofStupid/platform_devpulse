@@ -2,7 +2,7 @@ import { expect, it, vi } from "vitest";
 import { userEvent } from "vitest/browser";
 import { render } from "vitest-browser-svelte";
 import "../../../../../app.css";
-import type { FoundSession } from "$lib/sys/generated/bindings.js";
+import type { FoundSession } from "#lib/sys/generated/bindings.js";
 import HistoryRow from "./HistoryRow.svelte";
 
 it("selects an orphan by keyboard and paints selection through generated CSS", async () => {
@@ -21,7 +21,7 @@ it("selects an orphan by keyboard and paints selection through generated CSS", a
 		bytes: 12,
 	};
 	const onSelect = vi.fn();
-	const { container, rerender } = render(HistoryRow, {
+	const { container, rerender } = await render(HistoryRow, {
 		props: { session, providerName: "Codex", selected: false, onSelect },
 	});
 	const button = container.querySelector("button");

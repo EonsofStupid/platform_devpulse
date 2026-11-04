@@ -40,13 +40,13 @@ import {
 	type HealthBadge,
 	ScopedLogPanel,
 	ServiceDevtoolShell,
-} from "$lib/devtools/index.js";
-import { EmptyStatePoster, StoreHeroCard } from "$lib/devtools/system/datastores/_shared/index.js";
+} from "#lib/devtools/index.js";
+import { EmptyStatePoster, StoreHeroCard } from "#lib/devtools/system/datastores/_shared/index.js";
 import {
 	NAMESPACE_OPTIONS,
 	surrealSidecarState as surrealdbSidecar,
 	surrealState,
-} from "$lib/domains/infra/surreal/index.js";
+} from "#lib/domains/infra/surreal/index.js";
 import SurrealdbHero from "./SurrealdbHero.svelte";
 
 // ── Mount ─────────────────────────────────────────────────

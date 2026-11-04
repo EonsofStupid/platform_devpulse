@@ -3,7 +3,7 @@
 	@route /devtools/runtimes/inference/ollama
 -->
 <script lang="ts">
-import { OllamaDevtool } from "$lib/devtools/runtimes/inference/ollama/index.js";
+import { OllamaDevtool } from "#lib/devtools/runtimes/inference/ollama/index.js";
 </script>
 
 <OllamaDevtool />

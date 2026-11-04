@@ -43,7 +43,7 @@
 -->
 <script lang="ts">
 import { onDestroy, onMount } from "svelte";
-import { logError } from "$lib/sys/logger.js";
+import { logError } from "#lib/sys/logger.js";
 import { knowledgeState } from "../../data-access/knowledge.state.svelte.js";
 import {
 	type KnowledgeContextFrame,

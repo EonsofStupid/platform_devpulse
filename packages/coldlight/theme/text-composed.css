@@ -4,94 +4,134 @@
 
 
 @theme {
+  --font-size-display-lg: 2rem;
   --leading-display-lg: 1.1;
   --font-weight-display-lg: 700;
+  --tracking-display-lg: 0.02em;
   --font-display-lg: Orbitron, system-ui, sans-serif;
+  --font-size-display-sm: 1.5rem;
   --leading-display-sm: 1.2;
   --font-weight-display-sm: 600;
+  --tracking-display-sm: 0.01em;
   --font-display-sm: Orbitron, system-ui, sans-serif;
+  --font-size-heading-lg: 1.25rem;
   --leading-heading-lg: 1.3;
   --font-weight-heading-lg: 600;
+  --tracking-heading-lg: -0.01em;
   --font-heading-lg: Inter, system-ui, sans-serif;
+  --font-size-heading-sm: 1rem;
   --leading-heading-sm: 1.4;
   --font-weight-heading-sm: 600;
+  --tracking-heading-sm: -0.005em;
   --font-heading-sm: Inter, system-ui, sans-serif;
+  --font-size-body: 0.875rem;
   --leading-body: 1.5;
   --font-weight-body: 400;
+  --tracking-body: 0em;
   --font-body: Inter, system-ui, sans-serif;
+  --font-size-body-sm: 0.8125rem;
   --leading-body-sm: 1.45;
   --font-weight-body-sm: 400;
+  --tracking-body-sm: 0em;
   --font-body-sm: Inter, system-ui, sans-serif;
+  --font-size-caption: 0.75rem;
   --leading-caption: 1.4;
   --font-weight-caption: 500;
+  --tracking-caption: 0.01em;
   --font-caption: Inter, system-ui, sans-serif;
+  --font-size-overline: 0.6875rem;
   --leading-overline: 1.3;
   --font-weight-overline: 600;
+  --tracking-overline: 0.08em;
   --font-overline: Inter, system-ui, sans-serif;
+  --font-size-code: 0.8125rem;
   --leading-code: 1.6;
   --font-weight-code: 400;
+  --tracking-code: 0em;
   --font-code: 'JetBrains Mono', 'Fira Code', monospace;
+  --font-size-stat: 1.5rem;
   --leading-stat: 1.1;
   --font-weight-stat: 700;
+  --tracking-stat: 0.02em;
   --font-stat: Orbitron, system-ui, sans-serif;
 }
 
 @utility text-display-lg {
+	font-size: var(--font-size-display-lg);
 	line-height: var(--leading-display-lg);
 	font-weight: var(--font-weight-display-lg);
+	letter-spacing: var(--tracking-display-lg);
 	font-family: var(--font-display-lg);
 }
 
 @utility text-display-sm {
+	font-size: var(--font-size-display-sm);
 	line-height: var(--leading-display-sm);
 	font-weight: var(--font-weight-display-sm);
+	letter-spacing: var(--tracking-display-sm);
 	font-family: var(--font-display-sm);
 }
 
 @utility text-heading-lg {
+	font-size: var(--font-size-heading-lg);
 	line-height: var(--leading-heading-lg);
 	font-weight: var(--font-weight-heading-lg);
+	letter-spacing: var(--tracking-heading-lg);
 	font-family: var(--font-heading-lg);
 }
 
 @utility text-heading-sm {
+	font-size: var(--font-size-heading-sm);
 	line-height: var(--leading-heading-sm);
 	font-weight: var(--font-weight-heading-sm);
+	letter-spacing: var(--tracking-heading-sm);
 	font-family: var(--font-heading-sm);
 }
 
 @utility text-body {
+	font-size: var(--font-size-body);
 	line-height: var(--leading-body);
 	font-weight: var(--font-weight-body);
+	letter-spacing: var(--tracking-body);
 	font-family: var(--font-body);
 }
 
 @utility text-body-sm {
+	font-size: var(--font-size-body-sm);
 	line-height: var(--leading-body-sm);
 	font-weight: var(--font-weight-body-sm);
+	letter-spacing: var(--tracking-body-sm);
 	font-family: var(--font-body-sm);
 }
 
 @utility text-caption {
+	font-size: var(--font-size-caption);
 	line-height: var(--leading-caption);
 	font-weight: var(--font-weight-caption);
+	letter-spacing: var(--tracking-caption);
 	font-family: var(--font-caption);
 }
 
 @utility text-overline {
+	font-size: var(--font-size-overline);
 	line-height: var(--leading-overline);
 	font-weight: var(--font-weight-overline);
+	letter-spacing: var(--tracking-overline);
 	font-family: var(--font-overline);
 }
 
 @utility text-code {
+	font-size: var(--font-size-code);
 	line-height: var(--leading-code);
 	font-weight: var(--font-weight-code);
+	letter-spacing: var(--tracking-code);
 	font-family: var(--font-code);
 }
 
 @utility text-stat {
+	font-size: var(--font-size-stat);
 	line-height: var(--leading-stat);
 	font-weight: var(--font-weight-stat);
+	letter-spacing: var(--tracking-stat);
 	font-family: var(--font-stat);
 }

@@ -8,11 +8,12 @@
 use std::path::{Path, PathBuf};
 
 use agent_client_protocol::schema::ProtocolVersion;
-use agent_client_protocol::schema::v1::{
+use agent_client_protocol::v1::schema::{
     Implementation, InitializeRequest, PermissionOptionKind, RequestPermissionOutcome,
     RequestPermissionRequest, RequestPermissionResponse, SelectedPermissionOutcome,
 };
-use agent_client_protocol::{AcpAgent, AcpAgentConfig, Agent, Client, ConnectionTo, ErrorCode};
+use agent_client_protocol::v1::{ConnectionTo, SessionSetup};
+use agent_client_protocol::{AcpAgent, AcpAgentConfig, Agent, Client, ErrorCode};
 use anyhow::{Result, anyhow};
 
 /// What the agent said.
@@ -66,7 +67,7 @@ pub async fn ask(
     let cwd: PathBuf = cwd.to_path_buf();
     let prompt = prompt.to_owned();
     Client
-        .builder()
+        .v1()
         .on_receive_request(
             async move |request: RequestPermissionRequest, responder, _connection| {
                 tracing::info!(target: "providers", "a permission the agent asked for was refused");
@@ -85,7 +86,7 @@ pub async fn ask(
             let text = connection
                 .build_session(&cwd)
                 .block_task()
-                .run_until(async |mut session| {
+                .run_until(async |SessionSetup { mut session, .. }| {
                     session.send_prompt(&prompt)?;
                     session.read_to_string().await
                 })
@@ -99,7 +100,7 @@ pub async fn ask(
         })
         .await
         .map_err(|e| {
-            if e.code == ErrorCode::AuthRequired {
+            if e.code == ErrorCode::AUTH_REQUIRED {
                 anyhow!("Sign in first — the agent says: {e}")
             } else {
                 anyhow!("{e}")
@@ -111,7 +112,7 @@ pub async fn ask(
 mod tests {
     #![allow(clippy::expect_used, clippy::unwrap_used, reason = "test assertions")]
 
-    use agent_client_protocol::schema::v1::{
+    use agent_client_protocol::v1::schema::{
         PermissionOption, ToolCallUpdate, ToolCallUpdateFields,
     };
 

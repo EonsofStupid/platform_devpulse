@@ -4,7 +4,7 @@
  * your llama-server settings, which a GGUF slot load starts it with.
  */
 
-import { commands } from "$lib/sys/generated/bindings.js";
+import { commands } from "#lib/sys/generated/bindings.js";
 
 export const startLlamaServer = commands.startLlamaServer;
 export const stopLlamaServer = commands.stopLlamaServer;
@@ -14,10 +14,10 @@ export const llamaEmbed = commands.llamaEmbed;
 export const llamaServerLoadConfig = commands.llamaServerLoadConfig;
 export const llamaServerSaveConfig = commands.llamaServerSaveConfig;
 
-export type { ChatMessage } from "$lib/sys/bindings/_shared";
+export type { ChatMessage } from "#lib/sys/bindings/_shared/index.js";
 export type {
 	LlamaHealthStatus,
 	LlamaServerConfig,
 	LlamaServerInfo,
 	OffloadConfig,
-} from "$lib/sys/generated/bindings.js";
+} from "#lib/sys/generated/bindings.js";

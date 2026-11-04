@@ -16,9 +16,9 @@ import { Badge } from "@devpulse/coldlight/components/badge";
 import { Text } from "@devpulse/coldlight/components/text";
 import { cn, hstack, stack } from "@devpulse/coldlight/utils";
 import { BookOpenCheck, Brain, Database, Layers, Users } from "lucide-svelte";
-import { presentationState } from "$lib/domains/app/devpulse/index.js";
-import { MinionGrid } from "$lib/domains/app/minions/index.js";
-import { ClyffyStatusOrb, clyffyStatus, ToolsBrowser } from "$lib/domains/clyffy/index.js";
+import { presentationState } from "#lib/domains/app/devpulse/index.js";
+import { MinionGrid } from "#lib/domains/app/minions/index.js";
+import { ClyffyStatusOrb, clyffyStatus, ToolsBrowser } from "#lib/domains/clyffy/index.js";
 
 const activity = $derived(clyffyStatus.activity);
 </script>

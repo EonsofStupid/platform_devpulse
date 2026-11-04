@@ -400,11 +400,7 @@ fn load_tokenizer_from_gguf(
         .get("general.source.huggingface.repository")
     {
         tracing::info!(repo = %repo, "Fetching tokenizer from HuggingFace");
-        let api = hf_hub::api::sync::ApiBuilder::new()
-            .build()
-            .map_err(|e| anyhow::anyhow!("{e}"))?;
-        let repo_api = api.model(repo.clone());
-        let tokenizer_file = repo_api.get("tokenizer.json")?;
+        let tokenizer_file = hub_tokenizer_file(repo)?;
         return tokenizers::Tokenizer::from_file(tokenizer_file)
             .map_err(|e| anyhow::anyhow!("Failed to load HF tokenizer: {e}"));
     }
@@ -412,11 +408,7 @@ fn load_tokenizer_from_gguf(
     // ── Path 4: `general.name` as repo fallback ──────────────
     if let Some(Value::String(name)) = content.metadata.get("general.name") {
         tracing::info!(name = %name, "Trying model name as HF repo for tokenizer");
-        let api = hf_hub::api::sync::ApiBuilder::new()
-            .build()
-            .map_err(|e| anyhow::anyhow!("{e}"))?;
-        let repo_api = api.model(name.clone());
-        if let Ok(tokenizer_file) = repo_api.get("tokenizer.json") {
+        if let Ok(tokenizer_file) = hub_tokenizer_file(name) {
             return tokenizers::Tokenizer::from_file(tokenizer_file)
                 .map_err(|e| anyhow::anyhow!("Failed to load HF tokenizer: {e}"));
         }
@@ -427,6 +419,17 @@ fn load_tokenizer_from_gguf(
          next to the file at {}, and no HuggingFace repo metadata to fall back on",
         model_path.display()
     )
+}
+
+/// `tokenizer.json` of the Hub repo `repo_id`, through the Hub's local cache.
+fn hub_tokenizer_file(repo_id: &str) -> anyhow::Result<std::path::PathBuf> {
+    let client = hf_hub::HFClient::builder().build_sync()?;
+    let (owner, name) = hf_hub::split_id(repo_id);
+    Ok(client
+        .model(owner, name)
+        .download_file()
+        .filename("tokenizer.json")
+        .send()?)
 }
 
 /// Attempt to build a `tokenizers::Tokenizer` straight from the
@@ -559,14 +562,17 @@ fn try_build_tokenizer_from_gguf_metadata(
             added.push(AddedToken::from(token_str, true));
         }
     }
+    let special_tokens = added.len();
     if !added.is_empty() {
-        tokenizer.add_special_tokens(&added);
+        tokenizer
+            .add_special_tokens(added)
+            .map_err(|e| anyhow::anyhow!("GGUF special tokens rejected: {e}"))?;
     }
 
     tracing::info!(
         model_type,
         vocab_size,
-        special_tokens = added.len(),
+        special_tokens,
         "Built tokenizer from embedded GGUF metadata"
     );
 

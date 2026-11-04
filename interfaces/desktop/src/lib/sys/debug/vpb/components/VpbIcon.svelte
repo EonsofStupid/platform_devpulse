@@ -19,7 +19,7 @@
 import { Button } from "@devpulse/coldlight/components/button";
 import { LayoutTemplate, PanelTop, Play, Settings } from "lucide-svelte";
 import { toast } from "svelte-sonner";
-import { copyState } from "$lib/sys/copy/index.js";
+import { copyState } from "#lib/sys/copy/index.js";
 import { vpb } from "../state/vpb.svelte.js";
 
 const text = $derived(copyState.catalog?.vpb);

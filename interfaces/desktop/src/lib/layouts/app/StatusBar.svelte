@@ -31,16 +31,16 @@
 import { Badge } from "@devpulse/coldlight/components/badge";
 import { Text } from "@devpulse/coldlight/components/text";
 import { hstack } from "@devpulse/coldlight/utils";
-import { presentationState } from "$lib/domains/app/devpulse/index.js";
+import { presentationState } from "#lib/domains/app/devpulse/index.js";
 import {
 	formatMb,
 	hardwareState,
 	isInferenceReady,
 	modelsState,
-} from "$lib/domains/app/models/index.js";
-import { clyffyStatus } from "$lib/domains/clyffy/index.js";
-import { copyState, fill } from "$lib/sys/copy/index.js";
-import { platformState } from "$lib/sys/runes/platformState.svelte.js";
+} from "#lib/domains/app/models/index.js";
+import { clyffyStatus } from "#lib/domains/clyffy/index.js";
+import { copyState, fill } from "#lib/sys/copy/index.js";
+import { platformState } from "#lib/sys/runes/platformState.svelte.js";
 import { groupSubsystems } from "./StatusBar.types.js";
 import SubsystemBadge from "./SubsystemBadge.svelte";
 

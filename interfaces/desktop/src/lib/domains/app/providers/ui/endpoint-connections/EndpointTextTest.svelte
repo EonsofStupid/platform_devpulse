@@ -13,7 +13,7 @@ import {
 	SelectTrigger,
 } from "@devpulse/coldlight/components/select";
 import { Text } from "@devpulse/coldlight/components/text";
-import { fill } from "$lib/sys/copy/index.js";
+import { fill } from "#lib/sys/copy/index.js";
 import type { EndpointTextTestProps } from "./endpoint-connections.types.js";
 
 let { copy, connection, busy, onTest }: EndpointTextTestProps = $props();

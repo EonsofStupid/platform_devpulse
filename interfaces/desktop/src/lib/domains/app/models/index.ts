@@ -3,7 +3,7 @@
  *
  * Public API for the model loader domain. The kernel-side rebuild (post
  * 2026-05-01 sweep) lives at `kernel/model-loader/` with the Tauri
- * command surface at `$lib/sys/bindings/models/`. This module is the
+ * command surface at `#lib/sys/bindings/models//index.js`. This module is the
  * **state + UI bridge** between those bindings and consumer surfaces:
  * the dashboard, the slot orchestrator devtool, the chat strip and the
  * voice lab.
@@ -23,12 +23,12 @@
 // ── Bindings re-exports for convenience ──────────────────
 // `cancelDownload` was the one symbol that survived the May 1 sweep
 // in `bindings/models/` directly; re-exported here so consumers
-// reaching for `$lib/domains/app/models/data-access/download.service.js`
+// reaching for `#lib/domains/app/models/data-access/download.service.js`
 // (legacy path) can be redirected by replacing only the import,
 // without splitting the call site between two files.
-export { cancelDownload, downloadModel } from "$lib/sys/bindings/models/index.js";
+export { cancelDownload, downloadModel } from "#lib/sys/bindings/models/index.js";
 // ── Types ────────────────────────────────────────────────
-export type { WizardCopy as WizardCopyData } from "$lib/sys/generated/bindings.js";
+export type { WizardCopy as WizardCopyData } from "#lib/sys/generated/bindings.js";
 // ── Boot-time event bridge ───────────────────────────────
 // Singleton bridge wired by `+layout.svelte` at app boot. Lives in
 // `data-access/` because it boots data-access runes; nothing UI-side.

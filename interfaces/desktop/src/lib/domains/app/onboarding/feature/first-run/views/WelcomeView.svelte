@@ -13,9 +13,9 @@ import { Badge } from "@devpulse/coldlight/components/badge";
 import { Heading } from "@devpulse/coldlight/components/heading";
 import { Spinner } from "@devpulse/coldlight/components/spinner";
 import { Text } from "@devpulse/coldlight/components/text";
-import type { WelcomeCopy } from "$lib/sys/bindings/copy/index.js";
-import type { Detected } from "$lib/sys/bindings/onboarding/index.js";
-import { fill } from "$lib/sys/copy/index.js";
+import type { WelcomeCopy } from "#lib/sys/bindings/copy/index.js";
+import type { Detected } from "#lib/sys/bindings/onboarding/index.js";
+import { fill } from "#lib/sys/copy/index.js";
 
 let { copy, detected }: { copy: WelcomeCopy; detected: Detected } = $props();
 

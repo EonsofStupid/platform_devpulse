@@ -30,7 +30,7 @@
 
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 
-import { logError, logInfo } from "$lib/sys/logger.js";
+import { logError, logInfo } from "#lib/sys/logger.js";
 
 import type { SlotId } from "../../util/models.types.js";
 

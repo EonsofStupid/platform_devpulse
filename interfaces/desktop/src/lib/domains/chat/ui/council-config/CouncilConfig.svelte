@@ -20,7 +20,7 @@ import {
 } from "@devpulse/coldlight/components/select";
 import { Text } from "@devpulse/coldlight/components/text";
 import { TextField } from "@devpulse/coldlight/components/text-field";
-import { fill } from "$lib/sys/copy/index.js";
+import { fill } from "#lib/sys/copy/index.js";
 import { NotesToggle } from "../notes-toggle/index.js";
 import type { CouncilChoice, CouncilConfigProps, CouncilSeat } from "./council-config.types.js";
 

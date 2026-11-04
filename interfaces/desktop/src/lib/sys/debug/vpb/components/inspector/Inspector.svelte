@@ -19,7 +19,7 @@ import {
 	SelectTrigger,
 } from "@devpulse/coldlight/components/select";
 import { toast } from "svelte-sonner";
-import { copyState, fill } from "$lib/sys/copy/index.js";
+import { copyState, fill } from "#lib/sys/copy/index.js";
 import { type AxisKey, VPB_AXES, type VpbProps } from "../../registry/vpb-axes.js";
 import { getKindSlots } from "../../registry/vpb-kinds.js";
 import { recipesForKind } from "../../registry/vpb-recipes.js";

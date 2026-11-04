@@ -13,10 +13,9 @@ import { Button } from "@devpulse/coldlight/components/button";
 import { Text } from "@devpulse/coldlight/components/text";
 import { Activity, ExternalLink, Grid3x3, Settings, X } from "lucide-svelte";
 import { onMount, untrack } from "svelte";
-import { page } from "$app/state";
-import LiveSubsystemStrip from "$lib/devtools/_shared/LiveSubsystemStrip.svelte";
-import { devtoolNav, devtoolTiers, ServiceStatus } from "$lib/devtools/index.js";
-import { copyState } from "$lib/sys/copy/index.js";
+import LiveSubsystemStrip from "#lib/devtools/_shared/LiveSubsystemStrip.svelte";
+import { devtoolNav, devtoolTiers, ServiceStatus } from "#lib/devtools/index.js";
+import { copyState } from "#lib/sys/copy/index.js";
 import type {
 	LaneToggle,
 	LaneTraceConfig,
@@ -24,16 +23,17 @@ import type {
 	ServiceStatusSnapshot,
 	WindowRole,
 	WindowRoleInfo,
-} from "$lib/sys/generated/bindings.js";
-import { commands } from "$lib/sys/generated/bindings.js";
-import { logError } from "$lib/sys/logger.js";
+} from "#lib/sys/generated/bindings.js";
+import { commands } from "#lib/sys/generated/bindings.js";
+import { logError } from "#lib/sys/logger.js";
 import {
 	findRoute,
 	findRouteById,
 	hrefOf,
 	type RouteNode,
 	routeCopy,
-} from "$lib/sys/routing/index.js";
+} from "#lib/sys/routing/index.js";
+import { page } from "$app/state";
 
 // ── Tab state ────────────────────────────────────────────────
 type TabId = "overview" | "lanes" | "config";

@@ -21,19 +21,19 @@ import NotificationCenter from "./NotificationCenter.svelte";
 
 describe("notification-center component — ARIA", () => {
 	test("has role='log'", async () => {
-		const { getByRole } = render(NotificationCenter);
+		const { getByRole } = await render(NotificationCenter);
 		const el = getByRole("log");
 		expect(el).toBeTruthy();
 	});
 
 	test("has aria-live='polite'", async () => {
-		const { getByRole } = render(NotificationCenter);
+		const { getByRole } = await render(NotificationCenter);
 		const el = getByRole("log");
 		await expect.element(el).toHaveAttribute("aria-live", "polite");
 	});
 
 	test("has aria-relevant='additions'", async () => {
-		const { getByRole } = render(NotificationCenter);
+		const { getByRole } = await render(NotificationCenter);
 		const el = getByRole("log");
 		await expect.element(el).toHaveAttribute("aria-relevant", "additions");
 	});
@@ -45,13 +45,13 @@ describe("notification-center component — ARIA", () => {
 
 describe("notification-center component — data-state", () => {
 	test("data-state is 'closed' by default", async () => {
-		const { getByRole } = render(NotificationCenter);
+		const { getByRole } = await render(NotificationCenter);
 		const el = getByRole("log");
 		await expect.element(el).toHaveAttribute("data-state", "closed");
 	});
 
 	test("data-state is 'open' when open is true", async () => {
-		const { getByRole } = render(NotificationCenter, { props: { open: true } });
+		const { getByRole } = await render(NotificationCenter, { props: { open: true } });
 		const el = getByRole("log");
 		await expect.element(el).toHaveAttribute("data-state", "open");
 	});
@@ -63,14 +63,14 @@ describe("notification-center component — data-state", () => {
 
 describe("notification-center component — composition", () => {
 	test("applies composition base classes", async () => {
-		const { getByRole } = render(NotificationCenter);
+		const { getByRole } = await render(NotificationCenter);
 		const el = getByRole("log");
 		await expect.element(el).toHaveClass("flex");
 		await expect.element(el).toHaveClass("flex-col");
 	});
 
 	test("merges custom class prop", async () => {
-		const { getByRole } = render(NotificationCenter, { props: { class: "my-custom" } });
+		const { getByRole } = await render(NotificationCenter, { props: { class: "my-custom" } });
 		const el = getByRole("log");
 		await expect.element(el).toHaveClass("my-custom");
 	});

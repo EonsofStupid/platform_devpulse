@@ -6,4 +6,4 @@
 export type {
 	DevforgeBootstrapStatus,
 	RehStatus,
-} from "$lib/sys/generated/bindings.js";
+} from "#lib/sys/generated/bindings.js";

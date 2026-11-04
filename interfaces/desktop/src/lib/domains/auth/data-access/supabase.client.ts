@@ -17,7 +17,7 @@
  */
 
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import { commands } from "$lib/sys/generated/bindings.js";
+import { commands } from "#lib/sys/generated/bindings.js";
 
 /** Cached singleton. Re-creating the client on every call would lose
  *  the in-memory auth state + subscription handles. */

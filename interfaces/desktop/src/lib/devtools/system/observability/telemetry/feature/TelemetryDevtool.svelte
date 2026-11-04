@@ -24,7 +24,7 @@ import { StatusDot } from "@devpulse/coldlight/components/status-dot";
 import { Text } from "@devpulse/coldlight/components/text";
 import { Activity, BarChart3, Folder, Gauge, RefreshCw, Zap } from "lucide-svelte";
 import { onMount } from "svelte";
-import { type ExtraTab, type HealthBadge, ServiceDevtoolShell } from "$lib/devtools/index.js";
+import { type ExtraTab, type HealthBadge, ServiceDevtoolShell } from "#lib/devtools/index.js";
 import {
 	formatBytes,
 	formatDurationUs,
@@ -34,7 +34,7 @@ import {
 	laneBlurb,
 	laneLabel,
 	telemetryState,
-} from "$lib/domains/infra/telemetry/index.js";
+} from "#lib/domains/infra/telemetry/index.js";
 
 // ── Extra tabs (per-service) ────────────────────────────────
 const extraTabs: ExtraTab[] = [

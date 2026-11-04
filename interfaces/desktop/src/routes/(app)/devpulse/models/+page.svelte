@@ -27,8 +27,8 @@ import {
 	ROLE_COLORS,
 	ROLE_FRAMES,
 	VramBar,
-} from "$lib/domains/app/models/index.js";
-import DownloadPanel from "$lib/sys/activity-hud/DownloadPanel.svelte";
+} from "#lib/domains/app/models/index.js";
+import DownloadPanel from "#lib/sys/activity-hud/DownloadPanel.svelte";
 
 let loading = $state(false);
 let actionSlot = $state<string | null>(null);

@@ -18,8 +18,8 @@
 -->
 <script lang="ts">
 import { cn } from "@devpulse/coldlight/utils";
-import { downloadState } from "$lib/sys/activity-hud/download.state.svelte.js";
-import type { DownloaderCopy } from "$lib/sys/generated/bindings.js";
+import { downloadState } from "#lib/sys/activity-hud/download.state.svelte.js";
+import type { DownloaderCopy } from "#lib/sys/generated/bindings.js";
 import { modelDownloaderState } from "../data-access/downloader.state.svelte.js";
 
 interface Props {

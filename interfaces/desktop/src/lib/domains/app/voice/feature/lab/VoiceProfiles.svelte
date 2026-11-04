@@ -15,7 +15,7 @@ import {
 import { Text } from "@devpulse/coldlight/components/text";
 import { TextField } from "@devpulse/coldlight/components/text-field";
 import { onMount } from "svelte";
-import { fill } from "$lib/sys/copy/index.js";
+import { fill } from "#lib/sys/copy/index.js";
 import {
 	activateProfile,
 	deleteProfile,

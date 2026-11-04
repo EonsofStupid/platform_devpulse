@@ -6,7 +6,7 @@
  * table browsing, and SurrealQL console. All data fetched via IPC on demand.
  */
 
-import { logError } from "$lib/sys/logger.js";
+import { logError } from "#lib/sys/logger.js";
 import type {
 	GraphHealthAll,
 	GraphKvEntry,

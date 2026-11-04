@@ -3,7 +3,7 @@
  * @description Multi-window cockpit — open/close/focus/devtools.
  */
 
-import { commands } from "$lib/sys/generated/bindings.js";
+import { commands } from "#lib/sys/generated/bindings.js";
 
 export { openMainPage, startMainNavigation } from "./navigation.js";
 
@@ -17,4 +17,4 @@ export type {
 	WindowConfig,
 	WindowInfo,
 	WindowRole,
-} from "$lib/sys/generated/bindings.js";
+} from "#lib/sys/generated/bindings.js";

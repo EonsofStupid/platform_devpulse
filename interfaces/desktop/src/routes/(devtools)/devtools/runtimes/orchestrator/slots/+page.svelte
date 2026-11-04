@@ -3,7 +3,7 @@
 	@route /devtools/runtimes/orchestrator/slots
 -->
 <script lang="ts">
-import { SlotsDevtool } from "$lib/devtools/runtimes/orchestrator/slots/index.js";
+import { SlotsDevtool } from "#lib/devtools/runtimes/orchestrator/slots/index.js";
 </script>
 
 <SlotsDevtool />

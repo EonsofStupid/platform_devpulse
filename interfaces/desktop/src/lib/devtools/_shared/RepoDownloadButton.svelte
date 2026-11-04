@@ -46,7 +46,7 @@ import { Spinner } from "@devpulse/coldlight/components/spinner";
 import { Text } from "@devpulse/coldlight/components/text";
 import { invoke } from "@tauri-apps/api/core";
 import { Download, FileArchive, X } from "lucide-svelte";
-import { logInfo } from "$lib/sys/logger.js";
+import { logInfo } from "#lib/sys/logger.js";
 import {
 	formatBytes,
 	type PrimaryResolution,

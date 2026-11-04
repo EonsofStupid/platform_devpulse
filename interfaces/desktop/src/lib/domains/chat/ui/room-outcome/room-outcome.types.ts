@@ -1,4 +1,4 @@
-import type { Outcome, RoomChatCopy } from "$lib/sys/generated/bindings.js";
+import type { Outcome, RoomChatCopy } from "#lib/sys/generated/bindings.js";
 
 export interface RoomOutcomeProps {
 	copy: RoomChatCopy;

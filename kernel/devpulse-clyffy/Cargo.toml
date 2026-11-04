@@ -76,7 +76,7 @@ tokio-util = { workspace = true }
 anyhow = { workspace = true }
 thiserror = { workspace = true }
 futures = { workspace = true }
-# Explicit native stores: keyring 3 otherwise selects its nonpersistent mock.
+# The operating system's own credential store, through keyring's default mode.
 keyring = { workspace = true }
 
 # Persistence Layer
@@ -111,8 +111,8 @@ rkyv = { workspace = true }
 candle-core = { workspace = true, optional = true }
 candle-nn = { workspace = true, optional = true }
 candle-transformers = { workspace = true, optional = true }
-tokenizers = { version = "0.21", optional = true, default-features = false, features = ["onig"] }
-hf-hub = { version = "0.4", optional = true, default-features = false, features = ["tokio"] }
+tokenizers = { workspace = true, optional = true }
+hf-hub = { workspace = true, optional = true }
 
 # Burn — RRO encoder authorship target. Optional; gated through
 # `burn-cpu` and `burn-cuda` features above. Default-features inherited
@@ -136,7 +136,7 @@ static_assertions = { workspace = true, optional = true }
 # via std::fs::read (mmap is `unsafe` and the crate-wide unsafe-code
 # deny lint disallows it without an explicit allow). Pulled in
 # alongside Burn — the encoder is the only consumer in this crate.
-safetensors = { version = "0.4", optional = true }
+safetensors = { version = "0.8.0", optional = true }
 
 # RRD daemon trait surface — `HotUpdateable` impl on `BurnEmbedder<B>`
 # is the entry point that lets the daemon manage encoder hot-updates.
@@ -153,7 +153,7 @@ devpulse-process = { workspace = true }
 # The Agent Client Protocol (official Rust SDK): one prompt to a coding agent
 # over stdio, the agent owning its login and billing (plan 0001 R4).
 # `process` spawns the agent and speaks to it over its stdin/stdout.
-agent-client-protocol = { version = "3.4.0", features = ["process"] }
+agent-client-protocol = { version = "5.0.0", features = ["process"] }
 
 # Kernel SSOT TOML loaders (interaction templates, minion routing, etc.)
 toml = { workspace = true }
@@ -190,6 +190,7 @@ jsonschema = { workspace = true }
 
 [dev-dependencies]
 tempfile = "3"
+keyring-core = { workspace = true }
 
 [lints]
 workspace = true

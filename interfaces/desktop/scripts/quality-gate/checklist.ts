@@ -77,7 +77,7 @@ const SVELTE_TS_RULES: Rule[] = [
 					line: i + 1,
 					rule: "no-console",
 					message: "`console.*` detected",
-					fix: "Use `logInfo`/`logError`/`logWarn` from `$lib/sys/logger.js`.",
+					fix: "Use `logInfo`/`logError`/`logWarn` from `#lib/sys/logger.js`.",
 				});
 			}
 		});
@@ -98,7 +98,7 @@ const SVELTE_TS_RULES: Rule[] = [
 					line: i + 1,
 					rule: "no-direct-invoke",
 					message: "`invoke()` called outside domain service layer",
-					fix: "Move IPC calls to `$lib/domains/{name}/services/`. Routes and layouts import from domain.",
+					fix: "Move IPC calls to `#lib/domains/{name}/services/`. Routes and layouts import from domain.",
 				});
 			}
 		});
@@ -217,7 +217,7 @@ const SVELTE_TS_RULES: Rule[] = [
 	(content, file) => {
 		const violations: Violation[] = [];
 		content.split("\n").forEach((line, i) => {
-			const match = line.match(/from\s+["'](\$lib\/[^"']+)["']/);
+			const match = line.match(/from\s+["'](#lib\/[^"']+)["']/);
 			if (match) {
 				const importPath = match[1];
 				// Must end in .js (for .ts files) or be a directory import

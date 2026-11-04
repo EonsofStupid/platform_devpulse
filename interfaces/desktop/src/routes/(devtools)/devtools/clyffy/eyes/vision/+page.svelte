@@ -3,7 +3,7 @@
 	@route /devtools/clyffy/eyes/vision
 -->
 <script lang="ts">
-import { VisionDevtool } from "$lib/devtools/clyffy/eyes/vision/index.js";
+import { VisionDevtool } from "#lib/devtools/clyffy/eyes/vision/index.js";
 </script>
 
 <VisionDevtool />

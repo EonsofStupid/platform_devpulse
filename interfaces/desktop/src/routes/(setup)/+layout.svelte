@@ -16,8 +16,6 @@ import { DynamicBackground } from "@devpulse/coldlight/components/dynamic-backgr
 import { Text } from "@devpulse/coldlight/components/text";
 import { Settings2, X } from "lucide-svelte";
 import type { Snippet } from "svelte";
-import { goto } from "$app/navigation";
-import { page } from "$app/state";
 import {
 	CurrentSetupPopup,
 	hardwareState,
@@ -26,10 +24,12 @@ import {
 	setupWizardOverlayState,
 	type WizardPhase,
 	wizardState,
-} from "$lib/domains/app/models/index.js";
-import { onboardingState } from "$lib/domains/app/onboarding/index.js";
-import { copyState } from "$lib/sys/copy/index.js";
-import { hrefOf, routeAt } from "$lib/sys/routing/index.js";
+} from "#lib/domains/app/models/index.js";
+import { onboardingState } from "#lib/domains/app/onboarding/index.js";
+import { copyState } from "#lib/sys/copy/index.js";
+import { hrefOf, routeAt } from "#lib/sys/routing/index.js";
+import { goto } from "$app/navigation";
+import { page } from "$app/state";
 
 interface Props {
 	children: Snippet;

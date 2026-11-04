@@ -24,8 +24,8 @@
  * boots — same Nx library-type, same import boundary.
  */
 
-import { downloadState } from "$lib/sys/activity-hud/download.state.svelte.js";
-import { installState } from "$lib/sys/activity-hud/install.state.svelte.js";
+import { downloadState } from "#lib/sys/activity-hud/download.state.svelte.js";
+import { installState } from "#lib/sys/activity-hud/install.state.svelte.js";
 import { modelsState } from "./models.state.svelte.js";
 import { narrationState } from "./narration.state.svelte.js";
 

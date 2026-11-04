@@ -1,4 +1,4 @@
-import type { RoomChatCopy } from "$lib/sys/generated/bindings.js";
+import type { RoomChatCopy } from "#lib/sys/generated/bindings.js";
 
 export interface RoomTemplate {
 	id: string;

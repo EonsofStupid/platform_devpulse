@@ -8,7 +8,7 @@ import type {
 	ConnectionsState,
 	EndpointCopy,
 	SaveConnection,
-} from "$lib/sys/generated/bindings.js";
+} from "#lib/sys/generated/bindings.js";
 
 export interface EndpointConnectionsProps {
 	copy: EndpointCopy;
@@ -23,7 +23,7 @@ export interface EndpointConnectionsProps {
 
 export interface EndpointTextTestProps {
 	copy: EndpointCopy;
-	connection: import("$lib/sys/generated/bindings.js").SavedConnection;
+	connection: import("#lib/sys/generated/bindings.js").SavedConnection;
 	busy: boolean;
 	onTest: (id: string, model: string) => Promise<void>;
 }

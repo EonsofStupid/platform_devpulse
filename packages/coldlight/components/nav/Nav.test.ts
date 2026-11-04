@@ -21,25 +21,25 @@ import Nav from "./Nav.svelte";
 
 describe("nav component -- ARIA", () => {
 	test("renders a <nav> element with role='navigation'", async () => {
-		const { getByRole } = render(Nav);
+		const { getByRole } = await render(Nav);
 		const nav = getByRole("navigation");
 		expect(nav).toBeTruthy();
 	});
 
 	test("applies aria-label from prop", async () => {
-		const { getByRole } = render(Nav, { props: { label: "Main navigation" } });
+		const { getByRole } = await render(Nav, { props: { label: "Main navigation" } });
 		const nav = getByRole("navigation");
 		await expect.element(nav).toHaveAttribute("aria-label", "Main navigation");
 	});
 
 	test("has data-kind='nav'", async () => {
-		const { getByRole } = render(Nav);
+		const { getByRole } = await render(Nav);
 		const nav = getByRole("navigation");
 		await expect.element(nav).toHaveAttribute("data-kind", "nav");
 	});
 
 	test("has data-slot='root'", async () => {
-		const { getByRole } = render(Nav);
+		const { getByRole } = await render(Nav);
 		const nav = getByRole("navigation");
 		await expect.element(nav).toHaveAttribute("data-slot", "root");
 	});
@@ -51,7 +51,7 @@ describe("nav component -- ARIA", () => {
 
 describe("nav component -- composition", () => {
 	test("passes class prop to element", async () => {
-		const { getByRole } = render(Nav, { props: { class: "test-class" } });
+		const { getByRole } = await render(Nav, { props: { class: "test-class" } });
 		const nav = getByRole("navigation");
 		await expect.element(nav).toHaveClass("test-class");
 	});

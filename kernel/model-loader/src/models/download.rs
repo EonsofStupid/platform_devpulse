@@ -256,33 +256,27 @@ impl DownloadManager {
     /// treats `None` as "unknown" in the confirmation modal.
     ///
     /// # Errors
-    /// Returns an error if `ApiBuilder::build` fails (typically a malformed
-    /// HF token), if `Api::model(repo).info()` returns an HTTP error
+    /// Returns an error if the Hub client cannot be built (typically a
+    /// malformed HF token), if `repo.info()` returns an HTTP error
     /// (network, 401/403/404, rate-limit, 5xx), or if the response cannot
     /// be parsed.
     #[cfg(feature = "candle-backend")]
     pub fn list_repo_files(&self, repo_id: &str) -> anyhow::Result<Vec<RepoFileEntry>> {
-        let api = hf_hub::api::sync::ApiBuilder::new()
-            .with_token(self.hf_token.clone())
-            .with_progress(false)
-            .with_retries(3)
-            .build()
-            .map_err(|e| anyhow::anyhow!("HF API init failed: {e}"))?;
-
-        let repo = api.model(repo_id.to_string());
-        let info = repo
+        let client = hub_client(self.hf_token.as_deref())?;
+        let (owner, name) = hf_hub::split_id(repo_id);
+        let info = client
+            .model(owner, name)
             .info()
+            .send()
             .map_err(|e| anyhow::anyhow!("HF repo.info() failed for '{repo_id}': {e}"))?;
 
         Ok(info
             .siblings
+            .unwrap_or_default()
             .into_iter()
             .map(|s| RepoFileEntry {
                 name: s.rfilename,
-                // hf_hub::Siblings doesn't expose size today (it's None in
-                // the struct), but the Hub API returns it when queried
-                // directly. Leaving as None until hf_hub exposes it.
-                size: None,
+                size: s.size,
             })
             .collect())
     }
@@ -299,6 +293,27 @@ impl DownloadManager {
         anyhow::bail!("list_repo_files requires candle-backend feature")
     }
 }
+
+/// One model repo on the `HuggingFace` Hub, for blocking calls.
+#[cfg(feature = "candle-backend")]
+type HubRepo = hf_hub::HFRepositorySync<hf_hub::RepoTypeModel>;
+
+/// A blocking Hub client carrying `token`, retrying transient failures. Without
+/// a stored token, the Hub client uses your own `HF_TOKEN` or Hub login, if any.
+#[cfg(feature = "candle-backend")]
+fn hub_client(token: Option<&str>) -> anyhow::Result<hf_hub::HFClientSync> {
+    let mut builder = hf_hub::HFClient::builder().retry_max_attempts(HUB_ATTEMPTS);
+    if let Some(token) = token {
+        builder = builder.token(token);
+    }
+    builder
+        .build_sync()
+        .map_err(|e| anyhow::anyhow!("HF API init failed: {e}"))
+}
+
+/// One attempt and three retries of a transient Hub failure.
+#[cfg(feature = "candle-backend")]
+const HUB_ATTEMPTS: usize = 4;
 
 /// One entry in a `HuggingFace` repo's sibling list. Serializable so it
 /// can cross the Tauri IPC boundary into the frontend's `RepoDownloadButton`
@@ -328,14 +343,15 @@ pub struct RepoFileEntry {
 /// "primary only" if the repo-info call fails (private repo without
 /// auth, network flake, etc.).
 #[cfg(feature = "candle-backend")]
-fn resolve_bundle_files(
-    repo: &hf_hub::api::sync::ApiRepo,
-    repo_id: &str,
-    primary_filename: &str,
-) -> Vec<String> {
-    let bundle = match repo.info() {
+fn resolve_bundle_files(repo: &HubRepo, repo_id: &str, primary_filename: &str) -> Vec<String> {
+    let bundle = match repo.info().send() {
         Ok(info) => {
-            let all: Vec<String> = info.siblings.into_iter().map(|s| s.rfilename).collect();
+            let all: Vec<String> = info
+                .siblings
+                .unwrap_or_default()
+                .into_iter()
+                .map(|s| s.rfilename)
+                .collect();
             plan_bundle(primary_filename, &all)
         }
         Err(e) => {
@@ -366,18 +382,18 @@ fn resolve_bundle_files(
 /// (optional companion).
 #[cfg(feature = "candle-backend")]
 fn download_one_bundle_file(
-    repo: &hf_hub::api::sync::ApiRepo,
+    repo: &HubRepo,
     file_name: &str,
     dest_dir: &Path,
     bridge: &Arc<std::sync::Mutex<AggregateProgress>>,
     lfs_oid_map: &std::collections::HashMap<String, String>,
     repo_id: &str,
 ) -> anyhow::Result<PathBuf> {
-    let file_bridge = BundleFileProgress {
-        inner: Arc::clone(bridge),
-    };
     let cached_path = repo
-        .download_with_progress(file_name, file_bridge)
+        .download_file()
+        .filename(file_name)
+        .progress(BundleFileProgress::new(bridge))
+        .send()
         .map_err(|e| anyhow::anyhow!("{e}"))?;
     let dest = dest_dir.join(file_name);
     if let Some(parent) = dest.parent() {
@@ -398,7 +414,7 @@ fn download_one_bundle_file(
 /// pretend to be a valid model weight.
 #[cfg(feature = "candle-backend")]
 fn verify_or_retry(
-    repo: &hf_hub::api::sync::ApiRepo,
+    repo: &HubRepo,
     file_name: &str,
     dest: &Path,
     expected_oid: &str,
@@ -418,11 +434,13 @@ fn verify_or_retry(
         "Post-download sha256 MISMATCH — deleting and retrying once"
     );
     let _ = std::fs::remove_file(dest);
-    let retry_bridge = BundleFileProgress {
-        inner: Arc::clone(bridge),
-    };
+    // The Hub's cache would hand back the same corrupted blob: fetch it again.
     let retry_path = repo
-        .download_with_progress(file_name, retry_bridge)
+        .download_file()
+        .filename(file_name)
+        .force_download(true)
+        .progress(BundleFileProgress::new(bridge))
+        .send()
         .map_err(|e| {
             anyhow::anyhow!("HF re-download failed after sha256 mismatch on {file_name}: {e}")
         })?;
@@ -528,14 +546,9 @@ fn execute_download(
         "Starting HuggingFace bundle download"
     );
 
-    let api = hf_hub::api::sync::ApiBuilder::new()
-        .with_token(token.map(String::from))
-        .with_progress(false)
-        .with_retries(3)
-        .build()
-        .map_err(|e| anyhow::anyhow!("HF API init failed: {e}"))?;
-
-    let repo = api.model(repo_id.to_string());
+    let client = hub_client(token)?;
+    let (owner, name) = hf_hub::split_id(repo_id);
+    let repo = client.model(owner, name);
 
     if cancel.load(Ordering::Relaxed) {
         anyhow::bail!("Download cancelled before start");
@@ -869,31 +882,63 @@ impl AggregateProgress {
     }
 }
 
-/// Per-file hf-hub `Progress` adapter that forwards into a shared
+/// One file's hf-hub progress handler, forwarding into a shared
 /// `AggregateProgress` behind a `Mutex`.
+///
+/// One handler serves one `download_file` call, so it holds one running total:
+/// the Hub reports cumulative bytes, the aggregate wants what is new.
 #[cfg(feature = "candle-backend")]
 struct BundleFileProgress {
     inner: Arc<std::sync::Mutex<AggregateProgress>>,
+    reported: std::sync::atomic::AtomicU64,
 }
 
 #[cfg(feature = "candle-backend")]
-impl hf_hub::api::Progress for BundleFileProgress {
-    fn init(&mut self, size: usize, filename: &str) {
-        if let Ok(mut guard) = self.inner.lock() {
-            guard.add_file(size as u64);
-        }
-        tracing::info!(file = %filename, size_bytes = size, "bundle file init");
-    }
-
-    fn update(&mut self, size: usize) {
-        if let Ok(mut guard) = self.inner.lock() {
-            guard.add_bytes(size as u64);
+impl BundleFileProgress {
+    fn new(bridge: &Arc<std::sync::Mutex<AggregateProgress>>) -> Self {
+        Self {
+            inner: Arc::clone(bridge),
+            reported: std::sync::atomic::AtomicU64::new(0),
         }
     }
 
-    fn finish(&mut self) {
-        // Per-file finish is a no-op — the aggregator only finalises once
-        // at the end of the bundle loop.
+    fn advance_to(&self, completed: u64) {
+        let reported = self.reported.fetch_max(completed, Ordering::Relaxed);
+        if completed > reported
+            && let Ok(mut guard) = self.inner.lock()
+        {
+            guard.add_bytes(completed - reported);
+        }
+    }
+}
+
+#[cfg(feature = "candle-backend")]
+impl hf_hub::progress::ProgressHandler for BundleFileProgress {
+    fn on_progress(&self, event: &hf_hub::progress::ProgressEvent) {
+        use hf_hub::progress::{DownloadEvent, ProgressEvent};
+
+        let ProgressEvent::Download(event) = event else {
+            return;
+        };
+        match event {
+            DownloadEvent::Start { total_bytes, .. } => {
+                if let Ok(mut guard) = self.inner.lock() {
+                    guard.add_file(*total_bytes);
+                }
+                tracing::info!(size_bytes = total_bytes, "bundle file init");
+            }
+            DownloadEvent::Progress { files } => {
+                for file in files {
+                    self.advance_to(file.bytes_completed);
+                }
+            }
+            DownloadEvent::AggregateProgress {
+                bytes_completed, ..
+            } => self.advance_to(*bytes_completed),
+            // Per-file completion is a no-op — the aggregator only finalises
+            // once at the end of the bundle loop.
+            DownloadEvent::Complete => {}
+        }
     }
 }
 
@@ -1210,5 +1255,69 @@ mod sha256_tests {
         );
         assert!(verify_sha256(&path, &expected.to_uppercase()).unwrap());
         let _ = std::fs::remove_file(&path);
+    }
+}
+
+#[cfg(test)]
+#[cfg(feature = "candle-backend")]
+#[allow(clippy::unwrap_used)] // tests panic on a poisoned bridge by design
+mod bundle_progress_tests {
+    use super::{AggregateProgress, BundleFileProgress};
+    use crate::traits::events::NullEventSink;
+    use hf_hub::progress::{
+        DownloadEvent, FileProgress, FileStatus, ProgressEvent, ProgressHandler,
+    };
+    use std::sync::{Arc, Mutex};
+
+    fn start(total_bytes: u64) -> ProgressEvent {
+        ProgressEvent::Download(DownloadEvent::Start {
+            total_files: 1,
+            total_bytes,
+        })
+    }
+
+    fn file_at(bytes_completed: u64, total_bytes: u64) -> ProgressEvent {
+        ProgressEvent::Download(DownloadEvent::Progress {
+            files: vec![FileProgress {
+                filename: "model.safetensors".into(),
+                bytes_completed,
+                total_bytes,
+                status: FileStatus::InProgress,
+            }],
+        })
+    }
+
+    fn batch_at(bytes_completed: u64, total_bytes: u64) -> ProgressEvent {
+        ProgressEvent::Download(DownloadEvent::AggregateProgress {
+            bytes_completed,
+            total_bytes,
+            bytes_per_sec: None,
+        })
+    }
+
+    #[test]
+    fn one_bar_counts_every_byte_of_every_file_once() {
+        let bridge = Arc::new(Mutex::new(AggregateProgress::new(
+            "download".into(),
+            Arc::new(NullEventSink),
+        )));
+
+        // A plain download: cumulative counts, a repeat, and its completion.
+        let plain = BundleFileProgress::new(&bridge);
+        plain.on_progress(&start(100));
+        plain.on_progress(&file_at(40, 100));
+        plain.on_progress(&file_at(100, 100));
+        plain.on_progress(&file_at(100, 100));
+        plain.on_progress(&ProgressEvent::Download(DownloadEvent::Complete));
+
+        // A Xet download reports its batch instead, and starts from zero again.
+        let xet = BundleFileProgress::new(&bridge);
+        xet.on_progress(&start(50));
+        xet.on_progress(&batch_at(20, 50));
+        xet.on_progress(&batch_at(50, 50));
+
+        let progress = bridge.lock().unwrap();
+        assert_eq!(progress.total, 150);
+        assert_eq!(progress.current, 150);
     }
 }

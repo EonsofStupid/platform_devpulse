@@ -5,7 +5,7 @@
  * @module @devpulse/domains/chat/util/room-seating
  */
 
-import { fill } from "$lib/sys/copy/index.js";
+import { fill } from "#lib/sys/copy/index.js";
 import type {
 	Assignment,
 	Issue,
@@ -15,7 +15,7 @@ import type {
 	RoomChatCopy,
 	RoomSpec,
 	Seat,
-} from "$lib/sys/generated/bindings.js";
+} from "#lib/sys/generated/bindings.js";
 
 /** One place of a room, as you are choosing it. */
 export interface PlaceDraft {

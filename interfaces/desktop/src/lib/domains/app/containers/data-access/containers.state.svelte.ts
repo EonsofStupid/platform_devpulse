@@ -9,10 +9,10 @@
  * in `error`.
  */
 
-import { signalFabric } from "$lib/sys/events/signal-fabric.js";
-import type { Answers, ContainersState, Result, Step } from "$lib/sys/generated/bindings.js";
-import { commands } from "$lib/sys/generated/bindings.js";
-import { logError } from "$lib/sys/logger.js";
+import { signalFabric } from "#lib/sys/events/signal-fabric.js";
+import type { Answers, ContainersState, Result, Step } from "#lib/sys/generated/bindings.js";
+import { commands } from "#lib/sys/generated/bindings.js";
+import { logError } from "#lib/sys/logger.js";
 
 export type { Answers, ContainersState, Step };
 

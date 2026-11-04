@@ -11,7 +11,7 @@
  * catalog. Nothing here names a route.
  */
 
-import { pagesUnder, type RouteNode, routeTree } from "$lib/sys/routing/index.js";
+import { pagesUnder, type RouteNode, routeTree } from "#lib/sys/routing/index.js";
 
 /** `/(app)/devpulse/models` → `(app)`; empty when the route has no group. */
 export function groupOf(routeId: string | null): string {

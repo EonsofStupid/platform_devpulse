@@ -11,9 +11,9 @@ import type {
 	GraphHealthAll,
 	GraphNamespace,
 	GraphNamespaceStats,
-} from "$lib/devtools/clyffy/reasoning/rro/util/rro.types.js";
-import { commands } from "$lib/sys/generated/bindings.js";
-import { withRetry } from "$lib/sys/retry.js";
+} from "#lib/devtools/clyffy/reasoning/rro/util/rro.types.js";
+import { commands } from "#lib/sys/generated/bindings.js";
+import { withRetry } from "#lib/sys/retry.js";
 import { trace } from "./rro.trace.js";
 
 /** Check all 3 namespaces + HTTP server in one shot. */

@@ -3,7 +3,7 @@
  * @module @devpulse/domains/chat/util/format
  */
 
-import type { ChatMessage } from "$lib/sys/generated/bindings.js";
+import type { ChatMessage } from "#lib/sys/generated/bindings.js";
 import type { BlockChatMessage } from "./chat.types.js";
 
 export function formatTime(epochSec: number): string {

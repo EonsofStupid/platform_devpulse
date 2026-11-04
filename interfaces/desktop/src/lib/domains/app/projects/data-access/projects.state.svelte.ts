@@ -11,10 +11,10 @@
  * whenever the active project changes.
  */
 
-import { signalFabric } from "$lib/sys/events/signal-fabric.js";
-import type { Project, ProjectReference, Result } from "$lib/sys/generated/bindings.js";
-import { commands } from "$lib/sys/generated/bindings.js";
-import { logError, logInfo } from "$lib/sys/logger.js";
+import { signalFabric } from "#lib/sys/events/signal-fabric.js";
+import type { Project, ProjectReference, Result } from "#lib/sys/generated/bindings.js";
+import { commands } from "#lib/sys/generated/bindings.js";
+import { logError, logInfo } from "#lib/sys/logger.js";
 
 export type { Project, ProjectReference };
 

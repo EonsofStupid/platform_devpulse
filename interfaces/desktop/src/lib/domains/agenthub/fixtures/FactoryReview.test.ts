@@ -12,7 +12,7 @@ const criterionTwo = () =>
 	page.getByRole("checkbox", { name: "Conflicting updates require a fresh review" });
 
 it("requires criteria, invalidates a checklist after policy changes and records acceptance", async () => {
-	render(FactoryReview);
+	await render(FactoryReview);
 	await reviewTicket().click();
 	await expect.element(page.getByRole("button", { name: "Accept outcome" })).toBeDisabled();
 	await criterionOne().click();
@@ -35,7 +35,7 @@ it("requires criteria, invalidates a checklist after policy changes and records 
 });
 
 it("keeps a human correction across the next proposal without carrying acceptance forward", async () => {
-	render(FactoryReview);
+	await render(FactoryReview);
 	await reviewTicket().click();
 	await expect.element(page.getByRole("button", { name: "Request changes" })).toBeDisabled();
 	await criterionOne().click();
@@ -61,7 +61,7 @@ it("keeps a human correction across the next proposal without carrying acceptanc
 });
 
 it("configures Council in chat, enforces vendor independence and retains saved seats", async () => {
-	render(FactoryReview);
+	await render(FactoryReview);
 	await reviewTicket().click();
 	await page.getByRole("button", { name: "Open Council in chat" }).click();
 	await expect
@@ -72,7 +72,7 @@ it("configures Council in chat, enforces vendor independence and retains saved s
 	await page.getByRole("option", { name: "Skeptic", exact: true }).click();
 	await page.getByRole("combobox", { name: "Selector provider" }).click();
 	await page.getByRole("option", { name: "Codex · sample", exact: true }).click();
-	await expect.element(page.getByRole("alert")).toHaveTextContent("different vendor");
+	await expect.element(page.getByRole("alert")).toMatchTextContent("different vendor");
 	await expect
 		.element(page.getByRole("button", { name: "Save Council assignment" }))
 		.toBeDisabled();
@@ -85,11 +85,11 @@ it("configures Council in chat, enforces vendor independence and retains saved s
 	await page.getByRole("button", { name: "Open Council in chat" }).click();
 	await expect
 		.element(page.getByRole("combobox", { name: "Answerer 1 role" }))
-		.toHaveTextContent("Skeptic");
+		.toMatchTextContent("Skeptic");
 });
 
 it("creates an intake ticket with criteria and resets only preview state", async () => {
-	render(FactoryReview);
+	await render(FactoryReview);
 	await page.getByRole("button", { name: "New ticket" }).click();
 	await expect.element(page.getByRole("button", { name: "Create sample ticket" })).toBeDisabled();
 	await page.getByRole("textbox", { name: "Ticket goal" }).fill("Review the recovery path");
@@ -112,7 +112,7 @@ it("creates an intake ticket with criteria and resets only preview state", async
 });
 
 it("renders real generated styles at desktop and narrow widths and supports keyboard activation", async () => {
-	render(FactoryReview);
+	await render(FactoryReview);
 	for (const width of [1440, 1024, 390]) {
 		await page.viewport(width, 1000);
 		expect(document.documentElement.scrollWidth).toBeLessThanOrEqual(width);

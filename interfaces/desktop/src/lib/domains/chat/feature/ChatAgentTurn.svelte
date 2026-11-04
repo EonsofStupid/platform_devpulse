@@ -7,7 +7,7 @@
 	and Stop. Text comes from the copy catalog.
 -->
 <script lang="ts">
-import { copyState, fill } from "$lib/sys/copy/index.js";
+import { copyState, fill } from "#lib/sys/copy/index.js";
 import { agentsState, type RunningTurn } from "../data-access/agents.state.svelte.js";
 import { AgentTurn } from "../ui/agent-turn/index.js";
 

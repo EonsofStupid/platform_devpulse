@@ -13,8 +13,8 @@ import {
 	type UserPreferences,
 	type UserProfile,
 	updateUserProfile,
-} from "$lib/sys/bindings/devpulse/index.js";
-import { logError, logInfo } from "$lib/sys/logger.js";
+} from "#lib/sys/bindings/devpulse/index.js";
+import { logError, logInfo } from "#lib/sys/logger.js";
 
 class ProfileSettingsState {
 	profile = $state<UserProfile | null>(null);

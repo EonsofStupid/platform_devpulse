@@ -8,7 +8,7 @@
  * `Tooltip`, `Card preset="glass"`, `SparkLine`, `RadialGauge`,
  * `Meter`, `StatusDot`, `Kbd`, `KeyValue`, `Code`). The few adapters
  * exported below exist only to (a) compose ServiceDevtoolShell chrome,
- * (b) bind shipped primitives to the rune helpers in `$lib/sys/runes`,
+ * (b) bind shipped primitives to the rune helpers in `#lib/sys/runes/index.js`,
  * (c) map `CommandError.kind` to Badge variants. **No bespoke divs.**
  *
  * See `_shared/README.md` for the full golden-pattern playbook.

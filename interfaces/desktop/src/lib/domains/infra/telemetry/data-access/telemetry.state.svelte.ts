@@ -9,7 +9,7 @@
  * All data loaded via IPC on demand — nothing mocked.
  */
 
-import { logError, logInfo } from "$lib/sys/logger.js";
+import { logError, logInfo } from "#lib/sys/logger.js";
 import type {
 	LaneBaselineRow,
 	LanePreset,

@@ -28,7 +28,7 @@ import { Card } from "@devpulse/coldlight/components/card";
 import { Heading } from "@devpulse/coldlight/components/heading";
 import { Text } from "@devpulse/coldlight/components/text";
 import { TextField } from "@devpulse/coldlight/components/text-field";
-import { commands, type RuntimePickerCopy } from "$lib/sys/generated/bindings.js";
+import { commands, type RuntimePickerCopy } from "#lib/sys/generated/bindings.js";
 import { profileState } from "../index.js";
 
 interface Props {

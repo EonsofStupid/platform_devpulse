@@ -4,14 +4,14 @@ import type {
 	HardwareInfo,
 	HardwareMetrics,
 	HardwareSnapshot,
-} from "$lib/sys/generated/bindings.js";
+} from "#lib/sys/generated/bindings.js";
 
 const mocks = vi.hoisted(() => ({
 	handlers: new Map<string, (snapshot: HardwareSnapshot | { phase: "ready" }) => void>(),
 	fetch: vi.fn(),
 	configure: vi.fn(),
 }));
-vi.mock("$lib/sys/events/signal-fabric.js", () => ({
+vi.mock("#lib/sys/events/signal-fabric.js", () => ({
 	signalFabric: {
 		on: (kind: string, handler: (snapshot: HardwareSnapshot | { phase: "ready" }) => void) => {
 			mocks.handlers.set(kind, handler);
@@ -20,8 +20,8 @@ vi.mock("$lib/sys/events/signal-fabric.js", () => ({
 	},
 }));
 vi.mock("./hardware.service.js", () => ({ fetchHardwareMetrics: mocks.fetch }));
-vi.mock("$lib/sys/generated/bindings.js", () => ({ commands: { autoConfigure: mocks.configure } }));
-vi.mock("$lib/sys/logger.js", () => ({ logDebug: vi.fn(), logError: vi.fn(), logInfo: vi.fn() }));
+vi.mock("#lib/sys/generated/bindings.js", () => ({ commands: { autoConfigure: mocks.configure } }));
+vi.mock("#lib/sys/logger.js", () => ({ logDebug: vi.fn(), logError: vi.fn(), logInfo: vi.fn() }));
 
 import { hardwareState } from "./hardware.state.svelte.js";
 

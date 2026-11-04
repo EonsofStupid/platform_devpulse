@@ -5,7 +5,7 @@
 -->
 <script lang="ts">
 import { AlertTriangle } from "lucide-svelte";
-import { copyState, fill } from "$lib/sys/copy/index.js";
+import { copyState, fill } from "#lib/sys/copy/index.js";
 import { hardwareState } from "../../../data-access/hardware.state.svelte.js";
 import { modelsState } from "../../../data-access/models.state.svelte.js";
 import { formatMb, friendlySlotLabel, isInferenceReady } from "../../../util/models.types.js";

@@ -13,9 +13,9 @@
 import {
 	type Capability,
 	getCapability,
-} from "$lib/devtools/clyffy/reasoning/rro/util/rro.capabilities.js";
-import type { RroTabId } from "$lib/devtools/clyffy/reasoning/rro/util/rro.types.js";
-import { logDebug, logInfo, logWarn } from "$lib/sys/logger.js";
+} from "#lib/devtools/clyffy/reasoning/rro/util/rro.capabilities.js";
+import type { RroTabId } from "#lib/devtools/clyffy/reasoning/rro/util/rro.types.js";
+import { logDebug, logInfo, logWarn } from "#lib/sys/logger.js";
 
 /** Global debug toggle. Set via devtool footer or URL flag. */
 let RRO_DEBUG = false;

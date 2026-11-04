@@ -12,7 +12,7 @@ import { cssVarString, renderForge } from "@devpulse/coldlight/renderforge";
 import { hstack } from "@devpulse/coldlight/utils/hstack";
 import { stack } from "@devpulse/coldlight/utils/stack";
 import { Download, Flame, Power, PowerOff, RefreshCw, Search, Sparkles, X } from "lucide-svelte";
-import { logInfo } from "$lib/sys/logger.js";
+import { logInfo } from "#lib/sys/logger.js";
 import { brainCardState } from "../../data-access/brain-card.state.svelte.js";
 import { downloadModel } from "../../data-access/download.service.js";
 import { hardwareState } from "../../data-access/hardware.state.svelte.js";

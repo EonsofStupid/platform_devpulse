@@ -4,9 +4,9 @@
 -->
 <script lang="ts">
 import { cn } from "@devpulse/coldlight/utils";
-import { agenthubState } from "$lib/domains/agenthub/index.js";
-import { providersState } from "$lib/domains/app/providers/index.js";
-import { copyState, fill } from "$lib/sys/copy/index.js";
+import { agenthubState } from "#lib/domains/agenthub/index.js";
+import { providersState } from "#lib/domains/app/providers/index.js";
+import { copyState, fill } from "#lib/sys/copy/index.js";
 import { agentsState } from "../data-access/agents.state.svelte.js";
 import { chatState } from "../data-access/chat.state.svelte.js";
 import { roomsState } from "../data-access/rooms.state.svelte.js";

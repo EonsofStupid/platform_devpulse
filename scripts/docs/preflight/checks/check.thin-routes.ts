@@ -39,9 +39,9 @@ const FORBIDDEN_PATTERNS = [
 
 /** Allowed patterns in route files */
 const ALLOWED_IMPORTS = [
-  /^\$lib\/domains\/.*\/index(\.js|\.ts)?$/,
-  /^\$lib\/domains\/.*\/pages\//,
-  /^\$lib\/sys\//,
+  /^#lib\/domains\/.*\/index(\.js|\.ts)?$/,
+  /^#lib\/domains\/.*\/pages\//,
+  /^#lib\/sys\//,
   /^\$app\//,
   /^svelte/,
   /^\.\.\//,

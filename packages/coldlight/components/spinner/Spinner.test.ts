@@ -21,13 +21,13 @@ import { Spinner } from "./index.js";
 
 describe("spinner component — ARIA", () => {
 	test("has role='status'", async () => {
-		const { getByRole } = render(Spinner);
+		const { getByRole } = await render(Spinner);
 		const el = getByRole("status");
 		expect(el).toBeTruthy();
 	});
 
 	test("has aria-label='Loading' by default when active", async () => {
-		const { getByRole } = render(Spinner);
+		const { getByRole } = await render(Spinner);
 		const el = getByRole("status");
 		await expect.element(el).toHaveAttribute("aria-label", "Loading");
 	});
@@ -39,7 +39,7 @@ describe("spinner component — ARIA", () => {
 
 describe("spinner component — data-state", () => {
 	test("data-state is 'active' by default", async () => {
-		const { getByRole } = render(Spinner);
+		const { getByRole } = await render(Spinner);
 		const el = getByRole("status");
 		await expect.element(el).toHaveAttribute("data-state", "active");
 	});
@@ -51,21 +51,21 @@ describe("spinner component — data-state", () => {
 
 describe("spinner component — composition", () => {
 	test("applies composition base classes", async () => {
-		const { getByRole } = render(Spinner);
+		const { getByRole } = await render(Spinner);
 		const el = getByRole("status");
 		await expect.element(el).toHaveClass("inline-block");
 		await expect.element(el).toHaveClass("animate-spin");
 	});
 
 	test("applies size variant classes", async () => {
-		const { getByRole } = render(Spinner, { props: { size: "sm" } });
+		const { getByRole } = await render(Spinner, { props: { size: "sm" } });
 		const el = getByRole("status");
 		await expect.element(el).toHaveClass("h-4");
 		await expect.element(el).toHaveClass("w-4");
 	});
 
 	test("merges custom class prop", async () => {
-		const { getByRole } = render(Spinner, { props: { class: "my-custom" } });
+		const { getByRole } = await render(Spinner, { props: { class: "my-custom" } });
 		const el = getByRole("status");
 		await expect.element(el).toHaveClass("my-custom");
 	});

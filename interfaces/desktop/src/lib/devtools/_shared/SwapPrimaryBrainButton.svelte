@@ -34,10 +34,10 @@
 <script lang="ts">
 import { Button, type ButtonSize, type ButtonVariant } from "@devpulse/coldlight/components/button";
 import { BrainCog } from "lucide-svelte";
-import { modelsState } from "$lib/domains/app/models/index.js";
-import { ClyffyLoadingBlock } from "$lib/domains/clyffy/index.js";
-import { commands } from "$lib/sys/generated/bindings.js";
-import { logInfo } from "$lib/sys/logger.js";
+import { modelsState } from "#lib/domains/app/models/index.js";
+import { ClyffyLoadingBlock } from "#lib/domains/clyffy/index.js";
+import { commands } from "#lib/sys/generated/bindings.js";
+import { logInfo } from "#lib/sys/logger.js";
 
 interface Props {
 	/** Model id to assign to the slot. */

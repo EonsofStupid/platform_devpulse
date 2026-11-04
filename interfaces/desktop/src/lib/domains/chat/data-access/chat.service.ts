@@ -4,16 +4,16 @@
  */
 
 import { Channel } from "@tauri-apps/api/core";
-import { projectsState } from "$lib/domains/app/projects/index.js";
-import { withAction } from "$lib/sys/action-bus.svelte.js";
+import { projectsState } from "#lib/domains/app/projects/index.js";
+import { withAction } from "#lib/sys/action-bus.svelte.js";
 import {
 	type ChatMessage,
 	type ChatSession,
 	commands,
 	type ExportFormat,
 	type ExportSummary,
-} from "$lib/sys/generated/bindings.js";
-import { logError, logInfo } from "$lib/sys/logger.js";
+} from "#lib/sys/generated/bindings.js";
+import { logError, logInfo } from "#lib/sys/logger.js";
 
 function activeProjectId(): string | null {
 	return projectsState.activeProjectId;

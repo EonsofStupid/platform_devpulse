@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
+import type { RouteNode } from "#lib/sys/routing/index.js";
 import { resolve } from "$app/paths";
-import type { RouteNode } from "$lib/sys/routing/index.js";
 
 const mocks = vi.hoisted(() => ({
 	label: "chat",
@@ -17,10 +17,10 @@ vi.mock("@tauri-apps/api/event", () => ({
 	emit: mocks.emit,
 }));
 vi.mock("$app/navigation", () => ({ goto: mocks.goto }));
-vi.mock("$lib/sys/generated/bindings.js", () => ({ commands: { openWindow: mocks.open } }));
-vi.mock("$lib/sys/routing/index.js", () => ({
+vi.mock("#lib/sys/generated/bindings.js", () => ({ commands: { openWindow: mocks.open } }));
+vi.mock("#lib/sys/routing/index.js", () => ({
 	findRoute: (path: string) =>
-		path === resolve("/overmind/agenthub")
+		path === resolve("overmind/agenthub")
 			? { path, routeId: "/(app)/overmind/agenthub", hasPage: true }
 			: undefined,
 	hrefOf: (route: RouteNode) => route.path,
@@ -28,7 +28,7 @@ vi.mock("$lib/sys/routing/index.js", () => ({
 
 import { openMainPage, startMainNavigation } from "./navigation.js";
 
-const route = { path: resolve("/overmind/agenthub") } as RouteNode;
+const route = { path: resolve("overmind/agenthub") } as RouteNode;
 const detach = vi.fn();
 beforeEach(() => {
 	vi.resetAllMocks();
@@ -50,7 +50,7 @@ it("keeps chat in place, registers the reply first and waits for the matching ma
 	);
 	const request = mocks.emitTo.mock.calls[0][2];
 	expect(request).toMatchObject({
-		path: resolve("/overmind/agenthub"),
+		path: resolve("overmind/agenthub"),
 		conversation: "session & 1",
 		source: "chat",
 	});
@@ -95,10 +95,10 @@ it("routes only registered app pages in main and encodes the conversation contex
 	mocks.label = "main";
 	await openMainPage(route, "session & 1");
 	expect(mocks.goto).toHaveBeenCalledWith(
-		`${resolve("/overmind/agenthub")}?conversation=session+%26+1`,
+		`${resolve("overmind/agenthub")}?conversation=session+%26+1`,
 	);
 	await expect(
-		openMainPage({ ...route, path: resolve("/chat") as RouteNode["path"] }),
+		openMainPage({ ...route, path: resolve("chat") as RouteNode["path"] }),
 	).rejects.toThrow("main application");
 	expect(mocks.emitTo).not.toHaveBeenCalled();
 });

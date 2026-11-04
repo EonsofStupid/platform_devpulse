@@ -22,19 +22,19 @@ import Badge from "./Badge.svelte";
 
 describe("badge component — structural attributes", () => {
 	test("renders a <span> element with role='status'", async () => {
-		const { getByRole } = render(Badge);
+		const { getByRole } = await render(Badge);
 		const badge = getByRole("status");
 		expect(badge).toBeTruthy();
 	});
 
 	test("has data-kind='badge'", async () => {
-		const { getByRole } = render(Badge);
+		const { getByRole } = await render(Badge);
 		const badge = getByRole("status");
 		await expect.element(badge).toHaveAttribute("data-kind", "badge");
 	});
 
 	test("has data-slot='root'", async () => {
-		const { getByRole } = render(Badge);
+		const { getByRole } = await render(Badge);
 		const badge = getByRole("status");
 		await expect.element(badge).toHaveAttribute("data-slot", "root");
 	});
@@ -46,13 +46,13 @@ describe("badge component — structural attributes", () => {
 
 describe("badge component — ARIA attributes", () => {
 	test("has role='status'", async () => {
-		const { getByRole } = render(Badge);
+		const { getByRole } = await render(Badge);
 		const badge = getByRole("status");
 		await expect.element(badge).toHaveAttribute("role", "status");
 	});
 
 	test("passes aria-label when provided", async () => {
-		const { getByRole } = render(Badge, { props: { "aria-label": "3 notifications" } });
+		const { getByRole } = await render(Badge, { props: { "aria-label": "3 notifications" } });
 		const badge = getByRole("status");
 		await expect.element(badge).toHaveAttribute("aria-label", "3 notifications");
 	});
@@ -64,7 +64,7 @@ describe("badge component — ARIA attributes", () => {
 
 describe("badge component — prop passthrough", () => {
 	test("passes class prop", async () => {
-		const { getByRole } = render(Badge, { props: { class: "custom-badge" } });
+		const { getByRole } = await render(Badge, { props: { class: "custom-badge" } });
 		const badge = getByRole("status");
 		await expect.element(badge).toHaveClass("custom-badge");
 	});

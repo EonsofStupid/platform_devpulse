@@ -3,10 +3,10 @@
 	@route /devtools/clyffy/reasoning/rro
 
 	Mounts the RRO trifecta devtool feature component. All logic + IPC
-	live in `$lib/devtools/clyffy/reasoning/rro/`.
+	live in `#lib/devtools/clyffy/reasoning/rro//index.js`.
 -->
 <script lang="ts">
-import { RroDevtool } from "$lib/devtools/clyffy/reasoning/rro/index.js";
+import { RroDevtool } from "#lib/devtools/clyffy/reasoning/rro/index.js";
 </script>
 
 <RroDevtool />

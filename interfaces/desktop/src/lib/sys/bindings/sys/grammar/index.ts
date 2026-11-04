@@ -3,7 +3,7 @@
  * @description Structured-output grammar engine — kind / enable / disable.
  */
 
-import { commands } from "$lib/sys/generated/bindings.js";
+import { commands } from "#lib/sys/generated/bindings.js";
 
 export const getGrammarState = commands.getGrammarState;
 export const setGrammarKind = commands.setGrammarKind;
@@ -15,4 +15,4 @@ export type {
 	GrammarKind,
 	GrammarSnapshot,
 	GrammarStatus,
-} from "$lib/sys/generated/bindings.js";
+} from "#lib/sys/generated/bindings.js";

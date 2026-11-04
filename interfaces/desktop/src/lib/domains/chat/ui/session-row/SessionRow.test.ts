@@ -8,7 +8,7 @@ const session = { id: "review", title: "Review implementation", updatedAt: 0 };
 
 it("selects by keyboard and paints selection through generated CSS", async () => {
 	const onClick = vi.fn();
-	const { container, rerender } = render(SessionRow, {
+	const { container, rerender } = await render(SessionRow, {
 		props: { session, active: false, onClick },
 	});
 	const button = container.querySelector("button");
@@ -28,7 +28,7 @@ it("selects by keyboard and paints selection through generated CSS", async () =>
 
 it("disabled rows cannot invoke selection", async () => {
 	const onClick = vi.fn();
-	const { container } = render(SessionRow, {
+	const { container } = await render(SessionRow, {
 		props: { session, active: false, disabled: true, onClick },
 	});
 	const button = container.querySelector("button");
@@ -38,8 +38,8 @@ it("disabled rows cannot invoke selection", async () => {
 	expect(onClick).not.toHaveBeenCalled();
 });
 
-it("keeps the title and timestamp readable when the session rail must scroll", () => {
-	const { container } = render(SessionRow, {
+it("keeps the title and timestamp readable when the session rail must scroll", async () => {
+	const { container } = await render(SessionRow, {
 		props: { session, active: false, onClick: () => {} },
 	});
 	const row = container.querySelector("button");

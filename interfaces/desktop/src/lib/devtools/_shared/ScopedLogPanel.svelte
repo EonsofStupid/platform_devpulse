@@ -16,7 +16,7 @@
 
 	```svelte
 	<script lang="ts">
-import { ScopedLogPanel } from "$lib/devtools/index.js";
+import { ScopedLogPanel } from "#lib/devtools/index.js";
 </script>
 
 	<ServiceDevtoolShell …>
@@ -31,8 +31,8 @@ import { ScopedLogPanel } from "$lib/devtools/index.js";
 	import { InlineMessage } from "@devpulse/coldlight/components/inline-message";
 	import { Spinner } from "@devpulse/coldlight/components/spinner";
 	import { Text } from "@devpulse/coldlight/components/text";
-	import type { ScopedLogEntry } from "$lib/sys/generated/bindings.js";
-	import { commands } from "$lib/sys/generated/bindings.js";
+	import type { ScopedLogEntry } from "#lib/sys/generated/bindings.js";
+	import { commands } from "#lib/sys/generated/bindings.js";
 
 	interface Props {
 		/** Tracing target filter — e.g. `devtools.surreal`. */

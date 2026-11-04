@@ -52,8 +52,8 @@ import {
 	type HealthBadge,
 	ScopedLogPanel,
 	ServiceDevtoolShell,
-} from "$lib/devtools/index.js";
-import { KnowledgeDeck } from "$lib/domains/app/knowledge/index.js";
+} from "#lib/devtools/index.js";
+import { KnowledgeDeck } from "#lib/domains/app/knowledge/index.js";
 import {
 	formatMb,
 	getSlotLabel,
@@ -63,10 +63,10 @@ import {
 	modelsState,
 	ROLE_FRAMES,
 	VramBar,
-} from "$lib/domains/app/models/index.js";
-import DownloadPanel from "$lib/sys/activity-hud/DownloadPanel.svelte";
-import InstallPanel from "$lib/sys/activity-hud/InstallPanel.svelte";
-import { encoderEmbed, encoderIsLoaded, modelsDirPath } from "$lib/sys/bindings/models/index.js";
+} from "#lib/domains/app/models/index.js";
+import DownloadPanel from "#lib/sys/activity-hud/DownloadPanel.svelte";
+import InstallPanel from "#lib/sys/activity-hud/InstallPanel.svelte";
+import { encoderEmbed, encoderIsLoaded, modelsDirPath } from "#lib/sys/bindings/models/index.js";
 import { slotsBootstrapState } from "../data-access/slots-bootstrap.state.svelte.js";
 import AnatomyConstellation from "../ui/AnatomyConstellation.svelte";
 import AnatomyTile from "../ui/AnatomyTile.svelte";

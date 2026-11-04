@@ -6,7 +6,7 @@
 import "@devpulse/coldlight/index.css";
 import { expect, test, vi } from "vitest";
 import { render } from "vitest-browser-svelte";
-import type { AgentChatCopy } from "$lib/sys/generated/bindings.js";
+import type { AgentChatCopy } from "#lib/sys/generated/bindings.js";
 import CouncilConfig from "./CouncilConfig.svelte";
 import type { CouncilConfigProps, CouncilSeat } from "./council-config.types.js";
 
@@ -35,12 +35,12 @@ const reviewer: CouncilSeat = {
 	],
 };
 
-function setup(seats: CouncilSeat[], overrides: Partial<CouncilConfigProps> = {}) {
+async function setup(seats: CouncilSeat[], overrides: Partial<CouncilConfigProps> = {}) {
 	const onChange = vi.fn();
 	const onNotes = vi.fn();
 	const onSave = vi.fn();
 	const onBack = vi.fn();
-	const screen = render(CouncilConfig, {
+	const screen = await render(CouncilConfig, {
 		copy: {
 			region: "Seat this room",
 			eyebrow: "Seat this room",
@@ -80,7 +80,7 @@ function setup(seats: CouncilSeat[], overrides: Partial<CouncilConfigProps> = {}
 }
 
 test("a seat says what it is for, what it can do, and yes on notes", async () => {
-	const { screen } = setup([reviewer]);
+	const { screen } = await setup([reviewer]);
 	await expect.element(screen.getByText("Answers without seeing the others")).toBeVisible();
 	await expect.element(screen.getByText("Reads this project, changes nothing")).toBeVisible();
 	await expect.element(screen.getByText("Notes: yes")).toBeVisible();
@@ -88,21 +88,21 @@ test("a seat says what it is for, what it can do, and yes on notes", async () =>
 });
 
 test("a seat without notes says no, and the switch reports which seat", async () => {
-	const { screen, onNotes } = setup([{ ...reviewer, notes: false }]);
+	const { screen, onNotes } = await setup([{ ...reviewer, notes: false }]);
 	await expect.element(screen.getByText("Notes: no")).toBeVisible();
 	await screen.getByRole("switch", { name: "Send my notes" }).click();
 	expect(onNotes).toHaveBeenCalledWith("answerer-1", true);
 });
 
 test("changing a role reports which seat and which role", async () => {
-	const { screen, onChange } = setup([reviewer]);
+	const { screen, onChange } = await setup([reviewer]);
 	await screen.getByRole("combobox", { name: "Code Reviewer: role" }).click();
 	await screen.getByRole("option", { name: "Domain Expert" }).click();
 	expect(onChange).toHaveBeenCalledWith("answerer-1", "role", "domain-expert@1");
 });
 
 test("an agent that is not ready says why and cannot be chosen", async () => {
-	const { screen, onChange } = setup([reviewer]);
+	const { screen, onChange } = await setup([reviewer]);
 	await screen.getByRole("combobox", { name: "Code Reviewer: agent" }).click();
 	const gemini = screen.getByRole("option", { name: "Gemini — Sign in first" });
 	await expect.element(gemini).toBeVisible();
@@ -111,7 +111,7 @@ test("an agent that is not ready says why and cannot be chosen", async () => {
 });
 
 test("a seat with one role to take cannot pretend otherwise", async () => {
-	const { screen } = setup([
+	const { screen } = await setup([
 		{ ...reviewer, roleChoices: [{ id: "code-reviewer@1", label: "Code Reviewer" }] },
 	]);
 	await expect
@@ -120,7 +120,7 @@ test("a seat with one role to take cannot pretend otherwise", async () => {
 });
 
 test("what stops a seat shows on that seat, and what it is told can be opened", async () => {
-	const { screen } = setup([{ ...reviewer, problems: ["needs an agent"] }]);
+	const { screen } = await setup([{ ...reviewer, problems: ["needs an agent"] }]);
 	await expect.element(screen.getByText("needs an agent")).toBeVisible();
 	await screen.getByRole("button", { name: "What this seat is told" }).click();
 	await expect.element(screen.getByText("Find what is wrong")).toBeVisible();
@@ -128,10 +128,10 @@ test("what stops a seat shows on that seat, and what it is told can be opened", 
 });
 
 test("a problem holds the start button; without one it starts", async () => {
-	const held = setup([reviewer], { validation: "Same vendor" });
+	const held = await setup([reviewer], { validation: "Same vendor" });
 	await expect.element(held.screen.getByText("Same vendor")).toBeVisible();
 	await expect.element(held.screen.getByRole("button", { name: "Start this room" })).toBeDisabled();
-	const free = setup([reviewer]);
+	const free = await setup([reviewer]);
 	await free.screen.getByRole("button", { name: "Start this room" }).click();
 	expect(free.onSave).toHaveBeenCalledOnce();
 });

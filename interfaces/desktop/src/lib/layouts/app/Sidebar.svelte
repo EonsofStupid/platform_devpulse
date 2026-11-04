@@ -29,10 +29,10 @@ import { Button } from "@devpulse/coldlight/components/button";
 import { Text } from "@devpulse/coldlight/components/text";
 import { cn, stack } from "@devpulse/coldlight/utils";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-svelte";
+import { copyState } from "#lib/sys/copy/index.js";
+import { hrefOf, type RouteNode, routeCopy } from "#lib/sys/routing/index.js";
+import { globalState } from "#lib/sys/runes/global.svelte.js";
 import { page } from "$app/state";
-import { copyState } from "$lib/sys/copy/index.js";
-import { hrefOf, type RouteNode, routeCopy } from "$lib/sys/routing/index.js";
-import { globalState } from "$lib/sys/runes/global.svelte";
 import { footerEntries, groupOf, hubEntries, isActiveRoute, submenuOf } from "./sidebar-entries.js";
 
 const group = $derived(groupOf(page.route.id));

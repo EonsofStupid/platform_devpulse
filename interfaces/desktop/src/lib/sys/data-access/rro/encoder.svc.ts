@@ -7,9 +7,9 @@
  * cares about.
  */
 
-import type { SlotInfo } from "$lib/devtools/clyffy/reasoning/rro/util/rro.types.js";
-import { commands } from "$lib/sys/generated/bindings.js";
-import { withRetry } from "$lib/sys/retry.js";
+import type { SlotInfo } from "#lib/devtools/clyffy/reasoning/rro/util/rro.types.js";
+import { commands } from "#lib/sys/generated/bindings.js";
+import { withRetry } from "#lib/sys/retry.js";
 import { trace } from "./rro.trace.js";
 
 export const EMBEDDER_SLOT_ID = "rag.embedder" as const;

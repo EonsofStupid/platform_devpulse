@@ -5,7 +5,7 @@
  * Available before the platform finishes booting.
  */
 
-import { commands } from "$lib/sys/generated/bindings.js";
+import { commands } from "#lib/sys/generated/bindings.js";
 
 export const getCopy = commands.getCopy;
 
@@ -22,4 +22,4 @@ export type {
 	WelcomeCopy,
 	YouCopy,
 	YourAiCopy,
-} from "$lib/sys/generated/bindings.js";
+} from "#lib/sys/generated/bindings.js";

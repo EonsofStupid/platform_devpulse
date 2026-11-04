@@ -4,7 +4,7 @@
  * @module @devpulse/domains/app/memory/data-access/memory.state
  */
 
-import type { MemoryNote, MemorySave, MemorySending } from "$lib/sys/generated/bindings.js";
+import type { MemoryNote, MemorySave, MemorySending } from "#lib/sys/generated/bindings.js";
 import * as service from "./memory.service.js";
 
 function message(error: unknown): string {

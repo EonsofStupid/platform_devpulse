@@ -5,8 +5,8 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { devtoolNav, devtoolTiers } from "$lib/devtools/devtool-manifest.js";
-import { parentOf, type RouteNode, routeTree } from "$lib/sys/routing/route-manifest.js";
+import { devtoolNav, devtoolTiers } from "#lib/devtools/devtool-manifest.js";
+import { parentOf, type RouteNode, routeTree } from "#lib/sys/routing/route-manifest.js";
 
 function allNodes(node: RouteNode, out: RouteNode[] = []): RouteNode[] {
 	out.push(node);

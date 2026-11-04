@@ -6,10 +6,10 @@
  * HARD FAIL — no mock data. Errors surface to UI.
  */
 
-import { commands, type HardwareInfo } from "$lib/sys/generated/bindings.js";
-import { logError, logInfo } from "$lib/sys/logger.js";
+import { commands, type HardwareInfo } from "#lib/sys/generated/bindings.js";
+import { logError, logInfo } from "#lib/sys/logger.js";
 
-export type { HardwareInfo } from "$lib/sys/generated/bindings.js";
+export type { HardwareInfo } from "#lib/sys/generated/bindings.js";
 
 /** Per-slot VRAM budget entry. Matches Rust VramBudgetInfo from specta (available after cargo build). */
 export interface VramBudgetInfo {

@@ -1,6 +1,6 @@
 /** @file History selection and paging must never mix artifacts or requests. */
 import { beforeEach, expect, it, vi } from "vitest";
-import type { FoundPage, FoundSession } from "$lib/sys/generated/bindings.js";
+import type { FoundPage, FoundSession } from "#lib/sys/generated/bindings.js";
 
 const mocks = vi.hoisted(() => ({ sessions: vi.fn(), transcript: vi.fn() }));
 vi.mock("./agenthub.service.js", () => mocks);

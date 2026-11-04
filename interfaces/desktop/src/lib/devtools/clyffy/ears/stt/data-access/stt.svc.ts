@@ -5,11 +5,11 @@
  * Thin throw-on-error wrappers over the generated bindings, kept for
  * call-site ergonomics. Devtools that need richer error handling can
  * call `commands.testMicrophone()` etc. directly from
- * `$lib/sys/generated/bindings.js` to get the `Result<T, string>` shape.
+ * `#lib/sys/generated/bindings.js` to get the `Result<T, string>` shape.
  */
 
 import { invoke } from "@tauri-apps/api/core";
-import type { MicTestResult } from "$lib/devtools/_shared/voice-contracts.js";
+import type { MicTestResult } from "#lib/devtools/_shared/voice-contracts.js";
 
 /** Test microphone — records ~1 s, returns peak/avg/noise-floor stats. */
 export async function testMicrophone(): Promise<MicTestResult> {

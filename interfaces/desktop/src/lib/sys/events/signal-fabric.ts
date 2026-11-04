@@ -34,8 +34,8 @@ import {
 	type SignalKind,
 	type SignalVariant,
 	type StateSnapshot,
-} from "$lib/sys/generated/bindings.js";
-import { logDebug, logWarn } from "$lib/sys/logger.js";
+} from "#lib/sys/generated/bindings.js";
+import { logDebug, logWarn } from "#lib/sys/logger.js";
 
 /** Discriminant of every signal variant (`"hardware"`, `"system"`, …). */
 export type SignalType = SignalVariant["type"];

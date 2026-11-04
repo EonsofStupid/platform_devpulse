@@ -6,7 +6,7 @@
  * Components call fetchNext() to get a new entry from the backend.
  */
 
-import { logInfo } from "$lib/sys/logger.js";
+import { logInfo } from "#lib/sys/logger.js";
 import type { KnowledgeEntry, KnowledgeEntryType, KnowledgeReaction } from "../util/index.js";
 import { getKnowledgeEntry, recordReaction } from "./knowledge.service.js";
 

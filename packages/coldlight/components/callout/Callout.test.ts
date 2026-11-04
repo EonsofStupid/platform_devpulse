@@ -21,7 +21,7 @@ import Callout from "./Callout.svelte";
 
 describe("callout component — ARIA", () => {
 	test("has role='note'", async () => {
-		const { getByRole } = render(Callout);
+		const { getByRole } = await render(Callout);
 		const el = getByRole("note");
 		expect(el).toBeTruthy();
 	});
@@ -33,19 +33,19 @@ describe("callout component — ARIA", () => {
 
 describe("callout component — data-state", () => {
 	test("data-state is 'info' by default", async () => {
-		const { getByRole } = render(Callout);
+		const { getByRole } = await render(Callout);
 		const el = getByRole("note");
 		await expect.element(el).toHaveAttribute("data-state", "info");
 	});
 
 	test("data-state is 'warning' when variant is warning", async () => {
-		const { getByRole } = render(Callout, { props: { variant: "warning" } });
+		const { getByRole } = await render(Callout, { props: { variant: "warning" } });
 		const el = getByRole("note");
 		await expect.element(el).toHaveAttribute("data-state", "warning");
 	});
 
 	test("data-state is 'tip' when variant is tip", async () => {
-		const { getByRole } = render(Callout, { props: { variant: "tip" } });
+		const { getByRole } = await render(Callout, { props: { variant: "tip" } });
 		const el = getByRole("note");
 		await expect.element(el).toHaveAttribute("data-state", "tip");
 	});
@@ -57,14 +57,14 @@ describe("callout component — data-state", () => {
 
 describe("callout component — composition", () => {
 	test("applies composition base classes", async () => {
-		const { getByRole } = render(Callout);
+		const { getByRole } = await render(Callout);
 		const el = getByRole("note");
 		await expect.element(el).toHaveClass("relative");
 		await expect.element(el).toHaveClass("flex");
 	});
 
 	test("merges custom class prop", async () => {
-		const { getByRole } = render(Callout, { props: { class: "my-custom" } });
+		const { getByRole } = await render(Callout, { props: { class: "my-custom" } });
 		const el = getByRole("note");
 		await expect.element(el).toHaveClass("my-custom");
 	});

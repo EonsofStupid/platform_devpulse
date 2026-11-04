@@ -10,8 +10,8 @@
 -->
 <script lang="ts">
 import { onMount } from "svelte";
-import { commands } from "$lib/sys/generated/bindings.js";
-import { logError, logInfo } from "$lib/sys/logger.js";
+import { commands } from "#lib/sys/generated/bindings.js";
+import { logError, logInfo } from "#lib/sys/logger.js";
 
 // ── HF Token devtool panel ─────────────────────────────────
 // Private tool. Private to dev mode. Hidden behind Ctrl+Shift+D until

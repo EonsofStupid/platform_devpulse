@@ -14,8 +14,8 @@
  * Follows 10 Commandments: preset-first, layman names, background downloads.
  */
 
-import { isFirstRun, markSetupComplete } from "$lib/sys/bindings/models/index.js";
-import { logInfo, logWarn } from "$lib/sys/logger.js";
+import { isFirstRun, markSetupComplete } from "#lib/sys/bindings/models/index.js";
+import { logInfo, logWarn } from "#lib/sys/logger.js";
 import { hardwareState } from "../../data-access/hardware.state.svelte.js";
 import type { AutoConfig, HardwareTier, SlotId } from "../../util/models.types.js";
 import {

@@ -121,13 +121,13 @@ reqwest = { workspace = true }
 # crate's build script downloads ~100 MB of prebuilt native binaries,
 # so it is gated behind the `sherpa` cargo feature. v1.12.x matches the
 # public sherpa-onnx C library version at time of integration.
-sherpa-onnx = { version = "1.12", optional = true }
+sherpa-onnx = { version = "2.0.1", optional = true }
 
 # Lock-free Option<Arc<T>> for lazy-started services (DevForge)
 arc-swap = { workspace = true }
 
 # Audio playback (TTS output → speakers)
-rodio = "0.19"
+rodio = { workspace = true }
 
 # Burn — optional, gated by the `burn` feature. Engine boot constructs
 # the FlexDevice + sets default dtypes for the CortexBurnAdapter that
@@ -148,6 +148,7 @@ insta = "1.49"
 proptest = "1.12"
 # Signal contract: render `SignalVariant` as the UI sees it.
 specta-typescript = { workspace = true }
+specta-serde = { workspace = true }
 
 [lints]
 workspace = true

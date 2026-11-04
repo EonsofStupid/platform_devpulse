@@ -3,7 +3,7 @@
 	@route /devtools/clyffy/mouth/tts
 -->
 <script lang="ts">
-import { TtsDevtool } from "$lib/devtools/clyffy/mouth/tts/index.js";
+import { TtsDevtool } from "#lib/devtools/clyffy/mouth/tts/index.js";
 </script>
 
 <TtsDevtool />

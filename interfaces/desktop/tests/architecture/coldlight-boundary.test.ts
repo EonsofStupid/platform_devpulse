@@ -21,8 +21,8 @@ const COLDLIGHT_ROOT = resolve(DESKTOP, "../../packages/coldlight");
 /** Static, side-effect and dynamic import specifiers. */
 const SPECIFIER = /(?:from\s+|import\s*\(\s*|import\s+)(["'])([^"']+)\1/g;
 
-/** The app's path aliases (SvelteKit `$lib`, `$app`, `$env`, Node `#lib`). */
-const APP_ALIAS = /^(\$lib|\$app|\$env|#lib)(\/|$)/;
+/** The app's path aliases (Node `#lib`, SvelteKit `$app`, `$env`). */
+const APP_ALIAS = /^(#lib|\$app|\$env)(\/|$)/;
 
 function sourceFiles(dir: string, out: string[] = []): string[] {
 	for (const entry of readdirSync(dir, { withFileTypes: true })) {
@@ -64,7 +64,7 @@ function appImportsBypassingThePackage(): string[] {
 			for (const specifier of specifiers(file)) {
 				const intoColdLight =
 					specifier.startsWith(".") && inside(COLDLIGHT_ROOT, resolve(dirname(file), specifier));
-				if (intoColdLight || specifier.startsWith("$lib/design"))
+				if (intoColdLight || specifier.startsWith("#lib/design"))
 					found.add(`${shown(DESKTOP, file)} -> ${specifier}`);
 			}
 		}

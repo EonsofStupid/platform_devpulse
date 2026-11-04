@@ -15,10 +15,10 @@ import {
 	SelectTrigger,
 } from "@devpulse/coldlight/components/select";
 import { Text } from "@devpulse/coldlight/components/text";
-import { projectsState } from "$lib/domains/app/projects/index.js";
-import { providersState } from "$lib/domains/app/providers/index.js";
-import { copyState } from "$lib/sys/copy/index.js";
-import type { ConnectionReadiness } from "$lib/sys/generated/bindings.js";
+import { projectsState } from "#lib/domains/app/projects/index.js";
+import { providersState } from "#lib/domains/app/providers/index.js";
+import { copyState } from "#lib/sys/copy/index.js";
+import type { ConnectionReadiness } from "#lib/sys/generated/bindings.js";
 import { agentsState } from "../data-access/agents.state.svelte.js";
 import { chatState } from "../data-access/chat.state.svelte.js";
 import { sessionsState } from "../data-access/sessions.state.svelte.js";

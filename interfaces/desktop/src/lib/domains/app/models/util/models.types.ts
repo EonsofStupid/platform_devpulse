@@ -12,7 +12,7 @@ export type {
 	HardwareInfo,
 	ModelInfo,
 	SlotInfo,
-} from "$lib/sys/generated/bindings.js";
+} from "#lib/sys/generated/bindings.js";
 
 export type HardwareTier =
 	| "Ultra"

@@ -38,8 +38,8 @@
  * + selection + dispatch, not byte-counting.
  */
 
-import { downloadState } from "$lib/sys/activity-hud/download.state.svelte.js";
-import { installState } from "$lib/sys/activity-hud/install.state.svelte.js";
+import { downloadState } from "#lib/sys/activity-hud/download.state.svelte.js";
+import { installState } from "#lib/sys/activity-hud/install.state.svelte.js";
 import {
 	cancelDownload,
 	clearHfToken,
@@ -50,9 +50,9 @@ import {
 	listRepoFiles,
 	searchHuggingface,
 	setHfToken,
-} from "$lib/sys/bindings/models/index.js";
-import type { DownloadScope, HfSearchResultInfo, RepoFile } from "$lib/sys/generated/bindings.js";
-import { logError, logInfo } from "$lib/sys/logger.js";
+} from "#lib/sys/bindings/models/index.js";
+import type { DownloadScope, HfSearchResultInfo, RepoFile } from "#lib/sys/generated/bindings.js";
+import { logError, logInfo } from "#lib/sys/logger.js";
 import type {
 	DownloaderBundle,
 	DownloaderPhase,

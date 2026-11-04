@@ -5,9 +5,9 @@
  * Singleton mirroring `{data_dir}/user/voice_tts.toml`.
  */
 
-import type { VoiceTtsConfig } from "$lib/devtools/_shared/voice-contracts.js";
-import { commands } from "$lib/sys/generated/bindings.js";
-import { logError, logInfo } from "$lib/sys/logger.js";
+import type { VoiceTtsConfig } from "#lib/devtools/_shared/voice-contracts.js";
+import { commands } from "#lib/sys/generated/bindings.js";
+import { logError, logInfo } from "#lib/sys/logger.js";
 
 class TtsConfigState {
 	config = $state<VoiceTtsConfig | null>(null);
