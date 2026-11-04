@@ -14,5 +14,6 @@ export interface NotesToggleProps {
 	problem: string | null;
 	onChange: (notes: boolean) => void;
 	/** Open the page that chooses which notes go. */
-	onChoose: () => void;
+	/** Opens the page that chooses them; absent where the screen says that once. */
+	onChoose?: () => void;
 }

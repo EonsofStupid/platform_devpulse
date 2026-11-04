@@ -14,11 +14,13 @@ import { openMainPage } from "$lib/sys/bindings/window/index.js";
 import { type RouteNode, routeAt, routeCopy } from "$lib/sys/routing/index.js";
 import { agentsState } from "../data-access/agents.state.svelte.js";
 import { chatState } from "../data-access/chat.state.svelte.js";
+import { roomsState } from "../data-access/rooms.state.svelte.js";
 import { sessionsState } from "../data-access/sessions.state.svelte.js";
 import ChatActionsMenu from "./ChatActionsMenu.svelte";
 import ChatComposer from "./ChatComposer.svelte";
 import ChatModeSelector from "./ChatModeSelector.svelte";
 import ChatNotes from "./ChatNotes.svelte";
+import ChatRoomSetup from "./ChatRoomSetup.svelte";
 import ChatSessionList from "./ChatSessionList.svelte";
 import ChatStream from "./ChatStream.svelte";
 import CortexMemoryStrip from "./CortexMemoryStrip.svelte";
@@ -58,6 +60,11 @@ const finishedTurn = $derived.by(() => {
 	return turn?.activity === "idle" ? turn.turnId : null;
 });
 
+/** A room saved something: a turn, or how it ended. */
+const roomRevision = $derived(
+	chatState.activeSessionId ? roomsState.revisions[chatState.activeSessionId] : undefined,
+);
+
 const activeModelEvents = $derived.by(() => {
 	const events: { slotId: string; status: (typeof modelsState.statuses)[string] }[] = [];
 	for (const [slotId, status] of Object.entries(modelsState.statuses)) {
@@ -85,13 +92,18 @@ $effect(() => {
 		previousProject = project;
 	});
 	void agentsState.initialize();
+	void roomsState.initialize();
 	void sessionsState.refresh();
-	if (project) void agentsState.refresh(project);
+	if (project) {
+		void agentsState.refresh(project);
+		void roomsState.refresh(project);
+	}
 });
 
 $effect(() => {
 	void chatState.activeSessionId;
 	void finishedTurn;
+	void roomRevision;
 	if (!projectsState.ready) return;
 	void projectsState.activeProjectId;
 	void chatState.loadActive();
@@ -124,15 +136,19 @@ $effect(() => {
 				</div>
 			</div>
 			{#if navigationError}<Text role="alert" size="xs">{navigationError}</Text>{/if}
-			<ChatNotes />
+			{#if roomsState.screen === "closed"}<ChatNotes />{/if}
 			<CortexMemoryStrip />
 			<div class="relative flex min-h-0 flex-1 gap-2">
 				<div id="chat-sessions" class={`${showSessions ? "flex" : "hidden"} absolute inset-y-0 left-0 z-20 w-56 md:static md:flex md:w-48 md:shrink-0`}>
 					<ChatSessionList onSelect={() => { showSessions = false; }} />
 				</div>
-				<ChatStream class="min-w-0" />
+				{#if roomsState.screen === "closed"}
+					<ChatStream class="min-w-0" />
+				{:else}
+					<ChatRoomSetup />
+				{/if}
 			</div>
-			<ChatComposer />
+			{#if roomsState.screen === "closed"}<ChatComposer />{/if}
 		</div>
 	</div>
 </div>

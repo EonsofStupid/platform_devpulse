@@ -10,7 +10,14 @@ import { tick } from "svelte";
 import { CouncilConfig, type CouncilSeat } from "../../chat/ui/index.js";
 import { FactoryBoard, type FactoryTicket, type Supervision } from "../ui/factory-board/index.js";
 import { TicketDetail } from "../ui/ticket-detail/index.js";
-import { sampleProviders, sampleRoles, sampleSeats, sampleTickets } from "./factory-sample.js";
+import {
+	sampleCouncilCopy,
+	sampleCouncilPreset,
+	sampleProviders,
+	sampleRoles,
+	sampleSeats,
+	sampleTickets,
+} from "./factory-sample.js";
 
 let tickets = $state(sampleTickets());
 let selectedId = $state<string>();
@@ -181,7 +188,7 @@ function reset() {
 	{/if}
 	<div bind:this={detailAnchor} tabindex="-1">
 		{#if screen === "council" && selected}
-			<CouncilConfig ticketId={selected.id} {seats} roles={sampleRoles} providers={sampleProviders} {validation}
+			<CouncilConfig copy={sampleCouncilCopy(selected.id)} preset={sampleCouncilPreset} {seats} roles={sampleRoles} providers={sampleProviders} {validation}
 				onChange={(id, field, value) => { seats = seats.map(seat => seat.id === id ? { ...seat, [field]: value } : seat); }}
 				onSave={saveCouncil} onBack={() => { screen = "board"; void focusDetail(); }} />
 		{:else if screen === "create"}

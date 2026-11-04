@@ -9,6 +9,7 @@ import { Text } from "@devpulse/coldlight/components/text";
 import { projectsState } from "$lib/domains/app/projects/index.js";
 import { copyState } from "$lib/sys/copy/index.js";
 import { chatState } from "../data-access/chat.state.svelte.js";
+import { roomsState } from "../data-access/rooms.state.svelte.js";
 import { sessionsState } from "../data-access/sessions.state.svelte.js";
 import { SessionRow } from "../ui/index.js";
 import ChatAgentPicker from "./ChatAgentPicker.svelte";
@@ -21,6 +22,7 @@ let { onSelect }: { onSelect?: () => void } = $props();
 	<Text size="xs" weight="semibold" class="shrink-0 text-[var(--text-muted)] px-1">SESSIONS</Text>
 	<div class="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto">
 	<ChatAgentPicker />
+	{#if copyState.catalog}<Button variant="secondary" size="sm" disabled={!projectsState.activeProjectId} onclick={() => { roomsState.open(); onSelect?.(); }}>{copyState.catalog.chat.rooms.new_room}</Button>{/if}
     <ChatEndpointPicker />
     {#if copyState.catalog}<Button variant="ghost" size="sm" disabled={!projectsState.activeProjectId} onclick={() => { chatState.setActiveSession(null); void chatState.loadActive(); }}>{copyState.catalog.chat.endpoints.new_local}</Button>{/if}
 	<div class="flex flex-col gap-1">
@@ -34,6 +36,7 @@ let { onSelect }: { onSelect?: () => void } = $props();
 				session={s}
 				active={chatState.activeSessionId === s.id}
 				onClick={() => {
+					roomsState.close();
 					chatState.setActiveSession(s.id);
 					void chatState.loadActive();
 					onSelect?.();

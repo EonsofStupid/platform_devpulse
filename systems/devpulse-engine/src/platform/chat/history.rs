@@ -1,5 +1,5 @@
 //! Strict project/session reads shared by ordinary and endpoint chats.
-use super::{Chat, ChatMessage};
+use super::{Chat, ChatMessage, RoomEntry};
 use crate::platform::{SqlAdapter, SqlRow, SqlValue};
 use anyhow::{Context, Result, ensure};
 use devpulse_clyffy::providers::adapters::openai_compatible::{EndpointChatMessage, EndpointRole};
@@ -22,6 +22,10 @@ fn message(row: &SqlRow) -> Result<ChatMessage> {
         token_count: row.get(5).and_then(SqlValue::as_integer),
         model_used: row.get(6).and_then(SqlValue::as_text).map(str::to_owned),
         latency_ms: row.get(7).and_then(SqlValue::as_integer),
+        room: row
+            .get(8)
+            .and_then(SqlValue::as_text)
+            .and_then(RoomEntry::from_metadata),
     })
 }
 impl Chat {
@@ -57,7 +61,7 @@ impl Chat {
         Ok(())
     }
     pub(super) async fn message(&self, id: &str) -> Result<ChatMessage> {
-        let rows = self.db.query("SELECT id, session_id, role, content, created_at, token_count, model_used, latency_ms FROM turns WHERE id = ?", &[id.into()]).await?;
+        let rows = self.db.query("SELECT id, session_id, role, content, created_at, token_count, model_used, latency_ms, metadata FROM turns WHERE id = ?", &[id.into()]).await?;
         message(rows.first().context("Saved turn was not found")?)
     }
     /// Read the latest 200 turns in conversation order. No selection means a new chat.
@@ -68,7 +72,7 @@ impl Chat {
             return Ok(Vec::new());
         };
         self.require_session(project, session, false).await?;
-        let rows = self.db.query("SELECT id, session_id, role, content, created_at, token_count, model_used, latency_ms FROM (SELECT * FROM turns WHERE session_id = ? AND project_id = ? ORDER BY sequence_num DESC, created_at DESC LIMIT 200) ORDER BY sequence_num ASC, created_at ASC", &[session.into(), project.into()]).await?;
+        let rows = self.db.query("SELECT id, session_id, role, content, created_at, token_count, model_used, latency_ms, metadata FROM (SELECT * FROM turns WHERE session_id = ? AND project_id = ? ORDER BY sequence_num DESC, created_at DESC LIMIT 200) ORDER BY sequence_num ASC, created_at ASC", &[session.into(), project.into()]).await?;
         rows.iter().map(message).collect()
     }
     pub(super) async fn context(

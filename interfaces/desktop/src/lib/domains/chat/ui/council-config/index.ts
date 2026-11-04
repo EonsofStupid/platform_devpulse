@@ -1,2 +1,9 @@
 export { default as CouncilConfig } from "./CouncilConfig.svelte";
-export type { CouncilConfigProps, CouncilSeat } from "./council-config.types.js";
+export type {
+	CouncilChoice,
+	CouncilConfigCopy,
+	CouncilConfigProps,
+	CouncilCostarLine,
+	CouncilSeat,
+	CouncilSeatValue,
+} from "./council-config.types.js";

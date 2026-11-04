@@ -25,7 +25,7 @@ use std::{
     },
 };
 use tokio::sync::watch;
-pub use types::ChatMessage;
+pub use types::{ChatMessage, RoomEntry};
 use uuid::Uuid;
 
 struct Running {

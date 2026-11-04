@@ -151,6 +151,19 @@ fn council_seating(seating: &[Assignment], routing_seat: &str, places: u32) -> V
         .collect()
 }
 
+/// Say whether the place named `place` (`answerer-1`) gets your notes; `false`
+/// when the seating has no such place.
+fn set_notes_on(seating: &mut [Assignment], place: &str, notes: bool) -> bool {
+    let found = seating
+        .iter_mut()
+        .find(|assignment| format!("{}-{}", assignment.seat, assignment.place + 1) == place);
+    if let Some(assignment) = found {
+        assignment.notes = Some(notes);
+        return true;
+    }
+    false
+}
+
 /// Issues as one error, each on its own clause.
 fn refusal(issues: &[Issue]) -> anyhow::Error {
     anyhow!(
@@ -191,6 +204,43 @@ impl Rooms {
     /// Everything wrong with it, at the field it is in. Nothing is written.
     pub fn save_to_library(&self, kind: LibraryKind, text: &str) -> Result<String, Vec<Issue>> {
         library::authoring::save(&self.data_dir, kind, text)
+    }
+
+    /// What stops this seating, at the place it is in; nothing when it can run. The
+    /// window asks as you change a seat.
+    #[must_use]
+    pub fn check_seating(&self, room_id: &str, seating: &[Assignment]) -> Vec<Issue> {
+        library::seat(&self.library(), room_id, seating)
+            .err()
+            .unwrap_or_default()
+    }
+
+    /// Say whether one place of a room gets your notes. Its conversations close, so
+    /// its next turn starts with your choice and continues the same conversation.
+    /// What an agent was already told cannot be unsent.
+    ///
+    /// # Errors
+    /// When the room is answering, has no such place, or cannot be saved.
+    pub async fn set_place_notes(&self, session_id: &str, place: &str, notes: bool) -> Result<()> {
+        let live = self.live.lock().await.get(session_id).cloned();
+        if live.is_some_and(|room| room.run.try_lock().is_err()) {
+            bail!("the room is still answering");
+        }
+        let mut seating = self.record(session_id).await?.seating;
+        if !set_notes_on(&mut seating, place, notes) {
+            bail!("{place} is not a place in this room");
+        }
+        let seating = serde_json::to_string(&seating).context("write the seating")?;
+        self.db
+            .write_atomic(&[(
+                "UPDATE agenthub_room_threads SET seating = ? WHERE session_id = ?",
+                vec![seating.as_str().into(), session_id.into()],
+            )])
+            .await
+            .context("save the seating")?;
+        self.close(session_id).await;
+        tracing::info!(target: "rooms", %session_id, %place, notes, "notes changed");
+        Ok(())
     }
 
     /// Delete a file of yours, which brings back a bundled entry it replaced;
@@ -858,6 +908,25 @@ mod tests {
             issues.iter().any(|issue| issue.at.contains("selector")),
             "{issues:?}"
         );
+    }
+
+    #[test]
+    fn a_places_notes_change_by_its_name_alone() {
+        let place = |seat: &str, index| Assignment {
+            seat: seat.to_owned(),
+            place: index,
+            provider: ProviderId::ClaudeCode,
+            persona: None,
+            notes: None,
+            role: None,
+            parameters: std::collections::BTreeMap::new(),
+        };
+        let mut seating = [place("answerer", 0), place("answerer", 1)];
+        assert!(set_notes_on(&mut seating, "answerer-2", false));
+        assert_eq!(seating[0].notes, None);
+        assert_eq!(seating[1].notes, Some(false));
+        assert!(!set_notes_on(&mut seating, "answerer-3", false));
+        assert!(!set_notes_on(&mut seating, "selector-1", false));
     }
 
     #[tokio::test]

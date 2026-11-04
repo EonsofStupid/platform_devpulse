@@ -207,8 +207,10 @@ fn seat_place(
     let default_persona = seat
         .personas
         .get(usize::try_from(index).unwrap_or(usize::MAX));
+    // Empty means you chose no character, even where the seat brings one.
     let persona = match assignment.persona.as_ref().or(default_persona) {
         None => None,
+        Some(id) if id.is_empty() => None,
         Some(id) => {
             let found = library.persona(id).cloned();
             if found.is_none() {
@@ -654,6 +656,10 @@ mod tests {
         assert_eq!(persona(&seated, "conductor").as_deref(), Some("clyffy"));
         assert_eq!(persona(&seated, "hardware").as_deref(), Some("rusty"));
         assert_eq!(persona(&seated, "software").as_deref(), Some("pip"));
+
+        seating[3].persona = Some(String::new());
+        let without = seat(&library, "clyffy-council", &seating).expect("no character");
+        assert_eq!(persona(&without, "guardian"), None);
 
         seating[0].persona = Some("pragmatist".to_owned());
         let changed = seat(&library, "clyffy-council", &seating).expect("yours");

@@ -18,6 +18,17 @@ export function previewText(content: string, maxLen: number): string {
 	return `${t.slice(0, maxLen - 1)}…`;
 }
 
+/**
+ * A room seat's answer split from the JSON block it must end with, so you read the
+ * answer and can still open what it handed the room.
+ */
+export function splitContractBlock(text: string): { prose: string; structured: string | null } {
+	const match = /```(?:json)?\s*\n([\s\S]*?)\n?```\s*$/.exec(text);
+	if (!match?.[1]) return { prose: text, structured: null };
+	const prose = text.slice(0, match.index).trim();
+	return prose ? { prose, structured: match[1].trim() } : { prose: text, structured: null };
+}
+
 export function toBlockMessage(msg: ChatMessage): BlockChatMessage {
 	const role =
 		msg.role === "assistant" || msg.role === "user" || msg.role === "system" ? msg.role : "user";

@@ -25,6 +25,6 @@ let { copy, notes, disabled, problem, onChange, onChoose }: NotesToggleProps = $
 		aria-label={copy.notes_label}
 		onCheckedChange={(on: boolean) => onChange(on)}
 	/>
-	<Button variant="ghost" size="sm" onclick={onChoose}>{copy.notes_change}</Button>
+	{#if onChoose}<Button variant="ghost" size="sm" onclick={onChoose}>{copy.notes_change}</Button>{/if}
 	{#if problem}<InlineMessage tone="error">{fill(copy.notes_failed, { reason: problem })}</InlineMessage>{/if}
 </div>

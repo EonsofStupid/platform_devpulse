@@ -9,6 +9,7 @@ import { copyState } from "$lib/sys/copy/index.js";
 import type { Suggestion } from "$lib/sys/generated/bindings.js";
 import { agentsState } from "../data-access/agents.state.svelte.js";
 import { chatState } from "../data-access/chat.state.svelte.js";
+import { roomsState } from "../data-access/rooms.state.svelte.js";
 import { suggestState } from "../data-access/suggest.state.svelte.js";
 import SuggestionDropdown from "./SuggestionDropdown.svelte";
 import VoiceOrb from "./VoiceOrb.svelte";
@@ -75,7 +76,7 @@ function handleKeydown(e: KeyboardEvent): void {
 			onValueChange={handleValueChange}
 			onInput={handleInput}
 			onSend={handleSend}
-			disabled={chatState.loading || !chatState.routingReady || chatState.readOnly || chatState.sending || chatState.isGenerating || !!agentsState.running(chatState.activeSessionId)}
+			disabled={chatState.loading || !chatState.routingReady || chatState.readOnly || chatState.sending || chatState.isGenerating || !!agentsState.running(chatState.activeSessionId) || roomsState.answering(chatState.activeSessionId)}
 		/>
 	</div>
 	<div class="flex items-center pr-2">

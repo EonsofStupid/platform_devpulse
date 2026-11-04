@@ -624,6 +624,148 @@ pub struct ChatCopy {
     pub endpoints: EndpointChatCopy,
     /// Threads with your agents.
     pub agents: AgentChatCopy,
+    /// Rooms: your agents seated in roles.
+    pub rooms: RoomChatCopy,
+}
+
+/// The words of the room window (plan 0001 B4.5). `{…}` is filled in.
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+#[serde(deny_unknown_fields)]
+pub struct RoomChatCopy {
+    /// Opens the templates.
+    pub new_room: String,
+    /// Above the templates.
+    pub templates_title: String,
+    /// What a template is.
+    pub templates_help: String,
+    /// Marks a room, role or character of yours.
+    pub yours: String,
+    /// A template's seat count (`{count}`).
+    pub places_count: String,
+    /// Deletes a room of yours.
+    pub delete_yours: String,
+    /// What deleting one does.
+    pub delete_help: String,
+    /// Back out of a screen.
+    pub back: String,
+    /// The seating screen's label for assistive technology.
+    pub seating_label: String,
+    /// What the seating screen is for.
+    pub seating_help: String,
+    /// A seat's count of places.
+    pub places: String,
+    /// Why changing that needs a saved room.
+    pub places_help: String,
+    /// One place's agent.
+    pub agent: String,
+    /// That choice, for assistive technology (`{seat}`).
+    pub agent_aria: String,
+    /// The agent choice before you made one.
+    pub choose_agent: String,
+    /// One place's role.
+    pub role: String,
+    /// That choice, for assistive technology (`{seat}`).
+    pub role_aria: String,
+    /// One place's character.
+    pub character: String,
+    /// That choice, for assistive technology (`{seat}`).
+    pub character_aria: String,
+    /// The character choice when there is none.
+    pub no_character: String,
+    /// A value its role needs (`{name}`).
+    pub value_needed: String,
+    /// It answers without seeing the others.
+    pub blind: String,
+    /// It sees everything said.
+    pub open: String,
+    /// It picks the answer.
+    pub selects: String,
+    /// It sends each question on.
+    pub routes: String,
+    /// It has no tools.
+    pub access_talks: String,
+    /// It reads the project and changes nothing.
+    pub access_reads: String,
+    /// It reads the project and the web, and changes nothing.
+    pub access_reads_web: String,
+    /// It uses the web and changes nothing.
+    pub access_web: String,
+    /// It can change things and asks first.
+    pub access_changes: String,
+    /// Opens a seat's breakdown.
+    pub costar_title: String,
+    /// What it knows.
+    pub costar_context: String,
+    /// What it is for.
+    pub costar_objective: String,
+    /// How it works.
+    pub costar_style: String,
+    /// How it speaks.
+    pub costar_tone: String,
+    /// Who reads it.
+    pub costar_audience: String,
+    /// What it must produce.
+    pub costar_response: String,
+    /// It speaks in its own voice.
+    pub tone_own: String,
+    /// You read this seat's answer.
+    pub audience_you: String,
+    /// The selector reads it (`{seat}`).
+    pub audience_selector: String,
+    /// Sees only what you ask.
+    pub context_blind: String,
+    /// Sees everything said.
+    pub context_open: String,
+    /// Starts the room.
+    pub start: String,
+    /// Saves your changes as a room of yours.
+    pub save_as: String,
+    /// The name of that room.
+    pub save_name: String,
+    /// It was saved (`{name}`).
+    pub saved: String,
+    /// Changed seats need saving before starting.
+    pub save_first: String,
+    /// A seat's own problem stops the room.
+    pub seats_have_problems: String,
+    /// What a seated room shows above its seats.
+    pub seats_title: String,
+    /// One place is answering (`{place}`).
+    pub answering: String,
+    /// Stops the room.
+    pub stop: String,
+    /// The outcome's heading.
+    pub outcome_title: String,
+    /// It ran out of rounds (`{rounds}`).
+    pub stopped_rounds: String,
+    /// A round added nothing (`{rounds}`).
+    pub stopped_stable: String,
+    /// A reviewer found nothing left (`{rounds}`).
+    pub stopped_passed: String,
+    /// What it picked (`{place}`).
+    pub picked: String,
+    /// The next best (`{place}`).
+    pub runner_up: String,
+    /// Nothing was picked (`{reason}`).
+    pub no_pick: String,
+    /// The two readings disagreed.
+    pub tie: String,
+    /// Opens the JSON block a seat ended its answer with.
+    pub structured: String,
+    /// Why it picked that.
+    pub reasons: String,
+    /// What was held against it.
+    pub dissent: String,
+    /// Who changed their mind.
+    pub flips: String,
+    /// Where it sent the question (`{place}`).
+    pub routed: String,
+    /// It asked for a Council.
+    pub escalated: String,
+    /// Opens that Council.
+    pub open_council: String,
+    /// The room did not finish (`{reason}`).
+    pub failed: String,
 }
 
 /// The devtools' shared text; each devtool's own name and lines are `nav`.

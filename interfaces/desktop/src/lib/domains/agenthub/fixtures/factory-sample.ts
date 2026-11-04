@@ -1,4 +1,4 @@
-import type { CouncilSeat } from "../../chat/ui/index.js";
+import type { CouncilConfigCopy, CouncilSeat } from "../../chat/ui/index.js";
 import type { FactoryTicket } from "../ui/factory-board/index.js";
 
 /** F0 design data only. Never imported by the production route or runtime. */
@@ -130,6 +130,37 @@ export const sampleProviders = [
 	{ id: "remote", label: "Remote OpenAI endpoint · sample", vendor: "openai" },
 ];
 
+const answererRoles = sampleRoles.filter((role) => role.id !== "selector@1");
+const selectorRoles = sampleRoles.filter((role) => role.id === "selector@1");
+
+/** What the sample Council says, so the review keeps its own words. */
+export function sampleCouncilCopy(ticketId: string): CouncilConfigCopy {
+	return {
+		region: "Chat Council configuration",
+		eyebrow: `Chat / Council · linked to ${ticketId}`,
+		heading: "Different perspectives. Independent judgment.",
+		summary: "Choose premade roles and providers for this conversation.",
+		back: "Back to ticket",
+		role: "Premade role",
+		role_aria: "{seat} role",
+		agent: "Provider · sample connection",
+		agent_aria: "{seat} provider",
+		choose_agent: "Choose a provider",
+		selector_badge: "Independent",
+		answerer_badge: "Blind answer",
+		start: "Save Council assignment",
+		start_note: "Preview only. Saving assigns these seats; it does not run the Council.",
+	};
+}
+
+export const sampleCouncilPreset = {
+	badge: "Council preset · one round",
+	lines: [
+		"Three answerers work blind. A selector from another vendor reviews anonymized answers, can choose none, and retains the rationale and dissent.",
+		"The ticket receives the selected structured output after review. Private answers are not shared between answerers.",
+	],
+};
+
 export function sampleSeats(): CouncilSeat[] {
 	return [
 		{
@@ -138,6 +169,7 @@ export function sampleSeats(): CouncilSeat[] {
 			kind: "answerer",
 			role: "domain-expert@1",
 			provider: "codex",
+			roleChoices: answererRoles,
 		},
 		{
 			id: "answer-2",
@@ -145,6 +177,7 @@ export function sampleSeats(): CouncilSeat[] {
 			kind: "answerer",
 			role: "domain-expert@1",
 			provider: "codex",
+			roleChoices: answererRoles,
 		},
 		{
 			id: "answer-3",
@@ -152,7 +185,15 @@ export function sampleSeats(): CouncilSeat[] {
 			kind: "answerer",
 			role: "domain-expert@1",
 			provider: "codex",
+			roleChoices: answererRoles,
 		},
-		{ id: "selector", label: "Selector", kind: "selector", role: "selector@1", provider: "claude" },
+		{
+			id: "selector",
+			label: "Selector",
+			kind: "selector",
+			role: "selector@1",
+			provider: "claude",
+			roleChoices: selectorRoles,
+		},
 	];
 }

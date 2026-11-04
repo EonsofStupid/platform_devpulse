@@ -437,7 +437,18 @@ impl Fixture {
              cannot, say so plainly and give no codeword.",
         )
         .await;
-        rooms.close(&room.session_id).await;
+        // A place's notes change after the room started, and it reopens with that.
+        rooms
+            .set_place_notes(&room.session_id, "answerer-3", true)
+            .await
+            .unwrap();
+        let reopened = rooms.threads(&self.project).await.unwrap();
+        let seats = &reopened
+            .iter()
+            .find(|thread| thread.session_id == room.session_id)
+            .expect("it is listed")
+            .seating;
+        assert_eq!(seats[2].notes, Some(true));
         println!("tailored council: {:?}", outcome.pick);
         let said = |place: &str| {
             turns

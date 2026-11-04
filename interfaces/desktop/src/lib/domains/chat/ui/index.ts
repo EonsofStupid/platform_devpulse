@@ -6,6 +6,7 @@
 export { AgentTurn, type AgentTurnProps } from "./agent-turn/index.js";
 export {
 	CouncilConfig,
+	type CouncilConfigCopy,
 	type CouncilConfigProps,
 	type CouncilSeat,
 } from "./council-config/index.js";

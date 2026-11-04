@@ -1397,6 +1397,28 @@ async roomLibraryRemove(kind: LibraryKind, id: string) : Promise<Result<boolean,
 }
 },
 /**
+ * What stops this seating, at the place it is in; nothing when it can run.
+ */
+async roomCheck(roomId: string, seating: Assignment[]) : Promise<Result<Issue[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("room_check", { roomId, seating }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Say whether one place of a room gets your notes.
+ */
+async roomSetPlaceNotes(sessionId: string, place: string, notes: boolean) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("room_set_place_notes", { sessionId, place, notes }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * The rooms of a project, latest first.
  */
 async roomThreads(projectId: string) : Promise<Result<RoomThread[], string>> {
@@ -6379,7 +6401,11 @@ endpoints: EndpointChatCopy;
 /**
  * Threads with your agents.
  */
-agents: AgentChatCopy }
+agents: AgentChatCopy; 
+/**
+ * Rooms: your agents seated in roles.
+ */
+rooms: RoomChatCopy }
 /**
  * A chat turn returned to the frontend (`turns.id` is a string key).
  */
@@ -6415,7 +6441,11 @@ modelUsed: string | null;
 /**
  * Inference latency in milliseconds (populated for assistant turns).
  */
-latencyMs: number | null }
+latencyMs: number | null; 
+/**
+ * What a room saved with this turn.
+ */
+room?: RoomEntry | null }
 /**
  * Chat message payload - LLM responses, user messages.
  */
@@ -12947,6 +12977,290 @@ talk_only: boolean;
  * The tools it may use when it is not talk-only.
  */
 tools_allowed: string[] }
+/**
+ * The words of the room window (plan 0001 B4.5). `{…}` is filled in.
+ */
+export type RoomChatCopy = { 
+/**
+ * Opens the templates.
+ */
+new_room: string; 
+/**
+ * Above the templates.
+ */
+templates_title: string; 
+/**
+ * What a template is.
+ */
+templates_help: string; 
+/**
+ * Marks a room, role or character of yours.
+ */
+yours: string; 
+/**
+ * A template's seat count (`{count}`).
+ */
+places_count: string; 
+/**
+ * Deletes a room of yours.
+ */
+delete_yours: string; 
+/**
+ * What deleting one does.
+ */
+delete_help: string; 
+/**
+ * Back out of a screen.
+ */
+back: string; 
+/**
+ * The seating screen's label for assistive technology.
+ */
+seating_label: string; 
+/**
+ * What the seating screen is for.
+ */
+seating_help: string; 
+/**
+ * A seat's count of places.
+ */
+places: string; 
+/**
+ * Why changing that needs a saved room.
+ */
+places_help: string; 
+/**
+ * One place's agent.
+ */
+agent: string; 
+/**
+ * That choice, for assistive technology (`{seat}`).
+ */
+agent_aria: string; 
+/**
+ * The agent choice before you made one.
+ */
+choose_agent: string; 
+/**
+ * One place's role.
+ */
+role: string; 
+/**
+ * That choice, for assistive technology (`{seat}`).
+ */
+role_aria: string; 
+/**
+ * One place's character.
+ */
+character: string; 
+/**
+ * That choice, for assistive technology (`{seat}`).
+ */
+character_aria: string; 
+/**
+ * The character choice when there is none.
+ */
+no_character: string; 
+/**
+ * A value its role needs (`{name}`).
+ */
+value_needed: string; 
+/**
+ * It answers without seeing the others.
+ */
+blind: string; 
+/**
+ * It sees everything said.
+ */
+open: string; 
+/**
+ * It picks the answer.
+ */
+selects: string; 
+/**
+ * It sends each question on.
+ */
+routes: string; 
+/**
+ * It has no tools.
+ */
+access_talks: string; 
+/**
+ * It reads the project and changes nothing.
+ */
+access_reads: string; 
+/**
+ * It reads the project and the web, and changes nothing.
+ */
+access_reads_web: string; 
+/**
+ * It uses the web and changes nothing.
+ */
+access_web: string; 
+/**
+ * It can change things and asks first.
+ */
+access_changes: string; 
+/**
+ * Opens a seat's breakdown.
+ */
+costar_title: string; 
+/**
+ * What it knows.
+ */
+costar_context: string; 
+/**
+ * What it is for.
+ */
+costar_objective: string; 
+/**
+ * How it works.
+ */
+costar_style: string; 
+/**
+ * How it speaks.
+ */
+costar_tone: string; 
+/**
+ * Who reads it.
+ */
+costar_audience: string; 
+/**
+ * What it must produce.
+ */
+costar_response: string; 
+/**
+ * It speaks in its own voice.
+ */
+tone_own: string; 
+/**
+ * You read this seat's answer.
+ */
+audience_you: string; 
+/**
+ * The selector reads it (`{seat}`).
+ */
+audience_selector: string; 
+/**
+ * Sees only what you ask.
+ */
+context_blind: string; 
+/**
+ * Sees everything said.
+ */
+context_open: string; 
+/**
+ * Starts the room.
+ */
+start: string; 
+/**
+ * Saves your changes as a room of yours.
+ */
+save_as: string; 
+/**
+ * The name of that room.
+ */
+save_name: string; 
+/**
+ * It was saved (`{name}`).
+ */
+saved: string; 
+/**
+ * Changed seats need saving before starting.
+ */
+save_first: string; 
+/**
+ * A seat's own problem stops the room.
+ */
+seats_have_problems: string; 
+/**
+ * What a seated room shows above its seats.
+ */
+seats_title: string; 
+/**
+ * One place is answering (`{place}`).
+ */
+answering: string; 
+/**
+ * Stops the room.
+ */
+stop: string; 
+/**
+ * The outcome's heading.
+ */
+outcome_title: string; 
+/**
+ * It ran out of rounds (`{rounds}`).
+ */
+stopped_rounds: string; 
+/**
+ * A round added nothing (`{rounds}`).
+ */
+stopped_stable: string; 
+/**
+ * A reviewer found nothing left (`{rounds}`).
+ */
+stopped_passed: string; 
+/**
+ * What it picked (`{place}`).
+ */
+picked: string; 
+/**
+ * The next best (`{place}`).
+ */
+runner_up: string; 
+/**
+ * Nothing was picked (`{reason}`).
+ */
+no_pick: string; 
+/**
+ * The two readings disagreed.
+ */
+tie: string; 
+/**
+ * Opens the JSON block a seat ended its answer with.
+ */
+structured: string; 
+/**
+ * Why it picked that.
+ */
+reasons: string; 
+/**
+ * What was held against it.
+ */
+dissent: string; 
+/**
+ * Who changed their mind.
+ */
+flips: string; 
+/**
+ * Where it sent the question (`{place}`).
+ */
+routed: string; 
+/**
+ * It asked for a Council.
+ */
+escalated: string; 
+/**
+ * Opens that Council.
+ */
+open_council: string; 
+/**
+ * The room did not finish (`{reason}`).
+ */
+failed: string }
+/**
+ * What a room saved with a turn, so it reads the same when you reopen it.
+ */
+export type RoomEntry = 
+/**
+ * Which place said this.
+ */
+{ kind: "turn"; turn: RoomTurn } | 
+/**
+ * How the run ended.
+ */
+{ kind: "outcome"; outcome: Outcome }
 /**
  * Something that happened while a room answers.
  */

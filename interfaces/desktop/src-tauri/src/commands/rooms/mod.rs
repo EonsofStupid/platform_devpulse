@@ -68,6 +68,34 @@ pub async fn room_library_remove(
         .remove_from_library(kind, &id)
 }
 
+/// What stops this seating, at the place it is in; nothing when it can run.
+#[tauri::command]
+#[specta::specta]
+#[allow(clippy::missing_errors_doc)]
+pub async fn room_check(
+    room_id: String,
+    seating: Vec<Assignment>,
+    state: State<'_, PlatformState>,
+) -> Result<Vec<Issue>, String> {
+    Ok(rooms(&state)?.check_seating(&room_id, &seating))
+}
+
+/// Say whether one place of a room gets your notes.
+#[tauri::command]
+#[specta::specta]
+#[allow(clippy::missing_errors_doc)]
+pub async fn room_set_place_notes(
+    session_id: String,
+    place: String,
+    notes: bool,
+    state: State<'_, PlatformState>,
+) -> Result<(), String> {
+    rooms(&state)?
+        .set_place_notes(&session_id, &place, notes)
+        .await
+        .map_err(|e| format!("{e:#}"))
+}
+
 /// The rooms of a project, latest first.
 #[tauri::command]
 #[specta::specta]

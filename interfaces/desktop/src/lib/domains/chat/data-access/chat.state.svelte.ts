@@ -11,13 +11,16 @@ import {
 } from "$lib/domains/app/models/index.js";
 import { projectsState } from "$lib/domains/app/projects/index.js";
 import { providersState } from "$lib/domains/app/providers/index.js";
+import { copyState } from "$lib/sys/copy/index.js";
 import type { ChatMessage, SavedConnection, TextTarget } from "$lib/sys/generated/bindings.js";
 import { logError } from "$lib/sys/logger.js";
 import { globalState } from "$lib/sys/runes/global.svelte.js";
 import type { ChatMode } from "../util/chat.types.js";
-import { toBlockMessage } from "../util/format.js";
+import { splitContractBlock, toBlockMessage } from "../util/format.js";
+import { findRole, placeKey } from "../util/room-seating.js";
 import { agentsState } from "./agents.state.svelte.js";
 import * as chatService from "./chat.service.js";
+import { roomsState } from "./rooms.state.svelte.js";
 import { sessionsState } from "./sessions.state.svelte.js";
 
 /** The display name of an agent that answered, from Rust's providers report. */
@@ -68,6 +71,17 @@ class ChatState {
 	blockMessages = $derived.by(() =>
 		this.messages.map((m) => {
 			const block = toBlockMessage(m);
+			if (m.room?.kind === "outcome") return { ...block, outcome: m.room.outcome };
+			if (m.room?.kind === "turn") {
+				const { prose, structured } = splitContractBlock(m.content);
+				return {
+					...block,
+					author: this.roomPlaceLabel(m.room.turn.place),
+					content: prose,
+					structured: structured ?? undefined,
+					structuredLabel: copyState.catalog?.chat.rooms.structured,
+				};
+			}
 			const agent =
 				m.role === "assistant"
 					? this.endpoint
@@ -77,6 +91,19 @@ class ChatState {
 			return agent ? { ...block, author: agent } : block;
 		}),
 	);
+
+	/** A place of the room on screen, as you know it: its role and agent. */
+	roomPlaceLabel(place: string): string {
+		const thread = roomsState.thread(this.activeSessionId);
+		const room = thread ? roomsState.spec(thread.roomId) : null;
+		const roles = roomsState.library?.roles ?? [];
+		const assignment = thread?.seating.find((a) => placeKey(a.seat, a.place) === place);
+		const seat = room?.seats.find((candidate) => candidate.seat === assignment?.seat);
+		if (!assignment || !seat) return place;
+		const role = findRole(roles, assignment.role ?? seat.role);
+		const agent = agentName(assignment.provider) ?? assignment.provider;
+		return role ? `${role.name} · ${agent}` : `${place} · ${agent}`;
+	}
 
 	get mode(): ChatMode {
 		return globalState.chat_mode;
@@ -180,6 +207,10 @@ class ChatState {
 		}
 		if (agentsState.thread(this.activeSessionId)) {
 			if (!agentsState.running(this.activeSessionId)) await this.askAgent(content.trim());
+			return;
+		}
+		if (roomsState.thread(this.activeSessionId)) {
+			if (!roomsState.answering(this.activeSessionId)) await this.askRoom(content.trim());
 			return;
 		}
 		const brainStatus = modelsState.statuses["chat.brain"];
@@ -324,6 +355,27 @@ class ChatState {
 					this.error = agentsState.error;
 			}
 		}
+	}
+
+	/** Send a question to a room. Rust saves it and every turn; the room's events reload them. */
+	private async askRoom(content: string): Promise<void> {
+		const sessionId = this.activeSessionId;
+		if (!sessionId) return;
+		this.error = null;
+		this.messages = [
+			...this.messages,
+			{
+				id: `pending-${Date.now()}`,
+				sessionId,
+				role: "user",
+				content,
+				createdAt: Math.floor(Date.now() / 1000),
+				tokenCount: null,
+				modelUsed: null,
+				latencyMs: null,
+			},
+		];
+		await roomsState.ask(sessionId, content);
 	}
 
 	setActiveSession(id: string | null): void {

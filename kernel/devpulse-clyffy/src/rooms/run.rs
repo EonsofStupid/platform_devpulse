@@ -525,7 +525,9 @@ fn selector_ask(selection: &Selection) -> String {
          \"reasons\" and any disagreement in \"dissent\". Each may have been allowed different \
          things than you: one marked may=\"read\" could read this project's files, may=\"web\" \
          could use the web, and one with no mark only talks. Do not fault a candidate for using \
-         what it was allowed, or for not having what it was not.",
+         what it was allowed, or for not having what it was not. This room requires its JSON \
+         block or fields of every seat, so they are no part of the answer: judge what each one \
+         says, never that form.",
     );
     if selection.swap_order.0 {
         out.push_str(
@@ -1213,6 +1215,7 @@ mod tests {
         assert!(shown.contains("candidate=\"C\""), "{shown}");
         assert!(shown.contains("The file says HERON-41."), "{shown}");
         assert!(shown.contains("candidate=\"A\" may=\"read\""), "{shown}");
+        assert!(shown.contains("never that form"), "{shown}");
         assert!(!shown.contains("candidate=\"B\" may"), "{shown}");
     }
 

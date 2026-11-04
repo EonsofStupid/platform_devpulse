@@ -32,6 +32,20 @@ function setup(notes: boolean, overrides: { disabled?: boolean; problem?: string
 	return { screen, onChange, onChoose };
 }
 
+test("the way to the notes page can be left to the screen around it", async () => {
+	const screen = render(NotesToggle, {
+		copy,
+		notes: true,
+		disabled: false,
+		problem: null,
+		onChange: vi.fn(),
+	});
+	await expect.element(screen.getByText("Notes: yes")).toBeVisible();
+	await expect
+		.element(screen.getByRole("button", { name: "Choose which notes" }))
+		.not.toBeInTheDocument();
+});
+
 test("a conversation with notes says yes, and its switch is on", async () => {
 	const { screen } = setup(true);
 	await expect.element(screen.getByText("Notes: yes")).toBeVisible();

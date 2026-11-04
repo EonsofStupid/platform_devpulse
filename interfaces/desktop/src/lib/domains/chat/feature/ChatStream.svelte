@@ -6,12 +6,15 @@
 import { cn } from "@devpulse/coldlight/utils";
 import { agenthubState } from "$lib/domains/agenthub/index.js";
 import { providersState } from "$lib/domains/app/providers/index.js";
-import { copyState } from "$lib/sys/copy/index.js";
+import { copyState, fill } from "$lib/sys/copy/index.js";
 import { agentsState } from "../data-access/agents.state.svelte.js";
 import { chatState } from "../data-access/chat.state.svelte.js";
+import { roomsState } from "../data-access/rooms.state.svelte.js";
 import { FailedTurn } from "../ui/failed-turn/index.js";
 import { EmptyChatState, MessageBubble, TypingIndicator } from "../ui/index.js";
+import { RoomOutcome } from "../ui/room-outcome/index.js";
 import ChatAgentTurn from "./ChatAgentTurn.svelte";
+import ChatRoomRun from "./ChatRoomRun.svelte";
 
 interface Props {
 	class?: string;
@@ -37,6 +40,24 @@ const retained = $derived(
 	agentsState.retained.filter((answer) => answer.sessionId === chatState.activeSessionId),
 );
 const agentCopy = $derived(copyState.catalog?.chat.agents);
+const roomCopy = $derived(copyState.catalog?.chat.rooms);
+const roomThread = $derived(roomsState.thread(chatState.activeSessionId));
+const roomFailure = $derived(
+	chatState.activeSessionId ? roomsState.failures[chatState.activeSessionId] : undefined,
+);
+const council = $derived(
+	chatState.activeSessionId ? roomsState.escalations[chatState.activeSessionId] : undefined,
+);
+
+function placeLabel(place: string): string {
+	return chatState.roomPlaceLabel(place);
+}
+
+function openCouncil(): void {
+	if (!council) return;
+	chatState.setActiveSession(council.sessionId);
+	void chatState.loadActive();
+}
 
 // Scroll on new messages or streaming content
 $effect(() => {
@@ -53,6 +74,7 @@ $effect(() => {
 	class={cn("flex flex-1 min-h-0 flex-col gap-3 overflow-y-auto px-3 py-2", className)}
 >
 	{#if chatState.error}<p role="alert" class="text-sm text-[var(--signal-error)]">{chatState.error}</p>{/if}
+	{#if roomThread}<ChatRoomRun />{/if}
 	{#if chatState.loading}
 		<p class="text-sm text-[var(--text-muted)]">Loading…</p>
 
@@ -60,7 +82,11 @@ $effect(() => {
 		<EmptyChatState />
 	{:else}
 		{#each chatState.blockMessages as msg (msg.id)}
-			<MessageBubble message={msg} mode={chatState.mode} />
+			{#if msg.outcome && roomCopy}
+				<RoomOutcome copy={roomCopy} outcome={msg.outcome} {placeLabel} onOpenCouncil={council ? openCouncil : undefined} />
+			{:else}
+				<MessageBubble message={msg} mode={chatState.mode} />
+			{/if}
 		{/each}
 	{/if}
 	{#if (chatState.generatingHere || agentTurn) && streaming}
@@ -78,6 +104,9 @@ $effect(() => {
 	{/if}
 	{#if agentTurn}
 		<ChatAgentTurn turn={agentTurn} agent={author} />
+	{/if}
+	{#if roomFailure && roomCopy}
+		<p role="alert">{fill(roomCopy.failed, { reason: roomFailure })}</p>
 	{/if}
 	{#if runtimeError && retained.length === 0}
 		<p role="alert">{runtimeError}</p>

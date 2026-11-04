@@ -2,6 +2,7 @@
   @component MessageBubble — token-driven bubble (util + renderForge only)
 -->
 <script lang="ts">
+import * as Collapsible from "@devpulse/coldlight/components/collapsible";
 import { Text } from "@devpulse/coldlight/components/text";
 import { cssVarString, renderForge } from "@devpulse/coldlight/renderforge";
 import { cn } from "@devpulse/coldlight/utils";
@@ -54,6 +55,14 @@ const growOnce = "animate-[cl-grow_200ms_ease-out_1_both]";
 		</div>
 	{/if}
 	<div data-slot="content">
-		<Text size="sm">{message.content}</Text>
+		<Text size="sm" class="whitespace-pre-wrap">{message.content}</Text>
 	</div>
+	{#if message.structured && message.structuredLabel}
+		<Collapsible.Root>
+			<Collapsible.Trigger>{message.structuredLabel}</Collapsible.Trigger>
+			<Collapsible.Content>
+				<Text size="xs" class="whitespace-pre-wrap break-words">{message.structured}</Text>
+			</Collapsible.Content>
+		</Collapsible.Root>
+	{/if}
 </div>

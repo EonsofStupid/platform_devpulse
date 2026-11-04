@@ -73,6 +73,16 @@ export class AgentHubStore {
 		}
 	}
 
+	/** The places of a room at work now. */
+	places(sessionId: string | null) {
+		if (!this.ready || !sessionId) return [];
+		return (
+			this.current?.conversations.filter(
+				(turn) => turn.sessionId === sessionId && turn.place !== null && turn.activity !== "idle",
+			) ?? []
+		);
+	}
+
 	conversation(sessionId: string | null) {
 		if (!this.ready || !sessionId) return null;
 		return (

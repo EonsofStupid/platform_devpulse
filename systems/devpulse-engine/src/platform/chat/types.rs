@@ -1,4 +1,5 @@
 //! Shared chat records; storage timestamps are Unix seconds.
+use devpulse_clyffy::rooms::{Outcome, RoomTurn};
 use serde::{Deserialize, Serialize};
 use specta::Type;
 
@@ -22,4 +23,39 @@ pub struct ChatMessage {
     pub model_used: Option<String>,
     /// Inference latency in milliseconds (populated for assistant turns).
     pub latency_ms: Option<i64>,
+    /// What a room saved with this turn.
+    #[serde(default)]
+    #[specta(optional)]
+    pub room: Option<RoomEntry>,
+}
+
+/// What a room saved with a turn, so it reads the same when you reopen it.
+#[derive(Debug, Clone, Serialize, Deserialize, Type)]
+#[serde(tag = "kind", rename_all = "camelCase")]
+pub enum RoomEntry {
+    /// Which place said this.
+    Turn {
+        /// The place, role and agent, with what it said.
+        turn: Box<RoomTurn>,
+    },
+    /// How the run ended.
+    Outcome {
+        /// Rounds run, why they stopped, and what was picked or routed.
+        outcome: Box<Outcome>,
+    },
+}
+
+impl RoomEntry {
+    /// The entry in a turn's saved metadata. Anything else, including metadata
+    /// from an older version, is simply not a room entry: the turn still shows.
+    #[must_use]
+    pub fn from_metadata(metadata: &str) -> Option<Self> {
+        let value: serde_json::Value = serde_json::from_str(metadata).ok()?;
+        if let Some(turn) = value.get("room") {
+            let turn = serde_json::from_value(turn.clone()).ok()?;
+            return Some(Self::Turn { turn });
+        }
+        let outcome = serde_json::from_value(value.get("roomOutcome")?.clone()).ok()?;
+        Some(Self::Outcome { outcome })
+    }
 }

@@ -188,6 +188,7 @@ async fn load_session_turns<A: SqlAdapter>(
                 .and_then(|v| v.as_text())
                 .map(std::string::ToString::to_string),
             latency_ms: row.get(7).and_then(SqlValue::as_integer),
+            room: None,
         })
         .collect())
 }
