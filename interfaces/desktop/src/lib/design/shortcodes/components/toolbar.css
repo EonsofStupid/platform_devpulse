@@ -1,0 +1,27 @@
+/**
+ * @file Toolbar Structural Shortcode Classes
+ * @kind toolbar
+ * @layer shortcodes/components
+ * @package @devpulse/coldlight
+ *
+ * Structural base class for the toolbar component.
+ * Orientation controlled by toolbar-horizontal / toolbar-vertical intent classes.
+ */
+
+@utility toolbar-root {
+	display: flex;
+	align-items: center;
+	gap: var(--space-1);
+	border-radius: var(--radius-md);
+	padding: var(--space-1);
+	flex-direction: var(--recipe-direction, row);
+}
+
+/* -- Orientation intent classes -- */
+
+@utility toolbar-horizontal {
+	--recipe-direction: row;
+}
+@utility toolbar-vertical {
+	--recipe-direction: column;
+}

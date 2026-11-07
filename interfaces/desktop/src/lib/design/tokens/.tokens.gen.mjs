@@ -1,0 +1,2 @@
+// STUBBED
+export default {};

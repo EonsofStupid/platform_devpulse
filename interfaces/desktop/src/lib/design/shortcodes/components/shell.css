@@ -1,0 +1,174 @@
+/**
+ * @file Shell Structural Shortcode Classes
+ * @kind shell
+ * @layer shortcodes/components
+ * @package @devpulse/coldlight
+ *
+ * Structural base classes for app and chat shell layouts.
+ * Each class handles layout/positioning ONLY — visual appearance
+ * comes from shortcode composition (v-* + s-* + e-* + sz-*).
+ *
+ * App shell slot mapping (6-zone CSS Grid):
+ *   shell-frame              → root 3-col CSS Grid container
+ *   shell-topbar             → sticky header row (spans all 3 cols)
+ *   shell-sidebar            → left aside column (base)
+ *   shell-sidebar-expanded   → left aside at 16rem
+ *   shell-sidebar-collapsed  → left aside at 4rem
+ *   shell-content            → main content area (center col)
+ *   shell-context            → right aside column (base)
+ *   shell-context-expanded   → right aside at 20rem
+ *   shell-context-collapsed  → right aside at 0 (hidden)
+ *   shell-statusbar          → footer row (spans all 3 cols)
+ *   shell-overlay            → fixed overlay layer
+ *   shell-overlay-active     → overlay receives pointer events
+ *
+ * Chat shell slot mapping:
+ *   shell-chat-frame         → root flex column
+ *   shell-chat-topbar        → header row
+ *   shell-chat-mode          → mode selector row
+ *   shell-chat-dashboard     → scrollable main area
+ *   shell-chat-footer        → input footer
+ */
+
+/* =============================================================================
+ * App Shell — 6-Zone CSS Grid
+ * ============================================================================= */
+
+@utility shell-frame {
+	display: grid;
+	grid-template-rows: auto 1fr auto;
+	grid-template-columns: auto 1fr auto;
+	grid-template-areas:
+		"topbar  topbar  topbar"
+		"sidebar content context"
+		"status  status  status";
+	width: 100vw;
+	height: 100vh;
+	overflow: hidden;
+	color: var(--text-primary);
+}
+
+@utility shell-topbar {
+	grid-area: topbar;
+	display: flex;
+	align-items: center;
+	height: 3rem;
+	padding-inline: var(--space-4);
+	border-bottom: 1px solid var(--border-divider);
+	z-index: var(--z-sticky);
+	-webkit-app-region: drag;
+}
+
+@utility shell-sidebar {
+	grid-area: sidebar;
+	display: flex;
+	flex-direction: column;
+	border-right: 1px solid var(--border-divider);
+	overflow-y: auto;
+	overflow-x: hidden;
+	transition: width var(--duration-normal) var(--ease-out);
+}
+
+@utility shell-sidebar-expanded {
+	width: 16rem;
+}
+
+@utility shell-sidebar-collapsed {
+	width: 4rem;
+}
+
+@utility shell-content {
+	grid-area: content;
+	overflow-y: auto;
+	min-height: 0;
+}
+
+@utility shell-context {
+	grid-area: context;
+	display: flex;
+	flex-direction: column;
+	border-left: 1px solid var(--border-divider);
+	overflow-y: auto;
+	overflow-x: hidden;
+	transition: width var(--duration-normal) var(--ease-out);
+}
+
+@utility shell-context-expanded {
+	width: 20rem;
+}
+
+@utility shell-context-collapsed {
+	width: 0;
+	border-left: none;
+	overflow: hidden;
+}
+
+@utility shell-statusbar {
+	grid-area: status;
+	display: flex;
+	align-items: center;
+	height: 2rem;
+	padding-inline: var(--space-4);
+	border-top: 1px solid var(--border-divider);
+	font-size: var(--text-size-xs);
+}
+
+@utility shell-overlay {
+	position: fixed;
+	inset: 0;
+	z-index: var(--z-overlay);
+	pointer-events: none;
+}
+
+@utility shell-overlay-active {
+	pointer-events: auto;
+	background: var(--overlay-bg);
+	backdrop-filter: blur(var(--blur-sm));
+}
+
+/* =============================================================================
+ * Chat Shell — Flex Column
+ * ============================================================================= */
+
+@utility shell-chat-frame {
+	display: flex;
+	flex-direction: column;
+	width: 100vw;
+	height: 100vh;
+	overflow: hidden;
+	color: var(--text-primary);
+}
+
+@utility shell-chat-topbar {
+	display: flex;
+	align-items: center;
+	height: 2.5rem;
+	padding-inline: var(--space-4);
+	border-bottom: 1px solid var(--border-divider);
+	flex-shrink: 0;
+	-webkit-app-region: drag;
+}
+
+@utility shell-chat-mode {
+	display: flex;
+	align-items: center;
+	gap: var(--space-2);
+	padding: var(--space-2) var(--space-4);
+	border-bottom: 1px solid var(--border-divider-faint);
+	flex-shrink: 0;
+}
+
+@utility shell-chat-dashboard {
+	flex: 1;
+	overflow-y: auto;
+	min-height: 0;
+	padding: var(--space-4);
+}
+
+@utility shell-chat-footer {
+	display: flex;
+	align-items: center;
+	padding: var(--space-3) var(--space-4);
+	border-top: 1px solid var(--border-divider);
+	flex-shrink: 0;
+}

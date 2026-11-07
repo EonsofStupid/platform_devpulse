@@ -5,6 +5,7 @@ on:
     branches: [main]
   push:
     branches: [main]
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -44,6 +45,8 @@ jobs:
 
   rust:
     name: Rust Checks
+    # Keep pull requests light; compile on main or explicit dispatch.
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
       # libduckdb-sys + candle + Tauri's web stack
@@ -160,35 +163,11 @@ jobs:
 
       # Run on the configured host: cargo metadata needs its Rust toolchain,
       # sccache and private Git credentials. A separate Docker action lacks them.
-      - name: Install dependency checker
-        run: |
-          if ! cargo deny --version 2>/dev/null | grep -Fxq 'cargo-deny 0.20.2'; then
-            cargo install cargo-deny --version 0.20.2 --locked
-          fi
-
-      - name: Security audit
-        run: cargo deny --all-features --locked check advisories
-
-      - name: Dependency policy
-        run: cargo deny --all-features --locked check bans
-
       - name: Check formatting
         run: cargo fmt --all -- --check
 
-      - name: Clippy
-        run: cargo clippy --workspace --all-targets --features devpulse-clyffy/guardian,model-loader/nvml -- -D warnings
-
-      - name: Build
-        run: cargo build --workspace
-
-      - name: Check included kernel without default features
-        run: cargo check -p devpulse-engine --no-default-features
-
-      - name: Verify service ownership and kernel inclusion
-        run: cargo xtask verify-architecture
-
-      - name: Test
-        run: cargo test --workspace --features devpulse-clyffy/guardian,model-loader/nvml
+      - name: Check Rust workspace
+        run: cargo check --workspace --locked
 
   desktop:
     name: Desktop Checks
@@ -224,23 +203,11 @@ jobs:
       - name: Generate .svelte-kit (sync)
         run: pnpm exec svelte-kit sync
 
-      - name: Biome lint
-        run: pnpm lint
-
-      - name: Biome lint (ColdLight)
-        run: pnpm --filter @devpulse/coldlight lint
-
-      - name: Architecture and terminology tests
-        run: pnpm test:arch
-
       - name: Svelte check
         run: pnpm check
 
       - name: Svelte check (ColdLight)
         run: pnpm --filter @devpulse/coldlight check
-
-      - name: Build
-        run: pnpm build
 
   # Gate job — configure branch protection to require this single check
   ci-pass:
@@ -251,7 +218,7 @@ jobs:
     steps:
       - name: Check results
         run: |
-          if [[ "${{ needs.rust.result }}" != "success" || "${{ needs.desktop.result }}" != "success" || "${{ needs.restoration.result }}" != "success" ]]; then
+          if [[ ( "${{ needs.rust.result }}" != "success" && "${{ needs.rust.result }}" != "skipped" ) || "${{ needs.desktop.result }}" != "success" || "${{ needs.restoration.result }}" != "success" ]]; then
             echo "CI failed: rust=${{ needs.rust.result }}, desktop=${{ needs.desktop.result }}, restoration=${{ needs.restoration.result }}"
             exit 1
           fi

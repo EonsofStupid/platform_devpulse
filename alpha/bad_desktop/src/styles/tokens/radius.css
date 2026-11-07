@@ -1,0 +1,12 @@
+/* ============================================
+   RADIUS - Border Radius Tokens
+   ============================================ */
+
+:root {
+  --dp-radius-none: 0;
+  --dp-radius-sm: 0.375rem;  /* 6px */
+  --dp-radius: 0.625rem;     /* 10px */
+  --dp-radius-lg: 1rem;      /* 16px */
+  --dp-radius-xl: 1.5rem;    /* 24px */
+  --dp-radius-full: 9999px;
+}

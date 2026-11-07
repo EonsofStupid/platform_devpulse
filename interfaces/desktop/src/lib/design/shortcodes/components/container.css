@@ -1,0 +1,36 @@
+/**
+ * @file Container Structural Shortcode Classes
+ * @kind container
+ * @layer shortcodes/components
+ * @package @devpulse/coldlight
+ *
+ * Structural base class for the container layout component.
+ * Max-width is controlled by container-{size} intent classes.
+ */
+
+@utility container-root {
+	margin-left: auto;
+	margin-right: auto;
+	width: 100%;
+	padding-left: var(--space-4);
+	padding-right: var(--space-4);
+	max-width: var(--recipe-max-width, 64rem);
+}
+
+/* -- Size intent classes -- */
+
+@utility container-sm {
+	--recipe-max-width: 40rem;
+}
+@utility container-md {
+	--recipe-max-width: 48rem;
+}
+@utility container-lg {
+	--recipe-max-width: 64rem;
+}
+@utility container-xl {
+	--recipe-max-width: 80rem;
+}
+@utility container-full {
+	--recipe-max-width: 100%;
+}

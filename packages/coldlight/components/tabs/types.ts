@@ -9,6 +9,7 @@
 import type { Snippet } from "svelte";
 import type { HTMLAttributes, HTMLButtonAttributes } from "svelte/elements";
 import type { TabsRootProps as TabsPrimitiveRootProps } from "#coldlight/behaviors/navigation/tabs/index.js";
+import type { TabsSize } from "./tabs.generated.js";
 
 export type TabsPreset = "default" | "stark" | "glass" | "flat" | "matte";
 
@@ -16,6 +17,8 @@ export type TabsPreset = "default" | "stark" | "glass" | "flat" | "matte";
 export interface TabsProps extends TabsPrimitiveRootProps {
 	/** Visual preset — selects style configuration. Default: "default" */
 	preset?: TabsPreset;
+	/** Trigger and content spacing from the tabs recipe. */
+	size?: TabsSize;
 }
 
 /** TabsList props — container for tab triggers (role="tablist") */

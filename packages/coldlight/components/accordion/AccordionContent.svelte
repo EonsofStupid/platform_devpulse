@@ -22,6 +22,7 @@ const isOpen = $derived(contentAttrs["data-state"] === "open");
 
 {#if isOpen}
 	<div
+		{...rest}
 		{...contentAttrs}
 		id={ctx.ids.content?.(item.value) ?? contentAttrs.id}
 		data-kind="accordion"

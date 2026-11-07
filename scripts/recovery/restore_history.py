@@ -158,7 +158,8 @@ def active_sources():
         _mode, kind, oid = metadata.split()
         active[path] = oid if kind == "blob" else None
     tracked = set(git("ls-files", "-z").split("\0"))
-    for path in git("diff", "--name-only", "-z", "HEAD", "--").split("\0"):
+    files_to_hash = []
+    for path in git("diff", "--ignore-submodules=all", "--name-only", "-z", "HEAD", "--").split("\0"):
         if not path or path.startswith("recovered/"):
             continue
         if path not in tracked:
@@ -172,9 +173,20 @@ def active_sources():
             active[path] = git("hash-object", "--stdin", binary=True,
                                input=os.fsencode(os.readlink(target))).decode().strip()
         elif target.is_file():
-            active[path] = git("hash-object", "--", path).strip()
+            # One Git process per file makes a large restoration take minutes.
+            # Batch ordinary paths with Git's own filters; unusual newline or
+            # quoted paths retain the one-file form so names stay unambiguous.
+            if "\n" in path or "\r" in path or path.startswith('"'):
+                active[path] = git("hash-object", "--", path).strip()
+            else:
+                files_to_hash.append(path)
         else:
             active.pop(path, None)
+    if files_to_hash:
+        hashes = git("hash-object", "--stdin-paths", input="\n".join(files_to_hash) + "\n").splitlines()
+        if len(hashes) != len(files_to_hash):
+            raise ValueError("Git returned an unexpected number of active source hashes")
+        active.update(zip(files_to_hash, hashes))
     return active
 
 

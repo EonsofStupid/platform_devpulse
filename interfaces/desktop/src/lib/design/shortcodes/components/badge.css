@@ -1,0 +1,38 @@
+/**
+ * @file Badge Structural Shortcode Classes
+ * @kind badge
+ * @layer shortcodes/components
+ * @package @devpulse/coldlight
+ *
+ * Structural base class for the badge component.
+ * Handles layout/positioning ONLY — visual appearance
+ * comes from shortcode composition (v-* + s-*).
+ *
+ * Intent classes set --recipe-accent for accent coloring.
+ * Size is handled via sz-* shortcodes + badge-specific size overrides.
+ */
+
+@utility badge {
+	display: inline-flex;
+	align-items: center;
+	border-radius: var(--radius-full);
+	font-weight: 500;
+	font-size: var(--recipe-font-size, var(--text-size-xs));
+	padding: var(--recipe-padding-y, var(--space-1)) var(--recipe-padding-x, var(--space-2));
+}
+
+@utility badge-primary {
+	--recipe-accent: var(--color-teal-500);
+}
+
+@utility badge-success {
+	--recipe-accent: var(--color-frost-500);
+}
+
+@utility badge-warning {
+	--recipe-accent: var(--color-ember-500);
+}
+
+@utility badge-danger {
+	--recipe-accent: var(--color-ember-600);
+}

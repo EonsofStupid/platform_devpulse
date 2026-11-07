@@ -1,0 +1,181 @@
+/* =================================================================
+   PulseOS DS — Typography utilities (glass + liquid text hooks)
+   - No hard-coded colors; token-driven
+   - Namespaced classes
+   - Includes enhanced / ultra variants
+   ================================================================= */
+
+.mi-typo-glass {
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  line-height: 1.2;
+  /* Crisp edge + elevation + subtle glow using currentColor */
+  text-shadow:
+    -1px -1px 0 hsl(var(--pulseos-glass-panel-shadow-hsl) / 0.9),
+    1px -1px 0 hsl(var(--pulseos-glass-panel-shadow-hsl) / 0.9),
+    -1px 1px 0 hsl(var(--pulseos-glass-panel-shadow-hsl) / 0.9),
+    1px 1px 0 hsl(var(--pulseos-glass-panel-shadow-hsl) / 0.9),
+    0 2px 4px hsl(var(--pulseos-glass-panel-shadow-hsl) / 0.8),
+    0 4px 8px hsl(var(--pulseos-glass-panel-shadow-hsl) / 0.6),
+    0 0 20px currentColor,
+    0 0 40px currentColor;
+}
+
+.mi-typo-glass--enhanced {
+  text-shadow:
+    -2px -2px 0 hsl(var(--pulseos-glass-panel-shadow-hsl) / 1),
+    2px -2px 0 hsl(var(--pulseos-glass-panel-shadow-hsl) / 1),
+    -2px 2px 0 hsl(var(--pulseos-glass-panel-shadow-hsl) / 1),
+    2px 2px 0 hsl(var(--pulseos-glass-panel-shadow-hsl) / 1),
+    0 3px 6px hsl(var(--pulseos-glass-panel-shadow-hsl) / 0.9),
+    0 6px 12px hsl(var(--pulseos-glass-panel-shadow-hsl) / 0.7),
+    0 0 30px currentColor,
+    0 0 60px currentColor;
+}
+
+.mi-typo-glass--ultra {
+  text-shadow:
+    -3px -3px 0 hsl(var(--pulseos-glass-panel-shadow-hsl) / 1),
+    3px -3px 0 hsl(var(--pulseos-glass-panel-shadow-hsl) / 1),
+    -3px 3px 0 hsl(var(--pulseos-glass-panel-shadow-hsl) / 1),
+    3px 3px 0 hsl(var(--pulseos-glass-panel-shadow-hsl) / 1),
+    0 4px 8px hsl(var(--pulseos-glass-panel-shadow-hsl) / 1),
+    0 8px 16px hsl(var(--pulseos-glass-panel-shadow-hsl) / 0.8),
+    0 12px 24px hsl(var(--pulseos-glass-panel-shadow-hsl) / 0.6),
+    0 16px 32px hsl(var(--pulseos-glass-panel-shadow-hsl) / 0.4),
+    0 0 40px currentColor,
+    0 0 80px currentColor,
+    0 0 120px currentColor;
+}
+
+/* ===== Liquid neon gradient text (kept) ===== */
+.mi-text-liquid {
+  background: linear-gradient(
+    270deg,
+    hsl(var(--pulseos-color-accent-cyan) / 0.9) 0%,
+    hsl(var(--pulseos-color-accent-pink) / 0.8) 25%,
+    hsl(var(--pulseos-color-accent-purple) / 0.9) 50%,
+    hsl(var(--pulseos-color-accent-lime) / 0.8) 75%,
+    hsl(var(--pulseos-color-accent-cyan) / 0.9) 100%
+  );
+  background-size: 400% 400%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-fill-color: transparent;
+  animation: pulseos-liquid-flow 3s ease-in-out infinite;
+  text-shadow:
+        0 0 30px hsl(var(--pulseos-color-accent-cyan) / 0.8),
+        0 0 60px hsl(var(--pulseos-color-accent-pink) / 0.6),
+        0 0 90px hsl(var(--pulseos-color-accent-lime) / 0.4),
+    0 4px 8px hsl(var(--pulseos-glass-panel-shadow-hsl) / 0.9);
+}
+
+/* Keyframe moved to canonical file: 15-motion/pulseos-keyframes.ds.css */
+/* Use pulseos-liquid-flow from canonical file */
+
+/* ===== Drip container hooks (animations live in effects/liquid.ds.css) ===== */
+.mi-text-drip {
+  position: relative;
+  display: inline-block;
+}
+.mi-text-drip--fast {
+  position: relative;
+  display: inline-block;
+}
+.mi-text-drip--slow {
+  position: relative;
+  display: inline-block;
+}
+.mi-text-drip--cont {
+  position: relative;
+  display: inline-block;
+}
+
+/* Nth-child animation mapping (pairs with pulseos-drip-* keyframes from canonical file) */
+.mi-text-drip > span:nth-child(3n + 1) {
+  animation: pulseos-drip-slow 4s ease-in-out infinite;
+  animation-delay: 0.5s;
+}
+.mi-text-drip > span:nth-child(5n + 2) {
+  animation: pulseos-drip-fast 3s ease-in-out infinite;
+  animation-delay: 1.2s;
+}
+.mi-text-drip > span:nth-child(7n + 3) {
+  animation: pulseos-drip-bubble 3.5s ease-in-out infinite;
+  animation-delay: 2.1s;
+}
+.mi-text-drip > span:nth-child(11n + 1) {
+  animation: pulseos-drip-slow 4.5s ease-in-out infinite;
+  animation-delay: 3.8s;
+}
+
+.mi-text-drip--fast > span:nth-child(2n + 1) {
+  animation: pulseos-drip-fast 2s ease-in-out infinite;
+  animation-delay: 0.3s;
+}
+.mi-text-drip--fast > span:nth-child(3n + 2) {
+  animation: pulseos-drip-bubble 2.2s ease-in-out infinite;
+  animation-delay: 0.8s;
+}
+
+.mi-text-drip--slow > span:nth-child(4n + 1) {
+  animation: pulseos-drip-slow 6s ease-in-out infinite;
+  animation-delay: 1s;
+}
+.mi-text-drip--slow > span:nth-child(6n + 2) {
+  animation: pulseos-drip-bubble 5.5s ease-in-out infinite;
+  animation-delay: 2.5s;
+}
+
+.mi-text-drip--cont > span:nth-child(odd) {
+  animation: pulseos-drip-fast 2.5s ease-in-out infinite;
+}
+.mi-text-drip--cont > span:nth-child(even) {
+  animation: pulseos-drip-slow 3s ease-in-out infinite;
+  animation-delay: 1.25s;
+}
+
+/* Hover trigger (explicit) */
+.mi-text-drip-hover:hover > span:nth-child(2n + 1) {
+  animation: pulseos-drip-fast 1.5s ease-in-out;
+}
+.mi-text-drip-hover:hover > span:nth-child(3n + 2) {
+  animation: pulseos-drip-bubble 1.8s ease-in-out;
+  animation-delay: 0.2s;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .mi-text-liquid {
+    animation: none;
+  }
+  .mi-text-drip > span,
+  .mi-text-drip--fast > span,
+  .mi-text-drip--slow > span,
+  .mi-text-drip--cont > span,
+  .mi-text-drip-hover > span {
+    animation: none !important;
+  }
+}
+
+/* --------- (Optional) TEMP compatibility aliases (remove later) --------- */
+/* If you need these now, they’re tokenized (no hard-coded HSL) */
+.word-cyan-90 {
+  color: hsl(var(--pulseos-color-accent-cyan));
+}
+.word-cyan-400 {
+  color: hsl(var(--pulseos-color-accent-cyan));
+}
+.word-pink-90 {
+  color: hsl(var(--pulseos-color-accent-pink));
+}
+.word-pink-400 {
+  color: hsl(var(--pulseos-color-accent-pink));
+}
+.word-slime-90 {
+  color: hsl(var(--pulseos-color-accent-lime));
+}
+.word-slime-400 {
+  color: hsl(var(--pulseos-color-accent-lime));
+}

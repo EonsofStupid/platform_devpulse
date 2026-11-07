@@ -1,0 +1,36 @@
+{
+	"$description": "Tabs glass-void recipe and blueprint restored from design/recipes/components/tabs and design/blueprints/components/tabs. The list, trigger and panel retain the original slots and interaction states.",
+	"tabs": {
+		"$extensions": { "com.coldlight": { "slot": "root", "accepts": ["surface", "text", "frame", "overlay"], "defaults": { "variant": "default", "size": "md" } } },
+		"variant": {
+			"default": { "$extends": "{preset.neuro-elevated}" },
+			"stark": { "$extends": "{preset.stark-glow}" },
+			"glass": { "$extends": "{preset.glass-deep}" },
+			"flat": { "$extends": "{preset.flat-minimal}" },
+			"matte": { "$extends": "{preset.neuro-solid}" }
+		},
+		"size": {
+			"sm": { "font-size": { "$value": "0.75rem", "$type": "dimension" } },
+			"md": { "font-size": { "$value": "0.875rem", "$type": "dimension" } },
+			"lg": { "font-size": { "$value": "1rem", "$type": "dimension" } }
+		},
+		"part": {
+			"list": {
+				"background-color": { "$value": "{glass.void}", "$type": "color" },
+				"border-bottom": { "$value": "0.0625rem solid {border.subtle}" },
+				"border-radius": { "$value": "{radius.lg}", "$type": "dimension" }
+			},
+			"trigger": {
+				"color": { "$value": "{text.muted}", "$type": "color" },
+				"border-radius": { "$value": "{radius.md}", "$type": "dimension" },
+				"state": {
+					"hover": { "color": { "$value": "{text.secondary}", "$type": "color" }, "background-color": { "$value": "{interaction.hover}", "$type": "color" } },
+					"selected": { "color": { "$value": "{text.primary}", "$type": "color" }, "background-color": { "$value": "{interaction.active}", "$type": "color" } },
+					"focus-visible": { "outline-style": { "$value": "solid" }, "outline-width": { "$value": "0.125rem", "$type": "dimension" }, "outline-color": { "$value": "{border.focus}", "$type": "color" }, "outline-offset": { "$value": "0.125rem", "$type": "dimension" } },
+					"disabled": { "opacity": { "$value": 0.5, "$type": "number" }, "cursor": { "$value": "not-allowed" } }
+				}
+			},
+			"content": { "color": { "$value": "{text.secondary}", "$type": "color" } }
+		}
+	}
+}

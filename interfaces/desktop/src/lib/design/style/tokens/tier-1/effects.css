@@ -1,0 +1,32 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+:root {
+  --shadow-z0: 0px 0px 0px 0px oklch(0 0 0 / 0);
+  --shadow-z1: 0px 1px 3px 0px oklch(0 0 0 / 0.12), 0px 1px 2px 0px oklch(0 0 0 / 0.24);
+  --shadow-z2: 0px 3px 6px 0px oklch(0 0 0 / 0.15), 0px 2px 4px 0px oklch(0 0 0 / 0.12);
+  --shadow-z3: 0px 10px 20px 0px oklch(0 0 0 / 0.15), 0px 3px 6px 0px oklch(0 0 0 / 0.1);
+  --shadow-z4: 0px 15px 25px 0px oklch(0 0 0 / 0.15), 0px 5px 10px 0px oklch(0 0 0 / 0.05);
+  --bevel-off: inset 0px 0px 0px 0px oklch(0 0 0 / 0);
+  --bevel-subtle: inset 0px 1px 0px 0px oklch(1 1 1 / 0.04), inset 0px -1px 0px 0px oklch(0 0 0 / 0.08);
+  --bevel-soft: inset 0px 1px 2px 0px oklch(1 1 1 / 0.06), inset 0px -1px 2px 0px oklch(0 0 0 / 0.12);
+  --bevel-medium: inset 0px 2px 4px 0px oklch(1 1 1 / 0.08), inset 0px -2px 4px 0px oklch(0 0 0 / 0.16);
+  --glow-off: 0px 0px 0px 0px oklch(0 0 0 / 0);
+  --glow-teal: 0px 0px 20px 0px oklch(0.55 0.18 180 / 0.4);
+  --glow-purple: 0px 0px 20px 0px oklch(0.55 0.18 280 / 0.4);
+  --glow-magenta: 0px 0px 20px 0px oklch(0.55 0.2 330 / 0.4);
+  --glow-ember: 0px 0px 20px 0px oklch(0.55 0.18 25 / 0.4);
+  --glow-frost: 0px 0px 20px 0px oklch(0.58 0.1 220 / 0.35);
+  --glow-cyber: 0px 0px 20px 0px oklch(0.55 0.18 160 / 0.4);
+  --glow-spread-sm: 12px;
+  --glow-spread-md: 20px;
+  --glow-spread-lg: 30px;
+  --glow-spread-xl: 40px;
+  --blur-off: 0px;
+  --blur-sm: 4px;
+  --blur-md: 8px;
+  --blur-lg: 12px;
+  --blur-xl: 16px;
+  --blur-2xl: 24px;
+}

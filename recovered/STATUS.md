@@ -1,5 +1,29 @@
 # Recovery status — 2026-11-02
 
+## Original-location recovery — current working tree
+
+The manifest now has 6,081 records: 5,860 have a recorded destination and 221
+remain staged. In the latest pass, 4,888 files were copied to their recorded
+original paths after comparison with their Git blobs. The recovery copies were
+retained and existing destinations were not overwritten. Of these, 594 are
+generated design reference files; the other 4,294 are source, styles or assets.
+
+Most of the restored design implementation is historical, with old imports and
+APIs. It is back under `interfaces/desktop/src/lib/design/`, but excluded from
+the current desktop typecheck while the working application uses the ColdLight
+package. The desktop typecheck passed with this restored design tree excluded.
+The restored alpha and historical Rust trees are not current workspace
+members. **Source returned to its path does not mean its product feature is
+wired or working.** Existing paths with different content, old routes, current
+Rust module owners and historical agent/build configuration still require
+individual reconciliation; they were not overwritten or automatically activated.
+
+The current tabs, accordion and collapsible components have also had styling
+from their retained historical sources reauthored in their existing ColdLight
+owners. See plan 0009 for the scope and the remaining integration work.
+When the tabs behavior changed, one earlier revision no longer survived
+unchanged in the live tree; it was preserved in recovery with its Git source.
+
 `recovered/` is temporary staging. The owner requires restoration to proper
 owning locations, including documentation and planning. Staged source is
 excluded from the workspace build and does not restore a working feature.

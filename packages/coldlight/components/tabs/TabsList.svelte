@@ -19,7 +19,7 @@ const ctx = getTabsContext();
 	{...ctx.hook.list}
 	data-kind="tabs"
 	data-slot="list"
-	class={cn("inline-flex items-center", className)}
+	class={cn("inline-flex items-center gap-1 p-1", className)}
 	{...rest}
 >
 	{@render children?.()}

@@ -1,0 +1,8 @@
+{
+	"overlay": {
+		"$type": "color",
+		"$description": "Overlay backdrop fills",
+		"bg":       { "$value": { "colorSpace": "oklch", "components": [0.06, 0.02, 195], "alpha": 0.40, "hex": "#000404" } },
+		"bg-heavy": { "$value": { "colorSpace": "oklch", "components": [0.06, 0.02, 195], "alpha": 0.60, "hex": "#000404" } }
+	}
+}

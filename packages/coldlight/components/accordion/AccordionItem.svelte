@@ -26,6 +26,7 @@ const itemAttrs = $derived(ctx.hook.getItem(value));
 </script>
 
 <div
+	{...rest}
 	{...itemAttrs}
 	id={ctx.ids.item?.(value)}
 	data-kind="accordion"

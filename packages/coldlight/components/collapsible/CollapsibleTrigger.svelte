@@ -23,7 +23,7 @@ const ctx = getCollapsibleContext();
 	data-kind="collapsible"
 	data-slot="trigger"
 	data-state={ctx.isOpen ? "open" : "closed"}
-	class={cn(className)}
+	class={cn("flex w-full items-center justify-between text-left", className)}
 	onclick={() => ctx.toggle()}
 	{...rest}
 >

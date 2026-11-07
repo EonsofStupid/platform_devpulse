@@ -21,7 +21,7 @@ const contentAttrs = $derived(ctx.hook.getContent(value));
 	{...contentAttrs}
 	data-kind="tabs"
 	data-slot="content"
-	class={cn("mt-2", className)}
+	class={cn(ctx.size === "sm" ? "p-3" : ctx.size === "lg" ? "p-6" : "p-4", className)}
 	{...rest}
 >
 	{#if !contentAttrs.hidden}

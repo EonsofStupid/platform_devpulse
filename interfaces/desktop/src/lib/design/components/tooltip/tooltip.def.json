@@ -1,0 +1,20 @@
+{
+  "kind": "tooltip",
+  "label": "Tooltip",
+  "category": "feedback",
+  "description": "Floating text label that appears on hover or focus to provide supplementary information",
+  "aria": "https://www.w3.org/WAI/ARIA/apg/patterns/tooltip/",
+  "container": false,
+  "containerSlots": [],
+  "compound": true,
+  "blockCategory": "utility",
+  "requiredAxes": ["backgroundColor", "borderRadius", "shadow", "color", "typography"],
+  "defaultStyleId": "tooltip-default",
+  "styleIds": ["tooltip-default"],
+  "slots": {
+    "root": "all",
+    "trigger": "none",
+    "content": "none",
+    "arrow": "none"
+  }
+}

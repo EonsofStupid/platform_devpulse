@@ -1,0 +1,103 @@
+# DevPulse Configuration
+# Location: ~/.local/share/devpulse/config.toml
+#
+# This file controls AI service toggles and model selection.
+# Edit and restart to apply changes.
+
+# ═══════════════════════════════════════════════════════════════
+# SERVICES - Toggle AI backends on/off
+# ═══════════════════════════════════════════════════════════════
+
+[services]
+# Master toggles - set to false to completely disable
+embedder_enabled = true   # Text → vector (required for search)
+reranker_enabled = false  # Query×Doc scoring (improves results)
+llm_enabled = false       # Generation (Llm/VL models)
+
+# ─────────────────────────────────────────────────────────────
+# Embedder Settings
+# ─────────────────────────────────────────────────────────────
+[services.embedder]
+# Which model to use (must exist in [models.embedders])
+active = "Qwen3Embed0_6B"
+# Device: "cpu", "cuda:0", "metal", "auto"
+device = "cpu"
+
+# ─────────────────────────────────────────────────────────────
+# Reranker Settings
+# ─────────────────────────────────────────────────────────────
+[services.reranker]
+active = "Qwen3Rerank0_6B"
+device = "cpu"
+
+# ─────────────────────────────────────────────────────────────
+# LLM/Llm Settings
+# ─────────────────────────────────────────────────────────────
+[services.llm]
+active = "Qwen3VL4B_Q4KM"
+device = "cuda:0"
+max_tokens = 1024
+temperature = 0.7
+
+# ═══════════════════════════════════════════════════════════════
+# MODEL REGISTRY - Add new models here
+# ═══════════════════════════════════════════════════════════════
+
+# ─────────────────────────────────────────────────────────────
+# Embedders
+# ─────────────────────────────────────────────────────────────
+[services.models.embedders.Qwen3Embed0_6B]
+family = "Qwen3Embed"
+params_b = 0.6
+dimension = 1024
+path = "embedder"
+format = "safetensors"
+
+[services.models.embedders.Qwen3Embed4B]
+family = "Qwen3Embed"
+params_b = 4.0
+dimension = 2560
+path = "embedder-4b"
+format = "safetensors"
+
+# ─────────────────────────────────────────────────────────────
+# Rerankers
+# ─────────────────────────────────────────────────────────────
+[services.models.rerankers.Qwen3Rerank0_6B]
+family = "Qwen3Rerank"
+params_b = 0.6
+path = "reranker"
+format = "gguf"
+quant = "Q8_0"
+
+# ─────────────────────────────────────────────────────────────
+# LLMs
+# ─────────────────────────────────────────────────────────────
+[services.models.llms.Qwen3VL4B_Q4KM]
+family = "Qwen3VL"
+params_b = 4.0
+path = "llm/Qwen3-VL-4B-Instruct-Q4_K_M.gguf"
+format = "gguf"
+quant = "Q4_K_M"
+vram_gb = 3.5
+supports_vision = true
+
+[services.models.llms.Qwen3VL8B_Q4KM]
+family = "Qwen3VL"
+params_b = 8.0
+path = "8vlb/qwen3-vl-8b/model.gguf"
+format = "gguf"
+quant = "Q4_K_M"
+vram_gb = 6.5
+supports_vision = true
+
+# ═══════════════════════════════════════════════════════════════
+# PATHS - Override default directories
+# ═══════════════════════════════════════════════════════════════
+
+[paths]
+# Models directory (embedder/, reranker/, llm/ subdirs)
+models_dir = "D:\\localdev\\dp_alpha\\models"
+
+# Uncomment to override data directory
+# data_dir = "D:\\localdev\\alpha_devpulse\\data"

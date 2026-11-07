@@ -8,6 +8,7 @@
 -->
 <script lang="ts">
 import { getAccordionContext, getAccordionItemContext } from "./context.js";
+import { cn } from "#coldlight/utils/cn.js";
 import type { AccordionTriggerProps } from "./types.js";
 
 let { children, class: className, ...rest }: AccordionTriggerProps = $props();
@@ -18,11 +19,12 @@ const triggerAttrs = $derived(ctx.hook.getTrigger(item.value, item.disabled));
 </script>
 
 <button
+	{...rest}
 	{...triggerAttrs}
 	id={ctx.ids.trigger?.(item.value) ?? triggerAttrs.id}
 	data-kind="accordion"
 	data-slot="trigger"
-	class={className}
+	class={cn("flex w-full items-center justify-between text-left", className)}
 >
 	{@render children?.()}
 </button>

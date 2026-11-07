@@ -1,0 +1,21 @@
+{
+  "kind": "empty-state",
+  "label": "Empty State",
+  "category": "content",
+  "description": "Placeholder display shown when a view has no data, with optional illustration and call to action",
+  "aria": null,
+  "container": true,
+  "containerSlots": ["content"],
+  "compound": true,
+  "blockCategory": "content",
+  "requiredAxes": ["color", "typography"],
+  "defaultStyleId": "empty-state-default",
+  "styleIds": ["empty-state-default"],
+  "slots": {
+    "root": "all",
+    "illustration": "none",
+    "title": "none",
+    "description": "none",
+    "action": "none"
+  }
+}

@@ -1,0 +1,24 @@
+{
+	"$description": "Restores the trigger and content styling from the original collapsible shortcode and glass-void recipe.",
+	"collapsible": {
+		"$extensions": { "com.coldlight": { "slot": "root", "accepts": [] } },
+		"part": {
+			"trigger": {
+				"padding-inline": { "$value": "{space.4}", "$type": "dimension" },
+				"padding-block": { "$value": "{space.3}", "$type": "dimension" },
+				"font-weight": { "$value": 500, "$type": "fontWeight" },
+				"color": { "$value": "{text.primary}", "$type": "color" },
+				"state": {
+					"hover": { "background-color": { "$value": "{interaction.hover}", "$type": "color" } },
+					"focus-visible": { "outline-style": { "$value": "solid" }, "outline-width": { "$value": "0.125rem", "$type": "dimension" }, "outline-color": { "$value": "{border.focus}", "$type": "color" }, "outline-offset": { "$value": "0.125rem", "$type": "dimension" } },
+					"disabled": { "opacity": { "$value": 0.5, "$type": "number" }, "cursor": { "$value": "not-allowed" } }
+				}
+			},
+			"content": {
+				"padding-inline": { "$value": "{space.4}", "$type": "dimension" },
+				"padding-bottom": { "$value": "{space.4}", "$type": "dimension" },
+				"color": { "$value": "{text.secondary}", "$type": "color" }
+			}
+		}
+	}
+}

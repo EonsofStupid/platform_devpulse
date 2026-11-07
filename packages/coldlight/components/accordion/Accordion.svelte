@@ -92,7 +92,7 @@ const m = $derived(renderForge({ kind: "accordion", preset }));
 	{...m.dataAttrs}
 	data-orientation={orientation}
 	style={cssVarString(m.cssVars)}
-	class={cn(SIZE[size] ?? SIZE.md, className)}
+	class={cn("flex flex-col gap-1", SIZE[size] ?? SIZE.md, className)}
 >
 	{@render children?.()}
 </div>

@@ -1,0 +1,23 @@
+{
+  "kind": "steps",
+  "label": "Steps",
+  "category": "composite",
+  "description": "Multi-step progress indicator showing sequential workflow stages and current position",
+  "aria": null,
+  "container": true,
+  "containerSlots": ["content"],
+  "compound": true,
+  "blockCategory": "navigation",
+  "requiredAxes": ["backgroundColor", "border", "borderRadius", "color", "typography"],
+  "defaultStyleId": "steps-default",
+  "styleIds": ["steps-default"],
+  "slots": {
+    "root": "all",
+    "step": "none",
+    "indicator": "none",
+    "separator": "none",
+    "title": "none",
+    "description": "none",
+    "content": "none"
+  }
+}

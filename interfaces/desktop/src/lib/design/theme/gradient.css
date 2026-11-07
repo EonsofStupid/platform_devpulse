@@ -1,0 +1,60 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+@theme {
+  --gradient-accent-brand-blue: linear-gradient(135deg, oklch(0.24 0.12 240) 0%, oklch(0.04 0.06 240) 100%);
+  --gradient-accent-brand-coral: linear-gradient(135deg, oklch(0.24 0.12 10) 0%, oklch(0.04 0.06 10) 100%);
+  --gradient-accent-brand-cyan: linear-gradient(135deg, oklch(0.24 0.12 195) 0%, oklch(0.04 0.06 195) 100%);
+  --gradient-accent-brand-gold: linear-gradient(135deg, oklch(0.24 0.12 100) 0%, oklch(0.04 0.06 100) 100%);
+  --gradient-accent-brand-green: linear-gradient(135deg, oklch(0.24 0.12 155) 0%, oklch(0.04 0.06 155) 100%);
+  --gradient-accent-brand-hotpink: linear-gradient(135deg, oklch(0.24 0.16 355) 0%, oklch(0.04 0.08 355) 100%);
+  --gradient-accent-brand-salmon: linear-gradient(135deg, oklch(0.24 0.12 15) 0%, oklch(0.04 0.06 15) 100%);
+  --gradient-accent-cyber: linear-gradient(135deg, oklch(0.24 0.08 160) 0%, oklch(0.04 0.04 160) 100%);
+  --gradient-accent-ember: linear-gradient(135deg, oklch(0.24 0.08 25) 0%, oklch(0.04 0.04 25) 100%);
+  --gradient-accent-frost: linear-gradient(135deg, oklch(0.24 0.06 220) 0%, oklch(0.04 0.03 220) 100%);
+  --gradient-accent-magenta: linear-gradient(135deg, oklch(0.24 0.12 330) 0%, oklch(0.04 0.06 330) 100%);
+  --gradient-accent-purple: linear-gradient(135deg, oklch(0.24 0.12 280) 0%, oklch(0.04 0.06 280) 100%);
+  --gradient-accent-teal: linear-gradient(135deg, oklch(0.24 0.08 173) 0%, oklch(0.04 0.04 173) 100%);
+  --gradient-glow-brand-blue: linear-gradient(135deg, oklch(0.24 0.09 240 / 0.4) 0%, oklch(0.24 0.09 240 / 0) 100%);
+  --gradient-glow-brand-coral: linear-gradient(135deg, oklch(0.24 0.09 10 / 0.4) 0%, oklch(0.24 0.09 10 / 0) 100%);
+  --gradient-glow-brand-cyan: linear-gradient(135deg, oklch(0.24 0.09 195 / 0.4) 0%, oklch(0.24 0.09 195 / 0) 100%);
+  --gradient-glow-brand-gold: linear-gradient(135deg, oklch(0.24 0.09 100 / 0.4) 0%, oklch(0.24 0.09 100 / 0) 100%);
+  --gradient-glow-brand-green: linear-gradient(135deg, oklch(0.24 0.09 155 / 0.4) 0%, oklch(0.24 0.09 155 / 0) 100%);
+  --gradient-glow-brand-hotpink: linear-gradient(135deg, oklch(0.24 0.12 355 / 0.4) 0%, oklch(0.24 0.12 355 / 0) 100%);
+  --gradient-glow-brand-salmon: linear-gradient(135deg, oklch(0.24 0.09 15 / 0.4) 0%, oklch(0.24 0.09 15 / 0) 100%);
+  --gradient-glow-cyber: linear-gradient(135deg, oklch(0.24 0.06 160 / 0.4) 0%, oklch(0.24 0.06 160 / 0) 100%);
+  --gradient-glow-ember: linear-gradient(135deg, oklch(0.24 0.06 25 / 0.4) 0%, oklch(0.24 0.06 25 / 0) 100%);
+  --gradient-glow-frost: linear-gradient(135deg, oklch(0.24 0.045 220 / 0.4) 0%, oklch(0.24 0.045 220 / 0) 100%);
+  --gradient-glow-magenta: linear-gradient(135deg, oklch(0.24 0.09 330 / 0.4) 0%, oklch(0.24 0.09 330 / 0) 100%);
+  --gradient-glow-purple: linear-gradient(135deg, oklch(0.24 0.09 280 / 0.4) 0%, oklch(0.24 0.09 280 / 0) 100%);
+  --gradient-glow-teal: linear-gradient(135deg, oklch(0.24 0.06 173 / 0.4) 0%, oklch(0.24 0.06 173 / 0) 100%);
+  --gradient-mesh-aurora: linear-gradient(135deg, oklch(0.55 0.08 173) 0%, oklch(0.5 0.1 200) 50%, oklch(0.45 0.12 280) 100%);
+  --gradient-mesh-frost: linear-gradient(135deg, oklch(0.55 0.06 220) 0%, oklch(0.5 0.08 173) 50%, oklch(0.45 0.1 160) 100%);
+  --gradient-mesh-sunset: linear-gradient(135deg, oklch(0.55 0.12 25) 0%, oklch(0.5 0.14 330) 50%, oklch(0.45 0.12 280) 100%);
+  --gradient-mesh-void: linear-gradient(180deg, oklch(0.12 0.01 224) 0%, oklch(0.06 0.005 224) 100%);
+  --gradient-surface-brand-blue: linear-gradient(180deg, oklch(0.13 0.03 240) 0%, oklch(0.07 0.03 240) 100%);
+  --gradient-surface-brand-coral: linear-gradient(180deg, oklch(0.13 0.03 10) 0%, oklch(0.07 0.03 10) 100%);
+  --gradient-surface-brand-cyan: linear-gradient(180deg, oklch(0.13 0.03 195) 0%, oklch(0.07 0.03 195) 100%);
+  --gradient-surface-brand-gold: linear-gradient(180deg, oklch(0.13 0.03 100) 0%, oklch(0.07 0.03 100) 100%);
+  --gradient-surface-brand-green: linear-gradient(180deg, oklch(0.13 0.03 155) 0%, oklch(0.07 0.03 155) 100%);
+  --gradient-surface-brand-hotpink: linear-gradient(180deg, oklch(0.13 0.04 355) 0%, oklch(0.07 0.04 355) 100%);
+  --gradient-surface-brand-salmon: linear-gradient(180deg, oklch(0.13 0.03 15) 0%, oklch(0.07 0.03 15) 100%);
+  --gradient-surface-cyber: linear-gradient(180deg, oklch(0.13 0.02 160) 0%, oklch(0.07 0.02 160) 100%);
+  --gradient-surface-ember: linear-gradient(180deg, oklch(0.13 0.02 25) 0%, oklch(0.07 0.02 25) 100%);
+  --gradient-surface-frost: linear-gradient(180deg, oklch(0.13 0.015 220) 0%, oklch(0.07 0.015 220) 100%);
+  --gradient-surface-magenta: linear-gradient(180deg, oklch(0.13 0.03 330) 0%, oklch(0.07 0.03 330) 100%);
+  --gradient-surface-purple: linear-gradient(180deg, oklch(0.13 0.03 280) 0%, oklch(0.07 0.03 280) 100%);
+  --gradient-surface-teal: linear-gradient(180deg, oklch(0.13 0.02 173) 0%, oklch(0.07 0.02 173) 100%);
+  --gradient-animated-1: oklch(0.1407 0.0433 220.15 / 0.6);
+  --gradient-animated-2: oklch(0.1206 0.0595 280.32 / 0.4);
+  --gradient-teal-purple: oklch(0.1149 0.0423 190.54 / 0.702);
+  --gradient-cyan-green: oklch(0.8226 0.1381 204.82);
+  --gradient-green-blend: oklch(0.6806 0.1601 153.63);
+  --gradient-magenta-pink: oklch(0.6441 0.2688 338.83);
+  --gradient-hotpink-blend: oklch(0.6534 0.2270 6.32);
+  --gradient-coral-blue: oklch(0.7123 0.1775 12.65);
+  --gradient-blue-blend: oklch(0.6910 0.1386 242.82);
+  --gradient-salmon-gold: oklch(0.6899 0.1677 19.03);
+  --gradient-gold-blend: oklch(0.8409 0.1681 108.03);
+}

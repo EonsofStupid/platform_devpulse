@@ -25,19 +25,20 @@
 <script lang="ts">
 import { tabsAnatomy } from "#coldlight/behaviors/navigation/tabs/index.js";
 import { useTabs } from "#coldlight/behaviors/navigation/tabs/use-tabs.svelte.js";
-import { cssVarString, renderForge } from "#coldlight/renderforge/index.js";
+import { styleAttrs } from "#coldlight/renderforge/index.js";
 import { cn } from "#coldlight/utils/cn.js";
 import { setTabsContext } from "./context.js";
 import type { TabsProps } from "./types.js";
 
 let {
-	value = "",
+	value,
 	onValueChange,
 	orientation = "horizontal",
 	activateOnFocus = true,
 	loop = true,
 	children,
 	preset = "default",
+	size = "md",
 	class: className,
 	...rest
 }: TabsProps = $props();
@@ -62,19 +63,19 @@ setTabsContext({
 	get hook() {
 		return hook;
 	},
+	get size() {
+		return size;
+	},
 });
-
-const m = $derived(renderForge({ kind: "tabs", preset }));
 </script>
 
 <div
 		{...tabsAnatomy.attrs.root}
 		{...hook.root}
 		{...rest}
-		{...m.dataAttrs}
-		style={cssVarString(m.cssVars)}
+		{...styleAttrs({ kind: "tabs", size, variant: preset })}
 		data-orientation={orientation}
-		class={cn(className)}
+		class={cn("flex flex-col", className)}
 	>
 		{@render children?.()}
 	</div>

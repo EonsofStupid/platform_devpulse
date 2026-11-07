@@ -1,0 +1,17 @@
+{
+  "kind": "color-swatch",
+  "label": "Color Swatch",
+  "category": "interactive",
+  "description": "Small preview rectangle displaying a single color value",
+  "aria": null,
+  "container": false,
+  "containerSlots": [],
+  "compound": false,
+  "blockCategory": "form",
+  "requiredAxes": ["border", "borderRadius"],
+  "defaultStyleId": "color-swatch-default",
+  "styleIds": ["color-swatch-default"],
+  "slots": {
+    "root": "all"
+  }
+}

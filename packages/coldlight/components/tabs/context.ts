@@ -9,6 +9,7 @@ import type { UseTabsReturn } from "#coldlight/behaviors/navigation/tabs/tabs.ty
 
 export interface TabsContext {
 	readonly hook: UseTabsReturn;
+	readonly size: "sm" | "md" | "lg";
 }
 
 const TABS_CTX = Symbol("coldlight-tabs");

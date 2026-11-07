@@ -1,0 +1,22 @@
+{
+  "kind": "menubar",
+  "label": "Menubar",
+  "category": "composite",
+  "description": "Horizontal bar of dropdown menus for application-level navigation and actions",
+  "aria": "https://www.w3.org/WAI/ARIA/apg/patterns/menubar/",
+  "container": true,
+  "containerSlots": ["root"],
+  "compound": true,
+  "blockCategory": "navigation",
+  "requiredAxes": ["backgroundColor", "border", "color", "typography"],
+  "defaultStyleId": "menubar-default",
+  "styleIds": ["menubar-default"],
+  "slots": {
+    "root": "all",
+    "menu": "none",
+    "trigger": "none",
+    "content": "none",
+    "item": "none",
+    "separator": "none"
+  }
+}

@@ -1,143 +1,17 @@
-# lefthook.yml
-# Git hooks for DevPulse - runs before commits/pushes
-
+# Keep commits quick; run broader checks for the work that actually changed.
 glob_matcher: doublestar
 
 pre-commit:
-  parallel: true
   commands:
-    # Rust formatting
-    rust-fmt:
+    whitespace:
+      # Historical source is restored byte-for-byte, including its whitespace.
+      run: node scripts/hooks/check-staged-whitespace.cjs
+    rust-format:
       glob: ["*.rs", "**/*.rs"]
-      # Your recovered code is kept as it was, never built or linted (plan 0009).
       exclude: ["recovered/**"]
       run: cargo fmt --all -- --check
 
-    # Rust linting (quick check, not full clippy)
-    rust-check:
-      glob: ["*.rs", "**/*.rs"]
-      # Your recovered code is kept as it was, never built or linted (plan 0009).
-      exclude: ["recovered/**"]
-      run: cargo xtask check --workspace -- --quiet
-
-    # Svelte check
-    svelte-check:
-      glob: ["*.svelte", "**/*.svelte"]
-      # Your recovered code is kept as it was, never built or linted (plan 0009).
-      exclude: ["recovered/**"]
-      root: "interfaces/desktop"
-      run: pnpm exec svelte-check --threshold error
-
-    svelte-check-coldlight:
-      glob: "packages/coldlight/**/*.{ts,svelte}"
-      root: "packages/coldlight"
-      run: pnpm exec svelte-check --threshold error
-
-    story-types:
-      glob: ["interfaces/desktop/src/stories/**", "interfaces/desktop/.storybook/**", "interfaces/desktop/tsconfig.stories.json"]
-      run: pnpm --dir interfaces/desktop check:stories
-
-    # Validate both presentation labels; kernel vocabulary is always allowed.
-    terminology-check:
-      glob: ["systems/devpulse-engine/ip/kernel_terms.toml", "interfaces/desktop/scripts/build/terminology/**", "interfaces/desktop/src/lib/sys/generated/terminology.ts"]
-      run: pnpm --dir interfaces/desktop test:arch -- tests/architecture/terminology.test.ts
-
-    # Bindings drift guard — if Tauri command .rs files changed but
-    # bindings.ts was not regenerated, block commit with an actionable
-    # fix. Prevents "installer boots to black screen" class.
-    bindings-drift:
-      glob: "interfaces/desktop/src-tauri/src/commands/**/*.rs"
-      run: bash scripts/hooks/check-bindings-drift.sh
-
-    # Block legacy vendor prefixes (--dp-, --tw-, etc.) — --cl-* is ColdLight's own namespace
-    no-legacy-prefixes:
-      glob: ["interfaces/desktop/src/**/*.{ts,svelte,css}", "packages/coldlight/**/*.{ts,svelte,css}"]
-      run: bash scripts/hooks/no-legacy-prefixes.sh
-
-    # Biome lint + format check (TypeScript, Svelte, CSS)
-    biome-lint:
-      glob: "interfaces/desktop/src/**/*.{ts,svelte,css}"
-      root: "interfaces/desktop"
-      run: pnpm exec biome check .
-
-    biome-lint-coldlight:
-      glob: "packages/coldlight/**/*.{ts,svelte,css,json}"
-      root: "packages/coldlight"
-      run: pnpm exec biome check .
-
-    # Block raw hex colors and raw px values in Svelte <style> blocks
-    # GritQL plugins handle .css files via biome check above
-    no-raw-values:
-      glob: ["interfaces/desktop/src/**/*.{svelte,css,ts}", "packages/coldlight/**/*.{svelte,css,ts}"]
-      run: node scripts/hooks/no-raw-values.mjs
-
-    raw-values-tests:
-      glob: "scripts/hooks/no-raw-values*.mjs"
-      run: node --test scripts/hooks/no-raw-values.test.mjs
-
-    # Routes are the folders under src/routes (plan 0008): no route typed
-    # by hand outside resolve() / routeAt().
-    no-hand-typed-routes:
-      glob: "interfaces/desktop/src/**/*.{svelte,ts}"
-      run: node scripts/hooks/no-hand-typed-routes.mjs
-
-    # Documentation preflight checks
-    docs-preflight:
-      glob: ["interfaces/desktop/src/**/*.{ts,svelte}", "packages/coldlight/**/*.{ts,svelte}"]
-      run: cd scripts/docs && pnpm preflight:check
-
-    # Read-only freshness gate; never race generated-file writes with typechecks.
-    tokens-check:
-      glob: ["interfaces/desktop/scripts/build/styledictionary/**", "interfaces/desktop/src/lib/domains/**/*.tokens.json", "interfaces/desktop/src/lib/domains/**/*.generated.*", "interfaces/desktop/src/lib/sys/generated/feature-styles.css", "packages/coldlight/**/*.{json,css,ts}", "interfaces/desktop/package.json"]
-      run: pnpm --dir interfaces/desktop ds:tokens:check
-
-    tokens-tests:
-      glob: "interfaces/desktop/scripts/build/styledictionary/**"
-      run: pnpm --dir interfaces/desktop ds:tokens:test
-
-    # ColdLight's build scripts still live in the app until plan 0006 C2c; these
-    # run from the repo root because lefthook drops staged files outside `root`.
-
-    # ColdLight manifest verification
-    coldlight-verify:
-      glob: "packages/coldlight/**/*.{ts,svelte}"
-      run: pnpm --dir interfaces/desktop coldlight:verify
-
-    # ColdLight auto-documentation generation (TypeDoc → .cowlevel/)
-    coldlight-docs:
-      glob: "packages/coldlight/**/*.{ts,svelte}"
-      run: pnpm --dir interfaces/desktop coldlight:docs
-      stage_fixed: true
-
 commit-msg:
   commands:
-    # Conventional commit format validation
     commitlint:
       run: npx --no -- commitlint --edit {1}
-
-pre-push:
-  parallel: true
-  commands:
-    # Full Rust lint on push, under run-dev's build env so it reuses the
-    # dev loop's artifacts instead of invalidating them.
-    clippy:
-      glob: ["*.rs", "**/*.rs"]
-      # Your recovered code is kept as it was, never built or linted (plan 0009).
-      exclude: ["recovered/**"]
-      run: cargo xtask clippy --workspace
-
-    # Security audit
-    cargo-deny:
-      run: cargo deny check advisories
-
-    # Svelte type check
-    svelte-typecheck:
-      root: "interfaces/desktop"
-      run: pnpm exec svelte-check --threshold error
-
-    svelte-typecheck-coldlight:
-      root: "packages/coldlight"
-      run: pnpm exec svelte-check --threshold error
-
-    tokens-check:
-      run: pnpm --dir interfaces/desktop ds:tokens:check

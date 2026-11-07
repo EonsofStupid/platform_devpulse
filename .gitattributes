@@ -35,6 +35,19 @@
 # Your recovered code (plan 0009): kept byte for byte — no line-ending
 # conversion — and counted as vendored, not as this repo's languages.
 recovered/** -text linguist-vendored
+# Historical source returned to its original paths in plan 0009: its recorded
+# Git blobs and retained staging copies must stay byte-for-byte identical.
+alpha/** -text
+OLD_PROJECTS_CSS_TSX/** -text
+interfaces/desktop/src/lib/design/** -text
+interfaces/desktop/src/lib/domains/app/models/feature/setup-wizard/_archive/** -text
+systems/engine/** -text
+systems/maestro/** -text
+systems/devpulse-engine/src/engine/** -text
+systems/devpulse-engine/src/hyde/** -text
+kernel/core/** -text
+kernel/devpulse-maestro/** -text
+kernel/devpulse-clyffy/src/connectome/** -text
 # Empty trailing TSV fields are column separators, not removable whitespace.
 recovered/repo/SOURCES.tsv whitespace=-blank-at-eol
 # Published dependency source retained byte for byte (plan 0009).

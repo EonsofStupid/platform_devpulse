@@ -1,0 +1,74 @@
+/**
+ * @file HStack Structural Shortcode Classes
+ * @kind hstack
+ * @layer shortcodes/components
+ * @package @devpulse/coldlight
+ *
+ * Structural base class for the horizontal stack layout component.
+ * Gap and alignment are controlled by hstack-gap-* and hstack-align-* utility classes.
+ */
+
+@utility hstack-root {
+	display: flex;
+	flex-direction: row;
+	align-items: var(--recipe-align, center);
+	justify-content: var(--recipe-justify, flex-start);
+	gap: var(--recipe-gap, var(--space-2));
+}
+
+/* ── Gap utilities ── */
+
+@utility hstack-gap-0 {
+	--recipe-gap: 0px;
+}
+@utility hstack-gap-1 {
+	--recipe-gap: var(--space-1);
+}
+@utility hstack-gap-2 {
+	--recipe-gap: var(--space-2);
+}
+@utility hstack-gap-3 {
+	--recipe-gap: var(--space-3);
+}
+@utility hstack-gap-4 {
+	--recipe-gap: var(--space-4);
+}
+@utility hstack-gap-6 {
+	--recipe-gap: var(--space-6);
+}
+@utility hstack-gap-8 {
+	--recipe-gap: var(--space-8);
+}
+
+/* ── Alignment utilities ── */
+
+@utility hstack-align-start {
+	--recipe-align: flex-start;
+}
+@utility hstack-align-center {
+	--recipe-align: center;
+}
+@utility hstack-align-end {
+	--recipe-align: flex-end;
+}
+@utility hstack-align-stretch {
+	--recipe-align: stretch;
+}
+@utility hstack-align-baseline {
+	--recipe-align: baseline;
+}
+
+/* ── Justify utilities ── */
+
+@utility hstack-justify-start {
+	--recipe-justify: flex-start;
+}
+@utility hstack-justify-center {
+	--recipe-justify: center;
+}
+@utility hstack-justify-end {
+	--recipe-justify: flex-end;
+}
+@utility hstack-justify-between {
+	--recipe-justify: space-between;
+}

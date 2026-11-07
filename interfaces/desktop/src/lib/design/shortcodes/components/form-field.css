@@ -1,0 +1,53 @@
+/**
+ * @file FormField Structural Shortcode Classes
+ * @kind form-field
+ * @layer shortcodes/components
+ * @package @devpulse/coldlight
+ *
+ * Structural base classes for the form-field compound component.
+ * Each class handles layout/positioning ONLY.
+ *
+ * Slot mapping:
+ *   form-field-root        → root container
+ *   form-field-label       → label element
+ *   form-field-description → description text
+ *   form-field-error       → error text
+ *
+ * Control has no structural class — it is a plain container.
+ * Size-specific adjustments via form-field-{size} intent classes.
+ */
+
+@utility form-field-root {
+	display: grid;
+	gap: var(--recipe-field-gap, var(--space-2));
+}
+
+@utility form-field-label {
+	font-size: var(--recipe-label-size, var(--text-size-sm));
+	font-weight: 500;
+	color: var(--text-primary);
+}
+
+@utility form-field-description {
+	font-size: var(--recipe-desc-size, var(--text-size-sm));
+	color: var(--text-muted);
+}
+
+@utility form-field-error {
+	font-size: var(--recipe-desc-size, var(--text-size-sm));
+	font-weight: 500;
+	color: var(--text-error);
+}
+
+/* -- Size intent classes -- */
+
+@utility form-field-sm {
+	--recipe-field-gap: var(--space-1);
+	--recipe-label-size: var(--text-size-xs);
+	--recipe-desc-size: var(--text-size-xs);
+}
+@utility form-field-md {
+	--recipe-field-gap: var(--space-2);
+	--recipe-label-size: var(--text-size-sm);
+	--recipe-desc-size: var(--text-size-sm);
+}

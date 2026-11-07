@@ -1,0 +1,21 @@
+{
+  "kind": "stat",
+  "label": "Stat",
+  "category": "content",
+  "description": "Numeric display for key metrics with optional label, trend indicator, and delta",
+  "aria": null,
+  "container": false,
+  "containerSlots": [],
+  "compound": true,
+  "blockCategory": "data",
+  "requiredAxes": ["typography", "color"],
+  "defaultStyleId": "stat-default",
+  "styleIds": ["stat-default"],
+  "slots": {
+    "root": "all",
+    "value": "none",
+    "label": "none",
+    "delta": "none",
+    "icon": "none"
+  }
+}

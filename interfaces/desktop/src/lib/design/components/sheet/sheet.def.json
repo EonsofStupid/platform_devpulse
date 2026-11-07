@@ -1,0 +1,23 @@
+{
+  "kind": "sheet",
+  "label": "Sheet",
+  "category": "structural",
+  "description": "Slide-in panel from a screen edge for secondary content or navigation",
+  "aria": "https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/",
+  "container": true,
+  "containerSlots": ["content", "footer"],
+  "compound": true,
+  "blockCategory": "layout",
+  "requiredAxes": ["backgroundColor", "shadow", "border"],
+  "defaultStyleId": "sheet-default",
+  "styleIds": ["sheet-default"],
+  "slots": {
+    "root": "all",
+    "overlay": "none",
+    "content": "none",
+    "header": "none",
+    "body": "none",
+    "footer": "none",
+    "close": "none"
+  }
+}

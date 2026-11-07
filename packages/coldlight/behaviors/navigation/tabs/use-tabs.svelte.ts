@@ -13,15 +13,13 @@ import type { UseTabsProps, UseTabsReturn } from "./tabs.types.js";
 
 export function useTabs(props: UseTabsProps = {}): UseTabsReturn {
 	const id = uid("tabs");
-	const orientation = props.orientation ?? "horizontal";
-	const activateOnFocus = props.activateOnFocus ?? true;
-	const loop = props.loop ?? true;
-
-	let value = $state(props.value ?? "");
+	let internalValue = $state(props.value ?? "");
+	const value = $derived(props.value ?? internalValue);
+	const orientation = $derived(props.orientation ?? "horizontal");
 
 	function setValue(v: string): void {
 		if (v === value) return;
-		value = v;
+		if (props.value === undefined) internalValue = v;
 		props.onValueChange?.(v);
 	}
 
@@ -49,10 +47,10 @@ export function useTabs(props: UseTabsProps = {}): UseTabsReturn {
 			nextIndex = 0;
 		} else if (e.key === nextKey) {
 			nextIndex = currentIndex + 1;
-			if (nextIndex >= enabledTabs.length) nextIndex = loop ? 0 : currentIndex;
+			if (nextIndex >= enabledTabs.length) nextIndex = (props.loop ?? true) ? 0 : currentIndex;
 		} else if (e.key === prevKey) {
 			nextIndex = currentIndex - 1;
-			if (nextIndex < 0) nextIndex = loop ? enabledTabs.length - 1 : currentIndex;
+			if (nextIndex < 0) nextIndex = (props.loop ?? true) ? enabledTabs.length - 1 : currentIndex;
 		} else if (e.key === "Home") {
 			nextIndex = 0;
 		} else {
@@ -64,7 +62,7 @@ export function useTabs(props: UseTabsProps = {}): UseTabsReturn {
 
 		nextTab.focus();
 
-		if (activateOnFocus) {
+		if (props.activateOnFocus ?? true) {
 			const tabValue = nextTab.getAttribute("data-value");
 			if (tabValue) setValue(tabValue);
 		}

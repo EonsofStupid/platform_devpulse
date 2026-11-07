@@ -1,0 +1,11 @@
+[package]
+name = "devpulse-engine"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+devpulse-core = { path = "../../kernel/core" }
+tokio = { workspace = true }
+tracing = { workspace = true }
+async-trait = { workspace = true }
+anyhow = "1.0"

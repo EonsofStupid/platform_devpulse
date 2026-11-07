@@ -1,0 +1,80 @@
+/* ============================================
+   CARDS - Card Component Recipes
+   ============================================ */
+
+/* Base card */
+.card {
+  padding: var(--dp-space-5);
+  background: linear-gradient(
+    145deg,
+    var(--dp-glass-bg) 0%,
+    var(--dp-obsidian-850) 100%
+  );
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--dp-glass-border);
+  border-radius: var(--dp-radius);
+  box-shadow:
+    var(--dp-shadow-md),
+    var(--dp-inset-highlight),
+    var(--dp-inset-shadow);
+  transition: all var(--dp-transition-normal);
+}
+
+.card:hover {
+  border-color: var(--dp-glass-border-bright);
+  transform: translateY(-2px);
+  box-shadow:
+    var(--dp-shadow-lg),
+    var(--dp-inset-highlight);
+}
+
+/* Card header */
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--dp-space-4);
+  padding-bottom: var(--dp-space-4);
+  border-bottom: 1px solid oklch(from var(--dp-glass-border) l c h / 0.5);
+}
+
+.card-title {
+  font-size: var(--dp-text-lg);
+  font-weight: var(--dp-font-semibold);
+  color: var(--dp-text-primary);
+}
+
+.card-subtitle {
+  font-size: var(--dp-text-sm);
+  color: var(--dp-text-muted);
+}
+
+/* Card body */
+.card-body {
+  color: var(--dp-text-secondary);
+}
+
+/* Card footer */
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--dp-space-3);
+  margin-top: var(--dp-space-4);
+  padding-top: var(--dp-space-4);
+  border-top: 1px solid oklch(from var(--dp-glass-border) l c h / 0.5);
+}
+
+/* Panel - simpler card variant */
+.panel {
+  padding: var(--dp-space-4);
+  background: var(--dp-glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--dp-glass-border);
+  border-radius: var(--dp-radius);
+  box-shadow:
+    var(--dp-inset-highlight),
+    var(--dp-inset-shadow);
+}

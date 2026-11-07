@@ -1,0 +1,15 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+@layer tokens.semantic {
+	:root {
+		--surface-base: var(--glass-void); /** App background */
+		--surface-raised: var(--glass-smoke); /** Card, panel on top of base */
+		--surface-overlay: var(--glass-deep); /** Dialog, popover, dropdown */
+		--surface-frosted: var(--glass-frost); /** Frosted glass toolbar, header */
+		--surface-inset: var(--matte-dark); /** Inset well, input background */
+		--surface-subtle: var(--matte-medium); /** Subtle raised area, sidebar */
+		--surface-chrome: var(--matte-light); /** UI chrome, toolbar background */
+	}
+}

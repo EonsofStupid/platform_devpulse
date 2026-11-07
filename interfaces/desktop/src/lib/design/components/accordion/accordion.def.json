@@ -1,0 +1,21 @@
+{
+  "kind": "accordion",
+  "label": "Accordion",
+  "category": "composite",
+  "description": "Vertically stacked set of expandable sections that reveal or hide associated content",
+  "aria": "https://www.w3.org/WAI/ARIA/apg/patterns/accordion/",
+  "container": true,
+  "containerSlots": ["content"],
+  "compound": true,
+  "blockCategory": "layout",
+  "requiredAxes": ["backgroundColor", "border", "borderRadius"],
+  "defaultStyleId": "accordion-default",
+  "styleIds": ["accordion-default"],
+  "slots": {
+    "root": "all",
+    "item": "none",
+    "trigger": "none",
+    "indicator": "none",
+    "content": "none"
+  }
+}

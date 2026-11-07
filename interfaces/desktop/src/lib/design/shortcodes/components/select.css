@@ -1,0 +1,81 @@
+/**
+ * @file Select Structural Shortcode Classes
+ * @kind select
+ * @layer shortcodes/components
+ * @package @devpulse/coldlight
+ *
+ * Structural base classes for the select compound component.
+ * Each class handles layout/positioning ONLY — visual appearance
+ * comes from shortcode composition (v-* + s-* + e-*).
+ *
+ * Slot mapping:
+ *   select-trigger → trigger button (receives v-* s-* e-*)
+ *   select-content → dropdown listbox container (receives v-* s-* e-*)
+ *   select-item    → individual option
+ *   select-group   → option group container
+ *   select-label   → group label
+ */
+
+@utility select-trigger {
+	display: flex;
+	height: var(--recipe-min-h, 2.5rem);
+	width: 100%;
+	align-items: center;
+	justify-content: space-between;
+	padding-inline: var(--recipe-padding-x, var(--space-3));
+	padding-block: var(--recipe-padding-y, var(--space-2));
+	font-size: var(--recipe-font-size, var(--text-size-sm));
+	color: var(--text-primary);
+	border-radius: var(--radius-md);
+	transition: color var(--duration-fast) var(--ease-out);
+
+	&::placeholder {
+		color: var(--text-muted);
+	}
+	&:focus-visible {
+		outline: none;
+		box-shadow: 0 0 0 2px var(--recipe-accent, var(--color-teal-500));
+	}
+	&:disabled {
+		cursor: not-allowed;
+		opacity: 0.5;
+	}
+}
+
+@utility select-content {
+	overflow: hidden;
+	border-radius: var(--radius-md);
+}
+
+@utility select-item {
+	position: relative;
+	display: flex;
+	width: 100%;
+	cursor: default;
+	user-select: none;
+	align-items: center;
+	padding-block: var(--space-1);
+	padding-left: var(--space-8);
+	padding-right: var(--space-2);
+	font-size: var(--recipe-font-size, var(--text-size-sm));
+	color: var(--text-primary);
+	border-radius: var(--radius-sm);
+	transition: background-color var(--duration-fast) var(--ease-out);
+
+	&:hover,
+	&[data-highlighted] {
+		background: var(--interaction-hover);
+	}
+}
+
+@utility select-group {
+	padding: var(--space-1);
+}
+
+@utility select-label {
+	padding-inline: var(--space-2);
+	padding-block: var(--space-1);
+	font-size: var(--recipe-font-size, var(--text-size-sm));
+	font-weight: 600;
+	color: var(--text-primary);
+}

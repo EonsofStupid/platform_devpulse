@@ -1,0 +1,50 @@
+/**
+ * @file InputGroup Structural Shortcode Classes
+ * @kind input-group
+ * @layer shortcodes/components
+ * @package @devpulse/coldlight
+ *
+ * Structural base classes for the input-group compound component.
+ *
+ * Slot mapping:
+ *   input-group-root   → root container (receives v-* s-* e-* sz-*)
+ *   input-group-prefix → prefix addon slot
+ *   input-group-input  → input wrapper slot
+ *   input-group-suffix → suffix addon slot
+ */
+
+@utility input-group-root {
+	display: flex;
+	align-items: center;
+	border-radius: var(--radius-md);
+}
+
+@utility input-group-prefix {
+	display: flex;
+	align-items: center;
+	color: var(--text-muted);
+	padding-inline-start: var(--recipe-padding-x, var(--space-3));
+	font-size: var(--recipe-font-size, var(--text-size-sm));
+}
+
+@utility input-group-input {
+	flex: 1 1 0%;
+	background: transparent;
+	border: 0;
+	outline: none;
+	color: var(--text-primary);
+	padding-inline: var(--recipe-padding-x, var(--space-3));
+	padding-block: var(--recipe-padding-y, var(--space-2));
+
+	&::placeholder {
+		color: var(--text-muted);
+	}
+}
+
+@utility input-group-suffix {
+	display: flex;
+	align-items: center;
+	color: var(--text-muted);
+	padding-inline-end: var(--recipe-padding-x, var(--space-3));
+	font-size: var(--recipe-font-size, var(--text-size-sm));
+}

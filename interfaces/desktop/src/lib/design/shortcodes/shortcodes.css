@@ -1,0 +1,239 @@
+/**
+ * @file ColdLight Shortcode Classes
+ * @layer shortcodes
+ * @package @devpulse/coldlight
+ *
+ * SSOT class composition system from CLASS_COMPOSITION.md.
+ *
+ * Shortcode classes set CSS custom properties — they do NOT apply
+ * visual output directly. Surface classes (s-*) READ these vars
+ * to produce the final visual.
+ *
+ * Flow: v-* sets --recipe-* vars → s-* reads --recipe-* vars → visual output
+ *
+ * Prefixes:
+ *   v-   Recipe variant (visual physics blueprint)
+ *   s-   Surface / material (applies visual from --recipe-* vars)
+ *   e-   Elevation (shadow depth)
+ *   sz-  Size (font-size, padding, gap, min-height, icon-size)
+ */
+
+/* ═══════════════════════════════════════════════════════════════════
+ * v-* Recipe Variants
+ *
+ * Each variant sets the semantic properties that surfaces consume.
+ * These are the "physics blueprints" — they define the recipe's
+ * blur, saturation, opacity, glow color, border alpha, and accent.
+ * ═══════════════════════════════════════════════════════════════════ */
+
+@utility v-void {
+	--recipe-blur: var(--blur-lg);
+	--recipe-saturation: 1.2;
+	--recipe-bg-alpha: 0.85;
+	--recipe-glow-color: transparent;
+	--recipe-border-alpha: 0.06;
+	--recipe-accent: var(--color-neutral-500);
+}
+
+@utility v-deep {
+	--recipe-blur: var(--blur-md);
+	--recipe-saturation: 1.4;
+	--recipe-bg-alpha: 0.75;
+	--recipe-glow-color: transparent;
+	--recipe-border-alpha: 0.10;
+	--recipe-accent: var(--color-neutral-500);
+}
+
+@utility v-smoke {
+	--recipe-blur: var(--blur-md);
+	--recipe-saturation: 1.1;
+	--recipe-bg-alpha: 0.60;
+	--recipe-glow-color: transparent;
+	--recipe-border-alpha: 0.05;
+	--recipe-accent: var(--color-neutral-500);
+}
+
+@utility v-frost {
+	--recipe-blur: var(--blur-md);
+	--recipe-saturation: 1.0;
+	--recipe-bg-alpha: 0.40;
+	--recipe-glow-color: var(--color-frost-300);
+	--recipe-border-alpha: 0.15;
+	--recipe-accent: var(--color-frost-500);
+}
+
+@utility v-cyber {
+	--recipe-blur: var(--blur-lg);
+	--recipe-saturation: 1.8;
+	--recipe-bg-alpha: 0.25;
+	--recipe-glow-color: var(--color-teal-500);
+	--recipe-border-alpha: 0.15;
+	--recipe-accent: var(--color-teal-500);
+}
+
+@utility v-glacial {
+	--recipe-blur: var(--blur-xl);
+	--recipe-saturation: 1.5;
+	--recipe-bg-alpha: 0.15;
+	--recipe-glow-color: var(--color-frost-500);
+	--recipe-border-alpha: 0.10;
+	--recipe-accent: var(--color-frost-500);
+}
+
+@utility v-molten {
+	--recipe-blur: var(--blur-md);
+	--recipe-saturation: 2.0;
+	--recipe-bg-alpha: 0.30;
+	--recipe-glow-color: var(--color-ember-500);
+	--recipe-border-alpha: 0.20;
+	--recipe-accent: var(--color-ember-500);
+}
+
+@utility v-chrome {
+	--recipe-blur: var(--blur-sm);
+	--recipe-saturation: 1.0;
+	--recipe-bg-alpha: 0.60;
+	--recipe-glow-color: var(--color-neutral-400);
+	--recipe-border-alpha: 0.25;
+	--recipe-accent: var(--color-neutral-400);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+ * s-* Surface / Material
+ *
+ * Surfaces READ the --recipe-* vars set by v-* classes and apply
+ * the actual visual treatment. This is the separation of concerns:
+ * variant defines WHAT, surface defines HOW.
+ * ═══════════════════════════════════════════════════════════════════ */
+
+@utility s-glass {
+	background: oklch(0.08 0.005 250 / var(--recipe-bg-alpha, 0.85));
+	backdrop-filter: blur(var(--recipe-blur, var(--blur-lg))) saturate(var(--recipe-saturation, 1.2));
+	border: 1px solid oklch(1 0 0 / var(--recipe-border-alpha, 0.06));
+	box-shadow:
+		inset 0 1px 0 oklch(1 0 0 / 0.05),
+		inset 0 -1px 0 oklch(0 0 0 / 0.10),
+		0 0 12px color-mix(in oklch, var(--recipe-glow-color, transparent), transparent 60%),
+		var(--_shadow-depth, 0 0 #0000);
+	transition: all var(--duration-normal) var(--ease-out);
+}
+
+@utility s-solid {
+	background: oklch(0.14 0.005 250);
+	border: 1px solid oklch(1 0 0 / var(--recipe-border-alpha, 0.10));
+	box-shadow:
+		inset 0 1px 0 oklch(1 0 0 / 0.04),
+		0 0 12px color-mix(in oklch, var(--recipe-glow-color, transparent), transparent 60%),
+		var(--_shadow-depth, 0 0 #0000);
+	transition: all var(--duration-normal) var(--ease-out);
+}
+
+@utility s-metal {
+	background: linear-gradient(
+		180deg,
+		oklch(0.22 0.01 250 / var(--recipe-bg-alpha, 0.80)),
+		oklch(0.12 0.01 250 / var(--recipe-bg-alpha, 0.90))
+	);
+	border: 1px solid oklch(1 0 0 / var(--recipe-border-alpha, 0.12));
+	box-shadow:
+		inset 0 1px 0 oklch(1 0 0 / 0.08),
+		inset 0 -1px 0 oklch(0 0 0 / 0.15),
+		0 0 12px color-mix(in oklch, var(--recipe-glow-color, transparent), transparent 60%),
+		var(--_shadow-depth, 0 0 #0000);
+	transition: all var(--duration-normal) var(--ease-out);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+ * e-* Elevation
+ *
+ * Sets --_shadow-depth (same variable the molecule depth-* utilities
+ * use). This allows shortcode elevation to compose with surface
+ * box-shadow stacks via the var(--_shadow-depth) slot.
+ * ═══════════════════════════════════════════════════════════════════ */
+
+@utility e-0 {
+	--_shadow-depth: 0 0 #0000;
+}
+
+@utility e-1 {
+	--_shadow-depth:
+		0 0 80px -20px oklch(3% 0.02 280 / 0.25),
+		0 2px 4px -1px oklch(1% 0.01 200 / 0.6);
+}
+
+@utility e-2 {
+	--_shadow-depth:
+		0 0 80px -20px oklch(3% 0.02 280 / 0.25),
+		-4px 8px 24px -4px oklch(2% 0.015 280 / 0.45),
+		0 2px 4px -1px oklch(1% 0.01 200 / 0.6);
+}
+
+@utility e-3 {
+	--_shadow-depth:
+		0 0 80px -20px oklch(3% 0.02 280 / 0.25),
+		-4px 8px 24px -4px oklch(2% 0.015 280 / 0.45),
+		2px 4px 16px -2px oklch(5% 0.02 195 / 0.2),
+		0 2px 4px -1px oklch(1% 0.01 200 / 0.6);
+}
+
+@utility e-4 {
+	--_shadow-depth:
+		0 0 80px -20px oklch(3% 0.02 280 / 0.25),
+		-4px 8px 24px -4px oklch(2% 0.015 280 / 0.45),
+		2px 4px 16px -2px oklch(5% 0.02 195 / 0.2),
+		0 2px 4px -1px oklch(1% 0.01 200 / 0.6),
+		0 -1px 12px 2px oklch(15% 0.08 195 / 0.15);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+ * sz-* Size
+ *
+ * Sets component sizing properties via CSS custom properties.
+ * Structural component classes (dialog-content, btn, etc.) consume
+ * these vars for font-size, padding, gap, min-height, icon-size.
+ * ═══════════════════════════════════════════════════════════════════ */
+
+@utility sz-xs {
+	--recipe-font-size: var(--text-size-xs);
+	--recipe-padding-x: var(--space-2);
+	--recipe-padding-y: var(--space-1);
+	--recipe-gap: var(--space-1);
+	--recipe-min-h: 1.5rem;
+	--recipe-icon-size: 0.875rem;
+}
+
+@utility sz-sm {
+	--recipe-font-size: var(--text-size-sm);
+	--recipe-padding-x: var(--space-3);
+	--recipe-padding-y: var(--space-2);
+	--recipe-gap: var(--space-2);
+	--recipe-min-h: 2rem;
+	--recipe-icon-size: 1rem;
+}
+
+@utility sz-md {
+	--recipe-font-size: var(--text-size-sm);
+	--recipe-padding-x: var(--space-4);
+	--recipe-padding-y: var(--space-3);
+	--recipe-gap: var(--space-3);
+	--recipe-min-h: 2.5rem;
+	--recipe-icon-size: 1.25rem;
+}
+
+@utility sz-lg {
+	--recipe-font-size: var(--text-size-base);
+	--recipe-padding-x: var(--space-6);
+	--recipe-padding-y: var(--space-4);
+	--recipe-gap: var(--space-4);
+	--recipe-min-h: 3rem;
+	--recipe-icon-size: 1.5rem;
+}
+
+@utility sz-xl {
+	--recipe-font-size: var(--text-size-lg);
+	--recipe-padding-x: var(--space-8);
+	--recipe-padding-y: var(--space-5);
+	--recipe-gap: var(--space-5);
+	--recipe-min-h: 3.5rem;
+	--recipe-icon-size: 1.75rem;
+}

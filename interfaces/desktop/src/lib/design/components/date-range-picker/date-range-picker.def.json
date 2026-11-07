@@ -1,0 +1,21 @@
+{
+  "kind": "date-range-picker",
+  "label": "Date Range Picker",
+  "category": "interactive",
+  "description": "Date range field with an attached dual-calendar popover for visual range selection",
+  "aria": null,
+  "container": false,
+  "containerSlots": [],
+  "compound": true,
+  "blockCategory": "form",
+  "requiredAxes": ["backgroundColor", "border", "borderRadius", "shadow", "typography", "color"],
+  "defaultStyleId": "date-range-picker-default",
+  "styleIds": ["date-range-picker-default"],
+  "slots": {
+    "root": "all",
+    "field": "none",
+    "trigger": "none",
+    "calendar": "none",
+    "label": "none"
+  }
+}

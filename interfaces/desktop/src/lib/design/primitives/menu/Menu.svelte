@@ -1,0 +1,20 @@
+<!--
+  @component MenuPrimitive
+  @kind menu
+  @slot root
+-->
+<script lang="ts">
+import { cn } from "$lib/design/utils/cn.js";
+import type { MenuPrimitiveProps } from "./types.js";
+
+let { children, class: className, ...rest }: MenuPrimitiveProps = $props();
+</script>
+
+<div
+	data-kind="menu"
+	data-slot="root"
+	class={cn(className)}
+	{...rest}
+>
+	{@render children?.()}
+</div>

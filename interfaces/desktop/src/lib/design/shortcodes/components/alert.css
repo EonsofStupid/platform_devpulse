@@ -1,0 +1,37 @@
+/**
+ * @file Alert Structural Shortcode Classes
+ * @kind alert
+ * @layer shortcodes/components
+ * @package @devpulse/coldlight
+ *
+ * Structural base class for the alert component.
+ * Handles layout/positioning ONLY — visual appearance
+ * comes from shortcode composition (v-* + s-* + e-* + sz-*).
+ *
+ * Intent classes set --recipe-accent for accent coloring.
+ */
+
+@utility alert {
+	position: relative;
+	display: flex;
+	gap: var(--recipe-gap, var(--space-3));
+	padding: var(--recipe-padding-x, var(--space-4));
+	font-size: var(--recipe-font-size, var(--text-size-sm));
+	border-radius: var(--radius-lg);
+}
+
+@utility alert-info {
+	--recipe-accent: var(--color-teal-500);
+}
+
+@utility alert-success {
+	--recipe-accent: var(--color-frost-500);
+}
+
+@utility alert-warning {
+	--recipe-accent: var(--color-ember-500);
+}
+
+@utility alert-error {
+	--recipe-accent: var(--color-ember-600);
+}

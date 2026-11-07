@@ -26,6 +26,88 @@ work. AI configuration and connection/execution logic belong under `kernel/`,
 with configurable endpoints. Restore functioning consumers directly; do not
 introduce compatibility layers or parallel replacement implementations.
 
+## Restoration and lighter checks — 2026-11-06
+
+The owner directs restoration of actual UI sources in the existing folder
+patterns, with presentation in Svelte and application behavior owned by Rust.
+Return the preserved alpha desktop, engine, orchestrator and shared source files
+to their original alpha paths, together with the lab and historical desktop
+source groups; verify each against Git and
+do not overwrite existing destinations or remove the staging copies. This
+returns source and structure, not working integration in the current product.
+Return the missing historical design CSS families to their recorded desktop
+paths with the same checks. These sheets are historical sources and are not
+imported automatically; the live ColdLight owners need direct reconciliation.
+Restore missing historical design token and component data/assets in their
+recorded paths too, without activating old package or build configuration.
+Return the historical Maestro, former engine and core sources at their recorded
+paths without making them current workspace members. They refer to old APIs;
+the endpoint-oriented current owners require reconciliation before use.
+Return the disconnected historical engine, Hyde and connectome source groups
+to their recorded paths without declaring them as current modules.
+Return the old project CSS/TSX source group at its recorded root paths with the
+same provenance checks; these are historical sources, not current product UI.
+Return the remaining missing historical desktop design implementation files to
+their original grouped paths, preserving their existing source bytes. The
+desktop typecheck excludes this old tree while ColdLight remains the active
+component owner; no current desktop code imports the historical tree. This
+exclusion records the integration boundary rather than asserting those files
+compile or provide live product behavior. Do not activate historical agent
+configuration implicitly. Integrate each recovered feature in the live owner.
+Restore the old design API documentation files at their recorded paths too;
+these are generated reference material and are not working UI features.
+Return the old setup-wizard archive to its recorded grouped path, excluded
+from typechecking until its steps are reconciled with the current onboarding.
+This pass returned 639 alpha files, 208 design CSS files, 101 design data
+and asset files, 3,210 design implementation files, 20 historical
+engine/core/Maestro files, 14 disconnected Rust implementation files, 86
+old-project UI files, plus 16 historical setup-wizard archive files (4,294
+code/style/data files), and 594 generated design reference files (4,888 total).
+Each was
+checked against its Git blob before copying. All staging copies remain. The
+manifest records their original paths; 221 records remain staged without a
+destination. This is source recovery, not proof that the current UI/services
+use those files. Commit whitespace checks exclude the historical trees because
+their original bytes include trailing whitespace; no formatting was applied.
+Pull requests keep desktop typechecking and recovery provenance; Rust workspace
+compilation runs on main or manual dispatch. Full workspace tests, Clippy,
+dependency audits and production builds remain deliberate checks rather than
+repeating automatically for every change. Local hooks check whitespace, Rust
+formatting and the commit message. PRs no longer prove Rust compilation.
+
+Restore the original tabs glass-void recipe and blueprint in the existing
+ColdLight tabs owner. Retain its accessible behavior, use generated kind tokens,
+and recover the size-dependent trigger and panel spacing. Preserve historical
+sources until their destinations and differences have been documented.
+The earlier tabs behavior revision, no longer verbatim after the behavior fix,
+is retained in recovery with its original Git provenance.
+Restore the accordion shortcode's item divider, trigger and content treatment
+in the existing accordion owner too; keep the public props forwarded to the
+rendered elements and retain its existing disclosure behavior.
+The related collapsible shortcode and recipe are likewise restored into its
+existing trigger/content slots; no second disclosure component is introduced.
+
+## AgentHub durable intake — 2026-11-05
+
+The owner requests substantial implementation before broad tests. The historical
+sources contain chat and role implementations, but no committed AgentHub ticket
+engine. Build a real project-scoped ticket intake in the existing user database
+and expose it through the existing AgentHub page and its factory board. Preserve
+the session library. Store criteria and an audit event atomically; require a
+real project and bound input sizes. This delivers intake only: execution,
+collaboration, review policy and chat links remain unfinished and must not be
+represented as active by sample data or controls. Verify after the connected
+database, bridge and interface change, without running the full test suite.
+
+Implementation in progress: intake schema, creation event, engine operations,
+desktop bridge and project-scoped board have been authored. Engine and desktop
+Rust checks and desktop typecheck passed. The real database regression was
+stopped while waiting for the build lock; native behavior is not yet verified.
+Generated bindings and the app's normal binding consumer still need completion.
+This intake work remains local and is not part of the recovery commit.
+This new intake code does not restore any staged historical source file and
+does not finish the owner's recovery request.
+
 ## Restoration batch 1 — where it actually stands, 2026-11-04
 
 Owner, 2026-11-04: "restored to its location but authored properly for endpoints";

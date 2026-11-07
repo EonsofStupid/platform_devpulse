@@ -1,0 +1,37 @@
+{
+	"glass": {
+		"$type": "color",
+		"$description": "Glass surface fills — translucent OKLCH with alpha",
+		"void": {
+			"$value": { "colorSpace": "oklch", "components": [0.06, 0.01, 210], "alpha": 0.88, "hex": "#000101" }
+		},
+		"deep": {
+			"$value": { "colorSpace": "oklch", "components": [0.09, 0.02, 220], "alpha": 0.80, "hex": "#000305" }
+		},
+		"smoke": {
+			"$value": { "colorSpace": "oklch", "components": [0.14, 0.008, 210], "alpha": 0.65, "hex": "#060a0b" }
+		},
+		"frost": {
+			"$value": { "colorSpace": "oklch", "components": [0.92, 0.01, 220], "alpha": 0.40, "hex": "#dee6e9" }
+		},
+		"teal": {
+			"$value": { "colorSpace": "oklch", "components": [0.10, 0.06, 180], "alpha": 0.75, "hex": "#000704" }
+		},
+		"purple": {
+			"$value": { "colorSpace": "oklch", "components": [0.10, 0.06, 280], "alpha": 0.75, "hex": "#030017" }
+		}
+	},
+	"matte": {
+		"$type": "color",
+		"$description": "Matte surface fills — opaque flat finishes",
+		"dark": {
+			"$value": { "colorSpace": "oklch", "components": [0.14, 0.005, 250], "hex": "#08090b" }
+		},
+		"medium": {
+			"$value": { "colorSpace": "oklch", "components": [0.22, 0.005, 250], "hex": "#191b1d" }
+		},
+		"light": {
+			"$value": { "colorSpace": "oklch", "components": [0.30, 0.005, 250], "hex": "#2c2e30" }
+		}
+	}
+}

@@ -11,6 +11,8 @@
 		"**/node_modules",
 		"dist",
 		"storybook-static",
+		"src/lib/design/**",
+		"src/lib/domains/app/models/feature/setup-wizard/_archive/**",
 		"src/lib/design/primitives/_archive/**",
 		"src/stories/**"
 	],

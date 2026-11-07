@@ -1,0 +1,88 @@
+[package]
+name = "orchestrator"
+version.workspace = true
+edition.workspace = true
+
+[features]
+default = ["db"]
+# Enable libSQL database backend (requires C compiler for libsql-ffi)
+db = ["dep:libsql"]
+# Enable Tracy profiler integration
+tracy = []
+# Reasoning logic
+brain = []
+rumination = []
+# Meta-feature for full reasoning capabilities
+full-cortex = ["brain", "rumination", "db"]
+
+[dependencies]
+shared = { path = "../shared" }
+
+# RRO - Reasoning Ready Object (embedded vector store)
+# Sibling workspace - your IP, zero HTTP latency, JIT protocol ready
+rro = { path = "../../rro" }
+
+# From workspace
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+tracy_full = { workspace = true }
+tracing-tracy = { workspace = true }
+moka = { workspace = true }
+duckdb = { workspace = true }
+fjall = { workspace = true }
+rkyv = { workspace = true }
+bytecheck = { workspace = true }
+toml = { workspace = true }
+directories = { workspace = true }
+chrono = { workspace = true }
+uuid = { workspace = true }
+
+# Optional: libSQL for persistent storage (requires C compiler)
+libsql = { workspace = true, optional = true }
+
+# Async trait support
+async-trait = "0.1"
+
+
+# Voice - sherpa-onnx runtime
+sherpa-rs = { workspace = true }
+
+# ML inference - Candle
+candle-core = { workspace = true }
+candle-nn = { workspace = true }
+candle-transformers = { workspace = true }
+
+# Grammar-constrained generation
+outlines-core = { workspace = true }
+
+# Tokenizer for Qwen3
+tokenizers = { workspace = true }
+
+# Model weight loading
+safetensors = { workspace = true }
+
+# HTTP client for HF Hub API
+reqwest = { version = "0.12", features = ["json", "rustls-tls", "stream"], default-features = false }
+
+# Async stream utilities (for download progress)
+futures-util = "0.3"
+
+# Force ring crypto backend for rustls (pure Rust, no C compiler)
+# This unifies with transitive deps from rro, hf-hub, etc.
+rustls = { version = "0.23", default-features = false, features = ["ring", "std", "tls12"] }
+
+# Random number generation for sampling
+rand = "0.8"
+
+# Lightweight regex for model filename parsing
+regex-lite = "0.1"
+
+# YAML serialization for persona styles
+serde_yaml = "0.9"
+
+[dev-dependencies]
+tempfile = "3"
