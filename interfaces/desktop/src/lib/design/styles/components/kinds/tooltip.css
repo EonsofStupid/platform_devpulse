@@ -1,0 +1,123 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+[data-kind="tooltip"][data-slot="content"] {
+	--tooltip-border-style: solid;
+	--tooltip-border-radius: var(--radius-md);
+	--tooltip-font-size: 0.875rem;
+	--tooltip-line-height: 1.25rem;
+	border-style: var(--tooltip-border-style);
+	border-radius: var(--tooltip-border-radius);
+	font-size: var(--tooltip-font-size);
+	line-height: var(--tooltip-line-height);
+	background-color: var(--tooltip-background-color);
+	box-shadow: var(--tooltip-box-shadow);
+	color: var(--tooltip-color);
+	border-color: var(--tooltip-border-color);
+	border-width: var(--tooltip-border-width);
+	opacity: var(--tooltip-opacity);
+	animation: var(--tooltip-animation);
+	transition-duration: var(--tooltip-transition-duration);
+	transition-timing-function: var(--tooltip-transition-timing-function);
+	background-image: var(--tooltip-gradient);
+	font-family: var(--tooltip-font-family);
+	font-weight: var(--tooltip-font-weight);
+	letter-spacing: var(--tooltip-letter-spacing);
+}
+
+[data-kind="tooltip"][data-slot="content"][data-variant="elevated"] {
+	--tooltip-background-color: var(--surface-role-elevated-background-color);
+	--tooltip-box-shadow: var(--surface-role-elevated-box-shadow);
+	--tooltip-color: var(--surface-role-elevated-color);
+	--tooltip-border-color: var(--surface-role-elevated-border-color);
+	--tooltip-border-width: var(--surface-role-elevated-border-width);
+	--tooltip-opacity: var(--surface-role-elevated-opacity);
+	--tooltip-animation: var(--surface-role-elevated-animation);
+	--tooltip-transition-duration: var(--surface-role-elevated-transition-duration);
+	--tooltip-transition-timing-function: var(--surface-role-elevated-transition-timing-function);
+	--tooltip-gradient: var(--surface-role-elevated-gradient);
+	--tooltip-font-family: var(--surface-role-elevated-font-family);
+	--tooltip-font-weight: var(--surface-role-elevated-font-weight);
+	--tooltip-letter-spacing: var(--surface-role-elevated-letter-spacing);
+}
+
+[data-kind="tooltip"][data-slot="content"][data-variant="deep"] {
+	--tooltip-background-color: var(--surface-role-deep-background-color);
+	--tooltip-box-shadow: var(--surface-role-deep-box-shadow);
+	--tooltip-color: var(--surface-role-deep-color);
+	--tooltip-border-color: var(--surface-role-deep-border-color);
+	--tooltip-border-width: var(--surface-role-deep-border-width);
+	--tooltip-opacity: var(--surface-role-deep-opacity);
+	--tooltip-animation: var(--surface-role-deep-animation);
+	--tooltip-transition-duration: var(--surface-role-deep-transition-duration);
+	--tooltip-transition-timing-function: var(--surface-role-deep-transition-timing-function);
+	--tooltip-gradient: var(--surface-role-deep-gradient);
+	--tooltip-font-family: var(--surface-role-deep-font-family);
+	--tooltip-font-weight: var(--surface-role-deep-font-weight);
+	--tooltip-letter-spacing: var(--surface-role-deep-letter-spacing);
+}
+
+[data-kind="tooltip"][data-slot="content"][data-variant="minimal"] {
+	--tooltip-background-color: var(--surface-role-minimal-background-color);
+	--tooltip-box-shadow: var(--surface-role-minimal-box-shadow);
+	--tooltip-color: var(--surface-role-minimal-color);
+	--tooltip-border-color: var(--surface-role-minimal-border-color);
+	--tooltip-border-width: var(--surface-role-minimal-border-width);
+	--tooltip-opacity: var(--surface-role-minimal-opacity);
+	--tooltip-animation: var(--surface-role-minimal-animation);
+	--tooltip-transition-duration: var(--surface-role-minimal-transition-duration);
+	--tooltip-transition-timing-function: var(--surface-role-minimal-transition-timing-function);
+	--tooltip-gradient: var(--surface-role-minimal-gradient);
+	--tooltip-font-family: var(--surface-role-minimal-font-family);
+	--tooltip-font-weight: var(--surface-role-minimal-font-weight);
+	--tooltip-letter-spacing: var(--surface-role-minimal-letter-spacing);
+}
+
+[data-kind="tooltip"][data-slot="content"][data-variant="solid"] {
+	--tooltip-background-color: var(--surface-role-solid-background-color);
+	--tooltip-box-shadow: var(--surface-role-solid-box-shadow);
+	--tooltip-color: var(--surface-role-solid-color);
+	--tooltip-border-color: var(--surface-role-solid-border-color);
+	--tooltip-border-width: var(--surface-role-solid-border-width);
+	--tooltip-opacity: var(--surface-role-solid-opacity);
+	--tooltip-animation: var(--surface-role-solid-animation);
+	--tooltip-transition-duration: var(--surface-role-solid-transition-duration);
+	--tooltip-transition-timing-function: var(--surface-role-solid-transition-timing-function);
+	--tooltip-gradient: var(--surface-role-solid-gradient);
+	--tooltip-font-family: var(--surface-role-solid-font-family);
+	--tooltip-font-weight: var(--surface-role-solid-font-weight);
+	--tooltip-letter-spacing: var(--surface-role-solid-letter-spacing);
+}
+
+[data-kind="tooltip"][data-slot="content"][data-variant="glow"] {
+	--tooltip-background-color: var(--surface-role-glow-background-color);
+	--tooltip-box-shadow: var(--surface-role-glow-box-shadow);
+	--tooltip-color: var(--surface-role-glow-color);
+	--tooltip-border-color: var(--surface-role-glow-border-color);
+	--tooltip-border-width: var(--surface-role-glow-border-width);
+	--tooltip-opacity: var(--surface-role-glow-opacity);
+	--tooltip-animation: var(--surface-role-glow-animation);
+	--tooltip-transition-duration: var(--surface-role-glow-transition-duration);
+	--tooltip-transition-timing-function: var(--surface-role-glow-transition-timing-function);
+	--tooltip-gradient: var(--surface-role-glow-gradient);
+	--tooltip-font-family: var(--surface-role-glow-font-family);
+	--tooltip-font-weight: var(--surface-role-glow-font-weight);
+	--tooltip-letter-spacing: var(--surface-role-glow-letter-spacing);
+}
+
+[data-kind="tooltip"][data-slot="content"][data-variant="muted"] {
+	--tooltip-background-color: var(--surface-role-muted-background-color);
+	--tooltip-box-shadow: var(--surface-role-muted-box-shadow);
+	--tooltip-color: var(--surface-role-muted-color);
+	--tooltip-border-color: var(--surface-role-muted-border-color);
+	--tooltip-border-width: var(--surface-role-muted-border-width);
+	--tooltip-opacity: var(--surface-role-muted-opacity);
+	--tooltip-animation: var(--surface-role-muted-animation);
+	--tooltip-transition-duration: var(--surface-role-muted-transition-duration);
+	--tooltip-transition-timing-function: var(--surface-role-muted-transition-timing-function);
+	--tooltip-gradient: var(--surface-role-muted-gradient);
+	--tooltip-font-family: var(--surface-role-muted-font-family);
+	--tooltip-font-weight: var(--surface-role-muted-font-weight);
+	--tooltip-letter-spacing: var(--surface-role-muted-letter-spacing);
+}

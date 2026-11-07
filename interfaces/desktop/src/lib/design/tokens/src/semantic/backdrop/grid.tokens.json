@@ -1,0 +1,42 @@
+{
+	"$description": "Hand-authored backdrop grid line colours + per-hub grid cell dimensions. Combined by the CSS transform to paint the circuit-board grid overlay behind every page.",
+	"backdrop-grid": {
+		"$type": "color",
+		"$description": "Grid line stroke colours keyed by hub accent.",
+		"teal": {
+			"$value": { "colorSpace": "oklch", "components": [0.34, 0.08, 183], "alpha": 0.078, "hex": "#05423b" },
+			"$description": "DevPulse teal grid lines."
+		},
+		"purple": {
+			"$value": { "colorSpace": "oklch", "components": [0.34, 0.1, 302], "alpha": 0.059, "hex": "#422862" },
+			"$description": "Clyffy purple grid lines."
+		},
+		"ember": {
+			"$value": { "colorSpace": "oklch", "components": [0.32, 0.07, 25], "alpha": 0.059, "hex": "#512320" },
+			"$description": "DevForge ember grid lines."
+		},
+		"cyber": {
+			"$value": { "colorSpace": "oklch", "components": [0.32, 0.07, 160], "alpha": 0.059, "hex": "#033d26" },
+			"$description": "WiredFront cyber grid lines."
+		},
+		"magenta": {
+			"$value": { "colorSpace": "oklch", "components": [0.32, 0.08, 330], "alpha": 0.059, "hex": "#492246" },
+			"$description": "OverMind magenta grid lines."
+		}
+	},
+	"backdrop-grid-size": {
+		"$type": "dimension",
+		"$description": "Grid cell size per hub backdrop.",
+		"neural": { "$value": { "value": 1.75, "unit": "rem" }, "$description": "Chat neural network — tightest grid. 28 px." },
+		"magenta": { "$value": { "value": 2, "unit": "rem" }, "$description": "OverMind grid spacing. 32 px." },
+		"purple": { "$value": { "value": 2.25, "unit": "rem" }, "$description": "Clyffy grid spacing. 36 px." },
+		"cyber": { "$value": { "value": 2.375, "unit": "rem" }, "$description": "WiredFront grid spacing. 38 px." },
+		"teal": { "$value": { "value": 2.5, "unit": "rem" }, "$description": "DevPulse default grid spacing. 40 px." },
+		"ember": { "$value": { "value": 2.75, "unit": "rem" }, "$description": "DevForge grid spacing. 44 px." }
+	},
+	"backdrop-grid-line": {
+		"$type": "dimension",
+		"$description": "Grid line stroke width.",
+		"width": { "$value": { "value": 0.0625, "unit": "rem" }, "$description": "Hairline grid stroke. 1 px." }
+	}
+}

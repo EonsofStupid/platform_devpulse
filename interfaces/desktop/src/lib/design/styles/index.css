@@ -1,31 +1,45 @@
 /* AUTO-GENERATED — DO NOT EDIT */
 
 /* ── Layer order declaration ─────────────────────────────── */
-@layer tokens.primitives, tokens.semantic, tokens.components;
+@layer tokens.primitives, tokens.semantic, tokens.components, tokens.scopes;
 
 /* ── Primitives ──────────────────────────────────────────── */
-@import "../styles/primitives/color.css";
-@import "../styles/primitives/shadow.css";
-@import "../styles/primitives/bevel.css";
-@import "../styles/primitives/glow.css";
-@import "../styles/primitives/blur.css";
-@import "../styles/primitives/surface.css";
-@import "../styles/primitives/radius.css";
-@import "../styles/primitives/spacing.css";
-@import "../styles/primitives/typography.css";
-@import "../styles/primitives/motion.css";
-@import "../styles/primitives/gradient.css";
+@import "./primitives/color.css";
+@import "./primitives/shadow.css";
+@import "./primitives/bevel.css";
+@import "./primitives/glow.css";
+@import "./primitives/blur.css";
+@import "./primitives/surface.css";
+@import "./primitives/radius.css";
+@import "./primitives/border-width.css";
+@import "./primitives/spacing.css";
+@import "./primitives/typography.css";
+@import "./primitives/motion.css";
+@import "./primitives/gradient.css";
+@import "./primitives/layout.css";
+@import "./primitives/opacity.css";
 
 /* ── Semantic ────────────────────────────────────────────── */
-@import "../styles/semantic/elevation.css";
-@import "../styles/semantic/surface.css";
-@import "../styles/semantic/border.css";
-@import "../styles/semantic/transition.css";
-@import "../styles/semantic/interaction.css";
-@import "../styles/semantic/overlay.css";
-@import "../styles/semantic/scrollbar.css";
-@import "../styles/semantic/backdrop.css";
-@import "../styles/semantic/text-styles.css";
+@import "./semantic/elevation.css";
+@import "./semantic/surface.css";
+@import "./semantic/border.css";
+@import "./semantic/transition.css";
+@import "./semantic/interaction.css";
+@import "./semantic/overlay.css";
+@import "./semantic/scrollbar.css";
+@import "./semantic/backdrop.css";
+@import "./semantic/text-styles.css";
+@import "./semantic/text.css";
+@import "./semantic/signal.css";
+@import "./semantic/accent.css";
+@import "./semantic/role.css";
+@import "./semantic/claude.css";
+@import "./semantic/icon.css";
+@import "./semantic/chat.css";
+@import "./semantic/wizard.css";
 
 /* ── Components ──────────────────────────────────────────── */
-@import "../styles/components/component.css";
+@import "./components/components.generated.css";
+
+/* ── Scopes ──────────────────────────────────────────────── */
+@import "./scopes/surface.css";

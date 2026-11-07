@@ -1,0 +1,50 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+[data-kind="collapsible"][data-slot="root"] {
+
+}
+
+[data-kind="collapsible"][data-slot="trigger"] {
+	--collapsible-trigger-padding-inline: var(--space-4);
+	padding-inline: var(--collapsible-trigger-padding-inline);
+	--collapsible-trigger-padding-block: var(--space-3);
+	padding-block: var(--collapsible-trigger-padding-block);
+	--collapsible-trigger-font-weight: 500;
+	font-weight: var(--collapsible-trigger-font-weight);
+	--collapsible-trigger-color: var(--text-primary);
+	color: var(--collapsible-trigger-color);
+}
+
+[data-kind="collapsible"][data-slot="content"] {
+	--collapsible-content-padding-inline: var(--space-4);
+	padding-inline: var(--collapsible-content-padding-inline);
+	--collapsible-content-padding-bottom: var(--space-4);
+	padding-bottom: var(--collapsible-content-padding-bottom);
+	--collapsible-content-color: var(--text-secondary);
+	color: var(--collapsible-content-color);
+}
+
+[data-kind="collapsible"][data-slot="trigger"]:hover {
+	--collapsible-trigger-background-color: var(--interaction-hover);
+	background-color: var(--collapsible-trigger-background-color);
+}
+
+[data-kind="collapsible"][data-slot="trigger"]:focus-visible {
+	--collapsible-trigger-outline-style: solid;
+	outline-style: var(--collapsible-trigger-outline-style);
+	--collapsible-trigger-outline-width: 0.125rem;
+	outline-width: var(--collapsible-trigger-outline-width);
+	--collapsible-trigger-outline-color: var(--border-focus);
+	outline-color: var(--collapsible-trigger-outline-color);
+	--collapsible-trigger-outline-offset: 0.125rem;
+	outline-offset: var(--collapsible-trigger-outline-offset);
+}
+
+[data-kind="collapsible"][data-slot="trigger"]:is(:disabled, [data-disabled], [aria-disabled="true"]) {
+	--collapsible-trigger-opacity: 0.5;
+	opacity: var(--collapsible-trigger-opacity);
+	--collapsible-trigger-cursor: not-allowed;
+	cursor: var(--collapsible-trigger-cursor);
+}

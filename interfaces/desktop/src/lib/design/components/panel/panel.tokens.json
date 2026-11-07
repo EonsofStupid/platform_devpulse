@@ -1,0 +1,59 @@
+{
+	"$description": "Panel's tokens (plan 0006 §0s). The build generates styles/components/kinds/panel.css and panel.generated.ts from the panel group. Values from the owner's design/shortcodes/components/panel.css, recipes/components/panel (glass void by default) and GlassPanel.svelte (variant, glow); the glass and its edge are his .glass-panel (layouts/.claude/RESUME_NOTES.md).",
+	"panel": {
+		"$description": "Each variant is one of the owner's glass or matte fills. A tone is an outer glow in that hue; no tone, no glow.",
+		"$extensions": {
+			"com.coldlight": {
+				"slot": "root",
+				"accepts": ["surface", "text", "frame", "overlay"],
+				"defaults": { "variant": "void" }
+			}
+		},
+		"base": {
+			"border-style": { "$value": "solid", "$type": "strokeStyle" },
+			"border-width": { "$value": "0.0625rem", "$type": "dimension" },
+			"border-color": { "$value": "{border.subtle}", "$type": "color" },
+			"border-radius": { "$value": "{radius.lg}", "$type": "dimension" },
+			"backdrop-filter": { "$value": "blur(1.5rem) saturate(180%)" },
+			"box-shadow": {
+				"$value": "inset 0 0.0625rem 0 oklch(1 0 0 / 0.1), inset 0 -0.0625rem 0 oklch(0 0 0 / 0.2), 0 0.5rem 2rem oklch(0 0 0 / 0.3)"
+			},
+			"font-size": { "$value": "0.875rem", "$type": "dimension" }
+		},
+		"variant": {
+			"void": { "background-color": { "$value": "{glass.void}", "$type": "color" } },
+			"deep": { "background-color": { "$value": "{glass.deep}", "$type": "color" } },
+			"smoke": { "background-color": { "$value": "{glass.smoke}", "$type": "color" } },
+			"frost": { "background-color": { "$value": "{glass.frost}", "$type": "color" } },
+			"teal": { "background-color": { "$value": "{glass.teal}", "$type": "color" } },
+			"purple": { "background-color": { "$value": "{glass.purple}", "$type": "color" } },
+			"matte": {
+				"background-color": { "$value": "{matte.medium}", "$type": "color" },
+				"backdrop-filter": { "$value": "none" }
+			}
+		},
+		"tone": {
+			"teal": { "box-shadow": { "$value": "{glow.teal}", "$type": "shadow" } },
+			"purple": { "box-shadow": { "$value": "{glow.purple}", "$type": "shadow" } },
+			"magenta": { "box-shadow": { "$value": "{glow.magenta}", "$type": "shadow" } },
+			"ember": { "box-shadow": { "$value": "{glow.ember}", "$type": "shadow" } },
+			"frost": { "box-shadow": { "$value": "{glow.frost}", "$type": "shadow" } }
+		},
+		"part": {
+			"header": {
+				"padding": { "$value": "{space.3} {space.4}" },
+				"border-bottom": { "$value": "0.0625rem solid {interaction.hover}" },
+				"font-weight": { "$value": 500, "$type": "fontWeight" },
+				"color": { "$value": "{text.primary}", "$type": "color" }
+			},
+			"body": {
+				"padding": { "$value": "{space.3} {space.4}" },
+				"color": { "$value": "{text.secondary}", "$type": "color" }
+			},
+			"footer": {
+				"padding": { "$value": "{space.3} {space.4}" },
+				"border-top": { "$value": "0.0625rem solid {interaction.hover}" }
+			}
+		}
+	}
+}

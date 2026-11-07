@@ -1,0 +1,818 @@
+{
+	"$extensions": {
+		"com.coldlight": {
+			"semanticFamilies": [
+				"surface",
+				"elevation",
+				"frame",
+				"motion"
+			],
+			"format": "coldlight-style-presets-v1",
+			"note": "Composite preset leaves — elevation uses DTCG shadow; surface uses color/dimension; keep render glue out of token values."
+		}
+	},
+	"preset": {
+		"stark-elevated": {
+			"background-color": {
+				"$value": "oklch(0.208 0.03 250)",
+				"$type": "color"
+			},
+			"border-radius": {
+				"$value": "0.375rem",
+				"$type": "dimension"
+			},
+			"box-shadow": {
+				"$value": "0 0.5rem 2rem -0.125rem oklch(0 0 0 / 0.6), 0 0.125rem 0.5rem 0 oklch(0 0 0 / 0.35)",
+				"$type": "shadow"
+			},
+			"color": {
+				"$value": "oklch(0.97 0.005 250)",
+				"$type": "color"
+			},
+			"border-color": {
+				"$value": "oklch(0.85 0.02 250)",
+				"$type": "color"
+			},
+			"border-width": {
+				"$value": "0.125rem",
+				"$type": "dimension"
+			},
+			"backdrop-filter": {
+				"$value": "none",
+				"$type": "dimension"
+			},
+			"opacity": {
+				"$value": "1",
+				"$type": "number"
+			},
+			"animation": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"transition-duration": {
+				"$value": "100ms",
+				"$type": "duration"
+			},
+			"transition-timing-function": {
+				"$value": "cubic-bezier(0, 0, 0.2, 1)",
+				"$type": "cubicBezier"
+			},
+			"gradient": {
+				"$value": "none",
+				"$type": "gradient"
+			},
+			"font-family": {
+				"$value": "{font.sans}",
+				"$type": "fontFamily"
+			},
+			"font-size": {
+				"$value": "0.875rem",
+				"$type": "dimension"
+			},
+			"font-weight": {
+				"$value": "700",
+				"$type": "fontWeight"
+			},
+			"letter-spacing": {
+				"$value": "0.02em",
+				"$type": "dimension"
+			},
+			"line-height": {
+				"$value": "1.4",
+				"$type": "number"
+			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
+				"$type": "number"
+			},
+			"$description": "stark-elevated: Command presence — high contrast, bold border, heavy shadow lift",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Stark Elevated",
+					"family": "stark",
+					"variant": "elevated"
+				}
+			}
+		},
+		"stark-elevated-hover": {
+			"$description": "stark-elevated hover overrides",
+			"background-color": {
+				"$value": "oklch(0.228 0.03 250)",
+				"$type": "color"
+			},
+			"box-shadow": {
+				"$value": "0 0.625rem 2.5rem 0 oklch(0 0 0 / 0.65), 0 0.125rem 0.625rem 0 oklch(0 0 0 / 0.38)",
+				"$type": "shadow"
+			},
+			"border-color": {
+				"$value": "oklch(0.9 0.025 250)",
+				"$type": "color"
+			}
+		},
+		"stark-elevated-active": {
+			"$description": "stark-elevated active overrides",
+			"background-color": {
+				"$value": "oklch(0.196 0.03 250)",
+				"$type": "color"
+			},
+			"box-shadow": {
+				"$value": "0 0.125rem 0.5rem 0 oklch(0 0 0 / 0.5)",
+				"$type": "shadow"
+			},
+			"border-color": {
+				"$value": "oklch(0.8 0.018 250)",
+				"$type": "color"
+			}
+		},
+		"stark-elevated-disabled": {
+			"$description": "stark-elevated disabled overrides",
+			"background-color": {
+				"$value": "oklch(0.196 0.03 250)",
+				"$type": "color"
+			},
+			"color": {
+				"$value": "oklch(0.6 0.003 250)",
+				"$type": "color"
+			},
+			"opacity": {
+				"$value": "0.4",
+				"$type": "number"
+			},
+			"border-color": {
+				"$value": "oklch(0.45 0.005 250)",
+				"$type": "color"
+			}
+		},
+		"stark-deep": {
+			"background-color": {
+				"$value": "oklch(0.183 0.03 260)",
+				"$type": "color"
+			},
+			"border-radius": {
+				"$value": "0.25rem",
+				"$type": "dimension"
+			},
+			"box-shadow": {
+				"$value": "0 0.375rem 1.5rem 0 oklch(0 0 0 / 0.7), 0 0.125rem 0.375rem 0 oklch(0 0 0 / 0.4)",
+				"$type": "shadow"
+			},
+			"color": {
+				"$value": "oklch(0.92 0.04 180)",
+				"$type": "color"
+			},
+			"border-color": {
+				"$value": "oklch(0.75 0.1 180)",
+				"$type": "color"
+			},
+			"border-width": {
+				"$value": "0.125rem",
+				"$type": "dimension"
+			},
+			"backdrop-filter": {
+				"$value": "none",
+				"$type": "dimension"
+			},
+			"opacity": {
+				"$value": "1",
+				"$type": "number"
+			},
+			"animation": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"transition-duration": {
+				"$value": "100ms",
+				"$type": "duration"
+			},
+			"transition-timing-function": {
+				"$value": "cubic-bezier(0, 0, 0.2, 1)",
+				"$type": "cubicBezier"
+			},
+			"gradient": {
+				"$value": "none",
+				"$type": "gradient"
+			},
+			"font-family": {
+				"$value": "{font.sans}",
+				"$type": "fontFamily"
+			},
+			"font-size": {
+				"$value": "0.875rem",
+				"$type": "dimension"
+			},
+			"font-weight": {
+				"$value": "600",
+				"$type": "fontWeight"
+			},
+			"letter-spacing": {
+				"$value": "0.01em",
+				"$type": "dimension"
+			},
+			"line-height": {
+				"$value": "1.4",
+				"$type": "number"
+			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
+				"$type": "number"
+			},
+			"$description": "stark-deep: Void authority — near-black with bright accent border, severe",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Stark Deep",
+					"family": "stark",
+					"variant": "deep"
+				}
+			}
+		},
+		"stark-deep-hover": {
+			"$description": "stark-deep hover overrides",
+			"background-color": {
+				"$value": "oklch(0.202 0.03 260)",
+				"$type": "color"
+			},
+			"box-shadow": {
+				"$value": "0 0.5rem 1.75rem 0 oklch(0 0 0 / 0.75), 0 0.125rem 0.5rem 0 oklch(0 0 0 / 0.45)",
+				"$type": "shadow"
+			},
+			"border-color": {
+				"$value": "oklch(0.8 0.12 180)",
+				"$type": "color"
+			}
+		},
+		"stark-deep-active": {
+			"$description": "stark-deep active overrides",
+			"background-color": {
+				"$value": "oklch(0.17 0.03 260)",
+				"$type": "color"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.375rem 0 oklch(0 0 0 / 0.6)",
+				"$type": "shadow"
+			},
+			"border-color": {
+				"$value": "oklch(0.7 0.09 180)",
+				"$type": "color"
+			}
+		},
+		"stark-deep-disabled": {
+			"$description": "stark-deep disabled overrides",
+			"background-color": {
+				"$value": "oklch(0.176 0.03 260)",
+				"$type": "color"
+			},
+			"color": {
+				"$value": "oklch(0.55 0.01 180)",
+				"$type": "color"
+			},
+			"opacity": {
+				"$value": "0.4",
+				"$type": "number"
+			},
+			"border-color": {
+				"$value": "oklch(0.4 0.02 180)",
+				"$type": "color"
+			}
+		},
+		"stark-minimal": {
+			"background-color": {
+				"$value": "oklch(0.208 0.03 250)",
+				"$type": "color"
+			},
+			"border-radius": {
+				"$value": "0.25rem",
+				"$type": "dimension"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.375rem 0 oklch(0 0 0 / 0.35)",
+				"$type": "shadow"
+			},
+			"color": {
+				"$value": "oklch(0.88 0.008 250)",
+				"$type": "color"
+			},
+			"border-color": {
+				"$value": "oklch(0.7 0.01 250 / 0.5)",
+				"$type": "color"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "dimension"
+			},
+			"backdrop-filter": {
+				"$value": "none",
+				"$type": "dimension"
+			},
+			"opacity": {
+				"$value": "1",
+				"$type": "number"
+			},
+			"animation": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"transition-duration": {
+				"$value": "80ms",
+				"$type": "duration"
+			},
+			"transition-timing-function": {
+				"$value": "ease-out",
+				"$type": "cubicBezier"
+			},
+			"gradient": {
+				"$value": "none",
+				"$type": "gradient"
+			},
+			"font-family": {
+				"$value": "{font.sans}",
+				"$type": "fontFamily"
+			},
+			"font-size": {
+				"$value": "0.875rem",
+				"$type": "dimension"
+			},
+			"font-weight": {
+				"$value": "500",
+				"$type": "fontWeight"
+			},
+			"letter-spacing": {
+				"$value": "0.01em",
+				"$type": "dimension"
+			},
+			"line-height": {
+				"$value": "1.5",
+				"$type": "number"
+			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
+				"$type": "number"
+			},
+			"$description": "stark-minimal: Clean authority — thin bright border, dark field, precise",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Stark Minimal",
+					"family": "stark",
+					"variant": "minimal"
+				}
+			}
+		},
+		"stark-minimal-hover": {
+			"$description": "stark-minimal hover overrides",
+			"background-color": {
+				"$value": "oklch(0.228 0.03 250)",
+				"$type": "color"
+			},
+			"border-color": {
+				"$value": "oklch(0.78 0.015 250 / 0.6)",
+				"$type": "color"
+			}
+		},
+		"stark-minimal-active": {
+			"$description": "stark-minimal active overrides",
+			"background-color": {
+				"$value": "oklch(0.196 0.03 250)",
+				"$type": "color"
+			},
+			"border-color": {
+				"$value": "oklch(0.65 0.008 250 / 0.45)",
+				"$type": "color"
+			}
+		},
+		"stark-minimal-disabled": {
+			"$description": "stark-minimal disabled overrides",
+			"background-color": {
+				"$value": "oklch(0.196 0.03 250)",
+				"$type": "color"
+			},
+			"color": {
+				"$value": "oklch(0.55 0.004 250)",
+				"$type": "color"
+			},
+			"opacity": {
+				"$value": "0.4",
+				"$type": "number"
+			},
+			"border-color": {
+				"$value": "oklch(0.4 0.004 250 / 0.2)",
+				"$type": "color"
+			}
+		},
+		"stark-solid": {
+			"background-color": {
+				"$value": "oklch(0.234 0.03 260)",
+				"$type": "color"
+			},
+			"border-radius": {
+				"$value": "0.25rem",
+				"$type": "dimension"
+			},
+			"box-shadow": {
+				"$value": "0 0.375rem 1.25rem 0 oklch(0 0 0 / 0.55), 0 0.125rem 0.375rem 0 oklch(0 0 0 / 0.35)",
+				"$type": "shadow"
+			},
+			"color": {
+				"$value": "oklch(0.97 0.005 260)",
+				"$type": "color"
+			},
+			"border-color": {
+				"$value": "oklch(0.8 0.015 260)",
+				"$type": "color"
+			},
+			"border-width": {
+				"$value": "0.1875rem",
+				"$type": "dimension"
+			},
+			"backdrop-filter": {
+				"$value": "none",
+				"$type": "dimension"
+			},
+			"opacity": {
+				"$value": "1",
+				"$type": "number"
+			},
+			"animation": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"transition-duration": {
+				"$value": "100ms",
+				"$type": "duration"
+			},
+			"transition-timing-function": {
+				"$value": "cubic-bezier(0, 0, 0.2, 1)",
+				"$type": "cubicBezier"
+			},
+			"gradient": {
+				"$value": "none",
+				"$type": "gradient"
+			},
+			"font-family": {
+				"$value": "{font.sans}",
+				"$type": "fontFamily"
+			},
+			"font-size": {
+				"$value": "0.875rem",
+				"$type": "dimension"
+			},
+			"font-weight": {
+				"$value": "700",
+				"$type": "fontWeight"
+			},
+			"letter-spacing": {
+				"$value": "0.03em",
+				"$type": "dimension"
+			},
+			"line-height": {
+				"$value": "1.4",
+				"$type": "number"
+			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
+				"$type": "number"
+			},
+			"$description": "stark-solid: Monolith — dense opaque block, ultra-bold, imposing",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Stark Solid",
+					"family": "stark",
+					"variant": "solid"
+				}
+			}
+		},
+		"stark-solid-hover": {
+			"$description": "stark-solid hover overrides",
+			"background-color": {
+				"$value": "oklch(0.253 0.03 260)",
+				"$type": "color"
+			},
+			"box-shadow": {
+				"$value": "0 0.5rem 1.5rem 0 oklch(0 0 0 / 0.6), 0 0.125rem 0.5rem 0 oklch(0 0 0 / 0.38)",
+				"$type": "shadow"
+			},
+			"border-color": {
+				"$value": "oklch(0.85 0.018 260)",
+				"$type": "color"
+			}
+		},
+		"stark-solid-active": {
+			"$description": "stark-solid active overrides",
+			"background-color": {
+				"$value": "oklch(0.215 0.03 260)",
+				"$type": "color"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.375rem 0 oklch(0 0 0 / 0.45)",
+				"$type": "shadow"
+			},
+			"border-color": {
+				"$value": "oklch(0.75 0.012 260)",
+				"$type": "color"
+			}
+		},
+		"stark-solid-disabled": {
+			"$description": "stark-solid disabled overrides",
+			"background-color": {
+				"$value": "oklch(0.208 0.03 260)",
+				"$type": "color"
+			},
+			"color": {
+				"$value": "oklch(0.6 0.003 260)",
+				"$type": "color"
+			},
+			"opacity": {
+				"$value": "0.4",
+				"$type": "number"
+			},
+			"border-color": {
+				"$value": "oklch(0.45 0.005 260)",
+				"$type": "color"
+			}
+		},
+		"stark-glow": {
+			"background-color": {
+				"$value": "oklch(0.221 0.03 25)",
+				"$type": "color"
+			},
+			"border-radius": {
+				"$value": "0.375rem",
+				"$type": "dimension"
+			},
+			"box-shadow": {
+				"$value": "0 0.25rem 1rem 0 oklch(0 0 0 / 0.5), 0 0 0.75rem 0 oklch(0.65 0.22 25 / 0.25), 0 0 2rem 0 oklch(0.65 0.22 25 / 0.1)",
+				"$type": "shadow"
+			},
+			"color": {
+				"$value": "oklch(0.92 0.08 25)",
+				"$type": "color"
+			},
+			"border-color": {
+				"$value": "oklch(0.65 0.22 25 / 0.6)",
+				"$type": "color"
+			},
+			"border-width": {
+				"$value": "0.125rem",
+				"$type": "dimension"
+			},
+			"backdrop-filter": {
+				"$value": "none",
+				"$type": "dimension"
+			},
+			"opacity": {
+				"$value": "1",
+				"$type": "number"
+			},
+			"animation": {
+				"$value": "cl-alert-pulse 2s ease-in-out infinite",
+				"$type": "string"
+			},
+			"transition-duration": {
+				"$value": "120ms",
+				"$type": "duration"
+			},
+			"transition-timing-function": {
+				"$value": "cubic-bezier(0, 0, 0.2, 1)",
+				"$type": "cubicBezier"
+			},
+			"gradient": {
+				"$value": "none",
+				"$type": "gradient"
+			},
+			"font-family": {
+				"$value": "{font.sans}",
+				"$type": "fontFamily"
+			},
+			"font-size": {
+				"$value": "0.875rem",
+				"$type": "dimension"
+			},
+			"font-weight": {
+				"$value": "600",
+				"$type": "fontWeight"
+			},
+			"letter-spacing": {
+				"$value": "0.01em",
+				"$type": "dimension"
+			},
+			"line-height": {
+				"$value": "1.4",
+				"$type": "number"
+			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
+				"$type": "number"
+			},
+			"$description": "stark-glow: Alert presence — danger/warning accent glow, demands attention",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Stark Glow",
+					"family": "stark",
+					"variant": "glow"
+				}
+			}
+		},
+		"stark-glow-hover": {
+			"$description": "stark-glow hover overrides",
+			"background-color": {
+				"$value": "oklch(0.24 0.035 25)",
+				"$type": "color"
+			},
+			"box-shadow": {
+				"$value": "0 0.375rem 1.25rem 0 oklch(0 0 0 / 0.55), 0 0 1rem 0 oklch(0.65 0.22 25 / 0.35), 0 0 2.5rem 0 oklch(0.65 0.22 25 / 0.15)",
+				"$type": "shadow"
+			},
+			"border-color": {
+				"$value": "oklch(0.7 0.25 25 / 0.7)",
+				"$type": "color"
+			}
+		},
+		"stark-glow-active": {
+			"$description": "stark-glow active overrides",
+			"background-color": {
+				"$value": "oklch(0.208 0.03 25)",
+				"$type": "color"
+			},
+			"box-shadow": {
+				"$value": "0 0.125rem 0.5rem 0 oklch(0 0 0 / 0.45), 0 0 0.5rem 0 oklch(0.65 0.22 25 / 0.15)",
+				"$type": "shadow"
+			},
+			"border-color": {
+				"$value": "oklch(0.6 0.2 25 / 0.5)",
+				"$type": "color"
+			}
+		},
+		"stark-glow-disabled": {
+			"$description": "stark-glow disabled overrides",
+			"background-color": {
+				"$value": "oklch(0.196 0.03 25)",
+				"$type": "color"
+			},
+			"color": {
+				"$value": "oklch(0.55 0.02 25)",
+				"$type": "color"
+			},
+			"opacity": {
+				"$value": "0.4",
+				"$type": "number"
+			},
+			"border-color": {
+				"$value": "oklch(0.4 0.05 25 / 0.25)",
+				"$type": "color"
+			},
+			"animation": {
+				"$value": "none",
+				"$type": "string"
+			}
+		},
+		"stark-muted": {
+			"background-color": {
+				"$value": "oklch(0.208 0.03 250)",
+				"$type": "color"
+			},
+			"border-radius": {
+				"$value": "0.25rem",
+				"$type": "dimension"
+			},
+			"box-shadow": {
+				"$value": "0 0.0625rem 0.25rem 0 oklch(0 0 0 / 0.25)",
+				"$type": "shadow"
+			},
+			"color": {
+				"$value": "oklch(0.6 0.005 250)",
+				"$type": "color"
+			},
+			"border-color": {
+				"$value": "oklch(0.5 0.005 250 / 0.25)",
+				"$type": "color"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "dimension"
+			},
+			"backdrop-filter": {
+				"$value": "none",
+				"$type": "dimension"
+			},
+			"opacity": {
+				"$value": "0.7",
+				"$type": "number"
+			},
+			"animation": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"transition-duration": {
+				"$value": "80ms",
+				"$type": "duration"
+			},
+			"transition-timing-function": {
+				"$value": "ease-out",
+				"$type": "cubicBezier"
+			},
+			"gradient": {
+				"$value": "none",
+				"$type": "gradient"
+			},
+			"font-family": {
+				"$value": "{font.sans}",
+				"$type": "fontFamily"
+			},
+			"font-size": {
+				"$value": "0.875rem",
+				"$type": "dimension"
+			},
+			"font-weight": {
+				"$value": "400",
+				"$type": "fontWeight"
+			},
+			"letter-spacing": {
+				"$value": "0.01em",
+				"$type": "dimension"
+			},
+			"line-height": {
+				"$value": "1.5",
+				"$type": "number"
+			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
+				"$type": "number"
+			},
+			"$description": "stark-muted: Dimmed authority — faded border, reduced contrast, secondary",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Stark Muted",
+					"family": "stark",
+					"variant": "muted"
+				}
+			}
+		},
+		"stark-muted-hover": {
+			"$description": "stark-muted hover overrides",
+			"background-color": {
+				"$value": "oklch(0.221 0.03 250)",
+				"$type": "color"
+			},
+			"opacity": {
+				"$value": "0.8",
+				"$type": "number"
+			},
+			"border-color": {
+				"$value": "oklch(0.55 0.008 250 / 0.35)",
+				"$type": "color"
+			}
+		},
+		"stark-muted-active": {
+			"$description": "stark-muted active overrides",
+			"background-color": {
+				"$value": "oklch(0.196 0.03 250)",
+				"$type": "color"
+			},
+			"opacity": {
+				"$value": "0.65",
+				"$type": "number"
+			}
+		},
+		"stark-muted-disabled": {
+			"$description": "stark-muted disabled overrides",
+			"background-color": {
+				"$value": "oklch(0.196 0.03 250)",
+				"$type": "color"
+			},
+			"color": {
+				"$value": "oklch(0.4 0.003 250)",
+				"$type": "color"
+			},
+			"opacity": {
+				"$value": "0.3",
+				"$type": "number"
+			},
+			"border-color": {
+				"$value": "oklch(0.35 0.003 250 / 0.12)",
+				"$type": "color"
+			}
+		}
+	}
+}

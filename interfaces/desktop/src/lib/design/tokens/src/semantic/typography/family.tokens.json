@@ -1,0 +1,19 @@
+{
+	"$description": "Hand-authored font family stacks. Three stacks: display (Orbitron), sans (Inter), mono (JetBrains Mono). Fallbacks included for each.",
+	"font": {
+		"$type": "fontFamily",
+		"$description": "Font family stacks.",
+		"display": {
+			"$value": ["Orbitron", "system-ui", "sans-serif"],
+			"$description": "Display headings — Orbitron with system fallback."
+		},
+		"sans": {
+			"$value": ["Inter", "system-ui", "sans-serif"],
+			"$description": "Body text — Inter with system fallback."
+		},
+		"mono": {
+			"$value": ["JetBrains Mono", "Fira Code", "monospace"],
+			"$description": "Code / terminal — JetBrains Mono with Fira Code fallback."
+		}
+	}
+}

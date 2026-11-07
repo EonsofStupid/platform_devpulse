@@ -1,0 +1,56 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+[data-kind="accordion"][data-slot="item"] {
+	--accordion-border-bottom: 0.0625rem solid var(--interaction-hover);
+	border-bottom: var(--accordion-border-bottom);
+}
+
+[data-kind="accordion"][data-slot="trigger"] {
+	--accordion-trigger-padding-inline: var(--space-4);
+	padding-inline: var(--accordion-trigger-padding-inline);
+	--accordion-trigger-padding-block: var(--space-3);
+	padding-block: var(--accordion-trigger-padding-block);
+	--accordion-trigger-font-weight: 500;
+	font-weight: var(--accordion-trigger-font-weight);
+	--accordion-trigger-color: var(--text-primary);
+	color: var(--accordion-trigger-color);
+}
+
+[data-kind="accordion"][data-slot="content"] {
+	--accordion-content-padding-inline: var(--space-4);
+	padding-inline: var(--accordion-content-padding-inline);
+	--accordion-content-padding-bottom: var(--space-4);
+	padding-bottom: var(--accordion-content-padding-bottom);
+	--accordion-content-color: var(--text-secondary);
+	color: var(--accordion-content-color);
+}
+
+[data-kind="accordion"][data-slot="indicator"] {
+	--accordion-indicator-color: var(--text-muted);
+	color: var(--accordion-indicator-color);
+}
+
+[data-kind="accordion"][data-slot="trigger"]:hover {
+	--accordion-trigger-background-color: var(--interaction-hover);
+	background-color: var(--accordion-trigger-background-color);
+}
+
+[data-kind="accordion"][data-slot="trigger"]:focus-visible {
+	--accordion-trigger-outline-style: solid;
+	outline-style: var(--accordion-trigger-outline-style);
+	--accordion-trigger-outline-width: 0.125rem;
+	outline-width: var(--accordion-trigger-outline-width);
+	--accordion-trigger-outline-color: var(--border-focus);
+	outline-color: var(--accordion-trigger-outline-color);
+	--accordion-trigger-outline-offset: 0.125rem;
+	outline-offset: var(--accordion-trigger-outline-offset);
+}
+
+[data-kind="accordion"][data-slot="trigger"]:is(:disabled, [data-disabled], [aria-disabled="true"]) {
+	--accordion-trigger-opacity: 0.5;
+	opacity: var(--accordion-trigger-opacity);
+	--accordion-trigger-cursor: not-allowed;
+	cursor: var(--accordion-trigger-cursor);
+}

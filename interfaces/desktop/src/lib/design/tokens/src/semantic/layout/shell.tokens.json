@@ -1,0 +1,27 @@
+{
+	"$description": "Hand-authored shell layout dimensions — topbar, sidebar, statusbar, right context panel. Values are already in rem so they convert 1:1 to DTCG dimension objects.",
+	"layout": {
+		"$type": "dimension",
+		"$description": "Shell layout dimensions.",
+		"topbar-height": {
+			"$value": { "value": 4.125, "unit": "rem" },
+			"$description": "Main topbar row height. 66 px at base=16."
+		},
+		"sidebar-collapsed": {
+			"$value": { "value": 3.75, "unit": "rem" },
+			"$description": "Sidebar width when collapsed to icons only. 60 px."
+		},
+		"sidebar-expanded": {
+			"$value": { "value": 15, "unit": "rem" },
+			"$description": "Sidebar width when expanded with labels. 240 px."
+		},
+		"context-width": {
+			"$value": { "value": 25, "unit": "rem" },
+			"$description": "Right context panel width when open. 400 px."
+		},
+		"statusbar-height": {
+			"$value": { "value": 3.25, "unit": "rem" },
+			"$description": "Bottom statusbar row height. 52 px."
+		}
+	}
+}

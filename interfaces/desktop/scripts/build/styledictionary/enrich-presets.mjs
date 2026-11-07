@@ -18,7 +18,7 @@ import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const PRESETS_PATH = resolve(__dirname, "tokens/src/style-presets.json");
+const PRESETS_PATH = resolve(__dirname, "../../../src/lib/design/tokens/src/style-presets.json");
 
 /**
  * Complete axis defaults — applied to any preset missing these properties.

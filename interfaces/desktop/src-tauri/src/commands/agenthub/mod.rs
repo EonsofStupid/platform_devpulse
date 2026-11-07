@@ -8,9 +8,10 @@ use crate::commands::_util::CommandError;
 use crate::state::PlatformState;
 use devpulse_engine::platform::Platform;
 use devpulse_engine::platform::agenthub::live::{LiveSnapshot, LiveState};
+use devpulse_engine::platform::agenthub::tickets::{self, Ticket};
 use devpulse_engine::platform::agenthub::{FoundPage, FoundSessions};
 use devpulse_engine::platform::providers::ProviderId;
-use tauri::State;
+use tauri::{Emitter, State};
 
 /// Current execution observations, including text and unanswered permissions.
 #[tauri::command]
@@ -48,6 +49,44 @@ fn platform(state: &PlatformState) -> Result<Arc<Platform>, CommandError> {
         .platform
         .load_full()
         .ok_or_else(|| CommandError::not_configured("Platform is still booting"))
+}
+
+/// Tickets belong to a project in the platform's user database.
+#[tauri::command]
+#[specta::specta]
+#[allow(clippy::missing_errors_doc)]
+pub async fn agenthub_tickets(
+    project_id: String,
+    state: State<'_, PlatformState>,
+) -> Result<Vec<Ticket>, CommandError> {
+    let platform = platform(&state)?;
+    let db = platform
+        .user_relational()
+        .ok_or_else(|| CommandError::not_configured("User database unavailable"))?;
+    Ok(tickets::list(db.adapter(), &project_id).await?)
+}
+
+/// Create a durable work specification; this does not dispatch an agent.
+#[tauri::command]
+#[specta::specta]
+#[allow(clippy::missing_errors_doc)]
+pub async fn agenthub_create_ticket(
+    project_id: String,
+    title: String,
+    goal: String,
+    criteria: Vec<String>,
+    app: tauri::AppHandle,
+    state: State<'_, PlatformState>,
+) -> Result<Ticket, CommandError> {
+    let platform = platform(&state)?;
+    let db = platform
+        .user_relational()
+        .ok_or_else(|| CommandError::not_configured("User database unavailable"))?;
+    let ticket = tickets::create(db.adapter(), &project_id, &title, &goal, criteria).await?;
+    if let Err(error) = app.emit("agenthub-tickets-changed", &project_id) {
+        tracing::warn!(target: "agenthub", %error, "ticket notification failed");
+    }
+    Ok(ticket)
 }
 
 /// Every session found on this machine, newest first, and where each

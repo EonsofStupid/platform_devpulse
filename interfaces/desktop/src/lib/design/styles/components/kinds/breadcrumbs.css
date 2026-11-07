@@ -1,0 +1,52 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+[data-kind="breadcrumbs"][data-slot="root"] {
+	--breadcrumbs-color: var(--text-muted);
+	color: var(--breadcrumbs-color);
+	font-size: var(--breadcrumbs-font-size);
+}
+
+[data-kind="breadcrumbs"][data-slot="root"][data-size="sm"] {
+	--breadcrumbs-font-size: 0.875rem;
+}
+
+[data-kind="breadcrumbs"][data-slot="root"][data-size="md"] {
+	--breadcrumbs-font-size: 0.875rem;
+}
+
+[data-kind="breadcrumbs"][data-slot="root"][data-size="lg"] {
+	--breadcrumbs-font-size: 1rem;
+}
+
+[data-kind="breadcrumbs"][data-slot="link"] {
+	--breadcrumbs-link-color: var(--text-secondary);
+	color: var(--breadcrumbs-link-color);
+}
+
+[data-kind="breadcrumbs"][data-slot="separator"] {
+	--breadcrumbs-separator-color: var(--text-muted);
+	color: var(--breadcrumbs-separator-color);
+}
+
+[data-kind="breadcrumbs"][data-slot="link"][data-tone="current"] {
+	--breadcrumbs-link-color: var(--text-primary);
+	color: var(--breadcrumbs-link-color);
+}
+
+[data-kind="breadcrumbs"][data-slot="link"]:hover {
+	--breadcrumbs-link-color: var(--text-primary);
+	color: var(--breadcrumbs-link-color);
+}
+
+[data-kind="breadcrumbs"][data-slot="link"]:focus-visible {
+	--breadcrumbs-link-outline-style: solid;
+	outline-style: var(--breadcrumbs-link-outline-style);
+	--breadcrumbs-link-outline-width: 0.125rem;
+	outline-width: var(--breadcrumbs-link-outline-width);
+	--breadcrumbs-link-outline-color: var(--border-focus);
+	outline-color: var(--breadcrumbs-link-outline-color);
+	--breadcrumbs-link-outline-offset: 0.125rem;
+	outline-offset: var(--breadcrumbs-link-outline-offset);
+}

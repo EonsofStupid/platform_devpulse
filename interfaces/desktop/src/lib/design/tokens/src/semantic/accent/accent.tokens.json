@@ -1,0 +1,285 @@
+{
+	"$description": "Semantic accents — one `{ main, glow, fill }` triplet per colour. `main` is the indicator colour: the owner's own value where he gave one, otherwise a stop of the generator's ramp. `glow` is the shadow/emission tint; `fill` is the low-alpha area fill for sparklines and subtle backgrounds.",
+	"accent": {
+		"$extensions": {
+			"com.coldlight": {
+				"semanticFamily": "accent",
+				"visualFamilies": [
+					"indicator",
+					"glow",
+					"fill"
+				],
+				"tokenTier": "semantic"
+			}
+		},
+		"$type": "color",
+		"$description": "Semantic accent aliases. The `accent` role siblings (main/glow/fill/fg, no palette qualifier) are Tier-2 ROLE bindings that default to primary; rebindable independently. The palette siblings below (teal/purple/violet/...) are Tier-1 PALETTE primitives — pick one to bind a role to. Components consume role names, never palette names.",
+		"main": { "$value": "{primary.main}", "$description": "Accent indicator role — alias of primary.main by default; rebind freely." },
+		"glow": { "$value": "{primary.glow}", "$description": "Accent glow role — alias of primary.glow by default." },
+		"fill": { "$value": "{primary.fill}", "$description": "Accent fill role — alias of primary.fill by default." },
+		"fg": { "$value": "{primary.fg}", "$description": "Foreground / on-accent text — alias of primary.fg by default." },
+		"teal": {
+			"$description": "Teal — the owner's primary teal.",
+			"main": {
+				"$value": { "colorSpace": "oklch", "components": [0.8643, 0.1406, 183.02], "hex": "#41f0db" },
+				"$description": "The owner's rgba(65, 240, 219, 1)."
+			},
+			"glow": {
+				"$value": { "colorSpace": "oklch", "components": [0.8643, 0.1406, 183.02], "alpha": 0.35, "hex": "#41f0db" },
+				"$description": "Teal glow emission."
+			},
+			"fill": {
+				"$value": { "colorSpace": "oklch", "components": [0.8643, 0.1406, 183.02], "alpha": 0.08, "hex": "#41f0db" },
+				"$description": "Teal area fill."
+			}
+		},
+		"purple": {
+			"$description": "Purple — the owner's tertiary.",
+			"main": {
+				"$value": { "colorSpace": "oklch", "components": [0.5575, 0.2525, 302.32], "hex": "#9333ea" },
+				"$description": "The owner's rgba(147, 51, 234, 1)."
+			},
+			"glow": {
+				"$value": { "colorSpace": "oklch", "components": [0.5575, 0.2525, 302.32], "alpha": 0.35, "hex": "#9333ea" },
+				"$description": "Purple glow emission."
+			},
+			"fill": {
+				"$value": { "colorSpace": "oklch", "components": [0.5575, 0.2525, 302.32], "alpha": 0.08, "hex": "#9333ea" },
+				"$description": "Purple area fill."
+			}
+		},
+		"magenta": {
+			"main": { "$value": "{color.magenta.400}", "$description": "Primary indicator colour — magenta ramp stop 400." },
+			"glow": {
+				"$value": { "colorSpace": "oklch", "components": [0.65, 0.173, 330], "alpha": 0.35, "hex": "#c762c0" },
+				"$description": "Drop-shadow / box-shadow emission tint."
+			},
+			"fill": {
+				"$value": { "colorSpace": "oklch", "components": [0.65, 0.173, 330], "alpha": 0.08, "hex": "#c762c0" },
+				"$description": "Sparkline area fill, subtle background tint."
+			}
+		},
+		"ember": {
+			"main": { "$value": "{color.ember.400}", "$description": "Primary indicator colour — ember ramp stop 400." },
+			"glow": {
+				"$value": { "colorSpace": "oklch", "components": [0.65, 0.156, 25], "alpha": 0.35, "hex": "#de635d" },
+				"$description": "Drop-shadow / box-shadow emission tint."
+			},
+			"fill": {
+				"$value": { "colorSpace": "oklch", "components": [0.65, 0.156, 25], "alpha": 0.08, "hex": "#de635d" },
+				"$description": "Sparkline area fill, subtle background tint."
+			}
+		},
+		"frost": {
+			"main": { "$value": "{color.frost.400}", "$description": "Primary indicator colour — frost ramp stop 400." },
+			"glow": {
+				"$value": { "colorSpace": "oklch", "components": [0.65, 0.087, 220], "alpha": 0.35, "hex": "#4a9cb4" },
+				"$description": "Drop-shadow / box-shadow emission tint."
+			},
+			"fill": {
+				"$value": { "colorSpace": "oklch", "components": [0.65, 0.087, 220], "alpha": 0.08, "hex": "#4a9cb4" },
+				"$description": "Sparkline area fill, subtle background tint."
+			}
+		},
+		"cyber": {
+			"main": { "$value": "{color.cyber.400}", "$description": "Primary indicator colour — cyber ramp stop 400." },
+			"glow": {
+				"$value": { "colorSpace": "oklch", "components": [0.65, 0.156, 160], "alpha": 0.35, "hex": "#1ca971" },
+				"$description": "Drop-shadow / box-shadow emission tint."
+			},
+			"fill": {
+				"$value": { "colorSpace": "oklch", "components": [0.65, 0.156, 160], "alpha": 0.08, "hex": "#1ca971" },
+				"$description": "Sparkline area fill, subtle background tint."
+			}
+		},
+		"cyan": {
+			"$description": "Brand cyan — diagonal blend pair with green.",
+			"main": {
+				"$value": { "colorSpace": "oklch", "components": [0.8226, 0.1381, 204.82], "hex": "#17deef" },
+				"$description": "Brand cyan — the owner's #17deef."
+			},
+			"glow": {
+				"$value": { "colorSpace": "oklch", "components": [0.8226, 0.1381, 204.82], "alpha": 0.35, "hex": "#17deef" },
+				"$description": "Cyan glow emission."
+			},
+			"fill": {
+				"$value": { "colorSpace": "oklch", "components": [0.8226, 0.1381, 204.82], "alpha": 0.08, "hex": "#17deef" },
+				"$description": "Cyan area fill."
+			}
+		},
+		"green": {
+			"$description": "Brand green — diagonal blend pair with cyan.",
+			"main": {
+				"$value": { "colorSpace": "oklch", "components": [0.6806, 0.1601, 153.63], "hex": "#29b468" },
+				"$description": "Brand green — the owner's #29b468."
+			},
+			"glow": {
+				"$value": { "colorSpace": "oklch", "components": [0.6806, 0.1601, 153.63], "alpha": 0.35, "hex": "#29b468" },
+				"$description": "Green glow emission."
+			},
+			"fill": {
+				"$value": { "colorSpace": "oklch", "components": [0.6806, 0.1601, 153.63], "alpha": 0.08, "hex": "#29b468" },
+				"$description": "Green area fill."
+			}
+		},
+		"hotpink": {
+			"$description": "Brand hot pink — diagonal blend pair with magenta.",
+			"main": {
+				"$value": { "colorSpace": "oklch", "components": [0.6534, 0.227, 6.32], "hex": "#f8397a" },
+				"$description": "Brand hot pink — the owner's #f8397a."
+			},
+			"glow": {
+				"$value": { "colorSpace": "oklch", "components": [0.6534, 0.227, 6.32], "alpha": 0.35, "hex": "#f8397a" },
+				"$description": "Hot pink glow emission."
+			},
+			"fill": {
+				"$value": { "colorSpace": "oklch", "components": [0.6534, 0.227, 6.32], "alpha": 0.08, "hex": "#f8397a" },
+				"$description": "Hot pink area fill."
+			}
+		},
+		"coral": {
+			"$description": "Brand coral — diagonal blend pair with blue.",
+			"main": {
+				"$value": { "colorSpace": "oklch", "components": [0.7123, 0.1775, 12.65], "hex": "#fc6b83" },
+				"$description": "Brand coral — the owner's #fc6b83."
+			},
+			"glow": {
+				"$value": { "colorSpace": "oklch", "components": [0.7123, 0.1775, 12.65], "alpha": 0.35, "hex": "#fc6b83" },
+				"$description": "Coral glow emission."
+			},
+			"fill": {
+				"$value": { "colorSpace": "oklch", "components": [0.7123, 0.1775, 12.65], "alpha": 0.08, "hex": "#fc6b83" },
+				"$description": "Coral area fill."
+			}
+		},
+		"blue": {
+			"$description": "Brand blue — diagonal blend pair with coral.",
+			"main": {
+				"$value": { "colorSpace": "oklch", "components": [0.691, 0.1386, 242.82], "hex": "#3ea4ea" },
+				"$description": "Brand blue — the owner's #3ea4ea."
+			},
+			"glow": {
+				"$value": { "colorSpace": "oklch", "components": [0.691, 0.1386, 242.82], "alpha": 0.35, "hex": "#3ea4ea" },
+				"$description": "Blue glow emission."
+			},
+			"fill": {
+				"$value": { "colorSpace": "oklch", "components": [0.691, 0.1386, 242.82], "alpha": 0.08, "hex": "#3ea4ea" },
+				"$description": "Blue area fill."
+			}
+		},
+		"salmon": {
+			"$description": "Brand salmon — diagonal blend pair with gold.",
+			"main": {
+				"$value": { "colorSpace": "oklch", "components": [0.6899, 0.1677, 19.03], "hex": "#f16971" },
+				"$description": "Brand salmon — the owner's #f16971."
+			},
+			"glow": {
+				"$value": { "colorSpace": "oklch", "components": [0.6899, 0.1677, 19.03], "alpha": 0.35, "hex": "#f16971" },
+				"$description": "Salmon glow emission."
+			},
+			"fill": {
+				"$value": { "colorSpace": "oklch", "components": [0.6899, 0.1677, 19.03], "alpha": 0.08, "hex": "#f16971" },
+				"$description": "Salmon area fill."
+			}
+		},
+		"gold": {
+			"$description": "Brand gold — diagonal blend pair with salmon.",
+			"main": {
+				"$value": { "colorSpace": "oklch", "components": [0.8409, 0.1681, 108.03], "hex": "#d6d232" },
+				"$description": "Brand gold — the owner's #d6d232."
+			},
+			"glow": {
+				"$value": { "colorSpace": "oklch", "components": [0.8409, 0.1681, 108.03], "alpha": 0.35, "hex": "#d6d232" },
+				"$description": "Gold glow emission."
+			},
+			"fill": {
+				"$value": { "colorSpace": "oklch", "components": [0.8409, 0.1681, 108.03], "alpha": 0.08, "hex": "#d6d232" },
+				"$description": "Gold area fill."
+			}
+		},
+		"violet": {
+			"$description": "Brand violet — saturated violet hue 285, chroma 0.20.",
+			"main": {
+				"$value": { "colorSpace": "oklch", "components": [0.6519, 0.208, 294.44], "hex": "#9b6dff" },
+				"$description": "Brand violet — the owner's #9b6dff."
+			},
+			"glow": {
+				"$value": { "colorSpace": "oklch", "components": [0.6519, 0.208, 294.44], "alpha": 0.35, "hex": "#9b6dff" },
+				"$description": "Violet glow emission."
+			},
+			"fill": {
+				"$value": { "colorSpace": "oklch", "components": [0.6519, 0.208, 294.44], "alpha": 0.08, "hex": "#9b6dff" },
+				"$description": "Violet area fill."
+			}
+		},
+		"electric": {
+			"$description": "Brand electric — vivid electric-blue hue 215, chroma 0.22. Distinct from frost (220° low chroma) and brand-blue (240°/0.14) by saturation.",
+			"main": { "$value": "{color.brand-electric.500}", "$description": "Electric indicator — brand-electric ramp stop 500." },
+			"glow": {
+				"$value": { "colorSpace": "oklch", "components": [0.63, 0.22, 215], "alpha": 0.4, "hex": "#1e8fff" },
+				"$description": "Electric glow emission — high-energy lightning blue."
+			},
+			"fill": {
+				"$value": { "colorSpace": "oklch", "components": [0.63, 0.22, 215], "alpha": 0.08, "hex": "#1e8fff" },
+				"$description": "Electric area fill."
+			}
+		},
+		"azure": {
+			"$description": "Brand azure — saturated azure-blue hue 250, chroma 0.18. Promoted from wheel primitive to semantic accent.",
+			"main": { "$value": "{color.brand-azure.500}", "$description": "Azure indicator — brand-azure ramp stop 500." },
+			"glow": {
+				"$value": { "colorSpace": "oklch", "components": [0.63, 0.18, 250], "alpha": 0.35, "hex": "#3a7ec9" },
+				"$description": "Azure glow emission."
+			},
+			"fill": {
+				"$value": { "colorSpace": "oklch", "components": [0.63, 0.18, 250], "alpha": 0.08, "hex": "#3a7ec9" },
+				"$description": "Azure area fill."
+			}
+		},
+		"pink": {
+			"$description": "Pink — the owner's secondary accent.",
+			"main": {
+				"$value": { "colorSpace": "oklch", "components": [0.6696, 0.283, 344.15], "hex": "#ff0abe" },
+				"$description": "The owner's rgba(255, 10, 190, 1)."
+			},
+			"glow": {
+				"$value": { "colorSpace": "oklch", "components": [0.6696, 0.283, 344.15], "alpha": 0.35, "hex": "#ff0abe" },
+				"$description": "Pink glow emission."
+			},
+			"fill": {
+				"$value": { "colorSpace": "oklch", "components": [0.6696, 0.283, 344.15], "alpha": 0.08, "hex": "#ff0abe" },
+				"$description": "Pink area fill."
+			}
+		},
+		"lime": {
+			"$description": "Lime — the owner's green accent.",
+			"main": {
+				"$value": { "colorSpace": "oklch", "components": [0.8716, 0.2742, 143.51], "hex": "#2eff3f" },
+				"$description": "The owner's hsl(125 100% 59%)."
+			},
+			"glow": {
+				"$value": { "colorSpace": "oklch", "components": [0.8716, 0.2742, 143.51], "alpha": 0.35, "hex": "#2eff3f" },
+				"$description": "Lime glow emission."
+			},
+			"fill": {
+				"$value": { "colorSpace": "oklch", "components": [0.8716, 0.2742, 143.51], "alpha": 0.08, "hex": "#2eff3f" },
+				"$description": "Lime area fill."
+			}
+		},
+		"amber": {
+			"$description": "Amber — the owner's gold accent.",
+			"main": {
+				"$value": { "colorSpace": "oklch", "components": [0.7935, 0.1621, 73.51], "hex": "#f9a91f" },
+				"$description": "The owner's hsl(38 95% 55%)."
+			},
+			"glow": {
+				"$value": { "colorSpace": "oklch", "components": [0.7935, 0.1621, 73.51], "alpha": 0.35, "hex": "#f9a91f" },
+				"$description": "Amber glow emission."
+			},
+			"fill": {
+				"$value": { "colorSpace": "oklch", "components": [0.7935, 0.1621, 73.51], "alpha": 0.08, "hex": "#f9a91f" },
+				"$description": "Amber area fill."
+			}
+		}
+	}
+}

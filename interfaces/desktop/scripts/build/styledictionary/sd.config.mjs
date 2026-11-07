@@ -156,16 +156,17 @@ const tw4Remap = {
  * SVG preset vars → design/svg/presets. Do not emit non-token glue here.
  */
 const paths = {
-	source: 'scripts/build/styledictionary/tokens/src',
+	source: 'src/lib/design/tokens/src',
 	design: '../../packages/coldlight',
+	componentSource: 'src/lib/design/components',
 };
 
 /** Every component folder with a `<kind>.tokens.json` whose top group is the kind (plan 0006 §0s). */
-export const KIND_FILES = readdirSync(`${paths.design}/components`, { withFileTypes: true })
-	.filter((d) => d.isDirectory() && existsSync(`${paths.design}/components/${d.name}/${d.name}.tokens.json`))
+export const KIND_FILES = readdirSync(paths.componentSource, { withFileTypes: true })
+	.filter((d) => d.isDirectory() && existsSync(`${paths.componentSource}/${d.name}/${d.name}.tokens.json`))
 	.sort((a, b) => a.name.localeCompare(b.name, 'en'))
 	.flatMap((d) => {
-		const path = `${paths.design}/components/${d.name}/${d.name}.tokens.json`;
+		const path = `${paths.componentSource}/${d.name}/${d.name}.tokens.json`;
 		const read = readKindFile(path, d.name);
 		return read ? [{ kind: d.name, path, ...read }] : [];
 	});
@@ -949,7 +950,7 @@ const config = {
 		`${paths.source}/semantic/**/*.tokens.json`,
 		`${paths.source}/presets/**/*.tokens.json`,
 		// Colocated: each component's and SVG kind's own tokens file (plan 0006 0s).
-		`${paths.design}/components/*/*.tokens.json`,
+		`${paths.componentSource}/*/*.tokens.json`,
 		`${paths.design}/svg/*/*.tokens.json`,
 		...FEATURE_FILES.map(({ path }) => path.replaceAll('\\', '/')),
 	],

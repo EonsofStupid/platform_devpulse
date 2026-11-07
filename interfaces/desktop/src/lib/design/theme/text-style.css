@@ -1,0 +1,56 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+@theme {
+  --text-style-display-lg-font-size: 2rem;
+  --text-style-display-lg-font-family: Orbitron, system-ui, sans-serif;
+  --text-style-display-lg-font-weight: 700;
+  --text-style-display-lg-line-height: 1.1;
+  --text-style-display-lg-letter-spacing: 0.02em;
+  --text-style-display-sm-font-size: 1.5rem;
+  --text-style-display-sm-font-family: Orbitron, system-ui, sans-serif;
+  --text-style-display-sm-font-weight: 600;
+  --text-style-display-sm-line-height: 1.2;
+  --text-style-display-sm-letter-spacing: 0.01em;
+  --text-style-heading-lg-font-size: 1.25rem;
+  --text-style-heading-lg-font-family: Inter, system-ui, sans-serif;
+  --text-style-heading-lg-font-weight: 600;
+  --text-style-heading-lg-line-height: 1.3;
+  --text-style-heading-lg-letter-spacing: -0.01em;
+  --text-style-heading-sm-font-size: 1rem;
+  --text-style-heading-sm-font-family: Inter, system-ui, sans-serif;
+  --text-style-heading-sm-font-weight: 600;
+  --text-style-heading-sm-line-height: 1.4;
+  --text-style-heading-sm-letter-spacing: -0.005em;
+  --text-style-body-font-size: 0.875rem;
+  --text-style-body-font-family: Inter, system-ui, sans-serif;
+  --text-style-body-font-weight: 400;
+  --text-style-body-line-height: 1.5;
+  --text-style-body-letter-spacing: 0em;
+  --text-style-body-sm-font-size: 0.8125rem;
+  --text-style-body-sm-font-family: Inter, system-ui, sans-serif;
+  --text-style-body-sm-font-weight: 400;
+  --text-style-body-sm-line-height: 1.45;
+  --text-style-body-sm-letter-spacing: 0em;
+  --text-style-caption-font-size: 0.75rem;
+  --text-style-caption-font-family: Inter, system-ui, sans-serif;
+  --text-style-caption-font-weight: 500;
+  --text-style-caption-line-height: 1.4;
+  --text-style-caption-letter-spacing: 0.01em;
+  --text-style-overline-font-size: 0.6875rem;
+  --text-style-overline-font-family: Inter, system-ui, sans-serif;
+  --text-style-overline-font-weight: 600;
+  --text-style-overline-line-height: 1.3;
+  --text-style-overline-letter-spacing: 0.08em;
+  --text-style-code-font-size: 0.8125rem;
+  --text-style-code-font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  --text-style-code-font-weight: 400;
+  --text-style-code-line-height: 1.6;
+  --text-style-code-letter-spacing: 0em;
+  --text-style-stat-font-size: 1.5rem;
+  --text-style-stat-font-family: Orbitron, system-ui, sans-serif;
+  --text-style-stat-font-weight: 700;
+  --text-style-stat-line-height: 1.1;
+  --text-style-stat-letter-spacing: 0.02em;
+}

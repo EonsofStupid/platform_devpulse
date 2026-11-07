@@ -1,0 +1,117 @@
+{
+	"$description": "Hand-authored named animations. Each entry carries a DTCG `duration` + `cubicBezier` plus a vendor extension that names the keyframe and specifies iteration / fill-mode. DTCG 2025.10 has no first-class `animation` composite type, so we emit duration as the authoritative `$value` and let the SD5 transform reconstruct the `animation:` CSS shorthand from the extension block.",
+	"animation": {
+		"$type": "duration",
+		"$description": "Named animations — keyframe + duration + easing + iteration.",
+		"pulse-glow": {
+			"$value": { "value": 4, "unit": "s" },
+			"$description": "Pulsing glow — infinite ambient highlight.",
+			"$extensions": { "com.devpulse.coldlight": { "animation": { "keyframe": "pulse-glow", "easing": [0.4, 0, 0.2, 1], "iterationCount": "infinite" } } }
+		},
+		"breathe": {
+			"$value": { "value": 4, "unit": "s" },
+			"$description": "Breathing scale — infinite ambient pulse.",
+			"$extensions": { "com.devpulse.coldlight": { "animation": { "keyframe": "breathe", "easing": [0.4, 0, 0.2, 1], "iterationCount": "infinite" } } }
+		},
+		"shimmer": {
+			"$value": { "value": 8, "unit": "s" },
+			"$description": "Shimmer loading placeholder — linear infinite.",
+			"$extensions": { "com.devpulse.coldlight": { "animation": { "keyframe": "shimmer", "easing": [0, 0, 1, 1], "iterationCount": "infinite" } } }
+		},
+		"drift": {
+			"$value": { "value": 8, "unit": "s" },
+			"$description": "Drifting background parallax — infinite ambient.",
+			"$extensions": { "com.devpulse.coldlight": { "animation": { "keyframe": "drift", "easing": [0.4, 0, 0.2, 1], "iterationCount": "infinite" } } }
+		},
+		"pulse": {
+			"$value": { "value": 3, "unit": "s" },
+			"$description": "Pulse — infinite attention indicator.",
+			"$extensions": { "com.devpulse.coldlight": { "animation": { "keyframe": "pulse", "easing": [0.4, 0, 0.2, 1], "iterationCount": "infinite" } } }
+		},
+		"fade-in": {
+			"$value": { "value": 300, "unit": "ms" },
+			"$description": "Fade in on mount — one-shot forwards.",
+			"$extensions": { "com.devpulse.coldlight": { "animation": { "keyframe": "fade-in", "easing": [0, 0, 0.2, 1], "iterationCount": 1, "fillMode": "forwards" } } }
+		},
+		"slide-up": {
+			"$value": { "value": 300, "unit": "ms" },
+			"$description": "Slide up on mount — one-shot forwards.",
+			"$extensions": { "com.devpulse.coldlight": { "animation": { "keyframe": "slide-up", "easing": [0, 0, 0.2, 1], "iterationCount": 1, "fillMode": "forwards" } } }
+		},
+		"slide-down": {
+			"$value": { "value": 300, "unit": "ms" },
+			"$description": "Slide down on mount — one-shot forwards.",
+			"$extensions": { "com.devpulse.coldlight": { "animation": { "keyframe": "slide-down", "easing": [0, 0, 0.2, 1], "iterationCount": 1, "fillMode": "forwards" } } }
+		},
+		"scale-in": {
+			"$value": { "value": 250, "unit": "ms" },
+			"$description": "Scale in on mount — one-shot forwards.",
+			"$extensions": { "com.devpulse.coldlight": { "animation": { "keyframe": "scale-in", "easing": [0, 0, 0.2, 1], "iterationCount": 1, "fillMode": "forwards" } } }
+		},
+		"grow": {
+			"$value": { "value": 300, "unit": "ms" },
+			"$description": "Grow transition — ColdLight variant of scale-in.",
+			"$extensions": { "com.devpulse.coldlight": { "animation": { "keyframe": "cl-grow", "easing": [0, 0, 0.2, 1], "iterationCount": 1, "fillMode": "forwards" } } }
+		},
+		"shrink": {
+			"$value": { "value": 200, "unit": "ms" },
+			"$description": "Shrink transition — ColdLight variant of scale-out.",
+			"$extensions": { "com.devpulse.coldlight": { "animation": { "keyframe": "cl-shrink", "easing": [0.4, 0, 1, 1], "iterationCount": 1, "fillMode": "forwards" } } }
+		},
+		"shake": {
+			"$value": { "value": 400, "unit": "ms" },
+			"$description": "Shake — one-shot error feedback.",
+			"$extensions": { "com.devpulse.coldlight": { "animation": { "keyframe": "cl-shake", "easing": [0.4, 0, 0.2, 1], "iterationCount": 1 } } }
+		},
+		"spin": {
+			"$value": { "value": 1, "unit": "s" },
+			"$description": "Spin — infinite rotation (loading spinners).",
+			"$extensions": { "com.devpulse.coldlight": { "animation": { "keyframe": "cl-spin", "easing": [0, 0, 1, 1], "iterationCount": "infinite" } } }
+		},
+		"float": {
+			"$value": { "value": 6, "unit": "s" },
+			"$description": "Float — infinite subtle levitation.",
+			"$extensions": { "com.devpulse.coldlight": { "animation": { "keyframe": "cl-float", "easing": [0.4, 0, 0.2, 1], "iterationCount": "infinite" } } }
+		},
+		"flip": {
+			"$value": { "value": 600, "unit": "ms" },
+			"$description": "Flip — one-shot card flip.",
+			"$extensions": { "com.devpulse.coldlight": { "animation": { "keyframe": "cl-flip", "easing": [0.4, 0, 0.2, 1], "iterationCount": 1, "fillMode": "forwards" } } }
+		},
+		"presence-breathe": {
+			"$value": { "value": 3200, "unit": "ms" },
+			"$description": "Presence orb — gentle idle breathing, brightness+scale.",
+			"$extensions": { "com.devpulse.coldlight": { "animation": { "keyframe": "cl-presence-breathe", "easing": [0.4, 0, 0.2, 1], "iterationCount": "infinite" } } }
+		},
+		"presence-pulse": {
+			"$value": { "value": 1400, "unit": "ms" },
+			"$description": "Presence orb — working pulse, strong scale.",
+			"$extensions": { "com.devpulse.coldlight": { "animation": { "keyframe": "cl-presence-pulse", "easing": [0.4, 0, 0.2, 1], "iterationCount": "infinite" } } }
+		},
+		"presence-think": {
+			"$value": { "value": 2400, "unit": "ms" },
+			"$description": "Presence orb — thinking, rotate+hue-shift.",
+			"$extensions": { "com.devpulse.coldlight": { "animation": { "keyframe": "cl-presence-think", "easing": [0, 0, 1, 1], "iterationCount": "infinite" } } }
+		},
+		"presence-listen": {
+			"$value": { "value": 1600, "unit": "ms" },
+			"$description": "Presence orb — listening, squash/stretch attentive.",
+			"$extensions": { "com.devpulse.coldlight": { "animation": { "keyframe": "cl-presence-listen", "easing": [0.4, 0, 0.2, 1], "iterationCount": "infinite" } } }
+		},
+		"presence-rest": {
+			"$value": { "value": 6000, "unit": "ms" },
+			"$description": "Presence orb — resting, slow desaturated breathing.",
+			"$extensions": { "com.devpulse.coldlight": { "animation": { "keyframe": "cl-presence-rest", "easing": [0.4, 0, 0.2, 1], "iterationCount": "infinite" } } }
+		},
+		"presence-halo": {
+			"$value": { "value": 3200, "unit": "ms" },
+			"$description": "Presence orb — outer halo breathing, pairs with any core.",
+			"$extensions": { "com.devpulse.coldlight": { "animation": { "keyframe": "cl-presence-halo", "easing": [0.4, 0, 0.2, 1], "iterationCount": "infinite" } } }
+		},
+		"presence-alert": {
+			"$value": { "value": 900, "unit": "ms" },
+			"$description": "Presence orb — alert, fast asymmetric pulse.",
+			"$extensions": { "com.devpulse.coldlight": { "animation": { "keyframe": "cl-presence-alert", "easing": [0.4, 0, 0.2, 1], "iterationCount": "infinite" } } }
+		}
+	}
+}

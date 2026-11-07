@@ -1,0 +1,82 @@
+{
+	"$description": "Hand-authored DTCG border composites — `{ color, width, style }` triples. Two groups: luminance-based `rise` edges and named `preset` border compositions. Values reference the border/color and border/dimension files via curly-brace syntax.",
+	"borderRise": {
+		"$type": "border",
+		"$description": "Luminance-based border rise — light edge on dark surface, creates raised appearance.",
+		"subtle": {
+			"$value": {
+				"color": {
+					"colorSpace": "oklch",
+					"components": [1.0032, 0.0305, 28.88],
+					"alpha": 0.059,
+					"hex": "#ffffff"
+				},
+				"width": { "value": 0.0625, "unit": "rem" },
+				"style": "solid"
+			},
+			"$description": "Barely visible luminance edge — inputs, secondary containers."
+		},
+		"soft": {
+			"$value": {
+				"color": {
+					"colorSpace": "oklch",
+					"components": [1.0032, 0.0305, 28.88],
+					"alpha": 0.102,
+					"hex": "#ffffff"
+				},
+				"width": { "value": 0.0625, "unit": "rem" },
+				"style": "solid"
+			},
+			"$description": "Visible luminance edge — cards, primary containers."
+		},
+		"strong": {
+			"$value": {
+				"color": {
+					"colorSpace": "oklch",
+					"components": [1.0032, 0.0305, 28.88],
+					"alpha": 0.161,
+					"hex": "#ffffff"
+				},
+				"width": { "value": 0.0625, "unit": "rem" },
+				"style": "solid"
+			},
+			"$description": "Prominent luminance edge — elevated containers, dialogs."
+		}
+	},
+	"borderPreset": {
+		"$type": "border",
+		"$description": "Named border presets — complete color + width + style compositions for common container treatments.",
+		"default": {
+			"$value": {
+				"color": "{border.subtle}",
+				"width": "{borderWidth.hairline}",
+				"style": "solid"
+			},
+			"$description": "Standard container border."
+		},
+		"strong": {
+			"$value": {
+				"color": "{border.strong}",
+				"width": "{borderWidth.hairline}",
+				"style": "solid"
+			},
+			"$description": "Emphasised container border."
+		},
+		"focus": {
+			"$value": {
+				"color": "{border.focus}",
+				"width": "{borderWidth.thin}",
+				"style": "solid"
+			},
+			"$description": "Focus ring."
+		},
+		"divider": {
+			"$value": {
+				"color": "{border.divider}",
+				"width": "{borderWidth.hairline}",
+				"style": "solid"
+			},
+			"$description": "Section separator."
+		}
+	}
+}

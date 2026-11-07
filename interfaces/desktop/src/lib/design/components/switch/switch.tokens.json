@@ -1,0 +1,50 @@
+{
+	"$description": "Switch's tokens (plan 0006 §0s.6, inputs). The build generates styles/components/kinds/switch.css and switch.generated.ts from the switch group. It had no look for on or off: a preset's fill on the track in both states, no colour on the thumb and nothing to move it, so the two read the same. Found through plan 0001 B6.3, where a note's switch decides what goes to an agent's company.",
+	"switch": {
+		"$description": "Styles the track (its root). Off, each variant is a surface role read from the family in scope; the old presets map to: default → elevated; glass → glass + deep; stark → stark + glow; flat → flat + minimal; matte → neuro + solid. On is the primary role whatever the family. The thumb is the text colour on both, so the state shows in colour and in position. The kind owns its frame, which the thumb's travel depends on; track and thumb sizes and that travel are the component's Tailwind.",
+		"$extensions": {
+			"com.coldlight": {
+				"slot": "root",
+				"accepts": ["surface"],
+				"defaults": { "variant": "elevated" }
+			}
+		},
+		"base": {
+			"border-style": { "$value": "solid", "$type": "strokeStyle" },
+			"border-width": { "$value": "0.125rem", "$type": "dimension" },
+			"border-radius": { "$value": "{radius.full}", "$type": "dimension" },
+			"cursor": { "$value": "pointer" }
+		},
+		"variant": {
+			"elevated": { "$extensions": { "com.coldlight": { "role": "elevated" } } },
+			"deep": { "$extensions": { "com.coldlight": { "role": "deep" } } },
+			"minimal": { "$extensions": { "com.coldlight": { "role": "minimal" } } },
+			"solid": { "$extensions": { "com.coldlight": { "role": "solid" } } },
+			"glow": { "$extensions": { "com.coldlight": { "role": "glow" } } },
+			"muted": { "$extensions": { "com.coldlight": { "role": "muted" } } }
+		},
+		"state": {
+			"checked": {
+				"background-color": { "$value": "{primary.main}", "$type": "color" },
+				"border-color": { "$value": "{primary.main}", "$type": "color" },
+				"gradient": { "$value": "none" }
+			},
+			"focus-visible": {
+				"outline-style": { "$value": "solid", "$type": "strokeStyle" },
+				"outline-width": { "$value": "2px", "$type": "dimension" },
+				"outline-offset": { "$value": "2px", "$type": "dimension" }
+			},
+			"disabled": {
+				"opacity": { "$value": 0.5, "$type": "number" },
+				"pointer-events": { "$value": "none" }
+			}
+		},
+		"part": {
+			"thumb": {
+				"$description": "Near the text colour, which stands clear of both tracks in each theme.",
+				"background-color": { "$value": "{text.primary}", "$type": "color" },
+				"border-radius": { "$value": "{radius.full}", "$type": "dimension" }
+			}
+		}
+	}
+}

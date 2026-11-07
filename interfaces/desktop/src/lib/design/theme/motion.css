@@ -3,12 +3,12 @@
  */
 
 @theme {
-  --duration-snap: 50ms;
-  --duration-fast: 150ms;
-  --duration-normal: 250ms;
-  --duration-smooth: 400ms;
-  --duration-glacial: 700ms;
-  --duration-moderate: 3000ms;
+  --duration-snap: 0.05s;
+  --duration-fast: 0.15s;
+  --duration-normal: 0.25s;
+  --duration-smooth: 0.4s;
+  --duration-glacial: 0.7s;
+  --duration-moderate: 3s;
   --easing-linear: cubic-bezier(0, 0, 1, 1);
   --easing-ease-in: cubic-bezier(0.4, 0, 1, 1);
   --easing-ease-out: cubic-bezier(0, 0, 0.2, 1);

@@ -1,0 +1,18 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+@layer tokens.primitives {
+  :root {
+  --opacity-10: 0.1; /** 10% opacity. */
+  --opacity-20: 0.2; /** 20% opacity. */
+  --opacity-30: 0.3; /** 30% opacity. */
+  --opacity-40: 0.4; /** 40% opacity. */
+  --opacity-50: 0.5; /** 50% opacity. */
+  --opacity-60: 0.6; /** 60% opacity. */
+  --opacity-70: 0.7; /** 70% opacity. */
+  --opacity-80: 0.8; /** 80% opacity. */
+  --opacity-90: 0.9; /** 90% opacity. */
+  --opacity-100: 1; /** 100% opacity. */
+  }
+}

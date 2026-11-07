@@ -1,0 +1,188 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+[data-kind="context-menu"][data-slot="content"] {
+	--context-menu-border-style: solid;
+	--context-menu-border-width: 0.0625rem;
+	--context-menu-border-radius: var(--radius-md);
+	--context-menu-min-width: 8rem;
+	border-style: var(--context-menu-border-style);
+	border-width: var(--context-menu-border-width);
+	border-radius: var(--context-menu-border-radius);
+	min-width: var(--context-menu-min-width);
+	background-color: var(--context-menu-background-color);
+	box-shadow: var(--context-menu-box-shadow);
+	color: var(--context-menu-color);
+	border-color: var(--context-menu-border-color);
+	opacity: var(--context-menu-opacity);
+	animation: var(--context-menu-animation);
+	transition-duration: var(--context-menu-transition-duration);
+	transition-timing-function: var(--context-menu-transition-timing-function);
+	background-image: var(--context-menu-gradient);
+	font-family: var(--context-menu-font-family);
+	font-weight: var(--context-menu-font-weight);
+	letter-spacing: var(--context-menu-letter-spacing);
+	line-height: var(--context-menu-line-height);
+	padding: var(--context-menu-padding);
+	font-size: var(--context-menu-font-size);
+}
+
+[data-kind="context-menu"][data-slot="content"][data-variant="elevated"] {
+	--context-menu-background-color: var(--surface-role-elevated-background-color);
+	--context-menu-box-shadow: var(--surface-role-elevated-box-shadow);
+	--context-menu-color: var(--surface-role-elevated-color);
+	--context-menu-border-color: var(--surface-role-elevated-border-color);
+	--context-menu-opacity: var(--surface-role-elevated-opacity);
+	--context-menu-animation: var(--surface-role-elevated-animation);
+	--context-menu-transition-duration: var(--surface-role-elevated-transition-duration);
+	--context-menu-transition-timing-function: var(--surface-role-elevated-transition-timing-function);
+	--context-menu-gradient: var(--surface-role-elevated-gradient);
+	--context-menu-font-family: var(--surface-role-elevated-font-family);
+	--context-menu-font-weight: var(--surface-role-elevated-font-weight);
+	--context-menu-letter-spacing: var(--surface-role-elevated-letter-spacing);
+	--context-menu-line-height: var(--surface-role-elevated-line-height);
+}
+
+[data-kind="context-menu"][data-slot="content"][data-variant="deep"] {
+	--context-menu-background-color: var(--surface-role-deep-background-color);
+	--context-menu-box-shadow: var(--surface-role-deep-box-shadow);
+	--context-menu-color: var(--surface-role-deep-color);
+	--context-menu-border-color: var(--surface-role-deep-border-color);
+	--context-menu-opacity: var(--surface-role-deep-opacity);
+	--context-menu-animation: var(--surface-role-deep-animation);
+	--context-menu-transition-duration: var(--surface-role-deep-transition-duration);
+	--context-menu-transition-timing-function: var(--surface-role-deep-transition-timing-function);
+	--context-menu-gradient: var(--surface-role-deep-gradient);
+	--context-menu-font-family: var(--surface-role-deep-font-family);
+	--context-menu-font-weight: var(--surface-role-deep-font-weight);
+	--context-menu-letter-spacing: var(--surface-role-deep-letter-spacing);
+	--context-menu-line-height: var(--surface-role-deep-line-height);
+}
+
+[data-kind="context-menu"][data-slot="content"][data-variant="minimal"] {
+	--context-menu-background-color: var(--surface-role-minimal-background-color);
+	--context-menu-box-shadow: var(--surface-role-minimal-box-shadow);
+	--context-menu-color: var(--surface-role-minimal-color);
+	--context-menu-border-color: var(--surface-role-minimal-border-color);
+	--context-menu-opacity: var(--surface-role-minimal-opacity);
+	--context-menu-animation: var(--surface-role-minimal-animation);
+	--context-menu-transition-duration: var(--surface-role-minimal-transition-duration);
+	--context-menu-transition-timing-function: var(--surface-role-minimal-transition-timing-function);
+	--context-menu-gradient: var(--surface-role-minimal-gradient);
+	--context-menu-font-family: var(--surface-role-minimal-font-family);
+	--context-menu-font-weight: var(--surface-role-minimal-font-weight);
+	--context-menu-letter-spacing: var(--surface-role-minimal-letter-spacing);
+	--context-menu-line-height: var(--surface-role-minimal-line-height);
+}
+
+[data-kind="context-menu"][data-slot="content"][data-variant="solid"] {
+	--context-menu-background-color: var(--surface-role-solid-background-color);
+	--context-menu-box-shadow: var(--surface-role-solid-box-shadow);
+	--context-menu-color: var(--surface-role-solid-color);
+	--context-menu-border-color: var(--surface-role-solid-border-color);
+	--context-menu-opacity: var(--surface-role-solid-opacity);
+	--context-menu-animation: var(--surface-role-solid-animation);
+	--context-menu-transition-duration: var(--surface-role-solid-transition-duration);
+	--context-menu-transition-timing-function: var(--surface-role-solid-transition-timing-function);
+	--context-menu-gradient: var(--surface-role-solid-gradient);
+	--context-menu-font-family: var(--surface-role-solid-font-family);
+	--context-menu-font-weight: var(--surface-role-solid-font-weight);
+	--context-menu-letter-spacing: var(--surface-role-solid-letter-spacing);
+	--context-menu-line-height: var(--surface-role-solid-line-height);
+}
+
+[data-kind="context-menu"][data-slot="content"][data-variant="glow"] {
+	--context-menu-background-color: var(--surface-role-glow-background-color);
+	--context-menu-box-shadow: var(--surface-role-glow-box-shadow);
+	--context-menu-color: var(--surface-role-glow-color);
+	--context-menu-border-color: var(--surface-role-glow-border-color);
+	--context-menu-opacity: var(--surface-role-glow-opacity);
+	--context-menu-animation: var(--surface-role-glow-animation);
+	--context-menu-transition-duration: var(--surface-role-glow-transition-duration);
+	--context-menu-transition-timing-function: var(--surface-role-glow-transition-timing-function);
+	--context-menu-gradient: var(--surface-role-glow-gradient);
+	--context-menu-font-family: var(--surface-role-glow-font-family);
+	--context-menu-font-weight: var(--surface-role-glow-font-weight);
+	--context-menu-letter-spacing: var(--surface-role-glow-letter-spacing);
+	--context-menu-line-height: var(--surface-role-glow-line-height);
+}
+
+[data-kind="context-menu"][data-slot="content"][data-variant="muted"] {
+	--context-menu-background-color: var(--surface-role-muted-background-color);
+	--context-menu-box-shadow: var(--surface-role-muted-box-shadow);
+	--context-menu-color: var(--surface-role-muted-color);
+	--context-menu-border-color: var(--surface-role-muted-border-color);
+	--context-menu-opacity: var(--surface-role-muted-opacity);
+	--context-menu-animation: var(--surface-role-muted-animation);
+	--context-menu-transition-duration: var(--surface-role-muted-transition-duration);
+	--context-menu-transition-timing-function: var(--surface-role-muted-transition-timing-function);
+	--context-menu-gradient: var(--surface-role-muted-gradient);
+	--context-menu-font-family: var(--surface-role-muted-font-family);
+	--context-menu-font-weight: var(--surface-role-muted-font-weight);
+	--context-menu-letter-spacing: var(--surface-role-muted-letter-spacing);
+	--context-menu-line-height: var(--surface-role-muted-line-height);
+}
+
+[data-kind="context-menu"][data-slot="content"][data-size="sm"] {
+	--context-menu-padding: 0.75rem;
+	--context-menu-font-size: 0.875rem;
+}
+
+[data-kind="context-menu"][data-slot="content"][data-size="md"] {
+	--context-menu-padding: 1rem;
+	--context-menu-font-size: 0.875rem;
+}
+
+[data-kind="context-menu"][data-slot="content"][data-size="lg"] {
+	--context-menu-padding: 1.5rem;
+	--context-menu-font-size: 1rem;
+}
+
+[data-kind="context-menu"][data-slot="item"] {
+	--context-menu-item-cursor: default;
+	cursor: var(--context-menu-item-cursor);
+	--context-menu-item-border-radius: var(--radius-sm);
+	border-radius: var(--context-menu-item-border-radius);
+	--context-menu-item-padding: var(--space-1) var(--space-2);
+	padding: var(--context-menu-item-padding);
+	--context-menu-item-color: var(--text-primary);
+	color: var(--context-menu-item-color);
+}
+
+[data-kind="context-menu"][data-slot="separator"] {
+	--context-menu-separator-height: 0.0625rem;
+	height: var(--context-menu-separator-height);
+	--context-menu-separator-margin: var(--space-1);
+	margin: var(--context-menu-separator-margin);
+	--context-menu-separator-background-color: var(--interaction-hover);
+	background-color: var(--context-menu-separator-background-color);
+}
+
+[data-kind="context-menu"][data-slot="group-label"] {
+	--context-menu-group-label-padding: var(--space-1) var(--space-2);
+	padding: var(--context-menu-group-label-padding);
+	--context-menu-group-label-font-weight: 600;
+	font-weight: var(--context-menu-group-label-font-weight);
+	--context-menu-group-label-color: var(--text-primary);
+	color: var(--context-menu-group-label-color);
+}
+
+[data-kind="context-menu"][data-slot="item"]:hover {
+	--context-menu-item-background-color: var(--interaction-hover);
+	background-color: var(--context-menu-item-background-color);
+}
+
+[data-kind="context-menu"][data-slot="item"]:focus-visible {
+	--context-menu-item-background-color: var(--interaction-active);
+	background-color: var(--context-menu-item-background-color);
+	--context-menu-item-outline-style: none;
+	outline-style: var(--context-menu-item-outline-style);
+}
+
+[data-kind="context-menu"][data-slot="item"]:is(:disabled, [data-disabled], [aria-disabled="true"]) {
+	--context-menu-item-opacity: 0.5;
+	opacity: var(--context-menu-item-opacity);
+	--context-menu-item-cursor: not-allowed;
+	cursor: var(--context-menu-item-cursor);
+}

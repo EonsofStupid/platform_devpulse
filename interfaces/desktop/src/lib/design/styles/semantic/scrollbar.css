@@ -4,7 +4,10 @@
 
 @layer tokens.semantic {
   :root {
-  --scrollbar-thumb: oklch(1.0000 0.0000 0.00 / 0.12156862745098039);
-  --scrollbar-thumb-hover: oklch(1.0000 0.0000 0.00 / 0.2);
+  --scrollbar-thumb: oklch(0.8643 0.1406 183.02 / 0.4); /** Resting thumb — the owner's rgba(65, 240, 219, 0.4). */
+  --scrollbar-thumb-hover: oklch(0.8643 0.1406 183.02 / 0.6); /** Thumb on hover — the owner's rgba(65, 240, 219, 0.6). */
+  --scrollbar-size-width: 0.375rem; /** Scrollbar track width. 6 px. */
+  --scrollbar-size-height: 0.375rem; /** Scrollbar track height. 6 px. */
+  --scrollbar-size-radius: 0.1875rem; /** Scrollbar thumb border radius. 3 px. */
   }
 }

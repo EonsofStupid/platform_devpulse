@@ -4,16 +4,19 @@
 
 @layer tokens.primitives {
   :root {
-  --glow-off: 0px 0px 0px 0px #00000000;
-  --glow-teal: 0px 0px 30px 12px #009076b3;
-  --glow-purple: 0px 0px 30px 12px #615ed6b3;
-  --glow-magenta: 0px 0px 30px 12px #ad36a7b3;
-  --glow-ember: 0px 0px 30px 12px #c53637b3;
-  --glow-frost: 0px 0px 30px 12px #1988a399;
-  --glow-cyber: 0px 0px 30px 12px #008f4ab3;
-  --glow-spread-sm: 0.75rem;
-  --glow-spread-md: 1.25rem;
-  --glow-spread-lg: 1.875rem;
-  --glow-spread-xl: 2.5rem;
+  --glow-dot-sm: 0rem 0rem 0.375rem 0rem #13837499; /** Small dot glow — 6 px blur. Idle status indicators. */
+  --glow-dot-md: 0rem 0rem 0.5rem 0rem #13837499; /** Medium dot glow — 8 px blur. Active status indicators. */
+  --glow-spread-sm: 0.75rem; /** Small spread — 12 px. Tight halo. */
+  --glow-spread-md: 1.25rem; /** Medium spread — 20 px. Standard halo. */
+  --glow-spread-lg: 1.875rem; /** Large spread — 30 px. Wide halo. */
+  --glow-spread-xl: 2.5rem; /** Extra-large spread — 40 px. Maximum halo. */
+  --glow-off: 0rem 0rem 0rem 0rem #00000000; /** No glow — flat surface. */
+  --glow-teal: 0rem 0rem 1.875rem 0.75rem #138374b3; /** Teal emission halo — DevPulse primary brand glow. */
+  --glow-purple: 0rem 0rem 1.875rem 0.75rem #9333eab3; /** Purple emission halo — Clyffy agent brand glow. */
+  --glow-magenta: 0rem 0rem 1.875rem 0.75rem #ad36a7b3; /** Magenta emission halo — OverMind brand glow. */
+  --glow-ember: 0rem 0rem 1.875rem 0.75rem #c53637b3; /** Ember emission halo — DevForge brand glow. */
+  --glow-frost: 0rem 0rem 1.875rem 0.75rem #1988a399; /** Frost emission halo — cool neutral glow. */
+  --glow-cyber: 0rem 0rem 1.875rem 0.75rem #168659b3; /** Cyber emission halo — WiredFront brand glow. */
+  --glow-blue: 0rem 0rem 1.875rem 0.75rem #3673acb3; /** Blue emission halo — info signal glow. */
   }
 }

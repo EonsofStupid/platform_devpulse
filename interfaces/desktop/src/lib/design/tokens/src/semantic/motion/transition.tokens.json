@@ -1,0 +1,97 @@
+{
+	"$description": "Hand-authored DTCG transition composites — `{ duration, delay, timingFunction }` triples for common property transitions. Consumed by components that need a named transition without re-authoring the duration + easing triplet every time. `properties` lives in `$extensions.com.devpulse.coldlight` because DTCG 2025.10 `transition` does not carry a property list — the CSS transform attaches them at emit time.",
+	"transition": {
+		"$type": "transition",
+		"$description": "Named transition presets.",
+		"fade": {
+			"$value": {
+				"duration": { "value": 150, "unit": "ms" },
+				"delay": { "value": 0, "unit": "ms" },
+				"timingFunction": [0, 0, 0.2, 1]
+			},
+			"$description": "Opacity fade for show / hide.",
+			"$extensions": { "com.devpulse.coldlight": { "properties": ["opacity"] } }
+		},
+		"color": {
+			"$value": {
+				"duration": { "value": 150, "unit": "ms" },
+				"delay": { "value": 0, "unit": "ms" },
+				"timingFunction": [0, 0, 0.2, 1]
+			},
+			"$description": "Colour property transitions for hover / focus.",
+			"$extensions": { "com.devpulse.coldlight": { "properties": ["color", "background-color", "border-color"] } }
+		},
+		"expand": {
+			"$value": {
+				"duration": { "value": 250, "unit": "ms" },
+				"delay": { "value": 0, "unit": "ms" },
+				"timingFunction": [0.4, 0, 0.2, 1]
+			},
+			"$description": "Expand / collapse for accordions, panels.",
+			"$extensions": { "com.devpulse.coldlight": { "properties": ["height", "padding"] } }
+		},
+		"slide": {
+			"$value": {
+				"duration": { "value": 200, "unit": "ms" },
+				"delay": { "value": 0, "unit": "ms" },
+				"timingFunction": [0, 0, 0.2, 1]
+			},
+			"$description": "Slide translation for menus, drawers.",
+			"$extensions": { "com.devpulse.coldlight": { "properties": ["transform"] } }
+		},
+		"scale": {
+			"$value": {
+				"duration": { "value": 150, "unit": "ms" },
+				"delay": { "value": 0, "unit": "ms" },
+				"timingFunction": [0, 0, 0.2, 1]
+			},
+			"$description": "Scale pop for tooltips, popovers.",
+			"$extensions": { "com.devpulse.coldlight": { "properties": ["transform"] } }
+		},
+		"shadow": {
+			"$value": {
+				"duration": { "value": 200, "unit": "ms" },
+				"delay": { "value": 0, "unit": "ms" },
+				"timingFunction": [0.4, 0, 0.2, 1]
+			},
+			"$description": "Shadow elevation change.",
+			"$extensions": { "com.devpulse.coldlight": { "properties": ["box-shadow"] } }
+		},
+		"all-fast": {
+			"$value": {
+				"duration": { "value": 150, "unit": "ms" },
+				"delay": { "value": 0, "unit": "ms" },
+				"timingFunction": [0, 0, 0.2, 1]
+			},
+			"$description": "Catch-all fast transition.",
+			"$extensions": { "com.devpulse.coldlight": { "properties": ["all"] } }
+		},
+		"all-normal": {
+			"$value": {
+				"duration": { "value": 250, "unit": "ms" },
+				"delay": { "value": 0, "unit": "ms" },
+				"timingFunction": [0.4, 0, 0.2, 1]
+			},
+			"$description": "Catch-all normal transition.",
+			"$extensions": { "com.devpulse.coldlight": { "properties": ["all"] } }
+		},
+		"spring": {
+			"$value": {
+				"duration": { "value": 250, "unit": "ms" },
+				"delay": { "value": 0, "unit": "ms" },
+				"timingFunction": [0.34, 1.56, 0.64, 1]
+			},
+			"$description": "Bouncy spring for playful interactions.",
+			"$extensions": { "com.devpulse.coldlight": { "properties": ["transform"] } }
+		},
+		"none": {
+			"$value": {
+				"duration": { "value": 0, "unit": "ms" },
+				"delay": { "value": 0, "unit": "ms" },
+				"timingFunction": [0, 0, 1, 1]
+			},
+			"$description": "Disable transitions (reduced-motion mode).",
+			"$extensions": { "com.devpulse.coldlight": { "properties": ["none"] } }
+		}
+	}
+}

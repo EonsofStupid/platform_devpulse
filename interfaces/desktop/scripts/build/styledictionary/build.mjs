@@ -22,7 +22,7 @@
  * and imported from packages/coldlight/index.css — not emitted here.
  */
 
-import { basename, dirname, relative, resolve } from 'node:path';
+import { basename, dirname, relative, resolve, join } from 'node:path';
 import { publishArtifacts } from './artifacts.mjs';
 import { kindFamiliesArtifact } from './derive-kind-families.mjs';
 import { presetCatalogArtifact } from './generate-preset-catalog.mjs';
@@ -158,6 +158,17 @@ async function build() {
 	emit(`${OUT}/styles/index.css`, INDEX_CSS);
 	emit(`${OUT}/theme/index.css`, INDEX_THEME);
 	emit(`${OUT}/types/index.d.ts`, INDEX_DTS);
+
+	// The desktop imports its design tree. Publish the same token artifacts
+	// there from the same build, while package consumers still use ColdLight.
+	const packageRoot = resolve(OUT);
+	const desktopDesign = 'src/lib/design';
+	for (const artifact of [...artifacts]) {
+		const rel = relative(packageRoot, resolve(artifact.destination)).replaceAll('\\', '/');
+		if (/^(styles|theme|types)\//.test(rel) || /^svg\/presets\/.*\.css$/.test(rel)) {
+			emit(join(desktopDesign, rel), artifact.output);
+		}
+	}
 
 	for (const artifact of artifacts) {
 		if (artifact.destination.endsWith('.d.ts')) artifact.output = artifact.output.trimEnd() + '\n';

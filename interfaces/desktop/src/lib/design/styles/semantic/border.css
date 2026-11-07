@@ -4,13 +4,24 @@
 
 @layer tokens.semantic {
   :root {
-  --border-subtle: oklch(0.4234 0.0810 173.37 / 0.2196078431372549); /** Default container border */
-  --border-strong: oklch(0.5106 0.0979 173.17 / 0.30196078431372547); /** Emphasized container border */
-  --border-focus: var(--color-mint-400); /** Focus ring color */
-  --border-divider: oklch(1.0000 0.0000 0.00 / 0.058823529411764705); /** Section separator */
-  --border-preset-default: 1px solid var(--border-subtle); /** Standard container border */
-  --border-preset-strong: 1px solid var(--border-strong); /** Emphasized container border */
-  --border-preset-focus: 2px solid var(--border-focus); /** Focus ring */
-  --border-preset-divider: 1px solid var(--border-divider); /** Section separator */
+  --border-subtle: oklch(0.4 0.13 180 / 0.22); /** Default container border — teal tint at low alpha. */
+  --border-strong: oklch(0.55 0.18 180 / 0.5); /** Emphasised container border — the owner's emphasis, teal at 0.50. */
+  --border-focus: var(--color-teal-400); /** Focus ring colour — alias into the primitive teal ramp at stop 400. */
+  --border-divider: oklch(1 0 0 / 0.06); /** Section separator — luminance edge at near-zero alpha. */
+  --border-soft: oklch(0.48 0.16 180 / 0.3); /** Soft container border — teal tint at moderate alpha. */
+  --border-divider-faint: oklch(1 0 0 / 0.04); /** Fainter section separator. */
+  --border-emphasis: var(--border-strong); /** Emphasised border — alias for strong. */
+  --border-preset-default-color: oklch(0.4 0.13 180 / 0.22); /** Standard container border. */
+  --border-preset-default-width: 0.0625rem; /** Standard container border. */
+  --border-preset-default-style: solid; /** Standard container border. */
+  --border-preset-strong-color: oklch(0.55 0.18 180 / 0.5); /** Emphasised container border. */
+  --border-preset-strong-width: 0.0625rem; /** Emphasised container border. */
+  --border-preset-strong-style: solid; /** Emphasised container border. */
+  --border-preset-focus-color: oklch(0.65 0.1561 183); /** Focus ring. */
+  --border-preset-focus-width: 0.125rem; /** Focus ring. */
+  --border-preset-focus-style: solid; /** Focus ring. */
+  --border-preset-divider-color: oklch(1 0 0 / 0.06); /** Section separator. */
+  --border-preset-divider-width: 0.0625rem; /** Section separator. */
+  --border-preset-divider-style: solid; /** Section separator. */
   }
 }

@@ -1,0 +1,31 @@
+{
+	"$description": "Hand-authored scrollbar appearance — thumb colour + hover highlight plus width/height/radius dimensions. Applied via `::-webkit-scrollbar-*` pseudo-elements in the CSS output.",
+	"scrollbar": {
+		"$type": "color",
+		"$description": "Scrollbar thumb colours.",
+		"thumb": {
+			"$value": { "colorSpace": "oklch", "components": [0.8643, 0.1406, 183.02], "alpha": 0.4, "hex": "#41f0db" },
+			"$description": "Resting thumb — the owner's rgba(65, 240, 219, 0.4)."
+		},
+		"thumb-hover": {
+			"$value": { "colorSpace": "oklch", "components": [0.8643, 0.1406, 183.02], "alpha": 0.6, "hex": "#41f0db" },
+			"$description": "Thumb on hover — the owner's rgba(65, 240, 219, 0.6)."
+		}
+	},
+	"scrollbar-size": {
+		"$type": "dimension",
+		"$description": "Scrollbar dimension tokens.",
+		"width": {
+			"$value": { "value": 0.375, "unit": "rem" },
+			"$description": "Scrollbar track width. 6 px."
+		},
+		"height": {
+			"$value": { "value": 0.375, "unit": "rem" },
+			"$description": "Scrollbar track height. 6 px."
+		},
+		"radius": {
+			"$value": { "value": 0.1875, "unit": "rem" },
+			"$description": "Scrollbar thumb border radius. 3 px."
+		}
+	}
+}

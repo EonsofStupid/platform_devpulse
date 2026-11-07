@@ -42,7 +42,7 @@ const descriptions = [
 							label={`${ticket.id}: ${ticket.title}`} class="w-full gap-4 p-4 text-left" onclick={() => onSelect(ticket.id)}>
 							<div class="flex flex-wrap items-center justify-between gap-2">
 								<Text size="xs" weight="semibold">{ticket.id}</Text>
-								<Badge variant={ticket.priority === "High" ? "notice" : "neutral"} size="sm" fillStyle="subtle">{ticket.priority}</Badge>
+								{#if ticket.priority}<Badge variant={ticket.priority === "High" ? "notice" : "neutral"} size="sm" fillStyle="subtle">{ticket.priority}</Badge>{/if}
 							</div>
 							<Text size="sm" weight="semibold">{ticket.title}</Text>
 							<Text size="xs" data-ui="agenthub-factory-board" data-slot="muted">{ticket.activity}</Text>

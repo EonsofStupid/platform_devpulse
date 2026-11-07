@@ -4,18 +4,25 @@
 
 @layer tokens.primitives {
   :root {
-  --font-display: Orbitron, system-ui, sans-serif;
-  --font-sans: Inter, system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
-  --text-size-3xs: 0.5rem; /** Encoding labels, micro metadata */
-  --text-size-2xs: 0.625rem; /** Legend text, tiny labels */
-  --text-size-xs: 0.75rem;
-  --text-size-sm: 0.875rem;
-  --text-size-base: 1rem;
-  --text-size-lg: 1.125rem;
-  --text-size-xl: 1.25rem;
-  --text-size-2xl: 1.5rem;
-  --text-size-3xl: 1.875rem;
-  --text-size-4xl: 2.25rem;
+  --font-size-3xs: clamp(0.3563rem, 0.3203rem + 0.1800vw, 0.4823rem); /** Text size 3xs — fluid clamp from 6px to 8px. */
+  --font-size-2xs: 0.5787rem; /** Text size 2xs — fluid clamp from 8px to 9px. */
+  --font-size-xs: 0.6944rem; /** Text size xs — fluid clamp from 10px to 11px. */
+  --font-size-sm: 0.844rem; /** Text size sm — fluid clamp from 13px to 14px. */
+  --font-size-base: clamp(1rem, 0.9643rem + 0.1786vw, 1.125rem); /** Text size base — fluid clamp from 16px to 18px. */
+  --font-size-lg: clamp(1.2rem, 1.1144rem + 0.4280vw, 1.4996rem); /** Text size lg — fluid clamp from 19px to 24px. */
+  --font-size-xl: clamp(1.44rem, 1.2803rem + 0.7986vw, 1.999rem); /** Text size xl — fluid clamp from 23px to 32px. */
+  --font-size-2xl: clamp(1.728rem, 1.4604rem + 1.3381vw, 2.6647rem); /** Text size 2xl — fluid clamp from 28px to 43px. */
+  --font-size-3xl: clamp(2.0736rem, 1.6512rem + 2.1120vw, 3.552rem); /** Text size 3xl — fluid clamp from 33px to 57px. */
+  --font-size-4xl: clamp(2.4883rem, 1.8464rem + 3.2093vw, 4.7348rem); /** Text size 4xl — fluid clamp from 40px to 76px. */
+  --font-size-5xl: clamp(2.986rem, 2.0359rem + 4.7507vw, 6.3115rem); /** Text size 5xl — fluid clamp from 48px to 101px. */
+  --font-display: Orbitron, system-ui, sans-serif; /** Display headings — Orbitron with system fallback. */
+  --font-sans: Inter, system-ui, sans-serif; /** Body text — Inter with system fallback. */
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace; /** Code / terminal — JetBrains Mono with Fira Code fallback. */
+  --font-feature-settings-sans: "cv01" 1, "cv02" 1; /** Inter character variants — rounder punctuation. */
+  --font-feature-settings-display: "tnum" 1; /** Orbitron tabular numerals — stat alignment. */
+  --font-feature-settings-mono: "liga" 1, "calt" 1, "zero" 1; /** JetBrains Mono ligatures + contextual alts + slashed zero. */
+  --font-variation-settings-sans: normal; /** Default weight / width / optical size. */
+  --font-variation-settings-display: normal; /** Default axis values. */
+  --font-variation-settings-mono: normal; /** Default axis values. */
   }
 }

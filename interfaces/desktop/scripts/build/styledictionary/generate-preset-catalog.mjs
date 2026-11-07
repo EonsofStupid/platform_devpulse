@@ -13,7 +13,7 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-const SOURCES = join(import.meta.dirname, 'tokens/src/presets');
+const SOURCES = join(import.meta.dirname, '../../../src/lib/design/tokens/src/presets');
 const OUT_DIR = '../../packages/coldlight/presets/generated';
 const EXT = 'com.coldlight';
 

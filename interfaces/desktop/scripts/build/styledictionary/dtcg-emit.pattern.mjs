@@ -31,7 +31,7 @@ import {
 } from './dtcg-emit.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const TOKENS_ROOT = resolve(__dirname, 'tokens/src');
+const TOKENS_ROOT = resolve(__dirname, '../../../src/lib/design/tokens/src');
 
 function writeToken(relPath, token) {
 	const full = resolve(TOKENS_ROOT, relPath);

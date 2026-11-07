@@ -19,7 +19,7 @@ import { join } from 'node:path';
 import { CONCERN_AXES, MOTION_AXES } from './kind-css.mjs';
 
 const EXT = 'com.coldlight';
-const SOURCES = join(import.meta.dirname, 'tokens/src/presets');
+const SOURCES = join(import.meta.dirname, '../../../src/lib/design/tokens/src/presets');
 
 /** The roles every family defines (today's six family variants). */
 export const SURFACE_ROLES = ['elevated', 'deep', 'minimal', 'solid', 'glow', 'muted'];

@@ -15,6 +15,7 @@ pub use devpulse_agenthub::history::{
 };
 
 pub mod live;
+pub mod tickets;
 
 /// One typed process client shared by all windows.
 pub struct AgentHub {

@@ -1,0 +1,63 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+[data-kind="nav-item"] {
+	--nav-item-color: var(--text-secondary);
+	--nav-item-border-radius: var(--radius-md);
+	--nav-item-font-weight: 500;
+	color: var(--nav-item-color);
+	border-radius: var(--nav-item-border-radius);
+	font-weight: var(--nav-item-font-weight);
+	height: var(--nav-item-height);
+	padding-inline: var(--nav-item-padding-inline);
+	font-size: var(--nav-item-font-size);
+}
+
+[data-kind="nav-item"][data-size="sm"] {
+	--nav-item-height: 2rem;
+	--nav-item-padding-inline: 0.75rem;
+	--nav-item-font-size: 0.875rem;
+}
+
+[data-kind="nav-item"][data-size="md"] {
+	--nav-item-height: 2.5rem;
+	--nav-item-padding-inline: 1rem;
+	--nav-item-font-size: 0.875rem;
+}
+
+[data-kind="nav-item"][data-size="lg"] {
+	--nav-item-height: 3rem;
+	--nav-item-padding-inline: 1.5rem;
+	--nav-item-font-size: 1rem;
+}
+
+[data-kind="nav-item"]:hover {
+	--nav-item-color: var(--text-primary);
+	--nav-item-background-color: var(--interaction-hover);
+	background-color: var(--nav-item-background-color);
+}
+
+[data-kind="nav-item"][data-selected] {
+	--nav-item-color: var(--text-primary);
+	--nav-item-background-color: var(--accent-teal-fill);
+	background-color: var(--nav-item-background-color);
+}
+
+[data-kind="nav-item"]:focus-visible {
+	--nav-item-outline-style: solid;
+	--nav-item-outline-width: 0.125rem;
+	--nav-item-outline-color: var(--border-focus);
+	--nav-item-outline-offset: 0.125rem;
+	outline-style: var(--nav-item-outline-style);
+	outline-width: var(--nav-item-outline-width);
+	outline-color: var(--nav-item-outline-color);
+	outline-offset: var(--nav-item-outline-offset);
+}
+
+[data-kind="nav-item"]:is(:disabled, [data-disabled], [aria-disabled="true"]) {
+	--nav-item-opacity: 0.5;
+	--nav-item-cursor: not-allowed;
+	opacity: var(--nav-item-opacity);
+	cursor: var(--nav-item-cursor);
+}

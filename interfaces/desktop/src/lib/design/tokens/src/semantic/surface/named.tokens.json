@@ -1,0 +1,39 @@
+{
+	"$description": "Hand-authored named surface presets — what the layer IS semantically. Each entry is an alias to a glass or matte leaf via the DTCG curly-brace reference syntax (§ 9.1) — the reference expands to the full token `$value` at resolution time.",
+	"surface": {
+		"$type": "color",
+		"$description": "Named surface presets — what the layer IS. Aliases to glass/matte leaves.",
+		"base": {
+			"$value": "{glass.void}",
+			"$description": "App background — the deepest surface in the stacking order."
+		},
+		"raised": {
+			"$value": "{glass.smoke}",
+			"$description": "Card, panel on top of base."
+		},
+		"overlay": {
+			"$value": "{glass.deep}",
+			"$description": "Dialog, popover, dropdown — surfaces that hover above the main flow."
+		},
+		"frosted": {
+			"$value": "{glass.frost}",
+			"$description": "Frosted glass toolbar, header — light-mode surface tint."
+		},
+		"inset": {
+			"$value": "{matte.dark}",
+			"$description": "Inset well, input background — opaque recess."
+		},
+		"subtle": {
+			"$value": "{matte.medium}",
+			"$description": "Subtle raised area, sidebar."
+		},
+		"chrome": {
+			"$value": "{matte.light}",
+			"$description": "UI chrome, toolbar background."
+		},
+		"primary": {
+			"$value": "{glass.void}",
+			"$description": "Generic primary surface — alias of base for layout flexibility."
+		}
+	}
+}

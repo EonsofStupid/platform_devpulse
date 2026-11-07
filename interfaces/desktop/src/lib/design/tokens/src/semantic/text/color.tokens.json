@@ -1,0 +1,63 @@
+{
+	"$description": "Hand-authored semantic text foreground colors. Role-based, not hue-based — every token describes what the text IS for, not what colour it happens to be. Consumed by every component that sets `color`.",
+	"text": {
+		"$type": "color",
+		"$description": "Semantic text colors — role-based, not hue-based.",
+		"primary": {
+			"$value": {
+				"colorSpace": "oklch",
+				"components": [0.95, 0.01, 220],
+				"hex": "#e8f0f3"
+			},
+			"$description": "Default body text on dark backgrounds."
+		},
+		"secondary": {
+			"$value": {
+				"colorSpace": "oklch",
+				"components": [0.72, 0.02, 220],
+				"hex": "#98a8ad"
+			},
+			"$description": "Supporting text, labels, descriptions."
+		},
+		"muted": {
+			"$value": {
+				"colorSpace": "oklch",
+				"components": [0.63, 0.03, 257],
+				"hex": "#7e8a9c"
+			},
+			"$description": "Placeholder, disabled-adjacent, low-priority."
+		},
+		"disabled": {
+			"$value": {
+				"colorSpace": "oklch",
+				"components": [0.48, 0.02, 257],
+				"hex": "#575e69"
+			},
+			"$description": "Disabled state text."
+		},
+		"accent": {
+			"$value": {
+				"colorSpace": "oklch",
+				"components": [0.75, 0.14, 180],
+				"hex": "#30c8b1"
+			},
+			"$description": "Emphasised text with teal brand accent."
+		},
+		"inverse": {
+			"$value": {
+				"colorSpace": "oklch",
+				"components": [0.1363, 0.0364, 259.2],
+				"hex": "#020817"
+			},
+			"$description": "Text on bright fills — the owner's deepest navy, hsl(222 84% 5%), never black."
+		},
+		"link": {
+			"$value": {
+				"colorSpace": "oklch",
+				"components": [0.7, 0.12, 220],
+				"hex": "#25afd2"
+			},
+			"$description": "Interactive link text."
+		}
+	}
+}

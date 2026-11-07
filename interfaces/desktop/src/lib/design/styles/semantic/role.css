@@ -1,0 +1,35 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+@layer tokens.semantic {
+  :root {
+  --primary-main: var(--color-brand-blue-500); /** Primary lead — brand blue (hue 240), stop 500: light labels hold their contrast on it, which they do not on the owner's brighter #3ea4ea (accent.blue.main). */
+  --primary-glow: var(--accent-blue-glow); /** Primary lead glow. */
+  --primary-fill: var(--accent-blue-fill); /** Primary lead area fill. */
+  --primary-fg: var(--text-primary); /** Foreground / on-primary text. */
+  --primary-alt-main: var(--color-purple-700); /** Primary alt — deep purple (purple ramp stop 700). */
+  --primary-alt-glow: var(--accent-purple-glow); /** Primary alt glow. */
+  --primary-alt-fill: var(--accent-purple-fill); /** Primary alt area fill. */
+  --primary-alt-fg: var(--text-primary); /** Foreground / on-primary-alt text. */
+  --primary-deep-main: var(--color-brand-azure-700); /** Primary deep — deep blue (brand-azure ramp stop 700). */
+  --primary-deep-glow: var(--accent-azure-glow); /** Primary deep glow. */
+  --primary-deep-fill: var(--accent-azure-fill); /** Primary deep area fill. */
+  --primary-deep-fg: var(--text-primary); /** Foreground / on-primary-deep text. */
+  --secondary-main: var(--accent-purple-main); /** Secondary indicator — bound to purple. */
+  --secondary-glow: var(--accent-purple-glow); /** Secondary glow. */
+  --secondary-fill: var(--accent-purple-fill); /** Secondary area fill. */
+  --secondary-fg: var(--text-primary); /** Foreground / on-secondary text. */
+  --danger-main: var(--signal-error); /** Danger indicator — bound to signal.error. */
+  --danger-fg: var(--text-primary); /** Foreground / on-danger text. */
+  --success-main: var(--signal-success); /** Success indicator — bound to signal.success. */
+  --success-fg: var(--text-primary); /** Foreground / on-success text. */
+  --warning-main: var(--signal-warning); /** Warning indicator — bound to signal.warning. */
+  --warning-fg: var(--text-inverse); /** Foreground / on-warning text — dark text on bright warning. */
+  --info-main: var(--signal-info); /** Info indicator — bound to signal.info. */
+  --info-fg: var(--text-primary); /** Foreground / on-info text. */
+  --muted-main: var(--text-muted); /** Muted text colour. */
+  --muted-bg: var(--surface-subtle); /** Muted surface background. */
+  --muted-fg: var(--text-secondary); /** Foreground for content on a muted surface. */
+  }
+}

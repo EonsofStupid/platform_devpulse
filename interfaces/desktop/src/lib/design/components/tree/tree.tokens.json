@@ -1,0 +1,43 @@
+{
+	"$description": "Restored Tree rendering uses generated family roles and part styling, never per-item inline visual declarations.",
+	"tree": {
+		"$extensions": {
+			"com.coldlight": {
+				"slot": "item",
+				"accepts": ["surface", "text", "frame"],
+				"defaults": { "variant": "minimal" }
+			}
+		},
+		"base": {
+			"border-radius": { "$value": "{radius.md}", "$type": "dimension" },
+			"border-width": { "$value": "0", "$type": "dimension" },
+			"cursor": { "$value": "pointer" },
+			"font-size": { "$value": "0.875rem", "$type": "dimension" },
+			"line-height": { "$value": "1.5", "$type": "number" }
+		},
+		"variant": {
+			"minimal": { "$extensions": { "com.coldlight": { "role": "minimal" } } },
+			"elevated": { "$extensions": { "com.coldlight": { "role": "elevated" } } },
+			"deep": { "$extensions": { "com.coldlight": { "role": "deep" } } },
+			"solid": { "$extensions": { "com.coldlight": { "role": "solid" } } },
+			"glow": { "$extensions": { "com.coldlight": { "role": "glow" } } },
+			"muted": { "$extensions": { "com.coldlight": { "role": "muted" } } }
+		},
+		"state": {
+			"focus-visible": {
+				"outline-style": { "$value": "solid" },
+				"outline-width": { "$value": "2px", "$type": "dimension" },
+				"outline-offset": { "$value": "2px", "$type": "dimension" }
+			},
+			"selected": { "font-weight": { "$value": 700, "$type": "fontWeight" } },
+			"disabled": {
+				"opacity": { "$value": 0.5, "$type": "number" },
+				"cursor": { "$value": "not-allowed" }
+			}
+		},
+		"part": {
+			"row": { "padding": { "$value": "0.375rem 0.5rem" } },
+			"group": { "margin-inline-start": { "$value": "1rem", "$type": "dimension" } }
+		}
+	}
+}

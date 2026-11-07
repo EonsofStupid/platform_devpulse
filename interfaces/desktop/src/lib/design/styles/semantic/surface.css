@@ -4,12 +4,54 @@
 
 @layer tokens.semantic {
   :root {
-  --surface-base: var(--glass-void); /** App background */
-  --surface-raised: var(--glass-smoke); /** Card, panel on top of base */
-  --surface-overlay: var(--glass-deep); /** Dialog, popover, dropdown */
-  --surface-frosted: var(--glass-frost); /** Frosted glass toolbar, header */
-  --surface-inset: var(--matte-dark); /** Inset well, input background */
-  --surface-subtle: var(--matte-medium); /** Subtle raised area, sidebar */
-  --surface-chrome: var(--matte-light); /** UI chrome, toolbar background */
+  --glass-blur-void: 1.25rem; /** Maximum blur — near-opaque surfaces. 20 px. */
+  --glass-blur-deep: 1rem; /** Heavy blur — overlays, deep panels. 16 px. */
+  --glass-blur-smoke: 0.875rem; /** Strong blur — raised surfaces. 14 px. */
+  --glass-blur-standard: 0.75rem; /** Default blur — most containers. 12 px. */
+  --glass-blur-light: 0.5rem; /** Light blur — secondary surfaces. 8 px. */
+  --glass-blur-frost: 0.375rem; /** Gentle blur — frosted glass. 6 px. */
+  --surface-base: var(--glass-void); /** App background — the deepest surface in the stacking order. */
+  --surface-raised: var(--glass-smoke); /** Card, panel on top of base. */
+  --surface-overlay: var(--glass-deep); /** Dialog, popover, dropdown — surfaces that hover above the main flow. */
+  --surface-frosted: var(--glass-frost); /** Frosted glass toolbar, header — light-mode surface tint. */
+  --surface-inset: var(--matte-dark); /** Inset well, input background — opaque recess. */
+  --surface-subtle: var(--matte-medium); /** Subtle raised area, sidebar. */
+  --surface-chrome: var(--matte-light); /** UI chrome, toolbar background. */
+  --surface-primary: var(--glass-void); /** Generic primary surface — alias of base for layout flexibility. */
+  --surface-neuro-elevated-bg: oklch(0.259 0.03 240); /** neuro-elevated background — raised neumorphic. */
+  --surface-neuro-elevated-bg-active: oklch(0.247 0.03 240); /** neuro-elevated active background. */
+  --surface-neuro-elevated-text: oklch(0.93 0.015 224); /** neuro-elevated text. */
+  --surface-neuro-elevated-text-disabled: oklch(0.6 0.005 224); /** neuro-elevated disabled text. */
+  --surface-neuro-elevated-border: oklch(0.55 0.1 180 / 0.2); /** neuro-elevated border — teal accent. */
+  --surface-neuro-elevated-border-hover: oklch(0.6 0.12 180 / 0.3); /** neuro-elevated hover border. */
+  --surface-neuro-deep-bg: oklch(0.221 0.03 240); /** neuro-deep background — recessed. */
+  --surface-neuro-deep-bg-hover: oklch(0.234 0.03 240); /** neuro-deep hover background. */
+  --surface-neuro-deep-bg-active: oklch(0.208 0.03 240); /** neuro-deep active background. */
+  --surface-neuro-deep-text: oklch(0.85 0.01 224); /** neuro-deep text. */
+  --surface-neuro-deep-text-disabled: oklch(0.55 0.005 224); /** neuro-deep disabled text. */
+  --surface-neuro-deep-border: oklch(0.3 0.02 240 / 0.3); /** neuro-deep border — subtle dark. */
+  --surface-neuro-minimal-bg: oklch(0.247 0.03 240); /** neuro-minimal background — barely raised. */
+  --surface-neuro-minimal-bg-hover: oklch(0.259 0.03 240); /** neuro-minimal hover background. */
+  --surface-neuro-minimal-bg-active: oklch(0.234 0.03 240); /** neuro-minimal active background. */
+  --surface-neuro-minimal-text: oklch(0.8 0.008 224); /** neuro-minimal text. */
+  --surface-neuro-minimal-text-disabled: oklch(0.55 0.005 224); /** neuro-minimal disabled text. */
+  --surface-neuro-minimal-border: oklch(0.4 0.01 240 / 0.15); /** neuro-minimal border — whisper. */
+  --surface-neuro-solid-bg: oklch(0.272 0.03 240); /** neuro-solid background — dense opaque. */
+  --surface-neuro-solid-bg-active: oklch(0.259 0.03 240); /** neuro-solid active background. */
+  --surface-neuro-solid-text: oklch(0.95 0.015 224); /** neuro-solid text — bright. */
+  --surface-neuro-solid-text-disabled: oklch(0.6 0.005 224); /** neuro-solid disabled text. */
+  --surface-neuro-solid-border: oklch(0.5 0.06 180 / 0.25); /** neuro-solid border — teal. */
+  --surface-neuro-glow-bg: oklch(0.247 0.03 220); /** neuro-glow background — teal-shifted. */
+  --surface-neuro-glow-bg-active: oklch(0.234 0.03 220); /** neuro-glow active background. */
+  --surface-neuro-glow-text: oklch(0.9 0.06 180); /** neuro-glow text — teal tinted. */
+  --surface-neuro-glow-text-disabled: oklch(0.5 0.02 180); /** neuro-glow disabled text. */
+  --surface-neuro-glow-border: oklch(0.7 0.15 180 / 0.35); /** neuro-glow border — bright teal. */
+  --surface-neuro-glow-border-hover: oklch(0.75 0.18 180 / 0.5); /** neuro-glow hover border. */
+  --surface-neuro-glow-border-active: oklch(0.8 0.2 180 / 0.6); /** neuro-glow active border. */
+  --surface-neuro-muted-bg: oklch(0.234 0.03 240); /** neuro-muted background — desaturated. */
+  --surface-neuro-muted-bg-hover: oklch(0.247 0.03 240); /** neuro-muted hover background. */
+  --surface-neuro-muted-text: oklch(0.65 0.005 224); /** neuro-muted text — dimmed. */
+  --surface-neuro-muted-text-disabled: oklch(0.45 0.003 224); /** neuro-muted disabled text. */
+  --surface-neuro-muted-border: oklch(0.35 0.005 240 / 0.2); /** neuro-muted border — faded. */
   }
 }

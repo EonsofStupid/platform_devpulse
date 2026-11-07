@@ -1,0 +1,42 @@
+/**
+ * @file SVG Filter CSS Utilities
+ * @layer svg
+ * @package @devpulse/coldlight
+ *
+ * TW4 @utility classes that apply SVG filters via CSS filter property.
+ * These reference filter IDs defined in SvgFilters.svelte.
+ *
+ * Usage: Apply directly to HTML elements for SVG-tier neumorphism
+ * without using the SvgBlank component (simpler but less shape-aware).
+ */
+
+/* Bevel filters — specular lighting 3D edges */
+@utility filter-bevel-soft {
+	filter: url(#bevel-soft);
+}
+
+@utility filter-bevel-medium {
+	filter: url(#bevel-medium);
+}
+
+@utility filter-bevel-strong {
+	filter: url(#bevel-strong);
+}
+
+/* Noise filters — grain texture overlays */
+@utility filter-noise-subtle {
+	filter: url(#noise-subtle);
+}
+
+@utility filter-noise-medium {
+	filter: url(#noise-medium);
+}
+
+/* Glow filters — shape-aware gaussian glow */
+@utility filter-glow-teal {
+	filter: url(#glow-teal-svg);
+}
+
+@utility filter-glow-purple {
+	filter: url(#glow-purple-svg);
+}

@@ -1,0 +1,24 @@
+{
+	"$description": "Dialog's tokens (plan 0006 §0s). The build generates styles/components/kinds/dialog.css and dialog.generated.ts from the dialog group.",
+	"dialog": {
+		"$description": "Styles the content part. Each variant is a surface role read from the family in scope; DialogContent's old fixed preset (default) is the elevated role.",
+		"$extensions": {
+			"com.coldlight": {
+				"slot": "content",
+				"accepts": ["surface", "text", "frame"],
+				"defaults": { "variant": "elevated" }
+			}
+		},
+		"base": {
+			"border-style": { "$value": "solid", "$type": "strokeStyle" }
+		},
+		"variant": {
+			"elevated": { "$extensions": { "com.coldlight": { "role": "elevated" } } },
+			"deep": { "$extensions": { "com.coldlight": { "role": "deep" } } },
+			"minimal": { "$extensions": { "com.coldlight": { "role": "minimal" } } },
+			"solid": { "$extensions": { "com.coldlight": { "role": "solid" } } },
+			"glow": { "$extensions": { "com.coldlight": { "role": "glow" } } },
+			"muted": { "$extensions": { "com.coldlight": { "role": "muted" } } }
+		}
+	}
+}

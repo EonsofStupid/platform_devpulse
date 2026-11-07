@@ -1,0 +1,342 @@
+/**
+ * ColdLight keyframes — authoring source (pending SD5 generator).
+ *
+ * This file is the SSOT for all CSS keyframes in ColdLight. A future
+ * SD5 generator will rebuild it from the motion token JSON at
+ * `scripts/build/styledictionary/tokens/src/semantic/motion/animation.tokens.json`,
+ * but today no generator exists, so keyframes are hand-authored here
+ * AND mirrored into the token JSON so the eventual generator produces
+ * identical output.
+ *
+ * Rules:
+ * - All keyframes are prefixed `cl-` to stay collision-free across projects.
+ * - Consumers reference by name via Tailwind arbitrary utilities:
+ *   `class="animate-[cl-breathe_4s_ease-in-out_infinite]"`
+ * - No component `<style>` blocks. No hand-rolled keyframes in components.
+ * - To add a keyframe: add it here, add matching token in animation.tokens.json,
+ *   and use it via the Tailwind utility pattern above.
+ */
+
+@keyframes pulse-glow {
+	0%,
+	100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.6;
+	}
+}
+
+@keyframes cl-breathe {
+	0%,
+	100% {
+		opacity: 1;
+		transform: scale(1);
+	}
+	50% {
+		opacity: 0.85;
+		transform: scale(0.98);
+	}
+}
+
+@keyframes cl-shimmer {
+	0% {
+		background-position: -200% 0;
+	}
+	100% {
+		background-position: 200% 0;
+	}
+}
+
+@keyframes cl-drift {
+	0%,
+	100% {
+		transform: translateY(0) translateX(0);
+	}
+	25% {
+		transform: translateY(-2px) translateX(1px);
+	}
+	50% {
+		transform: translateY(-4px) translateX(-1px);
+	}
+	75% {
+		transform: translateY(-2px) translateX(2px);
+	}
+}
+
+@keyframes cl-pulse {
+	0%,
+	100% {
+		box-shadow: 0 0 0 0 currentColor;
+	}
+	50% {
+		box-shadow: 0 0 12px 4px currentColor;
+	}
+}
+
+@keyframes fade-in {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+@keyframes slide-up {
+	from {
+		transform: translateY(4px);
+		opacity: 0;
+	}
+	to {
+		transform: translateY(0);
+		opacity: 1;
+	}
+}
+
+@keyframes slide-down {
+	from {
+		transform: translateY(-4px);
+		opacity: 0;
+	}
+	to {
+		transform: translateY(0);
+		opacity: 1;
+	}
+}
+
+@keyframes scale-in {
+	from {
+		transform: scale(0.95);
+		opacity: 0;
+	}
+	to {
+		transform: scale(1);
+		opacity: 1;
+	}
+}
+
+@keyframes cl-spin {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+@keyframes cl-grow {
+	from {
+		transform: scale(0.8);
+		opacity: 0;
+	}
+	to {
+		transform: scale(1);
+		opacity: 1;
+	}
+}
+
+@keyframes cl-shrink {
+	from {
+		transform: scale(1);
+		opacity: 1;
+	}
+	to {
+		transform: scale(0.8);
+		opacity: 0;
+	}
+}
+
+@keyframes cl-shake {
+	0%, 100% { transform: translateX(0); }
+	10%, 50%, 90% { transform: translateX(-0.25rem); }
+	30%, 70% { transform: translateX(0.25rem); }
+}
+
+@keyframes cl-float {
+	0%, 100% {
+		transform: translateY(0);
+	}
+	50% {
+		transform: translateY(-0.5rem);
+	}
+}
+
+@keyframes cl-flip {
+	from {
+		transform: perspective(25rem) rotateY(90deg);
+		opacity: 0;
+	}
+	to {
+		transform: perspective(25rem) rotateY(0);
+		opacity: 1;
+	}
+}
+
+/* ── Preset family animations ──────────────────────────── */
+
+@keyframes cl-glow-pulse {
+	0%, 100% {
+		box-shadow: 0 0 0.5rem 0 oklch(0.7 0.15 180 / 0.15);
+		border-color: oklch(0.7 0.15 180 / 0.3);
+	}
+	50% {
+		box-shadow: 0 0 1rem 0.125rem oklch(0.7 0.15 180 / 0.25);
+		border-color: oklch(0.7 0.15 180 / 0.45);
+	}
+}
+
+@keyframes cl-crt-flicker {
+	0%, 100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.97;
+	}
+}
+
+@keyframes cl-scanline {
+	0% {
+		background-position: 0 0;
+	}
+	100% {
+		background-position: 0 100%;
+	}
+}
+
+@keyframes cl-neon-buzz {
+	0%, 100% {
+		opacity: 1;
+		text-shadow: 0 0 0.25rem currentColor;
+	}
+	33% {
+		opacity: 0.95;
+		text-shadow: 0 0 0.375rem currentColor;
+	}
+	66% {
+		opacity: 0.98;
+		text-shadow: 0 0 0.1875rem currentColor;
+	}
+}
+
+@keyframes cl-specular-sweep {
+	0% {
+		background-position: -100% 0;
+	}
+	100% {
+		background-position: 200% 0;
+	}
+}
+
+@keyframes cl-alert-pulse {
+	0%, 100% {
+		box-shadow: 0 0 0 0 oklch(0.65 0.22 25 / 0.2);
+		border-color: oklch(0.65 0.22 25 / 0.5);
+	}
+	50% {
+		box-shadow: 0 0 1rem 0.25rem oklch(0.65 0.22 25 / 0.35);
+		border-color: oklch(0.65 0.22 25 / 0.7);
+	}
+}
+
+/* ── Presence / being animations ───────────────────────── */
+/* Used by `ClyffyStatusOrb` and any other "being" indicator.
+ * Each pair consists of a container halo animation and an inner
+ * core animation so two layers can compose without clashing. */
+
+@keyframes cl-presence-breathe {
+	0%, 100% {
+		transform: scale(1);
+		filter: brightness(1) saturate(1);
+	}
+	50% {
+		transform: scale(1.06);
+		filter: brightness(1.12) saturate(1.08);
+	}
+}
+
+@keyframes cl-presence-pulse {
+	0%, 100% {
+		transform: scale(0.96);
+		filter: brightness(0.95);
+	}
+	50% {
+		transform: scale(1.12);
+		filter: brightness(1.3);
+	}
+}
+
+@keyframes cl-presence-think {
+	0% {
+		transform: scale(1) rotate(0deg);
+		filter: hue-rotate(0deg) brightness(1);
+	}
+	33% {
+		transform: scale(1.05) rotate(120deg);
+		filter: hue-rotate(20deg) brightness(1.15);
+	}
+	66% {
+		transform: scale(0.98) rotate(240deg);
+		filter: hue-rotate(-15deg) brightness(1.05);
+	}
+	100% {
+		transform: scale(1) rotate(360deg);
+		filter: hue-rotate(0deg) brightness(1);
+	}
+}
+
+@keyframes cl-presence-listen {
+	0%, 100% {
+		transform: scale(1, 1);
+		filter: brightness(1);
+	}
+	35% {
+		transform: scale(0.94, 1.12);
+		filter: brightness(1.2);
+	}
+	70% {
+		transform: scale(1.02, 0.96);
+		filter: brightness(1.05);
+	}
+}
+
+@keyframes cl-presence-rest {
+	0%, 100% {
+		transform: scale(1);
+		filter: brightness(0.85) saturate(0.75);
+	}
+	50% {
+		transform: scale(1.02);
+		filter: brightness(0.92) saturate(0.8);
+	}
+}
+
+@keyframes cl-presence-halo {
+	0%, 100% {
+		opacity: 0.55;
+		transform: scale(1);
+	}
+	50% {
+		opacity: 0.85;
+		transform: scale(1.08);
+	}
+}
+
+@keyframes cl-presence-alert {
+	0%, 100% {
+		transform: scale(1);
+		filter: brightness(1) saturate(1.2);
+	}
+	25% {
+		transform: scale(1.1);
+		filter: brightness(1.35) saturate(1.4);
+	}
+	50% {
+		transform: scale(0.96);
+		filter: brightness(0.95) saturate(1.1);
+	}
+	75% {
+		transform: scale(1.08);
+		filter: brightness(1.3) saturate(1.35);
+	}
+}

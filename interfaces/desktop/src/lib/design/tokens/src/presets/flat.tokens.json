@@ -1,0 +1,718 @@
+{
+	"$extensions": {
+		"com.coldlight": {
+			"semanticFamilies": [
+				"surface",
+				"elevation",
+				"frame",
+				"motion"
+			],
+			"format": "coldlight-style-presets-v1",
+			"note": "Composite preset leaves — elevation uses DTCG shadow; surface uses color/dimension; keep render glue out of token values."
+		}
+	},
+	"preset": {
+		"flat-elevated": {
+			"background-color": {
+				"$value": "oklch(0.368 0.04 220)",
+				"$type": "color"
+			},
+			"border-radius": {
+				"$value": "0.5rem",
+				"$type": "dimension"
+			},
+			"box-shadow": {
+				"$value": "none",
+				"$type": "shadow"
+			},
+			"color": {
+				"$value": "oklch(0.95 0.01 220)",
+				"$type": "color"
+			},
+			"border-color": {
+				"$value": "transparent",
+				"$type": "color"
+			},
+			"border-width": {
+				"$value": "0",
+				"$type": "dimension"
+			},
+			"backdrop-filter": {
+				"$value": "none",
+				"$type": "dimension"
+			},
+			"opacity": {
+				"$value": "1",
+				"$type": "number"
+			},
+			"animation": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"transition-duration": {
+				"$value": "120ms",
+				"$type": "duration"
+			},
+			"transition-timing-function": {
+				"$value": "ease-out",
+				"$type": "cubicBezier"
+			},
+			"gradient": {
+				"$value": "none",
+				"$type": "gradient"
+			},
+			"font-family": {
+				"$value": "{font.sans}",
+				"$type": "fontFamily"
+			},
+			"font-size": {
+				"$value": "0.875rem",
+				"$type": "dimension"
+			},
+			"font-weight": {
+				"$value": "500",
+				"$type": "fontWeight"
+			},
+			"letter-spacing": {
+				"$value": "0em",
+				"$type": "dimension"
+			},
+			"line-height": {
+				"$value": "1.5",
+				"$type": "number"
+			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
+				"$type": "number"
+			},
+			"$description": "flat-elevated: Bright flat — solid color fill, no depth, clean edges",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Flat Elevated",
+					"family": "flat",
+					"variant": "elevated"
+				}
+			}
+		},
+		"flat-elevated-hover": {
+			"$description": "flat-elevated hover overrides",
+			"background-color": {
+				"$value": "oklch(0.387 0.045 220)",
+				"$type": "color"
+			}
+		},
+		"flat-elevated-active": {
+			"$description": "flat-elevated active overrides",
+			"background-color": {
+				"$value": "oklch(0.349 0.035 220)",
+				"$type": "color"
+			}
+		},
+		"flat-elevated-disabled": {
+			"$description": "flat-elevated disabled overrides",
+			"background-color": {
+				"$value": "oklch(0.304 0.03 220)",
+				"$type": "color"
+			},
+			"color": {
+				"$value": "oklch(0.65 0.005 220)",
+				"$type": "color"
+			},
+			"opacity": {
+				"$value": "0.4",
+				"$type": "number"
+			}
+		},
+		"flat-deep": {
+			"background-color": {
+				"$value": "oklch(0.24 0.03 240)",
+				"$type": "color"
+			},
+			"border-radius": {
+				"$value": "0.375rem",
+				"$type": "dimension"
+			},
+			"box-shadow": {
+				"$value": "none",
+				"$type": "shadow"
+			},
+			"color": {
+				"$value": "oklch(0.85 0.01 220)",
+				"$type": "color"
+			},
+			"border-color": {
+				"$value": "transparent",
+				"$type": "color"
+			},
+			"border-width": {
+				"$value": "0",
+				"$type": "dimension"
+			},
+			"backdrop-filter": {
+				"$value": "none",
+				"$type": "dimension"
+			},
+			"opacity": {
+				"$value": "1",
+				"$type": "number"
+			},
+			"animation": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"transition-duration": {
+				"$value": "100ms",
+				"$type": "duration"
+			},
+			"transition-timing-function": {
+				"$value": "ease-out",
+				"$type": "cubicBezier"
+			},
+			"gradient": {
+				"$value": "none",
+				"$type": "gradient"
+			},
+			"font-family": {
+				"$value": "{font.sans}",
+				"$type": "fontFamily"
+			},
+			"font-size": {
+				"$value": "0.875rem",
+				"$type": "dimension"
+			},
+			"font-weight": {
+				"$value": "400",
+				"$type": "fontWeight"
+			},
+			"letter-spacing": {
+				"$value": "0em",
+				"$type": "dimension"
+			},
+			"line-height": {
+				"$value": "1.6",
+				"$type": "number"
+			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
+				"$type": "number"
+			},
+			"$description": "flat-deep: Dark flat — deep solid color, no frills, reading-focused",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Flat Deep",
+					"family": "flat",
+					"variant": "deep"
+				}
+			}
+		},
+		"flat-deep-hover": {
+			"$description": "flat-deep hover overrides",
+			"background-color": {
+				"$value": "oklch(0.259 0.03 240)",
+				"$type": "color"
+			}
+		},
+		"flat-deep-active": {
+			"$description": "flat-deep active overrides",
+			"background-color": {
+				"$value": "oklch(0.221 0.03 240)",
+				"$type": "color"
+			}
+		},
+		"flat-deep-disabled": {
+			"$description": "flat-deep disabled overrides",
+			"background-color": {
+				"$value": "oklch(0.221 0.03 240)",
+				"$type": "color"
+			},
+			"color": {
+				"$value": "oklch(0.55 0.005 220)",
+				"$type": "color"
+			},
+			"opacity": {
+				"$value": "0.4",
+				"$type": "number"
+			}
+		},
+		"flat-minimal": {
+			"background-color": {
+				"$value": "transparent",
+				"$type": "color"
+			},
+			"border-radius": {
+				"$value": "0.25rem",
+				"$type": "dimension"
+			},
+			"box-shadow": {
+				"$value": "none",
+				"$type": "shadow"
+			},
+			"color": {
+				"$value": "oklch(0.75 0.008 220)",
+				"$type": "color"
+			},
+			"border-color": {
+				"$value": "transparent",
+				"$type": "color"
+			},
+			"border-width": {
+				"$value": "0",
+				"$type": "dimension"
+			},
+			"backdrop-filter": {
+				"$value": "none",
+				"$type": "dimension"
+			},
+			"opacity": {
+				"$value": "1",
+				"$type": "number"
+			},
+			"animation": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"transition-duration": {
+				"$value": "100ms",
+				"$type": "duration"
+			},
+			"transition-timing-function": {
+				"$value": "ease-out",
+				"$type": "cubicBezier"
+			},
+			"gradient": {
+				"$value": "none",
+				"$type": "gradient"
+			},
+			"font-family": {
+				"$value": "{font.sans}",
+				"$type": "fontFamily"
+			},
+			"font-size": {
+				"$value": "0.875rem",
+				"$type": "dimension"
+			},
+			"font-weight": {
+				"$value": "400",
+				"$type": "fontWeight"
+			},
+			"letter-spacing": {
+				"$value": "0em",
+				"$type": "dimension"
+			},
+			"line-height": {
+				"$value": "1.5",
+				"$type": "number"
+			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
+				"$type": "number"
+			},
+			"$description": "flat-minimal: Near-invisible — transparent bg, content only, ghost mode",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Flat Minimal",
+					"family": "flat",
+					"variant": "minimal"
+				}
+			}
+		},
+		"flat-minimal-hover": {
+			"$description": "flat-minimal hover overrides",
+			"background-color": {
+				"$value": "oklch(0.336 0.03 220 / 0.08)",
+				"$type": "color"
+			}
+		},
+		"flat-minimal-active": {
+			"$description": "flat-minimal active overrides",
+			"background-color": {
+				"$value": "oklch(0.304 0.03 220 / 0.12)",
+				"$type": "color"
+			}
+		},
+		"flat-minimal-disabled": {
+			"$description": "flat-minimal disabled overrides",
+			"color": {
+				"$value": "oklch(0.5 0.004 220)",
+				"$type": "color"
+			},
+			"opacity": {
+				"$value": "0.35",
+				"$type": "number"
+			}
+		},
+		"flat-solid": {
+			"background-color": {
+				"$value": "oklch(0.304 0.03 220)",
+				"$type": "color"
+			},
+			"border-radius": {
+				"$value": "0.5rem",
+				"$type": "dimension"
+			},
+			"box-shadow": {
+				"$value": "none",
+				"$type": "shadow"
+			},
+			"color": {
+				"$value": "oklch(0.9 0.01 220)",
+				"$type": "color"
+			},
+			"border-color": {
+				"$value": "oklch(0.4 0.02 220 / 0.3)",
+				"$type": "color"
+			},
+			"border-width": {
+				"$value": "0.0625rem",
+				"$type": "dimension"
+			},
+			"backdrop-filter": {
+				"$value": "none",
+				"$type": "dimension"
+			},
+			"opacity": {
+				"$value": "1",
+				"$type": "number"
+			},
+			"animation": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"transition-duration": {
+				"$value": "120ms",
+				"$type": "duration"
+			},
+			"transition-timing-function": {
+				"$value": "ease-out",
+				"$type": "cubicBezier"
+			},
+			"gradient": {
+				"$value": "none",
+				"$type": "gradient"
+			},
+			"font-family": {
+				"$value": "{font.sans}",
+				"$type": "fontFamily"
+			},
+			"font-size": {
+				"$value": "0.875rem",
+				"$type": "dimension"
+			},
+			"font-weight": {
+				"$value": "500",
+				"$type": "fontWeight"
+			},
+			"letter-spacing": {
+				"$value": "0em",
+				"$type": "dimension"
+			},
+			"line-height": {
+				"$value": "1.5",
+				"$type": "number"
+			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
+				"$type": "number"
+			},
+			"$description": "flat-solid: Dense flat — opaque fill, strong color, no transparency",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Flat Solid",
+					"family": "flat",
+					"variant": "solid"
+				}
+			}
+		},
+		"flat-solid-hover": {
+			"$description": "flat-solid hover overrides",
+			"background-color": {
+				"$value": "oklch(0.323 0.033 220)",
+				"$type": "color"
+			},
+			"border-color": {
+				"$value": "oklch(0.45 0.025 220 / 0.38)",
+				"$type": "color"
+			}
+		},
+		"flat-solid-active": {
+			"$description": "flat-solid active overrides",
+			"background-color": {
+				"$value": "oklch(0.285 0.03 220)",
+				"$type": "color"
+			}
+		},
+		"flat-solid-disabled": {
+			"$description": "flat-solid disabled overrides",
+			"background-color": {
+				"$value": "oklch(0.259 0.03 220)",
+				"$type": "color"
+			},
+			"color": {
+				"$value": "oklch(0.6 0.005 220)",
+				"$type": "color"
+			},
+			"opacity": {
+				"$value": "0.4",
+				"$type": "number"
+			},
+			"border-color": {
+				"$value": "oklch(0.3 0.005 220 / 0.15)",
+				"$type": "color"
+			}
+		},
+		"flat-glow": {
+			"background-color": {
+				"$value": "oklch(0.304 0.06 180)",
+				"$type": "color"
+			},
+			"border-radius": {
+				"$value": "0.5rem",
+				"$type": "dimension"
+			},
+			"box-shadow": {
+				"$value": "none",
+				"$type": "shadow"
+			},
+			"color": {
+				"$value": "oklch(0.92 0.04 180)",
+				"$type": "color"
+			},
+			"border-color": {
+				"$value": "transparent",
+				"$type": "color"
+			},
+			"border-width": {
+				"$value": "0",
+				"$type": "dimension"
+			},
+			"backdrop-filter": {
+				"$value": "none",
+				"$type": "dimension"
+			},
+			"opacity": {
+				"$value": "1",
+				"$type": "number"
+			},
+			"animation": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"transition-duration": {
+				"$value": "150ms",
+				"$type": "duration"
+			},
+			"transition-timing-function": {
+				"$value": "ease-out",
+				"$type": "cubicBezier"
+			},
+			"gradient": {
+				"$value": "none",
+				"$type": "gradient"
+			},
+			"font-family": {
+				"$value": "{font.sans}",
+				"$type": "fontFamily"
+			},
+			"font-size": {
+				"$value": "0.875rem",
+				"$type": "dimension"
+			},
+			"font-weight": {
+				"$value": "500",
+				"$type": "fontWeight"
+			},
+			"letter-spacing": {
+				"$value": "0em",
+				"$type": "dimension"
+			},
+			"line-height": {
+				"$value": "1.5",
+				"$type": "number"
+			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
+				"$type": "number"
+			},
+			"$description": "flat-glow: Flat with accent color — tinted fill, no depth but colorful",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Flat Glow",
+					"family": "flat",
+					"variant": "glow"
+				}
+			}
+		},
+		"flat-glow-hover": {
+			"$description": "flat-glow hover overrides",
+			"background-color": {
+				"$value": "oklch(0.323 0.065 180)",
+				"$type": "color"
+			}
+		},
+		"flat-glow-active": {
+			"$description": "flat-glow active overrides",
+			"background-color": {
+				"$value": "oklch(0.285 0.055 180)",
+				"$type": "color"
+			}
+		},
+		"flat-glow-disabled": {
+			"$description": "flat-glow disabled overrides",
+			"background-color": {
+				"$value": "oklch(0.259 0.03 180)",
+				"$type": "color"
+			},
+			"color": {
+				"$value": "oklch(0.6 0.01 180)",
+				"$type": "color"
+			},
+			"opacity": {
+				"$value": "0.4",
+				"$type": "number"
+			}
+		},
+		"flat-muted": {
+			"background-color": {
+				"$value": "oklch(0.259 0.03 220)",
+				"$type": "color"
+			},
+			"border-radius": {
+				"$value": "0.25rem",
+				"$type": "dimension"
+			},
+			"box-shadow": {
+				"$value": "none",
+				"$type": "shadow"
+			},
+			"color": {
+				"$value": "oklch(0.68 0.005 220)",
+				"$type": "color"
+			},
+			"border-color": {
+				"$value": "transparent",
+				"$type": "color"
+			},
+			"border-width": {
+				"$value": "0",
+				"$type": "dimension"
+			},
+			"backdrop-filter": {
+				"$value": "none",
+				"$type": "dimension"
+			},
+			"opacity": {
+				"$value": "0.6",
+				"$type": "number"
+			},
+			"animation": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"transition-duration": {
+				"$value": "80ms",
+				"$type": "duration"
+			},
+			"transition-timing-function": {
+				"$value": "ease-out",
+				"$type": "cubicBezier"
+			},
+			"gradient": {
+				"$value": "none",
+				"$type": "gradient"
+			},
+			"font-family": {
+				"$value": "{font.sans}",
+				"$type": "fontFamily"
+			},
+			"font-size": {
+				"$value": "0.875rem",
+				"$type": "dimension"
+			},
+			"font-weight": {
+				"$value": "400",
+				"$type": "fontWeight"
+			},
+			"letter-spacing": {
+				"$value": "0em",
+				"$type": "dimension"
+			},
+			"line-height": {
+				"$value": "1.5",
+				"$type": "number"
+			},
+			"background-image": {
+				"$value": "none",
+				"$type": "string"
+			},
+			"background-alpha": {
+				"$value": "1",
+				"$type": "number"
+			},
+			"$description": "flat-muted: Dimmed flat — faded background for disabled/secondary states",
+			"$extensions": {
+				"com.coldlight": {
+					"label": "Flat Muted",
+					"family": "flat",
+					"variant": "muted"
+				}
+			}
+		},
+		"flat-muted-hover": {
+			"$description": "flat-muted hover overrides",
+			"background-color": {
+				"$value": "oklch(0.272 0.03 220)",
+				"$type": "color"
+			},
+			"opacity": {
+				"$value": "0.7",
+				"$type": "number"
+			}
+		},
+		"flat-muted-active": {
+			"$description": "flat-muted active overrides",
+			"background-color": {
+				"$value": "oklch(0.247 0.03 220)",
+				"$type": "color"
+			},
+			"opacity": {
+				"$value": "0.55",
+				"$type": "number"
+			}
+		},
+		"flat-muted-disabled": {
+			"$description": "flat-muted disabled overrides",
+			"background-color": {
+				"$value": "oklch(0.24 0.03 220)",
+				"$type": "color"
+			},
+			"color": {
+				"$value": "oklch(0.4 0.003 220)",
+				"$type": "color"
+			},
+			"opacity": {
+				"$value": "0.3",
+				"$type": "number"
+			}
+		}
+	}
+}

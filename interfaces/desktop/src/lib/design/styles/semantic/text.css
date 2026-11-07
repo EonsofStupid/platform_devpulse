@@ -1,0 +1,15 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+@layer tokens.semantic {
+  :root {
+  --text-primary: oklch(0.95 0.01 220); /** Default body text on dark backgrounds. */
+  --text-secondary: oklch(0.72 0.02 220); /** Supporting text, labels, descriptions. */
+  --text-muted: oklch(0.63 0.03 257); /** Placeholder, disabled-adjacent, low-priority. */
+  --text-disabled: oklch(0.48 0.02 257); /** Disabled state text. */
+  --text-accent: oklch(0.75 0.14 180); /** Emphasised text with teal brand accent. */
+  --text-inverse: oklch(0.1363 0.0364 259.2); /** Text on bright fills — the owner's deepest navy, hsl(222 84% 5%), never black. */
+  --text-link: oklch(0.7 0.12 220); /** Interactive link text. */
+  }
+}

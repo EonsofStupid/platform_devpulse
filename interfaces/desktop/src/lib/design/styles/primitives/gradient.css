@@ -4,18 +4,59 @@
 
 @layer tokens.primitives {
   :root {
-  --gradient-teal: linear-gradient(135deg, #009076 0%, #005c4a 100%);
-  --gradient-teal-glow: linear-gradient(135deg, #00aa90 0%, #009076 50%, #004235 100%);
-  --gradient-purple: linear-gradient(135deg, #615ed6 0%, #3d3b8b 100%);
-  --gradient-purple-glow: linear-gradient(135deg, #7b7dea 0%, #615ed6 50%, #2b2a64 100%);
-  --gradient-magenta: linear-gradient(135deg, #ad36a7 0%, #6c2768 100%);
-  --gradient-ember: linear-gradient(135deg, #c53637 0%, #7f2021 100%);
-  --gradient-frost: linear-gradient(135deg, #1988a3 0%, #00536c 100%);
-  --gradient-cyber: linear-gradient(135deg, #008f4a 0%, #005b2d 100%);
-  --gradient-void: linear-gradient(180deg, #002920 0%, #001712 50%, #000000 100%); /** App background — deep dark to void black */
-  --gradient-void-radial: linear-gradient(circle at 50% 40%, #004235 0%, #001712 60%, #000000 100%); /** Radial void — for hero backgrounds */
-  --gradient-teal-purple: linear-gradient(135deg, #009076 0%, #615ed6 100%); /** Teal→purple crossfade — accent blend */
-  --gradient-teal-cyber: linear-gradient(90deg, #009076 0%, #008f4a 100%); /** Teal→cyber crossfade — matrix blend */
-  --gradient-ember-magenta: linear-gradient(135deg, #c53637 0%, #ad36a7 100%); /** Ember→magenta crossfade — hot blend */
+  --gradient-accent-brand-blue: linear-gradient(135, #064262 0%, #000f1b 100%); /** brand-blue accent dramatic gradient — high contrast diagonal. */
+  --gradient-accent-brand-coral: linear-gradient(135, #6d172e 0%, #210107 100%); /** brand-coral accent dramatic gradient — high contrast diagonal. */
+  --gradient-accent-brand-cyan: linear-gradient(135, #094646 0%, #011111 100%); /** brand-cyan accent dramatic gradient — high contrast diagonal. */
+  --gradient-accent-brand-gold: linear-gradient(135, #463e06 0%, #100d00 100%); /** brand-gold accent dramatic gradient — high contrast diagonal. */
+  --gradient-accent-brand-green: linear-gradient(135, #024a28 0%, #001206 100%); /** brand-green accent dramatic gradient — high contrast diagonal. */
+  --gradient-accent-brand-hotpink: linear-gradient(135, #710441 0%, #20000f 100%); /** brand-hotpink accent dramatic gradient — high contrast diagonal. */
+  --gradient-accent-brand-salmon: linear-gradient(135, #6e1728 0%, #210105 100%); /** brand-salmon accent dramatic gradient — high contrast diagonal. */
+  --gradient-accent-cyber: linear-gradient(135, #05492e 0%, #001208 100%); /** cyber accent dramatic gradient — high contrast diagonal. */
+  --gradient-accent-ember: linear-gradient(135, #6f191a 0%, #210102 100%); /** ember accent dramatic gradient — high contrast diagonal. */
+  --gradient-accent-frost: linear-gradient(135, #044554 0%, #001016 100%); /** frost accent dramatic gradient — high contrast diagonal. */
+  --gradient-accent-magenta: linear-gradient(135, #670463 0%, #1d001b 100%); /** magenta accent dramatic gradient — high contrast diagonal. */
+  --gradient-accent-purple: linear-gradient(135, #4e1981 0%, #140129 100%); /** purple accent dramatic gradient — high contrast diagonal. */
+  --gradient-accent-teal: linear-gradient(135, #014840 0%, #01110e 100%); /** teal accent dramatic gradient — high contrast diagonal. */
+  --gradient-glow-brand-blue: linear-gradient(135deg, #02426366 0%, #02426300 100%); /** brand-blue glow radial — elevated lightness fading to transparent. */
+  --gradient-glow-brand-coral: linear-gradient(135deg, #63253266 0%, #63253200 100%); /** brand-coral glow radial — elevated lightness fading to transparent. */
+  --gradient-glow-brand-cyan: linear-gradient(135deg, #06474766 0%, #06474700 100%); /** brand-cyan glow radial — elevated lightness fading to transparent. */
+  --gradient-glow-brand-gold: linear-gradient(135deg, #463d0366 0%, #463d0300 100%); /** brand-gold glow radial — elevated lightness fading to transparent. */
+  --gradient-glow-brand-green: linear-gradient(135deg, #0d492a66 0%, #0d492a00 100%); /** brand-green glow radial — elevated lightness fading to transparent. */
+  --gradient-glow-brand-hotpink: linear-gradient(135deg, #69184066 0%, #69184000 100%); /** brand-hotpink glow radial — elevated lightness fading to transparent. */
+  --gradient-glow-brand-salmon: linear-gradient(135deg, #64262e66 0%, #64262e00 100%); /** brand-salmon glow radial — elevated lightness fading to transparent. */
+  --gradient-glow-cyber: linear-gradient(135deg, #014a2e66 0%, #014a2e00 100%); /** cyber glow radial — elevated lightness fading to transparent. */
+  --gradient-glow-ember: linear-gradient(135deg, #64272466 0%, #64272400 100%); /** ember glow radial — elevated lightness fading to transparent. */
+  --gradient-glow-frost: linear-gradient(135deg, #0e445266 0%, #0e445200 100%); /** frost glow radial — elevated lightness fading to transparent. */
+  --gradient-glow-magenta: linear-gradient(135deg, #5e1f5a66 0%, #5e1f5a00 100%); /** magenta glow radial — elevated lightness fading to transparent. */
+  --gradient-glow-purple: linear-gradient(135deg, #4a287066 0%, #4a287000 100%); /** purple glow radial — elevated lightness fading to transparent. */
+  --gradient-glow-teal: linear-gradient(135deg, #0b474066 0%, #0b474000 100%); /** teal glow radial — elevated lightness fading to transparent. */
+  --gradient-mesh-aurora: linear-gradient(135, #188377 0%, #117175 50%, #6c26ae 100%); /** Aurora — teal → cyan → purple diagonal. */
+  --gradient-mesh-frost: linear-gradient(135, #477a8a 0%, #027368 50%, #056641 100%); /** Frost — frost → teal → cyber diagonal. */
+  --gradient-mesh-sunset: linear-gradient(135, #ad524d 0%, #8e4088 50%, #6c26ae 100%); /** Sunset — ember → magenta → purple diagonal. */
+  --gradient-mesh-void: linear-gradient(180, #0f172a 0%, #020817 100%); /** Void — the owner's rgba(15, 23, 42) down to his hsl(222 84% 5%). */
+  --gradient-surface-brand-blue: linear-gradient(180, #14242f 0%, #061520 100%); /** brand-blue surface depth gradient — subtle top-to-bottom lightness shift. */
+  --gradient-surface-brand-coral: linear-gradient(180, #2e1c1e 0%, #1f0e11 100%); /** brand-coral surface depth gradient — subtle top-to-bottom lightness shift. */
+  --gradient-surface-brand-cyan: linear-gradient(180, #0e2626 0%, #021818 100%); /** brand-cyan surface depth gradient — subtle top-to-bottom lightness shift. */
+  --gradient-surface-brand-gold: linear-gradient(180, #252211 0%, #171404 100%); /** brand-gold surface depth gradient — subtle top-to-bottom lightness shift. */
+  --gradient-surface-brand-green: linear-gradient(180, #16261b 0%, #08180e 100%); /** brand-green surface depth gradient — subtle top-to-bottom lightness shift. */
+  --gradient-surface-brand-hotpink: linear-gradient(180, #311923 0%, #210b15 100%); /** brand-hotpink surface depth gradient — subtle top-to-bottom lightness shift. */
+  --gradient-surface-brand-salmon: linear-gradient(180, #2f1c1d 0%, #1f0e0f 100%); /** brand-salmon surface depth gradient — subtle top-to-bottom lightness shift. */
+  --gradient-surface-cyber: linear-gradient(180, #14261d 0%, #07180f 100%); /** cyber surface depth gradient — subtle top-to-bottom lightness shift. */
+  --gradient-surface-ember: linear-gradient(180, #2f1c1a 0%, #200e0d 100%); /** ember surface depth gradient — subtle top-to-bottom lightness shift. */
+  --gradient-surface-frost: linear-gradient(180, #10252c 0%, #03171d 100%); /** frost surface depth gradient — subtle top-to-bottom lightness shift. */
+  --gradient-surface-magenta: linear-gradient(180, #2c1a2b 0%, #1e0d1c 100%); /** magenta surface depth gradient — subtle top-to-bottom lightness shift. */
+  --gradient-surface-purple: linear-gradient(180, #251d32 0%, #170f23 100%); /** purple surface depth gradient — subtle top-to-bottom lightness shift. */
+  --gradient-surface-teal: linear-gradient(180, #0f2623 0%, #021815 100%); /** teal surface depth gradient — subtle top-to-bottom lightness shift. */
+  --gradient-animated-1: oklch(0.24 0.07 183 / 0.6); /** Primary gradient layer — slow 25s ease-in-out infinite shift. */
+  --gradient-animated-2: oklch(0.24 0.07 302 / 0.4); /** Secondary gradient layer — reverse shift, mix-blend-mode overlay. */
+  --gradient-teal-purple: oklch(0.24 0.07 240 / 0.702); /** Teal-to-purple gradient midpoint for button primary. */
+  --gradient-cyan-green: oklch(0.8226 0.1381 204.82); /** Diagonal blend A — cyan top-left → green bottom-right. */
+  --gradient-green-blend: oklch(0.6806 0.1601 153.63); /** Diagonal blend B — green pairs with cyan. */
+  --gradient-magenta-pink: oklch(0.6441 0.2688 338.83); /** Diagonal blend A — magenta top-left → hot pink bottom-right. */
+  --gradient-hotpink-blend: oklch(0.6534 0.2270 6.32); /** Diagonal blend B — hot pink pairs with magenta. */
+  --gradient-coral-blue: oklch(0.7123 0.1775 12.65); /** Diagonal blend A — coral top-left → blue bottom-right. */
+  --gradient-blue-blend: oklch(0.6910 0.1386 242.82); /** Diagonal blend B — blue pairs with coral. */
+  --gradient-salmon-gold: oklch(0.6899 0.1677 19.03); /** Diagonal blend A — salmon top-left → gold bottom-right. */
+  --gradient-gold-blend: oklch(0.8409 0.1681 108.03); /** Diagonal blend B — gold pairs with salmon. */
   }
 }

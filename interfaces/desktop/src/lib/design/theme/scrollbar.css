@@ -3,6 +3,6 @@
  */
 
 @theme {
-  --scrollbar-thumb: oklch(1.0032 0.0305 28.88 / 0.122);
-  --scrollbar-thumb-hover: oklch(1.0032 0.0305 28.88 / 0.2);
+  --scrollbar-thumb: oklch(0.8643 0.1406 183.02 / 0.4);
+  --scrollbar-thumb-hover: oklch(0.8643 0.1406 183.02 / 0.6);
 }

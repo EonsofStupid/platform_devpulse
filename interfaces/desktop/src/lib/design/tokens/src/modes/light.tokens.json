@@ -1,0 +1,44 @@
+{
+	"$description": "ColdLight Light Mode — cold blue-white, NOT pure white. Same hue+chroma, inverted lightness.",
+	"light": {
+		"surface": {
+			"$type": "color",
+			"base": { "$value": "oklch(0.95 0.012 224)", "$description": "App background — cold blue-white" },
+			"raised": { "$value": "oklch(0.98 0.008 224)", "$description": "Card, panel on top of base" },
+			"overlay": { "$value": "oklch(0.92 0.015 224)", "$description": "Modal overlay surface" },
+			"frosted": { "$value": "oklch(0.96 0.01 224 / 0.85)", "$description": "Frosted glass" },
+			"muted": { "$value": "oklch(0.90 0.012 224)", "$description": "Muted surface" },
+			"inset": { "$value": "oklch(0.88 0.015 224)", "$description": "Inset wells, inputs" }
+		},
+		"text": {
+			"$type": "color",
+			"primary": { "$value": "oklch(0.15 0.015 224)", "$description": "Primary text — dark blue-black" },
+			"secondary": { "$value": "oklch(0.35 0.02 224)", "$description": "Secondary text" },
+			"muted": { "$value": "oklch(0.50 0.015 224)", "$description": "Muted/placeholder" },
+			"disabled": { "$value": "oklch(0.65 0.01 224)", "$description": "Disabled text" },
+			"accent": { "$value": "oklch(0.45 0.12 173)", "$description": "Teal accent text" },
+			"inverse": { "$value": "oklch(0.95 0.01 224)", "$description": "Text on dark surfaces" }
+		},
+		"border": {
+			"$type": "color",
+			"subtle": { "$value": "oklch(0.75 0.02 224 / 0.25)", "$description": "Subtle border" },
+			"soft": { "$value": "oklch(0.65 0.03 224 / 0.3)", "$description": "Soft border" },
+			"emphasis": { "$value": "oklch(0.5 0.06 173 / 0.5)", "$description": "Emphasis border" },
+			"focus": { "$value": "oklch(0.55 0.12 173)", "$description": "Focus ring" },
+			"divider": { "$value": "oklch(0.2 0.01 224 / 0.08)", "$description": "Divider line" }
+		},
+		"shadow": {
+			"$type": "shadow",
+			"z1": { "$value": "0 0.0625rem 0.1875rem oklch(0.2 0.01 224 / 0.08), 0 0.0625rem 0.125rem oklch(0.2 0.01 224 / 0.05)" },
+			"z2": { "$value": "0 0.1875rem 0.375rem oklch(0.2 0.01 224 / 0.1), 0 0.125rem 0.25rem oklch(0.2 0.01 224 / 0.06)" },
+			"z3": { "$value": "0 0.625rem 1.25rem oklch(0.2 0.01 224 / 0.1), 0 0.1875rem 0.375rem oklch(0.2 0.01 224 / 0.06)" },
+			"z4": { "$value": "0 0.9375rem 1.5625rem oklch(0.2 0.01 224 / 0.1), 0 0.3125rem 0.625rem oklch(0.2 0.01 224 / 0.04)" }
+		},
+		"interaction": {
+			"$type": "color",
+			"hover": { "$value": "oklch(0.2 0.01 224 / 0.06)" },
+			"active": { "$value": "oklch(0.2 0.01 224 / 0.1)" },
+			"selected": { "$value": "oklch(0.2 0.01 224 / 0.12)" }
+		}
+	}
+}

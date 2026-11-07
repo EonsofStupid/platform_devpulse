@@ -1,0 +1,40 @@
+{
+	"$description": "Sheet's tokens (plan 0006 §0s). The build generates styles/components/kinds/sheet.css and sheet.generated.ts from the sheet group.",
+	"sheet": {
+		"$description": "Styles the content panel. Each variant is a surface role read from the family in scope; the old presets map to: default → elevated; glass → glass + deep; stark → stark + glow; flat → flat + minimal; matte → neuro + solid. The trigger, overlay and close button carried the panel's family markers by accident (the close button inherited the panel's background, border and shadow); they no longer do. The overlay keeps what those markers gave it: no paint, over the browser's popover canvas.",
+		"$extensions": {
+			"com.coldlight": {
+				"slot": "content",
+				"accepts": ["surface", "text", "frame"],
+				"defaults": { "variant": "elevated" }
+			}
+		},
+		"base": {
+			"border-style": { "$value": "solid", "$type": "strokeStyle" }
+		},
+		"variant": {
+			"elevated": { "$extensions": { "com.coldlight": { "role": "elevated" } } },
+			"deep": { "$extensions": { "com.coldlight": { "role": "deep" } } },
+			"minimal": { "$extensions": { "com.coldlight": { "role": "minimal" } } },
+			"solid": { "$extensions": { "com.coldlight": { "role": "solid" } } },
+			"glow": { "$extensions": { "com.coldlight": { "role": "glow" } } },
+			"muted": { "$extensions": { "com.coldlight": { "role": "muted" } } }
+		},
+		"part": {
+			"overlay": {
+				"background-color": { "$value": "transparent", "$type": "color" },
+				"color": { "$value": "inherit" }
+			},
+			"close": {
+				"$description": "Today's look kept: the close button wears the panel's surface (it inherited the panel's variables, which drew a faint ring around the ✕). Reads the panel's --sheet-* properties, which it inherits.",
+				"background-color": { "$value": "var(--sheet-background-color)" },
+				"border-color": { "$value": "var(--sheet-border-color)" },
+				"border-width": { "$value": "var(--sheet-border-width)" },
+				"border-style": { "$value": "solid" },
+				"border-radius": { "$value": "var(--sheet-border-radius)" },
+				"box-shadow": { "$value": "var(--sheet-box-shadow)" },
+				"gradient": { "$value": "var(--sheet-gradient)" }
+			}
+		}
+	}
+}

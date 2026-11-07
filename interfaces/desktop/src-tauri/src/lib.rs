@@ -334,6 +334,8 @@ pub fn build_specta_builder() -> Builder<tauri::Wry> {
             commands::agenthub::agenthub_sessions,
             commands::agenthub::agenthub_live,
             commands::agenthub::agenthub_session_page,
+            commands::agenthub::agenthub_tickets,
+            commands::agenthub::agenthub_create_ticket,
             commands::memory::memory_notes,
             commands::memory::memory_save,
             commands::memory::memory_set_included,

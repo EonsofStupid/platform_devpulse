@@ -1,0 +1,138 @@
+/**
+ * Do not edit directly, this file was auto-generated.
+ */
+
+[data-kind="dialog"][data-slot="content"] {
+	--dialog-border-style: solid;
+	border-style: var(--dialog-border-style);
+	background-color: var(--dialog-background-color);
+	border-radius: var(--dialog-border-radius);
+	box-shadow: var(--dialog-box-shadow);
+	color: var(--dialog-color);
+	border-color: var(--dialog-border-color);
+	border-width: var(--dialog-border-width);
+	opacity: var(--dialog-opacity);
+	animation: var(--dialog-animation);
+	transition-duration: var(--dialog-transition-duration);
+	transition-timing-function: var(--dialog-transition-timing-function);
+	background-image: var(--dialog-gradient);
+	font-family: var(--dialog-font-family);
+	font-size: var(--dialog-font-size);
+	font-weight: var(--dialog-font-weight);
+	letter-spacing: var(--dialog-letter-spacing);
+	line-height: var(--dialog-line-height);
+}
+
+[data-kind="dialog"][data-slot="content"][data-variant="elevated"] {
+	--dialog-background-color: var(--surface-role-elevated-background-color);
+	--dialog-border-radius: var(--surface-role-elevated-border-radius);
+	--dialog-box-shadow: var(--surface-role-elevated-box-shadow);
+	--dialog-color: var(--surface-role-elevated-color);
+	--dialog-border-color: var(--surface-role-elevated-border-color);
+	--dialog-border-width: var(--surface-role-elevated-border-width);
+	--dialog-opacity: var(--surface-role-elevated-opacity);
+	--dialog-animation: var(--surface-role-elevated-animation);
+	--dialog-transition-duration: var(--surface-role-elevated-transition-duration);
+	--dialog-transition-timing-function: var(--surface-role-elevated-transition-timing-function);
+	--dialog-gradient: var(--surface-role-elevated-gradient);
+	--dialog-font-family: var(--surface-role-elevated-font-family);
+	--dialog-font-size: var(--surface-role-elevated-font-size);
+	--dialog-font-weight: var(--surface-role-elevated-font-weight);
+	--dialog-letter-spacing: var(--surface-role-elevated-letter-spacing);
+	--dialog-line-height: var(--surface-role-elevated-line-height);
+}
+
+[data-kind="dialog"][data-slot="content"][data-variant="deep"] {
+	--dialog-background-color: var(--surface-role-deep-background-color);
+	--dialog-border-radius: var(--surface-role-deep-border-radius);
+	--dialog-box-shadow: var(--surface-role-deep-box-shadow);
+	--dialog-color: var(--surface-role-deep-color);
+	--dialog-border-color: var(--surface-role-deep-border-color);
+	--dialog-border-width: var(--surface-role-deep-border-width);
+	--dialog-opacity: var(--surface-role-deep-opacity);
+	--dialog-animation: var(--surface-role-deep-animation);
+	--dialog-transition-duration: var(--surface-role-deep-transition-duration);
+	--dialog-transition-timing-function: var(--surface-role-deep-transition-timing-function);
+	--dialog-gradient: var(--surface-role-deep-gradient);
+	--dialog-font-family: var(--surface-role-deep-font-family);
+	--dialog-font-size: var(--surface-role-deep-font-size);
+	--dialog-font-weight: var(--surface-role-deep-font-weight);
+	--dialog-letter-spacing: var(--surface-role-deep-letter-spacing);
+	--dialog-line-height: var(--surface-role-deep-line-height);
+}
+
+[data-kind="dialog"][data-slot="content"][data-variant="minimal"] {
+	--dialog-background-color: var(--surface-role-minimal-background-color);
+	--dialog-border-radius: var(--surface-role-minimal-border-radius);
+	--dialog-box-shadow: var(--surface-role-minimal-box-shadow);
+	--dialog-color: var(--surface-role-minimal-color);
+	--dialog-border-color: var(--surface-role-minimal-border-color);
+	--dialog-border-width: var(--surface-role-minimal-border-width);
+	--dialog-opacity: var(--surface-role-minimal-opacity);
+	--dialog-animation: var(--surface-role-minimal-animation);
+	--dialog-transition-duration: var(--surface-role-minimal-transition-duration);
+	--dialog-transition-timing-function: var(--surface-role-minimal-transition-timing-function);
+	--dialog-gradient: var(--surface-role-minimal-gradient);
+	--dialog-font-family: var(--surface-role-minimal-font-family);
+	--dialog-font-size: var(--surface-role-minimal-font-size);
+	--dialog-font-weight: var(--surface-role-minimal-font-weight);
+	--dialog-letter-spacing: var(--surface-role-minimal-letter-spacing);
+	--dialog-line-height: var(--surface-role-minimal-line-height);
+}
+
+[data-kind="dialog"][data-slot="content"][data-variant="solid"] {
+	--dialog-background-color: var(--surface-role-solid-background-color);
+	--dialog-border-radius: var(--surface-role-solid-border-radius);
+	--dialog-box-shadow: var(--surface-role-solid-box-shadow);
+	--dialog-color: var(--surface-role-solid-color);
+	--dialog-border-color: var(--surface-role-solid-border-color);
+	--dialog-border-width: var(--surface-role-solid-border-width);
+	--dialog-opacity: var(--surface-role-solid-opacity);
+	--dialog-animation: var(--surface-role-solid-animation);
+	--dialog-transition-duration: var(--surface-role-solid-transition-duration);
+	--dialog-transition-timing-function: var(--surface-role-solid-transition-timing-function);
+	--dialog-gradient: var(--surface-role-solid-gradient);
+	--dialog-font-family: var(--surface-role-solid-font-family);
+	--dialog-font-size: var(--surface-role-solid-font-size);
+	--dialog-font-weight: var(--surface-role-solid-font-weight);
+	--dialog-letter-spacing: var(--surface-role-solid-letter-spacing);
+	--dialog-line-height: var(--surface-role-solid-line-height);
+}
+
+[data-kind="dialog"][data-slot="content"][data-variant="glow"] {
+	--dialog-background-color: var(--surface-role-glow-background-color);
+	--dialog-border-radius: var(--surface-role-glow-border-radius);
+	--dialog-box-shadow: var(--surface-role-glow-box-shadow);
+	--dialog-color: var(--surface-role-glow-color);
+	--dialog-border-color: var(--surface-role-glow-border-color);
+	--dialog-border-width: var(--surface-role-glow-border-width);
+	--dialog-opacity: var(--surface-role-glow-opacity);
+	--dialog-animation: var(--surface-role-glow-animation);
+	--dialog-transition-duration: var(--surface-role-glow-transition-duration);
+	--dialog-transition-timing-function: var(--surface-role-glow-transition-timing-function);
+	--dialog-gradient: var(--surface-role-glow-gradient);
+	--dialog-font-family: var(--surface-role-glow-font-family);
+	--dialog-font-size: var(--surface-role-glow-font-size);
+	--dialog-font-weight: var(--surface-role-glow-font-weight);
+	--dialog-letter-spacing: var(--surface-role-glow-letter-spacing);
+	--dialog-line-height: var(--surface-role-glow-line-height);
+}
+
+[data-kind="dialog"][data-slot="content"][data-variant="muted"] {
+	--dialog-background-color: var(--surface-role-muted-background-color);
+	--dialog-border-radius: var(--surface-role-muted-border-radius);
+	--dialog-box-shadow: var(--surface-role-muted-box-shadow);
+	--dialog-color: var(--surface-role-muted-color);
+	--dialog-border-color: var(--surface-role-muted-border-color);
+	--dialog-border-width: var(--surface-role-muted-border-width);
+	--dialog-opacity: var(--surface-role-muted-opacity);
+	--dialog-animation: var(--surface-role-muted-animation);
+	--dialog-transition-duration: var(--surface-role-muted-transition-duration);
+	--dialog-transition-timing-function: var(--surface-role-muted-transition-timing-function);
+	--dialog-gradient: var(--surface-role-muted-gradient);
+	--dialog-font-family: var(--surface-role-muted-font-family);
+	--dialog-font-size: var(--surface-role-muted-font-size);
+	--dialog-font-weight: var(--surface-role-muted-font-weight);
+	--dialog-letter-spacing: var(--surface-role-muted-letter-spacing);
+	--dialog-line-height: var(--surface-role-muted-line-height);
+}

@@ -17,7 +17,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const PRESETS_PATH = resolve(__dirname, "tokens/src/style-presets.json");
+const PRESETS_PATH = resolve(__dirname, "../../../src/lib/design/tokens/src/style-presets.json");
 const COMPONENTS_DIR = resolve(__dirname, "../../../../../packages/coldlight/components");
 const OUTPUT_PATH = resolve(__dirname, "../../../../../packages/coldlight/renderforge/generated/kind-families.ts");
 

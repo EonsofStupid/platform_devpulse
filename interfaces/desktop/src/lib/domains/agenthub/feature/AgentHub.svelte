@@ -21,6 +21,7 @@ import {
 } from "../data-access/history.state.svelte.js";
 import { HistoryRow } from "../ui/history-row/index.js";
 import { TranscriptReader } from "../ui/transcript-reader/index.js";
+import TicketFactory from "./TicketFactory.svelte";
 
 let query = $state("");
 let provider = $state<ProviderId | null>(null);
@@ -101,7 +102,11 @@ async function openChat() {
 			{/each}
 		</section>
 	{/if}
-	<div class="grid min-h-0 flex-1 grid-cols-1 gap-4 md:grid-cols-[minmax(16rem,22rem)_minmax(0,1fr)]">
+	<div class="min-h-0 flex-1 overflow-y-auto">
+	<TicketFactory projectId={projectsState.activeProjectId} />
+	<details class="mt-6" open={!!linkedConversation}>
+	<summary>Session library</summary>
+	<div class="grid min-h-[28rem] grid-cols-1 gap-4 md:grid-cols-[minmax(16rem,22rem)_minmax(0,1fr)]">
 		<aside aria-label="Session library" class="flex min-h-0 flex-col gap-3">
 			<div class="flex items-center justify-between gap-2"><Heading level={2} size="sm">Session library</Heading><Button variant="ghost" size="sm" disabled={historyState.loading || !projectsState.ready} onclick={() => void historyState.refresh()}>{historyState.loading ? "Refreshing…" : "Refresh"}</Button></div>
 			<SearchField value={query} onValueChange={(value) => { query = value; }} aria-label="Search sessions" placeholder="Search sessions or folders" />
@@ -123,5 +128,7 @@ async function openChat() {
 			</div>
 		</aside>
 		<TranscriptReader session={historyState.selected} providerName={historyState.selected ? providerName(historyState.selected.providerId) : ""} events={historyState.events} loading={historyState.pageLoading} error={historyState.pageError} hasOlder={historyState.nextCursor !== null} truncatedBefore={historyState.truncatedBefore} onOlder={() => void historyState.older()} onReload={() => { if (historyState.selected) void historyState.select(historyState.selected); }} />
+	</div>
+	</details>
 	</div>
 </div>

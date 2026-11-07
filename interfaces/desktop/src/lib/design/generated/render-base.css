@@ -1,0 +1,87 @@
+/**
+ * ColdLight Glue CSS — Family-Split Selectors
+ * Per MACRO-LAW.md Law 5.
+ *
+ * ═══════════════════════════════════════════════════════════════
+ * CANONICAL AXIS NAMES — must match resolve.ts EXACTLY
+ * ═══════════════════════════════════════════════════════════════
+ *
+ * Canonical names only. 20 axes. 6 families.
+ *
+ * Families:
+ *   [data-cl-surface]     — background-color, border-color, box-shadow, gradient
+ *   [data-cl-text]        — color, font-family, font-size, font-weight, tracking, leading
+ *   [data-cl-frame]       — border-radius, border-width, border-style
+ *   [data-cl-interactive] — cursor, focus, hover, disabled
+ *   [data-cl-layout]      — gap, flow
+ *   [data-cl-overlay]     — backdrop-filter, z-index
+ */
+
+/* ── Universal: every [data-kind] element ──────────────── */
+[data-kind] {
+  box-sizing: border-box;
+  transition-duration: var(--transition-duration, 150ms);
+  transition-timing-function: var(--transition-timing, ease-out);
+  transition-property: background-color, border-color, box-shadow, color, opacity, filter;
+  opacity: var(--opacity, 1);
+  animation: var(--animation, none);
+}
+
+/* ── Surface: background, borders, shadows ─────────────── */
+[data-cl-surface] {
+  background-color: var(--background-color, transparent);
+  border-color: var(--border-color, transparent);
+  box-shadow: var(--box-shadow, none);
+  background-image: var(--gradient, none);
+}
+
+/* ── Text: typography properties ───────────────────────── */
+[data-cl-text] {
+  color: var(--color, inherit);
+  font-family: var(--font-family, inherit);
+  font-size: var(--font-size, inherit);
+  font-weight: var(--font-weight, inherit);
+  letter-spacing: var(--tracking, 0);
+  line-height: var(--leading, inherit);
+}
+
+/* ── Frame: dimensional properties ─────────────────────── */
+[data-cl-frame] {
+  border-radius: var(--border-radius, 0);
+  border-width: var(--border-width, 0);
+  border-style: var(--border-style, solid);
+}
+
+/* ── Interactive: behavioral visual properties ─────────── */
+[data-cl-interactive] {
+  cursor: pointer;
+  outline-offset: var(--focus-offset, 2px);
+  -webkit-tap-highlight-color: transparent;
+}
+[data-cl-interactive]:focus-visible {
+  outline: 2px solid var(--focus-ring, currentColor);
+  outline-offset: var(--focus-offset, 2px);
+}
+[data-cl-interactive]:disabled,
+[data-cl-interactive][aria-disabled="true"] {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+[data-cl-interactive]:hover {
+  filter: var(--hover-filter, brightness(1.1));
+}
+[data-cl-interactive]:active {
+  filter: var(--active-filter, brightness(0.9));
+}
+
+/* ── Layout: spacing and flow ──────────────────────────── */
+[data-cl-layout] {
+  gap: var(--gap);
+}
+
+/* ── Overlay: layering and backdrop ────────────────────── */
+[data-cl-overlay] {
+  backdrop-filter: var(--backdrop-filter, none);
+  z-index: var(--z, auto);
+  isolation: isolate;
+}
